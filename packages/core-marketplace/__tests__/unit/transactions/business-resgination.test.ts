@@ -1,15 +1,9 @@
 import "jest-extended";
 
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessResignationBuilder } from "../../../src/builders";
 import { BusinessResignationTransaction } from "../../../src/transactions";
-
-const checkCommonFields = (deserialized: Interfaces.ITransaction, expected) => {
-    const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount", "nonce"];
-    for (const field of fieldsToCheck) {
-        expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
-    }
-};
+import { checkCommonFields } from "../helper";
 
 let builder: BusinessResignationBuilder;
 

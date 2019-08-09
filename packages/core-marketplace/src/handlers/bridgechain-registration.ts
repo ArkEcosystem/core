@@ -1,13 +1,16 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-import { BridgechainRegistrationAssetError, BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
+import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBridgechainRegistrationAsset, IBusinessWalletProperty } from "../interfaces";
+import { IBusinessWalletProperty } from "../interfaces";
 import { BridgechainRegistrationTransaction } from "../transactions";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
 export class BridgechainRegistrationTransactionHandler extends Handlers.TransactionHandler {
+
+    private static bridgechainNonce: number = 1000;
+
     public getConstructor(): Transactions.TransactionConstructor {
         return BridgechainRegistrationTransaction;
     }
@@ -17,6 +20,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        BridgechainRegistrationTransactionHandler.bridgechainNonce = 1000;
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -24,10 +28,11 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             if (!businessWalletProperty.bridgechains) {
                 businessWalletProperty.bridgechains = [];
             }
-
+            BridgechainRegistrationTransactionHandler.bridgechainNonce = BridgechainRegistrationTransactionHandler.bridgechainNonce + 1;
             businessWalletProperty.bridgechains.push({
                 bridgechain: transaction.data.asset.bridgechainRegistration,
                 registrationTransactionId: transaction.id,
+                bridgechainNonce: BridgechainRegistrationTransactionHandler.bridgechainNonce
             });
             wallet.setAttribute<IBusinessWalletProperty>("business", businessWalletProperty);
             walletManager.reindex(wallet);
@@ -41,16 +46,6 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        const bridgechainAsset: IBridgechainRegistrationAsset = transaction.data.asset.bridgechainRegistration;
-        if (
-            !bridgechainAsset.name ||
-            !bridgechainAsset.seedNodes ||
-            !bridgechainAsset.genesisHash ||
-            !bridgechainAsset.githubRepository
-        ) {
-            throw new BridgechainRegistrationAssetError();
-        }
-
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }
@@ -85,9 +80,11 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         if (!businessProperty.bridgechains) {
             businessProperty.bridgechains = [];
         }
+        BridgechainRegistrationTransactionHandler.bridgechainNonce = BridgechainRegistrationTransactionHandler.bridgechainNonce + 1;
         businessProperty.bridgechains.push({
             bridgechain: transaction.data.asset.bridgechainRegistration,
             registrationTransactionId: transaction.id,
+            bridgechainNonce: BridgechainRegistrationTransactionHandler.bridgechainNonce
         });
         sender.setAttribute<IBusinessWalletProperty>("business", businessProperty);
         walletManager.reindex(sender);
@@ -98,12 +95,13 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         walletManager: State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
-
+        BridgechainRegistrationTransactionHandler.bridgechainNonce = BridgechainRegistrationTransactionHandler.bridgechainNonce - 1;
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessProperty: IBusinessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
         businessProperty.bridgechains.filter(bridgechain => {
             return bridgechain.registrationTransactionId !== transaction.data.asset.registrationTransactionId;
         });
+
         walletManager.reindex(sender);
     }
 

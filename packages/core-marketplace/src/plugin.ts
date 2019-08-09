@@ -20,6 +20,7 @@ export const plugin: Container.IPluginDescriptor = {
             .info("Setting up wallet manager for business transaction types");
 
         const walletManager = app.resolvePlugin("database").walletManager;
+
         walletManager.registerIndex("byBusiness", (index: State.IWalletIndex, wallet: Wallets.Wallet): void => {
             if (wallet.hasAttribute("business") && wallet.publicKey) {
                 index.set(wallet.publicKey, wallet);

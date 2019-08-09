@@ -243,6 +243,8 @@ describe("should test marketplace transaction handlers", () => {
                 bridgechainRegistrationHandler.applyToSender(bridgechainRegistrationBuilded, walletManager),
             ).toResolve();
 
+            expect(senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[0].bridgechainNonce).toBe(1001);
+
             bridgechainRegistration
                 .bridgechainRegistrationAsset({
                     name: "secondCrypto",
@@ -259,6 +261,9 @@ describe("should test marketplace transaction handlers", () => {
             await expect(
                 bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager),
             ).toResolve();
+
+            expect(senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce).toBe(1002);
+
 
             const bridgechainResignation = bridgechainResignationBuilder
                 .businessResignationAsset(bridgechainRegistrationBuilded.id)

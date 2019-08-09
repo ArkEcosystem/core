@@ -46,6 +46,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
+
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }

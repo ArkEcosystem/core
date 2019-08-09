@@ -1,15 +1,10 @@
 import "jest-extended";
 
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import {  Managers, Transactions } from "@arkecosystem/crypto";
 import { BridgechainRegistrationBuilder } from "../../../src/builders";
 import { BridgechainRegistrationTransaction } from "../../../src/transactions";
+import { checkCommonFields } from "../helper";
 
-const checkCommonFields = (deserialized: Interfaces.ITransaction, expected) => {
-    const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount", "nonce"];
-    for (const field of fieldsToCheck) {
-        expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
-    }
-};
 
 let builder: BridgechainRegistrationBuilder;
 

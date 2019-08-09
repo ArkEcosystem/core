@@ -1,9 +1,9 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-import { BusinessAlreadyRegisteredError, BusinessRegistrationAssetError } from "../errors";
+import { BusinessAlreadyRegisteredError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessRegistrationAsset, IBusinessWalletProperty } from "../interfaces";
+import { IBusinessWalletProperty } from "../interfaces";
 import { BusinessRegistrationTransaction } from "../transactions";
 
 export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
@@ -36,11 +36,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        const businessAsset: IBusinessRegistrationAsset = transaction.data.asset.businessRegistration;
-        if (!businessAsset.name || !businessAsset.website) {
-            throw new BusinessRegistrationAssetError();
-        }
-
         if (wallet.hasAttribute("business") && wallet.getAttribute("business.isBusinessResigned") !== true) {
             throw new BusinessAlreadyRegisteredError();
         }

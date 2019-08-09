@@ -7,7 +7,7 @@ import {
 } from "../../src/builders";
 import { IBridgechainRegistrationAsset, IBusinessRegistrationAsset } from "../../src/interfaces";
 
-export class MarketplaceTrxFactory extends TransactionFactory {
+export class MarketplaceTransactionFactory extends TransactionFactory {
     public static businessRegistration(businessRegistrationAsset: IBusinessRegistrationAsset): TransactionFactory {
         const businessRegistrationBuilder = new BusinessRegistrationBuilder();
         businessRegistrationBuilder.businessRegistrationAsset(businessRegistrationAsset);

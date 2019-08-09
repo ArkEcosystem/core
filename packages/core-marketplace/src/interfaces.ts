@@ -31,5 +31,6 @@ export interface IBridgechainResignationAsset {
 export interface IBridgechainWalletProperty {
     bridgechain: IBridgechainRegistrationAsset;
     registrationTransactionId: string;
+    bridgechainNonce: number;
     isBridgechainResigned?: boolean;
 }
