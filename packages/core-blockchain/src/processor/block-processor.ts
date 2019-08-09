@@ -13,6 +13,7 @@ import {
     BlockHandler,
     ExceptionHandler,
     InvalidGeneratorHandler,
+    NonceOutOfOrderHandler,
     UnchainedHandler,
     VerificationFailedHandler,
 } from "./handlers";
@@ -39,6 +40,10 @@ export class BlockProcessor {
 
         if (!(await this.verifyBlock(block))) {
             return new VerificationFailedHandler(this.blockchain, block);
+        }
+
+        if (this.blockContainsOutOfOrderNonce(block)) {
+            return new NonceOutOfOrderHandler(this.blockchain, block);
         }
 
         const isValidGenerator: boolean = await validateGenerator(block);
@@ -108,6 +113,52 @@ export class BlockProcessor {
 
                 return true;
             }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a block's transactions violate nonce order.
+     * For a given sender, all v1 transactions must precede all v2 transactions.
+     * In addition, for a given sender, v2 transactions must have strictly
+     * increasing nonce without gaps.
+     */
+    private blockContainsOutOfOrderNonce(block: Interfaces.IBlock): boolean {
+        const latestNonceBySender = {};
+
+        for (const transaction of block.transactions) {
+            const data = transaction.data;
+
+            if (data.version < 2) {
+                if (latestNonceBySender[data.senderPublicKey] === undefined) {
+                    continue;
+                }
+
+                this.logger.warn(
+                    `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
+                    `not accepted: contains v2 transaction with nonce, followed by ` +
+                    `v1 transaction without nonce for sender ${data.senderPublicKey}.`,
+                );
+
+                return true;
+            }
+
+            const currentNonce = Utils.BigNumber.make(data.nonce);
+
+            if (latestNonceBySender[data.senderPublicKey] !== undefined &&
+                !latestNonceBySender[data.senderPublicKey].plus(1).isEqualTo(currentNonce)) {
+
+                this.logger.warn(
+                    `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
+                    `not accepted: transactions are out of order with respect to nonce ` +
+                    `for sender ${data.senderPublicKey}.`,
+                );
+
+                return true;
+            }
+
+            latestNonceBySender[data.senderPublicKey] = currentNonce;
         }
 
         return false;

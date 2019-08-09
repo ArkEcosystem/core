@@ -248,6 +248,24 @@ describe("Block processor", () => {
                 database.getActiveDelegates = getActiveDelegatesBackup;
             });
 
+            it("should reject a block with invalid nonce order", async () => {
+                const getActiveDelegatesBackup = database.getActiveDelegates;
+                database.getActiveDelegates = jest.fn(() => [delegates[0]]);
+
+                const transactions = TransactionFactory.transfer(delegates[1].address)
+                    .withNetwork("unitnet")
+                    .withPassphrase(delegates[0].passphrase)
+                    .create(2);
+
+                const block = BlockFactory.fromData(getBlock([transactions[1], transactions[0]]));
+                block.verification.verified = true;
+
+                const processResult = await blockProcessor.process(block);
+                expect(processResult).toBe(BlockProcessorResult.Rejected);
+
+                database.getActiveDelegates = getActiveDelegatesBackup;
+            });
+
             it("should 'discard but broadcast' a block higher than current height + 1", async () => {
                 const blockVerified = BlockFactory.fromData(getBlock([]));
                 blockVerified.verification.verified = true;
