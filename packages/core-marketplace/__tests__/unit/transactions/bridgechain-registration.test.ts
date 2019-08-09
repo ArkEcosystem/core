@@ -20,14 +20,10 @@ describe("Bridgechain registration ser/deser", () => {
             .bridgechainRegistrationAsset({
                 name: "name",
                 seedNodes: [
-                    {
-                        ipv4: "1.2.3.4",
-                        ipv6: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-                    },
-                    {
-                        ipv4: "1.2.3.5",
-                        ipv6: "2001:0db8:85a3:0000:0000:8a2e:0370:7332",
-                    },
+                    "1.2.3.4",
+                    "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+                    "1.2.3.5",
+                    "2001:0db8:85a3:0000:0000:8a2e:0370:7332",
                 ],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 githubRepository: "github",
@@ -47,34 +43,29 @@ describe("Bridgechain registration ser/deser", () => {
     });
 
     it("should ser/deserialize giving back original fieldss", () => {
-        const bridgechainRegistration = builder
-            .bridgechainRegistrationAsset({
-                name: "name",
-                seedNodes: [
-                    {
-                        ipv4: "1.2.3.4",
-                    },
-                    {
-                        ipv4: "1.2.3.3",
-                        ipv6: "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-                    },
-                ],
-                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                githubRepository: "github",
-            })
-            .fee("50000000")
-            .network(23)
-            .version(2)
-            .sign("passphrase")
-            .getStruct();
+         const bridgechainRegistration = builder
+             .bridgechainRegistrationAsset({
+                 name: "name",
+                 seedNodes: [
+                      "1.2.3.4",
+                      "1.2.3.3",
+                      "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
+                 ],
+                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                 githubRepository: "github",
+             })
+             .fee("50000000")
+             .network(23)
+             .sign("passphrase")
+             .getStruct();
 
-        const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString("hex");
-        const deserialized = Transactions.deserializer.deserialize(serialized);
+         const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString("hex");
+         const deserialized = Transactions.deserializer.deserialize(serialized);
 
-        checkCommonFields(deserialized, bridgechainRegistration);
+         checkCommonFields(deserialized, bridgechainRegistration);
 
-        expect(deserialized.data.asset.bridgechainRegistration.name).toBe(
-            bridgechainRegistration.asset.bridgechainRegistration.name,
-        );
+         expect(deserialized.data.asset.bridgechainRegistration.name).toBe(
+             bridgechainRegistration.asset.bridgechainRegistration.name,
+         );
     });
 });

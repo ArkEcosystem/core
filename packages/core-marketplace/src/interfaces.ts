@@ -14,14 +14,9 @@ export interface IBusinessWalletProperty {
 
 export interface IBridgechainRegistrationAsset {
     name: string;
-    seedNodes: ISeedNode[];
+    seedNodes: string[];
     genesisHash: string;
     githubRepository: string;
-}
-
-export interface ISeedNode {
-    ipv4: string;
-    ipv6?: string;
 }
 
 export interface IBridgechainResignationAsset {

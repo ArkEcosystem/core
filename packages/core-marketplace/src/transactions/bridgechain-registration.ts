@@ -1,6 +1,6 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import { IBridgechainRegistrationAsset, ISeedNode } from "../interfaces";
+import { IBridgechainRegistrationAsset } from "../interfaces";
 import {
     MarketplaceTransactionsGroup,
     MarketplaceTransactionStaticFees,
@@ -37,27 +37,23 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                 },
                                 seedNodes: {
                                     type: "array",
-                                    if: { items: { properties: { ipv6: { type: "null" } } } },
-                                    then: { uniqueItemProperties: ["ipv4"] },
-                                    else: { uniqueItemProperties: ["ipv4", "ipv6"] },
+                                    uniqueItemProperties: ["ip"],
                                     items: {
-                                        type: "object",
-                                        required: ["ipv4"],
+                                        type: "string",
+                                        required: ["ip"],
                                         properties: {
-                                            ipv4: {
-                                                type: "string",
-                                                format: "ipv4",
-                                            },
-                                            ipv6: {
+                                            ip: {
                                                 oneOf: [
                                                     {
                                                         type: "string",
-                                                        format: "ipv6",
+                                                        format: "ipv4"
                                                     },
                                                     {
-                                                        type: "null",
-                                                    },
+                                                        type: "string",
+                                                        format: "ipv6"
+                                                    }
                                                 ],
+
                                             },
                                         },
                                     },
@@ -85,28 +81,18 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const { data } = this;
 
         const bridgechainRegistrationAsset = data.asset.bridgechainRegistration as IBridgechainRegistrationAsset;
-        const seedNodes: ISeedNode[] = bridgechainRegistrationAsset.seedNodes;
-        const seedNodesBuffers: Array<{ ipv4: Buffer; ipv6?: Buffer }> = [];
+        const seedNodes: string[] = bridgechainRegistrationAsset.seedNodes;
+        const seedNodesBuffers: Buffer[] = [];
         let seedNodesBuffersLength = 0;
 
         const bridgechainName: Buffer = Buffer.from(bridgechainRegistrationAsset.name, "utf8");
 
         for (const seed of seedNodes) {
-            let ipv6Buf: Buffer;
-            let ipv6Length = 0;
-            const ipv4Buf = Buffer.from(seed.ipv4, "utf8");
-
-            if (seed.ipv6) {
-                ipv6Buf = Buffer.from(seed.ipv6, "utf8");
-                ipv6Length = ipv6Buf.length;
-            }
-            seedNodesBuffers.push({
-                ipv4: ipv4Buf,
-                ipv6: ipv6Buf,
-            });
-
-            seedNodesBuffersLength = seedNodesBuffersLength + ipv4Buf.length + ipv6Length;
+            const seedBuf = Buffer.from(seed,"utf8");
+            seedNodesBuffersLength = seedNodesBuffersLength + seedBuf.length;
+            seedNodesBuffers.push(seedBuf);
         }
+        seedNodesBuffersLength = seedNodesBuffersLength + seedNodesBuffers.length;
 
         const bridgechainGenesisHash: Buffer = Buffer.from(bridgechainRegistrationAsset.genesisHash, "utf8");
 
@@ -114,7 +100,6 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         const buffer: ByteBuffer = new ByteBuffer(
             bridgechainName.length +
-                seedNodesBuffers.length * 2 +
                 seedNodesBuffersLength +
                 bridgechainGenesisHash.length +
                 bridgechainGithubRepo.length +
@@ -127,15 +112,8 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         buffer.writeByte(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {
-            buffer.writeByte(seedBuf.ipv4.length);
-            buffer.append(seedBuf.ipv4);
-
-            if (seedBuf.ipv6) {
-                buffer.writeByte(seedBuf.ipv6.length);
-                buffer.append(seedBuf.ipv6);
-            } else {
-                buffer.writeByte(0);
-            }
+            buffer.writeByte(seedBuf.length);
+            buffer.append(seedBuf);
         }
 
         buffer.writeByte(bridgechainGenesisHash.length);
@@ -149,26 +127,16 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        const seedNodes: ISeedNode[] = [];
+        const seedNodes: string[] = [];
 
         const nameLength = buf.readUint8();
         const name = buf.readString(nameLength);
 
-        const seedNodesLen = buf.readUint8();
-        for (let i = 0; i < seedNodesLen; i++) {
-            const ipv4Length = buf.readUint8();
-            const ipv4 = buf.readString(ipv4Length);
-
-            const ipv6Length = buf.readUint8();
-            let ipv6;
-            if (ipv6Length !== 0) {
-                ipv6 = buf.readString(ipv6Length);
-            }
-
-            seedNodes.push({
-                ipv4,
-                ipv6,
-            });
+        const seedNodesLength = buf.readUint8();
+        for (let i = 0; i < seedNodesLength; i++) {
+            const ipLength = buf.readUint8();
+            const ip = buf.readString(ipLength);
+            seedNodes.push(ip);
         }
 
         const genesisHashLength = buf.readUint8();
