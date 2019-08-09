@@ -13,8 +13,8 @@ describe("Bridgechain resignation builder", () => {
     beforeEach(() => {
         builder = new BridgechainResignationBuilder();
     });
-    describe("test", () => {
-        it("should test ", () => {
+    describe("should test verification", () => {
+        it("should be true", () => {
             const actual = builder
                 .businessResignationAsset("127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935")
                 .sign("passphrase");

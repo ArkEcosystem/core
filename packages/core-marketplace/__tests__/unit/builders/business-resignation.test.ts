@@ -14,8 +14,8 @@ describe("Business resignation builder", () => {
         builder = new BusinessResignationBuilder();
     });
 
-    describe("test", () => {
-        it("should test ", () => {
+    describe("should test verification", () => {
+        it("should be true", () => {
             const actual = builder.sign("passphrase");
             expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
