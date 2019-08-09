@@ -53,6 +53,7 @@ export class MockSocketManager {
     }
 
     public stopServer() {
+        this.clientSocket.destroy();
         return this.serverProcess.kill();
     }
 }
