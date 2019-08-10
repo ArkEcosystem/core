@@ -89,8 +89,6 @@ describe("should test marketplace transaction handlers", () => {
             expect(currentSenderWallet.businessAsset).toStrictEqual({
                 name: "businessName",
                 website: "www.website.com",
-                vat: undefined,
-                github: undefined,
             });
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);

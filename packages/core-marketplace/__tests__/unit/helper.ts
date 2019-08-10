@@ -1,13 +1,20 @@
 import "jest-extended";
 
 import { Interfaces } from "@arkecosystem/crypto";
-import { IBridgechainRegistrationAsset } from "../../src/interfaces";
+import { IBridgechainRegistrationAsset, IBusinessRegistrationAsset } from "../../src/interfaces";
 
 export const checkCommonFields = (deserialized: Interfaces.ITransaction, expected) => {
     const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount", "nonce"];
     for (const field of fieldsToCheck) {
         expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
     }
+};
+
+// Business registration assets
+
+export const businessRegistrationAsset1: IBusinessRegistrationAsset = {
+    name: "google",
+    website: "www.google.com",
 };
 
 // Bridgechain registration assets

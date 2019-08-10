@@ -138,23 +138,25 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
         const websiteLength = buf.readUint8();
         const website = buf.readString(websiteLength);
 
+        const businessRegistration: IBusinessRegistrationAsset = {
+            name,
+            website,
+        };
+
         const vatLength = buf.readUint8();
         if (vatLength !== 0) {
             vat = buf.readString(vatLength);
+            businessRegistration.vat = vat;
         }
 
         const gitHubLength = buf.readUint8();
         if (gitHubLength !== 0) {
             github = buf.readString(gitHubLength);
+            businessRegistration.github = github;
         }
 
         data.asset = {
-            businessRegistration: {
-                name,
-                website,
-                vat,
-                github,
-            },
+            businessRegistration,
         };
     }
 }

@@ -3,9 +3,7 @@ import "jest-extended";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessRegistrationBuilder } from "../../../src/builders";
 import { BusinessRegistrationTransaction } from "../../../src/transactions";
-import { checkCommonFields } from "../helper";
-
-
+import { businessRegistrationAsset1, checkCommonFields } from "../helper";
 
 let builder: BusinessRegistrationBuilder;
 
@@ -19,12 +17,8 @@ describe("Business registration ser/deser", () => {
     });
     it("should ser/deserialize giving back original fields", () => {
         const businessRegistration = builder
-            .businessRegistrationAsset({
-                name: "businessName",
-                website: "www.website.com",
-            })
+            .businessRegistrationAsset(businessRegistrationAsset1)
             .network(23)
-            .version(2)
             .sign("passphrase")
             .getStruct();
 
@@ -33,17 +27,6 @@ describe("Business registration ser/deser", () => {
 
         checkCommonFields(deserialized, businessRegistration);
 
-        expect(deserialized.data.asset.businessRegistration.name).toBe(
-            businessRegistration.asset.businessRegistration.name,
-        );
-        expect(deserialized.data.asset.businessRegistration.website).toBe(
-            businessRegistration.asset.businessRegistration.website,
-        );
-        expect(deserialized.data.asset.businessRegistration.vat).toBe(
-            businessRegistration.asset.businessRegistration.vat,
-        );
-        expect(deserialized.data.asset.businessRegistration.github).toBe(
-            businessRegistration.asset.businessRegistration.github,
-        );
+        expect(deserialized.data.asset.businessRegistration).toStrictEqual(businessRegistrationAsset1);
     });
 });
