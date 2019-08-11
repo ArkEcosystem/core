@@ -5,7 +5,7 @@ export enum MarketplaceTransactionTypes {
     BridgechainResignation = 14,
 }
 
-export const MarketplaceTransactionsGroup = 100;
+export const MarketplaceTransactionsGroup = 1;
 
 export enum MarketplaceTransactionStaticFees {
     BusinessRegistration = "5000000000",

@@ -39,7 +39,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                     type: "array",
                                     maxItems: 15,
                                     minItems: 1,
-                                    uniqueItemProperties: ["ip"],
+                                    uniqueItems: true,
                                     items: {
                                         type: "string",
                                         required: ["ip"],

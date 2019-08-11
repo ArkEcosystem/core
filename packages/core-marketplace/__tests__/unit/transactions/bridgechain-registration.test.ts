@@ -1,51 +1,217 @@
 import "jest-extended";
 
-import { Managers, Transactions } from "@arkecosystem/crypto";
+import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
 import { BridgechainRegistrationBuilder } from "../../../src/builders";
 import { BridgechainRegistrationTransaction } from "../../../src/transactions";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, checkCommonFields } from "../helper";
 
 let builder: BridgechainRegistrationBuilder;
 
-describe("Bridgechain registration ser/deser", () => {
+describe("Bridgechain registration transaction", () => {
     Managers.configManager.setFromPreset("testnet");
     Transactions.TransactionRegistry.registerTransactionType(BridgechainRegistrationTransaction);
 
     beforeEach(() => {
         builder = new BridgechainRegistrationBuilder();
     });
-    it("should ser/deserialize giving back original fields", () => {
-        const bridgechainRegistration = builder
-            .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-            .network(23)
-            .sign("passphrase")
-            .getStruct();
 
-        const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString("hex");
-        const deserialized = Transactions.deserializer.deserialize(serialized);
+    describe("Ser/deser", () => {
+        it("should ser/deserialize giving back original fields", () => {
+            const bridgechainRegistration = builder
+                .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
+                .network(23)
+                .sign("passphrase")
+                .getStruct();
 
-        checkCommonFields(deserialized, bridgechainRegistration);
+            const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString(
+                "hex",
+            );
+            const deserialized = Transactions.deserializer.deserialize(serialized);
 
-        expect(deserialized.data.asset.bridgechainRegistration.name).toBe(
-            bridgechainRegistration.asset.bridgechainRegistration.name,
-        );
+            checkCommonFields(deserialized, bridgechainRegistration);
+
+            expect(deserialized.data.asset.bridgechainRegistration).toStrictEqual(
+                bridgechainRegistration.asset.bridgechainRegistration,
+            );
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const bridgechainRegistration = builder
+                .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
+                .network(23)
+                .sign("passphrase")
+                .getStruct();
+
+            const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString(
+                "hex",
+            );
+            const deserialized = Transactions.deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, bridgechainRegistration);
+
+            expect(deserialized.data.asset.bridgechainRegistration).toStrictEqual(
+                bridgechainRegistration.asset.bridgechainRegistration,
+            );
+        });
     });
 
-    it("should ser/deserialize giving back original fieldss", () => {
-        const bridgechainRegistration = builder
-            .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
-            .fee("50000000")
-            .network(23)
-            .sign("passphrase")
-            .getStruct();
+    describe("Schema tests", () => {
+        let transactionSchema;
 
-        const serialized = Transactions.TransactionFactory.fromData(bridgechainRegistration).serialized.toString("hex");
-        const deserialized = Transactions.deserializer.deserialize(serialized);
+        beforeAll(() => {
+            transactionSchema = BridgechainRegistrationTransaction.getSchema();
+        });
 
-        checkCommonFields(deserialized, bridgechainRegistration);
+        it("should not throw any error", () => {
+            const bridgechainRegistration = builder
+                .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
+                .sign("passphrase");
 
-        expect(deserialized.data.asset.bridgechainRegistration.name).toBe(
-            bridgechainRegistration.asset.bridgechainRegistration.name,
-        );
+            const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            expect(error).toBeUndefined();
+        });
+
+        it("should not throw any error", () => {
+            const bridgechainRegistration = builder
+                .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
+                .sign("passphrase");
+
+            const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            expect(error).toBeUndefined();
+        });
+
+        describe("should test edge cases of bridgechain name", () => {
+            it("should fail because name should not be empty (at least 1 char)", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        githubRepository: "www.github.com/google/syzkaller",
+                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should fail because name should had max 40 char", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "this_string_is_41_chars_long_string41,41*",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        githubRepository: "www.github.com/google/syzkaller",
+                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+        });
+
+        describe("should test edge cases of bridgechain genesisHash", () => {
+            it("should fail because genesisHash is to short (63chars) ", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26",
+                        githubRepository: "www.github.com/google/syzkaller",
+                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should fail because genesisHash is to long (65chars) ", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f+",
+                        githubRepository: "www.github.com/google/syzkaller",
+                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+        });
+
+        describe("should test edge cases of bridgechain githubRepository", () => {
+            it("should fail duo to empty string", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        githubRepository: "",
+                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should fail duo to to big repository, max 100 chars", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        githubRepository: "a".repeat(101),
+                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+        });
+
+        describe("should test edge cases for seedNodes", () => {
+            it("should had at least one item (ip)", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        githubRepository: "www.github.com/google/syzkaller",
+                        seedNodes: [],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should not accept duplicates", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        githubRepository: "www.github.com/google/syzkaller",
+                        seedNodes: ["66.102.0.0", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should not accept duplicates", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        githubRepository: "www.github.com/google/syzkaller",
+                        seedNodes: ["2001:4860:4860::8844", "2001:4860:4860::8844"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+        });
     });
 });
