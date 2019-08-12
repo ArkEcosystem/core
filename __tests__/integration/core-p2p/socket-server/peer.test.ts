@@ -71,8 +71,9 @@ describe("Peer socket endpoint", () => {
             expect(data.state.height).toBe(1);
         });
 
-        describe("postBlock", async () => {
+        describe("postBlock", () => {
             it("should postBlock successfully", async () => {
+                await delay(1000);
                 const { data } = await emit("p2p.peer.postBlock", {
                     data: { block: Blocks.BlockFactory.fromData(genesisBlock).toJson() },
                     headers,
@@ -81,9 +82,8 @@ describe("Peer socket endpoint", () => {
                 expect(data).toEqual({});
             });
 
-            await delay(1000);
-
             it("should throw validation error when sending wrong data", async () => {
+                await delay(1000);
                 await expect(
                     emit("p2p.peer.postBlock", {
                         data: {},

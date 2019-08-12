@@ -20,6 +20,19 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return [];
     }
 
+    public walletAttributes(): ReadonlyArray<string> {
+        return [
+            "delegate",
+            "delegate.lastBlock",
+            "delegate.rank",
+            "delegate.round",
+            "delegate.username",
+            "delegate.voteBalance",
+            "delegate.forgedTotal",
+            "delegate.approval",
+        ];
+    }
+
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         const forgedBlocks = await connection.blocksRepository.getDelegatesForgedBlocks();
