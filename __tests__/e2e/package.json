@@ -18,7 +18,7 @@
         "testURL": "http://localhost"
     },
     "dependencies": {
-        "axios": "^0.18.0",
+        "axios": "^0.19.0",
         "bip39": "^2.5.0",
         "commander": "^2.16.0",
         "delay": "^3.0.0",
