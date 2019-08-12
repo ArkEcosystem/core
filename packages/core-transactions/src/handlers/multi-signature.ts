@@ -17,6 +17,10 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return [];
     }
 
+    public walletAttributes(): ReadonlyArray<string> {
+        return ["multiSignature"];
+    }
+
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 

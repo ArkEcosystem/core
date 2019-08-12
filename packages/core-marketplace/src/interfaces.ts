@@ -7,7 +7,8 @@ export interface IBusinessRegistrationAsset {
 
 export interface IBusinessWalletProperty {
     businessAsset: IBusinessRegistrationAsset;
-    isBusinessResigned?: boolean;
+    transactionId: string;
+    resigned?: boolean;
     bridgechains?: IBridgechainWalletProperty[];
 }
 
@@ -25,6 +26,6 @@ export interface IBridgechainResignationAsset {
 export interface IBridgechainWalletProperty {
     bridgechain: IBridgechainRegistrationAsset;
     registrationTransactionId: string;
-    bridgechainNonce: number;
-    isBridgechainResigned?: boolean;
+    bridgechainNonce?: number;
+    resigned?: boolean;
 }

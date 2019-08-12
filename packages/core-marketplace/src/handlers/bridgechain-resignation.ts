@@ -21,6 +21,14 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         return [BridgechainRegistrationTransactionHandler];
     }
 
+    public walletAttributes(): ReadonlyArray<string> {
+        return ["business.bridgechians.bridgechian.resigned"];
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
+    }
+
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
@@ -31,27 +39,24 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
                     bridgechain.registrationTransactionId ===
                     transaction.data.asset.bridgechainResignation.registeredBridgechainId
                 ) {
-                    bridgechain.isBridgechainResigned = true;
+                    bridgechain.resigned = true;
                 }
             });
             wallet.setAttribute<IBusinessWalletProperty>("business", businessWalletProperty);
             walletManager.reindex(wallet);
         }
     }
-    public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
-    }
+
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }
         const businessWalletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
-        if (businessWalletProperty.isBusinessResigned) {
+        if (businessWalletProperty.resigned) {
             throw new BusinessIsNotRegisteredError();
         }
 
@@ -65,7 +70,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
             throw new BridgechainIsNotRegisteredError();
         }
 
-        if (hasBridgechain.isBridgechainResigned) {
+        if (hasBridgechain.resigned) {
             throw new BridgechainIsResignedError();
         }
 
@@ -106,7 +111,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
                 bridgechain.registrationTransactionId ===
                 transaction.data.asset.bridgechainResignation.registeredBridgechainId
             ) {
-                bridgechain.isBridgechainResigned = true;
+                bridgechain.resigned = true;
             }
         });
     }
@@ -124,7 +129,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
                 bridgechain.registrationTransactionId ===
                 transaction.data.asset.bridgechainResignation.registeredBridgechainId
             ) {
-                bridgechain.isBridgechainResigned = false;
+                bridgechain.resigned = false;
             }
         });
     }

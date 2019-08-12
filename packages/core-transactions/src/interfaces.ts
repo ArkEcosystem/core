@@ -7,6 +7,8 @@ export interface ITransactionHandler {
 
     dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
 
+    walletAttributes(): ReadonlyArray<string>;
+
     bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void>;
 
     isActivated(): Promise<boolean>;

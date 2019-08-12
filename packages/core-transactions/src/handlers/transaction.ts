@@ -22,6 +22,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public abstract dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
 
+    public abstract walletAttributes(): ReadonlyArray<string>;
+
     /**
      * Wallet logic
      */
