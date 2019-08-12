@@ -4,38 +4,21 @@ import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
+import { BusinessRegistrationBuilder, BusinessResignationBuilder } from "../../../src/builders";
 import {
-    BridgechainRegistrationBuilder,
-    BridgechainResignationBuilder,
-    BusinessRegistrationBuilder,
-    BusinessResignationBuilder,
-} from "../../../src/builders";
-import {
-    BridgechainIsResignedError,
     BusinessAlreadyRegisteredError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
-    WalletIsNotBusinessError,
 } from "../../../src/errors";
-import {
-    BridgechainRegistrationTransactionHandler,
-    BridgechainResignationTransactionHandler,
-    BusinessRegistrationTransactionHandler,
-    BusinessResignationTransactionHandler,
-} from "../../../src/handlers";
+import { BusinessRegistrationTransactionHandler, BusinessResignationTransactionHandler } from "../../../src/handlers";
 import { IBusinessWalletProperty } from "../../../src/interfaces";
-import { bridgechainIndexer, businessIndexer } from "../../../src/wallet-manager";
-import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
+import { businessIndexer } from "../../../src/wallet-manager";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
-let bridgechainRegistrationHandler: Handlers.TransactionHandler;
-let bridgechainResignationHandler: Handlers.TransactionHandler;
 
 let businessRegistrationBuilder: BusinessRegistrationBuilder;
 let businessResignationBuilder: BusinessResignationBuilder;
-let bridgechianRegistrationBuilder: BridgechainRegistrationBuilder;
-let bridgechainResignationBuilder: BridgechainResignationBuilder;
 
 let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
@@ -45,23 +28,16 @@ describe("should test marketplace transaction handlers", () => {
 
     Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
     Handlers.Registry.registerTransactionHandler(BusinessResignationTransactionHandler);
-    Handlers.Registry.registerTransactionHandler(BridgechainRegistrationTransactionHandler);
-    Handlers.Registry.registerTransactionHandler(BridgechainResignationTransactionHandler);
 
     beforeEach(() => {
         businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
         businessResignationHandler = new BusinessResignationTransactionHandler();
-        bridgechainRegistrationHandler = new BridgechainRegistrationTransactionHandler();
-        bridgechainResignationHandler = new BridgechainResignationTransactionHandler();
 
         businessRegistrationBuilder = new BusinessRegistrationBuilder();
         businessResignationBuilder = new BusinessResignationBuilder();
-        bridgechianRegistrationBuilder = new BridgechainRegistrationBuilder();
-        bridgechainResignationBuilder = new BridgechainResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex("byBusiness", businessIndexer);
-        walletManager.registerIndex("byBridgechain", bridgechainIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make(4527654310);
@@ -182,72 +158,6 @@ describe("should test marketplace transaction handlers", () => {
             await expect(
                 businessResignationHandler.applyToSender(businessResignation.build(), walletManager),
             ).rejects.toThrowError(BusinessIsResignedError);
-        });
-    });
-
-    describe("should test bridgechain registration handler", () => {
-        it("should fail, because business is not registered", async () => {
-            const actual = bridgechianRegistrationBuilder
-                .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-                .fee("50000000")
-                .nonce("1")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-
-            await expect(
-                bridgechainRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-            ).rejects.toThrowError(WalletIsNotBusinessError);
-        });
-
-        it("should pass, because business is registered", async () => {
-            const businessRegistration = businessRegistrationBuilder
-                .businessRegistrationAsset({
-                    name: "businessName",
-                    website: "www.website.com",
-                })
-                .fee("50000000")
-                .nonce("1")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-            await businessRegistrationHandler.applyToSender(businessRegistration.build(), walletManager);
-
-            const bridgechainRegistration = bridgechianRegistrationBuilder
-                .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-                .fee("50000000")
-                .nonce("2")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-
-            const bridgechainRegistrationBuilded = bridgechainRegistration.build();
-
-            await expect(
-                bridgechainRegistrationHandler.applyToSender(bridgechainRegistrationBuilded, walletManager),
-            ).toResolve();
-
-            expect(
-                senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[0].bridgechainNonce,
-            ).toBe(1001);
-
-            bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
-            await expect(
-                bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager),
-            ).toResolve();
-
-            expect(
-                senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce,
-            ).toBe(1002);
-
-            const bridgechainResignation = bridgechainResignationBuilder
-                .businessResignationAsset(bridgechainRegistrationBuilded.id)
-                .fee("50000000")
-                .nonce("4")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-
-            await expect(
-                bridgechainResignationHandler.applyToSender(bridgechainResignation.build(), walletManager),
-            ).toResolve();
-
-            bridgechainResignation.nonce("5");
-            await expect(
-                bridgechainResignationHandler.applyToSender(bridgechainResignation.build(), walletManager),
-            ).rejects.toThrowError(BridgechainIsResignedError);
         });
     });
 });
