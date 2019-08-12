@@ -38,15 +38,15 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
                                 },
                                 website: {
                                     type: "string",
-                                    minLength: 3,
+                                    minLength: 4,
                                     maxLength: 50,
                                 },
                                 vat: {
                                     oneOf: [
                                         {
                                             type: "string",
-                                            minLength: 10,
-                                            maxLength: 10,
+                                            minLength: 8,
+                                            maxLength: 15,
                                         },
                                         {
                                             type: "null",

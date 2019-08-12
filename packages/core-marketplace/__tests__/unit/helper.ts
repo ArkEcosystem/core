@@ -17,6 +17,19 @@ export const businessRegistrationAsset1: IBusinessRegistrationAsset = {
     website: "www.google.com",
 };
 
+export const businessRegistrationAsset2: IBusinessRegistrationAsset = {
+    name: "google",
+    website: "www.google.com",
+    vat: "123456789",
+};
+
+export const businessRegistrationAsset3: IBusinessRegistrationAsset = {
+    name: "google",
+    website: "www.google.com",
+    vat: "123456789",
+    github: "www.github.com/arkecosystem",
+};
+
 // Bridgechain registration assets
 export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     name: "google",
