@@ -125,40 +125,34 @@ export class BlockProcessor {
      * increasing nonce without gaps.
      */
     private blockContainsOutOfOrderNonce(block: Interfaces.IBlock): boolean {
-        const latestNonceBySender = {};
+        const nonceBySender = {};
 
         for (const transaction of block.transactions) {
             const data = transaction.data;
 
             if (data.version < 2) {
-                if (latestNonceBySender[data.senderPublicKey] === undefined) {
-                    continue;
-                }
+                continue;
+            }
 
+            const sender: string = data.senderPublicKey;
+
+            if (nonceBySender[sender] === undefined) {
+                nonceBySender[sender] = this.blockchain.database.walletManager.getNonce(sender);
+            }
+
+            const currentTransactionNonce = Utils.BigNumber.make(data.nonce);
+
+            if (!nonceBySender[sender].plus(1).isEqualTo(currentTransactionNonce)) {
                 this.logger.warn(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
-                    `not accepted: contains v2 transaction with nonce, followed by ` +
-                    `v1 transaction without nonce for sender ${data.senderPublicKey}.`,
+                    `not accepted: invalid nonce order for sender ${sender}: ` +
+                    `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
+                    `transaction ${data.id} has nonce ${currentTransactionNonce.toFixed()}.`,
                 );
-
                 return true;
             }
 
-            const currentNonce = Utils.BigNumber.make(data.nonce);
-
-            if (latestNonceBySender[data.senderPublicKey] !== undefined &&
-                !latestNonceBySender[data.senderPublicKey].plus(1).isEqualTo(currentNonce)) {
-
-                this.logger.warn(
-                    `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
-                    `not accepted: transactions are out of order with respect to nonce ` +
-                    `for sender ${data.senderPublicKey}.`,
-                );
-
-                return true;
-            }
-
-            latestNonceBySender[data.senderPublicKey] = currentNonce;
+            nonceBySender[sender] = currentTransactionNonce;
         }
 
         return false;
