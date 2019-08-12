@@ -16,19 +16,23 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         return [BusinessRegistrationTransactionHandler];
     }
 
+    public walletAttributes(): readonly string[] {
+        return [];
+    }
+
+    public async isActivated(): Promise<boolean> {
+        return !!Managers.configManager.getMilestone().aip11;
+    }
+
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const walletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
-            walletProperty.isBusinessResigned = true;
+            walletProperty.resigned = true;
             wallet.setAttribute<IBusinessWalletProperty>("business", walletProperty);
             walletManager.reindex(wallet);
         }
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public async throwIfCannotBeApplied(
@@ -40,7 +44,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
             throw new BusinessIsNotRegisteredError();
         }
 
-        if (wallet.getAttribute<IBusinessWalletProperty>("business").isBusinessResigned) {
+        if (wallet.getAttribute<IBusinessWalletProperty>("business").resigned) {
             throw new BusinessIsResignedError();
         }
 
@@ -75,7 +79,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.setAttribute("business.isBusinessResigned", true);
+        sender.setAttribute("business.resigned", true);
         walletManager.reindex(sender);
     }
 
@@ -86,7 +90,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.setAttribute("business.isBusinessResigned", false);
+        sender.setAttribute("business.resigned", false);
         walletManager.reindex(sender);
     }
 

@@ -1,17 +1,21 @@
 import "jest-extended";
 
 import { Wallets } from "@arkecosystem/core-state";
+import { Handlers } from "@arkecosystem/core-transactions";
+import { BusinessRegistrationTransactionHandler } from "../../src/handlers";
 import { IBusinessWalletProperty } from "../../src/interfaces";
 
 describe("should test wallet", () => {
     it("should return the same data as added", () => {
+        Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
         const senderWallet: Wallets.Wallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         const businessProperty: IBusinessWalletProperty = {
             businessAsset: {
                 name: "google",
                 website: "www.google.com",
             },
-            isBusinessResigned: false,
+            resigned: false,
+            transactionId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
             bridgechains: [
                 {
                     registrationTransactionId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
@@ -30,8 +34,17 @@ describe("should test wallet", () => {
                 },
             ],
         };
-        senderWallet.setAttribute("business", businessProperty);
+        senderWallet.setAttribute<IBusinessWalletProperty>("business", businessProperty);
         const senderWalletData = senderWallet.getAttribute<IBusinessWalletProperty>("business");
         expect(senderWalletData).toStrictEqual(businessProperty);
+    });
+
+    describe("should test wallet attributes for BusinessRegistrationTransactionHandler", () => {
+        Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
+        const senderWallet: Wallets.Wallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
+
+        it("should not throw, because of correct attributes", () => {
+            expect(() => senderWallet.setAttribute("business", "test")).not.toThrow();
+        });
     });
 });

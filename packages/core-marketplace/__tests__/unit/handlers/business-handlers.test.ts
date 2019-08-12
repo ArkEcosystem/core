@@ -24,6 +24,7 @@ import {
     BusinessResignationTransactionHandler,
 } from "../../../src/handlers";
 import { IBusinessWalletProperty } from "../../../src/interfaces";
+import { bridgechainIndexer, businessIndexer } from "../../../src/wallet-manager";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
@@ -59,11 +60,9 @@ describe("should test marketplace transaction handlers", () => {
         bridgechainResignationBuilder = new BridgechainResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
-        walletManager.registerIndex("byBusiness", (index: State.IWalletIndex, wallet: Wallets.Wallet): void => {
-            if (wallet.hasAttribute("business") && wallet.publicKey) {
-                index.set(wallet.publicKey, wallet);
-            }
-        });
+        walletManager.registerIndex("byBusiness", businessIndexer);
+        walletManager.registerIndex("byBridgechain", bridgechainIndexer);
+
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make(4527654310);
         senderWallet.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
