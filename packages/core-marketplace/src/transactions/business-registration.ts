@@ -6,6 +6,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionTypes,
 } from "../marketplace-transactions";
+import { businessProperties } from "./business-schema";
 
 const { schemas } = Transactions;
 
@@ -30,42 +31,7 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
                         businessRegistration: {
                             type: "object",
                             required: ["name", "website"],
-                            properties: {
-                                name: {
-                                    type: "string",
-                                    minLength: 1,
-                                    maxLength: 40,
-                                },
-                                website: {
-                                    type: "string",
-                                    minLength: 4,
-                                    maxLength: 50,
-                                },
-                                vat: {
-                                    oneOf: [
-                                        {
-                                            type: "string",
-                                            minLength: 8,
-                                            maxLength: 15,
-                                        },
-                                        {
-                                            type: "null",
-                                        },
-                                    ],
-                                },
-                                github: {
-                                    oneOf: [
-                                        {
-                                            type: "string",
-                                            minLength: 11,
-                                            maxLength: 50,
-                                        },
-                                        {
-                                            type: "null",
-                                        },
-                                    ],
-                                },
-                            },
+                            properties: businessProperties,
                         },
                     },
                 },

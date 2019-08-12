@@ -7,6 +7,7 @@ import {
     BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
+    BusinessUpdateTransactionHandler,
 } from "./handlers";
 import { bridgechainIndexer, businessIndexer } from "./wallet-manager";
 
@@ -25,6 +26,7 @@ export const plugin: Container.IPluginDescriptor = {
         logger.info("Registering marketplace transaction handlers");
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BusinessResignationTransactionHandler);
+        Handlers.Registry.registerTransactionHandler(BusinessUpdateTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BridgechainRegistrationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BridgechainResignationTransactionHandler);
     },

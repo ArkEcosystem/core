@@ -5,6 +5,13 @@ export interface IBusinessRegistrationAsset {
     github?: string;
 }
 
+export interface IBusinessUpdateAsset {
+    name?: string;
+    website?: string;
+    vat?: string;
+    github?: string;
+}
+
 export interface IBusinessWalletProperty {
     businessAsset: IBusinessRegistrationAsset;
     transactionId: string;

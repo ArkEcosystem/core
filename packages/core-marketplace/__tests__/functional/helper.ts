@@ -4,8 +4,9 @@ import {
     BridgechainResignationBuilder,
     BusinessRegistrationBuilder,
     BusinessResignationBuilder,
+    BusinessUpdateBuilder,
 } from "../../src/builders";
-import { IBridgechainRegistrationAsset, IBusinessRegistrationAsset } from "../../src/interfaces";
+import { IBridgechainRegistrationAsset, IBusinessRegistrationAsset, IBusinessUpdateAsset } from "../../src/interfaces";
 
 export class MarketplaceTransactionFactory extends TransactionFactory {
     public static businessRegistration(businessRegistrationAsset: IBusinessRegistrationAsset): TransactionFactory {
@@ -16,6 +17,12 @@ export class MarketplaceTransactionFactory extends TransactionFactory {
 
     public static businessResignation(): TransactionFactory {
         return new TransactionFactory(new BusinessResignationBuilder());
+    }
+
+    public static businessUpdate(businessUpdateAsset: IBusinessUpdateAsset): TransactionFactory {
+        const businessUpdateBuilder = new BusinessUpdateBuilder();
+        businessUpdateBuilder.businessUpdateAsset(businessUpdateAsset);
+        return new TransactionFactory(businessUpdateBuilder);
     }
 
     public static bridgechainRegistration(
