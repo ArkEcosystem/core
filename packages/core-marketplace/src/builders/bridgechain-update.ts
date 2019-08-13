@@ -1,4 +1,5 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { IBridgechainUpdateAsset } from "../interfaces";
 import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
 import { BridgechainUpdateTransaction } from "../transactions";
 
@@ -13,6 +14,14 @@ export class BridgechainUpdateBuilder extends Transactions.TransactionBuilder<Br
         this.data.fee = BridgechainUpdateTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
         this.data.asset = { bridgechainUpdate: {} };
+    }
+
+    public bridgechainUpdateAsset(bridgechainUpdateAsset: IBridgechainUpdateAsset): BridgechainUpdateBuilder {
+        this.data.asset.bridgechainUpdate = {
+            registeredBridgechainId: bridgechainUpdateAsset.registeredBridgechainId,
+            seedNodes: bridgechainUpdateAsset.seedNodes,
+        };
+        return this;
     }
 
     public getStruct(): Interfaces.ITransactionData {

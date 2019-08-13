@@ -1,9 +1,11 @@
+import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessWalletProperty } from "../interfaces";
+import { MarketplaceTransactionTypes } from "../marketplace-transactions";
 import { BusinessUpdateTransaction } from "../transactions";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -103,7 +105,47 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         walletManager: State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
-        // TODO
+        const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const businessWalletAsset = sender.getAttribute<IBusinessWalletProperty>("business").businessAsset;
+
+        const transactionsRepository = app.resolvePlugin<Database.IConnection>("database").transactionsRepository;
+        const updateTransactions = await transactionsRepository.getAssetsByType(
+            MarketplaceTransactionTypes.BusinessUpdate,
+        );
+
+        if (Array.isArray(updateTransactions) && updateTransactions.length > 1) {
+            const updateTransaction = updateTransactions.pop();
+            const { name, website, vat, github } = updateTransaction.asset.businessUpdate;
+            if (name) {
+                businessWalletAsset.name = name;
+            }
+            if (website) {
+                businessWalletAsset.website = website;
+            }
+            if (vat) {
+                businessWalletAsset.vat = vat;
+            }
+            if (github) {
+                businessWalletAsset.github = github;
+            }
+        } else {
+            const registerTransactions = await transactionsRepository.getAssetsByType(
+                MarketplaceTransactionTypes.BusinessRegistration,
+            );
+            const registerTransaction = registerTransactions.pop();
+
+            const { name, website, vat, github } = registerTransaction.asset.businessRegistration;
+            businessWalletAsset.name = name;
+            businessWalletAsset.website = website;
+            if (vat) {
+                businessWalletAsset.vat = vat;
+            }
+            if (github) {
+                businessWalletAsset.github = github;
+            }
+        }
+
+        sender.setAttribute("business.businessAsset", businessWalletAsset);
     }
 
     public async applyToRecipient(

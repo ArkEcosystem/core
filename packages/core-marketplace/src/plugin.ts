@@ -5,6 +5,7 @@ import { defaults } from "./defaults";
 import {
     BridgechainRegistrationTransactionHandler,
     BridgechainResignationTransactionHandler,
+    BridgechainUpdateTransactionHandler,
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
@@ -29,6 +30,7 @@ export const plugin: Container.IPluginDescriptor = {
         Handlers.Registry.registerTransactionHandler(BusinessUpdateTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BridgechainRegistrationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BridgechainResignationTransactionHandler);
+        Handlers.Registry.registerTransactionHandler(BridgechainUpdateTransactionHandler);
     },
     async deregister(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Deregister core-marketplace");

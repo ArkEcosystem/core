@@ -2,11 +2,17 @@ import { TransactionFactory } from "../../../../__tests__/helpers";
 import {
     BridgechainRegistrationBuilder,
     BridgechainResignationBuilder,
+    BridgechainUpdateBuilder,
     BusinessRegistrationBuilder,
     BusinessResignationBuilder,
     BusinessUpdateBuilder,
 } from "../../src/builders";
-import { IBridgechainRegistrationAsset, IBusinessRegistrationAsset, IBusinessUpdateAsset } from "../../src/interfaces";
+import {
+    IBridgechainRegistrationAsset,
+    IBridgechainUpdateAsset,
+    IBusinessRegistrationAsset,
+    IBusinessUpdateAsset,
+} from "../../src/interfaces";
 
 export class MarketplaceTransactionFactory extends TransactionFactory {
     public static businessRegistration(businessRegistrationAsset: IBusinessRegistrationAsset): TransactionFactory {
@@ -37,5 +43,11 @@ export class MarketplaceTransactionFactory extends TransactionFactory {
         const bridgechainResignation = new BridgechainResignationBuilder();
         bridgechainResignation.businessResignationAsset(registeredBridgechainId);
         return new TransactionFactory(bridgechainResignation);
+    }
+
+    public static bridgechainUpdate(bridgechainUpdateAsset: IBridgechainUpdateAsset): TransactionFactory {
+        const bridgechainUpdateBuilder = new BridgechainUpdateBuilder();
+        bridgechainUpdateBuilder.bridgechainUpdateAsset(bridgechainUpdateAsset);
+        return new TransactionFactory(bridgechainUpdateBuilder);
     }
 }

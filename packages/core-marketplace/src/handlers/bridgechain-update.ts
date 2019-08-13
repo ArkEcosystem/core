@@ -1,7 +1,14 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import {
+    BridgechainIsNotRegisteredError,
+    BridgechainIsResignedError,
+    BusinessIsNotRegisteredError,
+    BusinessIsResignedError,
+} from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
+import { IBusinessWalletProperty } from "../interfaces";
 import { BridgechainUpdateTransaction } from "../transactions";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
@@ -25,8 +32,13 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
-            // @ts-ignore
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const bridgechains = wallet.getAttribute<IBusinessWalletProperty>("business").bridgechains;
+            const { registeredBridgechainId, seedNodes } = transaction.asset.bridgechainUpdateAsset;
+            const bridgechainWalletProperty = bridgechains.find(
+                bridgechain => bridgechain.registrationTransactionId === registeredBridgechainId,
+            );
+            bridgechainWalletProperty.bridgechain.seedNodes = seedNodes;
         }
     }
 
@@ -35,6 +47,28 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
+        if (!wallet.hasAttribute("business")) {
+            throw new BusinessIsNotRegisteredError();
+        }
+
+        if (wallet.getAttribute("business.resigned") === true) {
+            throw new BusinessIsResignedError();
+        }
+        const bridgechains = wallet.getAttribute<IBusinessWalletProperty>("business").bridgechains;
+        const bridgechainWalletProperty = bridgechains.find(
+            bridgechain =>
+                bridgechain.registrationTransactionId ===
+                transaction.data.asset.bridgechainUpdateAsset.registeredBridgechainId,
+        );
+
+        if (!bridgechainWalletProperty) {
+            throw new BridgechainIsNotRegisteredError();
+        }
+
+        if (bridgechainWalletProperty.resigned) {
+            throw new BridgechainIsResignedError();
+        }
+
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 

@@ -26,6 +26,11 @@ export interface IBridgechainRegistrationAsset {
     githubRepository: string;
 }
 
+export interface IBridgechainUpdateAsset {
+    registeredBridgechainId: string;
+    seedNodes: string[];
+}
+
 export interface IBridgechainResignationAsset {
     registeredBridgechainId: string;
 }
