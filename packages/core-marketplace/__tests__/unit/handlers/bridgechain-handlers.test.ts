@@ -6,13 +6,12 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import {
     BridgechainRegistrationBuilder,
-    BridgechainResignationBuilder,
+    // BridgechainResignationBuilder,
     BusinessRegistrationBuilder,
 } from "../../../src/builders";
 
 import {
-    // @ts-ignore
-    BridgechainIsResignedError,
+    // BridgechainIsResignedError,
     WalletIsNotBusinessError,
 } from "../../../src/errors";
 import {
@@ -20,21 +19,17 @@ import {
     BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
 } from "../../../src/handlers";
-// @ts-ignore
 import { IBusinessWalletProperty } from "../../../src/interfaces";
 import { bridgechainIndexer, businessIndexer } from "../../../src/wallet-manager";
-// @ts-ignore
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let bridgechainRegistrationHandler: Handlers.TransactionHandler;
-// @ts-ignore
-let bridgechainResignationHandler: Handlers.TransactionHandler;
+// let bridgechainResignationHandler: Handlers.TransactionHandler;
 
 let businessRegistrationBuilder: BusinessRegistrationBuilder;
 let bridgechianRegistrationBuilder: BridgechainRegistrationBuilder;
-// @ts-ignore
-let bridgechainResignationBuilder: BridgechainResignationBuilder;
+// let bridgechainResignationBuilder: BridgechainResignationBuilder;
 
 let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
@@ -49,11 +44,11 @@ describe("should test marketplace transaction handlers", () => {
     beforeEach(() => {
         businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
         bridgechainRegistrationHandler = new BridgechainRegistrationTransactionHandler();
-        bridgechainResignationHandler = new BridgechainResignationTransactionHandler();
+        // bridgechainResignationHandler = new BridgechainResignationTransactionHandler();
 
         businessRegistrationBuilder = new BusinessRegistrationBuilder();
         bridgechianRegistrationBuilder = new BridgechainRegistrationBuilder();
-        bridgechainResignationBuilder = new BridgechainResignationBuilder();
+        // bridgechainResignationBuilder = new BridgechainResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex("byBusiness", businessIndexer);
@@ -151,21 +146,21 @@ describe("should test marketplace transaction handlers", () => {
                         bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager),
                     ).toResolve();
 
-                    // expect(
-                    //     senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[0].bridgechainNonce,
-                    // ).toBe(1001);
-                    //
-                    // bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
-                    // await expect(
-                    //     bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager),
-                    // ).toResolve();
-                    //
-                    // expect(
-                    //     senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce,
-                    // ).toBe(1002);
-                    //
+                    expect(
+                        senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[0].bridgechainNonce,
+                    ).toBe(1001);
+
+                    bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
+                    await expect(
+                        bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager),
+                    ).toResolve();
+
+                    expect(
+                        senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce,
+                    ).toBe(1002);
+
                     // const bridgechainResignation = bridgechainResignationBuilder
-                    //     .businessResignationAsset(bridgechainRegistrationBuilded.id)
+                    //     .businessResignationAsset(bridgechainRegistration.id)
                     //     .fee("50000000")
                     //     .nonce("4")
                     //     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");

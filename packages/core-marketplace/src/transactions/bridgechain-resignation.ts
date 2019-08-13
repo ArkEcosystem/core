@@ -7,6 +7,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionTypes,
 } from "../marketplace-transactions";
+import { registeredBridgechainIdProperty } from "./bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -31,11 +32,7 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
                             type: "object",
                             required: ["registeredBridgechainId"],
                             properties: {
-                                registeredBridgechainId: {
-                                    type: "string",
-                                    minLength: 64,
-                                    maxLength: 64,
-                                },
+                                registeredBridgechainId: registeredBridgechainIdProperty,
                             },
                         },
                     },

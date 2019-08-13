@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
@@ -8,7 +9,8 @@ import {
     BusinessIsResignedError,
 } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessWalletProperty } from "../interfaces";
+import { IBridgechainUpdateAsset, IBusinessWalletProperty } from "../interfaces";
+import { MarketplaceTransactionTypes } from "../marketplace-transactions";
 import { BridgechainUpdateTransaction } from "../transactions";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
@@ -21,7 +23,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         return [BridgechainRegistrationTransactionHandler];
     }
 
-    public walletAttributes(): readonly string[] {
+    public walletAttributes(): ReadonlyArray<string> {
         return [];
     }
 
@@ -34,7 +36,8 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const bridgechains = wallet.getAttribute<IBusinessWalletProperty>("business").bridgechains;
-            const { registeredBridgechainId, seedNodes } = transaction.asset.bridgechainUpdateAsset;
+            const { registeredBridgechainId, seedNodes } = transaction.asset
+                .bridgechainUpdateAsset as IBridgechainUpdateAsset;
             const bridgechainWalletProperty = bridgechains.find(
                 bridgechain => bridgechain.registrationTransactionId === registeredBridgechainId,
             );
@@ -58,7 +61,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         const bridgechainWalletProperty = bridgechains.find(
             bridgechain =>
                 bridgechain.registrationTransactionId ===
-                transaction.data.asset.bridgechainUpdateAsset.registeredBridgechainId,
+                transaction.data.asset.bridgechainUpdate.registeredBridgechainId,
         );
 
         if (!bridgechainWalletProperty) {
@@ -89,6 +92,14 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         walletManager: State.IWalletManager,
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
+        const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const bridgechains = wallet.getAttribute<IBusinessWalletProperty>("business").bridgechains;
+        const { registeredBridgechainId, seedNodes } = transaction.data.asset
+            .bridgechainUpdate as IBridgechainUpdateAsset;
+        const bridgechainWalletProperty = bridgechains.find(
+            bridgechain => bridgechain.registrationTransactionId === registeredBridgechainId,
+        );
+        bridgechainWalletProperty.bridgechain.seedNodes = seedNodes;
     }
 
     public async revertForSender(
@@ -96,6 +107,36 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         walletManager: State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
+        const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const walletBridgechains = sender.getAttribute<IBusinessWalletProperty>("business").bridgechains;
+
+        const transactionsRepository = app.resolvePlugin<Database.IConnection>("database").transactionsRepository;
+        const updateTransactions = await transactionsRepository.getAssetsByType(
+            MarketplaceTransactionTypes.BridgechainUpdate,
+        );
+        if (Array.isArray(updateTransactions) && updateTransactions.length > 1) {
+            const updateTransaction = updateTransactions.pop();
+            const { seedNodes, registeredBridgechainId } = updateTransaction.asset
+                .bridgechainUpdate as IBridgechainUpdateAsset;
+            const bridgechainWalletProperty = walletBridgechains.find(
+                bridgechain => bridgechain.registrationTransactionId === registeredBridgechainId,
+            );
+            bridgechainWalletProperty.bridgechain.seedNodes = seedNodes;
+        } else {
+            const transactionId = transaction.data.asset.bridgechainUpdate.registrationTransactionId;
+            const registerTransactions = await transactionsRepository.getAssetsByType(
+                MarketplaceTransactionTypes.BridgechainRegistration,
+            );
+
+            const trxFromDb = registerTransactions.find(
+                bridgechian => bridgechian.asset.bridgechainUpdate === transactionId,
+            );
+            const bridgechainFromWallet = walletBridgechains.find(
+                bridgechain => bridgechain.registrationTransactionId === transactionId,
+            );
+
+            bridgechainFromWallet.bridgechain.seedNodes = trxFromDb.asset.bridgechainUpdate.seedNodes;
+        }
     }
 
     public async applyToRecipient(

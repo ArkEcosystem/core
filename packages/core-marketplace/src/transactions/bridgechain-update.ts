@@ -6,6 +6,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionTypes,
 } from "../marketplace-transactions";
+import { registeredBridgechainIdProperty, seedNodesProperties } from "./bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -30,35 +31,8 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                             type: "object",
                             required: ["registeredBridgechainId", "seedNodes"],
                             properties: {
-                                registeredBridgechainId: {
-                                    type: "string",
-                                    minLength: 64,
-                                    maxLength: 64,
-                                },
-                                seedNodes: {
-                                    type: "array",
-                                    maxItems: 15,
-                                    minItems: 1,
-                                    uniqueItems: true,
-                                    items: {
-                                        type: "string",
-                                        required: ["ip"],
-                                        properties: {
-                                            ip: {
-                                                oneOf: [
-                                                    {
-                                                        type: "string",
-                                                        format: "ipv4",
-                                                    },
-                                                    {
-                                                        type: "string",
-                                                        format: "ipv6",
-                                                    },
-                                                ],
-                                            },
-                                        },
-                                    },
-                                },
+                                registeredBridgechainId: registeredBridgechainIdProperty,
+                                seedNodes: seedNodesProperties,
                             },
                         },
                     },
@@ -100,7 +74,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const bridgechainUpdateId = buf.readString(64);
+        const registeredBridgechainId = buf.readString(64);
 
         const seedNodes: string[] = [];
         const seedNodesLength = buf.readUint8();
@@ -112,7 +86,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         data.asset = {
             bridgechainUpdate: {
-                registeredBridgechainId: bridgechainUpdateId,
+                registeredBridgechainId,
                 seedNodes,
             },
         };

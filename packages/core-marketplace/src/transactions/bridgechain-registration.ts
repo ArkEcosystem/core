@@ -6,6 +6,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionTypes,
 } from "../marketplace-transactions";
+import { seedNodesProperties } from "./bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -35,30 +36,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                     minLength: 1,
                                     maxLength: 40,
                                 },
-                                seedNodes: {
-                                    type: "array",
-                                    maxItems: 15,
-                                    minItems: 1,
-                                    uniqueItems: true,
-                                    items: {
-                                        type: "string",
-                                        required: ["ip"],
-                                        properties: {
-                                            ip: {
-                                                oneOf: [
-                                                    {
-                                                        type: "string",
-                                                        format: "ipv4",
-                                                    },
-                                                    {
-                                                        type: "string",
-                                                        format: "ipv6",
-                                                    },
-                                                ],
-                                            },
-                                        },
-                                    },
-                                },
+                                seedNodes: seedNodesProperties,
                                 genesisHash: {
                                     type: "string",
                                     minLength: 64,
