@@ -17,7 +17,7 @@ import {
 } from "../../../src/handlers";
 import { IBusinessWalletProperty } from "../../../src/interfaces";
 import { businessIndexer } from "../../../src/wallet-manager";
-import { businessRegistrationAsset1 } from "../helper";
+import { businessRegistrationAsset1, businessRegistrationAsset2 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
@@ -72,12 +72,7 @@ describe("should test marketplace transaction handlers", () => {
 
         it("should pass all handler methods, with name, website, vat and organizationRepository", async () => {
             const actual = businessRegistrationBuilder
-                .businessRegistrationAsset({
-                    name: "businessName",
-                    website: "www.website.com",
-                    vat: "1234567890",
-                    organizationRepository: "www.organizationRepository.com/myBusiness",
-                })
+                .businessRegistrationAsset(businessRegistrationAsset2)
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
@@ -88,12 +83,7 @@ describe("should test marketplace transaction handlers", () => {
 
             await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
             const currentSenderWallet = senderWallet.getAttribute<IBusinessWalletProperty>("business");
-            expect(currentSenderWallet.businessAsset).toStrictEqual({
-                name: "businessName",
-                website: "www.website.com",
-                vat: "1234567890",
-                organizationRepository: "www.organizationRepository.com/myBusiness",
-            });
+            expect(currentSenderWallet.businessAsset).toStrictEqual(businessRegistrationAsset2);
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
             expect(senderWallet.hasAttribute("business")).toBeFalse();
@@ -101,12 +91,7 @@ describe("should test marketplace transaction handlers", () => {
 
         it("should fail duo to wallet already a business error", async () => {
             const actual = businessRegistrationBuilder
-                .businessRegistrationAsset({
-                    name: "businessName",
-                    website: "www.website.com",
-                    vat: "1234567890",
-                    organizationRepository: "www.organizationRepository.com/myBusiness",
-                })
+                .businessRegistrationAsset(businessRegistrationAsset1)
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
@@ -134,10 +119,7 @@ describe("should test marketplace transaction handlers", () => {
 
         it("should pass, because business is registered", async () => {
             const businessRegister = businessRegistrationBuilder
-                .businessRegistrationAsset({
-                    name: "businessName",
-                    website: "www.website.com",
-                })
+                .businessRegistrationAsset(businessRegistrationAsset1)
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");

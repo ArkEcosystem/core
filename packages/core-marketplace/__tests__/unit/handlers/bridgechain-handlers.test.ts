@@ -18,7 +18,7 @@ import {
 } from "../../../src/handlers";
 import { IBusinessWalletProperty } from "../../../src/interfaces";
 import { bridgechainIndexer, businessIndexer } from "../../../src/wallet-manager";
-import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
+import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, businessRegistrationAsset1 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let bridgechainRegistrationHandler: Handlers.TransactionHandler;
@@ -113,10 +113,7 @@ describe("should test marketplace transaction handlers", () => {
         describe("applyToSender tests", () => {
             beforeEach(async () => {
                 const businessRegistration = businessRegistrationBuilder
-                    .businessRegistrationAsset({
-                        name: "businessName",
-                        website: "www.website.com",
-                    })
+                    .businessRegistrationAsset(businessRegistrationAsset1)
                     .fee("50000000")
                     .nonce("1")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
@@ -164,10 +161,27 @@ describe("should test marketplace transaction handlers", () => {
                     bridgechainResignationHandler.applyToSender(bridgechainResignation.build(), walletManager),
                 ).rejects.toThrowError(BridgechainIsResignedError);
             });
-        });
 
-        // describe("revert for sender",()=>{
-        //
-        // });
+            describe("revert for sender", () => {
+                it("should be correct", async () => {
+                    const bridgechainRegistration = bridgechianRegistrationBuilder
+                        .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
+                        .fee("50000000")
+                        .nonce("2")
+                        .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+                    await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
+                    bridgechainRegistration.nonce("3");
+                    const bridgechainRegistrationBuild = bridgechainRegistration.build();
+                    await bridgechainRegistrationHandler.applyToSender(bridgechainRegistrationBuild, walletManager);
+                    await bridgechainResignationHandler.revertForSender(bridgechainRegistrationBuild, walletManager);
+                    await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
+
+                    expect(
+                        senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce,
+                    ).toBe(1002);
+                });
+            });
+        });
     });
 });
