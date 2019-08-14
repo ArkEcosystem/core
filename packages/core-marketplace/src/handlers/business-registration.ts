@@ -35,7 +35,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const businessProperty: IBusinessWalletProperty = {
                 businessAsset: transaction.asset.businessRegistration,
-                transactionId: transaction.id,
             };
             wallet.setAttribute<IBusinessWalletProperty>("business", businessProperty);
             walletManager.reindex(wallet);
@@ -84,7 +83,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessProperty: IBusinessWalletProperty = {
             businessAsset: transaction.data.asset.businessRegistration,
-            transactionId: transaction.id,
         };
         sender.setAttribute<IBusinessWalletProperty>("business", businessProperty);
         walletManager.reindex(sender);

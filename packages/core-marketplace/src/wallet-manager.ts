@@ -4,8 +4,7 @@ import { IBridgechainWalletProperty, IBusinessWalletProperty } from "./interface
 
 export const businessIndexer = (index: State.IWalletIndex, wallet: Wallets.Wallet): void => {
     if (wallet.hasAttribute("business")) {
-        const transactionId = wallet.getAttribute<IBusinessWalletProperty>("business").transactionId;
-        index.set(transactionId, wallet);
+        index.set(wallet.publicKey, wallet);
     }
 };
 

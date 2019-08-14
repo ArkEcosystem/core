@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Interfaces } from "@arkecosystem/crypto";
-import { IBridgechainRegistrationAsset, IBusinessRegistrationAsset } from "../../src/interfaces";
+import { IBridgechainRegistrationAsset, IBusinessRegistrationAsset, IBusinessUpdateAsset } from "../../src/interfaces";
 
 export const checkCommonFields = (deserialized: Interfaces.ITransaction, expected) => {
     const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount", "nonce"];
@@ -27,13 +27,32 @@ export const businessRegistrationAsset3: IBusinessRegistrationAsset = {
     name: "google",
     website: "www.google.com",
     vat: "123456789",
-    github: "www.github.com/arkecosystem",
+    organizationRepository: "www.organizationRepository.com/arkecosystem",
 };
 
 export const businessRegistrationAsset4: IBusinessRegistrationAsset = {
     name: "google",
     website: "www.google.com",
-    github: "www.github.com/arkecosystem",
+    organizationRepository: "www.organizationRepository.com/arkecosystem",
+};
+
+// Business update
+
+export const businessUpdateAsset1: IBusinessUpdateAsset = {
+    name: "ark",
+};
+
+export const businessUpdateAsset2: IBusinessUpdateAsset = {
+    name: "ark",
+    website: "www.ark.io",
+    vat: "1234567890",
+};
+
+export const businessUpdateAsset3: IBusinessUpdateAsset = {
+    name: "ark",
+    website: "www.ark.io",
+    vat: "1234567890",
+    organizationRepository: "www.organizationRepository.com/arkecosystem",
 };
 
 // Bridgechain registration assets
@@ -49,12 +68,12 @@ export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
         "2001:4860:4860::8844",
     ],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    githubRepository: "www.github.com/google/crypto",
+    bridgechainRepository: "www.organizationRepository.com/google/crypto",
 };
 
 export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {
     name: "microsoft",
     seedNodes: ["1.2.3.4", "127.0.0.1", "192.168.1.0", "131.107.0.89"],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    githubRepository: "www.github.com/microsoft/crypto",
+    bridgechainRepository: "www.organizationRepository.com/microsoft/crypto",
 };

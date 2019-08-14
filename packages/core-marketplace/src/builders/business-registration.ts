@@ -21,7 +21,7 @@ export class BusinessRegistrationBuilder extends Transactions.TransactionBuilder
             name: businessAsset.name,
             website: businessAsset.website,
             vat: businessAsset.vat,
-            github: businessAsset.github,
+            organizationRepository: businessAsset.organizationRepository,
         };
         return this;
     }

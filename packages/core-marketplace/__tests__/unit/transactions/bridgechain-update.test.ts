@@ -19,7 +19,7 @@ describe("Bridgechain update ser/deser", () => {
             .network(23)
             .bridgechainUpdateAsset({
                 registeredBridgechainId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                seedNodes: ["127.0.0.1"],
+                seedNodes: ["74.125.224.72"],
             })
             .sign("passphrase")
             .getStruct();

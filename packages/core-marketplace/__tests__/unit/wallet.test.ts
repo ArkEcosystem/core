@@ -15,7 +15,6 @@ describe("should test wallet", () => {
                 website: "www.google.com",
             },
             resigned: false,
-            transactionId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
             bridgechains: [
                 {
                     registrationTransactionId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
@@ -29,7 +28,7 @@ describe("should test wallet", () => {
                             "2001:0db8:85a3:0000:0000:8a2e:0370:7332",
                         ],
                         genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                        githubRepository: "github",
+                        bridgechainRepository: "github",
                     },
                 },
             ],

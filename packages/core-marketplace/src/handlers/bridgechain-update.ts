@@ -124,18 +124,13 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             bridgechainWalletProperty.bridgechain.seedNodes = seedNodes;
         } else {
             const transactionId = transaction.data.asset.bridgechainUpdate.registrationTransactionId;
-            const registerTransactions = await transactionsRepository.getAssetsByType(
-                MarketplaceTransactionTypes.BridgechainRegistration,
-            );
+            const registerTransaction = await transactionsRepository.findById(transactionId);
 
-            const trxFromDb = registerTransactions.find(
-                bridgechian => bridgechian.asset.bridgechainUpdate === transactionId,
-            );
             const bridgechainFromWallet = walletBridgechains.find(
                 bridgechain => bridgechain.registrationTransactionId === transactionId,
             );
 
-            bridgechainFromWallet.bridgechain.seedNodes = trxFromDb.asset.bridgechainUpdate.seedNodes;
+            bridgechainFromWallet.bridgechain.seedNodes = registerTransaction.asset.bridgechainUpdate.seedNodes;
         }
     }
 

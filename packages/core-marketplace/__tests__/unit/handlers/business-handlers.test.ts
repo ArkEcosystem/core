@@ -10,9 +10,14 @@ import {
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
 } from "../../../src/errors";
-import { BusinessRegistrationTransactionHandler, BusinessResignationTransactionHandler } from "../../../src/handlers";
+import {
+    BusinessRegistrationTransactionHandler,
+    BusinessResignationTransactionHandler,
+    BusinessUpdateTransactionHandler,
+} from "../../../src/handlers";
 import { IBusinessWalletProperty } from "../../../src/interfaces";
 import { businessIndexer } from "../../../src/wallet-manager";
+import { businessRegistrationAsset1 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
@@ -28,6 +33,7 @@ describe("should test marketplace transaction handlers", () => {
 
     Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
     Handlers.Registry.registerTransactionHandler(BusinessResignationTransactionHandler);
+    Handlers.Registry.registerTransactionHandler(BusinessUpdateTransactionHandler);
 
     beforeEach(() => {
         businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
@@ -48,10 +54,7 @@ describe("should test marketplace transaction handlers", () => {
     describe("should test business registration handler", () => {
         it("should pass all handler methods", async () => {
             const actual = businessRegistrationBuilder
-                .businessRegistrationAsset({
-                    name: "businessName",
-                    website: "www.website.com",
-                })
+                .businessRegistrationAsset(businessRegistrationAsset1)
                 .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
@@ -61,22 +64,19 @@ describe("should test marketplace transaction handlers", () => {
 
             await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
             const currentSenderWallet = senderWallet.getAttribute<IBusinessWalletProperty>("business");
-            expect(currentSenderWallet.businessAsset).toStrictEqual({
-                name: "businessName",
-                website: "www.website.com",
-            });
+            expect(currentSenderWallet.businessAsset).toStrictEqual(businessRegistrationAsset1);
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
             expect(senderWallet.hasAttribute("business")).toBeFalse();
         });
 
-        it("should pass all handler methods, with name, website, vat and github", async () => {
+        it("should pass all handler methods, with name, website, vat and organizationRepository", async () => {
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset({
                     name: "businessName",
                     website: "www.website.com",
                     vat: "1234567890",
-                    github: "www.github.com/myBusiness",
+                    organizationRepository: "www.organizationRepository.com/myBusiness",
                 })
                 .fee("50000000")
                 .nonce("1")
@@ -92,7 +92,7 @@ describe("should test marketplace transaction handlers", () => {
                 name: "businessName",
                 website: "www.website.com",
                 vat: "1234567890",
-                github: "www.github.com/myBusiness",
+                organizationRepository: "www.organizationRepository.com/myBusiness",
             });
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
@@ -105,7 +105,7 @@ describe("should test marketplace transaction handlers", () => {
                     name: "businessName",
                     website: "www.website.com",
                     vat: "1234567890",
-                    github: "www.github.com/myBusiness",
+                    organizationRepository: "www.organizationRepository.com/myBusiness",
                 })
                 .fee("50000000")
                 .nonce("1")

@@ -6,7 +6,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionTypes,
 } from "../marketplace-transactions";
-import { seedNodesProperties } from "./bridgechain-schemas";
+import { seedNodesProperties } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -29,7 +29,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                     properties: {
                         bridgechainRegistration: {
                             type: "object",
-                            required: ["name", "seedNodes", "genesisHash", "githubRepository"],
+                            required: ["name", "seedNodes", "genesisHash", "bridgechainRepository"],
                             properties: {
                                 name: {
                                     type: "string",
@@ -41,8 +41,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                     type: "string",
                                     minLength: 64,
                                     maxLength: 64,
+                                    $ref: "transactionId",
                                 },
-                                githubRepository: {
+                                bridgechainRepository: {
                                     type: "string",
                                     minLength: 1,
                                     maxLength: 100,
@@ -75,7 +76,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         const bridgechainGenesisHash: Buffer = Buffer.from(bridgechainRegistrationAsset.genesisHash, "utf8");
 
-        const bridgechainGithubRepo: Buffer = Buffer.from(bridgechainRegistrationAsset.githubRepository, "utf8");
+        const bridgechainGithubRepo: Buffer = Buffer.from(bridgechainRegistrationAsset.bridgechainRepository, "utf8");
 
         const buffer: ByteBuffer = new ByteBuffer(
             bridgechainName.length +
@@ -122,14 +123,14 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const genesisHash = buf.readString(genesisHashLength);
 
         const githubRepositoryLength = buf.readUint8();
-        const githubRepository = buf.readString(githubRepositoryLength);
+        const bridgechainRepository = buf.readString(githubRepositoryLength);
 
         data.asset = {
             bridgechainRegistration: {
                 name,
                 seedNodes,
                 genesisHash,
-                githubRepository,
+                bridgechainRepository,
             },
         };
     }

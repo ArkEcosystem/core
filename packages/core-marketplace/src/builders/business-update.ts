@@ -28,7 +28,7 @@ export class BusinessUpdateBuilder extends Transactions.TransactionBuilder<Busin
             name: businessAsset.name,
             website: businessAsset.website,
             vat: businessAsset.vat,
-            github: businessAsset.github,
+            organizationRepository: businessAsset.organizationRepository,
         };
         return this;
     }

@@ -6,7 +6,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionTypes,
 } from "../marketplace-transactions";
-import { businessProperties } from "./business-schema";
+import { businessProperties } from "./utils/business-schema";
 
 const { schemas } = Transactions;
 
@@ -84,8 +84,8 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
             businessVatLength = businessVat.length;
         }
 
-        if (businessUpdateAsset.github) {
-            businessGithub = Buffer.from(businessUpdateAsset.github, "utf8");
+        if (businessUpdateAsset.organizationRepository) {
+            businessGithub = Buffer.from(businessUpdateAsset.organizationRepository, "utf8");
             businessGithubLength = businessGithub.length;
         }
 
@@ -139,7 +139,7 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
 
         const githubLength = buf.readUint8();
         if (githubLength !== 0) {
-            businessUpdate.github = buf.readString(githubLength);
+            businessUpdate.organizationRepository = buf.readString(githubLength);
         }
 
         data.asset = {

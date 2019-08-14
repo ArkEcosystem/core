@@ -86,8 +86,8 @@ describe("Bridgechain registration transaction", () => {
                     .bridgechainRegistrationAsset({
                         name: "",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                        githubRepository: "www.github.com/google/syzkaller",
-                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                        bridgechainRepository: "www.organizationRepository.com/google/syzkaller",
+                        seedNodes: ["74.125.224.72", "66.102.0.0"],
                     })
                     .sign("passphrase");
 
@@ -100,8 +100,8 @@ describe("Bridgechain registration transaction", () => {
                     .bridgechainRegistrationAsset({
                         name: "this_string_is_41_chars_long_string41,41*",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                        githubRepository: "www.github.com/google/syzkaller",
-                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                        bridgechainRepository: "www.organizationRepository.com/google/syzkaller",
+                        seedNodes: ["74.125.224.72", "66.102.0.0"],
                     })
                     .sign("passphrase");
 
@@ -116,8 +116,8 @@ describe("Bridgechain registration transaction", () => {
                     .bridgechainRegistrationAsset({
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26",
-                        githubRepository: "www.github.com/google/syzkaller",
-                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                        bridgechainRepository: "www.organizationRepository.com/google/syzkaller",
+                        seedNodes: ["74.125.224.72", "66.102.0.0"],
                     })
                     .sign("passphrase");
 
@@ -130,8 +130,8 @@ describe("Bridgechain registration transaction", () => {
                     .bridgechainRegistrationAsset({
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f+",
-                        githubRepository: "www.github.com/google/syzkaller",
-                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                        bridgechainRepository: "www.organizationRepository.com/google/syzkaller",
+                        seedNodes: ["74.125.224.72", "66.102.0.0"],
                     })
                     .sign("passphrase");
 
@@ -140,14 +140,14 @@ describe("Bridgechain registration transaction", () => {
             });
         });
 
-        describe("should test edge cases of bridgechain githubRepository", () => {
+        describe("should test edge cases of bridgechain bridgechainRepository", () => {
             it("should fail duo to empty string", () => {
                 const bridgechainRegistration = builder
                     .bridgechainRegistrationAsset({
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                        githubRepository: "",
-                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                        bridgechainRepository: "",
+                        seedNodes: ["74.125.224.72", "66.102.0.0"],
                     })
                     .sign("passphrase");
 
@@ -160,8 +160,8 @@ describe("Bridgechain registration transaction", () => {
                     .bridgechainRegistrationAsset({
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                        githubRepository: "a".repeat(101),
-                        seedNodes: ["127.0.0.1", "74.125.224.72", "66.102.0.0"],
+                        bridgechainRepository: "a".repeat(101),
+                        seedNodes: ["74.125.224.72", "66.102.0.0"],
                     })
                     .sign("passphrase");
 
@@ -176,7 +176,7 @@ describe("Bridgechain registration transaction", () => {
                     .bridgechainRegistrationAsset({
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                        githubRepository: "www.github.com/google/syzkaller",
+                        bridgechainRepository: "www.organizationRepository.com/google/syzkaller",
                         seedNodes: [],
                     })
                     .sign("passphrase");
@@ -190,7 +190,7 @@ describe("Bridgechain registration transaction", () => {
                     .bridgechainRegistrationAsset({
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                        githubRepository: "www.github.com/google/syzkaller",
+                        bridgechainRepository: "www.organizationRepository.com/google/syzkaller",
                         seedNodes: ["66.102.0.0", "66.102.0.0"],
                     })
                     .sign("passphrase");
@@ -199,19 +199,19 @@ describe("Bridgechain registration transaction", () => {
                 expect(error).not.toBeUndefined();
             });
 
-            it("should not accept duplicates", () => {
-                const bridgechainRegistration = builder
-                    .bridgechainRegistrationAsset({
-                        name: "google",
-                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                        githubRepository: "www.github.com/google/syzkaller",
-                        seedNodes: ["2001:4860:4860::8844", "2001:4860:4860::8844"],
-                    })
-                    .sign("passphrase");
-
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
-                expect(error).not.toBeUndefined();
-            });
+            // it("should not accept localhost", () => {
+            //     const bridgechainRegistration = builder
+            //         .bridgechainRegistrationAsset({
+            //             name: "google",
+            //             genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+            //             bridgechainRepository: "www.organizationRepository.com/google/syzkaller",
+            //             seedNodes: ["127.0.0.1"],
+            //         })
+            //         .sign("passphrase");
+            //
+            //     const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            //     expect(error).not.toBeUndefined();
+            // });
         });
     });
 });

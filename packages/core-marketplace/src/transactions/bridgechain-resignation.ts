@@ -7,7 +7,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionTypes,
 } from "../marketplace-transactions";
-import { registeredBridgechainIdProperty } from "./bridgechain-schemas";
+import { registeredBridgechainIdProperty } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 

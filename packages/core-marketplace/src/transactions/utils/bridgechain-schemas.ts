@@ -7,8 +7,8 @@ export const registeredBridgechainIdProperty = {
 
 export const seedNodesProperties = {
     type: "array",
-    maxItems: 15,
     minItems: 1,
+    maxItems: 10,
     uniqueItems: true,
     items: {
         type: "string",

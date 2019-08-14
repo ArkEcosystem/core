@@ -13,8 +13,9 @@ export const businessProperties = {
         type: "string",
         minLength: 8,
         maxLength: 15,
+        $ref: "alphanumeric",
     },
-    github: {
+    organizationRepository: {
         type: "string",
         minLength: 11,
         maxLength: 50,

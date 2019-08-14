@@ -31,7 +31,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const businessWalletAsset = wallet.getAttribute<IBusinessWalletProperty>("business").businessAsset;
-            const { name, website, vat, github } = transaction.asset.businessUpdate;
+            const { name, website, vat, organizationRepository } = transaction.asset.businessUpdate;
             if (name) {
                 businessWalletAsset.name = name;
             }
@@ -41,8 +41,8 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             if (vat) {
                 businessWalletAsset.vat = vat;
             }
-            if (github) {
-                businessWalletAsset.github = github;
+            if (organizationRepository) {
+                businessWalletAsset.organizationRepository = organizationRepository;
             }
             wallet.setAttribute("business.businessAsset", businessWalletAsset);
         }
@@ -95,7 +95,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             businessWalletAsset.vat = vat;
         }
         if (github) {
-            businessWalletAsset.github = github;
+            businessWalletAsset.organizationRepository = github;
         }
         sender.setAttribute("business.businessAsset", businessWalletAsset);
     }
@@ -115,7 +115,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
 
         if (Array.isArray(updateTransactions) && updateTransactions.length > 1) {
             const updateTransaction = updateTransactions.pop();
-            const { name, website, vat, github } = updateTransaction.asset.businessUpdate;
+            const { name, website, vat, organizationRepository } = updateTransaction.asset.businessUpdate;
             if (name) {
                 businessWalletAsset.name = name;
             }
@@ -125,8 +125,8 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             if (vat) {
                 businessWalletAsset.vat = vat;
             }
-            if (github) {
-                businessWalletAsset.github = github;
+            if (organizationRepository) {
+                businessWalletAsset.organizationRepository = organizationRepository;
             }
         } else {
             const registerTransactions = await transactionsRepository.getAssetsByType(
@@ -134,14 +134,14 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             );
             const registerTransaction = registerTransactions.pop();
 
-            const { name, website, vat, github } = registerTransaction.asset.businessRegistration;
+            const { name, website, vat, organizationRepository } = registerTransaction.asset.businessRegistration;
             businessWalletAsset.name = name;
             businessWalletAsset.website = website;
             if (vat) {
                 businessWalletAsset.vat = vat;
             }
-            if (github) {
-                businessWalletAsset.github = github;
+            if (organizationRepository) {
+                businessWalletAsset.organizationRepository = organizationRepository;
             }
         }
 

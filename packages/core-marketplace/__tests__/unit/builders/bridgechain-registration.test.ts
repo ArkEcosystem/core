@@ -48,7 +48,7 @@ describe("Bridgechain registration builder", () => {
             expect(builder).not.toHaveProperty("data.name");
             expect(builder).not.toHaveProperty("data.seedNodes");
             expect(builder).not.toHaveProperty("data.genesisHash");
-            expect(builder).not.toHaveProperty("data.githubRepository");
+            expect(builder).not.toHaveProperty("data.bridgechainRepository");
         });
     });
 });

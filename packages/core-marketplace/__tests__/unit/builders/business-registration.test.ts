@@ -48,7 +48,7 @@ describe("Business registration builder", () => {
                     name: "businessName",
                     website: "www.website.com",
                     vat: "1234567890",
-                    github: "www.github.com/google",
+                    organizationRepository: "www.organizationRepository.com/google",
                 })
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
             expect(actual.build().verified).toBeTrue();
@@ -72,7 +72,7 @@ describe("Business registration builder", () => {
             expect(builder).not.toHaveProperty("data.name");
             expect(builder).not.toHaveProperty("data.website");
             expect(builder).not.toHaveProperty("data.vat");
-            expect(builder).not.toHaveProperty("data.github");
+            expect(builder).not.toHaveProperty("data.organizationRepository");
         });
     });
 

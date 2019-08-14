@@ -11,7 +11,10 @@ afterAll(support.tearDown);
 describe("Transaction Forging - Bridgechain registration", () => {
     it("should broadcast, accept and forge it ", async () => {
         // Initial Funds
-        const initialFunds = MarketplaceTransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+        const initialFunds = MarketplaceTransactionFactory.transfer(
+            Identities.Address.fromPassphrase(passphrase),
+            100 * 1e8,
+        )
             .withPassphrase(secrets[0])
             .createOne();
 
@@ -34,12 +37,9 @@ describe("Transaction Forging - Bridgechain registration", () => {
         // Registering a bridgechain
         const bridgechainRegistration = MarketplaceTransactionFactory.bridgechainRegistration({
             name: "cryptoProject",
-            seedNodes: [
-                     "1.2.3.4",
-                     "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-            ],
+            seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
             genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-            githubRepository: "www.github.com/myorg/myrepo",
+            bridgechainRepository: "www.organizationRepository.com/myorg/myrepo",
         })
             .withPassphrase(secrets[0])
             .createOne();
@@ -53,12 +53,9 @@ describe("Transaction Forging - Bridgechain registration", () => {
         // Registering a bridgechain again
         const bridgechainRegistration = MarketplaceTransactionFactory.bridgechainRegistration({
             name: "cryptoProject",
-            seedNodes: [
-                    "1.2.3.4",
-                    "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-            ],
+            seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
             genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-            githubRepository: "www.github.com/myorg/myrepo",
+            bridgechainRepository: "www.organizationRepository.com/myorg/myrepo",
         })
             .withPassphrase(secrets[0])
             .createOne();
@@ -70,8 +67,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
 
     it("should reject bridgechain registration, because business resigned", async () => {
         // Business resignation
-        const businessResignation = MarketplaceTransactionFactory
-            .businessResignation()
+        const businessResignation = MarketplaceTransactionFactory.businessResignation()
             .withPassphrase(secrets[0])
             .createOne();
 
@@ -82,17 +78,14 @@ describe("Transaction Forging - Bridgechain registration", () => {
         // Bridgechain resignation
         const bridgechainRegistration = MarketplaceTransactionFactory.bridgechainRegistration({
             name: "cryptoProject",
-            seedNodes: [
-                     "1.2.3.4",
-                     "2001:0db8:85a3:0000:0000:8a2e:0370:7334",
-            ],
+            seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
             genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-            githubRepository: "www.github.com/myorg/myrepo",
+            bridgechainRepository: "www.organizationRepository.com/myorg/myrepo",
         })
             .withPassphrase(secrets[0])
             .createOne();
 
-        await expect(bridgechainRegistration).toBeRejected();
+        expect(bridgechainRegistration).toBeRejected();
         await support.snoozeForBlock(1);
         await expect(bridgechainRegistration.id).not.toBeForged();
     });
