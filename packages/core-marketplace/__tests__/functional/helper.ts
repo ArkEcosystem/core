@@ -40,9 +40,9 @@ export class MarketplaceTransactionFactory extends TransactionFactory {
     }
 
     public static bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
-        const bridgechainResignation = new BridgechainResignationBuilder();
-        bridgechainResignation.businessResignationAsset(registeredBridgechainId);
-        return new TransactionFactory(bridgechainResignation);
+        const bridgechainResignationBuilder = new BridgechainResignationBuilder();
+        bridgechainResignationBuilder.businessResignationAsset(registeredBridgechainId);
+        return new TransactionFactory(bridgechainResignationBuilder);
     }
 
     public static bridgechainUpdate(bridgechainUpdateAsset: IBridgechainUpdateAsset): TransactionFactory {

@@ -30,6 +30,12 @@ export const businessRegistrationAsset3: IBusinessRegistrationAsset = {
     github: "www.github.com/arkecosystem",
 };
 
+export const businessRegistrationAsset4: IBusinessRegistrationAsset = {
+    name: "google",
+    website: "www.google.com",
+    github: "www.github.com/arkecosystem",
+};
+
 // Bridgechain registration assets
 export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     name: "google",
