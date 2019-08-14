@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-wallet-api",
-    "version": "2.5.17",
+    "version": "2.5.19",
     "description": "Wallet API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,10 +21,10 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.17",
-        "@arkecosystem/core-http-utils": "^2.5.17",
-        "@arkecosystem/core-interfaces": "^2.5.17",
-        "@arkecosystem/core-utils": "^2.5.17",
+        "@arkecosystem/core-container": "^2.5.19",
+        "@arkecosystem/core-http-utils": "^2.5.19",
+        "@arkecosystem/core-interfaces": "^2.5.19",
+        "@arkecosystem/core-utils": "^2.5.19",
         "@hapi/h2o2": "^8.3.0",
         "hapi-rate-limit": "^4.0.0",
         "ip": "^1.1.5"

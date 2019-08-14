@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.19] - 2019-08-14
+
+### Fixed
+
+-   Disconnect on invalid P2P requests ([#2875])
+-   Stricter P2P reply schemas ([#2875])
+
 ## [2.5.17] - 2019-08-06
 
 ### Fixed
@@ -614,6 +621,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.5.19]: https://github.com/ARKEcosystem/core/compare/2.5.17...2.5.19
 [2.5.17]: https://github.com/ARKEcosystem/core/compare/2.5.14...2.5.17
 [2.5.14]: https://github.com/ARKEcosystem/core/compare/2.5.7...2.5.14
 [2.5.7]: https://github.com/ARKEcosystem/core/compare/2.5.1...2.5.7
@@ -949,3 +957,4 @@ Closed security vulnerabilities:
 [#2854]: https://github.com/ARKEcosystem/core/pull/2854
 [#2863]: https://github.com/ARKEcosystem/core/pull/2863
 [#2864]: https://github.com/ARKEcosystem/core/pull/2864
+[#2875]: https://github.com/ARKEcosystem/core/pull/2875
