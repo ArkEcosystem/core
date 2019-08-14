@@ -174,7 +174,7 @@ describe("should test marketplace transaction handlers", () => {
                     bridgechainRegistration.nonce("3");
                     const bridgechainRegistrationBuild = bridgechainRegistration.build();
                     await bridgechainRegistrationHandler.applyToSender(bridgechainRegistrationBuild, walletManager);
-                    await bridgechainResignationHandler.revertForSender(bridgechainRegistrationBuild, walletManager);
+                    await bridgechainRegistrationHandler.revertForSender(bridgechainRegistrationBuild, walletManager);
                     await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
 
                     expect(

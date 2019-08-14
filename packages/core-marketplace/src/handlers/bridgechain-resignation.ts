@@ -124,6 +124,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
+
         businessWalletProperty.bridgechains.map(bridgechain => {
             if (
                 bridgechain.registrationTransactionId ===
