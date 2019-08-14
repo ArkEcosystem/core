@@ -9,6 +9,7 @@ beforeAll(support.setUp);
 afterAll(support.tearDown);
 
 describe("Transaction Forging - Bridgechain update", () => {
+    let transactionId;
     it("should broadcast, accept and forge it ", async () => {
         // Initial Funds
         const initialFunds = MarketplaceTransactionFactory.transfer(
@@ -44,14 +45,14 @@ describe("Transaction Forging - Bridgechain update", () => {
             .withPassphrase(secrets[0])
             .createOne();
 
-        const trxId = bridgechainRegistration.id;
+        transactionId = bridgechainRegistration.id;
         await expect(bridgechainRegistration).toBeAccepted();
         await support.snoozeForBlock(1);
-        await expect(trxId).toBeForged();
+        await expect(transactionId).toBeForged();
 
         // Updating a bridgechain
         const bridgechianUpdate = MarketplaceTransactionFactory.bridgechainUpdate({
-            registeredBridgechainId: trxId,
+            registeredBridgechainId: transactionId,
             seedNodes: ["1.2.3.4", "127.0.0.1", "192.168.1.0", "131.107.0.89"],
         })
             .withPassphrase(secrets[0])
@@ -60,5 +61,27 @@ describe("Transaction Forging - Bridgechain update", () => {
         await expect(bridgechianUpdate).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(bridgechianUpdate.id).toBeForged();
+    });
+
+    it("should ", async () => {
+        // Bridgechain resignation
+        const bridgechainResignation = MarketplaceTransactionFactory.bridgechainResignation(transactionId)
+            .withPassphrase(secrets[0])
+            .createOne();
+        await expect(bridgechainResignation).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(bridgechainResignation.id).toBeForged();
+
+        // Updating a bridgechain
+        const bridgechianUpdate = MarketplaceTransactionFactory.bridgechainUpdate({
+            registeredBridgechainId: transactionId,
+            seedNodes: ["1.2.3.4", "127.0.0.1", "192.168.1.0", "131.107.0.89"],
+        })
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        expect(bridgechianUpdate).toBeRejected();
+        await support.snoozeForBlock(1);
+        await expect(bridgechianUpdate.id).not.toBeForged();
     });
 });

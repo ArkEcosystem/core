@@ -16,7 +16,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         return [BusinessRegistrationTransactionHandler];
     }
 
-    public walletAttributes(): readonly string[] {
+    public walletAttributes(): ReadonlyArray<string> {
         return [];
     }
 

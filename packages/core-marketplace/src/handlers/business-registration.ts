@@ -31,6 +31,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const businessProperty: IBusinessWalletProperty = {
@@ -85,6 +86,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             businessAsset: transaction.data.asset.businessRegistration,
         };
         sender.setAttribute<IBusinessWalletProperty>("business", businessProperty);
+
         walletManager.reindex(sender);
     }
 

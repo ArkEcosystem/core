@@ -34,7 +34,7 @@ describe("Transaction Forging - Business update", () => {
         await support.snoozeForBlock(1);
         await expect(businessRegistration.id).toBeForged();
 
-        // Registering a business
+        // Updating a business
         const businessUpdate = MarketplaceTransactionFactory.businessUpdate({
             name: "google2",
         })
@@ -44,5 +44,27 @@ describe("Transaction Forging - Business update", () => {
         await expect(businessUpdate).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(businessUpdate.id).toBeForged();
+    });
+
+    it("should broadcast, accept and forge it ", async () => {
+        // Resigning a business
+        const businessResignation = MarketplaceTransactionFactory.businessResignation()
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(businessResignation).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(businessResignation.id).toBeForged();
+
+        // Updating a business
+        const businessUpdate = MarketplaceTransactionFactory.businessUpdate({
+            name: "google3",
+        })
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        expect(businessUpdate).toBeRejected();
+        await support.snoozeForBlock(1);
+        await expect(businessUpdate.id).not.toBeForged();
     });
 });
