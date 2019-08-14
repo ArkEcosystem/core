@@ -24,6 +24,16 @@ jest.mock("@arkecosystem/core-container", () => {
                                 return [{ ip: "1.2.3.4", port: 4000 }];
                             case "blacklist":
                                 return [];
+                            case "network.pubKeyHash":
+                                return 23;
+                            case "network.name":
+                                return "unit";
+                            case "network.client.explorer":
+                                return "unit";
+                            case "network.client.token":
+                                return "T";
+                            case "network.client.symbol":
+                                return "T";
                         }
 
                         return undefined;

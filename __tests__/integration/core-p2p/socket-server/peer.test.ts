@@ -39,6 +39,9 @@ beforeAll(async () => {
         port: 4007,
         hostname: "127.0.0.1",
     });
+    socket.on("error", () => {
+        //
+    });
 
     emit = (event, data) =>
         new Promise((resolve, reject) => {
@@ -192,6 +195,39 @@ describe("Peer socket endpoint", () => {
                     data: { block },
                 }),
             ).toResolve();
+        });
+
+        it("should close the connection when the event length is > 128", async () => {
+            await delay(1000);
+
+            await expect(
+                emit(
+                    "p2p.internal.eventNameIsTooLongSoShouldCloseTheConnectionWithCode4413AsItTheEventNameExceedsTheMaximumPermittedLengthSizeOf128Characters",
+                    {
+                        headers,
+                    },
+                ),
+            ).rejects.toHaveProperty("name", "BadConnectionError");
+        });
+
+        it("should close the connection when the event does not start with p2p", async () => {
+            await delay(1000);
+
+            await expect(
+                emit("p3p.peer.getStatus", {
+                    headers,
+                }),
+            ).rejects.toHaveProperty("name", "BadConnectionError");
+        });
+
+        it("should close the connection when the version is invalid", async () => {
+            await delay(1000);
+
+            await expect(
+                emit("p2p.invalid.getStatus", {
+                    headers,
+                }),
+            ).rejects.toHaveProperty("name", "BadConnectionError");
         });
     });
 });
