@@ -210,6 +210,14 @@ describe("Transaction serializer / deserializer", () => {
             checkCommonFields(deserialized, multiSignatureRegistration);
         });
 
+        it("should fail to verify", () => {
+            const transaction = TransactionFactory.fromData(multiSignatureRegistration);
+            configManager.getMilestone().aip11 = false;
+            expect(transaction.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(transaction.verify()).toBeTrue();
+        });
+
         it("should not deserialize a malformed signature", () => {
             const transaction = TransactionFactory.fromData(multiSignatureRegistration);
             transaction.serialized = transaction.serialized.slice(0, transaction.serialized.length - 2);
@@ -221,6 +229,8 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("ser/deserialize - ipfs", () => {
+        let ipfsTransaction;
+
         const ipfsIds = [
             "QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w",
             "QmYSK2JyM3RyDyB52caZCTKFR3HKniEcMnNJYdk8DQ6KKB",
@@ -232,21 +242,31 @@ describe("Transaction serializer / deserializer", () => {
             configManager.setFromPreset("testnet");
         });
 
-        it("should ser/deserialize giving back original fields", () => {
-            const ipfs = BuilderFactory.ipfs()
+        beforeEach(() => {
+            ipfsTransaction = BuilderFactory.ipfs()
                 .fee("50000000")
                 .version(2)
                 .network(23)
                 .ipfsAsset(ipfsIds[0])
                 .sign("dummy passphrase")
                 .getStruct();
+        });
 
-            const serialized = TransactionFactory.fromData(ipfs).serialized.toString("hex");
+        it("should ser/deserialize giving back original fields", () => {
+            const serialized = TransactionFactory.fromData(ipfsTransaction).serialized.toString("hex");
             const deserialized = deserializer.deserialize(serialized);
 
-            checkCommonFields(deserialized, ipfs);
+            checkCommonFields(deserialized, ipfsTransaction);
 
-            expect(deserialized.data.asset).toEqual(ipfs.asset);
+            expect(deserialized.data.asset).toEqual(ipfsTransaction.asset);
+        });
+
+        it("should fail to verify", () => {
+            const transaction = TransactionFactory.fromData(ipfsTransaction);
+            configManager.getMilestone().aip11 = false;
+            expect(transaction.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(transaction.verify()).toBeTrue();
         });
     });
 
@@ -262,6 +282,19 @@ describe("Transaction serializer / deserializer", () => {
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, delegateResignation);
+        });
+
+        it("should fail to verify", () => {
+            const delegateResignation = BuilderFactory.delegateResignation()
+                .fee("50000000")
+                .network(23)
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(delegateResignation.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(delegateResignation.verify()).toBeTrue();
         });
     });
 
@@ -283,6 +316,21 @@ describe("Transaction serializer / deserializer", () => {
             const deserialized = deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, multiPayment);
+        });
+
+        it("should fail to verify", () => {
+            const multiPayment = BuilderFactory.multiPayment()
+                .fee("50000000")
+                .network(23)
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "1555")
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "5000")
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(multiPayment.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(multiPayment.verify()).toBeTrue();
         });
     });
 
@@ -316,6 +364,22 @@ describe("Transaction serializer / deserializer", () => {
 
             expect(deserialized.data.asset).toEqual(htlcLock.asset);
         });
+
+        it("should fail to verify", () => {
+            const htlcLock = BuilderFactory.htlcLock()
+                .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
+                .amount("10000")
+                .fee("50000000")
+                .network(23)
+                .htlcLockAsset(htlcLockAsset)
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(htlcLock.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(htlcLock.verify()).toBeTrue();
+        });
     });
 
     describe("ser/deserialize - htlc claim", () => {
@@ -343,6 +407,20 @@ describe("Transaction serializer / deserializer", () => {
 
             expect(deserialized.data.asset).toEqual(htlcClaim.asset);
         });
+
+        it("should fail to verify", () => {
+            const htlcClaim = BuilderFactory.htlcClaim()
+                .fee("0")
+                .network(23)
+                .htlcClaimAsset(htlcClaimAsset)
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(htlcClaim.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(htlcClaim.verify()).toBeTrue();
+        });
     });
 
     describe("ser/deserialize - htlc refund", () => {
@@ -368,6 +446,20 @@ describe("Transaction serializer / deserializer", () => {
             checkCommonFields(deserialized, htlcRefund);
 
             expect(deserialized.data.asset).toEqual(htlcRefund.asset);
+        });
+
+        it("should fail to verify", () => {
+            const htlcRefund = BuilderFactory.htlcRefund()
+                .fee("0")
+                .network(23)
+                .htlcRefundAsset(htlcRefundAsset)
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(htlcRefund.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(htlcRefund.verify()).toBeTrue();
         });
     });
 
