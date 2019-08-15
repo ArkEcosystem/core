@@ -2,14 +2,15 @@ import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
 import { Enums, Utils } from "../../../../packages/crypto/src";
+import { Hash } from "../../../../packages/crypto/src/crypto";
 import {
     MalformedTransactionBytesError,
     TransactionSchemaError,
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
-import { Keys } from "../../../../packages/crypto/src/identities";
-import { ITransaction, ITransactionData } from "../../../../packages/crypto/src/interfaces";
+import { Address, Keys, PublicKey } from "../../../../packages/crypto/src/identities";
+import { IKeyPair, ITransaction, ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { TransactionFactory, Utils as TransactionUtils, Verifier } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
@@ -399,6 +400,107 @@ describe("Transaction serializer / deserializer", () => {
 
             const serialized = serializeWrongType(transactionWrongType).toString("hex");
             expect(() => deserializer.deserialize(serialized)).toThrow(UnkownTransactionError);
+        });
+    });
+
+    describe("deserialize Schnorr / ECDSA", () => {
+        const builderWith = (
+            hasher: (buffer: Buffer, keys: IKeyPair) => string,
+            hasher2?: (buffer: Buffer, keys: IKeyPair) => string,
+        ) => {
+            const keys = Keys.fromPassphrase("secret");
+
+            const builder = BuilderFactory.transfer()
+                .senderPublicKey(keys.publicKey)
+                .recipientId(Address.fromPublicKey(keys.publicKey))
+                .amount("10000")
+                .fee("50000000");
+
+            const buffer = TransactionUtils.toHash(builder.data, {
+                excludeSignature: true,
+                excludeSecondSignature: true,
+            });
+
+            builder.data.signature = hasher(buffer, keys);
+
+            if (hasher2) {
+                const keys = Keys.fromPassphrase("secret 2");
+                const buffer = TransactionUtils.toHash(builder.data, {
+                    excludeSecondSignature: true,
+                });
+
+                builder.data.secondSignature = hasher2(buffer, keys);
+            }
+
+            return builder;
+        };
+
+        it("should deserialize a V2 transaction signed with Schnorr", () => {
+            const builder = builderWith(Hash.signSchnorr);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(() => (transaction = builder.build())).not.toThrow();
+            expect(transaction.verify()).toBeTrue();
+        });
+
+        it("should deserialize a V2 transaction signed with ECDSA", () => {
+            const builder = builderWith(Hash.signECDSA);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(builder.data.signature).not.toHaveLength(64);
+            expect(() => (transaction = builder.build())).not.toThrow();
+            expect(transaction.verify()).toBeTrue();
+        });
+
+        it("should deserialize a V2 transaction when signed with Schnorr/Schnorr", () => {
+            const builder = builderWith(Hash.signSchnorr, Hash.signSchnorr);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(() => (transaction = builder.build())).not.toThrow();
+
+            expect(transaction.verify()).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction.data, PublicKey.fromPassphrase("secret 2"))).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction.data, PublicKey.fromPassphrase("secret 3"))).toBeFalse();
+        });
+
+        it("should throw when V2 transaction is signed with Schnorr and ECDSA", () => {
+            let builder = builderWith(Hash.signSchnorr, Hash.signECDSA);
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+
+            builder = builderWith(Hash.signECDSA, Hash.signSchnorr);
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+        });
+
+        it("should throw when V2 transaction is signed with Schnorr and AIP11 not active", () => {
+            const builder = builderWith(Hash.signSchnorr);
+
+            configManager.getMilestone().aip11 = false;
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+
+            configManager.getMilestone().aip11 = true;
+        });
+
+        it("should throw when V1 transaction is signed with Schnorr", () => {
+            configManager.getMilestone().aip11 = false;
+
+            const builder = builderWith(Hash.signSchnorr);
+            const buffer = TransactionUtils.toHash(builder.data, {
+                excludeSignature: true,
+                excludeSecondSignature: true,
+            });
+
+            builder.data.signature = builder.data.signature = Hash.signSchnorr(buffer, Keys.fromPassphrase("secret"));
+
+            expect(builder.data.version).toBe(1);
+            expect(() => builder.build()).toThrow();
+
+            configManager.getMilestone().aip11 = true;
         });
     });
 
