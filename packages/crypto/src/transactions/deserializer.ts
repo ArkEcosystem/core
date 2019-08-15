@@ -68,15 +68,23 @@ class Deserializer {
         }
     }
 
-    private deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer) {
+    private deserializeSignatures(transaction: ITransactionData, buf: ByteBuffer): void {
         if (transaction.version === 1) {
             this.deserializeECDSA(transaction, buf);
-        } else if (transaction.version === 2) {
-            this.deserializeSchnorr(transaction, buf);
+        } else {
+            this.deserializeSchnorrOrECDSA(transaction, buf);
         }
     }
 
-    private deserializeECDSA(transaction: ITransactionData, buf: ByteBuffer) {
+    private deserializeSchnorrOrECDSA(transaction: ITransactionData, buf: ByteBuffer): void {
+        if (this.detectSchnorr(buf)) {
+            this.deserializeSchnorr(transaction, buf);
+        } else {
+            this.deserializeECDSA(transaction, buf);
+        }
+    }
+
+    private deserializeECDSA(transaction: ITransactionData, buf: ByteBuffer): void {
         const currentSignatureLength = (): number => {
             buf.mark();
 
@@ -123,7 +131,7 @@ class Deserializer {
         }
     }
 
-    private deserializeSchnorr(transaction: ITransactionData, buf: ByteBuffer) {
+    private deserializeSchnorr(transaction: ITransactionData, buf: ByteBuffer): void {
         const canReadNonMultiSignature = () => {
             return buf.remaining() && (buf.remaining() % 64 === 0 || buf.remaining() % 65 !== 0);
         };
@@ -149,6 +157,27 @@ class Deserializer {
                 throw new MalformedTransactionBytesError();
             }
         }
+    }
+
+    private detectSchnorr(buf: ByteBuffer): boolean {
+        const remaining: number = buf.remaining();
+
+        // `signature` / `secondSignature`
+        if (remaining === 64 || remaining === 128) {
+            return true;
+        }
+
+        // `signatures` of a multi signature transaction (type != 4)
+        if (remaining % 65 === 0) {
+            return true;
+        }
+
+        // only possiblity left is a type 4 transaction with and without a `secondSignature`.
+        if ((remaining - 64) % 65 === 0 || (remaining - 128) % 65 === 0) {
+            return true;
+        }
+
+        return false;
     }
 
     // tslint:disable-next-line:member-ordering
