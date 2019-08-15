@@ -225,3 +225,19 @@ export class FailedDependencySatisfaction extends KernelError {
         super(`Expected "${dep}" to satisfy "${expected}" but received "${given}".`);
     }
 }
+
+/**
+ * @export
+ * @class NotImplementedError
+ * @extends {KernelError}
+ */
+export class NotImplementedError extends KernelError {
+    /**
+     * @param {string} klass
+     * @param {string} method
+     * @memberof NotImplementedError
+     */
+    constructor(klass: string, method: string) {
+        super(`Method [${method}] is not implemented in [${klass}].`);
+    }
+}
