@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-transaction-pool",
-    "version": "2.5.0-next.10",
+    "version": "3.0.0-next.0",
     "description": "Transaction Pool Manager for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -24,13 +24,12 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.0-next.10",
-        "@arkecosystem/core-database": "^2.5.0-next.10",
-        "@arkecosystem/core-event-emitter": "^2.5.0-next.10",
-        "@arkecosystem/core-interfaces": "^2.5.0-next.10",
-        "@arkecosystem/core-state": "^2.5.0-next.10",
-        "@arkecosystem/core-transactions": "^2.5.0-next.10",
-        "@arkecosystem/crypto": "^2.5.0-next.10",
+        "@arkecosystem/core-container": "^3.0.0-next.0",
+        "@arkecosystem/core-database": "^3.0.0-next.0",
+        "@arkecosystem/core-event-emitter": "^3.0.0-next.0",
+        "@arkecosystem/core-state": "^3.0.0-next.0",
+        "@arkecosystem/core-transactions": "^3.0.0-next.0",
+        "@arkecosystem/crypto": "^3.0.0-next.0",
         "@types/better-sqlite3": "^5.4.0",
         "@types/fs-extra": "^8.0.0",
         "@types/pluralize": "^0.0.29",
@@ -42,7 +41,7 @@
         "pluralize": "^8.0.0"
     },
     "devDependencies": {
-        "@arkecosystem/core-utils": "^2.5.0-next.10",
+        "@arkecosystem/core-utils": "^3.0.0-next.0",
         "@types/better-sqlite3": "^5.4.0",
         "@types/bip39": "^2.4.2",
         "@types/fs-extra": "^8.0.0",

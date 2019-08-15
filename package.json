@@ -97,11 +97,6 @@
         "packages/*",
         "plugins/*"
     ],
-    "husky": {
-        "hooks": {
-            "pre-commit": "lint-staged"
-        }
-    },
     "jest": {
         "testEnvironment": "node",
         "bail": true,
