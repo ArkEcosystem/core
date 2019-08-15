@@ -1,31 +1,135 @@
+export type EventName = string | symbol;
+export type EventListener = (name: EventName, data: any) => void;
+
 export interface IEventDispatcher {
     /**
-     * Register an event listener with the dispatcher.
+     * Register a listener with the dispatcher.
+     *
+     * @param {EventName} event
+     * @param {EventListener} listener
+     * @returns {() => void}
+     * @memberof IEventDispatcher
      */
-    listen(eventNames: string | string[], listener: any): void;
+    listen(event: EventName, listener: EventListener): () => void;
 
     /**
-     * Fire an event and call the listeners.
+     * Register many listeners with the dispatcher.
+     *
+     * @param {Array<[EventName, EventListener]>} events
+     * @returns {Map<EventName, () => void>}
+     * @memberof IEventDispatcher
      */
-    dispatch(eventNames: string | string[], listener: any): void;
+    listenMany(events: Array<[EventName, EventListener]>): Map<EventName, () => void>;
 
     /**
-     * Remove a set of listeners from the dispatcher.
+     * Register a one-time listener with the dispatcher.
+     *
+     * @param {EventName} name
+     * @param {EventListener} listener
+     * @memberof IEventDispatcher
      */
-    forget(eventNames: string | string[]): void;
+    listenOnce(name: EventName, listener: EventListener): void;
 
     /**
-     * Determine if a given event has listeners.
+     * Remove a listener from the dispatcher.
+     *
+     * @param {EventName} event
+     * @param {EventListener} listener
+     * @memberof IEventDispatcher
      */
-    has(eventName: string): boolean;
+    forget(event: EventName, listener: EventListener): void;
+
+    /**
+     * Remove many listeners from the dispatcher.
+     *
+     * @param {Array<[EventName, EventListener]>} events
+     * @memberof IEventDispatcher
+     */
+    forgetMany(events: Array<[EventName, EventListener]>): void;
+
+    /**
+     * Remove all listeners from the dispatcher.
+     *
+     * @memberof IEventDispatcher
+     */
+    flush(): void;
 
     /**
      * Get all of the listeners for a given event name.
+     *
+     * @param {EventName} event
+     * @returns {EventListener[]}
+     * @memberof IEventDispatcher
      */
-    getListeners(eventName: string): any;
+    getListeners(event: EventName): EventListener[];
 
     /**
-     * Get the number of registered events.
+     * Determine if a given event has listeners.
+     *
+     * @param {EventName} event
+     * @returns {boolean}
+     * @memberof IEventDispatcher
      */
-    count(): number;
+    hasListeners(event: EventName): boolean;
+
+    /**
+     * Fire an event and call the listeners in asynchronous order.
+     *
+     * @template T
+     * @param {EventName} event
+     * @param {T} [data]
+     * @returns {Promise<void>}
+     * @memberof IEventDispatcher
+     */
+    dispatch<T = any>(event: EventName, data?: T): Promise<void>;
+
+    /**
+     * Fire an event and call the listeners in sequential order.
+     *
+     * @template T
+     * @param {EventName} event
+     * @param {T} [data]
+     * @returns {Promise<void>}
+     * @memberof IEventDispatcher
+     */
+    dispatchSeq<T = any>(event: EventName, data?: T): Promise<void>;
+
+    /**
+     * Fire an event and call the listeners in synchronous order.
+     *
+     * @template T
+     * @param {EventName} event
+     * @param {T} [data]
+     * @memberof IEventDispatcher
+     */
+    dispatchSync<T = any>(event: EventName, data?: T): void;
+
+    /**
+     * Fire many events and call the listeners in asynchronous order.
+     *
+     * @template T
+     * @param {Array<[EventName, T]>} events
+     * @returns {Promise<void>}
+     * @memberof IEventDispatcher
+     */
+    dispatchMany<T = any>(events: Array<[EventName, T]>): Promise<void>;
+
+    /**
+     * Fire many events and call the listeners in sequential order.
+     *
+     * @template T
+     * @param {Array<[EventName, T]>} events
+     * @returns {Promise<void>}
+     * @memberof IEventDispatcher
+     */
+    dispatchManySeq<T = any>(events: Array<[EventName, T]>): Promise<void>;
+
+    /**
+     * Fire many events and call the listeners in synchronous order.
+     *
+     * @template T
+     * @param {Array<[EventName, T]>} events
+     * @memberof IEventDispatcher
+     */
+    dispatchManySync<T = any>(events: Array<[EventName, T]>): void;
 }
