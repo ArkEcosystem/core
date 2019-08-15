@@ -99,7 +99,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.forgetAttribute("business");
 
-        walletManager.reindex(sender);
+        walletManager.forgetByIndex("byBusiness", sender.publicKey);
     }
 
     public async applyToRecipient(

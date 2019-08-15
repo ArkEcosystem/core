@@ -114,7 +114,7 @@ describe("Business registration handler", () => {
             await expect(businessRegistrationHandler.revertForSender(actual.build(), walletManager)).toResolve();
         });
 
-        it("should todo", async () => {
+        it("should be undefined", async () => {
             senderWallet.setAttribute<IBusinessWalletProperty>("business", {
                 businessAsset: businessRegistrationAsset1,
             });
@@ -128,8 +128,7 @@ describe("Business registration handler", () => {
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
             const wallet = walletManager.findByIndex("byBusiness", senderWallet.publicKey);
-            console.log(wallet);
-            // TODO check if empty
+            expect(wallet).toBeUndefined();
         });
     });
 });
