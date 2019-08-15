@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import { setUpLite } from "../../helpers/snapshot";
@@ -28,9 +28,9 @@ export class RollbackCommand extends BaseCommand {
         }
 
         if (flags.height) {
-            await app.resolvePlugin<SnapshotManager>("snapshots").rollbackByHeight(flags.height);
+            await app.resolve<SnapshotManager>("snapshots").rollbackByHeight(flags.height);
         } else if (flags.number) {
-            await app.resolvePlugin<SnapshotManager>("snapshots").rollbackByNumber(flags.number);
+            await app.resolve<SnapshotManager>("snapshots").rollbackByNumber(flags.number);
         } else {
             this.error("Please specify either a height or number of blocks to roll back.");
         }

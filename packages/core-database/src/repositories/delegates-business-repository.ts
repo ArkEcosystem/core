@@ -1,4 +1,4 @@
-import { Database, State } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { delegateCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
@@ -6,10 +6,10 @@ import { sortEntries } from "./utils/sort-entries";
 
 type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
 
-export class DelegatesBusinessRepository implements Database.IDelegatesBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
+export class DelegatesBusinessRepository implements Contracts.Database.IDelegatesBusinessRepository {
+    public constructor(private readonly databaseServiceProvider: () => Contracts.Database.IDatabaseService) {}
 
-    public search(params: Database.IParameters = {}): Database.IWalletsPaginated {
+    public search(params: Contracts.Database.IParameters = {}): Contracts.Database.IWalletsPaginated {
         // Prepare...
         const query: Record<string, string[]> = {
             exact: ["address", "publicKey"],
@@ -30,7 +30,9 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         this.applyOrder(params);
 
         // Execute...
-        let delegates: ReadonlyArray<State.IWallet> = this.databaseServiceProvider().walletManager.allByUsername();
+        let delegates: ReadonlyArray<
+            Contracts.State.IWallet
+        > = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
             approval: delegateCalculator.calculateApproval,
@@ -58,8 +60,8 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         };
     }
 
-    public findById(id): State.IWallet {
-        const wallet: State.IWallet = this.databaseServiceProvider().walletManager.findById(id);
+    public findById(id): Contracts.State.IWallet {
+        const wallet: Contracts.State.IWallet = this.databaseServiceProvider().walletManager.findById(id);
 
         if (wallet && wallet.isDelegate()) {
             return wallet;

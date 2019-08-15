@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { StateService } from "./service";
 import { BlockStore } from "./stores/blocks";

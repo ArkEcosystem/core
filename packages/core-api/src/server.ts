@@ -1,10 +1,9 @@
-import { app } from "@arkecosystem/core-container";
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 
 export class Server {
-    private logger = app.resolvePlugin<Logger.ILogger>("logger");
+    private logger = app.resolve<Contracts.Kernel.ILogger>("logger");
 
     private http: any;
     private https: any;

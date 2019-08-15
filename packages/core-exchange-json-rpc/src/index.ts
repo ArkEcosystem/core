@@ -1,4 +1,4 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import { start } from "@arkecosystem/exchange-json-rpc";
 import { defaults } from "./defaults";
@@ -7,9 +7,9 @@ export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "exchange-json-rpc",
-    async register(container: Container.IContainer, options) {
+    async register(container: Contracts.Kernel.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Exchange JSON-RPC Server is disabled");
+            container.resolve<Contracts.Kernel.ILogger>("logger").info("Exchange JSON-RPC Server is disabled");
 
             return undefined;
         }
@@ -19,14 +19,14 @@ export const plugin: Container.IPluginDescriptor = {
         return start({
             database: options.database as string,
             server: options,
-            logger: container.resolvePlugin<Logger.ILogger>("logger"),
+            logger: container.resolve<Contracts.Kernel.ILogger>("logger"),
         });
     },
-    async deregister(container: Container.IContainer, options) {
+    async deregister(container: Contracts.Kernel.IContainer, options) {
         if (options.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Exchange JSON-RPC Server");
+            container.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Exchange JSON-RPC Server");
 
-            return container.resolvePlugin("exchange-json-rpc").stop();
+            return container.resolve("exchange-json-rpc").stop();
         }
     },
 };

@@ -1,4 +1,4 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import semver from "semver";
@@ -6,7 +6,7 @@ import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const allPeers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
+        const allPeers: Contracts.P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
 
         let result = allPeers.sort((a, b) => a.latency - b.latency);
         result = request.query.version
@@ -34,8 +34,8 @@ export class PeersController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const peers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
-            const peer: P2P.IPeer = peers.find(p => p.ip === request.params.ip);
+            const peers: Contracts.P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
+            const peer: Contracts.P2P.IPeer = peers.find(p => p.ip === request.params.ip);
 
             if (!peer) {
                 return Boom.notFound("Peer not found");

@@ -18,8 +18,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^3.0.0-next.0",
-        "@arkecosystem/core-event-emitter": "^3.0.0-next.0",
+        "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "@arkecosystem/core-http-utils": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "@elastic/elasticsearch": "^7.2.0",

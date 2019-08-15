@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Shared } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import assert from "assert";
 
 export const isNewRound = (height: number): boolean => {
@@ -23,7 +22,7 @@ export const isNewRound = (height: number): boolean => {
     return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
 };
 
-export const calculateRound = (height: number): Shared.IRoundInfo => {
+export const calculateRound = (height: number): Contracts.Shared.IRoundInfo => {
     const config = app.getConfig();
     const { milestones } = config.config;
 

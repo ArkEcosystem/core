@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
@@ -9,7 +8,7 @@ import { IRelayHost } from "./interfaces";
 
 export class Client {
     public hosts: IRelayHost[];
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private host: IRelayHost;
 
     constructor(hosts: IRelayHost[]) {
@@ -60,22 +59,24 @@ export class Client {
         }
     }
 
-    public async getRound(): Promise<P2P.ICurrentRound> {
+    public async getRound(): Promise<Contracts.P2P.ICurrentRound> {
         await this.selectHost();
 
-        return this.emit<P2P.ICurrentRound>("p2p.internal.getCurrentRound");
+        return this.emit<Contracts.P2P.ICurrentRound>("p2p.internal.getCurrentRound");
     }
 
-    public async getNetworkState(): Promise<P2P.INetworkState> {
+    public async getNetworkState(): Promise<Contracts.P2P.INetworkState> {
         try {
-            return NetworkState.parse(await this.emit<P2P.INetworkState>("p2p.internal.getNetworkState", {}, 4000));
+            return NetworkState.parse(
+                await this.emit<Contracts.P2P.INetworkState>("p2p.internal.getNetworkState", {}, 4000),
+            );
         } catch (err) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
 
-    public async getTransactions(): Promise<P2P.IForgingTransactions> {
-        return this.emit<P2P.IForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
+    public async getTransactions(): Promise<Contracts.P2P.IForgingTransactions> {
+        return this.emit<Contracts.P2P.IForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
     }
 
     public async emitEvent(
@@ -127,7 +128,7 @@ export class Client {
 
     private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout: number = 4000): Promise<T> {
         try {
-            const response: P2P.IResponse<T> = await socketEmit(
+            const response: Contracts.P2P.IResponse<T> = await socketEmit(
                 this.host.hostname,
                 this.host.socket,
                 event,

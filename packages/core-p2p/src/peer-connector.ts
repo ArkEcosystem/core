@@ -1,9 +1,8 @@
-import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { create, SCClientSocket } from "socketcluster-client";
 import { PeerRepository } from "./peer-repository";
 
-export class PeerConnector implements P2P.IPeerConnector {
+export class PeerConnector implements Contracts.P2P.IPeerConnector {
     private readonly connections: PeerRepository<SCClientSocket> = new PeerRepository<SCClientSocket>();
     private readonly errors: Map<string, string> = new Map<string, string>();
 
@@ -11,11 +10,11 @@ export class PeerConnector implements P2P.IPeerConnector {
         return this.connections.values();
     }
 
-    public connection(peer: P2P.IPeer): SCClientSocket {
+    public connection(peer: Contracts.P2P.IPeer): SCClientSocket {
         return this.connections.get(peer.ip);
     }
 
-    public connect(peer: P2P.IPeer): SCClientSocket {
+    public connect(peer: Contracts.P2P.IPeer): SCClientSocket {
         let connection = this.connection(peer);
 
         if (connection) {
@@ -36,7 +35,7 @@ export class PeerConnector implements P2P.IPeerConnector {
         return connection;
     }
 
-    public disconnect(peer: P2P.IPeer): void {
+    public disconnect(peer: Contracts.P2P.IPeer): void {
         const connection = this.connection(peer);
 
         if (connection) {
@@ -46,23 +45,23 @@ export class PeerConnector implements P2P.IPeerConnector {
         }
     }
 
-    public emit(peer: P2P.IPeer, event: string, data: any): void {
-        this.connection(peer).emit(event, data);
+    public emit(peer: Contracts.P2P.IPeer, event: string, data: any): void {
+        this.connection(peer).on(event, data);
     }
 
-    public getError(peer: P2P.IPeer): string {
+    public getError(peer: Contracts.P2P.IPeer): string {
         return this.errors.get(peer.ip);
     }
 
-    public setError(peer: P2P.IPeer, error: string): void {
+    public setError(peer: Contracts.P2P.IPeer, error: string): void {
         this.errors.set(peer.ip, error);
     }
 
-    public hasError(peer: P2P.IPeer, error: string): boolean {
+    public hasError(peer: Contracts.P2P.IPeer, error: string): boolean {
         return this.getError(peer) === error;
     }
 
-    public forgetError(peer: P2P.IPeer): void {
+    public forgetError(peer: Contracts.P2P.IPeer): void {
         this.errors.delete(peer.ip);
     }
 }

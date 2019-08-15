@@ -1,14 +1,15 @@
-import { app } from "@arkecosystem/core-container";
-import { EventEmitter, P2P } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 
 export class EventListener {
-    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
+        "event-emitter",
+    );
 
-    public constructor(service: P2P.IPeerService) {
-        const connector: P2P.IPeerConnector = service.getConnector();
-        const storage: P2P.IPeerStorage = service.getStorage();
+    public constructor(service: Contracts.P2P.IPeerService) {
+        const connector: Contracts.P2P.IPeerConnector = service.getConnector();
+        const storage: Contracts.P2P.IPeerStorage = service.getStorage();
 
-        this.emitter.on("internal.p2p.disconnectPeer", ({ peer }) => {
+        this.emitter.listen("internal.p2p.disconnectPeer", ({ peer }) => {
             connector.disconnect(peer);
             storage.forgetPeer(peer);
         });

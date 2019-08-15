@@ -1,11 +1,10 @@
-import { Logger } from "@arkecosystem/core-interfaces";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Signale } from "signale";
 
 export class SignaleLogger extends AbstractLogger {
     protected logger: Signale;
 
-    public make(): Logger.ILogger {
+    public make(): Contracts.Kernel.ILogger {
         this.logger = new Signale(this.options);
 
         return this;

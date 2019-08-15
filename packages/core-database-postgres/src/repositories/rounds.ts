@@ -1,10 +1,10 @@
-import { Database, State } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Round } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-export class RoundsRepository extends Repository implements Database.IRoundsRepository {
-    public async findById(round: number): Promise<Database.IRound[]> {
+export class RoundsRepository extends Repository implements Contracts.Database.IRoundsRepository {
+    public async findById(round: number): Promise<Contracts.Database.IRound[]> {
         return this.db.manyOrNone(queries.rounds.find, { round });
     }
 
@@ -13,8 +13,8 @@ export class RoundsRepository extends Repository implements Database.IRoundsRepo
         return db.none(queries.rounds.delete, { round });
     }
 
-    public async insert(delegates: State.IWallet[]): Promise<void> {
-        const rounds: Array<Partial<Database.IRound>> = delegates.map(delegate => {
+    public async insert(delegates: Contracts.State.IWallet[]): Promise<void> {
+        const rounds: Array<Partial<Contracts.Database.IRound>> = delegates.map(delegate => {
             return {
                 publicKey: delegate.publicKey,
                 balance: delegate.getAttribute("delegate.voteBalance"),

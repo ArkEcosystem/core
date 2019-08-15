@@ -1,12 +1,12 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { cidr } from "ip";
 import { PeerRepository } from "./peer-repository";
 
-export class PeerStorage implements P2P.IPeerStorage {
-    private readonly peers: PeerRepository<P2P.IPeer> = new PeerRepository<P2P.IPeer>();
-    private readonly peersPending: PeerRepository<P2P.IPeer> = new PeerRepository<P2P.IPeer>();
+export class PeerStorage implements Contracts.P2P.IPeerStorage {
+    private readonly peers: PeerRepository<Contracts.P2P.IPeer> = new PeerRepository<Contracts.P2P.IPeer>();
+    private readonly peersPending: PeerRepository<Contracts.P2P.IPeer> = new PeerRepository<Contracts.P2P.IPeer>();
 
-    public getPeers(): P2P.IPeer[] {
+    public getPeers(): Contracts.P2P.IPeer[] {
         return this.peers.values();
     }
 
@@ -14,15 +14,15 @@ export class PeerStorage implements P2P.IPeerStorage {
         return this.peers.isNotEmpty();
     }
 
-    public getPeer(ip: string): P2P.IPeer {
+    public getPeer(ip: string): Contracts.P2P.IPeer {
         return this.peers.get(ip);
     }
 
-    public setPeer(peer: P2P.IPeer): void {
+    public setPeer(peer: Contracts.P2P.IPeer): void {
         this.peers.set(peer.ip, peer);
     }
 
-    public forgetPeer(peer: P2P.IPeer): void {
+    public forgetPeer(peer: Contracts.P2P.IPeer): void {
         this.peers.forget(peer.ip);
     }
 
@@ -30,7 +30,7 @@ export class PeerStorage implements P2P.IPeerStorage {
         return this.peers.has(ip);
     }
 
-    public getPendingPeers(): P2P.IPeer[] {
+    public getPendingPeers(): Contracts.P2P.IPeer[] {
         return this.peersPending.values();
     }
 
@@ -38,15 +38,15 @@ export class PeerStorage implements P2P.IPeerStorage {
         return this.peersPending.isNotEmpty();
     }
 
-    public getPendingPeer(ip: string): P2P.IPeer {
+    public getPendingPeer(ip: string): Contracts.P2P.IPeer {
         return this.peersPending.get(ip);
     }
 
-    public setPendingPeer(peer: P2P.IPeer): void {
+    public setPendingPeer(peer: Contracts.P2P.IPeer): void {
         this.peersPending.set(peer.ip, peer);
     }
 
-    public forgetPendingPeer(peer: P2P.IPeer): void {
+    public forgetPendingPeer(peer: Contracts.P2P.IPeer): void {
         this.peersPending.forget(peer.ip);
     }
 
@@ -54,7 +54,7 @@ export class PeerStorage implements P2P.IPeerStorage {
         return this.peersPending.has(ip);
     }
 
-    public getSameSubnetPeers(ip: string): P2P.IPeer[] {
+    public getSameSubnetPeers(ip: string): Contracts.P2P.IPeer[] {
         return this.getPeers().filter(peer => cidr(`${peer.ip}/24`) === cidr(`${ip}/24`));
     }
 }

@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import sqlite3 from "better-sqlite3";
 import delay from "delay";
 import { ensureFileSync, existsSync, unlinkSync } from "fs-extra";
@@ -69,7 +68,7 @@ class PayloadProcessor {
                     });
                     saveToDB(this.payloadOverflowQueue);
                 } catch (error) {
-                    app.resolvePlugin<Logger.ILogger>("logger").warn(
+                    app.resolve<Contracts.Kernel.ILogger>("logger").warn(
                         `Discarding ${pluralize(
                             "transaction payload",
                             overflowQueueSize,

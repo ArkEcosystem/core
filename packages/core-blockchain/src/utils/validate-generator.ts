@@ -1,16 +1,15 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, Logger, Shared, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
-    const database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    const logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    const database: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
+    const logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
 
-    const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
-    const delegates: State.IWallet[] = await database.getActiveDelegates(roundInfo);
+    const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
+    const delegates: Contracts.State.IWallet[] = await database.getActiveDelegates(roundInfo);
     const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
-    const forgingDelegate: State.IWallet = delegates[slot % delegates.length];
+    const forgingDelegate: Contracts.State.IWallet = delegates[slot % delegates.length];
 
     const generatorUsername: string = database.walletManager
         .findByPublicKey(block.data.generatorPublicKey)

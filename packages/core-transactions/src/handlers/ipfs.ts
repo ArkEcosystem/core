@@ -1,4 +1,4 @@
-import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -15,7 +15,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
         return ["ipfs", "ipfs.hashes"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.IConnection,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
@@ -24,7 +27,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
                 wallet.setAttribute("ipfs", { hashes: {} });
             }
 
-            const ipfsHashes: State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
+            const ipfsHashes: Contracts.State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
             ipfsHashes[transaction.asset.ipfs] = true;
         }
     }
@@ -35,8 +38,8 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        wallet: Contracts.State.IWallet,
+        databaseWalletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         // TODO implement unique ipfs hash on blockchain (not just on wallet)
         // if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
@@ -56,16 +59,16 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         if (!sender.hasAttribute("ipfs")) {
             sender.setAttribute("ipfs", { hashes: {} });
         }
 
-        const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
+        const ipfsHashes: Contracts.State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
         ipfsHashes[transaction.data.asset.ipfs] = true;
 
         walletManager.reindex(sender);
@@ -73,12 +76,12 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const ipfsHashes: Contracts.State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
         delete ipfsHashes[transaction.data.asset.ipfs];
 
         walletManager.reindex(sender);
@@ -86,13 +89,13 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

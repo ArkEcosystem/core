@@ -1,4 +1,4 @@
-import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
@@ -16,7 +16,10 @@ export class TransferTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.IConnection,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<void> {
         const transactions = await connection.transactionsRepository.getReceivedTransactions();
 
         for (const transaction of transactions) {
@@ -31,8 +34,8 @@ export class TransferTransactionHandler extends TransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        sender: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        sender: Contracts.State.IWallet,
+        databaseWalletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         return super.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
     }
@@ -43,8 +46,8 @@ export class TransferTransactionHandler extends TransactionHandler {
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         if (!isRecipientOnActiveNetwork(data)) {
             processor.pushError(
@@ -62,17 +65,17 @@ export class TransferTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
-        const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+        const recipient: Contracts.State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
         recipient.balance = recipient.balance.plus(transaction.data.amount);
     }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
-        const recipient: State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
+        const recipient: Contracts.State.IWallet = walletManager.findByAddress(transaction.data.recipientId);
         recipient.balance = recipient.balance.minus(transaction.data.amount);
     }
 }

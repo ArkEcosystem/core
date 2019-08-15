@@ -1,7 +1,6 @@
 // tslint:disable:variable-name
 
-import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
@@ -10,7 +9,7 @@ import { OrderedMap, OrderedSet, Seq } from "immutable";
  * @TODO
  * - extract block and transaction behaviours into their respective stores
  */
-export class StateStore implements State.IStateStore {
+export class StateStore implements Contracts.State.IStateStore {
     // @TODO: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
@@ -99,7 +98,7 @@ export class StateStore implements State.IStateStore {
         Managers.configManager.setHeight(block.data.height);
 
         if (Managers.configManager.isNewMilestone()) {
-            app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("internal.milestone.changed");
+            app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter").dispatch("internal.milestone.changed");
         }
 
         // Delete oldest block if size exceeds the maximum
@@ -233,7 +232,7 @@ export class StateStore implements State.IStateStore {
      */
     public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
         if (this.blockPing) {
-            app.resolvePlugin<Logger.ILogger>("logger").info(
+            app.resolve<Contracts.Kernel.ILogger>("logger").info(
                 `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${this.blockPing.count} times`,
             );
         }

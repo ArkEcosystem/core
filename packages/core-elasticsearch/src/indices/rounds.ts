@@ -37,6 +37,6 @@ export class Rounds extends Index {
     }
 
     public listen(): void {
-        this.emitter.on(ApplicationEvents.RoundCreated, () => this.index());
+        this.emitter.listen(ApplicationEvents.RoundCreated, () => this.index());
     }
 }

@@ -1,7 +1,6 @@
 // tslint:disable:max-classes-per-file
 
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { isBlockChained } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
@@ -24,7 +23,7 @@ export enum BlockProcessorResult {
 }
 
 export class BlockProcessor {
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
 
     public constructor(private readonly blockchain: Blockchain) {}
 

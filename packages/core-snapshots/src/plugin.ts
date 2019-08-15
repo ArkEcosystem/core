@@ -1,5 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Container, Database } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { SnapshotManager } from "./manager";
 
@@ -11,10 +11,10 @@ export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "snapshots",
-    async register(container: Container.IContainer, options) {
+    async register(container: Contracts.Kernel.IContainer, options) {
         const manager = new SnapshotManager(options);
 
-        const databaseService = container.resolvePlugin<Database.IDatabaseService>("database");
+        const databaseService = container.resolve<Contracts.Database.IDatabaseService>("database");
         return manager.make(databaseService.connection as PostgresConnection);
     },
 };

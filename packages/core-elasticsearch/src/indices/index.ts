@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Blocks } from "./blocks";
 import { Rounds } from "./rounds";
 import { Transactions } from "./transactions";
@@ -11,7 +10,7 @@ export const watchIndices = async (chunkSize: number): Promise<void> => {
     for (const Indicer of indicers) {
         const instance = new Indicer(chunkSize);
 
-        app.resolvePlugin<Logger.ILogger>("logger").info(`[ES] Initialising ${instance.constructor.name}`);
+        app.resolve<Contracts.Kernel.ILogger>("logger").info(`[ES] Initialising ${instance.constructor.name}`);
 
         await instance.index();
 

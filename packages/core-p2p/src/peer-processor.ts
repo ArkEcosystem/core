@@ -1,47 +1,51 @@
 /* tslint:disable:max-line-length */
 
-import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Peer } from "./peer";
 import { isValidPeer, isValidVersion, isWhitelisted } from "./utils";
 
-export class PeerProcessor implements P2P.IPeerProcessor {
+export class PeerProcessor implements Contracts.P2P.IPeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean;
 
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
+        "event-emitter",
+    );
 
-    private readonly communicator: P2P.IPeerCommunicator;
-    private readonly connector: P2P.IPeerConnector;
-    private readonly storage: P2P.IPeerStorage;
+    private readonly communicator: Contracts.P2P.IPeerCommunicator;
+    private readonly connector: Contracts.P2P.IPeerConnector;
+    private readonly storage: Contracts.P2P.IPeerStorage;
 
     public constructor({
         communicator,
         connector,
         storage,
     }: {
-        communicator: P2P.IPeerCommunicator;
-        connector: P2P.IPeerConnector;
-        storage: P2P.IPeerStorage;
+        communicator: Contracts.P2P.IPeerCommunicator;
+        connector: Contracts.P2P.IPeerConnector;
+        storage: Contracts.P2P.IPeerStorage;
     }) {
         this.communicator = communicator;
         this.connector = connector;
         this.storage = storage;
 
-        this.emitter.on("internal.milestone.changed", () => {
+        this.emitter.listen("internal.milestone.changed", () => {
             this.updatePeersAfterMilestoneChange();
         });
     }
 
-    public async validateAndAcceptPeer(peer: P2P.IPeer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
+    public async validateAndAcceptPeer(
+        peer: Contracts.P2P.IPeer,
+        options: Contracts.P2P.IAcceptNewPeerOptions = {},
+    ): Promise<void> {
         if (this.validatePeerIp(peer, options)) {
             await this.acceptNewPeer(peer, options);
         }
     }
 
-    public validatePeerIp(peer, options: P2P.IAcceptNewPeerOptions = {}): boolean {
+    public validatePeerIp(peer, options: Contracts.P2P.IAcceptNewPeerOptions = {}): boolean {
         if (app.resolveOptions("p2p").disableDiscovery && !this.storage.hasPendingPeer(peer.ip)) {
             this.logger.warn(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
@@ -59,7 +63,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             this.storage.getSameSubnetPeers(peer.ip).length >= app.resolveOptions("p2p").maxSameSubnetPeers &&
             !options.seed
         ) {
-            if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+            if (process.env.CORE_Contracts.P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.warn(
                     `Rejected ${peer.ip} because we are already at the ${
                         app.resolveOptions("p2p").maxSameSubnetPeers
@@ -74,7 +78,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
     }
 
     private updatePeersAfterMilestoneChange(): void {
-        const peers: P2P.IPeer[] = this.storage.getPeers();
+        const peers: Contracts.P2P.IPeer[] = this.storage.getPeers();
         for (const peer of peers) {
             if (!isValidVersion(peer)) {
                 this.connector.disconnect(peer);
@@ -83,12 +87,12 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         }
     }
 
-    private async acceptNewPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
+    private async acceptNewPeer(peer, options: Contracts.P2P.IAcceptNewPeerOptions = {}): Promise<void> {
         if (this.storage.getPeer(peer.ip)) {
             return;
         }
 
-        const newPeer: P2P.IPeer = new Peer(peer.ip);
+        const newPeer: Contracts.P2P.IPeer = new Peer(peer.ip);
 
         try {
             this.storage.setPendingPeer(peer);
@@ -101,7 +105,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
             }
 
-            this.emitter.emit(ApplicationEvents.PeerAdded, newPeer);
+            this.emitter.dispatch(ApplicationEvents.PeerAdded, newPeer);
         } catch (error) {
             this.connector.disconnect(newPeer);
         } finally {

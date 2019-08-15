@@ -1,5 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { LoggerManager } from "@arkecosystem/core-logger";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { WinstonLogger } from "./driver";
 
@@ -8,7 +7,7 @@ export const plugin: Container.IPluginDescriptor = {
     defaults,
     alias: "logger",
     extends: "@arkecosystem/core-logger",
-    async register(container: Container.IContainer, options) {
-        return container.resolvePlugin<LoggerManager>("log-manager").createDriver(new WinstonLogger(options));
+    async register(container: Contracts.Kernel.IContainer, options) {
+        return container.resolve<LoggerManager>("log-manager").createDriver(new WinstonLogger(options));
     },
 };

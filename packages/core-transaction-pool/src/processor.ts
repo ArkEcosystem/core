@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
@@ -11,17 +10,22 @@ import { WalletManager } from "./wallet-manager";
  * @TODO: this class has too many responsibilities at the moment.
  * Its sole responsibility should be to validate transactions and return them.
  */
-export class Processor implements TransactionPool.IProcessor {
+export class Processor implements Contracts.TransactionPool.IProcessor {
     private transactions: Interfaces.ITransactionData[] = [];
     private readonly excess: string[] = [];
     private readonly accept: Map<string, Interfaces.ITransaction> = new Map();
     private readonly broadcast: Map<string, Interfaces.ITransaction> = new Map();
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
-    private readonly errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
+    private readonly errors: { [key: string]: Contracts.TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) {}
+    constructor(
+        private readonly pool: Contracts.TransactionPool.IConnection,
+        private readonly walletManager: WalletManager,
+    ) {}
 
-    public async validate(transactions: Interfaces.ITransactionData[]): Promise<TransactionPool.IProcessorResult> {
+    public async validate(
+        transactions: Interfaces.ITransactionData[],
+    ): Promise<Contracts.TransactionPool.IProcessorResult> {
         this.cacheTransactions(transactions);
 
         if (this.transactions.length > 0) {
@@ -51,7 +55,7 @@ export class Processor implements TransactionPool.IProcessor {
         return Array.from(this.broadcast.values());
     }
 
-    public getErrors(): { [key: string]: TransactionPool.ITransactionErrorResponse[] } {
+    public getErrors(): { [key: string]: Contracts.TransactionPool.ITransactionErrorResponse[] } {
         return this.errors;
     }
 
@@ -67,7 +71,7 @@ export class Processor implements TransactionPool.IProcessor {
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
         const { added, notAdded }: ITransactionsCached = app
-            .resolvePlugin<State.IStateService>("state")
+            .resolve<Contracts.State.IStateService>("state")
             .getStore()
             .cacheTransactions(transactions);
 
@@ -82,10 +86,10 @@ export class Processor implements TransactionPool.IProcessor {
 
     private async removeForgedTransactions(): Promise<void> {
         const forgedIdsSet: string[] = await app
-            .resolvePlugin<Database.IDatabaseService>("database")
+            .resolve<Contracts.Database.IDatabaseService>("database")
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.resolvePlugin<State.IStateService>("state")
+        app.resolve<Contracts.State.IStateService>("state")
             .getStore()
             .removeCachedTransactionIds(forgedIdsSet);
 
@@ -168,7 +172,7 @@ export class Processor implements TransactionPool.IProcessor {
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
         const lastHeight: number = app
-            .resolvePlugin<State.IStateService>("state")
+            .resolve<Contracts.State.IStateService>("state")
             .getStore()
             .getLastHeight();
 
@@ -206,7 +210,7 @@ export class Processor implements TransactionPool.IProcessor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            return Handlers.Registry.get(transaction.type, transaction.typeGroup).canEnterTransactionPool(
+            return Handlers.Registry.get(transaction.type, transaction.typeGroup).canEnterContracts.TransactionPool(
                 transaction,
                 this.pool,
                 this,
@@ -245,7 +249,7 @@ export class Processor implements TransactionPool.IProcessor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin<Logger.ILogger>("logger").info(
+        app.resolve<Contracts.Kernel.ILogger>("logger").info(
             `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
         );
     }

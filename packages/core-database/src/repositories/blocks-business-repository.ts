@@ -1,12 +1,12 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
-export class BlocksBusinessRepository implements Database.IBlocksBusinessRepository {
-    constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
+export class BlocksBusinessRepository implements Contracts.Database.IBlocksBusinessRepository {
+    constructor(private readonly databaseServiceProvider: () => Contracts.Database.IDatabaseService) {}
 
     public async search(
-        params: Database.IParameters = {},
+        params: Contracts.Database.IParameters = {},
     ): Promise<{
         rows: Interfaces.IBlockData[];
         count: number;
@@ -16,7 +16,7 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
 
     public async findAllByGenerator(
         generatorPublicKey: string,
-        paginate: Database.ISearchPaginate,
+        paginate: Contracts.Database.ISearchPaginate,
     ): Promise<{
         rows: Interfaces.IBlockData[];
         count: number;
@@ -54,8 +54,9 @@ export class BlocksBusinessRepository implements Database.IBlocksBusinessReposit
         return this.databaseServiceProvider().connection.blocksRepository.getDelegatesForgedBlocks();
     }
 
-    private parseSearchParams(params: Database.IParameters): Database.ISearchParameters {
-        const blocksRepository: Database.IBlocksRepository = this.databaseServiceProvider().connection.blocksRepository;
+    private parseSearchParams(params: Contracts.Database.IParameters): Contracts.Database.ISearchParameters {
+        const blocksRepository: Contracts.Database.IBlocksRepository = this.databaseServiceProvider().connection
+            .blocksRepository;
         const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
 
         if (!searchParameters.orderBy.length) {

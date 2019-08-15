@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { isWhitelisted } from "../../utils/is-whitelisted";
 import * as internalHandlers from "./internal";
 import * as peerHandlers from "./peer";
@@ -9,9 +9,9 @@ export const isAppReady = (): {
     p2p: boolean;
 } => {
     return {
-        transactionPool: !!app.resolvePlugin("transaction-pool"),
-        blockchain: !!app.resolvePlugin("blockchain"),
-        p2p: !!app.resolvePlugin("p2p"),
+        transactionPool: !!app.resolve("transaction-pool"),
+        blockchain: !!app.resolve("blockchain"),
+        p2p: !!app.resolve("p2p"),
     };
 };
 
@@ -23,7 +23,7 @@ export const getHandlers = (): { [key: string]: string[] } => {
 };
 
 export const log = ({ req }): void => {
-    app.resolvePlugin("logger")[req.data.level](req.data.message);
+    app.resolve("logger")[req.data.level](req.data.message);
 };
 
 export const isForgerAuthorized = ({ req }): { authorized: boolean } => {

@@ -1,13 +1,12 @@
 /* tslint:disable:max-line-length */
 
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 
 import pick from "lodash.pick";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
 import { database, Database } from "./db";
 import * as utils from "./utils";
 

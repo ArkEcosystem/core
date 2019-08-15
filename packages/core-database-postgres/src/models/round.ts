@@ -1,4 +1,4 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 import { IColumnDescriptor } from "../interfaces";
 import { Model } from "./model";
@@ -8,7 +8,7 @@ export class Round extends Model {
         {
             name: "public_key",
             prop: "publicKey",
-            supportedOperators: [Database.SearchOperator.OP_EQ],
+            supportedOperators: [Contracts.Database.SearchOperator.OP_EQ],
         },
         {
             name: "balance",
@@ -16,17 +16,17 @@ export class Round extends Model {
                 return Utils.BigNumber.make(col.value).toFixed();
             },
             supportedOperators: [
-                Database.SearchOperator.OP_EQ,
-                Database.SearchOperator.OP_LTE,
-                Database.SearchOperator.OP_GTE,
+                Contracts.Database.SearchOperator.OP_EQ,
+                Contracts.Database.SearchOperator.OP_LTE,
+                Contracts.Database.SearchOperator.OP_GTE,
             ],
         },
         {
             name: "round",
             supportedOperators: [
-                Database.SearchOperator.OP_EQ,
-                Database.SearchOperator.OP_LTE,
-                Database.SearchOperator.OP_GTE,
+                Contracts.Database.SearchOperator.OP_EQ,
+                Contracts.Database.SearchOperator.OP_LTE,
+                Contracts.Database.SearchOperator.OP_GTE,
             ],
         },
     ];

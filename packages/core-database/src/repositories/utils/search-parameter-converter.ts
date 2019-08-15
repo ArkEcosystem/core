@@ -1,11 +1,15 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import snakeCase from "lodash.snakecase";
 
-export class SearchParameterConverter implements Database.IISearchParameterConverter {
-    constructor(private databaseModel: Database.IModel) {}
+export class SearchParameterConverter implements Contracts.Database.IISearchParameterConverter {
+    constructor(private databaseModel: Contracts.Database.IModel) {}
 
-    public convert(params: Database.IParameters, orderBy?: any, paginate?: any): Database.ISearchParameters {
-        const searchParameters: Database.ISearchParameters = {
+    public convert(
+        params: Contracts.Database.IParameters,
+        orderBy?: any,
+        paginate?: any,
+    ): Contracts.Database.ISearchParameters {
+        const searchParameters: Contracts.Database.ISearchParameters = {
             orderBy: [],
             paginate: undefined,
             parameters: [],
@@ -32,7 +36,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
         return searchParameters;
     }
 
-    private parsePaginate(searchParameters: Database.ISearchParameters, paginate?: any) {
+    private parsePaginate(searchParameters: Contracts.Database.ISearchParameters, paginate?: any) {
         if (paginate) {
             searchParameters.paginate = {
                 limit: Number.isInteger(paginate.limit) ? paginate.limit : 100,
@@ -41,7 +45,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
         }
     }
 
-    private parseOrderBy(searchParameters: Database.ISearchParameters, orderBy?: any) {
+    private parseOrderBy(searchParameters: Contracts.Database.ISearchParameters, orderBy?: any) {
         if (orderBy && typeof orderBy === "string") {
             const fieldDirection = orderBy.split(":").map(o => o.toLowerCase());
             if (fieldDirection.length === 2 && (fieldDirection[1] === "asc" || fieldDirection[1] === "desc")) {
@@ -53,7 +57,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
         }
     }
 
-    private parseSearchParameters(searchParameters: Database.ISearchParameters, params: any) {
+    private parseSearchParameters(searchParameters: Contracts.Database.ISearchParameters, params: any) {
         const searchableFields = this.databaseModel.getSearchableFields();
         const mapByFieldName = searchableFields.reduce((p, c) => {
             const map = {};
@@ -68,7 +72,7 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
             value => !["orderBy", "limit", "offset", "page", "pagination"].includes(value),
         );
         for (const fieldName of fieldNames) {
-            const fieldDescriptor = mapByFieldName[fieldName] as Database.ISearchableField;
+            const fieldDescriptor = mapByFieldName[fieldName] as Contracts.Database.ISearchableField;
 
             /* null op means that the business repo doesn't know how to categorize what to do w/ with this field so
                 let the repo layer decide how it will handle querying this field
@@ -77,16 +81,16 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
             if (!fieldDescriptor) {
                 searchParameters.parameters.push({
                     field: fieldName,
-                    operator: Database.SearchOperator.OP_CUSTOM,
+                    operator: Contracts.Database.SearchOperator.OP_CUSTOM,
                     value: params[fieldName],
                 });
                 continue;
             }
 
-            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LIKE)) {
+            if (fieldDescriptor.supportedOperators.includes(Contracts.Database.SearchOperator.OP_LIKE)) {
                 searchParameters.parameters.push({
                     field: fieldName,
-                    operator: Database.SearchOperator.OP_LIKE,
+                    operator: Contracts.Database.SearchOperator.OP_LIKE,
                     value: `%${params[fieldName]}%`,
                 });
                 continue;
@@ -94,14 +98,14 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
 
             // 'between'
             if (
-                fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_GTE) ||
-                fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_LTE)
+                fieldDescriptor.supportedOperators.includes(Contracts.Database.SearchOperator.OP_GTE) ||
+                fieldDescriptor.supportedOperators.includes(Contracts.Database.SearchOperator.OP_LTE)
             ) {
                 // check if we have 'to' & 'from', if not, default to OP_EQ
                 if (!params[fieldName].hasOwnProperty("from") && !params[fieldName].hasOwnProperty("to")) {
                     searchParameters.parameters.push({
                         field: fieldName,
-                        operator: Database.SearchOperator.OP_EQ,
+                        operator: Contracts.Database.SearchOperator.OP_EQ,
                         value: params[fieldName],
                     });
                     continue;
@@ -109,14 +113,14 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
                     if (params[fieldName].hasOwnProperty("from")) {
                         searchParameters.parameters.push({
                             field: fieldName,
-                            operator: Database.SearchOperator.OP_GTE,
+                            operator: Contracts.Database.SearchOperator.OP_GTE,
                             value: params[fieldName].from,
                         });
                     }
                     if (params[fieldName].hasOwnProperty("to")) {
                         searchParameters.parameters.push({
                             field: fieldName,
-                            operator: Database.SearchOperator.OP_LTE,
+                            operator: Contracts.Database.SearchOperator.OP_LTE,
                             value: params[fieldName].to,
                         });
                     }
@@ -126,32 +130,32 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
 
             // If we support 'IN', then the value must be an array(of values)
             if (
-                fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_IN) &&
+                fieldDescriptor.supportedOperators.includes(Contracts.Database.SearchOperator.OP_IN) &&
                 Array.isArray(params[fieldName])
             ) {
                 searchParameters.parameters.push({
                     field: fieldName,
-                    operator: Database.SearchOperator.OP_IN,
+                    operator: Contracts.Database.SearchOperator.OP_IN,
                     value: params[fieldName],
                 });
                 continue;
             }
 
             // if the field supports EQ, then ignore any others.
-            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_EQ)) {
+            if (fieldDescriptor.supportedOperators.includes(Contracts.Database.SearchOperator.OP_EQ)) {
                 searchParameters.parameters.push({
                     field: fieldName,
-                    operator: Database.SearchOperator.OP_EQ,
+                    operator: Contracts.Database.SearchOperator.OP_EQ,
                     value: params[fieldName],
                 });
                 continue;
             }
 
             // if the field supports CONTAINS (@>), then ignore any others.
-            if (fieldDescriptor.supportedOperators.includes(Database.SearchOperator.OP_CONTAINS)) {
+            if (fieldDescriptor.supportedOperators.includes(Contracts.Database.SearchOperator.OP_CONTAINS)) {
                 searchParameters.parameters.push({
                     field: fieldName,
-                    operator: Database.SearchOperator.OP_CONTAINS,
+                    operator: Contracts.Database.SearchOperator.OP_CONTAINS,
                     value: params[fieldName],
                 });
 

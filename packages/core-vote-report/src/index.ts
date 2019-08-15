@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { startServer } from "./server";
 
@@ -6,10 +6,10 @@ export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "vote-report",
-    async register(container: Container.IContainer, options) {
+    async register(container: Contracts.Kernel.IContainer, options) {
         return startServer(options);
     },
-    async deregister(container: Container.IContainer) {
-        await container.resolvePlugin("vote-report").stop();
+    async deregister(container: Contracts.Kernel.IContainer) {
+        await container.resolve("vote-report").stop();
     },
 };

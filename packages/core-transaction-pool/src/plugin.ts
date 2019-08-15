@@ -1,4 +1,4 @@
-import { Container, Logger, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Connection } from "./connection";
 import { defaults } from "./defaults";
 import { ConnectionManager } from "./manager";
@@ -11,8 +11,8 @@ export const plugin: Container.IPluginDescriptor = {
     defaults,
     required: true,
     alias: "transaction-pool",
-    async register(container: Container.IContainer, options) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("Connecting to transaction pool");
+    async register(container: Contracts.Kernel.IContainer, options) {
+        container.resolve<Contracts.Kernel.ILogger>("logger").info("Connecting to transaction pool");
 
         return new ConnectionManager().createConnection(
             new Connection({
@@ -23,9 +23,9 @@ export const plugin: Container.IPluginDescriptor = {
             }),
         );
     },
-    async deregister(container: Container.IContainer) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("Disconnecting from transaction pool");
+    async deregister(container: Contracts.Kernel.IContainer) {
+        container.resolve<Contracts.Kernel.ILogger>("logger").info("Disconnecting from transaction pool");
 
-        return container.resolvePlugin<TransactionPool.IConnection>("transaction-pool").disconnect();
+        return container.resolve<Contracts.TransactionPool.IConnection>("transaction-pool").disconnect();
     },
 };

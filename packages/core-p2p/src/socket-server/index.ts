@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import SocketCluster from "socketcluster";
 import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
@@ -9,7 +8,10 @@ import { getHeaders } from "./utils/get-headers";
 import { validate } from "./utils/validate";
 import * as handlers from "./versions";
 
-export const startSocketServer = async (service: P2P.IPeerService, config: Record<string, any>): Promise<any> => {
+export const startSocketServer = async (
+    service: Contracts.P2P.IPeerService,
+    config: Record<string, any>,
+): Promise<any> => {
     // when testing we also need to get socket files from dist folder
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
@@ -30,7 +32,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
         ...config.server,
     });
 
-    server.on("fail", data => app.resolvePlugin<Logger.ILogger>("logger").error(data.message));
+    server.on("fail", data => app.resolve<Contracts.Kernel.ILogger>("logger").error(data.message));
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
@@ -62,7 +64,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 return res(error);
             }
 
-            app.resolvePlugin<Logger.ILogger>("logger").error(error.message);
+            app.resolve<Contracts.Kernel.ILogger>("logger").error(error.message);
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
     });

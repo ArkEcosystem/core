@@ -1,5 +1,5 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { State } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Index } from "./base";
 
 export class Wallets extends Index {
@@ -9,7 +9,7 @@ export class Wallets extends Index {
         for (let i = 0; i < iterations; i++) {
             const offset: number = this.chunkSize * i;
 
-            const rows: State.IWallet[] = this.database.walletManager
+            const rows: Contracts.State.IWallet[] = this.database.walletManager
                 .allByAddress()
                 .slice(offset, offset + this.chunkSize);
 
@@ -31,7 +31,7 @@ export class Wallets extends Index {
     }
 
     public listen(): void {
-        this.emitter.on(ApplicationEvents.RoundApplied, () => this.index());
+        this.emitter.listen(ApplicationEvents.RoundApplied, () => this.index());
     }
 
     protected async countWithDatabase(): Promise<number> {

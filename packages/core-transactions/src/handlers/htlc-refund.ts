@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
@@ -31,11 +30,17 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.IConnection,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const lockId = transaction.asset.refund.lockTransactionId;
-            const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+            const lockWallet: Contracts.State.IWallet = walletManager.findByIndex(
+                Contracts.State.WalletIndexes.Locks,
+                lockId,
+            );
             const locks = lockWallet.getAttribute("htlc.locks");
             lockWallet.balance = lockWallet.balance.plus(locks[lockId].amount);
             const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
@@ -61,8 +66,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        sender: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        sender: Contracts.State.IWallet,
+        databaseWalletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         // Common checks (copied from inherited transaction handler class)
         // Only common balance check was removed because we need a specific balance check here
@@ -82,7 +87,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
             }
@@ -101,7 +106,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
             }
@@ -116,14 +121,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         // Specific HTLC refund checks
         const refundAsset = transaction.data.asset.refund;
         const lockId = refundAsset.lockTransactionId;
-        const lockWallet = databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const lockWallet = databaseWalletManager.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
 
         const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         const lastBlock: Interfaces.IBlock = app
-            .resolvePlugin<State.IStateService>("state")
+            .resolve<Contracts.State.IContracts.StateService>("state")
             .getStore()
             .getLastBlock();
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
@@ -138,11 +143,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         const lockId: string = data.asset.refund.lockTransactionId;
-        const lockWallet: State.IWallet = pool.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const lockWallet: Contracts.State.IWallet = pool.walletManager.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             processor.pushError(
                 data,
@@ -157,9 +165,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
@@ -177,7 +185,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         const lockId: string = data.asset.refund.lockTransactionId;
-        const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const lockWallet: Contracts.State.IWallet = walletManager.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
         assert(lockWallet && lockWallet.getAttribute("htlc.locks", {})[lockId]);
 
         const locks = lockWallet.getAttribute("htlc.locks");
@@ -195,9 +206,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (data.version > 1) {
@@ -209,7 +220,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         // todo to improve : not so good to call database from here, would need a better way
-        const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+        const databaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
 
         const lockId = transaction.data.asset.refund.lockTransactionId;
         const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);
@@ -227,13 +238,13 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

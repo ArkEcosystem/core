@@ -1,7 +1,7 @@
 // tslint:disable:max-classes-per-file
 // tslint:disable:member-ordering
 
-import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import {
@@ -28,12 +28,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
      * Wallet logic
      */
     public abstract async bootstrap(
-        connection: Database.IConnection,
-        walletManager: State.IWalletManager,
+        connection: Contracts.Database.IConnection,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void>;
 
-    public async verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<boolean> {
-        const senderWallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+    public async verify(
+        transaction: Interfaces.ITransaction,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<boolean> {
+        const senderWallet: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.hasMultiSignature()) {
             transaction.isVerified = senderWallet.verifySignatures(transaction.data);
@@ -61,8 +64,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        sender: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        sender: Contracts.State.IWallet,
+        databaseWalletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -89,7 +92,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
 
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
@@ -110,7 +113,9 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const dbSender: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
 
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
@@ -136,9 +141,9 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
@@ -168,9 +173,9 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         sender.balance = sender.balance.plus(data.amount).plus(data.fee);
@@ -186,27 +191,27 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public abstract async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void>;
 
     public abstract async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void>;
 
     /**
      * Database Service
      */
     // tslint:disable-next-line:no-empty
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {}
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {}
 
     /**
      * Transaction Pool logic
      */
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         processor.pushError(
             data,
@@ -219,8 +224,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     protected async typeFromSenderAlreadyInPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         const { senderPublicKey, type }: Interfaces.ITransactionData = data;
 

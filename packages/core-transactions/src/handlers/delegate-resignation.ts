@@ -1,5 +1,5 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
@@ -18,7 +18,10 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return ["delegate.resigned"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.IConnection,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
@@ -32,8 +35,8 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        wallet: Contracts.State.IWallet,
+        databaseWalletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         if (!wallet.isDelegate()) {
             throw new WalletNotADelegateError();
@@ -46,8 +49,8 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(ApplicationEvents.DelegateResigned, transaction.data);
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {
+        emitter.dispatch(ApplicationEvents.DelegateResigned, transaction.data);
     }
 
     public async canEnterTransactionPool(
@@ -56,7 +59,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
         if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
+            const wallet: Contracts.State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
             processor.pushError(
                 data,
                 "ERR_PENDING",
@@ -70,7 +73,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
 
@@ -79,7 +82,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
 
@@ -88,13 +91,13 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

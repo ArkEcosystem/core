@@ -1,6 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { WriteStream } from "fs";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
@@ -14,7 +12,7 @@ export class PinoLogger extends AbstractLogger {
     protected logger: pino.Logger;
     private fileStream: WriteStream;
 
-    public make(): Logger.ILogger {
+    public make(): Contracts.Kernel.ILogger {
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {

@@ -1,14 +1,3 @@
-import { EventEmitter } from "./emitter";
-
-export const plugin = {
-    pkg: require("../package.json"),
-    required: true,
-    alias: "event-emitter",
-    register() {
-        return new EventEmitter();
-    },
-};
-
 export enum ApplicationEvents {
     BlockApplied = "block.applied",
     BlockDisregarded = "block.disregarded",

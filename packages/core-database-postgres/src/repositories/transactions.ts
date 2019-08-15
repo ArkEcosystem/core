@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import partition from "lodash.partition";
@@ -7,8 +6,10 @@ import { Transaction } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-export class TransactionsRepository extends Repository implements Database.ITransactionsRepository {
-    public async search(parameters: Database.ISearchParameters): Promise<Database.ITransactionsPaginated> {
+export class TransactionsRepository extends Repository implements Contracts.Database.ITransactionsRepository {
+    public async search(
+        parameters: Contracts.Database.ISearchParameters,
+    ): Promise<Contracts.Database.ITransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
@@ -22,7 +23,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
         if (params.length) {
             // 'search' doesn't support custom-op 'ownerId' like 'findAll' can
-            const ops = params.filter(value => value.operator !== Database.SearchOperator.OP_CUSTOM);
+            const ops = params.filter(value => value.operator !== Contracts.Database.SearchOperator.OP_CUSTOM);
 
             const [participants, rest] = partition(ops, op =>
                 ["sender_public_key", "recipient_id"].includes(this.propToColumnName(op.field)),
@@ -36,7 +37,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
                 if (last) {
                     const usesInOperator = participants.every(
-                        condition => condition.operator === Database.SearchOperator.OP_IN,
+                        condition => condition.operator === Contracts.Database.SearchOperator.OP_IN,
                     );
 
                     if (usesInOperator) {
@@ -49,10 +50,14 @@ export class TransactionsRepository extends Repository implements Database.ITran
                             query.and(this.query[this.propToColumnName(last.field)][last.operator](last.value));
                         }
                     }
-                } else if (first.field === "recipientId" && first.operator === Database.SearchOperator.OP_EQ) {
+                } else if (
+                    first.field === "recipientId" &&
+                    first.operator === Contracts.Database.SearchOperator.OP_EQ
+                ) {
                     // Workaround to include transactions (e.g. type 2) where the recipient_id is missing in the database
-                    const walletManager: State.IWalletManager = app.resolvePlugin<Database.IDatabaseService>("database")
-                        .walletManager;
+                    const walletManager: State.IWalletManager = app.resolve<
+                        Contracts.Contracts.Database.IDatabaseService
+                    >("database").walletManager;
                     const recipientWallet: State.IWallet = walletManager.findByAddress(first.value);
 
                     for (const query of [selectQuery, selectQueryCount]) {
@@ -164,9 +169,9 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
     public async findAllByWallet(
         wallet: State.IWallet,
-        paginate?: Database.ISearchPaginate,
-        orderBy?: Database.ISearchOrderBy[],
-    ): Promise<Database.ITransactionsPaginated> {
+        paginate?: Contracts.Database.ISearchPaginate,
+        orderBy?: Contracts.Database.ISearchOrderBy[],
+    ): Promise<Contracts.Database.ITransactionsPaginated> {
         const selectQuery = this.query.select();
         const selectQueryCount = this.query.select(this.query.count().as("cnt"));
 

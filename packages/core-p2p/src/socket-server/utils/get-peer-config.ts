@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { Plugins } from "@arkecosystem/core-utils";
 import { IPeerConfig } from "../../interfaces";
 

@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -274,7 +273,7 @@ export class Memory {
 
     private currentHeight(): number {
         return app
-            .resolvePlugin<State.IStateService>("state")
+            .resolve<Contracts.State.IStateService>("state")
             .getStore()
             .getLastHeight();
     }

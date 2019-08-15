@@ -1,10 +1,10 @@
-import { State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import dottie from "dottie";
 
-export class Wallet implements State.IWallet {
+export class Wallet implements Contracts.State.IWallet {
     public address: string;
     public publicKey: string | undefined;
     public balance: Utils.BigNumber;
@@ -89,7 +89,7 @@ export class Wallet implements State.IWallet {
         ) {
             this.balance = this.balance.minus(block.reward).minus(block.totalFee);
 
-            const delegate: State.IWalletDelegateAttributes = this.getAttribute("delegate");
+            const delegate: Contracts.State.IWalletDelegateAttributes = this.getAttribute("delegate");
 
             delegate.forgedFees = delegate.forgedFees.minus(block.totalFee);
             delegate.forgedRewards = delegate.forgedRewards.minus(block.reward);
@@ -148,9 +148,9 @@ export class Wallet implements State.IWallet {
     public auditApply(transaction: Interfaces.ITransactionData): any[] {
         const audit = [];
 
-        const delegate: State.IWalletDelegateAttributes = this.getAttribute("delegate");
+        const delegate: Contracts.State.IWalletDelegateAttributes = this.getAttribute("delegate");
         const secondPublicKey: string = this.getAttribute("secondPublicKey");
-        const multiSignature: State.IWalletMultiSignatureAttributes = this.getAttribute("multiSignature");
+        const multiSignature: Contracts.State.IWalletMultiSignatureAttributes = this.getAttribute("multiSignature");
 
         if (multiSignature) {
             audit.push({

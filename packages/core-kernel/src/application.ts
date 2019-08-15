@@ -388,7 +388,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public get blockchain(): Blockchain.IBlockchain {
-        return this.resolve<Blockchain.IBlockchain>("blockchain");
+        return this.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
     }
 
     /**

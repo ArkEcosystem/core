@@ -1,12 +1,12 @@
-import { Database, State } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
 
-export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
+export class WalletsBusinessRepository implements Contracts.Database.IWalletsBusinessRepository {
+    public constructor(private readonly databaseServiceProvider: () => Contracts.Database.IDatabaseService) {}
 
-    public search(params: Database.IParameters = {}): Database.IWalletsPaginated {
+    public search(params: Contracts.Database.IParameters = {}): Contracts.Database.IWalletsPaginated {
         const query: Record<string, string[]> = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
             between: ["balance", "voteBalance"],
@@ -26,7 +26,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
         this.applyOrder(params);
 
-        const wallets: State.IWallet[] = sortEntries(
+        const wallets: Contracts.State.IWallet[] = sortEntries(
             params,
             filterRows(this.databaseServiceProvider().walletManager.allByAddress(), params, query),
             ["balance", "desc"],
@@ -38,11 +38,14 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    public findAllByVote(publicKey: string, params: Database.IParameters = {}): Database.IWalletsPaginated {
+    public findAllByVote(
+        publicKey: string,
+        params: Contracts.Database.IParameters = {},
+    ): Contracts.Database.IWalletsPaginated {
         return this.search({ ...params, ...{ vote: publicKey } });
     }
 
-    public findById(id: string): State.IWallet {
+    public findById(id: string): Contracts.State.IWallet {
         return this.databaseServiceProvider().walletManager.findById(id);
     }
 
@@ -50,12 +53,12 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return this.search().count;
     }
 
-    public top(params: Database.IParameters = {}): Database.IWalletsPaginated {
+    public top(params: Contracts.Database.IParameters = {}): Contracts.Database.IWalletsPaginated {
         return this.search({ ...params, ...{ orderBy: "balance:desc" } });
     }
 
     // TODO: check if order still works
-    private applyOrder(params: Database.IParameters): void {
+    private applyOrder(params: Contracts.Database.IParameters): void {
         const assignOrder = (params, value) => (params.orderBy = value);
 
         if (!params.orderBy) {

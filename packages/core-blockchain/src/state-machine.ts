@@ -1,7 +1,6 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
-import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces, Utils } from "@arkecosystem/crypto";
@@ -13,9 +12,9 @@ import { Blockchain } from "./blockchain";
 
 const { BlockFactory } = Blocks;
 const config = app.getConfig();
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const stateStorage = app.resolvePlugin<State.IStateService>("state").getStore();
+const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
+const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+const stateStorage = app.resolve<State.IStateService>("state").getStore();
 
 /**
  * @type {IStateStore}
@@ -31,7 +30,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;
-            emitter.emit("state:started", true);
+            emitter.dispatch("state:started", true);
         }
     },
 

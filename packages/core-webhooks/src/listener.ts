@@ -1,6 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { httpie } from "@arkecosystem/core-utils";
 import * as conditions from "./conditions";
 import { database } from "./database";
@@ -8,7 +7,7 @@ import { IWebhook } from "./interfaces";
 
 export const startListeners = (): void => {
     for (const event of Object.values(ApplicationEvents)) {
-        app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").on(event, async payload => {
+        app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter").listen(event, async payload => {
             const webhooks: IWebhook[] = database.findByEvent(event).filter((webhook: IWebhook) => {
                 if (!webhook.enabled) {
                     return false;
@@ -47,11 +46,11 @@ export const startListeners = (): void => {
                         timeout: app.resolveOptions("webhooks").timeout,
                     });
 
-                    app.resolvePlugin<Logger.ILogger>("logger").debug(
+                    app.resolve<Contracts.Kernel.ILogger>("logger").debug(
                         `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
                     );
                 } catch (error) {
-                    app.resolvePlugin<Logger.ILogger>("logger").error(
+                    app.resolve<Contracts.Kernel.ILogger>("logger").error(
                         `Webhooks Job ${webhook.id} failed: ${error.message}`,
                     );
                 }

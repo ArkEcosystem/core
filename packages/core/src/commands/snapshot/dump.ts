@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import { setUpLite } from "../../helpers/snapshot";
@@ -32,6 +32,6 @@ export class DumpCommand extends BaseCommand {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        await app.resolvePlugin<SnapshotManager>("snapshots").dump(flags);
+        await app.resolve<SnapshotManager>("snapshots").dump(flags);
     }
 }

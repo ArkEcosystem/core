@@ -1,4 +1,4 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { Server } from "./server";
 
@@ -6,9 +6,9 @@ export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "api",
-    async register(container: Container.IContainer, options) {
+    async register(container: Contracts.Kernel.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Public API is disabled");
+            container.resolve<Contracts.Kernel.ILogger>("logger").info("Public API is disabled");
 
             return false;
         }
@@ -18,11 +18,11 @@ export const plugin: Container.IPluginDescriptor = {
 
         return server;
     },
-    async deregister(container: Container.IContainer, options) {
+    async deregister(container: Contracts.Kernel.IContainer, options) {
         if (options.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info(`Stopping Public API`);
+            container.resolve<Contracts.Kernel.ILogger>("logger").info(`Stopping Public API`);
 
-            await container.resolvePlugin<Server>("api").stop();
+            await container.resolve<Server>("api").stop();
         }
     },
 };

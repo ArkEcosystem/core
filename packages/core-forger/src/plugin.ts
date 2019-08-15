@@ -1,4 +1,4 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { ForgerManager } from "./manager";
 
@@ -6,7 +6,7 @@ export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "forger",
-    async register(container: Container.IContainer, options) {
+    async register(container: Contracts.Kernel.IContainer, options) {
         const forgerManager: ForgerManager = new ForgerManager(options);
 
         await forgerManager.startForging(options.bip38 as string, options.password as string);
@@ -17,11 +17,11 @@ export const plugin: Container.IPluginDescriptor = {
 
         return forgerManager;
     },
-    async deregister(container: Container.IContainer) {
-        const forger = container.resolvePlugin("forger");
+    async deregister(container: Contracts.Kernel.IContainer) {
+        const forger = container.resolve("forger");
 
         if (forger) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Forger Manager");
+            container.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Forger Manager");
             return forger.stopForging();
         }
     },

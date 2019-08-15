@@ -1,12 +1,11 @@
-import { app } from "@arkecosystem/core-container";
-import { P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
-    private readonly transactionPool = app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
+    private readonly transactionPool = app.resolve<Contracts.TransactionPool.IConnection>("transaction-pool");
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
@@ -21,11 +20,11 @@ export class TransactionsController extends Controller {
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const processor: TransactionPool.IProcessor = this.transactionPool.makeProcessor();
+            const processor: Contracts.TransactionPool.IProcessor = this.transactionPool.makeProcessor();
             const result = await processor.validate((request.payload as any).transactions);
 
             if (result.broadcast.length > 0) {
-                app.resolvePlugin<P2P.IPeerService>("p2p")
+                app.resolve<Contracts.P2P.IPeerService>("p2p")
                     .getMonitor()
                     .broadcastTransactions(processor.getBroadcastTransactions());
             }

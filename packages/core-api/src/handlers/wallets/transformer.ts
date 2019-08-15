@@ -1,7 +1,7 @@
-import { State } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
-export const transformWallet = (wallet: State.IWallet) => {
+export const transformWallet = (wallet: Contracts.State.IWallet) => {
     const username: string = wallet.getAttribute("delegate.username");
 
     return {

@@ -5,16 +5,15 @@ import QueryStream from "pg-query-stream";
 import pluralize from "pluralize";
 import zlib from "zlib";
 
-import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 
 import * as utils from "../utils";
 import { Codec } from "./codec";
 import { canImportRecord, verifyData } from "./verification";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
 
 const fixData = (table, data) => {
     if (table === "blocks" && data.height === 1) {
@@ -83,13 +82,13 @@ export const importTable = async (table, options) => {
     const saveData = async data => {
         if (data && data.length > 0) {
             const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table));
-            emitter.emit("progress", { value: counter, table });
+            emitter.dispatch("progress", { value: counter, table });
             values = [];
             return options.database.db.none(insert);
         }
     };
 
-    emitter.emit("start", { count: options.meta[table].count });
+    emitter.dispatch("start", { count: options.meta[table].count });
 
     // tslint:disable-next-line: await-promise
     for await (const record of readStream) {
@@ -115,7 +114,7 @@ export const importTable = async (table, options) => {
         await saveData(values);
     }
 
-    emitter.emit("complete");
+    emitter.dispatch("complete");
 };
 
 export const verifyTable = async (table, options) => {

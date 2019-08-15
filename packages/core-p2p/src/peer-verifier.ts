@@ -1,6 +1,5 @@
 // tslint:disable:max-classes-per-file
-import { app } from "@arkecosystem/core-container";
-import { Database, Logger, P2P, Shared, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -21,8 +20,8 @@ export class PeerVerifier {
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
     private static readonly verifiedBlocks = new CappedSet();
-    private readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly database: Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private logPrefix: string;
 
     public constructor(private readonly communicator: P2P.IPeerCommunicator, private readonly peer: P2P.IPeer) {
@@ -101,7 +100,7 @@ export class PeerVerifier {
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
 
-    private checkStateHeader(claimedState: P2P.IPeerState): boolean {
+    private checkStateHeader(claimedState: Contracts.P2P.IPeerState): boolean {
         const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
         const claimedHeight: number = Number(blockHeader.height);
         if (claimedHeight !== claimedState.height) {
@@ -115,7 +114,7 @@ export class PeerVerifier {
 
         try {
             const ownBlock: Interfaces.IBlock = app
-                .resolvePlugin<State.IStateService>("state")
+                .resolve<Contracts.State.IStateService>("state")
                 .getStore()
                 .getLastBlocks()
                 .find(block => block.data.height === blockHeader.height);
@@ -146,7 +145,7 @@ export class PeerVerifier {
 
     private ourHeight(): number {
         const height: number = app
-            .resolvePlugin<State.IStateService>("state")
+            .resolve<Contracts.State.IStateService>("state")
             .getStore()
             .getLastHeight();
 
@@ -364,7 +363,9 @@ export class PeerVerifier {
     /**
      * Get the delegates for the given round.
      */
-    private async getDelegatesByRound(roundInfo: Shared.IRoundInfo): Promise<Record<string, State.IWallet>> {
+    private async getDelegatesByRound(
+        roundInfo: Contracts.Shared.IRoundInfo,
+    ): Promise<Record<string, Contracts.State.IWallet>> {
         const { round, maxDelegates } = roundInfo;
 
         let delegates = await this.database.getActiveDelegates(roundInfo);
@@ -383,7 +384,7 @@ export class PeerVerifier {
             );
         }
 
-        const delegatesByPublicKey = {} as Record<string, State.IWallet>;
+        const delegatesByPublicKey = {} as Record<string, Contracts.State.IWallet>;
 
         for (const delegate of delegates) {
             delegatesByPublicKey[delegate.publicKey] = delegate;
@@ -458,7 +459,7 @@ export class PeerVerifier {
     private async verifyPeerBlock(
         blockData: Interfaces.IBlockData,
         expectedHeight: number,
-        delegatesByPublicKey: Record<string, State.IWallet>,
+        delegatesByPublicKey: Record<string, Contracts.State.IWallet>,
     ): Promise<boolean> {
         if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
             this.log(

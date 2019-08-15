@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Transactions, Utils } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
 
@@ -14,7 +13,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
         };
 
         if (!isBlockChained()) {
-            app.resolvePlugin<Logger.ILogger>("logger").error(
+            app.resolve<Contracts.Kernel.ILogger>("logger").error(
                 `Blocks are not chained. Current block: ${JSON.stringify(data)}, previous block: ${JSON.stringify(
                     prevData,
                 )}`,
@@ -30,9 +29,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             const signatureVerify = Crypto.Hash.verifyECDSA(hash, data.block_signature, data.generator_public_key);
 
             if (!signatureVerify) {
-                app.resolvePlugin<Logger.ILogger>("logger").error(
-                    `Failed to verify signature: ${JSON.stringify(data)}`,
-                );
+                app.resolve<Contracts.Kernel.ILogger>("logger").error(`Failed to verify signature: ${JSON.stringify(data)}`);
             }
 
             return signatureVerify;

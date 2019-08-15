@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import prettyMs from "pretty-ms";
 
 let tracker;
@@ -9,7 +8,7 @@ export const tickSyncTracker = (blockCount, count): void => {
         tracker = {
             start: new Date().getTime(),
             networkHeight: app
-                .resolvePlugin<P2P.IPeerService>("p2p")
+                .resolve<Contracts.P2P.IPeerService>("p2p")
                 .getMonitor()
                 .getNetworkHeight(),
             blocksInitial: +count,
@@ -45,7 +44,7 @@ export const tickSyncTracker = (blockCount, count): void => {
             secondsDecimalDigits: 0,
         });
 
-        app.resolvePlugin<Logger.ILogger>("logger").info(
+        app.resolve<Contracts.Kernel.ILogger>("logger").info(
             `Synchronising In Progress (${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`,
         );
     }

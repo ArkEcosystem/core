@@ -1,11 +1,10 @@
-import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export const transformTransaction = (model, transform) => {
-    const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
+    const databaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
 
     const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytesUnsafe(
         model.serialized,

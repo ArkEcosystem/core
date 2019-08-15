@@ -1,15 +1,6 @@
 /* tslint:disable:max-line-length */
-import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import {
-    Blockchain as blockchain,
-    Database,
-    EventEmitter,
-    Logger,
-    P2P,
-    State,
-    TransactionPool,
-} from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
@@ -19,17 +10,17 @@ import pluralize from "pluralize";
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
 const config = app.getConfig();
-const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
 const { BlockFactory } = Blocks;
 
-export class Blockchain implements blockchain.IBlockchain {
+export class Blockchain implements Contracts.Blockchain.IBlockchain {
     /**
      * Get the state of the blockchain.
      * @return {IStateStore}
      */
-    get state(): State.IStateStore {
+    get state(): Contracts.State.IStateStore {
         return stateMachine.state;
     }
 
@@ -37,24 +28,24 @@ export class Blockchain implements blockchain.IBlockchain {
      * Get the network (p2p) interface.
      * @return {IPeerService}
      */
-    get p2p(): P2P.IPeerService {
-        return app.resolvePlugin<P2P.IPeerService>("p2p");
+    get p2p(): Contracts.P2P.IPeerService {
+        return app.resolve<Contracts.P2P.IPeerService>("p2p");
     }
 
     /**
      * Get the transaction handler.
      * @return {TransactionPool}
      */
-    get transactionPool(): TransactionPool.IConnection {
-        return app.resolvePlugin<TransactionPool.IConnection>("transaction-pool");
+    get transactionPool(): Contracts.TransactionPool.IConnection {
+        return app.resolve<Contracts.TransactionPool.IConnection>("transaction-pool");
     }
 
     /**
      * Get the database connection.
      * @return {ConnectionInterface}
      */
-    get database(): Database.IDatabaseService {
-        return app.resolvePlugin<Database.IDatabaseService>("database");
+    get database(): Contracts.Database.IDatabaseService {
+        return app.resolve<Contracts.Database.IDatabaseService>("database");
     }
 
     public isStopped: boolean;
@@ -106,23 +97,23 @@ export class Blockchain implements blockchain.IBlockchain {
     public dispatch(event): void {
         const nextState = stateMachine.transition(this.state.blockchain, event);
 
-        if (nextState.actions.length > 0) {
+        if (nextState.State.actions.length > 0) {
             logger.debug(
                 `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
-                    nextState.value,
-                )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`,
+                    nextState.State.value,
+                )} -> actions: [${nextState.State.actions.map(a => a.type).join(", ")}]`,
             );
         } else {
             logger.debug(
                 `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
-                    nextState.value,
+                    nextState.State.value,
                 )}`,
             );
         }
 
         this.state.blockchain = nextState;
 
-        for (const actionKey of nextState.actions) {
+        for (const actionKey of nextState.State.actions) {
             const action = this.actions[actionKey];
 
             if (action) {
@@ -237,11 +228,11 @@ export class Blockchain implements blockchain.IBlockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 
-            emitter.emit(ApplicationEvents.BlockReceived, block);
+            emitter.dispatch(ApplicationEvents.BlockReceived, block);
         } else {
             logger.info(`Block disregarded because blockchain is not ready`);
 
-            emitter.emit(ApplicationEvents.BlockDisregarded, block);
+            emitter.dispatch(ApplicationEvents.BlockDisregarded, block);
         }
     }
 

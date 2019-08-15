@@ -1,4 +1,4 @@
-import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
@@ -23,7 +23,10 @@ export class VoteTransactionHandler extends TransactionHandler {
         return ["vote"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.IConnection,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
@@ -55,8 +58,8 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        wallet: Contracts.State.IWallet,
+        databaseWalletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
         const vote: string = data.asset.votes[0];
@@ -75,7 +78,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
 
         const delegatePublicKey: string = vote.slice(1);
-        const delegateWallet: State.IWallet = databaseWalletManager.findByPublicKey(delegatePublicKey);
+        const delegateWallet: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(delegatePublicKey);
 
         if (!delegateWallet.isDelegate()) {
             throw new VotedForNonDelegateError(vote);
@@ -88,10 +91,10 @@ export class VoteTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {
         const vote: string = transaction.data.asset.votes[0];
 
-        emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
+        emitter.dispatch(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
             delegate: vote,
             transaction: transaction.data,
         });
@@ -99,8 +102,8 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
@@ -111,11 +114,11 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
@@ -127,11 +130,11 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
@@ -143,13 +146,13 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

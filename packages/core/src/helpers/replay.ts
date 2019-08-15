@@ -1,10 +1,9 @@
-import { app } from "@arkecosystem/core-container";
-import { Container } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
 
-export const setUpLite = async (options): Promise<Container.IContainer> => {
+export const setUpLite = async (options): Promise<Contracts.Kernel.IContainer> => {
     await app.setUp(version, options, {
         options: {
             "@arkecosystem/core-blockchain": { replay: true },

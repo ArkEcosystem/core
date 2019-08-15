@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Blockchain, Database, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -11,9 +10,11 @@ export const transformBlock = (model, transform) => {
         return model;
     }
 
-    const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    const generator: State.IWallet = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
-    const lastBlock: Interfaces.IBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+    const databaseService: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>(
+        "database",
+    );
+    const generator: Contracts.State.IWallet = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
+    const lastBlock: Interfaces.IBlock = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     model.reward = Utils.BigNumber.make(model.reward);
     model.totalFee = Utils.BigNumber.make(model.totalFee);

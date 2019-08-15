@@ -60,7 +60,7 @@ export interface IWalletIpfsAttributes {
 }
 
 export interface IWalletManager {
-    logger: Logger.ILogger;
+    logger: Contracts.Kernel.ILogger;
 
     reset(): void;
 

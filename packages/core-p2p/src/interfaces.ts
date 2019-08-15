@@ -1,8 +1,8 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 
 export interface IPeerData {
     ip: string;
-    ports: P2P.IPeerPorts;
+    ports: Contracts.P2P.IPeerPorts;
     version: string;
 }
 
@@ -18,10 +18,10 @@ export interface IPeerConfig {
             symbol: string;
         };
     };
-    plugins: P2P.IPeerPlugins;
+    plugins: Contracts.P2P.IPeerPlugins;
 }
 
 export interface IPeerPingResponse {
-    state: P2P.IPeerState;
+    state: Contracts.P2P.IPeerState;
     config: IPeerConfig;
 }

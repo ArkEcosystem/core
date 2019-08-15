@@ -1,16 +1,18 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Block } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-export class BlocksRepository extends Repository implements Database.IBlocksRepository {
-    public async search(params: Database.ISearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
+export class BlocksRepository extends Repository implements Contracts.Database.IBlocksRepository {
+    public async search(
+        params: Contracts.Database.ISearchParameters,
+    ): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
         const selectQuery = this.query.select().from(this.query);
         const selectQueryCount = this.query.select(this.query.count().as("cnt")).from(this.query);
         // Blocks repo atm, doesn't search using any custom parameters
-        const parameterList = params.parameters.filter(o => o.operator !== Database.SearchOperator.OP_CUSTOM);
+        const parameterList = params.parameters.filter(o => o.operator !== Contracts.Database.SearchOperator.OP_CUSTOM);
 
         if (parameterList.length) {
             let first;
@@ -84,7 +86,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
         return this.db.manyOrNone(queries.blocks.heightRange, { start, end });
     }
 
-    public async heightRangeWithTransactions(start: number, end: number): Promise<Database.IDownloadBlock[]> {
+    public async heightRangeWithTransactions(start: number, end: number): Promise<Contracts.Database.IDownloadBlock[]> {
         return this.db.manyOrNone(queries.blocks.heightRangeWithTransactions, { start, end }).map(block => {
             if (block.transactions === null) {
                 delete block.transactions;

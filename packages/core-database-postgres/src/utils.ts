@@ -1,7 +1,6 @@
 /* tslint:disable:forin prefer-for-of*/
 
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import path from "path";
 import { QueryFile } from "pg-promise";
 
@@ -30,7 +29,7 @@ export const loadQueryFile = (directory, file): QueryFile => {
     });
 
     if (query.error) {
-        app.resolvePlugin<Logger.ILogger>("logger").error(query.error.toString());
+        app.resolve<Contracts.Kernel.ILogger>("logger").error(query.error.toString());
     }
 
     return query;

@@ -1,6 +1,5 @@
-import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Wallets } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
@@ -12,7 +11,7 @@ import { Delegate } from "./delegate";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
 export class ForgerManager {
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private readonly config = app.getConfig();
 
     private secrets: string[];
@@ -21,7 +20,7 @@ export class ForgerManager {
     private delegates: Delegate[];
     private usernames: { [key: string]: string };
     private isStopped: boolean;
-    private round: P2P.ICurrentRound;
+    private round: Contracts.P2P.ICurrentRound;
     private initialized: boolean;
 
     constructor(options) {
@@ -96,7 +95,7 @@ export class ForgerManager {
                 return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
             }
 
-            const networkState: P2P.INetworkState = await this.client.getNetworkState();
+            const networkState: Contracts.P2P.INetworkState = await this.client.getNetworkState();
 
             if (networkState.nodeHeight !== this.round.lastBlock.height) {
                 this.logger.warn(
@@ -135,8 +134,8 @@ export class ForgerManager {
 
     public async forgeNewBlock(
         delegate: Delegate,
-        round: P2P.ICurrentRound,
-        networkState: P2P.INetworkState,
+        round: Contracts.P2P.ICurrentRound,
+        networkState: Contracts.P2P.INetworkState,
     ): Promise<void> {
         Managers.configManager.setHeight(networkState.nodeHeight);
 
@@ -182,7 +181,7 @@ export class ForgerManager {
     }
 
     public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
-        const response: P2P.IForgingTransactions = await this.client.getTransactions();
+        const response: Contracts.P2P.IForgingTransactions = await this.client.getTransactions();
 
         if (isEmpty(response)) {
             this.logger.error("Could not get unconfirmed transactions from transaction pool.");
@@ -203,7 +202,7 @@ export class ForgerManager {
         return transactions;
     }
 
-    public isForgingAllowed(networkState: P2P.INetworkState, delegate: Delegate): boolean {
+    public isForgingAllowed(networkState: Contracts.P2P.INetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
 

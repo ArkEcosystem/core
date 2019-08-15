@@ -1,6 +1,6 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 
-export class PeerRepository<T> implements P2P.IPeerRepository<T> {
+export class PeerRepository<T> implements Contracts.P2P.IPeerRepository<T> {
     private readonly repository: Map<string, T> = new Map<string, T>();
 
     public all(): Map<string, T> {

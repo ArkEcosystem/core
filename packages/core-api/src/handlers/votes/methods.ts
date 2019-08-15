@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
@@ -7,7 +6,7 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 
 const { TransactionType } = Enums;
 
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+const databaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
 const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {

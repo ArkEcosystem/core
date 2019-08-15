@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { EventEmitter } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import cliProgress from "cli-progress";
@@ -43,7 +42,7 @@ export class RestoreCommand extends BaseCommand {
             }
         }
 
-        const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+        const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
 
         const progressBar = new cliProgress.Bar(
             {
@@ -52,18 +51,18 @@ export class RestoreCommand extends BaseCommand {
             cliProgress.Presets.shades_classic,
         );
 
-        emitter.on("start", data => {
+        emitter.listen("start", data => {
             progressBar.start(data.count, 1);
         });
 
-        emitter.on("progress", data => {
+        emitter.listen("progress", data => {
             progressBar.update(data.value);
         });
 
-        emitter.on("complete", data => {
+        emitter.listen("complete", data => {
             progressBar.stop();
         });
 
-        await app.resolvePlugin<SnapshotManager>("snapshots").import(flags);
+        await app.resolve<SnapshotManager>("snapshots").import(flags);
     }
 }

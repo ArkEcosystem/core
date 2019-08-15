@@ -1,4 +1,4 @@
-import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -15,10 +15,13 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         return ["htlc.locks", "htlc.lockedBalance"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.IConnection,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<void> {
         const lockTransactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of lockTransactions) {
-            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const wallet: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const locks = wallet.getAttribute("htlc.locks", {});
             locks[transaction.id] = transaction;
             wallet.setAttribute("htlc.locks", locks);
@@ -34,27 +37,27 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        wallet: Contracts.State.IWallet,
+        databaseWalletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         return true;
     }
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const locks = sender.getAttribute("htlc.locks", {});
         locks[transaction.id] = transaction.data;
         sender.setAttribute("htlc.locks", locks);
@@ -67,11 +70,11 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const lockedBalance = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
 
@@ -84,13 +87,13 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletManager: Contracts.State.IWalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

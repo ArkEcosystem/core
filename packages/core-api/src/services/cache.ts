@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { Crypto } from "@arkecosystem/crypto";
 import Hapi, { ServerMethod } from "@hapi/hapi";
 

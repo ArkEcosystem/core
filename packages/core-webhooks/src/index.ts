@@ -1,4 +1,4 @@
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { database } from "./database";
 import { defaults } from "./defaults";
 import { startListeners } from "./listener";
@@ -8,9 +8,9 @@ export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "webhooks",
-    async register(container: Container.IContainer, options) {
+    async register(container: Contracts.Kernel.IContainer, options) {
         if (!options.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Webhooks are disabled");
+            container.resolve<Contracts.Kernel.ILogger>("logger").info("Webhooks are disabled");
             return undefined;
         }
 
@@ -20,11 +20,11 @@ export const plugin: Container.IPluginDescriptor = {
 
         return startServer(options.server);
     },
-    async deregister(container: Container.IContainer, options) {
+    async deregister(container: Contracts.Kernel.IContainer, options) {
         if (options.enabled) {
-            container.resolvePlugin<Logger.ILogger>("logger").info("Stopping Webhook API");
+            container.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Webhook API");
 
-            await container.resolvePlugin("webhooks").stop();
+            await container.resolve("webhooks").stop();
         }
     },
 };

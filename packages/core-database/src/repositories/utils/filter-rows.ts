@@ -1,4 +1,4 @@
-import { State } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { getProperty } from "./get-property";
 
 /**
@@ -8,7 +8,7 @@ import { getProperty } from "./get-property";
  * @param  {Object} filters
  * @return {Array}
  */
-export = (rows: ReadonlyArray<State.IWallet>, params, filters): State.IWallet[] => {
+export = (rows: ReadonlyArray<Contracts.State.IWallet>, params, filters): Contracts.State.IWallet[] => {
     return rows.filter(item => {
         if (filters.hasOwnProperty("exact")) {
             for (const elem of filters.exact) {

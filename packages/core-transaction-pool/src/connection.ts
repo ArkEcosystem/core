@@ -1,9 +1,7 @@
 import { strictEqual } from "assert";
 import clonedeep from "lodash.clonedeep";
 
-import { app } from "@arkecosystem/core-container";
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
@@ -13,7 +11,7 @@ import { Processor } from "./processor";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
-export class Connection implements TransactionPool.IConnection {
+export class Connection implements Contracts.TransactionPool.IConnection {
     // @TODO: make this private, requires some bigger changes to tests
     public options: Record<string, any>;
     // @TODO: make this private, requires some bigger changes to tests
@@ -21,11 +19,13 @@ export class Connection implements TransactionPool.IConnection {
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
-    private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(
-        "database",
+    private readonly databaseService: Contracts.Database.IDatabaseService = app.resolve<
+        Contracts.Database.IDatabaseService
+    >("database");
+    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
+        "event-emitter",
     );
-    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
 
     constructor({
         options,
@@ -63,7 +63,7 @@ export class Connection implements TransactionPool.IConnection {
             this.syncToPersistentStorage();
         });
 
-        this.emitter.on("internal.milestone.changed", () => this.purgeInvalidTransactions());
+        this.emitter.listen("internal.milestone.changed", () => this.purgeInvalidTransactions());
 
         return this;
     }
@@ -73,7 +73,7 @@ export class Connection implements TransactionPool.IConnection {
         this.storage.disconnect();
     }
 
-    public makeProcessor(): TransactionPool.IProcessor {
+    public makeProcessor(): Contracts.TransactionPool.IProcessor {
         return new Processor(this, this.walletManager);
     }
 
@@ -97,20 +97,20 @@ export class Connection implements TransactionPool.IConnection {
 
     public async addTransactions(transactions: Interfaces.ITransaction[]): Promise<ITransactionsProcessed> {
         const added: Interfaces.ITransaction[] = [];
-        const notAdded: TransactionPool.IAddTransactionResponse[] = [];
+        const notAdded: Contracts.TransactionPool.IAddTransactionResponse[] = [];
 
         for (const transaction of transactions) {
-            const result: TransactionPool.IAddTransactionResponse = await this.addTransaction(transaction);
+            const result: Contracts.TransactionPool.IAddTransactionResponse = await this.addTransaction(transaction);
 
             result.message ? notAdded.push(result) : added.push(transaction);
         }
 
         if (added.length > 0) {
-            this.emitter.emit(ApplicationEvents.TransactionPoolAdded, added);
+            this.emitter.dispatch(ApplicationEvents.TransactionPoolAdded, added);
         }
 
         if (notAdded.length > 0) {
-            this.emitter.emit(ApplicationEvents.TransactionPoolRejected, notAdded);
+            this.emitter.dispatch(ApplicationEvents.TransactionPoolRejected, notAdded);
         }
 
         return { added, notAdded };
@@ -125,7 +125,7 @@ export class Connection implements TransactionPool.IConnection {
 
         this.syncToPersistentStorageIfNecessary();
 
-        this.emitter.emit(ApplicationEvents.TransactionPoolRemoved, id);
+        this.emitter.dispatch(ApplicationEvents.TransactionPoolRemoved, id);
     }
 
     public removeTransactionsById(ids: string[]): void {
@@ -210,11 +210,11 @@ export class Connection implements TransactionPool.IConnection {
                 transaction.typeGroup,
             );
 
-            const senderWallet: State.IWallet = this.walletManager.hasByPublicKey(senderPublicKey)
+            const senderWallet: Contracts.State.IWallet = this.walletManager.hasByPublicKey(senderPublicKey)
                 ? this.walletManager.findByPublicKey(senderPublicKey)
                 : undefined;
 
-            const recipientWallet: State.IWallet = this.walletManager.hasByAddress(data.recipientId)
+            const recipientWallet: Contracts.State.IWallet = this.walletManager.hasByAddress(data.recipientId)
                 ? this.walletManager.findByAddress(data.recipientId)
                 : undefined;
 
@@ -261,12 +261,14 @@ export class Connection implements TransactionPool.IConnection {
 
         // if delegate in poll wallet manager - apply rewards and fees
         if (this.walletManager.hasByPublicKey(block.data.generatorPublicKey)) {
-            const delegateWallet: State.IWallet = this.walletManager.findByPublicKey(block.data.generatorPublicKey);
+            const delegateWallet: Contracts.State.IWallet = this.walletManager.findByPublicKey(
+                block.data.generatorPublicKey,
+            );
 
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
-        app.resolvePlugin<State.IStateService>("state")
+        app.resolve<Contracts.State.IStateService>("state")
             .getStore()
             .removeCachedTransactionIds(block.transactions.map(tx => tx.id));
     }
@@ -276,7 +278,7 @@ export class Connection implements TransactionPool.IConnection {
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
-        app.resolvePlugin<State.IStateService>("state")
+        app.resolve<Contracts.State.IStateService>("state")
             .getStore()
             .removeCachedTransactionIds(transactionIds);
 
@@ -287,7 +289,9 @@ export class Connection implements TransactionPool.IConnection {
                 return;
             }
 
-            const senderWallet: State.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const senderWallet: Contracts.State.IWallet = this.walletManager.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
 
             // TODO: rework error handling
             try {
@@ -394,7 +398,7 @@ export class Connection implements TransactionPool.IConnection {
 
     private async addTransaction(
         transaction: Interfaces.ITransaction,
-    ): Promise<TransactionPool.IAddTransactionResponse> {
+    ): Promise<Contracts.TransactionPool.IAddTransactionResponse> {
         if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
@@ -470,7 +474,7 @@ export class Connection implements TransactionPool.IConnection {
             (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
         );
 
-        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
+        const databaseWalletManager: Contracts.State.IWalletManager = this.databaseService.walletManager;
         const localWalletManager: Wallets.WalletManager = new Wallets.WalletManager();
 
         for (const transaction of unforgedTransactions) {
@@ -509,13 +513,13 @@ export class Connection implements TransactionPool.IConnection {
 
     private getSenderAndRecipient(
         transaction: Interfaces.ITransaction,
-        localWalletManager: State.IWalletManager,
-    ): { sender: State.IWallet; recipient: State.IWallet } {
-        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
+        localWalletManager: Contracts.State.IWalletManager,
+    ): { sender: Contracts.State.IWallet; recipient: Contracts.State.IWallet } {
+        const databaseWalletManager: Contracts.State.IWalletManager = this.databaseService.walletManager;
         const { senderPublicKey, recipientId } = transaction.data;
 
-        let sender: State.IWallet;
-        let recipient: State.IWallet;
+        let sender: Contracts.State.IWallet;
+        let recipient: Contracts.State.IWallet;
 
         if (localWalletManager.hasByPublicKey(senderPublicKey)) {
             sender = localWalletManager.findByPublicKey(senderPublicKey);
@@ -532,9 +536,9 @@ export class Connection implements TransactionPool.IConnection {
             }
         } else if (transaction.type === Enums.TransactionType.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
-            if (!localWalletManager.hasByIndex(State.WalletIndexes.Locks, lockId)) {
+            if (!localWalletManager.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
                 localWalletManager.reindex(
-                    clonedeep(databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId)),
+                    clonedeep(databaseWalletManager.findByIndex(Contracts.State.WalletIndexes.Locks, lockId)),
                 );
             }
         }
@@ -569,7 +573,7 @@ export class Connection implements TransactionPool.IConnection {
      */
     private async purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): Promise<void> {
         const purge = async (transaction: Interfaces.ITransaction) => {
-            this.emitter.emit(event, transaction.data);
+            this.emitter.dispatch(event, transaction.data);
             await this.walletManager.revertTransactionForSender(transaction);
             this.memory.forget(transaction.id, transaction.data.senderPublicKey);
             this.syncToPersistentStorageIfNecessary();

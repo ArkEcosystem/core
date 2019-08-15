@@ -1,4 +1,4 @@
-import { Container, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
@@ -25,10 +25,10 @@ export const plugin: Container.IPluginDescriptor = {
     defaults,
     required: true,
     alias: "p2p",
-    async register(container: Container.IContainer, options) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("Starting P2P Interface");
+    async register(container: Contracts.Kernel.IContainer, options) {
+        container.resolve<Contracts.Kernel.ILogger>("logger").info("Starting P2P Interface");
 
-        const service: P2P.IPeerService = makePeerService(options);
+        const service: Contracts.P2P.IPeerService = makePeerService(options);
 
         // tslint:disable-next-line: no-unused-expression
         new EventListener(service);
@@ -39,11 +39,11 @@ export const plugin: Container.IPluginDescriptor = {
 
         return service;
     },
-    async deregister(container: Container.IContainer, options) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("Stopping P2P Interface");
+    async deregister(container: Contracts.Kernel.IContainer, options) {
+        container.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping P2P Interface");
 
         container
-            .resolvePlugin<P2P.IPeerService>("p2p")
+            .resolve<Contracts.P2P.IPeerService>("p2p")
             .getMonitor()
             .stopServer();
     },

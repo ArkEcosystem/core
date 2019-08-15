@@ -1,14 +1,15 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { client } from "../client";
 import { storage } from "../storage";
 
 export abstract class Index {
-    protected readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>(
+    protected readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
         "event-emitter",
     );
-    protected readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    protected readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+    protected readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    protected readonly database: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>(
+        "database",
+    );
 
     public constructor(protected readonly chunkSize: number) {}
 
@@ -16,7 +17,7 @@ export abstract class Index {
     public abstract listen(): void;
 
     protected registerListener(method: "create" | "delete", event: string): void {
-        this.emitter.on(event, async doc => {
+        this.emitter.listen(event, async doc => {
             try {
                 const exists: boolean = await this.exists(doc);
                 const shouldTakeAction: boolean = method === "create" ? !exists : exists;

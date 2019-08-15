@@ -27,9 +27,9 @@ export interface IDatabaseService {
 
     connection: IConnection;
 
-    logger: Logger.ILogger;
+    logger: Contracts.Kernel.ILogger;
 
-    emitter: EventEmitter.EventEmitter;
+    emitter: Contracts.Kernel.IEventDispatcher;
 
     config: any;
 

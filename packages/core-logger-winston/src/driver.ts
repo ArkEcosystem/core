@@ -1,4 +1,4 @@
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { AbstractLogger } from "@arkecosystem/core-logger";
 import "colors";
 import * as winston from "winston";
@@ -7,7 +7,7 @@ import { ITransport, ITransportStream } from "./interfaces";
 export class WinstonLogger extends AbstractLogger {
     protected logger: winston.Logger;
 
-    public make(): Logger.ILogger {
+    public make(): Contracts.Kernel.ILogger {
         this.logger = winston.createLogger();
 
         this.registerTransports();

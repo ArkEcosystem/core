@@ -1,4 +1,4 @@
-import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionHandlerConstructor } from "./handlers/transaction";
 
@@ -9,27 +9,27 @@ export interface ITransactionHandler {
 
     walletAttributes(): ReadonlyArray<string>;
 
-    bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void>;
+    bootstrap(connection: Contracts.Database.IConnection, walletManager: Contracts.State.IWalletManager): Promise<void>;
 
     isActivated(): Promise<boolean>;
 
-    verify(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<boolean>;
+    verify(transaction: Interfaces.ITransaction, walletManager: Contracts.State.IWalletManager): Promise<boolean>;
 
     dynamicFee(transaction: Interfaces.ITransaction, addonBytes: number, satoshiPerByte: number): Utils.BigNumber;
 
     throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        wallet: Contracts.State.IWallet,
+        databaseWalletManager: Contracts.State.IWalletManager,
     ): Promise<void>;
-    apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void>;
-    revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void>;
+    apply(transaction: Interfaces.ITransaction, walletManager: Contracts.State.IWalletManager): Promise<void>;
+    revert(transaction: Interfaces.ITransaction, walletManager: Contracts.State.IWalletManager): Promise<void>;
 
     canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean>;
 
-    emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void;
+    emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void;
 }

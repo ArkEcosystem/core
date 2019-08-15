@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
@@ -15,7 +14,7 @@ import { QueryExecutor } from "./sql/query-executor";
 import { StateBuilder } from "./state-builder";
 import { camelizeColumns } from "./utils";
 
-export class PostgresConnection implements Database.IConnection {
+export class PostgresConnection implements Contracts.Database.IConnection {
     // @TODO: make this private
     public models: { [key: string]: Model } = {};
     // @TODO: make this private
@@ -23,23 +22,28 @@ export class PostgresConnection implements Database.IConnection {
     // @TODO: make this private
     public db: any;
     // @TODO: make this private
-    public blocksRepository: Database.IBlocksRepository;
+    public blocksRepository: Contracts.Database.IBlocksRepository;
     // @TODO: make this private
-    public roundsRepository: Database.IRoundsRepository;
+    public roundsRepository: Contracts.Database.IRoundsRepository;
     // @TODO: make this private
-    public transactionsRepository: Database.ITransactionsRepository;
+    public transactionsRepository: Contracts.Database.ITransactionsRepository;
     // @TODO: make this private
-    public walletsRepository: Database.IWalletsRepository;
+    public walletsRepository: Contracts.Database.IWalletsRepository;
     // @TODO: make this private
     public pgp: IMain;
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
+        "event-emitter",
+    );
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
 
-    public constructor(readonly options: Record<string, any>, private readonly walletManager: State.IWalletManager) {}
+    public constructor(
+        readonly options: Record<string, any>,
+        private readonly walletManager: Contracts.State.IWalletManager,
+    ) {}
 
-    public async make(): Promise<Database.IConnection> {
+    public async make(): Promise<Contracts.Database.IConnection> {
         if (this.db) {
             throw new Error("Database connection already initialised");
         }
@@ -55,7 +59,7 @@ export class PostgresConnection implements Database.IConnection {
             await this.runMigrations();
             await this.registerModels();
             this.logger.debug("Connected to database.");
-            this.emitter.emit(Database.DatabaseEvents.POST_CONNECT);
+            this.emitter.dispatch(Contracts.Database.DatabaseEvents.POST_CONNECT);
 
             return this;
         } catch (error) {
@@ -66,7 +70,7 @@ export class PostgresConnection implements Database.IConnection {
     }
 
     public async connect(): Promise<void> {
-        this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
+        this.emitter.dispatch(Contracts.Database.DatabaseEvents.PRE_CONNECT);
 
         const options = this.options;
 
@@ -100,7 +104,7 @@ export class PostgresConnection implements Database.IConnection {
     public async disconnect(): Promise<void> {
         this.logger.debug("Disconnecting from database");
 
-        this.emitter.emit(Database.DatabaseEvents.PRE_DISCONNECT);
+        this.emitter.dispatch(Contracts.Database.DatabaseEvents.PRE_DISCONNECT);
 
         try {
             this.cache.clear();
@@ -111,7 +115,7 @@ export class PostgresConnection implements Database.IConnection {
 
         this.pgp.end();
 
-        this.emitter.emit(Database.DatabaseEvents.POST_DISCONNECT);
+        this.emitter.dispatch(Contracts.Database.DatabaseEvents.POST_DISCONNECT);
         this.logger.debug("Disconnected from database");
     }
 

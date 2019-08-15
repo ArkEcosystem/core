@@ -1,4 +1,4 @@
-import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface ITransactionsCached {
@@ -8,7 +8,7 @@ export interface ITransactionsCached {
 
 export interface ITransactionsProcessed {
     added: Interfaces.ITransaction[];
-    notAdded: TransactionPool.IAddTransactionResponse[];
+    notAdded: Contracts.TransactionPool.IAddTransactionResponse[];
 }
 
 export interface IDynamicFeeMatch {

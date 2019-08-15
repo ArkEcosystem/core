@@ -1,15 +1,16 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
+        "event-emitter",
+    );
 
     constructor(
-        private readonly connection: Database.IConnection,
-        private readonly walletManager: State.IWalletManager,
+        private readonly connection: Contracts.Database.IConnection,
+        private readonly walletManager: Contracts.State.IWalletManager,
     ) {}
 
     public async run(): Promise<void> {
@@ -39,7 +40,7 @@ export class StateBuilder {
 
         this.verifyWalletsConsistency();
 
-        this.emitter.emit("internal.stateBuilder.finished");
+        this.emitter.dispatch("internal.stateBuilder.finished");
     }
 
     private async buildBlockRewards(): Promise<void> {
@@ -61,7 +62,7 @@ export class StateBuilder {
         }
     }
 
-    private isGenesis(wallet: State.IWallet): boolean {
+    private isGenesis(wallet: Contracts.State.IWallet): boolean {
         return app
             .getConfig()
             .get("genesisBlock.transactions")

@@ -1,12 +1,11 @@
-import { app } from "@arkecosystem/core-container";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Logger, Shared } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
-const logger = app.resolvePlugin<Logger.ILogger>("logger");
+const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
 
 export class Database {
     public db: any;
@@ -59,7 +58,7 @@ export class Database {
         }
     }
 
-    public async rollbackChain(roundInfo: Shared.IRoundInfo) {
+    public async rollbackChain(roundInfo: Contracts.Shared.IRoundInfo) {
         const { round, roundHeight } = roundInfo;
         const lastRemainingBlock = await this.getBlockByHeight(roundHeight);
 
@@ -98,8 +97,8 @@ export class Database {
             );
         }
 
-        const roundInfoStart: Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight);
-        const roundInfoEnd: Shared.IRoundInfo = roundCalculator.calculateRound(meta.endHeight);
+        const roundInfoStart: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight);
+        const roundInfoEnd: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(meta.endHeight);
 
         return {
             blocks: rawQuery(this.pgp, queries.blocks.heightRange, {

@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Container } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { lstatSync, readdirSync } from "fs";
 import prompts from "prompts";
 import { CommandFlags } from "../types";
@@ -7,7 +6,7 @@ import { CommandFlags } from "../types";
 // tslint:disable-next-line:no-var-requires
 const { version } = require("../../package.json");
 
-export const setUpLite = async (options): Promise<Container.IContainer> => {
+export const setUpLite = async (options): Promise<Contracts.Kernel.IContainer> => {
     await app.setUp(version, options, {
         include: [
             "@arkecosystem/core-event-emitter",

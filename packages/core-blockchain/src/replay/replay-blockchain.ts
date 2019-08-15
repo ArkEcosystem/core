@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, Logger, P2P, Shared, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
@@ -8,15 +7,15 @@ import { FailedToReplayBlocksError } from "./errors";
 import { MemoryDatabaseService } from "./memory-database-service";
 
 export class ReplayBlockchain extends Blockchain {
-    private logger: Logger.ILogger;
-    private localDatabase: Database.IDatabaseService;
+    private logger: Contracts.Kernel.ILogger;
+    private localDatabase: Contracts.Database.IDatabaseService;
     private walletManager: Wallets.WalletManager;
     private targetHeight: number;
     private chunkSize: number = 20000;
 
-    private memoryDatabase: Database.IDatabaseService;
+    private memoryDatabase: Contracts.Database.IDatabaseService;
 
-    public get database(): Database.IDatabaseService {
+    public get database(): Contracts.Database.IDatabaseService {
         return this.memoryDatabase;
     }
 
@@ -26,8 +25,8 @@ export class ReplayBlockchain extends Blockchain {
         this.walletManager = new Wallets.WalletManager();
         this.memoryDatabase = new MemoryDatabaseService(this.walletManager);
 
-        this.logger = app.resolvePlugin<Logger.ILogger>("logger");
-        this.localDatabase = app.resolvePlugin<Database.IDatabaseService>("database");
+        this.logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+        this.localDatabase = app.resolve<Contracts.Database.IDatabaseService>("database");
         this.localDatabase.walletManager = this.walletManager;
 
         this.queue.kill();
@@ -35,11 +34,11 @@ export class ReplayBlockchain extends Blockchain {
         this.queue.drain(() => undefined);
     }
 
-    public get p2p(): P2P.IPeerService {
+    public get p2p(): Contracts.P2P.IPeerService {
         return undefined;
     }
 
-    public get transactionPool(): TransactionPool.IConnection {
+    public get transactionPool(): Contracts.TransactionPool.IConnection {
         return undefined;
     }
 
@@ -107,13 +106,17 @@ export class ReplayBlockchain extends Blockchain {
         const { transactions }: Interfaces.IBlock = genesisBlock;
         for (const transaction of transactions) {
             if (transaction.type === Enums.TransactionType.Transfer) {
-                const recipient: State.IWallet = this.walletManager.findByAddress(transaction.data.recipientId);
+                const recipient: Contracts.State.IWallet = this.walletManager.findByAddress(
+                    transaction.data.recipientId,
+                );
                 recipient.balance = new Utils.BigNumber(transaction.data.amount);
             }
         }
 
         for (const transaction of transactions) {
-            const sender: State.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const sender: Contracts.State.IWallet = this.walletManager.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
             sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
 
             if (transaction.type === Enums.TransactionType.DelegateRegistration) {
@@ -136,8 +139,8 @@ export class ReplayBlockchain extends Blockchain {
 
         this.state.setLastBlock(genesisBlock);
 
-        const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(1);
-        const delegates: State.IWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+        const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(1);
+        const delegates: Contracts.State.IWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
         (this.localDatabase as any).forgingDelegates = await this.localDatabase.getActiveDelegates(
             roundInfo,

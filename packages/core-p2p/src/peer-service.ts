@@ -1,11 +1,11 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 
-export class PeerService implements P2P.IPeerService {
-    private readonly communicator: P2P.IPeerCommunicator;
-    private readonly connector: P2P.IPeerConnector;
-    private readonly monitor: P2P.INetworkMonitor;
-    private readonly processor: P2P.IPeerProcessor;
-    private readonly storage: P2P.IPeerStorage;
+export class PeerService implements Contracts.P2P.IPeerService {
+    private readonly communicator: Contracts.P2P.IPeerCommunicator;
+    private readonly connector: Contracts.P2P.IPeerConnector;
+    private readonly monitor: Contracts.P2P.INetworkMonitor;
+    private readonly processor: Contracts.P2P.IPeerProcessor;
+    private readonly storage: Contracts.P2P.IPeerStorage;
 
     public constructor({
         communicator,
@@ -14,11 +14,11 @@ export class PeerService implements P2P.IPeerService {
         processor,
         storage,
     }: {
-        communicator: P2P.IPeerCommunicator;
-        connector: P2P.IPeerConnector;
-        monitor: P2P.INetworkMonitor;
-        processor: P2P.IPeerProcessor;
-        storage: P2P.IPeerStorage;
+        communicator: Contracts.P2P.IPeerCommunicator;
+        connector: Contracts.P2P.IPeerConnector;
+        monitor: Contracts.P2P.INetworkMonitor;
+        processor: Contracts.P2P.IPeerProcessor;
+        storage: Contracts.P2P.IPeerStorage;
     }) {
         this.communicator = communicator;
         this.connector = connector;
@@ -27,23 +27,23 @@ export class PeerService implements P2P.IPeerService {
         this.storage = storage;
     }
 
-    public getStorage(): P2P.IPeerStorage {
+    public getStorage(): Contracts.P2P.IPeerStorage {
         return this.storage;
     }
 
-    public getProcessor(): P2P.IPeerProcessor {
+    public getProcessor(): Contracts.P2P.IPeerProcessor {
         return this.processor;
     }
 
-    public getConnector(): P2P.IPeerConnector {
+    public getConnector(): Contracts.P2P.IPeerConnector {
         return this.connector;
     }
 
-    public getCommunicator(): P2P.IPeerCommunicator {
+    public getCommunicator(): Contracts.P2P.IPeerCommunicator {
         return this.communicator;
     }
 
-    public getMonitor(): P2P.INetworkMonitor {
+    public getMonitor(): Contracts.P2P.INetworkMonitor {
         return this.monitor;
     }
 }

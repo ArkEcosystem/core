@@ -1,9 +1,9 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { ColumnSet, IMain } from "pg-promise";
 import sql, { Query } from "sql";
 import { IColumnDescriptor } from "../interfaces";
 
-export abstract class Model implements Database.IModel {
+export abstract class Model implements Contracts.Database.IModel {
     protected columnsDescriptor: IColumnDescriptor[];
     protected columnSet: ColumnSet;
 
@@ -33,7 +33,7 @@ export abstract class Model implements Database.IModel {
         return this.columnSet;
     }
 
-    public getSearchableFields(): Database.ISearchableField[] {
+    public getSearchableFields(): Contracts.Database.ISearchableField[] {
         return this.columnsDescriptor.map(col => ({
             fieldName: col.prop || col.name,
             supportedOperators: col.supportedOperators,

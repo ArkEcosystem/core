@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-container";
+import { app } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import { chooseSnapshot, setUpLite } from "../../helpers/snapshot";
@@ -35,6 +35,6 @@ export class VerifyCommand extends BaseCommand {
             }
         }
 
-        await app.resolvePlugin<SnapshotManager>("snapshots").verify(flags);
+        await app.resolve<SnapshotManager>("snapshots").verify(flags);
     }
 }

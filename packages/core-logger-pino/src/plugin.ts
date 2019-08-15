@@ -1,5 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
-import { LoggerManager } from "@arkecosystem/core-logger";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { PinoLogger } from "./driver";
 
@@ -9,7 +8,7 @@ export const plugin: Container.IPluginDescriptor = {
     required: true,
     alias: "logger",
     extends: "@arkecosystem/core-logger",
-    async register(container: Container.IContainer, options) {
-        return container.resolvePlugin<LoggerManager>("log-manager").createDriver(new PinoLogger(options));
+    async register(container: Contracts.Kernel.IContainer, options) {
+        return container.resolve<LoggerManager>("log-manager").createDriver(new PinoLogger(options));
     },
 };

@@ -1,21 +1,21 @@
-import { TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { ConnectionFactory } from "./factory";
 
 export class ConnectionManager {
     private readonly factory: ConnectionFactory = new ConnectionFactory();
-    private readonly connections: Map<string, TransactionPool.IConnection> = new Map<
+    private readonly connections: Map<string, Contracts.TransactionPool.IConnection> = new Map<
         string,
-        TransactionPool.IConnection
+        Contracts.TransactionPool.IConnection
     >();
 
-    public connection(name: string = "default"): TransactionPool.IConnection {
+    public connection(name: string = "default"): Contracts.TransactionPool.IConnection {
         return this.connections.get(name);
     }
 
     public async createConnection(
-        connection: TransactionPool.IConnection,
+        connection: Contracts.TransactionPool.IConnection,
         name: string = "default",
-    ): Promise<TransactionPool.IConnection> {
+    ): Promise<Contracts.TransactionPool.IConnection> {
         this.connections.set(name, await this.factory.make(connection));
 
         return this.connection(name);

@@ -1,7 +1,7 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 
-export const transformPlugins = (plugins): P2P.IPeerPlugins => {
-    const result: P2P.IPeerPlugins = {};
+export const transformPlugins = (plugins): Contracts.P2P.IPeerPlugins => {
+    const result: Contracts.P2P.IPeerPlugins = {};
 
     for (let [name, options] of Object.entries(plugins) as Array<[string, any]>) {
         if (options.server) {

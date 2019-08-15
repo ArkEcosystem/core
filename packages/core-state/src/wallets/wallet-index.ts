@@ -1,17 +1,17 @@
-import { State } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 
-export class WalletIndex implements State.IWalletIndex {
-    private walletIndex: Record<string, State.IWallet>;
+export class WalletIndex implements Contracts.State.IWalletIndex {
+    private walletIndex: Record<string, Contracts.State.IWallet>;
 
-    public constructor(private readonly indexer: State.WalletIndexer) {
+    public constructor(private readonly indexer: Contracts.State.WalletIndexer) {
         this.walletIndex = {};
     }
 
-    public all(): ReadonlyArray<State.IWallet> {
+    public all(): ReadonlyArray<Contracts.State.IWallet> {
         return Object.values(this.walletIndex);
     }
 
-    public index(wallet: State.IWallet): void {
+    public index(wallet: Contracts.State.IWallet): void {
         this.indexer(this, wallet);
     }
 
@@ -19,11 +19,11 @@ export class WalletIndex implements State.IWalletIndex {
         return !!this.walletIndex[key];
     }
 
-    public get(key: string): State.IWallet | undefined {
+    public get(key: string): Contracts.State.IWallet | undefined {
         return this.walletIndex[key];
     }
 
-    public set(key: string, wallet: State.IWallet): void {
+    public set(key: string, wallet: Contracts.State.IWallet): void {
         this.walletIndex[key] = wallet;
     }
 

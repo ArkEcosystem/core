@@ -1,12 +1,11 @@
-import { app } from "@arkecosystem/core-container";
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 export const calculate = (height: number): string => {
     const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
-        const blockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
+        const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
         height = blockchain ? blockchain.getLastBlock().data.height : 0;
     }
 

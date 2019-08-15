@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 
 export const getHeaders = () => {
     const headers = {
@@ -9,7 +8,7 @@ export const getHeaders = () => {
     };
 
     if (app.has("blockchain")) {
-        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
+        const lastBlock = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock();
 
         if (lastBlock) {
             headers.height = lastBlock.data.height;

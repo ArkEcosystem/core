@@ -1,4 +1,4 @@
-import { Container, State } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Blockchain } from "./blockchain";
 import { defaults } from "./defaults";
 import { blockchainMachine } from "./machines/blockchain";
@@ -13,7 +13,7 @@ export const plugin: Container.IPluginDescriptor = {
     defaults,
     required: true,
     alias: "blockchain",
-    async register(container: Container.IContainer, options: Container.IPluginOptions) {
+    async register(container: Contracts.Kernel.IContainer, options: Container.IPluginOptions) {
         let blockchain: Blockchain;
 
         if (options.replay) {
@@ -23,7 +23,7 @@ export const plugin: Container.IPluginDescriptor = {
         }
 
         container
-            .resolvePlugin<State.IStateService>("state")
+            .resolve<Contracts.State.IStateService>("state")
             .getStore()
             .reset(blockchainMachine);
 
@@ -33,7 +33,7 @@ export const plugin: Container.IPluginDescriptor = {
 
         return blockchain;
     },
-    async deregister(container: Container.IContainer) {
-        await container.resolvePlugin<Blockchain>("blockchain").stop();
+    async deregister(container: Contracts.Kernel.IContainer) {
+        await container.resolve<Blockchain>("blockchain").stop();
     },
 };

@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { client } from "./client";
 import { defaults } from "./defaults";
 import { watchIndices } from "./indices";
@@ -8,7 +8,7 @@ export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
     defaults,
     alias: "elasticsearch",
-    async register(container: Container.IContainer, options: Container.IPluginOptions) {
+    async register(container: Contracts.Kernel.IContainer, options: Container.IPluginOptions) {
         if (
             typeof options.client !== "object" ||
             Array.isArray(options.client) ||
@@ -23,7 +23,7 @@ export const plugin: Container.IPluginDescriptor = {
 
         return startServer(options.server);
     },
-    async deregister(container: Container.IContainer) {
-        return container.resolvePlugin("elasticsearch").stop();
+    async deregister(container: Contracts.Kernel.IContainer) {
+        return container.resolve("elasticsearch").stop();
     },
 };
