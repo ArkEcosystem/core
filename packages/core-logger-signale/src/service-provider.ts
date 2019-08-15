@@ -1,10 +1,10 @@
 import { Support } from "@arkecosystem/core-kernel";
-import Rollbar from "rollbar";
 import { defaults } from "./defaults";
+import { SignaleLogger } from "./driver";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind("error-tracker", new Rollbar(this.opts));
+        this.app.bind("logger", this.app.resolve("log-manager").createDriver(new SignaleLogger(this.opts)));
     }
 
     public getDefaults(): Record<string, any> {

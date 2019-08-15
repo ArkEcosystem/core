@@ -36,6 +36,14 @@ export abstract class AbstractServiceProvider {
      * @returns {Promise<void>}
      * @memberof AbstractServiceProvider
      */
+    public async boot(): Promise<void> {
+        // do nothing by default...
+    }
+
+    /**
+     * @returns {Promise<void>}
+     * @memberof AbstractServiceProvider
+     */
     public async dispose(): Promise<void> {
         // do nothing by default...
     }

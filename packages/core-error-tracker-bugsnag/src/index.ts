@@ -1,15 +1,21 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import bugsnag, { Bugsnag } from "@bugsnag/js";
 import { defaults } from "./defaults";
 
-export const plugin: Container.IPluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "error-tracker",
-    async register(container: Contracts.Kernel.IContainer, options: Container.IPluginOptions) {
-        if (!options.apiKey || typeof options.apiKey !== "string") {
+export class ServiceProvider extends Support.AbstractServiceProvider {
+    public async register(): Promise<void> {
+        if (!this.opts.apiKey || typeof this.opts.apiKey !== "string") {
             throw new Error("Bugsnag plugin config invalid");
         }
-        return bugsnag(options as Bugsnag.IConfig);
-    },
-};
+
+        this.app.bind("error-tracker", bugsnag(this.opts as Bugsnag.IConfig));
+    }
+
+    public getDefaults(): Record<string, any> {
+        return defaults;
+    }
+
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
+    }
+}

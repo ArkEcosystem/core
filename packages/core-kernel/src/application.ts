@@ -4,10 +4,9 @@ import { join } from "path";
 import * as Bootstrappers from "./bootstrap";
 import { ConfigFactory, ConfigRepository } from "./config";
 import { Container } from "./container";
-import { Blockchain, Kernel, P2P, TransactionPool } from "./contracts";
+import { Kernel } from "./contracts";
+import * as Contracts from "./contracts";
 import { DirectoryNotFound, FailedNetworkDetection } from "./errors";
-import { EventDispatcher } from "./event-dispatcher";
-import { Logger } from "./logger";
 import { ProviderRepository } from "./repositories";
 import { AbstractServiceProvider } from "./support";
 
@@ -384,29 +383,29 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @readonly
-     * @type {Blockchain.IBlockchain}
+     * @type {Contracts.Blockchain.IBlockchain}
      * @memberof Application
      */
-    public get blockchain(): Blockchain.IBlockchain {
+    public get blockchain(): Contracts.Blockchain.IBlockchain {
         return this.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
     }
 
     /**
      * @readonly
-     * @type {P2P.IMonitor}
+     * @type {Contracts.P2P.IPeerService}
      * @memberof Application
      */
-    public get p2p(): P2P.IMonitor {
-        return this.resolve<P2P.IMonitor>("p2p");
+    public get p2p(): Contracts.P2P.IPeerService {
+        return this.resolve<Contracts.P2P.IPeerService>("p2p");
     }
 
     /**
      * @readonly
-     * @type {TransactionPool.ITransactionPool}
+     * @type {Contracts.TransactionPool.IConnection}
      * @memberof Application
      */
-    public get transactionPool(): TransactionPool.ITransactionPool {
-        return this.resolve<TransactionPool.ITransactionPool>("transactionPool");
+    public get transactionPool(): Contracts.TransactionPool.IConnection {
+        return this.resolve<Contracts.TransactionPool.IConnection>("transactionPool");
     }
 
     /**

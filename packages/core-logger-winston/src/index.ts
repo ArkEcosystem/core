@@ -1,3 +1,3 @@
 export * from "./driver";
 export * from "./formatter";
-export * from "./plugin";
+export * from "./service-provider";

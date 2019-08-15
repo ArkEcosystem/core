@@ -1,29 +1,35 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import { client } from "./client";
 import { defaults } from "./defaults";
 import { watchIndices } from "./indices";
 import { startServer } from "./server";
 
-export const plugin: Container.IPluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "elasticsearch",
-    async register(container: Contracts.Kernel.IContainer, options: Container.IPluginOptions) {
+export class ServiceProvider extends Support.AbstractServiceProvider {
+    public async register(): Promise<void> {
         if (
-            typeof options.client !== "object" ||
-            Array.isArray(options.client) ||
-            typeof options.chunkSize !== "number"
+            typeof this.opts.client !== "object" ||
+            Array.isArray(this.opts.client) ||
+            typeof this.opts.chunkSize !== "number"
         ) {
             throw new Error("Elasticsearch plugin config invalid");
         }
 
-        await client.setUp(options.client);
+        await client.setUp(this.opts.client);
 
-        await watchIndices(options.chunkSize);
+        await watchIndices(this.opts.chunkSize);
 
-        return startServer(options.server);
-    },
-    async deregister(container: Contracts.Kernel.IContainer) {
-        return container.resolve("elasticsearch").stop();
-    },
-};
+        this.app.bind("elasticsearch", await startServer(this.opts.server));
+    }
+
+    public async dispose(): Promise<void> {
+        await this.app.resolve("elasticsearch").stop();
+    }
+
+    public getDefaults(): Record<string, any> {
+        return defaults;
+    }
+
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
+    }
+}

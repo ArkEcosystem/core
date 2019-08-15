@@ -1,10 +1,10 @@
 import { Support } from "@arkecosystem/core-kernel";
-import Rollbar from "rollbar";
 import { defaults } from "./defaults";
+import { PinoLogger } from "./driver";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind("error-tracker", new Rollbar(this.opts));
+        this.app.bind("logger", this.app.resolve<LoggerManager>("log-manager").createDriver(new PinoLogger(options)));
     }
 
     public getDefaults(): Record<string, any> {

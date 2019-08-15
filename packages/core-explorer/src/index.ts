@@ -1,22 +1,18 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import history from "connect-history-api-fallback";
 import express, { Handler } from "express";
 import { existsSync } from "fs";
 import { defaults } from "./defaults";
 
-export const plugin: Container.IPluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "explorer",
-    async register(container: Contracts.Kernel.IContainer, options) {
-        const distPath: string = options.path as string;
+export class ServiceProvider extends Support.AbstractServiceProvider {
+    public async register(): Promise<void> {
+        const distPath: string = this.opts.path as string;
 
         if (!existsSync(distPath)) {
-            container
+            this.app
                 .resolve<Contracts.Kernel.ILogger>("logger")
                 .error(`The ${distPath} directory does not exist. Please build the explorer before using this plugin.`);
-
-            return undefined;
+            return;
         }
 
         const staticFileMiddleware: Handler = express.static(distPath);
@@ -28,22 +24,31 @@ export const plugin: Container.IPluginDescriptor = {
         app.get("/", (req, res) => res.render(`${distPath}/index.html`));
 
         // @ts-ignore
-        const server = app.listen(options.server.port, options.server.host, () => {
-            container
+        const server = app.listen(this.opts.server.port, this.opts.server.host, () => {
+            this.app
                 .resolve<Contracts.Kernel.ILogger>("logger")
                 // @ts-ignore
                 .info(`Explorer is listening on http://${server.address().address}:${server.address().port}.`);
         });
 
-        return server;
-    },
-    async deregister(container: Contracts.Kernel.IContainer, options) {
-        try {
-            container.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Explorer");
+        this.app.bind("explorer", server);
+    }
 
-            await container.resolve("explorer").close();
+    public async dispose(): Promise<void> {
+        try {
+            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Explorer");
+
+            await this.app.resolve("explorer").close();
         } catch (error) {
             // do nothing...
         }
-    },
-};
+    }
+
+    public getDefaults(): Record<string, any> {
+        return defaults;
+    }
+
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
+    }
+}

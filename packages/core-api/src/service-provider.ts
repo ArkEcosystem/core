@@ -1,28 +1,25 @@
 import { Contracts, Support } from "@arkecosystem/core-kernel";
-import { database } from "./database";
 import { defaults } from "./defaults";
-import { startListeners } from "./listener";
-import { startServer } from "./server";
+import { Server } from "./server";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         if (!this.opts.enabled) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Webhooks are disabled");
+            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Public API is disabled");
             return;
         }
 
-        database.make();
+        const server = new Server(this.opts);
+        await server.start();
 
-        startListeners();
-
-        this.app.bind("webhooks", startServer(this.opts.server));
+        this.app.bind("api", server);
     }
 
     public async dispose(): Promise<void> {
         if (this.opts.enabled) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Webhook API");
+            this.app.resolve<Contracts.Kernel.ILogger>("logger").info(`Stopping Public API`);
 
-            await this.app.resolve("webhooks").stop();
+            await this.app.resolve<Server>("api").stop();
         }
     }
 

@@ -1,2 +1,2 @@
-export * from "./plugin";
+export * from "./service-provider";
 export * from "./delegate";

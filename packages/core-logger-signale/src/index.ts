@@ -1,2 +1,2 @@
 export * from "./driver";
-export * from "./plugin";
+export * from "./service-provider";

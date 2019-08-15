@@ -3,4 +3,4 @@ export * from "./migrations";
 export * from "./state-builder";
 export * from "./models";
 export * from "./repositories";
-export * from "./plugin";
+export * from "./service-provider";

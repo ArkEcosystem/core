@@ -1,12 +1,17 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Support } from "@arkecosystem/core-kernel";
 import raygun from "raygun";
 import { defaults } from "./defaults";
 
-export const plugin: Container.IPluginDescriptor = {
-    pkg: require("../package.json"),
-    defaults,
-    alias: "error-tracker",
-    async register(container: Contracts.Kernel.IContainer, options: Container.IPluginOptions) {
-        return new raygun.Client().init((options as unknown) as raygun.raygun.RaygunOptions);
-    },
-};
+export class ServiceProvider extends Support.AbstractServiceProvider {
+    public async register(): Promise<void> {
+        this.app.bind("error-tracker", new raygun.Client().init((this.opts as unknown) as raygun.raygun.RaygunOptions));
+    }
+
+    public getDefaults(): Record<string, any> {
+        return defaults;
+    }
+
+    public getManifest(): Record<string, any> {
+        return require("../package.json");
+    }
+}

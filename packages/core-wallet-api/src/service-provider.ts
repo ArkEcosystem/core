@@ -1,28 +1,26 @@
 import { Contracts, Support } from "@arkecosystem/core-kernel";
-import { database } from "./database";
+import { isWhitelisted } from "@arkecosystem/core-utils";
+import ip from "ip";
 import { defaults } from "./defaults";
-import { startListeners } from "./listener";
 import { startServer } from "./server";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        if (!this.opts.enabled) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Webhooks are disabled");
+        if (!isWhitelisted(this.app.resolveOptions("api").whitelist, ip.address())) {
+            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Wallet API is disabled");
             return;
         }
 
-        database.make();
-
-        startListeners();
-
-        this.app.bind("webhooks", startServer(this.opts.server));
+        return startServer(this.opts.server);
     }
 
     public async dispose(): Promise<void> {
-        if (this.opts.enabled) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Webhook API");
+        try {
+            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Wallet API");
 
-            await this.app.resolve("webhooks").stop();
+            await this.app.resolve("wallet-api").stop();
+        } catch (error) {
+            // do nothing...
         }
     }
 
