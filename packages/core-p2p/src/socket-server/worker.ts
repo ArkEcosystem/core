@@ -99,10 +99,16 @@ export class Worker extends SCWorker {
         }
 
         try {
+            if (req.event.length > 128) {
+                req.socket.disconnect(4413, "Payload Too Large");
+                return;
+            }
+
             const [prefix, version] = req.event.split(".");
 
             if (prefix !== "p2p") {
-                return next(this.createError(SocketErrors.WrongEndpoint, `Wrong endpoint: ${req.event}`));
+                req.socket.disconnect(4404, "Not Found");
+                return;
             }
 
             // Check that blockchain, tx-pool and p2p are ready
@@ -132,6 +138,9 @@ export class Worker extends SCWorker {
                     data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
                 });
+            } else {
+                req.socket.disconnect(4400, "Bad Request");
+                return;
             }
 
             // some handlers need this remoteAddress info
