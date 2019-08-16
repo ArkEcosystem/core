@@ -158,19 +158,17 @@ export class BlockProcessor {
                 nonceBySender[sender] = this.blockchain.database.walletManager.getNonce(sender);
             }
 
-            const currentTransactionNonce = Utils.BigNumber.make(data.nonce);
-
-            if (!nonceBySender[sender].plus(1).isEqualTo(currentTransactionNonce)) {
+            if (!nonceBySender[sender].plus(1).isEqualTo(data.nonce)) {
                 this.logger.warn(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
                     `not accepted: invalid nonce order for sender ${sender}: ` +
                     `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
-                    `transaction ${data.id} has nonce ${currentTransactionNonce.toFixed()}.`,
+                    `transaction ${data.id} has nonce ${data.nonce.toFixed()}.`,
                 );
                 return true;
             }
 
-            nonceBySender[sender] = currentTransactionNonce;
+            nonceBySender[sender] = data.nonce;
         }
 
         return false;
