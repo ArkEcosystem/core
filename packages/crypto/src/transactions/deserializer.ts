@@ -3,8 +3,7 @@ import { TransactionType, TransactionTypeGroup } from "../enums";
 import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
 import { Address } from "../identities";
 import { ITransaction, ITransactionData } from "../interfaces";
-import { configManager } from "../managers";
-import { BigNumber } from "../utils";
+import { BigNumber, isSupportedTansactionVersion } from "../utils";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -23,10 +22,10 @@ class Deserializer {
 
         this.deserializeSignatures(data, buffer);
 
-        if (data.version === 1) {
-            this.applyV1Compatibility(data);
-        } else if (data.version === 2 && configManager.getMilestone().aip11) {
-            //
+        if (isSupportedTansactionVersion(data.version)) {
+            if (data.version === 1) {
+                this.applyV1Compatibility(data);
+            }
         } else {
             throw new TransactionVersionError(data.version);
         }

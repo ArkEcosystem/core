@@ -7,7 +7,7 @@ import { Address } from "../identities";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { ISerializeOptions } from "../interfaces";
 import { configManager } from "../managers";
-import { Base58 } from "../utils";
+import { Base58, isSupportedTansactionVersion } from "../utils";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -15,10 +15,12 @@ export class Serializer {
     public static getBytes(transaction: ITransactionData, options?: ISerializeOptions): Buffer {
         const version: number = transaction.version || 1;
 
-        if (version === 1) {
-            return this.getBytesV1(transaction, options);
-        } else if (version === 2 && configManager.getMilestone().aip11) {
-            return this.serialize(TransactionTypeFactory.create(transaction), options);
+        if (isSupportedTansactionVersion(version)) {
+            if (version === 1) {
+                return this.getBytesV1(transaction, options);
+            } else {
+                return this.serialize(TransactionTypeFactory.create(transaction), options);
+            }
         } else {
             throw new TransactionVersionError(version);
         }
