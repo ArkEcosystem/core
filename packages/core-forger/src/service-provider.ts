@@ -1,4 +1,4 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { ForgerManager } from "./manager";
 
@@ -29,7 +29,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

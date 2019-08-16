@@ -1,12 +1,13 @@
 import { app } from "@arkecosystem/core-kernel";
-import { Plugins } from "@arkecosystem/core-utils";
+// import { Plugins } from "@arkecosystem/core-utils";
+import { Managers } from "@arkecosystem/crypto";
 import { IPeerConfig } from "../../interfaces";
 
 export const getPeerConfig = (): IPeerConfig => {
-    const appConfig = app.getConfig();
+    const appConfig = Managers.configManager;
 
     return {
-        version: app.getVersion(),
+        version: app.version(),
         network: {
             version: appConfig.get("network.pubKeyHash"),
             name: appConfig.get("network.name"),
@@ -17,6 +18,7 @@ export const getPeerConfig = (): IPeerConfig => {
                 symbol: appConfig.get("network.client.symbol"),
             },
         },
-        plugins: Plugins.transformPlugins(appConfig.config.plugins),
+        plugins: {},
+        // plugins: Plugins.transformPlugins(appConfig.config.plugins),
     };
 };

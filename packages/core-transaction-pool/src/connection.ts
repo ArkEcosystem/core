@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import clonedeep from "lodash.clonedeep";
 
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums as AppEnums } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
@@ -53,7 +53,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
             this.memory.remember(transaction, true);
         }
 
-        this.emitter.once("internal.stateBuilder.finished", async () => {
+        this.emitter.listenOnce("internal.stateBuilder.finished", async () => {
             const validTransactions = await this.validateTransactions(transactionsFromDisk);
             transactionsFromDisk = transactionsFromDisk.filter(transaction =>
                 validTransactions.includes(transaction.serialized.toString("hex")),
@@ -106,11 +106,11 @@ export class Connection implements Contracts.TransactionPool.IConnection {
         }
 
         if (added.length > 0) {
-            this.emitter.dispatch(ApplicationEvents.TransactionPoolAdded, added);
+            this.emitter.dispatch(AppEnums.Event.State.TransactionPoolAdded, added);
         }
 
         if (notAdded.length > 0) {
-            this.emitter.dispatch(ApplicationEvents.TransactionPoolRejected, notAdded);
+            this.emitter.dispatch(AppEnums.Event.State.TransactionPoolRejected, notAdded);
         }
 
         return { added, notAdded };
@@ -125,7 +125,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
 
         this.syncToPersistentStorageIfNecessary();
 
-        this.emitter.dispatch(ApplicationEvents.TransactionPoolRemoved, id);
+        this.emitter.dispatch(AppEnums.Event.State.TransactionPoolRemoved, id);
     }
 
     public removeTransactionsById(ids: string[]): void {
@@ -324,7 +324,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
     }
 
     public async purgeInvalidTransactions(): Promise<void> {
-        return this.purgeTransactions(ApplicationEvents.TransactionPoolRemoved, this.memory.getInvalid());
+        return this.purgeTransactions(AppEnums.Event.State.TransactionPoolRemoved, this.memory.getInvalid());
     }
 
     public async senderHasTransactionsOfType(
@@ -565,7 +565,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
     }
 
     private async purgeExpired(): Promise<void> {
-        return this.purgeTransactions(ApplicationEvents.TransactionExpired, this.memory.getExpired());
+        return this.purgeTransactions(AppEnums.Event.State.TransactionExpired, this.memory.getExpired());
     }
 
     /**

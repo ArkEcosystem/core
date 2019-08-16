@@ -1,4 +1,4 @@
-import { Support } from "@arkecosystem/core-kernel";
+import { Support, Types } from "@arkecosystem/core-kernel";
 import bugsnag, { Bugsnag } from "@bugsnag/js";
 import { defaults } from "./defaults";
 
@@ -15,7 +15,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

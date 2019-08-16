@@ -31,7 +31,7 @@ export const respondWithCollection = (data, transformer, transform: boolean = tr
 };
 
 export const respondWithCache = (data, h): any => {
-    if (!app.resolveOptions("api").cache.enabled) {
+    if (!app.resolve("api.options").cache.enabled) {
         return data;
     }
 

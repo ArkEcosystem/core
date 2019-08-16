@@ -1,4 +1,4 @@
-import { Support } from "@arkecosystem/core-kernel";
+import { Support, Types } from "@arkecosystem/core-kernel";
 import newrelic from "newrelic";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
@@ -6,7 +6,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("error-tracker", newrelic);
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

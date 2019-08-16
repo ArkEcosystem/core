@@ -1,6 +1,6 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { httpie } from "@arkecosystem/core-utils";
-import { Interfaces, Transactions, Validation } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
@@ -100,7 +100,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
     }
 
     public validatePeerConfig(peer: Contracts.P2P.IPeer, config: IPeerConfig): boolean {
-        if (config.network.nethash !== app.getConfig().get("network.nethash")) {
+        if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
             return false;
         }
 
@@ -133,7 +133,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
 
             this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
 
-            this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
+            this.emitter.dispatch(Enums.Event.Internal.DisconnectPeer, { peer });
         }
 
         return false;
@@ -159,7 +159,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
                     "Content-Type": "application/json",
                 },
             },
-            app.resolveOptions("p2p").getBlocksTimeout,
+            app.resolve("p2p.options").getBlocksTimeout,
         );
 
         if (!peerBlocks) {
@@ -262,15 +262,15 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
                 break;
             case "Error":
             case "CoreRateLimitExceededError":
-                if (process.env.CORE_Contracts.P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Response error (peer ${peer.ip}/${event}) : ${error.message}`);
                 }
                 break;
             default:
-                if (process.env.CORE_Contracts.P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
-                this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
+                this.emitter.dispatch(Enums.Event.Internal.DisconnectPeer, { peer });
         }
     }
 }

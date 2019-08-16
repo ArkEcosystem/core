@@ -3,7 +3,7 @@
 const { Managers, Identities, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
-const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { TransactionFactory } = require("../../../../../helpers/transaction-factory");
 
 /**
  * Init 2nd signature wallets
@@ -25,7 +25,7 @@ module.exports = async options => {
                 TransactionFactory.secondSignature(wallets[3].passphrase)
                     .withFee(utils.fees.secondSignRegistration)
                     .withPassphrase(wallets[2].passphrase)
-                    .createOne()
+                    .createOne(),
             );
         });
     });

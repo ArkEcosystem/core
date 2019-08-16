@@ -73,13 +73,13 @@ export class BlockProcessor {
 
         const { verified } = block.verification;
         if (!verified) {
-            this.logger.warn(
+            this.logger.warning(
                 `Block ${block.data.height.toLocaleString()} (${
                     block.data.id
                 }) disregarded because verification failed`,
             );
 
-            this.logger.warn(JSON.stringify(block.verification, undefined, 4));
+            this.logger.warning(JSON.stringify(block.verification, undefined, 4));
 
             return false;
         }
@@ -99,7 +99,7 @@ export class BlockProcessor {
                     transactionPool.removeTransactionsById(forgedIds);
                 }
 
-                this.logger.warn(
+                this.logger.warning(
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
                 );
 

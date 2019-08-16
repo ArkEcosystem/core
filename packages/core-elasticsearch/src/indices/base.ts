@@ -1,4 +1,5 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 import { client } from "../client";
 import { storage } from "../storage";
 
@@ -17,7 +18,7 @@ export abstract class Index {
     public abstract listen(): void;
 
     protected registerListener(method: "create" | "delete", event: string): void {
-        this.emitter.listen(event, async doc => {
+        this.emitter.listen(event, async (name, doc) => {
             try {
                 const exists: boolean = await this.exists(doc);
                 const shouldTakeAction: boolean = method === "create" ? !exists : exists;
@@ -133,9 +134,6 @@ export abstract class Index {
     }
 
     private getIndex(): string {
-        return app
-            .getConfig()
-            .get("network.client.token")
-            .toLowerCase();
+        return Managers.configManager.get("network.client.token").toLowerCase();
     }
 }

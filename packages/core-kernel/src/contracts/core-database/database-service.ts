@@ -1,6 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
+import { IEventDispatcher, ILogger } from "../core-kernel";
 import { IWallet, IWalletManager } from "../core-state/wallets";
-import { EventEmitter, Logger } from "../index";
 import { IRoundInfo } from "../shared";
 import {
     IBlocksBusinessRepository,
@@ -27,11 +27,9 @@ export interface IDatabaseService {
 
     connection: IConnection;
 
-    logger: Contracts.Kernel.ILogger;
+    logger: ILogger;
 
-    emitter: Contracts.Kernel.IEventDispatcher;
-
-    config: any;
+    emitter: IEventDispatcher;
 
     options: any;
 

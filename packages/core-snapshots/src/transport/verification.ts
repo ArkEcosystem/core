@@ -29,7 +29,9 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             const signatureVerify = Crypto.Hash.verifyECDSA(hash, data.block_signature, data.generator_public_key);
 
             if (!signatureVerify) {
-                app.resolve<Contracts.Kernel.ILogger>("logger").error(`Failed to verify signature: ${JSON.stringify(data)}`);
+                app.resolve<Contracts.Kernel.ILogger>("logger").error(
+                    `Failed to verify signature: ${JSON.stringify(data)}`,
+                );
             }
 
             return signatureVerify;

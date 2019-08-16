@@ -1,4 +1,4 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
 import { defaults } from "./defaults";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
@@ -23,6 +23,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         }
 
         this.app.bind("p2p", service);
+        this.app.bind("p2p.options", this.opts);
     }
 
     public async dispose(): Promise<void> {
@@ -38,7 +39,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 

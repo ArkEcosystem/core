@@ -1,5 +1,4 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Enums as AppEnums } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     NotSupportedForMultiSignatureWalletError,
@@ -110,13 +109,13 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {
-        emitter.dispatch(ApplicationEvents.DelegateRegistered, transaction.data);
+        emitter.dispatch(AppEnums.Event.State.DelegateRegistered, transaction.data);
     }
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;

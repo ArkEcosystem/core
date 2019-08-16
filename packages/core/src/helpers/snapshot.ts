@@ -3,19 +3,16 @@ import { lstatSync, readdirSync } from "fs";
 import prompts from "prompts";
 import { CommandFlags } from "../types";
 
-// tslint:disable-next-line:no-var-requires
-const { version } = require("../../package.json");
-
 export const setUpLite = async (options): Promise<Contracts.Kernel.IContainer> => {
-    await app.setUp(version, options, {
-        include: [
-            "@arkecosystem/core-event-emitter",
-            "@arkecosystem/core-logger-pino",
-            "@arkecosystem/core-state",
-            "@arkecosystem/core-database-postgres",
-            "@arkecosystem/core-snapshots",
-        ],
-    });
+    // await app.setUp(version, options, {
+    //     include: [
+    //         "@arkecosystem/core-event-emitter",
+    //         "@arkecosystem/core-logger-pino",
+    //         "@arkecosystem/core-state",
+    //         "@arkecosystem/core-database-postgres",
+    //         "@arkecosystem/core-snapshots",
+    //     ],
+    // });
 
     return app;
 };

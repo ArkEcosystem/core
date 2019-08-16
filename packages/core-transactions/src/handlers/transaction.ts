@@ -129,12 +129,18 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
     }
 
-    public async apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+    public async apply(
+        transaction: Interfaces.ITransaction,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<void> {
         await this.applyToSender(transaction, walletManager);
         await this.applyToRecipient(transaction, walletManager);
     }
 
-    public async revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+    public async revert(
+        transaction: Interfaces.ITransaction,
+        walletManager: Contracts.State.IWalletManager,
+    ): Promise<void> {
         await this.revertForSender(transaction, walletManager);
         await this.revertForRecipient(transaction, walletManager);
     }
@@ -147,7 +153,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
-            walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            walletManager.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
         await this.throwIfCannotBeApplied(transaction, sender, walletManager);

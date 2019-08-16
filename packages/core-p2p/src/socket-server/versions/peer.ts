@@ -54,7 +54,7 @@ export const postBlock = async ({ req }): Promise<void> => {
     const blockchain: Contracts.Blockchain.IBlockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
 
     const block: Interfaces.IBlockData = req.data.block;
-    const fromForger: boolean = isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress);
+    const fromForger: boolean = isWhitelisted(app.resolve("p2p.options").remoteAccess, req.headers.remoteAddress);
 
     if (!fromForger) {
         if (blockchain.pingBlock(block)) {
@@ -79,7 +79,13 @@ export const postBlock = async ({ req }): Promise<void> => {
     blockchain.handleIncomingBlock(block, fromForger);
 };
 
-export const postTransactions = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> => {
+export const postTransactions = async ({
+    service,
+    req,
+}: {
+    service: Contracts.P2P.IPeerService;
+    req;
+}): Promise<string[]> => {
     const processor: Contracts.TransactionPool.IProcessor = app
         .resolve<Contracts.TransactionPool.IConnection>("transaction-pool")
         .makeProcessor();

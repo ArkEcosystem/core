@@ -38,7 +38,7 @@ export const requestSchemas = {
                     $ref: "transactions",
                     minItems: 1,
                     maxItems: app.has("transaction-pool")
-                        ? app.resolveOptions("transaction-pool").maxTransactionsPerRequest || 40
+                        ? app.resolve("transaction-pool.options").maxTransactionsPerRequest || 40
                         : 40,
                 },
             },

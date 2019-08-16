@@ -1,5 +1,4 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
@@ -12,7 +11,6 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     public walletManager: Contracts.State.IWalletManager;
     public logger = app.resolve<Contracts.Kernel.ILogger>("logger");
     public emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
-    public config = app.getConfig();
     public options: any;
     public wallets: Contracts.Database.IWalletsBusinessRepository;
     public delegates: Contracts.Database.IDelegatesBusinessRepository;
@@ -58,7 +56,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         try {
             await this.loadBlocksFromCurrentRound();
         } catch (error) {
-            this.logger.warn(`Failed to load blocks from current round: ${error.message}`);
+            this.logger.warning(`Failed to load blocks from current round: ${error.message}`);
         }
     }
 
@@ -85,7 +83,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
             this.emitTransactionEvents(transaction);
         }
 
-        this.emitter.dispatch(ApplicationEvents.BlockApplied, block.data);
+        this.emitter.dispatch(Enums.Event.State.BlockApplied, block.data);
     }
 
     public async applyRound(height: number): Promise<void> {
@@ -115,7 +113,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
                     this.blocksInCurrentRound.length = 0;
 
-                    this.emitter.dispatch(ApplicationEvents.RoundApplied);
+                    this.emitter.dispatch(Enums.Event.State.RoundApplied);
                 } catch (error) {
                     // trying to leave database state has it was
                     await this.deleteRound(round);
@@ -123,7 +121,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
                     throw error;
                 }
             } else {
-                this.logger.warn(
+                this.logger.warning(
                     // tslint:disable-next-line:max-line-length
                     `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
                 );
@@ -413,7 +411,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
-        this.emitter.dispatch(ApplicationEvents.BlockReverted, block.data);
+        this.emitter.dispatch(Enums.Event.State.BlockReverted, block.data);
     }
 
     public async revertRound(height: number): Promise<void> {
@@ -447,7 +445,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
         await this.connection.roundsRepository.insert(activeDelegates);
 
-        this.emitter.dispatch(ApplicationEvents.RoundCreated, activeDelegates);
+        this.emitter.dispatch(Enums.Event.State.RoundCreated, activeDelegates);
     }
 
     public updateDelegateStats(delegates: Contracts.State.IWallet[]): void {
@@ -476,7 +474,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
                         }) just missed a block.`,
                     );
 
-                    this.emitter.dispatch(ApplicationEvents.ForgerMissing, {
+                    this.emitter.dispatch(Enums.Event.State.ForgerMissing, {
                         delegate: wallet,
                     });
                 }
@@ -589,7 +587,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
                     await this.deleteBlocks([block]);
                     tries--;
                 } else {
-                    app.forceExit("Unable to deserialize last block from database.", error);
+                    app.terminate("Unable to deserialize last block from database.", error);
                     return undefined;
                 }
 
@@ -600,7 +598,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         lastBlock = await getLastBlock();
 
         if (!lastBlock) {
-            this.logger.warn("No block found in database");
+            this.logger.warning("No block found in database");
 
             lastBlock = await this.createGenesisBlock();
         }
@@ -716,17 +714,17 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
-        this.emitter.dispatch(ApplicationEvents.TransactionApplied, transaction.data);
+        this.emitter.dispatch(Enums.Event.State.TransactionApplied, transaction.data);
 
         Handlers.Registry.get(transaction.type, transaction.typeGroup).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {
-        this.emitter.listen(ApplicationEvents.StateStarted, () => {
+        this.emitter.listen(Enums.Event.State.StateStarted, () => {
             this.stateStarted = true;
         });
 
-        this.emitter.listen(ApplicationEvents.WalletColdCreated, async coldWallet => {
+        this.emitter.listen(Enums.Event.State.WalletColdCreated, async (name, coldWallet) => {
             try {
                 const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
 

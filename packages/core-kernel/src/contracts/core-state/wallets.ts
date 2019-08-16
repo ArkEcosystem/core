@@ -1,5 +1,5 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { Logger, Shared } from "../index";
+import { ILogger } from "../core-kernel";
 import { IRoundInfo } from "../shared";
 
 export type WalletIndexer = (index: IWalletIndex, wallet: IWallet) => void;
@@ -60,7 +60,7 @@ export interface IWalletIpfsAttributes {
 }
 
 export interface IWalletManager {
-    logger: Contracts.Kernel.ILogger;
+    logger: ILogger;
 
     reset(): void;
 
@@ -106,7 +106,7 @@ export interface IWalletManager {
 
     applyBlock(block: Interfaces.IBlock): Promise<void>;
 
-    buildDelegateRanking(roundInfo?: Shared.IRoundInfo): IWallet[];
+    buildDelegateRanking(roundInfo?: IRoundInfo): IWallet[];
 
     revertBlock(block: Interfaces.IBlock): Promise<void>;
 

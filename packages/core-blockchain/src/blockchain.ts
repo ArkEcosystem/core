@@ -1,6 +1,5 @@
 /* tslint:disable:max-line-length */
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
@@ -11,7 +10,6 @@ import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
 
 const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
-const config = app.getConfig();
 const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
 const { BlockFactory } = Blocks;
 
@@ -64,7 +62,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
         this.state.networkStart = !!options.networkStart;
 
         if (this.state.networkStart) {
-            logger.warn(
+            logger.warning(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
             logger.info("Starting ARK Core for a new world, welcome aboard");
@@ -135,9 +133,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
 
         this.dispatch("START");
 
-        emitter.once("shutdown", () => {
-            this.stop();
-        });
+        emitter.listenOnce("shutdown", () => this.stop());
 
         if (skipStartedCheck || process.env.CORE_SKIP_BLOCKCHAIN_STARTED_CHECK) {
             return true;
@@ -228,11 +224,11 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 
-            emitter.dispatch(ApplicationEvents.BlockReceived, block);
+            emitter.dispatch(Enums.Event.State.BlockReceived, block);
         } else {
             logger.info(`Block disregarded because blockchain is not ready`);
 
-            emitter.dispatch(ApplicationEvents.BlockDisregarded, block);
+            emitter.dispatch(Enums.Event.State.BlockDisregarded, block);
         }
     }
 
@@ -419,7 +415,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
             const currentBlock: Interfaces.IBlock = blocks[blocks.length - 1];
-            const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
+            const blocktime: number = Managers.configManager.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
                 this.p2p.getMonitor().broadcastBlock(currentBlock);
@@ -469,7 +465,9 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
 
         block = block || this.getLastBlock().data;
 
-        return Crypto.Slots.getTime() - block.timestamp < 3 * config.getMilestone(block.height).blocktime;
+        return (
+            Crypto.Slots.getTime() - block.timestamp < 3 * Managers.configManager.getMilestone(block.height).blocktime
+        );
     }
 
     public async replay(targetHeight?: number): Promise<void> {

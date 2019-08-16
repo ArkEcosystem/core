@@ -12,9 +12,6 @@ import { confirm } from "../helpers/prompts";
 import { processManager } from "../process-manager";
 import { CommandFlags, Options } from "../types";
 
-// tslint:disable-next-line:no-var-requires
-const { version } = require("../../package.json");
-
 const validNetworks = Object.keys(Networks).filter(network => network !== "unitnet");
 
 export abstract class BaseCommand extends Command {
@@ -97,12 +94,12 @@ export abstract class BaseCommand extends Command {
         return config;
     }
 
-    protected async buildApplication(app: Contracts.Kernel.IContainer, flags: CommandFlags, config: Options) {
+    protected async buildApplication(app: Contracts.Kernel.IApplication, flags: CommandFlags, config: Options) {
         process.env.CORE_ENV = flags.env;
 
-        await app.setUp(version, flags, {
-            ...{ skipPlugins: flags.skipPlugins },
-            ...config,
+        await app.bootstrap({
+            config,
+            flags: { ...flags, ...{ skipPlugins: flags.skipPlugins } },
         });
 
         return app;

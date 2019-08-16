@@ -87,7 +87,7 @@ export class SnapshotManager {
 
     public async rollbackByHeight(height: number) {
         if (!height || height <= 0) {
-            app.forceExit(`Rollback height ${height.toLocaleString()} is invalid.`);
+            app.terminate(`Rollback height ${height.toLocaleString()} is invalid.`);
         }
 
         const currentHeight = (await this.database.getLastBlock()).height;
@@ -95,7 +95,7 @@ export class SnapshotManager {
         const { round } = roundInfo;
 
         if (height >= currentHeight) {
-            app.forceExit(
+            app.terminate(
                 `Rollback height ${height.toLocaleString()} is greater than the current height ${currentHeight.toLocaleString()}.`,
             );
         }
@@ -141,7 +141,7 @@ export class SnapshotManager {
 
         if (exportAction) {
             if (!lastBlock) {
-                app.forceExit("Database is empty. Export not possible.");
+                app.terminate("Database is empty. Export not possible.");
             }
 
             params.meta = utils.setSnapshotInfo(params, lastBlock);

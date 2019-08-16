@@ -1,9 +1,7 @@
-import { app } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
-
-const config = app.getConfig();
 
 const schemaIdentifier = Joi.string()
     .regex(/^[a-zA-Z0-9!@$&_.]+$/)
@@ -90,7 +88,7 @@ export const search: object = {
         usernames: Joi.array()
             .unique()
             .min(1)
-            .max(config.getMilestone().activeDelegates)
+            .max(Managers.configManager.getMilestone().activeDelegates)
             .items(schemaUsername),
         approval: schemaPercentage,
         forgedFees: schemaIntegerBetween,

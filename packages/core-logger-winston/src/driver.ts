@@ -1,13 +1,16 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import { AbstractLogger } from "@arkecosystem/core-logger";
+import { Contracts, Services } from "@arkecosystem/core-kernel";
 import "colors";
 import * as winston from "winston";
 import { ITransport, ITransportStream } from "./interfaces";
 
-export class WinstonLogger extends AbstractLogger {
+export class WinstonLogger extends Services.Log.AbstractLogger implements Contracts.Kernel.ILogger {
     protected logger: winston.Logger;
 
-    public make(): Contracts.Kernel.ILogger {
+    public constructor(private readonly opts: any) {
+        super();
+    }
+
+    public async make(): Promise<Contracts.Kernel.ILogger> {
         this.logger = winston.createLogger();
 
         this.registerTransports();
@@ -26,7 +29,7 @@ export class WinstonLogger extends AbstractLogger {
     }
 
     private registerTransports(): void {
-        const transports: ITransport[] = Object.values(this.options.transports);
+        const transports: ITransport[] = Object.values(this.opts.transports);
 
         for (const transport of transports) {
             if (transport.package) {

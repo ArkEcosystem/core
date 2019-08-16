@@ -3,7 +3,7 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { blockchainMachine } from "./machines/blockchain";
@@ -11,10 +11,9 @@ import { blockchainMachine } from "./machines/blockchain";
 import { Blockchain } from "./blockchain";
 
 const { BlockFactory } = Blocks;
-const config = app.getConfig();
 const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
 const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
-const stateStorage = app.resolve<State.IStateService>("state").getStore();
+const stateStorage = app.resolve<Contracts.State.IStateService>("state").getStore();
 
 /**
  * @type {IStateStore}
@@ -117,7 +116,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     exitApp() {
-        app.forceExit("Failed to startup blockchain. Exiting ARK Core!");
+        app.terminate("Failed to startup blockchain. Exiting ARK Core!");
     },
 
     async init() {
@@ -138,7 +137,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             // only genesis block? special case of first round needs to be dealt with
             if (block.data.height === 1) {
-                if (block.data.payloadHash !== config.get("network.nethash")) {
+                if (block.data.payloadHash !== Managers.configManager.get("network.nethash")) {
                     logger.error("FATAL: The genesis block payload hash is different from configured the nethash");
 
                     return blockchain.dispatch("FAILURE");
@@ -166,9 +165,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             }
 
             if (process.env.NODE_ENV === "test") {
-                logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
+                logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
-                stateStorage.setLastBlock(BlockFactory.fromJson(config.get("genesisBlock")));
+                stateStorage.setLastBlock(BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
                 await blockchain.database.buildWallets();
                 await blockchain.p2p.getMonitor().start();
 
@@ -235,7 +234,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 blockchain.enqueueBlocks(blocks);
                 blockchain.dispatch("DOWNLOADED");
             } catch (error) {
-                logger.warn(`Failed to enqueue downloaded block.`);
+                logger.warning(`Failed to enqueue downloaded block.`);
 
                 blockchain.dispatch("NOBLOCK");
 
@@ -245,8 +244,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (empty) {
                 logger.info("No new block found on this peer");
             } else {
-                logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
-                logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock)}`);
+                logger.warning(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
+                logger.warning(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock)}`);
 
                 blockchain.clearQueue();
             }
@@ -285,7 +284,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     async rollbackDatabase() {
         logger.info("Trying to restore database integrity");
 
-        const { maxBlockRewind, steps } = app.resolveOptions("blockchain").databaseRollback;
+        const { maxBlockRewind, steps } = app.resolve("blockchain.options").databaseRollback;
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await blockchain.removeTopBlocks(steps);

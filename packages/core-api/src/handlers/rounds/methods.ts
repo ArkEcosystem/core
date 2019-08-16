@@ -1,4 +1,5 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { respondWithCollection } from "../utils";
@@ -17,7 +18,7 @@ const delegates = async request => {
 };
 
 export const registerMethods = server => {
-    const { activeDelegates, blocktime } = app.getConfig().getMilestone();
+    const { activeDelegates, blocktime } = Managers.configManager.getMilestone();
 
     ServerCache.make(server).method("v2.rounds.delegates", delegates, activeDelegates * blocktime, request => ({
         id: request.params.id,

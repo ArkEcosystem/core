@@ -1,4 +1,4 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
 import { isWhitelisted } from "@arkecosystem/core-utils";
 import ip from "ip";
 import { defaults } from "./defaults";
@@ -6,7 +6,7 @@ import { startServer } from "./server";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        if (!isWhitelisted(this.app.resolveOptions("api").whitelist, ip.address())) {
+        if (!isWhitelisted(this.app.resolve("api.options").whitelist, ip.address())) {
             this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Wallet API is disabled");
             return;
         }
@@ -28,7 +28,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

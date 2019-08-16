@@ -1,4 +1,4 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
 import { ConnectionManager } from "./manager";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
@@ -8,7 +8,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("database-manager", new ConnectionManager());
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

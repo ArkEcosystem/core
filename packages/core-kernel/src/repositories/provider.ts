@@ -1,4 +1,4 @@
-import { IApplication } from "../contracts/kernel";
+import { IApplication } from "../contracts/core-kernel";
 import { AbstractServiceProvider } from "../support";
 
 /**
@@ -11,7 +11,7 @@ export class ProviderRepository extends Set<AbstractServiceProvider> {
      * @param {IApplication} app
      * @memberof ProviderRepository
      */
-    public constructor(readonly app: IApplication) {
+    public constructor(private readonly app: IApplication) {
         super();
     }
 
@@ -24,6 +24,15 @@ export class ProviderRepository extends Set<AbstractServiceProvider> {
         await provider.register();
 
         this.add(provider);
+    }
+
+    /**
+     * @param {AbstractServiceProvider} provider
+     * @returns {Promise<void>}
+     * @memberof ProviderRepository
+     */
+    public async boot(provider: AbstractServiceProvider): Promise<void> {
+        await provider.boot();
     }
 
     /**

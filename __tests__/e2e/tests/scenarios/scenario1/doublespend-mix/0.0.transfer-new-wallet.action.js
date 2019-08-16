@@ -4,7 +4,7 @@ const { Managers, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const { delegates } = require("../../../../lib/utils/testnet");
 const testUtils = require("../../../../lib/utils/test-utils");
-const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { TransactionFactory } = require("../../../../../helpers/transaction-factory");
 
 /**
  * Creates a transaction to a new wallet
@@ -24,13 +24,21 @@ module.exports = async options => {
             const wallets = secondTxsTypes[secondTxType];
             const transferAmount = _balanceNeededFromTxMix(firstTxType, secondTxType);
             transactions.push(
-                TransactionFactory.transfer(wallets[0].address, transferAmount, `init double spend ${firstTxType} - ${secondTxType}`)
+                TransactionFactory.transfer(
+                    wallets[0].address,
+                    transferAmount,
+                    `init double spend ${firstTxType} - ${secondTxType}`,
+                )
                     .withFee(0.1 * Math.pow(10, 8))
                     .withPassphrase(senderWallet.passphrase)
                     .withNonce(nonce.plus(1))
                     .createOne(),
 
-                TransactionFactory.transfer(wallets[2].address, utils.fees.secondSignRegistration + transferAmount, `init double spend ${firstTxType} - ${secondTxType}`)
+                TransactionFactory.transfer(
+                    wallets[2].address,
+                    utils.fees.secondSignRegistration + transferAmount,
+                    `init double spend ${firstTxType} - ${secondTxType}`,
+                )
                     .withFee(0.1 * Math.pow(10, 8))
                     .withPassphrase(senderWallet.passphrase)
                     .withNonce(nonce.plus(2))

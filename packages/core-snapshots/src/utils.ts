@@ -36,7 +36,7 @@ export const copySnapshot = (sourceFolder, destFolder) => {
         !existsSync(paths.source.transactions) ||
         !existsSync(paths.source.rounds)
     ) {
-        app.forceExit(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist`);
+        app.terminate(`Unable to copy snapshot from ${sourceFolder} as it doesn't exist`);
     }
 
     copyFileSync(paths.source.blocks, paths.dest.blocks);
@@ -79,7 +79,7 @@ export const readMetaJSON = folder => {
     const metaFileInfo = this.getFilePath("meta.json", folder);
 
     if (!existsSync(metaFileInfo)) {
-        app.forceExit("Meta file meta.json not found. Exiting");
+        app.terminate("Meta file meta.json not found. Exiting");
     }
 
     return readJSONSync(metaFileInfo);

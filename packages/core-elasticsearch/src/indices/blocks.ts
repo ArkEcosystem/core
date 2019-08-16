@@ -1,4 +1,4 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Enums } from "@arkecosystem/core-kernel";
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
@@ -37,7 +37,7 @@ export class Blocks extends Index {
     }
 
     public listen(): void {
-        this.registerListener("create", ApplicationEvents.BlockApplied);
-        this.registerListener("delete", ApplicationEvents.BlockReceived);
+        this.registerListener("create", Enums.Event.State.BlockApplied);
+        this.registerListener("delete", Enums.Event.State.BlockReceived);
     }
 }

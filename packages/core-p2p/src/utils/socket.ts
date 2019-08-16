@@ -27,7 +27,7 @@ export const socketEmit = async (
     }
 
     const socketEmitPromise = new Promise((resolve, reject) => {
-        socket.dispatch(event, req, (err, val) => (err ? reject(err) : resolve(val)));
+        socket.emit(event, req, (err, val) => (err ? reject(err) : resolve(val)));
     });
 
     const timeoutPromiseFn = (resolve, reject) => {

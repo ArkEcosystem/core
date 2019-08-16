@@ -51,17 +51,15 @@ export class RestoreCommand extends BaseCommand {
             cliProgress.Presets.shades_classic,
         );
 
-        emitter.listen("start", data => {
+        emitter.listen("start", (_, data) => {
             progressBar.start(data.count, 1);
         });
 
-        emitter.listen("progress", data => {
+        emitter.listen("progress", (_, data) => {
             progressBar.update(data.value);
         });
 
-        emitter.listen("complete", data => {
-            progressBar.stop();
-        });
+        emitter.listen("complete", () => progressBar.stop());
 
         await app.resolve<SnapshotManager>("snapshots").import(flags);
     }

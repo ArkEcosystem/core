@@ -1,8 +1,8 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 
 export const calculate = (height: number): string => {
-    const { genesisBlock, milestones } = app.getConfig().all();
+    const { genesisBlock, milestones } = Managers.configManager.all();
 
     if (!height) {
         const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");

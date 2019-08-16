@@ -1,6 +1,8 @@
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import camelCase from "lodash/camelCase";
+import logProcessErrors from "log-process-errors";
 import { join } from "path";
+import { JsonObject } from "type-fest";
 import * as Bootstrappers from "./bootstrap";
 import { ConfigFactory, ConfigRepository } from "./config";
 import { Container } from "./container";
@@ -8,6 +10,11 @@ import { Kernel } from "./contracts";
 import * as Contracts from "./contracts";
 import { DirectoryNotFound, FailedNetworkDetection } from "./errors";
 import { ProviderRepository } from "./repositories";
+import { CacheFactory } from "./services/cache";
+import { EventDispatcher } from "./services/events";
+import { LoggerFactory } from "./services/log";
+import { ConsoleLogger } from "./services/log/adapters/console";
+import { QueueFactory } from "./services/queue";
 import { AbstractServiceProvider } from "./support";
 
 /**
@@ -39,15 +46,21 @@ export class Application extends Container implements Kernel.IApplication {
     private booted: boolean = false;
 
     /**
-     * @param {Record<string, any>} config
+     * @param {JsonObject} config
+     * @param {JsonObject} [flags={}]
+     * @returns {Promise<void>}
      * @memberof Application
      */
-    public bootstrap(config: Record<string, any>): void {
+    public async bootstrap(config: JsonObject, flags: JsonObject = {}): Promise<void> {
+        this.registerErrorHandler();
+
         this.bindConfiguration(config);
 
         this.bindPathsInContainer();
 
-        this.registerCoreServices();
+        await this.registerCoreFactories();
+
+        await this.registerCoreServices();
 
         this.registerBindings();
 
@@ -89,6 +102,15 @@ export class Application extends Container implements Kernel.IApplication {
      */
     public async registerProvider(provider: AbstractServiceProvider): Promise<void> {
         await this.providers.register(provider);
+    }
+
+    /**
+     * @param {AbstractServiceProvider} provider
+     * @returns {Promise<void>}
+     * @memberof Application
+     */
+    public async bootProvider(provider: AbstractServiceProvider): Promise<void> {
+        await this.providers.boot(provider);
     }
 
     /**
@@ -363,13 +385,17 @@ export class Application extends Container implements Kernel.IApplication {
     }
 
     /**
+     * @param {string} [reason]
+     * @param {Error} [error]
      * @returns {Promise<void>}
      * @memberof Application
      */
-    public async terminate(): Promise<void> {
+    public async terminate(reason?: string, error?: Error): Promise<void> {
         this.hasBeenBootstrapped = false;
 
         await this.disposeServiceProviders();
+
+        // @TODO: log the message
     }
 
     /**
@@ -419,6 +445,15 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @private
+     * @memberof Application
+     */
+    private registerErrorHandler(): void {
+        // @TODO: implement passing in of options
+        logProcessErrors();
+    }
+
+    /**
+     * @private
      * @param {Record<string, any>} config
      * @memberof Application
      */
@@ -456,11 +491,23 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @private
+     * @returns {Promise<void>}
      * @memberof Application
      */
-    private registerCoreServices(): void {
+    private async registerCoreServices(): Promise<void> {
         this.bind("events", new EventDispatcher());
-        this.bind("log", new Logger(this));
+        this.bind("log", await this.resolve("factoryLogger").make(new ConsoleLogger()));
+    }
+
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof Application
+     */
+    private async registerCoreFactories(): Promise<void> {
+        this.bind("factoryLogger", new LoggerFactory(this));
+        this.bind("factoryCache", new CacheFactory(this));
+        this.bind("factoryQueue", new QueueFactory(this));
     }
 
     /**

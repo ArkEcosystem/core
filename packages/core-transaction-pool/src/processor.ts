@@ -102,7 +102,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
     }
 
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
-        const { maxTransactionBytes } = app.resolveOptions("transaction-pool");
+        const { maxTransactionBytes } = app.resolve("transaction-pool.options");
 
         for (const transaction of transactions) {
             const exists: boolean = await this.pool.has(transaction.id);
@@ -210,7 +210,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            return Handlers.Registry.get(transaction.type, transaction.typeGroup).canEnterContracts.TransactionPool(
+            return Handlers.Registry.get(transaction.type, transaction.typeGroup).canEnterTransactionPool(
                 transaction,
                 this.pool,
                 this,

@@ -1,4 +1,4 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Enums } from "@arkecosystem/core-kernel";
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";
@@ -37,6 +37,6 @@ export class Rounds extends Index {
     }
 
     public listen(): void {
-        this.emitter.listen(ApplicationEvents.RoundCreated, () => this.index());
+        this.emitter.listen(Enums.Event.State.RoundCreated, () => this.index());
     }
 }

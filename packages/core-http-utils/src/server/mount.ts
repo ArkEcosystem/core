@@ -8,6 +8,6 @@ export const mountServer = async (name, server) => {
 
         return server;
     } catch (error) {
-        app.forceExit(`Could not start ${name} Server!`, error);
+        app.terminate(`Could not start ${name} Server!`, error);
     }
 };

@@ -1,5 +1,5 @@
 import { ConnectionManager, databaseServiceFactory } from "@arkecosystem/core-database";
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { defaults } from "./defaults";
 import { PostgresConnection } from "./postgres-connection";
@@ -26,7 +26,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

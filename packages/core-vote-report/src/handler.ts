@@ -3,7 +3,7 @@ import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosy
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 const formatDelegates = (
-    delegates: State.IWallet[],
+    delegates: Contracts.State.IWallet[],
     lastHeight: number,
 ): Array<{
     rank: string;
@@ -77,7 +77,7 @@ export const handler = (request, h) => {
     const active: Contracts.State.IWallet[] = allByUsername.slice(0, maxDelegates);
     const standby: Contracts.State.IWallet[] = allByUsername.slice(
         maxDelegates + 1,
-        app.resolveOptions("vote-report").delegateRows,
+        app.resolve("vote-report.options").delegateRows,
     );
 
     const voters: Contracts.State.IWallet[] = databaseService.walletManager

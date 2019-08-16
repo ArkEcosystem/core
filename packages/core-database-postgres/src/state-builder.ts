@@ -1,6 +1,6 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
@@ -40,7 +40,7 @@ export class StateBuilder {
 
         this.verifyWalletsConsistency();
 
-        this.emitter.dispatch("internal.stateBuilder.finished");
+        this.emitter.dispatch(Enums.Event.Internal.StateBuilderFinished);
     }
 
     private async buildBlockRewards(): Promise<void> {
@@ -63,8 +63,7 @@ export class StateBuilder {
     }
 
     private isGenesis(wallet: Contracts.State.IWallet): boolean {
-        return app
-            .getConfig()
+        return Managers.configManager
             .get("genesisBlock.transactions")
             .map((tx: Interfaces.ITransactionData) => tx.senderPublicKey)
             .includes(wallet.publicKey);
@@ -73,14 +72,14 @@ export class StateBuilder {
     private verifyWalletsConsistency(): void {
         for (const wallet of this.walletManager.allByAddress()) {
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
-                this.logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
+                this.logger.warning(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
 
                 throw new Error("Non-genesis wallet with negative balance.");
             }
 
             const voteBalance: Utils.BigNumber = wallet.getAttribute("delegate.voteBalance");
             if (voteBalance && voteBalance.isLessThan(0)) {
-                this.logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${voteBalance}'`);
+                this.logger.warning(`Wallet ${wallet.address} has a negative vote balance of '${voteBalance}'`);
 
                 throw new Error("Wallet with negative vote balance.");
             }

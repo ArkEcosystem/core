@@ -1,4 +1,4 @@
-import { Support } from "@arkecosystem/core-kernel";
+import { Support, Types } from "@arkecosystem/core-kernel";
 import { client } from "./client";
 import { defaults } from "./defaults";
 import { watchIndices } from "./indices";
@@ -29,7 +29,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

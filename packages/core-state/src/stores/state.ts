@@ -1,6 +1,6 @@
 // tslint:disable:variable-name
 
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
@@ -98,11 +98,13 @@ export class StateStore implements Contracts.State.IStateStore {
         Managers.configManager.setHeight(block.data.height);
 
         if (Managers.configManager.isNewMilestone()) {
-            app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter").dispatch("internal.milestone.changed");
+            app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter").dispatch(
+                Enums.Event.Internal.MilestoneChanged,
+            );
         }
 
         // Delete oldest block if size exceeds the maximum
-        if (this.lastBlocks.size > app.resolveOptions("state").storage.maxLastBlocks) {
+        if (this.lastBlocks.size > app.resolve("state.options").storage.maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
     }
@@ -187,7 +189,7 @@ export class StateStore implements Contracts.State.IStateStore {
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
-        const limit = app.resolveOptions("state").storage.maxLastTransactionIds;
+        const limit = app.resolve("state.options").storage.maxLastTransactionIds;
         if (this.cachedTransactionIds.size > limit) {
             this.cachedTransactionIds = this.cachedTransactionIds.takeLast(limit);
         }

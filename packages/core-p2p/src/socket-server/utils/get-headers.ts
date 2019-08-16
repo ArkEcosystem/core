@@ -2,8 +2,8 @@ import { app, Contracts } from "@arkecosystem/core-kernel";
 
 export const getHeaders = () => {
     const headers = {
-        version: app.getVersion(),
-        port: app.resolveOptions("p2p").port,
+        version: app.version(),
+        port: app.resolve("p2p.options").port,
         height: undefined,
     };
 

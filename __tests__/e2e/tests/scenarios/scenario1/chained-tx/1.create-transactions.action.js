@@ -3,7 +3,7 @@
 const { Managers } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
-const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { TransactionFactory } = require("../../../../../helpers/transaction-factory");
 
 /**
  * Send A => B and B => C transactions
@@ -19,7 +19,6 @@ module.exports = async options => {
         .withFee(0.1 * Math.pow(10, 8))
         .withPassphrase(utils.a.passphrase)
         .createOne();
-
 
     // B => C
     let transaction2 = TransactionFactory.transfer(utils.c.address, 250 * Math.pow(10, 8), "transfer B => C")

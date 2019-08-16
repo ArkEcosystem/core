@@ -1,13 +1,14 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export const isNewRound = (height: number): boolean => {
-    const { config } = app.getConfig();
+    const milestones = Managers.configManager.get("milestones");
 
     // Since milestones are merged, find the first milestone to introduce the delegate count.
     let milestone;
-    for (let i = config.milestones.length - 1; i >= 0; i--) {
-        const temp = config.milestones[i];
+    for (let i = milestones.length - 1; i >= 0; i--) {
+        const temp = milestones[i];
         if (temp.height > height) {
             continue;
         }
@@ -23,8 +24,7 @@ export const isNewRound = (height: number): boolean => {
 };
 
 export const calculateRound = (height: number): Contracts.Shared.IRoundInfo => {
-    const config = app.getConfig();
-    const { milestones } = config.config;
+    const milestones = Managers.configManager.get("milestones");
 
     let round: number = 0;
     let roundHeight: number = 1;

@@ -4,7 +4,7 @@ const { Managers, Identities, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { delegates } = require("../../../../lib/utils/testnet");
-const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { TransactionFactory } = require("../../../../../helpers/transaction-factory");
 
 /**
  * Attempt to double spend
@@ -22,10 +22,7 @@ module.exports = async options => {
 
         Object.keys(secondTxsTypes).forEach(secondTxType => {
             const wallets = secondTxsTypes[secondTxType];
-            transactions.push(
-                _genTransaction(firstTxType, wallets),
-                _genTransaction(secondTxType, wallets)
-            );
+            transactions.push(_genTransaction(firstTxType, wallets), _genTransaction(secondTxType, wallets));
         });
     });
 
@@ -39,7 +36,7 @@ module.exports = async options => {
         let transaction;
         switch (type) {
             case "transfer":
-                transaction = TransactionFactory.transfer(wallets[1].address, utils.transferAmount)
+                transaction = TransactionFactory.transfer(wallets[1].address, utils.transferAmount);
                 break;
             case "vote":
                 transaction = TransactionFactory.vote(delegates[2].publicKey);
@@ -48,8 +45,7 @@ module.exports = async options => {
                 transaction = TransactionFactory.secondSignature(wallets[1].passphrase);
                 break;
             case "delegateRegistration":
-                transaction = TransactionFactory.delegateRegistration(wallets[0].address.slice(0, 10).toLowerCase(),
-                );
+                transaction = TransactionFactory.delegateRegistration(wallets[0].address.slice(0, 10).toLowerCase());
                 break;
         }
 
@@ -57,6 +53,6 @@ module.exports = async options => {
             .withFee(utils.fees[type])
             .withPassphrase(wallets[0].passphrase)
             .withNonce(noncesByAddress[wallets[0].address])
-            .createOne()
+            .createOne();
     }
 };

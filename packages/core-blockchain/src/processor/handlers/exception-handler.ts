@@ -13,7 +13,9 @@ export class ExceptionHandler extends BlockHandler {
             return super.execute();
         }
 
-        this.logger.warn(`Block ${this.block.data.height.toLocaleString()} (${this.block.data.id}) forcibly accepted.`);
+        this.logger.warning(
+            `Block ${this.block.data.height.toLocaleString()} (${this.block.data.id}) forcibly accepted.`,
+        );
 
         return new AcceptBlockHandler(this.blockchain, this.block).execute();
     }

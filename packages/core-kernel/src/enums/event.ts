@@ -1,4 +1,18 @@
-export enum ApplicationEvents {
+/**
+ * @export
+ * @enum {number}
+ */
+export enum Internal {
+    DisconnectPeer = "internal.p2p.disconnectPeer",
+    MilestoneChanged = "internal.milestone.changed",
+    StateBuilderFinished = "internal.stateBuilder.finished",
+}
+
+/**
+ * @export
+ * @enum {number}
+ */
+export enum State {
     BlockApplied = "block.applied",
     BlockDisregarded = "block.disregarded",
     BlockForged = "block.forged",
@@ -24,3 +38,9 @@ export enum ApplicationEvents {
     WalletColdCreated = "wallet.created.cold",
     WalletSaved = "wallet.saved",
 }
+
+/**
+ * @export
+ * @enum {number}
+ */
+export enum Action {}

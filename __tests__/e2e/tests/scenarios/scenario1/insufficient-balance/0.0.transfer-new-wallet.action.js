@@ -4,7 +4,7 @@ const { Managers, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const { delegates } = require("../../../../lib/utils/testnet");
 const testUtils = require("../../../../lib/utils/test-utils");
-const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { TransactionFactory } = require("../../../../../helpers/transaction-factory");
 
 /**
  * Creates a transaction to a new wallet
@@ -24,7 +24,11 @@ module.exports = async options => {
             .withNonce(nonce.plus(1))
             .createOne(),
 
-        TransactionFactory.transfer(utils.transfer2ndsigSender.address, 1000 * Math.pow(10, 8), "init for transfer with 2nd sig")
+        TransactionFactory.transfer(
+            utils.transfer2ndsigSender.address,
+            1000 * Math.pow(10, 8),
+            "init for transfer with 2nd sig",
+        )
             .withFee(0.1 * Math.pow(10, 8))
             .withPassphrase(senderWallet.passphrase)
             .withNonce(nonce.plus(2))
@@ -42,7 +46,11 @@ module.exports = async options => {
             .withNonce(nonce.plus(4))
             .createOne(),
 
-        TransactionFactory.transfer(utils.secondsigRegSender.address, 3 * Math.pow(10, 8), "init for 2nd signature registration")
+        TransactionFactory.transfer(
+            utils.secondsigRegSender.address,
+            3 * Math.pow(10, 8),
+            "init for 2nd signature registration",
+        )
             .withFee(0.1 * Math.pow(10, 8))
             .withPassphrase(senderWallet.passphrase)
             .withNonce(nonce.plus(5))

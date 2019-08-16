@@ -1,4 +1,4 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
 import { Blockchain } from "./blockchain";
 import { defaults } from "./defaults";
 import { blockchainMachine } from "./machines/blockchain";
@@ -24,6 +24,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         }
 
         this.app.bind("blockchain", blockchain);
+        this.app.bind("blockchain.options", this.opts);
     }
 
     public async dispose(): Promise<void> {
@@ -34,7 +35,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

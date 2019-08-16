@@ -44,12 +44,12 @@ export class NodeController extends Controller {
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const network = this.config.get("network");
-            const dynamicFees = app.resolveOptions("transaction-pool").dynamicFees;
+            const dynamicFees = app.resolve("transaction-pool.options").dynamicFees;
 
             return {
                 data: {
                     core: {
-                        version: app.getVersion(),
+                        version: app.version(),
                     },
                     nethash: network.nethash,
                     slip44: network.slip44,

@@ -13,7 +13,7 @@ export const isValidVersion = (peer: Contracts.P2P.IPeer): boolean => {
     if (p2p && Array.isArray(p2p.minimumVersions) && p2p.minimumVersions.length > 0) {
         minimumVersions = p2p.minimumVersions;
     } else {
-        minimumVersions = app.resolveOptions("p2p").minimumVersions;
+        minimumVersions = app.resolve("p2p.options").minimumVersions;
     }
 
     return minimumVersions.some((minimumVersion: string) => semver.satisfies(peer.version, minimumVersion));

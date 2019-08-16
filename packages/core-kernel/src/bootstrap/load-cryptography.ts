@@ -1,4 +1,4 @@
-import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 import { Kernel } from "../contracts";
 
 /**
@@ -12,9 +12,7 @@ export class LoadCryptography {
      * @memberof LoadCryptography
      */
     public async bootstrap(app: Kernel.IApplication): Promise<void> {
-        const config: Interfaces.INetworkConfig = Managers.NetworkManager.findByName(app.network() as any);
-
-        this.configure(app, config);
+        this.configure(app, Managers.NetworkManager.findByName(app.network() as any));
     }
 
     /**

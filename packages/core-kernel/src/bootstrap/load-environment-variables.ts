@@ -1,3 +1,4 @@
+import { set } from "dottie";
 import envPaths from "env-paths";
 import expandHomeDir from "expand-home-dir";
 import { ensureDirSync } from "fs-extra";
@@ -18,11 +19,11 @@ export class LoadEnvironmentVariables {
         await app.resolve("configLoader").loadEnvironmentVariables();
 
         for (const [key, value] of Object.entries(envPaths(app.token(), { suffix: "core" }))) {
-            const path = resolve(`${expandHomeDir(value)}/${app.network()}`);
+            const path: string = resolve(`${expandHomeDir(value)}/${app.network()}`);
 
             ensureDirSync(path);
 
-            process.env[`PATH_${key.toUpperCase()}`] = path;
+            set(process.env, `PATH_${key.toUpperCase()}`, path);
         }
     }
 }

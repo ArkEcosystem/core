@@ -17,32 +17,44 @@ export class WalletManager implements Contracts.State.IWalletManager {
     constructor() {
         this.reset();
 
-        this.registerIndex(Contracts.State.WalletIndexes.Addresses, (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
-            if (wallet.address) {
-                index.set(wallet.address, wallet);
-            }
-        });
-
-        this.registerIndex(Contracts.State.WalletIndexes.PublicKeys, (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
-            if (wallet.publicKey) {
-                index.set(wallet.publicKey, wallet);
-            }
-        });
-
-        this.registerIndex(Contracts.State.WalletIndexes.Usernames, (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
-            if (wallet.isDelegate()) {
-                index.set(wallet.getAttribute("delegate.username"), wallet);
-            }
-        });
-
-        this.registerIndex(Contracts.State.WalletIndexes.Locks, (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
-            const locks = wallet.getAttribute("htlc.locks");
-            if (locks) {
-                for (const lockId of Object.keys(locks)) {
-                    index.set(lockId, wallet);
+        this.registerIndex(
+            Contracts.State.WalletIndexes.Addresses,
+            (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
+                if (wallet.address) {
+                    index.set(wallet.address, wallet);
                 }
-            }
-        });
+            },
+        );
+
+        this.registerIndex(
+            Contracts.State.WalletIndexes.PublicKeys,
+            (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
+                if (wallet.publicKey) {
+                    index.set(wallet.publicKey, wallet);
+                }
+            },
+        );
+
+        this.registerIndex(
+            Contracts.State.WalletIndexes.Usernames,
+            (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
+                if (wallet.isDelegate()) {
+                    index.set(wallet.getAttribute("delegate.username"), wallet);
+                }
+            },
+        );
+
+        this.registerIndex(
+            Contracts.State.WalletIndexes.Locks,
+            (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
+                const locks = wallet.getAttribute("htlc.locks");
+                if (locks) {
+                    for (const lockId of Object.keys(locks)) {
+                        index.set(lockId, wallet);
+                    }
+                }
+            },
+        );
     }
 
     public registerIndex(name: string, indexer: Contracts.State.WalletIndexer): void {
@@ -233,7 +245,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
                 this.reindex(delegate);
             } else {
-                app.forceExit(`Failed to lookup generator '${generatorPublicKey}' of block '${block.data.id}'.`);
+                app.terminate(`Failed to lookup generator '${generatorPublicKey}' of block '${block.data.id}'.`);
             }
         } else {
             delegate = this.findByPublicKey(block.data.generatorPublicKey);
@@ -254,7 +266,9 @@ export class WalletManager implements Contracts.State.IWalletManager {
             // delegate's delegate has to be updated.
             if (applied && delegate.hasVoted()) {
                 const increase: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
-                const votedDelegate: Contracts.State.IWallet = this.findByPublicKey(delegate.getAttribute<string>("vote"));
+                const votedDelegate: Contracts.State.IWallet = this.findByPublicKey(
+                    delegate.getAttribute<string>("vote"),
+                );
                 const voteBalance: Utils.BigNumber = votedDelegate.getAttribute("delegate.voteBalance");
                 votedDelegate.setAttribute("delegate.voteBalance", voteBalance.plus(increase));
             }
@@ -274,7 +288,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         if (!this.has(block.data.generatorPublicKey)) {
-            app.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
+            app.terminate(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
         }
         this.currentBlock = block;
 
@@ -296,7 +310,9 @@ export class WalletManager implements Contracts.State.IWalletManager {
             // delegate's delegate has to be updated.
             if (reverted && delegate.hasVoted()) {
                 const decrease: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
-                const votedDelegate: Contracts.State.IWallet = this.findByPublicKey(delegate.getAttribute<string>("vote"));
+                const votedDelegate: Contracts.State.IWallet = this.findByPublicKey(
+                    delegate.getAttribute<string>("vote"),
+                );
                 const voteBalance: Utils.BigNumber = votedDelegate.getAttribute("delegate.voteBalance");
                 votedDelegate.setAttribute("delegate.voteBalance", voteBalance.minus(decrease));
             }
@@ -467,7 +483,9 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
             if (transaction.type === Enums.TransactionType.HtlcClaim && lockWallet.hasAttribute("vote")) {
                 // HTLC Claim transfers the locked amount to the lock recipient's (= claim sender) delegate vote balance
-                const lockWalletDelegate: Contracts.State.IWallet = this.findByPublicKey(lockWallet.getAttribute("vote"));
+                const lockWalletDelegate: Contracts.State.IWallet = this.findByPublicKey(
+                    lockWallet.getAttribute("vote"),
+                );
                 const lockWalletDelegateVoteBalance: Utils.BigNumber = lockWalletDelegate.getAttribute(
                     "delegate.voteBalance",
                     Utils.BigNumber.ZERO,

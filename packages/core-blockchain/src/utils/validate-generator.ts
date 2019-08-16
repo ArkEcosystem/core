@@ -26,7 +26,7 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
             .findByPublicKey(forgingDelegate.publicKey)
             .getAttribute("delegate.username");
 
-        logger.warn(
+        logger.warning(
             `Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey})`,
         );
 

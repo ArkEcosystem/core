@@ -56,7 +56,7 @@ export const exportTable = async (table, options) => {
             endHeight: options.meta.endHeight,
         };
     } catch (error) {
-        app.forceExit("Error while exporting data via query stream", error);
+        app.terminate("Error while exporting data via query stream", error);
         return undefined;
     }
 };
@@ -97,7 +97,7 @@ export const importTable = async (table, options) => {
         fixData(table, record);
 
         if (!verifyData(table, record, prevData, options.verifySignatures)) {
-            app.forceExit(`Error verifying data. Payload ${JSON.stringify(record, undefined, 2)}`);
+            app.terminate(`Error verifying data. Payload ${JSON.stringify(record, undefined, 2)}`);
         }
 
         if (canImportRecord(table, record, options)) {
@@ -134,7 +134,7 @@ export const verifyTable = async (table, options) => {
     decodeStream.on("data", data => {
         fixData(table, data);
         if (!verifyData(table, data, prevData, options.verifySignatures)) {
-            app.forceExit(`Error verifying data. Payload ${JSON.stringify(data, undefined, 2)}`);
+            app.terminate(`Error verifying data. Payload ${JSON.stringify(data, undefined, 2)}`);
         }
         prevData = data;
     });
@@ -161,6 +161,6 @@ export const backupTransactionsToJSON = async (snapFileName, query, database) =>
         );
         return data;
     } catch (error) {
-        app.forceExit("Error while exporting data via query stream", error);
+        app.terminate("Error while exporting data via query stream", error);
     }
 };

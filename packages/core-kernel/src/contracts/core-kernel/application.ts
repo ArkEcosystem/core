@@ -35,7 +35,7 @@ export interface IApplication extends IContainer {
     /**
      * Bootstrap the application with the given configuration.
      */
-    bootstrap(config: Record<string, any>): void;
+    bootstrap(config: Record<string, any>): Promise<void>;
 
     /**
      * Boot the application.
@@ -215,5 +215,5 @@ export interface IApplication extends IContainer {
     /**
      * Terminate the application.
      */
-    terminate(): Promise<void>;
+    terminate(reason?: string, error?: Error): Promise<void>;
 }

@@ -1,11 +1,13 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Signale } from "signale";
 
-export class SignaleLogger extends AbstractLogger {
-    protected logger: Signale;
+export class SignaleLogger extends Services.Log.AbstractLogger implements Contracts.Kernel.ILogger {
+    public constructor(private readonly opts: any) {
+        super();
+    }
 
-    public make(): Contracts.Kernel.ILogger {
-        this.logger = new Signale(this.options);
+    public async make(): Promise<Contracts.Kernel.ILogger> {
+        this.logger = new Signale(this.opts);
 
         return this;
     }

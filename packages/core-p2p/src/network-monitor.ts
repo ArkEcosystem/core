@@ -1,7 +1,6 @@
 /* tslint:disable:max-line-length */
 
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter/dist";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import groupBy from "lodash.groupby";
@@ -70,7 +69,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         await this.populateSeedPeers();
 
         if (this.config.skipDiscovery) {
-            this.logger.warn("Skipped peer discovery because the relay is in skip-discovery mode.");
+            this.logger.warning("Skipped peer discovery because the relay is in skip-discovery mode.");
         } else {
             await this.updateNetworkStatus(true);
 
@@ -91,12 +90,12 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         }
 
         if (this.config.networkStart) {
-            this.logger.warn("Skipped peer discovery because the relay is in genesis-start mode.");
+            this.logger.warning("Skipped peer discovery because the relay is in genesis-start mode.");
             return;
         }
 
         if (this.config.disableDiscovery) {
-            this.logger.warn("Skipped peer discovery because the relay is in non-discovery mode.");
+            this.logger.warning("Skipped peer discovery because the relay is in non-discovery mode.");
             return;
         }
 
@@ -130,7 +129,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         let max = peers.length;
 
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").verifyTimeout;
+        const pingDelay = fast ? 1500 : app.resolve("p2p.options").verifyTimeout;
 
         if (peerCount) {
             peers = shuffle(peers).slice(0, peerCount);
@@ -152,7 +151,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                         peerErrors[error] = [peer];
                     }
 
-                    this.emitter.dispatch(ApplicationEvents.PeerRemoved, peer);
+                    this.emitter.dispatch(Enums.Event.State.PeerRemoved, peer);
 
                     this.storage.forgetPeer(peer);
 
@@ -377,7 +376,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {
         const peers: Contracts.P2P.IPeer[] = take(
             shuffle(this.storage.getPeers()),
-            app.resolveOptions("p2p").maxPeersBroadcast,
+            app.resolve("p2p.options").maxPeersBroadcast,
         );
 
         this.logger.debug(
@@ -454,23 +453,23 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     private hasMinimumPeers(): boolean {
         if (this.config.ignoreMinimumNetworkReach) {
-            this.logger.warn("Ignored the minimum network reach because the relay is in seed mode.");
+            this.logger.warning("Ignored the minimum network reach because the relay is in seed mode.");
 
             return true;
         }
 
-        return Object.keys(this.storage.getPeers()).length >= app.resolveOptions("p2p").minimumNetworkReach;
+        return Object.keys(this.storage.getPeers()).length >= app.resolve("p2p.options").minimumNetworkReach;
     }
 
     private async populateSeedPeers(): Promise<any> {
-        const peerList: IPeerData[] = app.getConfig().get("peers.list");
+        const peerList: IPeerData[] = app.config("peers.list");
 
         if (!peerList) {
-            app.forceExit("No seed peers defined in peers.json");
+            app.terminate("No seed peers defined in peers.json");
         }
 
         const peers: IPeerData[] = peerList.map(peer => {
-            peer.version = app.getVersion();
+            peer.version = app.version();
             return peer;
         });
 

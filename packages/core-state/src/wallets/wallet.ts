@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -69,7 +69,7 @@ export class Wallet implements Contracts.State.IWallet {
         ) {
             this.balance = this.balance.plus(block.reward).plus(block.totalFee);
 
-            const delegate: State.IWalletDelegateAttributes = this.getAttribute("delegate");
+            const delegate: Contracts.State.IWalletDelegateAttributes = this.getAttribute("delegate");
 
             delegate.producedBlocks++;
             delegate.forgedFees = delegate.forgedFees.plus(block.totalFee);

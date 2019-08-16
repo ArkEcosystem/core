@@ -1,14 +1,12 @@
 import isEmpty from "lodash.isempty";
 import { inspect } from "util";
-import { ILogger } from "../../contracts/core-kernel/logger";
 
 /**
  * @export
  * @abstract
  * @class AbstractLogger
- * @implements {ILogger}
  */
-export abstract class AbstractLogger implements ILogger {
+export abstract class AbstractLogger {
     /**
      * @protected
      * @type {*}
@@ -38,19 +36,6 @@ export abstract class AbstractLogger implements ILogger {
         info: "info",
         debug: "debug",
     };
-
-    /**
-     * @param {Record<string, any>} options
-     * @memberof AbstractLogger
-     */
-    constructor(protected readonly options: Record<string, any>) {}
-
-    /**
-     * @abstract
-     * @returns {ILogger}
-     * @memberof AbstractLogger
-     */
-    public abstract make(): ILogger;
 
     /**
      * @param {string} level

@@ -144,7 +144,7 @@ export class UnchainedHandler extends BlockHandler {
             return UnchainedBlockStatus.InvalidTimestamp;
         } else {
             if (this.isValidGenerator) {
-                this.logger.warn(`Detect double forging by ${this.block.data.generatorPublicKey}`);
+                this.logger.warning(`Detect double forging by ${this.block.data.generatorPublicKey}`);
                 return UnchainedBlockStatus.DoubleForging;
             }
 

@@ -1,5 +1,4 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
@@ -50,13 +49,13 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {
-        emitter.dispatch(ApplicationEvents.DelegateResigned, transaction.data);
+        emitter.dispatch(Enums.Event.State.DelegateResigned, transaction.data);
     }
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             const wallet: Contracts.State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);

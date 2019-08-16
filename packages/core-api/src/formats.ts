@@ -1,16 +1,13 @@
-import { app } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 import { Ajv } from "ajv";
 import * as ipAddress from "ip";
 
 export const registerFormats = (ajv: Ajv) => {
-    const config = app.getConfig();
-
     ajv.addFormat("address", {
         type: "string",
         validate: value => {
             try {
-                return Utils.Base58.decodeCheck(value)[0] === config.get("network.pubKeyHash");
+                return Utils.Base58.decodeCheck(value)[0] === Managers.configManager.get("network.pubKeyHash");
             } catch (e) {
                 return false;
             }

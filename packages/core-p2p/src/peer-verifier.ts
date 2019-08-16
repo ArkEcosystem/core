@@ -6,7 +6,7 @@ import assert from "assert";
 import { inspect } from "util";
 import { Severity } from "./enums";
 
-export class PeerVerificationResult implements P2P.IPeerVerificationResult {
+export class PeerVerificationResult implements Contracts.P2P.IPeerVerificationResult {
     public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
 
     get forked(): boolean {
@@ -20,11 +20,16 @@ export class PeerVerifier {
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
     private static readonly verifiedBlocks = new CappedSet();
-    private readonly database: Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
+    private readonly database: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>(
+        "database",
+    );
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private logPrefix: string;
 
-    public constructor(private readonly communicator: P2P.IPeerCommunicator, private readonly peer: P2P.IPeer) {
+    public constructor(
+        private readonly communicator: Contracts.P2P.IPeerCommunicator,
+        private readonly peer: Contracts.P2P.IPeer,
+    ) {
         this.logPrefix = `Peer verify ${peer.ip}:`;
     }
 
@@ -72,7 +77,7 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     public async checkState(
-        claimedState: P2P.IPeerState,
+        claimedState: Contracts.P2P.IPeerState,
         deadline: number,
     ): Promise<PeerVerificationResult | undefined> {
         if (!this.checkStateHeader(claimedState)) {

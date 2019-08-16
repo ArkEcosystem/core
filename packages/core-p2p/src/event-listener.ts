@@ -9,7 +9,7 @@ export class EventListener {
         const connector: Contracts.P2P.IPeerConnector = service.getConnector();
         const storage: Contracts.P2P.IPeerStorage = service.getStorage();
 
-        this.emitter.listen("internal.p2p.disconnectPeer", ({ peer }) => {
+        this.emitter.listen("internal.p2p.disconnectPeer", (name, { peer }) => {
             connector.disconnect(peer);
             storage.forgetPeer(peer);
         });

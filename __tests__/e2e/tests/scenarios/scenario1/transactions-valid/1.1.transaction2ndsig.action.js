@@ -4,7 +4,7 @@ const { Managers, Identities, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { delegates } = require("../../../../lib/utils/testnet");
-const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { TransactionFactory } = require("../../../../../helpers/transaction-factory");
 
 /**
  * Send the transactions 2nd signed (1 of each type)
@@ -36,14 +36,13 @@ module.exports = async options => {
         let transaction;
         switch (type) {
             case "transfer":
-                transaction = TransactionFactory.transfer(wallets[1].address, 2 * Math.pow(10, 8))
+                transaction = TransactionFactory.transfer(wallets[1].address, 2 * Math.pow(10, 8));
                 break;
             case "vote":
                 transaction = TransactionFactory.vote(delegates[2].publicKey);
                 break;
             case "delegateRegistration":
-                transaction = TransactionFactory.delegateRegistration(wallets[2].address.slice(0, 10).toLowerCase(),
-                );
+                transaction = TransactionFactory.delegateRegistration(wallets[2].address.slice(0, 10).toLowerCase());
                 break;
             case "ipfs":
                 transaction = TransactionFactory.ipfs("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w");

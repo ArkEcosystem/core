@@ -1,7 +1,18 @@
+import { IApplication } from "./application";
+
 /**
  * @see https://tools.ietf.org/html/rfc5424
  */
 export interface ILogger {
+    /**
+     * Create a new instance of the logger.
+     *
+     * @param {IApplication} app
+     * @returns {Promise<ILogger>}
+     * @memberof ILogger
+     */
+    make(app: IApplication): Promise<ILogger>;
+
     /**
      * System is unusable.
      *

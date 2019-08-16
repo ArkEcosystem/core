@@ -1,12 +1,11 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { httpie } from "@arkecosystem/core-utils";
 import * as conditions from "./conditions";
 import { database } from "./database";
 import { IWebhook } from "./interfaces";
 
 export const startListeners = (): void => {
-    for (const event of Object.values(ApplicationEvents)) {
+    for (const event of Object.values(Enums.Event.State)) {
         app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter").listen(event, async payload => {
             const webhooks: IWebhook[] = database.findByEvent(event).filter((webhook: IWebhook) => {
                 if (!webhook.enabled) {
@@ -43,7 +42,7 @@ export const startListeners = (): void => {
                         headers: {
                             Authorization: webhook.token,
                         },
-                        timeout: app.resolveOptions("webhooks").timeout,
+                        timeout: app.resolve("webhooks.options").timeout,
                     });
 
                     app.resolve<Contracts.Kernel.ILogger>("logger").debug(

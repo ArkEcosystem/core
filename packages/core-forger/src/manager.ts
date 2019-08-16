@@ -1,5 +1,4 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Wallets } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
@@ -12,7 +11,6 @@ import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
 export class ForgerManager {
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
-    private readonly config = app.getConfig();
 
     private secrets: string[];
     private network: Types.NetworkType;
@@ -24,14 +22,14 @@ export class ForgerManager {
     private initialized: boolean;
 
     constructor(options) {
-        this.secrets = this.config.get("delegates.secrets");
-        this.network = this.config.get("network");
+        this.secrets = app.config("delegates.secrets");
+        this.network = Managers.configManager.get("network");
         this.client = new Client(options.hosts);
     }
 
     public async startForging(bip38: string, password: string): Promise<void> {
         if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
-            this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
+            this.logger.warning('No delegate found! Please check your "delegates.json" file and try again.');
             return;
         }
 
@@ -45,7 +43,7 @@ export class ForgerManager {
         }
 
         if (!this.delegates) {
-            this.logger.warn('No delegate found! Please check your "delegates.json" file and try again.');
+            this.logger.warning('No delegate found! Please check your "delegates.json" file and try again.');
             return;
         }
 
@@ -55,7 +53,7 @@ export class ForgerManager {
             timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
         } catch (error) {
             timeout = 2000;
-            this.logger.warn("Waiting for a responsive host.");
+            this.logger.warning("Waiting for a responsive host.");
         } finally {
             this.checkLater(timeout);
         }
@@ -98,7 +96,7 @@ export class ForgerManager {
             const networkState: Contracts.P2P.INetworkState = await this.client.getNetworkState();
 
             if (networkState.nodeHeight !== this.round.lastBlock.height) {
-                this.logger.warn(
+                this.logger.warning(
                     `The NetworkState height (${networkState.nodeHeight}) and round height (${this.round.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
@@ -113,7 +111,7 @@ export class ForgerManager {
                 if (error.message.includes("blockchain isn't ready")) {
                     this.logger.info("Waiting for relay to become ready.");
                 } else {
-                    this.logger.warn(error.message);
+                    this.logger.warning(error.message);
                 }
             } else {
                 this.logger.error(error.stack);
@@ -124,7 +122,7 @@ export class ForgerManager {
                     );
                 }
 
-                this.client.emitEvent(ApplicationEvents.ForgerFailed, { error: error.message });
+                this.client.emitEvent(Enums.Event.State.ForgerFailed, { error: error.message });
             }
 
             // no idea when this will be ok, so waiting 2s before checking again
@@ -164,16 +162,18 @@ export class ForgerManager {
 
             await this.client.broadcastBlock(block.toJson());
 
-            this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
+            this.client.emitEvent(Enums.Event.State.BlockForged, block.data);
 
             for (const transaction of transactions) {
-                this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
+                this.client.emitEvent(Enums.Event.State.TransactionForged, transaction);
             }
         } else {
             if (currentSlot !== roundSlot) {
-                this.logger.warn(`Failed to forge new block by delegate ${prettyName}, because already in next slot.`);
+                this.logger.warning(
+                    `Failed to forge new block by delegate ${prettyName}, because already in next slot.`,
+                );
             } else {
-                this.logger.warn(
+                this.logger.warning(
                     `Failed to forge new block by delegate ${prettyName}, because there were ${timeLeftInMs}ms left in the current slot (less than ${minimumMs}ms).`,
                 );
             }
@@ -227,7 +227,7 @@ export class ForgerManager {
                 if (overHeightBlockHeader.generatorPublicKey === delegate.publicKey) {
                     const username: string = this.usernames[delegate.publicKey];
 
-                    this.logger.warn(
+                    this.logger.warning(
                         `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${overHeightBlockHeader.id}.`,
                     );
                 }

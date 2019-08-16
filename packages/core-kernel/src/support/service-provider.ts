@@ -1,3 +1,4 @@
+import { PackageJson } from "type-fest";
 import { Kernel } from "../contracts";
 
 export abstract class AbstractServiceProvider {
@@ -50,17 +51,17 @@ export abstract class AbstractServiceProvider {
 
     /**
      * @abstract
-     * @returns {Record<string, any>}
+     * @returns {PackageJson}
      * @memberof AbstractServiceProvider
      */
-    public abstract getManifest(): Record<string, any>;
+    public abstract getPackageJson(): PackageJson;
 
     /**
      * @returns {string}
      * @memberof AbstractServiceProvider
      */
     public getName(): string {
-        return this.getManifest().name;
+        return this.getPackageJson().name;
     }
 
     /**
@@ -68,7 +69,7 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     public getVersion(): string {
-        return this.getManifest().version;
+        return this.getPackageJson().version;
     }
 
     /**

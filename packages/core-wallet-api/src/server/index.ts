@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-kernel";
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
+import { app } from "@arkecosystem/core-kernel";
 import h2o2 from "@hapi/h2o2";
 import * as handlers from "./handlers";
 
@@ -29,13 +29,13 @@ export const startServer = async config => {
     if (app.has("api")) {
         await server.register({
             plugin: require("hapi-rate-limit"),
-            options: app.resolveOptions("api").rateLimit,
+            options: app.resolve("api.options").rateLimit,
         });
 
         await server.register({
             plugin: plugins.whitelist,
             options: {
-                whitelist: app.resolveOptions("api").whitelist,
+                whitelist: app.resolve("api.options").whitelist,
             },
         });
 
@@ -45,8 +45,8 @@ export const startServer = async config => {
             handler: {
                 proxy: {
                     protocol: "http",
-                    host: app.resolveOptions("api").host,
-                    port: app.resolveOptions("api").port,
+                    host: app.resolve("api.options").host,
+                    port: app.resolve("api.options").port,
                     passThrough: true,
                 },
             },

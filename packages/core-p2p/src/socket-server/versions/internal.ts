@@ -1,6 +1,6 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
-import { Crypto } from "@arkecosystem/crypto";
+import { Crypto, Managers } from "@arkecosystem/crypto";
 
 export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.IPeerService; req }): Promise<void> => {
     await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
@@ -12,7 +12,7 @@ export const emitEvent = ({ req }): void => {
 
 export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUnconfirmedTransactions> => {
     const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
-    const { maxTransactions } = app.getConfig().getMilestone(blockchain.getLastBlock().data.height).block;
+    const { maxTransactions } = Managers.configManager.getMilestone(blockchain.getLastBlock().data.height).block;
 
     const transactionPool: Contracts.TransactionPool.IConnection = app.resolve<Contracts.TransactionPool.IConnection>(
         "transaction-pool",
@@ -25,7 +25,6 @@ export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUncon
 };
 
 export const getCurrentRound = async (): Promise<Contracts.P2P.ICurrentRound> => {
-    const config = app.getConfig();
     const databaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
     const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
 
@@ -35,8 +34,8 @@ export const getCurrentRound = async (): Promise<Contracts.P2P.ICurrentRound> =>
     const roundInfo = roundCalculator.calculateRound(height);
     const { maxDelegates, round } = roundInfo;
 
-    const blockTime = config.getMilestone(height).blocktime;
-    const reward = config.getMilestone(height).reward;
+    const blockTime = Managers.configManager.getMilestone(height).blocktime;
+    const reward = Managers.configManager.getMilestone(height).reward;
     const delegates = await databaseService.getActiveDelegates(roundInfo);
     const timestamp = Crypto.Slots.getTime();
     const blockTimestamp = Crypto.Slots.getSlotNumber(timestamp) * blockTime;

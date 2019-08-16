@@ -130,7 +130,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         const lastBlock: Interfaces.IBlock = app
-            .resolve<Contracts.State.IContracts.StateService>("state")
+            .resolve<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlock();
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
@@ -150,8 +150,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.IConnection,
+        processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean> {
         const lockId = data.asset.claim.lockTransactionId;
         const lockWallet: Contracts.State.IWallet = pool.walletManager.findByIndex(
@@ -178,7 +178,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
-            walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            walletManager.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
         await this.throwIfCannotBeApplied(transaction, sender, walletManager);

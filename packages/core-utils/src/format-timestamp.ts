@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 import dayjs, { Dayjs } from "dayjs";
 import utc from "dayjs/plugin/utc";
 
@@ -11,7 +11,7 @@ export const formatTimestamp = (
     unix: number;
     human: string;
 } => {
-    const timestamp: Dayjs = dayjs.utc(app.getConfig().getMilestone().epoch).add(epochStamp, "second");
+    const timestamp: Dayjs = dayjs.utc(Managers.configManager.getMilestone().epoch).add(epochStamp, "second");
 
     return {
         epoch: epochStamp,

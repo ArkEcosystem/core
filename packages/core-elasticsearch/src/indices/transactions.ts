@@ -1,4 +1,4 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Enums } from "@arkecosystem/core-kernel";
 import { Transactions as CryptoTransactions } from "@arkecosystem/crypto";
 import { storage } from "../storage";
 import { first, last } from "../utils";
@@ -47,9 +47,9 @@ export class Transactions extends Index {
     }
 
     public listen(): void {
-        this.registerListener("create", ApplicationEvents.TransactionApplied);
+        this.registerListener("create", Enums.Event.State.TransactionApplied);
 
-        this.registerListener("delete", ApplicationEvents.TransactionExpired);
-        this.registerListener("delete", ApplicationEvents.TransactionReverted);
+        this.registerListener("delete", Enums.Event.State.TransactionExpired);
+        this.registerListener("delete", Enums.Event.State.TransactionReverted);
     }
 }

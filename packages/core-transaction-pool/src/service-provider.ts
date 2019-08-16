@@ -1,4 +1,4 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
 import { Connection } from "./connection";
 import { defaults } from "./defaults";
 import { ConnectionManager } from "./manager";
@@ -12,7 +12,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
 
         const connection = new ConnectionManager().createConnection(
             new Connection({
-                this.opts,
+                options: this.opts,
                 walletManager: new WalletManager(),
                 memory: new Memory(this.opts.maxTransactionAge as number),
                 storage: new Storage(),
@@ -20,6 +20,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         );
 
         this.app.bind("transaction-pool", connection);
+        this.app.bind("transaction-pool.options", this.opts);
     }
 
     public async dispose(): Promise<void> {
@@ -32,7 +33,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

@@ -54,7 +54,7 @@ export class Database {
 
             await this.db.none(queries.truncate(tables));
         } catch (error) {
-            app.forceExit(error.message);
+            app.terminate(error.message);
         }
     }
 
@@ -92,7 +92,7 @@ export class Database {
         const endBlock = await this.getBlockByHeight(meta.endHeight);
 
         if (!startBlock || !endBlock) {
-            app.forceExit(
+            app.terminate(
                 "Wrong input height parameters for building export queries. Blocks at height not found in db.",
             );
         }

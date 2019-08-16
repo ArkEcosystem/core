@@ -63,7 +63,7 @@ export class PostgresConnection implements Contracts.Database.IConnection {
 
             return this;
         } catch (error) {
-            app.forceExit("Unable to connect to the database!", error);
+            app.terminate("Unable to connect to the database!", error);
         }
 
         return undefined;
@@ -83,7 +83,7 @@ export class PostgresConnection implements Contracts.Database.IConnection {
                     // Class 57 — Operator Intervention
                     // Class 58 — System Error (errors external to PostgreSQL itself)
                     if (error.code && ["53", "57", "58"].includes(error.code.slice(0, 2))) {
-                        app.forceExit("Unexpected database error. Shutting down to prevent further damage.", error);
+                        app.terminate("Unexpected database error. Shutting down to prevent further damage.", error);
                     }
                 },
                 receive(data) {
@@ -109,8 +109,8 @@ export class PostgresConnection implements Contracts.Database.IConnection {
         try {
             this.cache.clear();
         } catch (error) {
-            this.logger.warn("Issue in commiting blocks, database might be corrupted");
-            this.logger.warn(error.message);
+            this.logger.warning("Issue in commiting blocks, database might be corrupted");
+            this.logger.warning(error.message);
         }
 
         this.pgp.end();
@@ -223,7 +223,7 @@ export class PostgresConnection implements Contracts.Database.IConnection {
         if (!runMigration) {
             return;
         }
-        this.logger.warn(`Migrating transactions table to assets. This may take a while.`);
+        this.logger.warning(`Migrating transactions table to assets. This may take a while.`);
 
         await this.query.none(migration);
 

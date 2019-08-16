@@ -27,7 +27,10 @@ export const startSocketServer = async (
             wsEngine: "ws",
             // See https://github.com/SocketCluster/socketcluster/issues/506 about
             // details on how pingTimeout works.
-            pingTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
+            pingTimeout: Math.max(
+                app.resolve("p2p.options").getBlocksTimeout,
+                app.resolve("p2p.options").verifyTimeout,
+            ),
         },
         ...config.server,
     });

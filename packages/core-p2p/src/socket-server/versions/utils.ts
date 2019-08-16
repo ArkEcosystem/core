@@ -27,9 +27,9 @@ export const log = ({ req }): void => {
 };
 
 export const isForgerAuthorized = ({ req }): { authorized: boolean } => {
-    return { authorized: isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.data.ip) };
+    return { authorized: isWhitelisted(app.resolve("p2p.options").remoteAccess, req.data.ip) };
 };
 
 export const getConfig = (): Record<string, any> => {
-    return app.resolveOptions("p2p");
+    return app.resolve("p2p.options");
 };

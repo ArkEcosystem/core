@@ -1,1 +1,3 @@
-export * from "./events";
+import * as Event from "./event";
+
+export { Event };

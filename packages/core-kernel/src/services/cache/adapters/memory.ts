@@ -87,7 +87,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @returns {boolean}
      * @memberof MemoryStore
      */
-    public async put(key: K, value: T, seconds: number): Promise<boolean> {
+    public async put(key: K, value: T, seconds?: number): Promise<boolean> {
         this.store.set(key, value);
 
         return this.has(key);
@@ -101,12 +101,8 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @returns {boolean[]}
      * @memberof MemoryStore
      */
-    public async putMany(values: Array<[K, T]>, seconds: number): Promise<boolean[]> {
-        return values.map((value: [K, T]) => {
-            this.store.set(value[0], value[1]);
-
-            return this.has(value[0]);
-        });
+    public async putMany(values: Array<[K, T]>, seconds?: number): Promise<boolean[]> {
+        return Promise.all(values.map(async (value: [K, T]) => this.put(value[0], value[1])));
     }
 
     /**
@@ -128,7 +124,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @memberof MemoryStore
      */
     public async hasMany(keys: K[]): Promise<boolean[]> {
-        return keys.map((key: K) => this.has(key));
+        return Promise.all(keys.map((key: K) => this.has(key)));
     }
 
     /**
@@ -150,7 +146,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @memberof MemoryStore
      */
     public async missingMany(keys: K[]): Promise<boolean[]> {
-        return keys.map((key: K) => this.missing(key));
+        return Promise.all([...keys].map((key: K) => this.missing(key)));
     }
 
     /**
@@ -198,7 +194,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @memberof MemoryStore
      */
     public async forgetMany(keys: K[]): Promise<boolean[]> {
-        return keys.map((key: K) => this.missing(key));
+        return Promise.all(keys.map((key: K) => this.missing(key)));
     }
 
     /**

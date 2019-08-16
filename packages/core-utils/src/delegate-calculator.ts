@@ -1,17 +1,15 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 
 const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
 
 export const calculateApproval = (delegate: Contracts.State.IWallet, height?: number): number => {
-    const config = app.getConfig();
-
     if (!height) {
         height = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock().data.height;
     }
 
-    const constants = config.getMilestone(height);
-    const totalSupply = new BignumMod(config.get("genesisBlock.totalAmount")).plus(
+    const constants = Managers.configManager.getMilestone(height);
+    const totalSupply = new BignumMod(Managers.configManager.get("genesisBlock.totalAmount")).plus(
         (height - constants.height) * constants.reward,
     );
     const voteBalance = new BignumMod(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance"));

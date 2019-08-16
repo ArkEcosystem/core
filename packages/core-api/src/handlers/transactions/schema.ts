@@ -54,7 +54,7 @@ export const store: object = {
         transactions: {
             $ref: "transactions",
             minItems: 1,
-            maxItems: app.resolveOptions("transaction-pool").maxTransactionsPerRequest,
+            maxItems: app.resolve("transaction-pool.options").maxTransactionsPerRequest,
         },
     },
 };

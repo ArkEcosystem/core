@@ -55,10 +55,10 @@ export class TransactionsRepository extends Repository implements Contracts.Data
                     first.operator === Contracts.Database.SearchOperator.OP_EQ
                 ) {
                     // Workaround to include transactions (e.g. type 2) where the recipient_id is missing in the database
-                    const walletManager: State.IWalletManager = app.resolve<
-                        Contracts.Contracts.Database.IDatabaseService
+                    const walletManager: Contracts.State.IWalletManager = app.resolve<
+                        Contracts.Database.IDatabaseService
                     >("database").walletManager;
-                    const recipientWallet: State.IWallet = walletManager.findByAddress(first.value);
+                    const recipientWallet: Contracts.State.IWallet = walletManager.findByAddress(first.value);
 
                     for (const query of [selectQuery, selectQueryCount]) {
                         query.or(
@@ -168,7 +168,7 @@ export class TransactionsRepository extends Repository implements Contracts.Data
     }
 
     public async findAllByWallet(
-        wallet: State.IWallet,
+        wallet: Contracts.State.IWallet,
         paginate?: Contracts.Database.ISearchPaginate,
         orderBy?: Contracts.Database.ISearchOrderBy[],
     ): Promise<Contracts.Database.ITransactionsPaginated> {

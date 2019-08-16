@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Services } from "@arkecosystem/core-kernel";
 import { WriteStream } from "fs";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
@@ -8,11 +8,15 @@ import rfs from "rotating-file-stream";
 import split from "split2";
 import { PassThrough } from "stream";
 
-export class PinoLogger extends AbstractLogger {
+export class PinoLogger extends Services.Log.AbstractLogger {
     protected logger: pino.Logger;
     private fileStream: WriteStream;
 
-    public make(): Contracts.Kernel.ILogger {
+    public constructor(private readonly opts: any) {
+        super();
+    }
+
+    public async make(): Promise<Contracts.Kernel.ILogger> {
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {
@@ -26,8 +30,8 @@ export class PinoLogger extends AbstractLogger {
 
         this.fileStream = this.getFileStream();
 
-        const consoleTransport = this.createPrettyTransport(this.options.levels.console, { colorize: true });
-        const fileTransport = this.createPrettyTransport(this.options.levels.file, { colorize: false });
+        const consoleTransport = this.createPrettyTransport(this.opts.levels.console, { colorize: true });
+        const fileTransport = this.createPrettyTransport(this.opts.levels.file, { colorize: false });
 
         pump(stream, split(), consoleTransport, process.stdout);
         pump(stream, split(), fileTransport, this.fileStream);
@@ -77,7 +81,7 @@ export class PinoLogger extends AbstractLogger {
         return rfs(
             (time: Date, index: number) => {
                 if (!time) {
-                    return `${app.getName()}-current.log`;
+                    return `${app.namespace()}-current.log`;
                 }
 
                 let filename: string = time.toISOString().slice(0, 10);
@@ -86,12 +90,12 @@ export class PinoLogger extends AbstractLogger {
                     filename += `.${index}`;
                 }
 
-                return `${app.getName()}-${filename}.log.gz`;
+                return `${app.namespace()}-${filename}.log.gz`;
             },
             {
                 path: process.env.CORE_PATH_LOG,
                 initialRotation: true,
-                interval: this.options.fileRotator ? this.options.fileRotator.interval : "1d",
+                interval: this.opts.fileRotator ? this.opts.fileRotator.interval : "1d",
                 maxSize: "100M",
                 maxFiles: 10,
                 compress: "gzip",

@@ -1,4 +1,4 @@
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Enums } from "@arkecosystem/core-kernel";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Index } from "./base";
 
@@ -31,7 +31,7 @@ export class Wallets extends Index {
     }
 
     public listen(): void {
-        this.emitter.listen(ApplicationEvents.RoundApplied, () => this.index());
+        this.emitter.listen(Enums.Event.State.RoundApplied, () => this.index());
     }
 
     protected async countWithDatabase(): Promise<number> {

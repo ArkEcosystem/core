@@ -1,4 +1,4 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
 import { database } from "./database";
 import { defaults } from "./defaults";
 import { startListeners } from "./listener";
@@ -16,6 +16,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         startListeners();
 
         this.app.bind("webhooks", startServer(this.opts.server));
+        this.app.bind("webhooks.options", this.opts);
     }
 
     public async dispose(): Promise<void> {
@@ -30,7 +31,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return defaults;
     }
 
-    public getManifest(): Record<string, any> {
+    public getPackageJson(): Types.PackageJson {
         return require("../package.json");
     }
 }

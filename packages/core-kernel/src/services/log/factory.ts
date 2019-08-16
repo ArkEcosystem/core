@@ -13,11 +13,11 @@ export class LoggerFactory {
 
     /**
      * @param {Kernel.ILogger} driver
-     * @returns {Kernel.ILogger}
+     * @returns {Promise<Kernel.ILogger>}
      * @memberof LoggerFactory
      */
-    public make(driver: Kernel.ILogger): Kernel.ILogger {
-        const instance: Kernel.ILogger = driver.make();
+    public async make(driver: Kernel.ILogger): Promise<Kernel.ILogger> {
+        const instance: Kernel.ILogger = await driver.make(this.app);
 
         instance.debug(`${this.app.token()}/${this.app.network()}@${this.app.version()}`);
         this.logPaths(instance);

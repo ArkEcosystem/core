@@ -128,7 +128,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         const lastBlock: Interfaces.IBlock = app
-            .resolve<Contracts.State.IContracts.StateService>("state")
+            .resolve<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlock();
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
@@ -171,7 +171,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
-            walletManager.logger.warn(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            walletManager.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
         await this.throwIfCannotBeApplied(transaction, sender, walletManager);
