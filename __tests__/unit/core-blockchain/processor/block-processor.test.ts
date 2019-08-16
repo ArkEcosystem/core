@@ -276,5 +276,36 @@ describe("Block processor", () => {
                 expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             });
         });
+
+        describe("Nonce", () => {
+            beforeEach(() => {
+                const lastBlock = BlockFactory.fromData(getBlock([]));
+
+                jest.spyOn(blockchain, "getLastBlock").mockReturnValue(lastBlock);
+            });
+            afterEach(() => {
+                jest.restoreAllMocks();
+            });
+
+            it("should reject a block with invalid nonce order", async () => {
+                const getActiveDelegatesBackup = database.getActiveDelegates;
+                database.getActiveDelegates = jest.fn(() => [delegates[0]]);
+
+                const transactions = TransactionFactory.transfer(delegates[1].address)
+                    .withNetwork("unitnet")
+                    .withPassphrase(delegates[0].passphrase)
+                    .create(2);
+
+                const block = BlockFactory.fromData(getBlock([transactions[1], transactions[0]]));
+                block.verification.verified = true;
+
+                const handler = await blockProcessor.getHandler(block);
+                expect(handler instanceof handlers.NonceOutOfOrderHandler).toBeTrue();
+
+                expect(await handler.execute()).toBe(BlockProcessorResult.Rejected);
+
+                database.getActiveDelegates = getActiveDelegatesBackup;
+            });
+        });
     });
 });
