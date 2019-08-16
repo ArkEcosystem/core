@@ -28,7 +28,6 @@ $ ark forger:run --bip38="..." --password="..."
 
         await this.buildApplication(app, flags, {
             include: [
-                "@arkecosystem/core-event-emitter",
                 "@arkecosystem/core-config",
                 "@arkecosystem/core-logger",
                 "@arkecosystem/core-logger-pino",

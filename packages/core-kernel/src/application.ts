@@ -1,7 +1,10 @@
+import { set } from "dottie";
+import envPaths from "env-paths";
+import expandHomeDir from "expand-home-dir";
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import camelCase from "lodash/camelCase";
-import logProcessErrors from "log-process-errors";
-import { join } from "path";
+// import logProcessErrors from "log-process-errors";
+import { join, resolve } from "path";
 import { JsonObject } from "type-fest";
 import * as Bootstrappers from "./bootstrap";
 import { ConfigFactory, ConfigRepository } from "./config";
@@ -47,24 +50,25 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @param {JsonObject} config
-     * @param {JsonObject} [flags={}]
      * @returns {Promise<void>}
      * @memberof Application
      */
-    public async bootstrap(config: JsonObject, flags: JsonObject = {}): Promise<void> {
+    public async bootstrap(config: JsonObject): Promise<void> {
         this.registerErrorHandler();
 
-        this.bindConfiguration(config);
-
-        this.bindPathsInContainer();
-
-        await this.registerCoreFactories();
-
-        await this.registerCoreServices();
+        await this.bindConfiguration(config);
 
         this.registerBindings();
 
         this.registerNamespace();
+
+        this.registerPaths();
+
+        await this.registerFactories();
+
+        await this.registerServices();
+
+        await this.boot();
     }
 
     /**
@@ -115,11 +119,11 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @param {AbstractServiceProvider} provider
-     * @param {Record<string, any>} opts
+     * @param {JsonObject} opts
      * @returns {AbstractServiceProvider}
      * @memberof Application
      */
-    public makeProvider(provider: AbstractServiceProvider, opts: Record<string, any>): AbstractServiceProvider {
+    public makeProvider(provider: AbstractServiceProvider, opts: JsonObject): AbstractServiceProvider {
         return this.providers.make(provider, opts);
     }
 
@@ -163,6 +167,14 @@ export class Application extends Container implements Kernel.IApplication {
         }
 
         return this.resolve("config").get(key);
+    }
+
+    /**
+     * @returns {string}
+     * @memberof Application
+     */
+    public dirPrefix(): string {
+        return this.resolve("app.dirPrefix");
     }
 
     /**
@@ -400,11 +412,11 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @readonly
-     * @type {Kernel.ILogger}
+     * @type {Contracts.Kernel.ILogger}
      * @memberof Application
      */
-    public get log(): Kernel.ILogger {
-        return this.resolve<Kernel.ILogger>("log");
+    public get log(): Contracts.Kernel.ILogger {
+        return this.resolve<Contracts.Kernel.ILogger>("log");
     }
 
     /**
@@ -436,11 +448,11 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @readonly
-     * @type {Kernel.IEventDispatcher}
+     * @type {Contracts.Kernel.IEventDispatcher}
      * @memberof Application
      */
-    public get events(): Kernel.IEventDispatcher {
-        return this.resolve<Kernel.IEventDispatcher>("events");
+    public get events(): Contracts.Kernel.IEventDispatcher {
+        return this.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher");
     }
 
     /**
@@ -448,18 +460,21 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     private registerErrorHandler(): void {
-        // @TODO: implement passing in of options
-        logProcessErrors();
+        // @TODO: implement passing in of options and ensure handling of critical exceptions
+        // logProcessErrors({ exitOn: [] });
     }
 
     /**
      * @private
-     * @param {Record<string, any>} config
+     * @param {JsonObject} config
      * @memberof Application
      */
-    private bindConfiguration(config: Record<string, any>): void {
-        this.bind("configLoader", ConfigFactory.make(this, "local")); // @TODO
+    private async bindConfiguration(config: JsonObject): Promise<void> {
+        // @TODO: pass in what config provider should be used
+        this.bind("configLoader", ConfigFactory.make(this, (config.configLoader || "local") as string));
         this.bind("config", new ConfigRepository(config));
+
+        this.resolve("config").set("options", config.options);
     }
 
     /**
@@ -471,6 +486,13 @@ export class Application extends Container implements Kernel.IApplication {
         this.bind("app.token", this.config("token"));
         this.bind("app.network", this.config("network"));
         this.bind("app.version", this.config("version"));
+
+        // @TODO: implement a getter/setter that sets vars locally and in the process.env variables
+        process.env.CORE_ENV = this.config("env");
+        process.env.NODE_ENV = process.env.CORE_ENV;
+        process.env.CORE_TOKEN = this.config("token");
+        process.env.CORE_NETWORK_NAME = this.config("network");
+        process.env.CORE_VERSION = this.config("version");
     }
 
     /**
@@ -494,9 +516,10 @@ export class Application extends Container implements Kernel.IApplication {
      * @returns {Promise<void>}
      * @memberof Application
      */
-    private async registerCoreServices(): Promise<void> {
-        this.bind("events", new EventDispatcher());
-        this.bind("log", await this.resolve("factoryLogger").make(new ConsoleLogger()));
+    private async registerFactories(): Promise<void> {
+        this.bind("factoryLogger", new LoggerFactory(this));
+        this.bind("factoryCache", new CacheFactory(this));
+        this.bind("factoryQueue", new QueueFactory(this));
     }
 
     /**
@@ -504,10 +527,9 @@ export class Application extends Container implements Kernel.IApplication {
      * @returns {Promise<void>}
      * @memberof Application
      */
-    private async registerCoreFactories(): Promise<void> {
-        this.bind("factoryLogger", new LoggerFactory(this));
-        this.bind("factoryCache", new CacheFactory(this));
-        this.bind("factoryQueue", new QueueFactory(this));
+    private async registerServices(): Promise<void> {
+        this.bind("event-dispatcher", new EventDispatcher());
+        this.bind("log", await this.resolve("factoryLogger").make(new ConsoleLogger()));
     }
 
     /**
@@ -542,8 +564,18 @@ export class Application extends Container implements Kernel.IApplication {
      * @private
      * @memberof Application
      */
-    private bindPathsInContainer(): void {
-        for (const [type, path] of Object.entries(this.config("paths"))) {
+    private registerPaths(): void {
+        const paths: Array<[string, string]> = Object.entries(envPaths(this.token(), { suffix: "core" }));
+
+        for (let [type, path] of paths) {
+            const processPath: string | null = process.env[`CORE_PATH_${type.toUpperCase()}`];
+
+            if (processPath) {
+                path = resolve(expandHomeDir(processPath));
+            }
+
+            set(process.env, `CORE_PATH_${type.toUpperCase()}`, path);
+
             this[camelCase(`use_${type}_path`)](path);
 
             this.bind(`path.${type}`, path);
@@ -557,7 +589,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     private getPath(type: string): string {
-        const path = this.resolve(`path.${type}`);
+        const path: string = this.resolve<string>(`path.${type}`);
 
         if (!existsSync(path)) {
             throw new DirectoryNotFound(path);

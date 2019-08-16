@@ -14,4 +14,22 @@ export class ConsoleLogger extends AbstractLogger implements ILogger {
 
         return this;
     }
+
+    /**
+     * @protected
+     * @returns {Record<string, string>}
+     * @memberof AbstractLogger
+     */
+    protected getLevels(): Record<string, string> {
+        return {
+            emergency: "error",
+            alert: "error",
+            critical: "error",
+            error: "error",
+            warning: "warn",
+            notice: "info",
+            info: "info",
+            debug: "debug",
+        };
+    }
 }

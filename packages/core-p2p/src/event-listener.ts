@@ -2,7 +2,7 @@ import { app, Contracts } from "@arkecosystem/core-kernel";
 
 export class EventListener {
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "event-emitter",
+        "event-dispatcher",
     );
 
     public constructor(service: Contracts.P2P.IPeerService) {

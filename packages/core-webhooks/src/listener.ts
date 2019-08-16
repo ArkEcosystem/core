@@ -6,7 +6,7 @@ import { IWebhook } from "./interfaces";
 
 export const startListeners = (): void => {
     for (const event of Object.values(Enums.Event.State)) {
-        app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter").listen(event, async payload => {
+        app.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher").listen(event, async payload => {
             const webhooks: IWebhook[] = database.findByEvent(event).filter((webhook: IWebhook) => {
                 if (!webhook.enabled) {
                     return false;

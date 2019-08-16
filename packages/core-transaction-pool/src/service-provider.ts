@@ -10,7 +10,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Connecting to transaction pool");
 
-        const connection = new ConnectionManager().createConnection(
+        const connection = await new ConnectionManager().createConnection(
             new Connection({
                 options: this.opts,
                 walletManager: new WalletManager(),
@@ -24,9 +24,13 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Disconnecting from transaction pool");
+        try {
+            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Disconnecting from transaction pool");
 
-        this.app.resolve<Contracts.TransactionPool.IConnection>("transaction-pool").disconnect();
+            this.app.resolve<Contracts.TransactionPool.IConnection>("transaction-pool").disconnect();
+        } catch (error) {
+            // @TODO: handle
+        }
     }
 
     public getDefaults(): Record<string, any> {

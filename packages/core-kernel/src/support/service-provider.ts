@@ -1,4 +1,4 @@
-import { PackageJson } from "type-fest";
+import { JsonObject, PackageJson } from "type-fest";
 import { Kernel } from "../contracts";
 
 export abstract class AbstractServiceProvider {
@@ -23,7 +23,13 @@ export abstract class AbstractServiceProvider {
      */
     public constructor(app: Kernel.IApplication, opts: Record<string, any> = {}) {
         this.app = app;
-        this.opts = opts;
+        this.opts = { ...opts, ...this.getDefaults() };
+
+        const globalOptions: JsonObject | undefined = app.config("options")[this.getName()];
+
+        if (globalOptions) {
+            this.opts = { ...this.opts, ...globalOptions };
+        }
     }
 
     /**

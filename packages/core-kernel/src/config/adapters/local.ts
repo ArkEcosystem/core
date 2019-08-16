@@ -1,6 +1,6 @@
+import cosmiconfig from "cosmiconfig";
 import { set } from "dottie";
 import { parseFileSync } from "envfile";
-import { readJSONSync } from "fs-extra";
 import { InvalidApplicationConfiguration, InvalidEnvironmentConfiguration } from "../../errors";
 import { BaseAdapter } from "./base";
 
@@ -15,10 +15,16 @@ export class LocalAdapter extends BaseAdapter {
      * @memberof LocalAdapter
      */
     public async loadConfiguration(): Promise<void> {
-        try {
-            const config: Record<string, any> = readJSONSync(this.app.configPath("config.json"));
+        // @TODO: move this to run before `loadConfiguration` in a bootstraper
+        await this.loadEnvironmentVariables();
 
-            for (const [key, value] of Object.entries(config)) {
+        try {
+            const explorer = cosmiconfig(this.app.namespace(), {
+                searchPlaces: [this.app.configPath("config.json"), this.app.configPath("config.js")],
+                stopDir: this.app.configPath(),
+            });
+
+            for (const [key, value] of Object.entries(explorer.searchSync().config)) {
                 this.app.config(key, value);
             }
         } catch (error) {
@@ -31,12 +37,13 @@ export class LocalAdapter extends BaseAdapter {
      * @memberof LocalAdapter
      */
     public async loadEnvironmentVariables(): Promise<void> {
-        if (this.app.runningTests()) {
-            return;
-        }
+        // @TODO: enable this after initial migration
+        // if (this.app.runningTests()) {
+        //     return;
+        // }
 
         try {
-            const config = parseFileSync(this.app.environmentFile());
+            const config: Record<string, string> = parseFileSync(this.app.environmentFile());
 
             for (const [key, value] of Object.entries(config)) {
                 set(process.env, key, value);

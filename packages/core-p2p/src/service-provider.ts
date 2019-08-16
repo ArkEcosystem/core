@@ -11,6 +11,8 @@ import { startSocketServer } from "./socket-server";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
+        this.app.bind("p2p.options", this.opts);
+
         this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Starting P2P Interface");
 
         const service: Contracts.P2P.IPeerService = this.makePeerService(this.opts);
@@ -23,7 +25,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         }
 
         this.app.bind("p2p", service);
-        this.app.bind("p2p.options", this.opts);
     }
 
     public async dispose(): Promise<void> {

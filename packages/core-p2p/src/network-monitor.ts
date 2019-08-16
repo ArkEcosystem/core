@@ -22,7 +22,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "event-emitter",
+        "event-dispatcher",
     );
 
     private readonly communicator: Contracts.P2P.IPeerCommunicator;
@@ -462,7 +462,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     }
 
     private async populateSeedPeers(): Promise<any> {
-        const peerList: IPeerData[] = app.config("peers.list");
+        const peerList: IPeerData[] = app.config("peers").list;
 
         if (!peerList) {
             app.terminate("No seed peers defined in peers.json");

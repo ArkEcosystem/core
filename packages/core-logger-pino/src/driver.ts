@@ -39,9 +39,21 @@ export class PinoLogger extends Services.Log.AbstractLogger {
         return this;
     }
 
+    /**
+     * @protected
+     * @returns {Record<string, string>}
+     * @memberof AbstractLogger
+     */
     protected getLevels(): Record<string, string> {
         return {
-            verbose: "trace",
+            emergency: "fatal",
+            alert: "fatal",
+            critical: "fatal",
+            error: "error",
+            warning: "warn",
+            notice: "info",
+            info: "info",
+            debug: "debug",
         };
     }
 

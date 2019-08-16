@@ -1,3 +1,4 @@
+import { JsonObject } from "type-fest";
 import { AbstractServiceProvider } from "../../support";
 import { IBlockchain } from "../core-blockchain";
 import { IPeerService } from "../core-p2p";
@@ -35,7 +36,7 @@ export interface IApplication extends IContainer {
     /**
      * Bootstrap the application with the given configuration.
      */
-    bootstrap(config: Record<string, any>): Promise<void>;
+    bootstrap(config: JsonObject): Promise<void>;
 
     /**
      * Boot the application.
@@ -60,7 +61,7 @@ export interface IApplication extends IContainer {
     /**
      * Create a new provider instance.
      */
-    makeProvider(provider: AbstractServiceProvider, opts: Record<string, any>): AbstractServiceProvider;
+    makeProvider(provider: AbstractServiceProvider, opts: JsonObject): AbstractServiceProvider;
 
     /**
      * Register a listener to run after loading the environment.

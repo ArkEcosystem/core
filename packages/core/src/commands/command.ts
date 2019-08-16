@@ -97,10 +97,7 @@ export abstract class BaseCommand extends Command {
     protected async buildApplication(app: Contracts.Kernel.IApplication, flags: CommandFlags, config: Options) {
         process.env.CORE_ENV = flags.env;
 
-        await app.bootstrap({
-            config,
-            flags: { ...flags, ...{ skipPlugins: flags.skipPlugins } },
-        });
+        await app.bootstrap({ ...config, ...flags, ...{ skipPlugins: flags.skipPlugins } });
 
         return app;
     }
@@ -248,13 +245,14 @@ export abstract class BaseCommand extends Command {
         // config
         const { config } = await this.getPaths(flags);
 
-        const configDelegates = join(config, "delegates.json");
+        // @TODO: update to follow new config convention
+        const configDelegates = join(config, "config.js");
 
         if (!existsSync(configDelegates)) {
             this.error(`The ${configDelegates} file does not exist.`);
         }
 
-        const delegates = require(configDelegates);
+        const { delegates } = require(configDelegates);
 
         if (!bip38 && delegates.bip38) {
             bip38 = delegates.bip38;

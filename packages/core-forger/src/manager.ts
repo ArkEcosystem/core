@@ -22,7 +22,7 @@ export class ForgerManager {
     private initialized: boolean;
 
     constructor(options) {
-        this.secrets = app.config("delegates.secrets");
+        this.secrets = app.config("delegates").secrets;
         this.network = Managers.configManager.get("network");
         this.client = new Client(options.hosts);
     }

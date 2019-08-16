@@ -1,4 +1,5 @@
 import semver from "semver";
+import { JsonObject } from "type-fest";
 import { Kernel } from "../contracts";
 import { FailedDependencySatisfaction, FailedServiceProviderRegistration } from "../errors";
 import { AbstractServiceProvider } from "../support/service-provider";
@@ -14,12 +15,12 @@ export class RegisterProviders {
      * @memberof RegisterProviders
      */
     public async bootstrap(app: Kernel.IApplication): Promise<void> {
-        const providers = app.config("providers");
+        const providers: JsonObject = app.config("providers");
 
         for (const [pkg, opts] of Object.entries(providers)) {
             const { ServiceProvider } = require(pkg);
 
-            const serviceProvider: AbstractServiceProvider = app.makeProvider(ServiceProvider, opts);
+            const serviceProvider: AbstractServiceProvider = app.makeProvider(ServiceProvider, opts as JsonObject);
 
             if (this.satisfiesDependencies(app, serviceProvider)) {
                 await app.registerProvider(serviceProvider);

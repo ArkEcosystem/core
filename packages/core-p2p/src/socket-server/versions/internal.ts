@@ -7,7 +7,7 @@ export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.I
 };
 
 export const emitEvent = ({ req }): void => {
-    app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter").dispatch(req.data.event, req.data.body);
+    app.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher").dispatch(req.data.event, req.data.body);
 };
 
 export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUnconfirmedTransactions> => {

@@ -32,7 +32,7 @@ export const transactionPayload = {
                 }
 
                 const transactionsCount = request.payload.transactions.length;
-                const maxTransactionsPerRequest = transactionPool.maxTransactionsPerRequest;
+                const { maxTransactionsPerRequest } = transactionPool;
 
                 if (transactionsCount > maxTransactionsPerRequest) {
                     return Boom.entityTooLarge(

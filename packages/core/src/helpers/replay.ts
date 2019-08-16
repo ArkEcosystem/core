@@ -6,7 +6,6 @@ export const setUpLite = async (options): Promise<Contracts.Kernel.IContainer> =
     //         "@arkecosystem/core-blockchain": { replay: true },
     //     },
     //     include: [
-    //         "@arkecosystem/core-event-emitter",
     //         "@arkecosystem/core-logger-pino",
     //         "@arkecosystem/core-state",
     //         "@arkecosystem/core-database-postgres",

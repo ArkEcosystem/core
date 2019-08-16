@@ -10,7 +10,7 @@ import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
 
 const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
-const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
+const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher");
 const { BlockFactory } = Blocks;
 
 export class Blockchain implements Contracts.Blockchain.IBlockchain {
@@ -95,23 +95,23 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
     public dispatch(event): void {
         const nextState = stateMachine.transition(this.state.blockchain, event);
 
-        if (nextState.State.actions.length > 0) {
+        if (nextState.actions.length > 0) {
             logger.debug(
                 `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
-                    nextState.State.value,
-                )} -> actions: [${nextState.State.actions.map(a => a.type).join(", ")}]`,
+                    nextState.value,
+                )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`,
             );
         } else {
             logger.debug(
                 `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
-                    nextState.State.value,
+                    nextState.value,
                 )}`,
             );
         }
 
         this.state.blockchain = nextState;
 
-        for (const actionKey of nextState.State.actions) {
+        for (const actionKey of nextState.actions) {
             const action = this.actions[actionKey];
 
             if (action) {

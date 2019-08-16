@@ -11,7 +11,7 @@ import { blockchainMachine } from "./machines/blockchain";
 import { Blockchain } from "./blockchain";
 
 const { BlockFactory } = Blocks;
-const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-emitter");
+const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher");
 const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
 const stateStorage = app.resolve<Contracts.State.IStateService>("state").getStore();
 

@@ -9,9 +9,9 @@ export const isAppReady = (): {
     p2p: boolean;
 } => {
     return {
-        transactionPool: !!app.resolve("transaction-pool"),
-        blockchain: !!app.resolve("blockchain"),
-        p2p: !!app.resolve("p2p"),
+        transactionPool: !!app.has("transaction-pool"),
+        blockchain: !!app.has("blockchain"),
+        p2p: !!app.has("p2p"),
     };
 };
 

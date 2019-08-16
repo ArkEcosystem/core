@@ -13,7 +13,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         const connectionManager = this.app.resolve<ConnectionManager>("database-manager");
         const connection = await connectionManager.createConnection(new PostgresConnection(this.opts, walletManager));
 
-        this.app.bind("database", databaseServiceFactory(this.opts, walletManager, connection));
+        this.app.bind("database", await databaseServiceFactory(this.opts, walletManager, connection));
     }
 
     public async dispose(): Promise<void> {

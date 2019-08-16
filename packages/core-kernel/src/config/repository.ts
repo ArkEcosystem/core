@@ -1,3 +1,5 @@
+import { JsonObject } from "type-fest";
+
 /**
  * @export
  * @class ConfigRepository
@@ -5,10 +7,10 @@
  */
 export class ConfigRepository extends Map<string, any> {
     /**
-     * @param {object} config
+     * @param {JsonObject} config
      * @memberof ConfigRepository
      */
-    public constructor(config: object) {
+    public constructor(config: JsonObject) {
         super(Object.entries(config));
     }
 }

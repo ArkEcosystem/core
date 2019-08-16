@@ -6,7 +6,6 @@ import { CommandFlags } from "../types";
 export const setUpLite = async (options): Promise<Contracts.Kernel.IContainer> => {
     // await app.setUp(version, options, {
     //     include: [
-    //         "@arkecosystem/core-event-emitter",
     //         "@arkecosystem/core-logger-pino",
     //         "@arkecosystem/core-state",
     //         "@arkecosystem/core-database-postgres",
