@@ -26,6 +26,8 @@ export const setUp = async (): Promise<void> => {
             ],
         });
 
+        Managers.configManager.getMilestone().aip11 = true;
+
         const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
         await databaseService.reset();
         await databaseService.buildWallets();
