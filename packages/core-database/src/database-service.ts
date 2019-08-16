@@ -46,6 +46,10 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
+        if (process.env.CORE_TEST_DELAY_AIP11) {
+            Managers.configManager.getMilestone().aip11 = false;
+        }
+
         app.resolvePlugin<State.IStateService>("state")
             .getStore()
             .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));

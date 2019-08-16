@@ -234,6 +234,8 @@ describe("Transaction Guard", () => {
         });
 
         it("should not accept transaction in excess", async () => {
+            Managers.configManager.getMilestone().aip11 = true;
+
             const delegate3 = delegates[3];
             const newWalletPassphrase = generateMnemonic();
             const { publicKey } = Identities.Keys.fromPassphrase(newWalletPassphrase);

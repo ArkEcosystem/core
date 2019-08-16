@@ -53,7 +53,7 @@ export class TransactionHandlerRegistry {
         const activatedTransactions: TransactionHandler[] = [];
 
         for (const handler of this.registeredTransactionHandlers.values()) {
-            if (await handler.isActivated()) {
+            if ((await handler.isActivated()) || process.env.CORE_TEST_DELAY_AIP11) {
                 activatedTransactions.push(handler);
             }
         }
