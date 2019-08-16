@@ -12,6 +12,7 @@ import {
     AlreadyForgedHandler,
     BlockHandler,
     ExceptionHandler,
+    IncompatibleTransactionsHandler,
     InvalidGeneratorHandler,
     NonceOutOfOrderHandler,
     UnchainedHandler,
@@ -40,6 +41,10 @@ export class BlockProcessor {
 
         if (!(await this.verifyBlock(block))) {
             return new VerificationFailedHandler(this.blockchain, block);
+        }
+
+        if (this.blockContainsIncompatibleTransactions(block)) {
+            return new IncompatibleTransactionsHandler(this.blockchain, block);
         }
 
         if (this.blockContainsOutOfOrderNonce(block)) {
@@ -111,6 +116,19 @@ export class BlockProcessor {
 
                 this.logger.debug(`${JSON.stringify(forgedIds, undefined, 4)}`);
 
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if a block contains incompatible transactions and should thus be rejected.
+     */
+    private blockContainsIncompatibleTransactions(block: Interfaces.IBlock): boolean {
+        for (let i = 1; i < block.transactions.length; i++) {
+            if (block.transactions[i].data.version !== block.transactions[0].data.version) {
                 return true;
             }
         }
