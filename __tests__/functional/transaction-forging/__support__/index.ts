@@ -12,6 +12,8 @@ jest.setTimeout(1200000);
 let app: Container.IContainer;
 export const setUp = async (): Promise<void> => {
     try {
+        process.env.CORE_RESET_DATABASE = "1";
+
         app = await setUpContainer({
             include: [
                 "@arkecosystem/core-event-emitter",
