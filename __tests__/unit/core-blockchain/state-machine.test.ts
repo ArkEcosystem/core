@@ -8,7 +8,7 @@ import { logger } from "./mocks/logger";
 import { getMonitor } from "./mocks/p2p/network-monitor";
 import { stateStorageStub as stateStorage } from "./stubs/state-storage";
 
-import { Blocks, Crypto } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Managers } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-blockchain/src/defaults";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 
@@ -165,6 +165,8 @@ describe("State Machine", () => {
             let loggerError;
 
             beforeEach(() => {
+                Managers.configManager.getMilestone().aip11 = false;
+
                 const config = container.app.getConfig();
                 jest.spyOn(config, "get").mockImplementation(key => (key === "genesisBlock" ? genesisBlock : ""));
 
@@ -191,6 +193,8 @@ describe("State Machine", () => {
 
             afterEach(() => jest.restoreAllMocks());
             afterAll(() => {
+                Managers.configManager.getMilestone().aip11 = true;
+
                 jest.restoreAllMocks();
 
                 process.env.NODE_ENV = "TEST";

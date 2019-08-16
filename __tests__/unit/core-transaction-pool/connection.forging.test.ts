@@ -286,10 +286,12 @@ describe("Connection", () => {
         it("should remove transactions that have timestamps in the future", async () => {
             const transactions = TransactionFactory.transfer().build(4);
 
+            Managers.configManager.getMilestone().aip11 = false;
             const malformedTransactions = TransactionFactory.transfer()
                 .withVersion(1)
                 .withPassphrase(delegates[2].passphrase)
                 .build(1);
+            Managers.configManager.getMilestone().aip11 = true;
 
             malformedTransactions[0].serialized = customSerialize(malformedTransactions[0].data, {
                 timestamp: (b: ByteBuffer) => b.writeUint32(Crypto.Slots.getTime() + 100 * 1000),
@@ -325,6 +327,7 @@ describe("Connection", () => {
         });
 
         it("should remove transactions that have a disabled type", async () => {
+            Managers.configManager.getMilestone().aip11 = false;
             const transactions = TransactionFactory.transfer()
                 .withVersion(1)
                 .build(2);
@@ -334,6 +337,8 @@ describe("Connection", () => {
             });
 
             await expectForgingTransactions(transactions, 1);
+
+            Managers.configManager.getMilestone().aip11 = true;
         });
 
         it("should remove transactions that have have data of a another transaction type", async () => {
@@ -630,6 +635,7 @@ describe("Connection", () => {
         });
 
         it("should remove all invalid transactions from the transaction pool", async () => {
+            Managers.configManager.getMilestone().aip11 = false;
             const transactions = TransactionFactory.transfer()
                 .withVersion(1)
                 .build(151);
@@ -641,6 +647,7 @@ describe("Connection", () => {
                 });
             }
             await expectForgingTransactions(transactions, 1);
+            Managers.configManager.getMilestone().aip11 = true;
         });
     });
 });

@@ -7,7 +7,6 @@ import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import {
-    Blocks,
     Constants,
     Crypto,
     Enums,
@@ -27,12 +26,11 @@ import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
 import { Storage } from "../../../packages/core-transaction-pool/src/storage";
 import { WalletManager } from "../../../packages/core-transaction-pool/src/wallet-manager";
-import { TransactionFactory } from "../../helpers/transaction-factory";
-import { block2, delegates } from "../../utils/fixtures/unitnet";
+import { BlockFactory, TransactionFactory } from "../../helpers";
+import { delegates } from "../../utils/fixtures/unitnet";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { database as databaseService } from "./mocks/database";
 
-const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
 const { TransactionType } = Enums;
 
@@ -283,6 +281,11 @@ describe("Connection", () => {
                 mockData.dummy1.data.senderPublicKey,
             ).nonce;
 
+            Managers.configManager.setFromPreset("unitnet");
+            if (transactionVersion === 1) {
+                Managers.configManager.getMilestone().aip11 = false;
+            }
+
             for (const [i, exp] of [0, expiration, expiration + 5].entries()) {
                 transactions.push(
                     TransactionFactory.transfer(mockData.dummy1.data.recipientId)
@@ -333,6 +336,11 @@ describe("Connection", () => {
             for (const t of transactions) {
                 connection.removeTransactionById(t.id);
             }
+
+            if (transactionVersion === 1) {
+                Managers.configManager.getMilestone().aip11 = true;
+            }
+
         });
     });
 
@@ -657,32 +665,36 @@ describe("Connection", () => {
     });
 
     describe("acceptChainedBlock", () => {
-        let mockWallet;
+        let mockPoolWallet: State.IWallet;
+        let mockBlock: Interfaces.IBlock;
         beforeEach(() => {
             const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockResolvedValue();
 
-            mockWallet = new Wallets.Wallet(block2.transactions[0].recipientId);
-            mockWallet.balance = Utils.BigNumber.make(1e12);
-            jest.spyOn(connection.walletManager, "hasByAddress").mockReturnValue(true);
-            jest.spyOn(connection.walletManager, "hasByPublicKey").mockReturnValue(true);
-            jest.spyOn(connection.walletManager, "findByPublicKey").mockImplementation(publicKey => {
-                if (publicKey === block2.generatorPublicKey) {
-                    return new Wallets.Wallet("thisIsTheDelegateGeneratorAddress0");
-                }
-                return mockWallet;
-            });
-            jest.spyOn(connection.walletManager, "findByAddress").mockReturnValue(mockWallet);
+            mockPoolWallet = new Wallets.Wallet(delegates[0].address);
+            mockPoolWallet.publicKey = delegates[0].publicKey;
+
+            mockPoolWallet.balance = Utils.BigNumber.make(1e12);
+
+            const transactions = TransactionFactory
+                .transfer(delegates[1].address, 5 * 1e8)
+                .withPassphrase(delegates[0].passphrase)
+                .create(10);
+
+            mockBlock = BlockFactory.createDummy(transactions);
+
+            connection.walletManager.reindex(mockPoolWallet);
+            connection.walletManager.reindex(new Wallets.Wallet(delegates[1].address));
         });
         afterEach(() => {
             jest.restoreAllMocks();
         });
 
         it("should update wallet when accepting a chained block", async () => {
-            const balanceBefore = mockWallet.balance;
-            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            const balanceBefore = mockPoolWallet.balance;
+            await connection.acceptChainedBlock(mockBlock);
 
-            expect(+mockWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
+            expect(+mockPoolWallet.balance).toBe(+balanceBefore.minus(mockBlock.data.totalAmount))
         });
 
         it("should remove transaction from pool if it's in the chained block", async () => {
@@ -693,12 +705,9 @@ describe("Connection", () => {
             let transactions = await connection.getTransactions(0, 10);
             expect(transactions).toEqual([mockData.dummy2.serialized]);
 
-            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
+            mockBlock.transactions.push(mockData.dummy2);
 
-            const chainedBlock = BlockFactory.fromData(block2);
-            chainedBlock.transactions.push(mockData.dummy2);
-
-            await connection.acceptChainedBlock(chainedBlock);
+            await connection.acceptChainedBlock(mockBlock);
 
             transactions = await connection.getTransactions(0, 10);
             expect(transactions).toEqual([]);
@@ -710,28 +719,24 @@ describe("Connection", () => {
                 throw new Error("test error");
             });
 
-            const { senderPublicKey } = block2.transactions[0];
+            const { senderPublicKey } = mockBlock.transactions[0].data;
             const forget = jest.spyOn(connection.walletManager, "forget");
             const applyToSender = jest.spyOn(transactionHandler, "applyToSender");
 
-            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
-            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
-            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            await connection.acceptChainedBlock(mockBlock);
 
             expect(connection.walletManager.hasByIndex(State.WalletIndexes.PublicKeys, senderPublicKey)).toBeFalse();
             expect(applyToSender).not.toHaveBeenCalled();
-            expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
+            expect(forget).toHaveBeenCalled();
         });
 
         it("should delete wallet of transaction sender if its balance is down to zero", async () => {
             jest.spyOn(connection.walletManager, "canBePurged").mockReturnValue(true);
             const forget = jest.spyOn(connection.walletManager, "forget");
 
-            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
-            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
-            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            await connection.acceptChainedBlock(mockBlock);
 
-            expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
+            expect(forget).toHaveBeenCalled();
         });
     });
 

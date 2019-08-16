@@ -27,7 +27,7 @@ import {
     WalletNotADelegateError,
 } from "../../../packages/core-transactions/src/errors";
 import { Handlers, Interfaces as TransactionsInterfaces } from "../../../packages/core-transactions/src/index";
-import { TransactionFactory } from "../../helpers";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 
 const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
 
@@ -228,9 +228,10 @@ describe("General Tests", () => {
     });
 
     describe("dynamicFees", () => {
+        Managers.configManager.getMilestone().aip11 = true;
+
         const transaction = TransactionFactory.transfer("AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5")
             .withNonce(Utils.BigNumber.make(0))
-            .withNetwork("testnet")
             .withPassphrase("secret")
             .build()[0];
 

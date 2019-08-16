@@ -251,7 +251,9 @@ export class TransactionFactory {
     }
 
     private sign<T>(quantity: number, method: string): T[] {
-        Managers.configManager.setFromPreset(this.network);
+        if (Managers.configManager.get("network.name") !== this.network) {
+            Managers.configManager.setFromPreset(this.network);
+        }
 
         if (!this.senderPublicKey) {
             this.senderPublicKey = Identities.PublicKey.fromPassphrase(this.passphrase);

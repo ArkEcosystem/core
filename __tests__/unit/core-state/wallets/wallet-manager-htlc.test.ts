@@ -4,7 +4,7 @@ import { state } from "../mocks/state";
 
 import { State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Identities, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 
@@ -17,6 +17,7 @@ let walletManager: State.IWalletManager;
 const makeTimestamp = (secondsRelativeToNow = 0) => Math.floor((Date.now() + secondsRelativeToNow * 1000) / 1000);
 
 beforeAll(() => {
+    Managers.configManager.getMilestone().aip11 = true;
     jest.spyOn(Handlers.Registry, "isKnownWalletAttribute").mockReturnValue(true);
 });
 
@@ -70,6 +71,7 @@ describe("Wallet Manager", () => {
                 };
                 const lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
                     .withPassphrase(lockPassphrase)
+                    .withNonce(Utils.BigNumber.make(2))
                     .withFee(1e7)
                     .build(1)[0];
 
@@ -317,7 +319,7 @@ describe("Wallet Manager", () => {
         });
 
         describe("apply and revert transaction", () => {
-            it("should update balance and vote balance when lock wallet votes for a delegate", async () => {
+            it.only("should update balance and vote balance when lock wallet votes for a delegate", async () => {
                 lockWallet.nonce = Utils.BigNumber.ZERO;
                 // prepare htlc lock transaction
                 const amount = 6 * 1e8;

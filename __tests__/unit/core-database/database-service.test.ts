@@ -5,7 +5,7 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { Wallet, WalletManager } from "../../../packages/core-state/src/wallets";
 import { roundCalculator } from "../../../packages/core-utils/dist";
@@ -191,6 +191,7 @@ describe("Database Service", () => {
             const initialHeight = 52;
 
             // Create delegates
+            Managers.configManager.getMilestone().aip11 = false;
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionType.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
@@ -203,6 +204,7 @@ describe("Database Service", () => {
                     walletManager.reindex(wallet);
                 }
             }
+            Managers.configManager.getMilestone().aip11 = true;
 
             const keys = {
                 passphrase: "this is a secret passphrase",

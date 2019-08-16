@@ -3,6 +3,7 @@ import "jest-extended";
 import { Utils } from "@arkecosystem/crypto";
 import {
     MalformedTransactionBytesError,
+    TransactionSchemaError,
     TransactionTypeError,
     TransactionVersionError,
 } from "../../../../packages/crypto/src/errors";
@@ -173,7 +174,7 @@ describe("Transaction", () => {
 
             let hex = transaction.serialized.toString("hex");
             hex = hex.slice(0, 2) + "04" + hex.slice(4);
-            expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionVersionError);
+            expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionSchemaError);
 
             configManager.setFromPreset("devnet");
         });

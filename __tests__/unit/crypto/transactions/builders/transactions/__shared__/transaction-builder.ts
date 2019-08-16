@@ -1,4 +1,3 @@
-import { Slots } from "../../../../../../../packages/crypto/src/crypto";
 import { Keys } from "../../../../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../../../../packages/crypto/src/managers";
 import { Signer } from "../../../../../../../packages/crypto/src/transactions";
@@ -27,11 +26,11 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
             });
 
             describe("builder", () => {
-                let timestamp;
+                let nonce;
                 let data;
 
                 beforeEach(() => {
-                    timestamp = Slots.getTime();
+                    nonce = Utils.BigNumber.make(0)
 
                     data = {
                         id: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8dae1a1f",
@@ -39,9 +38,9 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                         fee: Utils.BigNumber.ONE,
                         recipientId: "AZT6b2Vm6VgNF7gW49M4wvUVBBntWxdCj5",
                         senderPublicKey: "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
-                        timestamp,
+                        nonce,
                         type: 0,
-                        version: 0x01,
+                        version: 0x02,
                     };
                 });
 
@@ -59,8 +58,8 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     expect(transaction.data.senderPublicKey).toBe(
                         "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
                     );
-                    expect(transaction.data.timestamp).toBe(timestamp);
-                    expect(transaction.data.version).toBe(0x01);
+                    expect(transaction.data.nonce).toEqual(nonce);
+                    expect(transaction.data.version).toBe(0x02);
                 });
 
                 it("could merge and override the builder data", () => {
@@ -79,8 +78,8 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                     expect(transaction.data.senderPublicKey).toBe(
                         "039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
                     );
-                    expect(transaction.data.timestamp).toBe(timestamp);
-                    expect(transaction.data.version).toBe(0x01);
+                    expect(transaction.data.nonce).toEqual(nonce);
+                    expect(transaction.data.version).toBe(0x02);
                 });
             });
 
