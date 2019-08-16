@@ -6,6 +6,7 @@ import {
     ISerializeOptions,
     ITransactionData,
 } from "../../interfaces";
+import { configManager } from "../../managers";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -35,6 +36,10 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
     }
 
     protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
+
+    public verify(): boolean {
+        return configManager.getMilestone().aip11 && super.verify();
+    }
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;

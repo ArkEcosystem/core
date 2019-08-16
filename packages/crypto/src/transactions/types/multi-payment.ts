@@ -1,6 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
+import { configManager } from "../../managers";
 import { Base58 } from "../../utils/base58";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
@@ -16,6 +17,10 @@ export class MultiPaymentTransaction extends Transaction {
     }
 
     protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
+
+    public verify(): boolean {
+        return configManager.getMilestone().aip11 && super.verify();
+    }
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;

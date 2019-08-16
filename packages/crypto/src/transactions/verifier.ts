@@ -1,6 +1,5 @@
 import { Hash } from "../crypto/hash";
 import { ISchemaValidationResult, ITransactionData } from "../interfaces";
-import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
 import { TransactionTypeFactory } from "./types";
@@ -10,10 +9,6 @@ export class Verifier {
     public static verify(data: ITransactionData): boolean {
         if (isException(data)) {
             return true;
-        }
-
-        if (data.type >= 4 && data.type <= 99 && !configManager.getMilestone().aip11) {
-            return false;
         }
 
         return Verifier.verifyHash(data);

@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -107,17 +108,22 @@ export class TransactionsController extends Controller {
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            // Remove reverse mapping from TransactionType enum.
-            const { TransactionType } = Enums;
-            const data = Object.assign({}, TransactionType);
+            const activatedTransactionTypes: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactions();
+            const typeGroups: Record<string | number, Record<string, number>> = {};
 
-            // tslint:disable-next-line: ban
-            Object.values(TransactionType)
-                .filter(value => typeof value === "string")
-                .map((type: string) => data[type])
-                .forEach((key: string) => delete data[key]);
+            for (const handler of activatedTransactionTypes) {
+                const constructor = handler.getConstructor();
 
-            return { data };
+                const { type, typeGroup, key } = constructor;
+                const groupName: string | number = Enums.TransactionTypeGroup[typeGroup] || typeGroup;
+                if (typeGroups[groupName] === undefined) {
+                    typeGroups[groupName] = {};
+                }
+
+                typeGroups[groupName][key[0].toUpperCase() + key.slice(1)] = type;
+            }
+
+            return { data: typeGroups };
         } catch (error) {
             return Boom.badImplementation(error);
         }
