@@ -85,12 +85,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     public async updateNetworkStatus(initialRun?: boolean): Promise<void> {
-        if (process.env.CORE_ENV === "test" || process.env.NODE_ENV === "test") {
-            return;
-        }
-
-        if (this.config.networkStart) {
-            this.logger.warn("Skipped peer discovery because the relay is in genesis-start mode.");
+        if (process.env.NODE_ENV === "test") {
             return;
         }
 
