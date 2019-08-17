@@ -8,7 +8,8 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Constants, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { Wallet, WalletManager } from "../../../packages/core-state/src/wallets";
-import { roundCalculator } from "../../../packages/core-utils/dist";
+import { roundCalculator } from "../../../packages/core-utils";
+import { BlockFactory as TestBlockFactory } from "../../helpers/block-factory";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { stateStorageStub } from "./__fixtures__/state-storage-stub";
@@ -165,8 +166,11 @@ describe("Database Service", () => {
         it("should fetch blocks from lastBlock height", async () => {
             databaseService = createService();
 
+            const mockBlock = TestBlockFactory.createDummy();
+            mockBlock.data.height = 51;
+
             // @ts-ignore
-            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(genesisBlock);
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(mockBlock);
             // @ts-ignore
             jest.spyOn(databaseService, "getBlocks").mockReturnValue([]);
             jest.spyOn(container, "has").mockReturnValue(false);

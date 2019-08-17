@@ -26,21 +26,6 @@ export class ConfigManager {
         };
 
         this.validateMilestones();
-
-        // TODO: create new unit test genesis block for 3.0
-        if (process.env.CORE_TEST_DELAY_AIP11) {
-            this.milestones[0].aip11 = false;
-
-            this.milestones = [
-                this.milestones[0],
-                {
-                    height: 52,
-                    aip11: true,
-                },
-                ...this.milestones.slice(1),
-            ];
-        }
-
         this.buildConstants();
     }
 

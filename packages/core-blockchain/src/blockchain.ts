@@ -308,7 +308,15 @@ export class Blockchain implements blockchain.IBlockchain {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());
+            let newLastBlock: Interfaces.IBlock;
+            if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
+                newLastBlock = app
+                    .resolvePlugin<State.IStateService>("state")
+                    .getStore()
+                    .getGenesisBlock();
+            } else {
+                newLastBlock = BlockFactory.fromData(blocksToRemove.pop(), { deserializeTransactionsUnchecked: true });
+            }
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock.data;

@@ -15,7 +15,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
-    constructor(private readonly connector: P2P.IPeerConnector) { }
+    constructor(private readonly connector: P2P.IPeerConnector) {}
 
     public async downloadBlocks(peer: P2P.IPeer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
         this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
@@ -165,26 +165,16 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return [];
         }
 
-        // To stay backward compatible, don't assume peers respond with serialized transactions just yet.
-        // TODO: remove with 2.6
         for (const block of peerBlocks) {
             if (!block.transactions) {
                 continue;
             }
 
-            let transactions: Interfaces.ITransactionData[] = [];
-
-            try {
-                transactions = block.transactions.map(transaction => {
-                    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
-                    data.blockId = block.id;
-                    return data;
-                });
-            } catch {
-                transactions = block.transactions;
-            }
-
-            block.transactions = transactions;
+            block.transactions = block.transactions.map(transaction => {
+                const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                data.blockId = block.id;
+                return data;
+            });
         }
 
         return peerBlocks;

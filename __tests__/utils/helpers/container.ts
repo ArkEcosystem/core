@@ -37,8 +37,6 @@ export const setUpContainer = async (options: any): Promise<Container.IContainer
         ? options.config
         : path.resolve(__dirname, `../config/${options.network}`);
 
-    process.env.CORE_TEST_DELAY_AIP11 = "true";
-
     await app.setUp(
         "2.1.1",
         {

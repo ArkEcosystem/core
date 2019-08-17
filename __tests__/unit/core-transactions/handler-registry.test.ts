@@ -187,6 +187,8 @@ describe("Registry", () => {
     });
 
     it("should return all activated transactions", async () => {
+        delete process.env.NODE_ENV;
+
         let handlers = await Registry.getActivatedTransactions();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
 
@@ -207,9 +209,11 @@ describe("Registry", () => {
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS + 1);
 
         Registry.deregisterTransactionHandler(TestTransactionHandler);
+        process.env.NODE_ENV = "test";
     });
 
     it("should only return V1 transactions when AIP11 is off", async () => {
+        delete process.env.NODE_ENV;
         Managers.configManager.getMilestone().aip11 = false;
 
         let handlers = await Registry.getActivatedTransactions();
@@ -219,6 +223,7 @@ describe("Registry", () => {
 
         handlers = await Registry.getActivatedTransactions();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
+        process.env.NODE_ENV = "test";
     });
 
     it("should not find the transaction type on typeGroup mismatch", async () => {

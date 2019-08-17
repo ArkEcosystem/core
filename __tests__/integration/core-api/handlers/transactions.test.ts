@@ -3,7 +3,7 @@ import "../../../utils";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
-import { Identities, Managers } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
 import { delegates } from "../../../utils/fixtures/testnet/delegates";
@@ -527,9 +527,6 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it.each([3, 5, 8])("should accept and broadcast %i transactions emptying a wallet", async txNumber => {
-            delete process.env.CORE_TEST_DELAY_AIP11;
-            Managers.configManager.getMilestone().aip11 = true;
-
             const sender = delegates[txNumber]; // use txNumber so that we use a different delegate for each test case
             const receivers = generateWallets("testnet", 2);
             const amountPlusFee = Math.floor(+sender.balance / txNumber);
@@ -557,8 +554,6 @@ describe("API 2.0 - Transactions", () => {
                 allTransactions.map(transaction => transaction.id).sort(),
             );
             expect(response.data.data.invalid).toHaveLength(0);
-
-            process.env.CORE_TEST_DELAY_AIP11 = "true";
         });
 
         it.each([3, 5, 8])(

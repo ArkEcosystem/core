@@ -7,7 +7,6 @@ import { Blocks, Crypto, Identities, Interfaces, Utils } from "@arkecosystem/cry
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { TransactionFactory } from "../../helpers/transaction-factory";
-import { genesisBlock as GB } from "../../utils/config/testnet/genesisBlock";
 import { blocks101to155 } from "../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../utils/fixtures/testnet/blocks2to100";
 import { delegates } from "../../utils/fixtures/testnet/delegates";
@@ -23,9 +22,8 @@ const resetBlocksInCurrentRound = async () => {
 };
 
 const resetToHeight1 = async () => {
-    const lastBlock = await blockchain.database.getLastBlock();
-
-    if (lastBlock) {
+    if (blockchain.getLastHeight() > 1) {
+        const lastBlock = await blockchain.database.getLastBlock();
         // Make sure the wallet manager has been fed or else revertRound
         // cannot determine the previous delegates. This is only necessary, because
         // the database is not dropped after the unit tests are done.
@@ -74,9 +72,10 @@ describe("Blockchain", () => {
 
         blockchain = container.resolvePlugin("blockchain");
 
-        // Create the genesis block after the setup has finished or else it uses a potentially
-        // wrong network config.
-        genesisBlock = Blocks.BlockFactory.fromData(GB);
+        genesisBlock = container
+            .resolvePlugin("state")
+            .getStore()
+            .getGenesisBlock();
 
         configManager = container.getConfig();
 

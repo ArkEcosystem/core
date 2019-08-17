@@ -6,16 +6,7 @@ import { state } from "./mocks/state";
 import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import {
-    Constants,
-    Crypto,
-    Enums,
-    Identities,
-    Interfaces,
-    Managers,
-    Transactions,
-    Utils,
-} from "@arkecosystem/crypto";
+import { Constants, Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
@@ -281,11 +272,6 @@ describe("Connection", () => {
                 mockData.dummy1.data.senderPublicKey,
             ).nonce;
 
-            Managers.configManager.setFromPreset("unitnet");
-            if (transactionVersion === 1) {
-                Managers.configManager.getMilestone().aip11 = false;
-            }
-
             for (const [i, exp] of [0, expiration, expiration + 5].entries()) {
                 transactions.push(
                     TransactionFactory.transfer(mockData.dummy1.data.recipientId)
@@ -340,7 +326,6 @@ describe("Connection", () => {
             if (transactionVersion === 1) {
                 Managers.configManager.getMilestone().aip11 = true;
             }
-
         });
     });
 
@@ -676,8 +661,7 @@ describe("Connection", () => {
 
             mockPoolWallet.balance = Utils.BigNumber.make(1e12);
 
-            const transactions = TransactionFactory
-                .transfer(delegates[1].address, 5 * 1e8)
+            const transactions = TransactionFactory.transfer(delegates[1].address, 5 * 1e8)
                 .withPassphrase(delegates[0].passphrase)
                 .create(10);
 
@@ -694,7 +678,7 @@ describe("Connection", () => {
             const balanceBefore = mockPoolWallet.balance;
             await connection.acceptChainedBlock(mockBlock);
 
-            expect(+mockPoolWallet.balance).toBe(+balanceBefore.minus(mockBlock.data.totalAmount))
+            expect(+mockPoolWallet.balance).toBe(+balanceBefore.minus(mockBlock.data.totalAmount));
         });
 
         it("should remove transaction from pool if it's in the chained block", async () => {

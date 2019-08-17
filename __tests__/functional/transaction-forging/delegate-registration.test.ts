@@ -106,7 +106,7 @@ describe("Transaction Forging - Delegate Registration", () => {
             .withPassphraseList(passphrases)
             .createOne();
 
-        await expect(delegateRegistration.id).toBeRejected();
+        await expect(delegateRegistration).toBeRejected();
         await support.snoozeForBlock(1);
         await expect(delegateRegistration.id).not.toBeForged();
 

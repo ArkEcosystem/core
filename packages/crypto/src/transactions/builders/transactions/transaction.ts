@@ -4,7 +4,7 @@ import { TransactionTypeGroup } from "../../../enums";
 import { MissingTransactionSignatureError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
-import { configManager } from "../../../managers";
+import { configManager } from "../../../managers/config";
 import { NetworkType } from "../../../types";
 import { BigNumber, maxVendorFieldLength } from "../../../utils";
 import { Signer } from "../../signer";

@@ -28,8 +28,6 @@ export const setUp = async (): Promise<void> => {
             ],
         });
 
-        Managers.configManager.getMilestone().aip11 = true;
-
         const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
         await databaseService.reset();
         await databaseService.buildWallets();
@@ -60,7 +58,7 @@ export const tearDown = async (): Promise<void> => {
 
 export const snoozeForBlock = async (sleep: number = 0, height: number = 1): Promise<void> => {
     const blockTime = Managers.configManager.getMilestone(height).blocktime * 1000;
-    const sleepTime = sleep * 1000;
+    const sleepTime = sleep * 1001;
 
     return delay(blockTime + sleepTime);
 };

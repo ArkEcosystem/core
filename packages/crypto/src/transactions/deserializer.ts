@@ -2,13 +2,13 @@ import ByteBuffer from "bytebuffer";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
 import { Address } from "../identities";
-import { ITransaction, ITransactionData } from "../interfaces";
+import { IDeserializeOptions, ITransaction, ITransactionData } from "../interfaces";
 import { BigNumber, isSupportedTansactionVersion } from "../utils";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 class Deserializer {
-    public deserialize(serialized: string | Buffer): ITransaction {
+    public deserialize(serialized: string | Buffer, options: IDeserializeOptions = {}): ITransaction {
         const data = {} as ITransactionData;
 
         const buffer: ByteBuffer = this.getByteBuffer(serialized);
@@ -22,7 +22,7 @@ class Deserializer {
 
         this.deserializeSignatures(data, buffer);
 
-        if (isSupportedTansactionVersion(data.version)) {
+        if (options.acceptLegacyVersion || isSupportedTansactionVersion(data.version)) {
             if (data.version === 1) {
                 this.applyV1Compatibility(data);
             }

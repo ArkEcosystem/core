@@ -286,12 +286,10 @@ describe("Connection", () => {
         it("should remove transactions that have timestamps in the future", async () => {
             const transactions = TransactionFactory.transfer().build(4);
 
-            Managers.configManager.getMilestone().aip11 = false;
             const malformedTransactions = TransactionFactory.transfer()
                 .withVersion(1)
                 .withPassphrase(delegates[2].passphrase)
                 .build(1);
-            Managers.configManager.getMilestone().aip11 = true;
 
             malformedTransactions[0].serialized = customSerialize(malformedTransactions[0].data, {
                 timestamp: (b: ByteBuffer) => b.writeUint32(Crypto.Slots.getTime() + 100 * 1000),
@@ -327,18 +325,13 @@ describe("Connection", () => {
         });
 
         it("should remove transactions that have a disabled type", async () => {
-            Managers.configManager.getMilestone().aip11 = false;
-            const transactions = TransactionFactory.transfer()
-                .withVersion(1)
-                .build(2);
+            const transactions = TransactionFactory.transfer().build(2);
 
-            transactions[0].serialized = customSerialize(transactions[0].data, {
+            transactions[1].serialized = customSerialize(transactions[1].data, {
                 version: (b: ByteBuffer) => b.writeUint8(4),
             });
 
-            await expectForgingTransactions(transactions, 1);
-
-            Managers.configManager.getMilestone().aip11 = true;
+            await expectForgingTransactions(transactions, 1, true);
         });
 
         it("should remove transactions that have have data of a another transaction type", async () => {
@@ -635,19 +628,15 @@ describe("Connection", () => {
         });
 
         it("should remove all invalid transactions from the transaction pool", async () => {
-            Managers.configManager.getMilestone().aip11 = false;
-            const transactions = TransactionFactory.transfer()
-                .withVersion(1)
-                .build(151);
-            for (let i = 0; i < transactions.length - 1; i++) {
+            const transactions = TransactionFactory.transfer().build(151);
+            for (let i = 1; i < transactions.length - 1; i++) {
                 transactions[i].serialized = customSerialize(transactions[i].data, {
                     signature: (b: ByteBuffer) => {
                         b.writeByte(0x01);
                     },
                 });
             }
-            await expectForgingTransactions(transactions, 1);
-            Managers.configManager.getMilestone().aip11 = true;
+            await expectForgingTransactions(transactions, 1, true);
         });
     });
 });

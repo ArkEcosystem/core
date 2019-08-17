@@ -251,9 +251,7 @@ export class TransactionFactory {
     }
 
     private sign<T>(quantity: number, method: string): T[] {
-        if (Managers.configManager.get("network.name") !== this.network) {
-            Managers.configManager.setFromPreset(this.network);
-        }
+        Managers.configManager.setFromPreset(this.network);
 
         if (!this.senderPublicKey) {
             this.senderPublicKey = Identities.PublicKey.fromPassphrase(this.passphrase);
@@ -287,7 +285,7 @@ export class TransactionFactory {
                 this.builder.version(this.version);
             }
 
-            if (this.builder.data.version > 1 && Managers.configManager.getMilestone().aip11) {
+            if (this.builder.data.version > 1) {
                 nonce = nonce.plus(1);
                 this.builder.nonce(nonce);
             }
@@ -319,7 +317,16 @@ export class TransactionFactory {
                 }
             }
 
+            const testnet: boolean = ["unitnet", "testnet"].includes(Managers.configManager.get("network.name"));
+
             if (sign) {
+                const aip11: boolean = Managers.configManager.getMilestone().aip11;
+                if (this.builder.data.version === 1 && aip11) {
+                    Managers.configManager.getMilestone().aip11 = false;
+                } else if (testnet) {
+                    Managers.configManager.getMilestone().aip11 = true;
+                }
+
                 this.builder.sign(this.passphrase);
 
                 if (this.secondPassphrase) {
@@ -327,7 +334,13 @@ export class TransactionFactory {
                 }
             }
 
-            transactions.push(this.builder[method]());
+            const transaction = this.builder[method]();
+
+            if (testnet) {
+                Managers.configManager.getMilestone().aip11 = true;
+            }
+
+            transactions.push(transaction);
         }
 
         return transactions;

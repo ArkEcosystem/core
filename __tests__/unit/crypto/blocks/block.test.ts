@@ -204,9 +204,6 @@ describe("Block", () => {
                 reward: Utils.BigNumber.make(0),
             };
 
-            Managers.configManager.setFromPreset("testnet");
-            Managers.configManager.getMilestone().aip11 = false;
-
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
@@ -214,11 +211,10 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
-
+            Managers.configManager.getMilestone().aip11 = false;
             const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
-
             Managers.configManager.getMilestone().aip11 = true;
         });
 
@@ -234,20 +230,18 @@ describe("Block", () => {
                 reward: Utils.BigNumber.make(0),
             };
 
-            Managers.configManager.setFromPreset("testnet");
-            Managers.configManager.getMilestone().aip11 = false;
-
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
                 .withTimestamp(
                     optionsDefault.timestamp +
-                    3600 +
-                    configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
+                        3600 +
+                        configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
                 )
                 .withPassphrase("super cool passphrase")
                 .create();
 
+            Managers.configManager.getMilestone().aip11 = false;
             const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeTrue();
             Managers.configManager.getMilestone().aip11 = true;
@@ -265,20 +259,18 @@ describe("Block", () => {
                 reward: Utils.BigNumber.make(0),
             };
 
-            Managers.configManager.setFromPreset("testnet");
-            Managers.configManager.getMilestone().aip11 = false;
-
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
                 .withTimestamp(
                     optionsDefault.timestamp +
-                    3601 +
-                    configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
+                        3601 +
+                        configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
                 )
                 .withPassphrase("super cool passphrase")
                 .create();
 
+            Managers.configManager.getMilestone().aip11 = false;
             const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
@@ -302,8 +294,8 @@ describe("Block", () => {
                 .withVersion(1)
                 .withTimestamp(
                     optionsDefault.timestamp +
-                    3601 +
-                    configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
+                        3601 +
+                        configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
                 )
                 .withPassphrase("super cool passphrase")
                 .create();
@@ -329,8 +321,8 @@ describe("Block", () => {
                 .withVersion(1)
                 .withTimestamp(
                     optionsDefault.timestamp +
-                    3601 +
-                    configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
+                        3601 +
+                        configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
                 )
                 .withPassphrase("super cool passphrase")
                 .create();

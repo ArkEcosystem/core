@@ -147,7 +147,12 @@ export interface IHtlcRefundAsset {
     lockTransactionId: string;
 }
 
+export interface IDeserializeOptions {
+    acceptLegacyVersion?: boolean;
+}
+
 export interface ISerializeOptions {
+    acceptLegacyVersion?: boolean;
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
     excludeMultiSignature?: boolean;

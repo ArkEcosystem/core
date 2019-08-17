@@ -1,4 +1,4 @@
-import { Identities } from "@arkecosystem/crypto";
+import { Identities, Managers } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
@@ -124,13 +124,13 @@ describe("Transaction Forging - Transfer", () => {
             .withExpiration(support.getLastHeight() + 1)
             .createOne();
 
-        await expect(transfer.id).toBeRejected();
-        await expect(transfer2.id).toBeRejected();
+        await expect(transfer).toBeRejected();
+        await expect(transfer2).toBeRejected();
         await support.snoozeForBlock(1);
         await expect(transfer.id).not.toBeForged();
     });
 
-    it("should broadcast, accept and forge it [Legacy, Without Nonce]", async () => {
+    it("should broadcast, accept and forge it [Legacy, V1 Transaction]", async () => {
         const transferWithNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[0])
             .createOne();
@@ -144,8 +144,31 @@ describe("Transaction Forging - Transfer", () => {
             .withPassphrase(secrets[0])
             .createOne();
 
+        Managers.configManager.getMilestone().aip11 = false;
+
         await expect(transferLegacyWithoutNonce).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(transferLegacyWithoutNonce.id).toBeForged();
+
+        Managers.configManager.getMilestone().aip11 = true;
+    });
+
+    it("should not broadcast, accept and forge it [Legacy, V1 Transaction]", async () => {
+        const transferWithNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(transferWithNonce).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(transferWithNonce.id).toBeForged();
+
+        const transferLegacyWithoutNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withVersion(1)
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(transferLegacyWithoutNonce).toBeRejected();
+        await support.snoozeForBlock(1);
+        await expect(transferLegacyWithoutNonce.id).not.toBeForged();
     });
 });
