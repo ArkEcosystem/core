@@ -155,7 +155,7 @@ describe("Transaction Forging - Transfer", () => {
 
     it("should not broadcast, accept and forge it [Legacy, V1 Transaction]", async () => {
         const transferWithNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
-            .withPassphrase(secrets[0])
+            .withPassphrase(secrets[1])
             .createOne();
 
         await expect(transferWithNonce).toBeAccepted();
@@ -164,7 +164,7 @@ describe("Transaction Forging - Transfer", () => {
 
         const transferLegacyWithoutNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
             .withVersion(1)
-            .withPassphrase(secrets[0])
+            .withPassphrase(secrets[1])
             .createOne();
 
         await expect(transferLegacyWithoutNonce).toBeRejected();
