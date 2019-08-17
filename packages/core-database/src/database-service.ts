@@ -46,7 +46,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
-        if (process.env.NODE_ENV === "test") {
+        if (process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = false;
         }
 
@@ -378,7 +378,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block);
 
-        if (block.height === 1 && process.env.NODE_ENV === "test") {
+        if (block.height === 1 && process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = true;
         }
 
@@ -629,7 +629,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
             lastBlock = await this.createGenesisBlock();
 
-            if (process.env.NODE_ENV === "test") {
+            if (process.env.CORE_ENV === "test") {
                 Managers.configManager.getMilestone().aip11 = true;
             }
         }

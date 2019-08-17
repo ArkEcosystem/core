@@ -53,7 +53,7 @@ export class TransactionHandlerRegistry {
         const activatedTransactions: TransactionHandler[] = [];
 
         for (const handler of this.registeredTransactionHandlers.values()) {
-            if ((await handler.isActivated()) || process.env.NODE_ENV === "test") {
+            if ((await handler.isActivated()) || process.env.CORE_ENV === "test") {
                 activatedTransactions.push(handler);
             }
         }

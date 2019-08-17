@@ -187,8 +187,6 @@ describe("State Machine", () => {
             afterEach(() => jest.restoreAllMocks());
             afterAll(() => {
                 jest.restoreAllMocks();
-
-                process.env.NODE_ENV = "TEST";
             });
 
             it("should dispatch FAILURE if there is no last block in database and genesis block payload hash != configured nethash", async () => {
@@ -247,7 +245,6 @@ describe("State Machine", () => {
             });
 
             it('should dispatch STARTED if NODE_ENV === "test"', async () => {
-                process.env.NODE_ENV = "test";
                 const loggerVerbose = jest.spyOn(logger, "verbose");
 
                 // tslint:disable-next-line: await-promise
@@ -259,7 +256,7 @@ describe("State Machine", () => {
             });
 
             it("should rebuild wallets table and dispatch STARTED if database.buildWallets() failed", async () => {
-                process.env.NODE_ENV = "";
+                delete process.env.NODE_ENV;
                 jest.spyOn(blockchain.state, "getLastBlock").mockReturnValue({
                     // @ts-ignore
                     data: {
@@ -272,14 +269,16 @@ describe("State Machine", () => {
 
                 // tslint:disable-next-line: await-promise
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
+                process.env.NODE_ENV = "test";
             });
 
             it("should clean round data if new round starts at block.height + 1 (and dispatch STARTED)", async () => {
-                process.env.NODE_ENV = "";
+                delete process.env.NODE_ENV;
 
                 // tslint:disable-next-line: await-promise
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
                 expect(databaseMocks.deleteRound).toHaveBeenCalled();
+                process.env.NODE_ENV = "test";
             });
 
             it("should log error and dispatch FAILURE if an exception was thrown", async () => {
