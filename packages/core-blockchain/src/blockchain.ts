@@ -126,7 +126,7 @@ export class Blockchain implements blockchain.IBlockchain {
             const action = this.actions[actionKey];
 
             if (action) {
-                setTimeout(() => action.call(this, event), 0);
+                setImmediate(() => action(event));
             } else {
                 logger.error(`No action '${actionKey}' found`);
             }

@@ -46,7 +46,7 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
-        if (process.env.CORE_TEST_DELAY_AIP11) {
+        if (process.env.CORE_TEST_DELAYED_AIP11_HEIGHT) {
             Managers.configManager.getMilestone().aip11 = false;
         }
 
@@ -328,6 +328,8 @@ export class DatabaseService implements Database.IDatabaseService {
 
         if (!lastBlock) {
             return [];
+        } else if (lastBlock.data.height === 1) {
+            return [lastBlock];
         }
 
         if (!roundInfo) {
@@ -365,7 +367,13 @@ export class DatabaseService implements Database.IDatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        return Blocks.BlockFactory.fromData(block);
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block);
+
+        if (block.height === 1 && process.env.CORE_TEST_DELAYED_AIP11_HEIGHT) {
+            Managers.configManager.getMilestone().aip11 = true;
+        }
+
+        return lastBlock;
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
@@ -494,7 +502,10 @@ export class DatabaseService implements Database.IDatabaseService {
     public async verifyBlockchain(): Promise<boolean> {
         const errors: string[] = [];
 
-        const lastBlock: Interfaces.IBlock = await this.getLastBlock();
+        const lastBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlock();
 
         // Last block is available
         if (!lastBlock) {
@@ -608,6 +619,10 @@ export class DatabaseService implements Database.IDatabaseService {
             this.logger.warn("No block found in database");
 
             lastBlock = await this.createGenesisBlock();
+
+            if (process.env.CORE_TEST_DELAYED_AIP11_HEIGHT) {
+                Managers.configManager.getMilestone().aip11 = true;
+            }
         }
 
         this.configureState(lastBlock);
