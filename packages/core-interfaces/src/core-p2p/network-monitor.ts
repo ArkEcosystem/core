@@ -29,5 +29,7 @@ export interface INetworkMonitor {
     broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
     getServer(): SocketCluster;
     setServer(server: SocketCluster): void;
+    isColdStart(): boolean;
+    completeColdStart(): void;
     stopServer(): void;
 }

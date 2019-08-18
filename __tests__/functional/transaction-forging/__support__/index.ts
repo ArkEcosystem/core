@@ -3,7 +3,7 @@ import "jest-extended";
 import { Container, Database, State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
-import { Slots } from "@arkecosystem/crypto/src/crypto";
+import { Crypto } from "@arkecosystem/crypto";
 import delay from "delay";
 import { secrets } from "../../../utils/config/testnet/delegates.json";
 import { setUpContainer } from "../../../utils/helpers/container";
@@ -59,7 +59,7 @@ export const tearDown = async (): Promise<void> => {
 
 export const snoozeForBlock = async (sleep: number = 0, height: number = 1): Promise<void> => {
     const blockTime = Managers.configManager.getMilestone(height).blocktime * 1000;
-    const remainingTimeInSlot = Slots.getTimeInMsUntilNextSlot();
+    const remainingTimeInSlot = Crypto.Slots.getTimeInMsUntilNextSlot();
     const sleepTime = sleep * 1000;
 
     return delay(blockTime + remainingTimeInSlot + sleepTime);

@@ -21,6 +21,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
+    private coldStart: boolean = false;
 
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -86,6 +87,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
     public async updateNetworkStatus(initialRun?: boolean): Promise<void> {
         if (process.env.NODE_ENV === "test") {
+            return;
+        }
+
+        if (this.config.networkStart) {
+            this.coldStart = true;
+            this.logger.warn("Entering cold start because the relay is in genesis-start mode.");
             return;
         }
 
@@ -201,6 +208,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.pingPeerPorts();
 
         return false;
+    }
+
+    public isColdStart(): boolean {
+        return this.coldStart;
+    }
+
+    public completeColdStart(): void {
+        this.coldStart = false;
     }
 
     public getNetworkHeight(): number {
