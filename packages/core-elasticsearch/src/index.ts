@@ -25,7 +25,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         await this.app.resolve("elasticsearch").stop();
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

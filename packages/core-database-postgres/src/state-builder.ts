@@ -5,7 +5,7 @@ import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 export class StateBuilder {
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "event-dispatcher",
+        "events",
     );
 
     constructor(

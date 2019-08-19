@@ -36,7 +36,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             .stopServer();
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

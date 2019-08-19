@@ -1,6 +1,6 @@
 import { JsonObject } from "type-fest";
-import { AbstractServiceProvider } from "../../support";
 import { IBlockchain } from "../core-blockchain";
+import { IDatabaseService } from "../core-database";
 import { IPeerService } from "../core-p2p";
 import { IConnection } from "../core-transaction-pool";
 import { IContainer } from "./container";
@@ -12,6 +12,16 @@ export interface IApplication extends IContainer {
      * Get an instance of the application logger.
      */
     readonly log: ILogger;
+
+    /**
+     * Get an instance of the application event dispatcher.
+     */
+    readonly events: IEventDispatcher;
+
+    /**
+     * Get an instance of the application database.
+     */
+    readonly database: IDatabaseService;
 
     /**
      * Get an instance of the application blockchain.
@@ -29,11 +39,6 @@ export interface IApplication extends IContainer {
     readonly transactionPool: IConnection;
 
     /**
-     * Get an instance of the application event dispatcher.
-     */
-    readonly events: IEventDispatcher;
-
-    /**
      * Bootstrap the application with the given configuration.
      */
     bootstrap(config: JsonObject): Promise<void>;
@@ -47,36 +52,6 @@ export interface IApplication extends IContainer {
      * Reboot the application.
      */
     reboot(): void;
-
-    /**
-     * Get the registered service provider instances if any exist.
-     */
-    getProviders(): Set<AbstractServiceProvider>;
-
-    /**
-     * Register the application service provider.
-     */
-    registerProvider(provider: AbstractServiceProvider): Promise<void>;
-
-    /**
-     * Create a new provider instance.
-     */
-    makeProvider(provider: AbstractServiceProvider, opts: JsonObject): AbstractServiceProvider;
-
-    /**
-     * Register a listener to run after loading the environment.
-     */
-    afterLoadingEnvironment(listener: any): any;
-
-    /**
-     * Register a listener to run before a bootstrapper.
-     */
-    beforeBootstrapping(bootstrapper: string, listener: any): void;
-
-    /**
-     * Register a listener to run after a bootstrapper.
-     */
-    afterBootstrapping(bootstrapper: string, listener: any): void;
 
     /**
      * Get or set the specified configuration value.
@@ -192,11 +167,6 @@ export interface IApplication extends IContainer {
      * Determine if the application has booted.
      */
     isBooted(): boolean;
-
-    /**
-     * Determine if the application has been bootstrapped.
-     */
-    isBootstrapped(): boolean;
 
     /**
      * Put the application into maintenance mode.

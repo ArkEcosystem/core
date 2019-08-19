@@ -33,7 +33,7 @@ export class PostgresConnection implements Contracts.Database.IConnection {
     public pgp: IMain;
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "event-dispatcher",
+        "events",
     );
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;

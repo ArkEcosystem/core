@@ -22,7 +22,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "event-dispatcher",
+        "events",
     );
 
     private readonly communicator: Contracts.P2P.IPeerCommunicator;

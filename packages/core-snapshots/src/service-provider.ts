@@ -12,7 +12,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("snapshots", manager.make(databaseService.connection as PostgresConnection));
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

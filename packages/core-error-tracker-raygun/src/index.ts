@@ -7,7 +7,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("error-tracker", new raygun.Client().init((this.opts as unknown) as raygun.raygun.RaygunOptions));
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

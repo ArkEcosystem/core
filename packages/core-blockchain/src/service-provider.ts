@@ -6,13 +6,7 @@ import { ReplayBlockchain } from "./replay";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        let blockchain: Blockchain;
-
-        if (this.opts.replay) {
-            blockchain = new ReplayBlockchain();
-        } else {
-            blockchain = new Blockchain(this.opts);
-        }
+        const blockchain: Blockchain = this.opts.replay ? new ReplayBlockchain() : new Blockchain(this.opts);
 
         this.app
             .resolve<Contracts.State.IStateService>("state")
@@ -31,7 +25,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         await this.app.resolve<Blockchain>("blockchain").stop();
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

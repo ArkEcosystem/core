@@ -10,7 +10,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     public connection: Contracts.Database.IConnection;
     public walletManager: Contracts.State.IWalletManager;
     public logger = app.resolve<Contracts.Kernel.ILogger>("logger");
-    public emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher");
+    public emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("events");
     public options: any;
     public wallets: Contracts.Database.IWalletsBusinessRepository;
     public delegates: Contracts.Database.IDelegatesBusinessRepository;

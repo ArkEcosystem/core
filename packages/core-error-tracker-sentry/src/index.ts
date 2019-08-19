@@ -9,7 +9,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("error-tracker", Sentry);
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

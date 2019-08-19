@@ -1,5 +1,4 @@
-export type EventName = string | symbol;
-export type EventListener = (name: EventName, data: any) => void;
+import { EventListener, EventName } from "../../types";
 
 export interface IEventDispatcher {
     /**

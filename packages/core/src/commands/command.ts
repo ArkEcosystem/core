@@ -246,7 +246,7 @@ export abstract class BaseCommand extends Command {
         const { config } = await this.getPaths(flags);
 
         // @TODO: update to follow new config convention
-        const configDelegates = join(config, "config.js");
+        const configDelegates = join(config, "delegates.json");
 
         if (!existsSync(configDelegates)) {
             this.error(`The ${configDelegates} file does not exist.`);

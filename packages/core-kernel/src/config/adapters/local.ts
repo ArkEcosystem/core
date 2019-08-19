@@ -1,33 +1,34 @@
 import cosmiconfig from "cosmiconfig";
 import { set } from "dottie";
 import { parseFileSync } from "envfile";
+import { JsonObject } from "type-fest";
+import { Kernel } from "../../contracts";
 import { InvalidApplicationConfiguration, InvalidEnvironmentConfiguration } from "../../errors";
-import { BaseAdapter } from "./base";
 
 /**
  * @export
  * @class LocalAdapter
- * @extends {BaseAdapter}
+ * @implements {Kernel.IConfigAdapter}
  */
-export class LocalAdapter extends BaseAdapter {
+export class LocalAdapter implements Kernel.IConfigAdapter {
+    /**
+     * @param {Kernel.IApplication} app
+     * @memberof BaseAdapter
+     */
+    public constructor(protected readonly app: Kernel.IApplication) {}
+
     /**
      * @returns {Promise<void>}
      * @memberof LocalAdapter
      */
     public async loadConfiguration(): Promise<void> {
-        // @TODO: move this to run before `loadConfiguration` in a bootstraper
-        await this.loadEnvironmentVariables();
-
         try {
-            const explorer = cosmiconfig(this.app.namespace(), {
-                searchPlaces: [this.app.configPath("config.json"), this.app.configPath("config.js")],
-                stopDir: this.app.configPath(),
-            });
+            await this.loadServiceProviders();
 
-            for (const [key, value] of Object.entries(explorer.searchSync().config)) {
-                this.app.config(key, value);
-            }
-        } catch (error) {
+            await this.loadPeers();
+
+            await this.loadDelegates();
+        } catch {
             throw new InvalidApplicationConfiguration();
         }
     }
@@ -51,5 +52,51 @@ export class LocalAdapter extends BaseAdapter {
         } catch (error) {
             throw new InvalidEnvironmentConfiguration();
         }
+    }
+
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof LocalAdapter
+     */
+    private async loadServiceProviders(): Promise<void> {
+        this.app.config(
+            "providers",
+            this.loadFromLocation([
+                this.app.configPath("service-providers.json"),
+                this.app.configPath("service-providers.js"),
+            ]),
+        );
+    }
+
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof LocalAdapter
+     */
+    private async loadPeers(): Promise<void> {
+        this.app.config("peers", this.loadFromLocation([this.app.configPath("peers.json")]));
+    }
+
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof LocalAdapter
+     */
+    private async loadDelegates(): Promise<void> {
+        this.app.config("delegates", this.loadFromLocation([this.app.configPath("delegates.json")]));
+    }
+
+    /**
+     * @private
+     * @param {string[]} searchPlaces
+     * @returns {JsonObject}
+     * @memberof LocalAdapter
+     */
+    private loadFromLocation(searchPlaces: string[]): JsonObject {
+        return cosmiconfig(this.app.namespace(), {
+            searchPlaces,
+            stopDir: this.app.configPath(),
+        }).searchSync().config;
     }
 }

@@ -12,7 +12,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         await this.app.resolve("vote-report").stop();
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

@@ -14,7 +14,7 @@ import {
     Resolver,
 } from "awilix";
 import { isClass, isFunction } from "typechecker";
-import { EntryDoesNotExist, InvalidType } from "./errors";
+import { InvalidType } from "./errors";
 
 /**
  * @export
@@ -39,10 +39,6 @@ export class Container {
      * @memberof Container
      */
     public resolve<T = any>(name: string): T {
-        if (!this.has(name)) {
-            throw new EntryDoesNotExist(name);
-        }
-
         return this.container.resolve<T>(name);
     }
 
@@ -80,7 +76,7 @@ export class Container {
      * @param {ClassOrFunctionReturning<T>} concrete
      * @memberof Container
      */
-    public shared<T = any>(name: string, concrete: ClassOrFunctionReturning<T>): void {
+    public singleton<T = any>(name: string, concrete: ClassOrFunctionReturning<T>): void {
         let binding: BuildResolver<T> & DisposableResolver<T>;
 
         if (isClass(concrete)) {
@@ -88,10 +84,10 @@ export class Container {
         } else if (isFunction(concrete)) {
             binding = asFunction(concrete as FunctionReturning<T>);
         } else {
-            throw new InvalidType("shared", "concrete", "class or function", typeof concrete);
+            throw new InvalidType("singleton", "concrete", "class or function", typeof concrete);
         }
 
-        this.container.register(name, binding.singleton());
+        this.container.register<T>(name, binding.singleton());
     }
 
     /**

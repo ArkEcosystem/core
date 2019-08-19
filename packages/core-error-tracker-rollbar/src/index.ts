@@ -7,7 +7,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("error-tracker", new Rollbar(this.opts));
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

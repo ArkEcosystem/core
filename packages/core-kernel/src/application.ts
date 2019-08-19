@@ -1,24 +1,14 @@
-import { set } from "dottie";
-import envPaths from "env-paths";
-import expandHomeDir from "expand-home-dir";
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
-import camelCase from "lodash/camelCase";
-// import logProcessErrors from "log-process-errors";
-import { join, resolve } from "path";
+import { join } from "path";
 import { JsonObject } from "type-fest";
+import { app } from ".";
 import * as Bootstrappers from "./bootstrap";
-import { ConfigFactory, ConfigRepository } from "./config";
+import { AbstractBootstrapper } from "./bootstrap/bootstrapper";
 import { Container } from "./container";
 import { Kernel } from "./contracts";
 import * as Contracts from "./contracts";
-import { DirectoryNotFound, FailedNetworkDetection } from "./errors";
+import { DirectoryNotFound } from "./errors";
 import { ProviderRepository } from "./repositories";
-import { CacheFactory } from "./services/cache";
-import { EventDispatcher } from "./services/events";
-import { LoggerFactory } from "./services/log";
-import { ConsoleLogger } from "./services/log/adapters/console";
-import { QueueFactory } from "./services/queue";
-import { AbstractServiceProvider } from "./support";
 
 /**
  * @export
@@ -29,24 +19,21 @@ import { AbstractServiceProvider } from "./support";
 export class Application extends Container implements Kernel.IApplication {
     /**
      * @private
-     * @type {ProviderRepository}
-     * @memberof Application
-     */
-    private readonly providers: ProviderRepository = new ProviderRepository(this);
-
-    /**
-     * @private
-     * @type {boolean}
-     * @memberof Application
-     */
-    private hasBeenBootstrapped: boolean = false;
-
-    /**
-     * @private
      * @type {boolean}
      * @memberof Application
      */
     private booted: boolean = false;
+
+    /**
+     * Creates an instance of Application.
+     *
+     * @memberof Application
+     */
+    public constructor() {
+        super();
+
+        this.bind<Kernel.IApplication>("app", this);
+    }
 
     /**
      * @param {JsonObject} config
@@ -54,19 +41,11 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public async bootstrap(config: JsonObject): Promise<void> {
-        this.registerErrorHandler();
+        app.bind<JsonObject>("config", config);
 
-        await this.bindConfiguration(config);
+        app.singleton<ProviderRepository>("providers", ProviderRepository);
 
-        this.registerBindings();
-
-        this.registerNamespace();
-
-        this.registerPaths();
-
-        await this.registerFactories();
-
-        await this.registerServices();
+        await this.runBootstrappers("app");
 
         await this.boot();
     }
@@ -76,7 +55,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public async boot(): Promise<void> {
-        await this.registerServiceProviders();
+        await this.runBootstrappers("serviceProviders");
 
         this.booted = true;
     }
@@ -88,70 +67,7 @@ export class Application extends Container implements Kernel.IApplication {
     public async reboot(): Promise<void> {
         await this.terminate();
 
-        await this.registerServiceProviders();
-    }
-
-    /**
-     * @returns {Set<AbstractServiceProvider>}
-     * @memberof Application
-     */
-    public getProviders(): Set<AbstractServiceProvider> {
-        return this.providers;
-    }
-
-    /**
-     * @param {AbstractServiceProvider} provider
-     * @returns {Promise<void>}
-     * @memberof Application
-     */
-    public async registerProvider(provider: AbstractServiceProvider): Promise<void> {
-        await this.providers.register(provider);
-    }
-
-    /**
-     * @param {AbstractServiceProvider} provider
-     * @returns {Promise<void>}
-     * @memberof Application
-     */
-    public async bootProvider(provider: AbstractServiceProvider): Promise<void> {
-        await this.providers.boot(provider);
-    }
-
-    /**
-     * @param {AbstractServiceProvider} provider
-     * @param {JsonObject} opts
-     * @returns {AbstractServiceProvider}
-     * @memberof Application
-     */
-    public makeProvider(provider: AbstractServiceProvider, opts: JsonObject): AbstractServiceProvider {
-        return this.providers.make(provider, opts);
-    }
-
-    /**
-     * @param {*} listener
-     * @returns {*}
-     * @memberof Application
-     */
-    public afterLoadingEnvironment(listener: any): any {
-        return this.afterBootstrapping("LoadEnvironmentVariables", listener);
-    }
-
-    /**
-     * @param {string} bootstrapper
-     * @param {*} listener
-     * @memberof Application
-     */
-    public beforeBootstrapping(bootstrapper: string, listener: any): void {
-        this.events.listen(`bootstrapping: ${bootstrapper}`, listener);
-    }
-
-    /**
-     * @param {string} bootstrapper
-     * @param {*} listener
-     * @memberof Application
-     */
-    public afterBootstrapping(bootstrapper: string, listener: any): void {
-        this.events.listen(`bootstrapped: ${bootstrapper}`, listener);
+        await this.boot();
     }
 
     /**
@@ -359,14 +275,6 @@ export class Application extends Container implements Kernel.IApplication {
     }
 
     /**
-     * @returns {boolean}
-     * @memberof Application
-     */
-    public isBootstrapped(): boolean {
-        return this.hasBeenBootstrapped;
-    }
-
-    /**
      * @memberof Application
      */
     public enableMaintenance(): void {
@@ -403,11 +311,11 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public async terminate(reason?: string, error?: Error): Promise<void> {
-        this.hasBeenBootstrapped = false;
+        this.booted = false;
+
+        this.log.notice(reason);
 
         await this.disposeServiceProviders();
-
-        // @TODO: log the message
     }
 
     /**
@@ -417,6 +325,24 @@ export class Application extends Container implements Kernel.IApplication {
      */
     public get log(): Contracts.Kernel.ILogger {
         return this.resolve<Contracts.Kernel.ILogger>("log");
+    }
+
+    /**
+     * @readonly
+     * @type {Contracts.Kernel.IEventDispatcher}
+     * @memberof Application
+     */
+    public get events(): Contracts.Kernel.IEventDispatcher {
+        return this.resolve<Contracts.Kernel.IEventDispatcher>("event");
+    }
+
+    /**
+     * @readonly
+     * @type {Contracts.Database.IDatabaseService}
+     * @memberof Application
+     */
+    public get database(): Contracts.Database.IDatabaseService {
+        return this.resolve<Contracts.Database.IDatabaseService>("database");
     }
 
     /**
@@ -443,72 +369,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public get transactionPool(): Contracts.TransactionPool.IConnection {
-        return this.resolve<Contracts.TransactionPool.IConnection>("transactionPool");
-    }
-
-    /**
-     * @readonly
-     * @type {Contracts.Kernel.IEventDispatcher}
-     * @memberof Application
-     */
-    public get events(): Contracts.Kernel.IEventDispatcher {
-        return this.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher");
-    }
-
-    /**
-     * @private
-     * @memberof Application
-     */
-    private registerErrorHandler(): void {
-        // @TODO: implement passing in of options and ensure handling of critical exceptions
-        // logProcessErrors({ exitOn: [] });
-    }
-
-    /**
-     * @private
-     * @param {JsonObject} config
-     * @memberof Application
-     */
-    private async bindConfiguration(config: JsonObject): Promise<void> {
-        // @TODO: pass in what config provider should be used
-        this.bind("configLoader", ConfigFactory.make(this, (config.configLoader || "local") as string));
-        this.bind("config", new ConfigRepository(config));
-
-        this.resolve("config").set("options", config.options);
-    }
-
-    /**
-     * @private
-     * @memberof Application
-     */
-    private registerBindings(): void {
-        this.bind("app.env", this.config("env"));
-        this.bind("app.token", this.config("token"));
-        this.bind("app.network", this.config("network"));
-        this.bind("app.version", this.config("version"));
-
-        // @TODO: implement a getter/setter that sets vars locally and in the process.env variables
-        process.env.CORE_ENV = this.config("env");
-        process.env.NODE_ENV = process.env.CORE_ENV;
-        process.env.CORE_TOKEN = this.config("token");
-        process.env.CORE_NETWORK_NAME = this.config("network");
-        process.env.CORE_VERSION = this.config("version");
-    }
-
-    /**
-     * @private
-     * @memberof Application
-     */
-    private registerNamespace(): void {
-        const token = this.token();
-        const network = this.network();
-
-        if (!token || !network) {
-            throw new FailedNetworkDetection();
-        }
-
-        this.bind("app.namespace", `${token}-${network}`);
-        this.bind("app.dirPrefix", `${token}/${network}`);
+        return this.resolve<Contracts.TransactionPool.IConnection>("transaction-pool");
     }
 
     /**
@@ -516,36 +377,12 @@ export class Application extends Container implements Kernel.IApplication {
      * @returns {Promise<void>}
      * @memberof Application
      */
-    private async registerFactories(): Promise<void> {
-        this.bind("factoryLogger", new LoggerFactory(this));
-        this.bind("factoryCache", new CacheFactory(this));
-        this.bind("factoryQueue", new QueueFactory(this));
-    }
+    private async runBootstrappers(type: string): Promise<void> {
+        const bootstrappers: AbstractBootstrapper[] = Object.values(Bootstrappers[type]);
 
-    /**
-     * @private
-     * @returns {Promise<void>}
-     * @memberof Application
-     */
-    private async registerServices(): Promise<void> {
-        this.bind("event-dispatcher", new EventDispatcher());
-        this.bind("log", await this.resolve("factoryLogger").make(new ConsoleLogger()));
-    }
-
-    /**
-     * @private
-     * @returns {Promise<void>}
-     * @memberof Application
-     */
-    private async registerServiceProviders(): Promise<void> {
-        this.hasBeenBootstrapped = true;
-
-        for (const Bootstrapper of Object.values(Bootstrappers)) {
-            this.events.dispatch(`bootstrapping: ${Bootstrapper.name}`, this);
-
-            await new Bootstrapper().bootstrap(this);
-
-            this.events.dispatch(`bootstrapped: ${Bootstrapper.name}`, this);
+        for (const Bootstrapper of bootstrappers) {
+            // @ts-ignore
+            await new Bootstrapper(this).bootstrap();
         }
     }
 
@@ -555,30 +392,8 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     private async disposeServiceProviders(): Promise<void> {
-        for (const provider of this.getProviders()) {
+        for (const provider of app.resolve<ProviderRepository>("providers").allLoadedProviders()) {
             await provider.dispose();
-        }
-    }
-
-    /**
-     * @private
-     * @memberof Application
-     */
-    private registerPaths(): void {
-        const paths: Array<[string, string]> = Object.entries(envPaths(this.token(), { suffix: "core" }));
-
-        for (let [type, path] of paths) {
-            const processPath: string | null = process.env[`CORE_PATH_${type.toUpperCase()}`];
-
-            if (processPath) {
-                path = resolve(expandHomeDir(processPath));
-            }
-
-            set(process.env, `CORE_PATH_${type.toUpperCase()}`, path);
-
-            this[camelCase(`use_${type}_path`)](path);
-
-            this.bind(`path.${type}`, path);
         }
     }
 

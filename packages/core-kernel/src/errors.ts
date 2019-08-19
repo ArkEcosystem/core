@@ -44,66 +44,6 @@ export class DirectoryNotFound extends KernelError {
 
 /**
  * @export
- * @class EntryAlreadyExists
- * @extends {KernelError}
- */
-export class EntryAlreadyExists extends KernelError {
-    /**
-     * @param {string} value
-     * @memberof EntryAlreadyExists
-     */
-    constructor(value: string) {
-        super(`[${value}] is not registered.`);
-    }
-}
-
-/**
- * @export
- * @class EntryDoesNotExist
- * @extends {KernelError}
- */
-export class EntryDoesNotExist extends KernelError {
-    /**
-     * @param {string} value
-     * @memberof EntryDoesNotExist
-     */
-    constructor(value: string) {
-        super(`[${value}] is not registered.`);
-    }
-}
-
-/**
- * @export
- * @class FileNotFound
- * @extends {KernelError}
- */
-export class FileNotFound extends KernelError {
-    /**
-     * @param {string} value
-     * @memberof FileNotFound
-     */
-    constructor(value: string) {
-        super(`File [${value}] could not be found.`);
-    }
-}
-
-/**
- * @export
- * @class InvalidArgument
- * @extends {KernelError}
- */
-export class InvalidArgument extends KernelError {
-    /**
-     * @param {*} value
-     * @memberof InvalidArgument
-     */
-    constructor(value: any) {
-        super(`[${value.toString()}] is an invalid argument.`);
-    }
-}
-
-/**
- * @export
  * @class InvalidType
  * @extends {KernelError}
  */
@@ -159,20 +99,6 @@ export class InvalidApplicationConfiguration extends KernelError {
 export class InvalidEnvironmentConfiguration extends KernelError {
     /**
      * @memberof InvalidEnvironmentConfiguration
-     */
-    constructor() {
-        super("Unable to load the environment file.");
-    }
-}
-
-/**
- * @export
- * @class InvalidConfigurationAdapter
- * @extends {KernelError}
- */
-export class InvalidConfigurationAdapter extends KernelError {
-    /**
-     * @memberof InvalidConfigurationAdapter
      */
     constructor() {
         super("Unable to load the environment file.");

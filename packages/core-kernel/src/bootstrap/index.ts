@@ -1,5 +1,4 @@
-export * from "./load-environment-variables";
-export * from "./load-configuration";
-export * from "./load-cryptography";
-export * from "./register-providers";
-// export * from "./boot-providers";
+import * as app from "./app";
+import * as serviceProviders from "./service-providers";
+
+export { app, serviceProviders };

@@ -13,7 +13,7 @@ import { isValidVersion, socketEmit } from "./utils";
 export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "event-dispatcher",
+        "events",
     );
 
     constructor(private readonly connector: Contracts.P2P.IPeerConnector) {}

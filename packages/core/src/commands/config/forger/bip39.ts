@@ -57,7 +57,7 @@ $ ark config:forger:bip39 --bip39="..."
         const { config } = await this.getPaths(flags);
 
         // @TODO: update to follow new config convention
-        const delegatesConfig = `${config}/config.js`;
+        const delegatesConfig = `${config}/delegates.json`;
 
         this.addTask("Prepare configuration", async () => {
             if (!fs.existsSync(delegatesConfig)) {

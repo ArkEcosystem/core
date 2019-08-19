@@ -1,35 +1,22 @@
-import { JsonObject, PackageJson } from "type-fest";
+import { PackageJson } from "type-fest";
 import { Kernel } from "../contracts";
+import { ConfigObject } from "../types";
 
 export abstract class AbstractServiceProvider {
     /**
      * @protected
-     * @type {Kernel.IApplication}
+     * @type {ConfigObject}
      * @memberof AbstractServiceProvider
      */
-    protected app: Kernel.IApplication;
-
-    /**
-     * @protected
-     * @type {Record<string, any>}
-     * @memberof AbstractServiceProvider
-     */
-    protected opts: Record<string, any>;
+    protected opts: ConfigObject;
 
     /**
      * @param {Kernel.IApplication} app
-     * @param {Record<string, any>} [opts={}]
+     * @param {ConfigObject} [opts={}]
      * @memberof AbstractServiceProvider
      */
-    public constructor(app: Kernel.IApplication, opts: Record<string, any> = {}) {
-        this.app = app;
-        this.opts = { ...opts, ...this.getDefaults() };
-
-        const globalOptions: JsonObject | undefined = app.config("options")[this.getName()];
-
-        if (globalOptions) {
-            this.opts = { ...this.opts, ...globalOptions };
-        }
+    public constructor(protected readonly app: Kernel.IApplication, opts: ConfigObject = {}) {
+        this.opts = this.buildConfig(opts);
     }
 
     /**
@@ -79,19 +66,11 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
-     * @returns {Record<string, any>}
+     * @returns {ConfigObject}
      * @memberof AbstractServiceProvider
      */
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): ConfigObject {
         return {};
-    }
-
-    /**
-     * @returns {string[]}
-     * @memberof AbstractServiceProvider
-     */
-    public provides(): string[] {
-        return [];
     }
 
     /**
@@ -100,5 +79,23 @@ export abstract class AbstractServiceProvider {
      */
     public depends(): Record<string, string> {
         return {};
+    }
+
+    /**
+     * @protected
+     * @param {ConfigObject} opts
+     * @returns {ConfigObject}
+     * @memberof AbstractServiceProvider
+     */
+    protected buildConfig(opts: ConfigObject): ConfigObject {
+        opts = { ...opts, ...this.getDefaults() };
+
+        const globalOptions: ConfigObject | undefined = this.app.config("options")[this.getName()];
+
+        if (globalOptions) {
+            this.opts = { ...this.opts, ...globalOptions };
+        }
+
+        return opts;
     }
 }

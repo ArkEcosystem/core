@@ -13,7 +13,7 @@ import { Codec } from "./codec";
 import { canImportRecord, verifyData } from "./verification";
 
 const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
-const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher");
+const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("events");
 
 const fixData = (table, data) => {
     if (table === "blocks" && data.height === 1) {

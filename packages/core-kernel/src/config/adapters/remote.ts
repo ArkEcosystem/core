@@ -1,11 +1,17 @@
-import { BaseAdapter } from "./base";
+import { Kernel } from "../../contracts";
 
 /**
  * @export
  * @class RemoteAdapter
- * @extends {BaseAdapter}
+ * @implements {Kernel.IConfigAdapter}
  */
-export class RemoteAdapter extends BaseAdapter {
+export class RemoteAdapter implements Kernel.IConfigAdapter {
+    /**
+     * @param {Kernel.IApplication} app
+     * @memberof BaseAdapter
+     */
+    public constructor(protected readonly app: Kernel.IApplication) {}
+
     /**
      * @returns {Promise<void>}
      * @memberof RemoteAdapter

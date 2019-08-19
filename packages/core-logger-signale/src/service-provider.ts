@@ -7,7 +7,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("logger", await this.app.resolve("factoryLogger").make(new SignaleLogger(this.opts)));
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

@@ -33,7 +33,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         }
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

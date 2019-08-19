@@ -22,7 +22,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         await this.app.resolve<Contracts.Database.IDatabaseService>("database").connection.disconnect();
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

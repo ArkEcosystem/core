@@ -98,7 +98,7 @@ export class StateStore implements Contracts.State.IStateStore {
         Managers.configManager.setHeight(block.data.height);
 
         if (Managers.configManager.isNewMilestone()) {
-            app.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher").dispatch(
+            app.resolve<Contracts.Kernel.IEventDispatcher>("events").dispatch(
                 Enums.Event.Internal.MilestoneChanged,
             );
         }

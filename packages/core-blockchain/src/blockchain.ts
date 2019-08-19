@@ -10,7 +10,7 @@ import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
 
 const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
-const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("event-dispatcher");
+const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("events");
 const { BlockFactory } = Blocks;
 
 export class Blockchain implements Contracts.Blockchain.IBlockchain {
@@ -19,7 +19,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
      * @return {IStateStore}
      */
     get state(): Contracts.State.IStateStore {
-        return stateMachine.state;
+        return app.resolve<Contracts.State.IStateService>("state").getStore();
     }
 
     /**
@@ -27,7 +27,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
      * @return {IPeerService}
      */
     get p2p(): Contracts.P2P.IPeerService {
-        return app.resolve<Contracts.P2P.IPeerService>("p2p");
+        return app.p2p;
     }
 
     /**
@@ -35,7 +35,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
      * @return {TransactionPool}
      */
     get transactionPool(): Contracts.TransactionPool.IConnection {
-        return app.resolve<Contracts.TransactionPool.IConnection>("transaction-pool");
+        return app.transactionPool;
     }
 
     /**
@@ -43,7 +43,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
      * @return {ConnectionInterface}
      */
     get database(): Contracts.Database.IDatabaseService {
-        return app.resolve<Contracts.Database.IDatabaseService>("database");
+        return app.database;
     }
 
     public isStopped: boolean;

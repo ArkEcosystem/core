@@ -23,7 +23,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
         Contracts.Database.IDatabaseService
     >("database");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "event-dispatcher",
+        "events",
     );
     private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
 

@@ -5,7 +5,7 @@ import { storage } from "../storage";
 
 export abstract class Index {
     protected readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "event-dispatcher",
+        "events",
     );
     protected readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
     protected readonly database: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>(

@@ -1,4 +1,4 @@
-import { BuildResolverOptions, Constructor, FunctionReturning, Resolver } from "awilix";
+import { BuildResolverOptions, ClassOrFunctionReturning, Resolver } from "awilix";
 
 export interface IContainer {
     /**
@@ -9,12 +9,12 @@ export interface IContainer {
     /**
      * Register a class within the container.
      */
-    bind(name: string, concrete: any): void;
+    bind<T = any>(name: string, concrete: T | ClassOrFunctionReturning<T>): void;
 
     /**
      * Register a class within the container.
      */
-    shared(name: string, concrete: any): void;
+    singleton<T = any>(name: string, concrete: ClassOrFunctionReturning<T>): void;
 
     /**
      * Alias a registration to a different name.
@@ -29,8 +29,5 @@ export interface IContainer {
     /**
      * Given a class or function, builds it up and returns it.
      */
-    call(
-        targetOrResolver: FunctionReturning<{}> | Constructor<{}> | Resolver<{}>,
-        opts?: BuildResolverOptions<{}>,
-    ): any;
+    call<T>(targetOrResolver: ClassOrFunctionReturning<T> | Resolver<T>, opts?: BuildResolverOptions<{}>): any;
 }

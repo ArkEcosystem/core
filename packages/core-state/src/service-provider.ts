@@ -19,7 +19,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("state.options", this.opts);
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 

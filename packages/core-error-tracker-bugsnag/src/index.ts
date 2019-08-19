@@ -11,7 +11,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("error-tracker", bugsnag(this.opts as Bugsnag.IConfig));
     }
 
-    public getDefaults(): Record<string, any> {
+    public getDefaults(): Types.ConfigObject {
         return defaults;
     }
 
