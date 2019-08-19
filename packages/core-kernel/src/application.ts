@@ -338,6 +338,15 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @readonly
+     * @type {Contracts.Kernel.IFilesystem}
+     * @memberof Application
+     */
+    public get filesystem(): Contracts.Kernel.IFilesystem {
+        return this.resolve<Contracts.Kernel.IFilesystem>("filesystem");
+    }
+
+    /**
+     * @readonly
      * @type {Contracts.Database.IDatabaseService}
      * @memberof Application
      */

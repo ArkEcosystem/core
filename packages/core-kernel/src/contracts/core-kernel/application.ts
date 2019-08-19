@@ -5,6 +5,7 @@ import { IPeerService } from "../core-p2p";
 import { IConnection } from "../core-transaction-pool";
 import { IContainer } from "./container";
 import { IEventDispatcher } from "./event-dispatcher";
+import { IFilesystem } from "./filesystem";
 import { ILogger } from "./logger";
 
 export interface IApplication extends IContainer {
@@ -17,6 +18,11 @@ export interface IApplication extends IContainer {
      * Get an instance of the application event dispatcher.
      */
     readonly events: IEventDispatcher;
+
+    /**
+     * Get an instance of the application filesystem.
+     */
+    readonly filesystem: IFilesystem;
 
     /**
      * Get an instance of the application database.
