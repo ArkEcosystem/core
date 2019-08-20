@@ -1,17 +1,15 @@
-import { IApplication } from "./application";
-
 /**
- * @see https://tools.ietf.org/html/rfc5424
+ * @remarks
+ * This interface represents the {@link https://tools.ietf.org/html/rfc5424 | The Syslog Protocol}.
  */
 export interface ILogger {
     /**
      * Create a new instance of the logger.
      *
-     * @param {IApplication} app
      * @returns {Promise<ILogger>}
      * @memberof ILogger
      */
-    make(app: IApplication): Promise<ILogger>;
+    make(): Promise<ILogger>;
 
     /**
      * System is unusable.

@@ -12,17 +12,16 @@ import {
     writeFile,
 } from "fs-extra";
 import { resolve } from "path";
-import { IApplication, IFilesystem } from "../../../contracts/core-kernel";
+import { IFilesystem } from "../../../contracts/core-kernel";
 
-export class LocalAdapter implements IFilesystem {
+export class Local implements IFilesystem {
     /**
      * Create a new instance of the filesystem.
      *
-     * @param {IApplication} app
      * @returns {Promise<IFilesystem>}
      * @memberof IFilesystem
      */
-    public async make(app: IApplication): Promise<IFilesystem> {
+    public async make(): Promise<IFilesystem> {
         return this;
     }
 

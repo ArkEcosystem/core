@@ -1,7 +1,9 @@
 import * as Cache from "./cache";
+import * as Config from "./config";
 import * as Events from "./events";
-import * as Log from "./logger";
+import * as Filesystem from "./filesystem";
+import * as Log from "./log";
 import * as Queue from "./queue";
 import * as Scheduler from "./scheduler";
 
-export { Cache, Events, Log, Queue, Scheduler };
+export { Cache, Config, Events, Filesystem, Log, Queue, Scheduler };

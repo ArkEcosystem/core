@@ -1,14 +1,11 @@
-import { IApplication } from "./application";
-
 export interface IFilesystem {
     /**
      * Create a new instance of the filesystem.
      *
-     * @param {IApplication} app
      * @returns {Promise<IFilesystem>}
      * @memberof IFilesystem
      */
-    make(app: IApplication): Promise<IFilesystem>;
+    make(): Promise<IFilesystem>;
 
     /**
      * Determine if a file exists.

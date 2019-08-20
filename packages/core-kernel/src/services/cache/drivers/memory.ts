@@ -4,14 +4,14 @@ import { NotImplementedError } from "../../../errors";
 
 /**
  * @export
- * @class MemoryStore
+ * @class Memory
  * @implements {ICacheStore}
  */
-export class MemoryStore<K, T> implements ICacheStore<K, T> {
+export class Memory<K, T> implements ICacheStore<K, T> {
     /**
      * @private
      * @type {Map<K, T>}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     private readonly store: Map<K, T> = new Map<K, T>();
 
@@ -30,7 +30,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * Get all of the items in the cache.
      *
      * @returns {Array<[K, T]>}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async all(): Promise<Array<[K, T]>> {
         return Array.from(this.store.entries());
@@ -40,7 +40,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * Get the keys of the cache items.
      *
      * @returns {K[]}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async keys(): Promise<K[]> {
         return Array.from(this.store.keys());
@@ -50,7 +50,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * Get the values of the cache items.
      *
      * @returns {T[]}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async values(): Promise<T[]> {
         return Array.from(this.store.values());
@@ -61,7 +61,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      *
      * @param {K} key
      * @returns {(T | undefined)}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async get(key: K): Promise<T | undefined> {
         return this.store.get(key);
@@ -72,7 +72,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      *
      * @param {K[]} keys
      * @returns {(Array<T | undefined>)}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async getMany(keys: K[]): Promise<Array<T | undefined>> {
         return keys.map((key: K) => this.store.get(key));
@@ -85,7 +85,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @param {T} value
      * @param {number} seconds
      * @returns {boolean}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async put(key: K, value: T, seconds?: number): Promise<boolean> {
         this.store.set(key, value);
@@ -99,7 +99,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @param {Array<[K, T]>} values
      * @param {number} seconds
      * @returns {boolean[]}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async putMany(values: Array<[K, T]>, seconds?: number): Promise<boolean[]> {
         return Promise.all(values.map(async (value: [K, T]) => this.put(value[0], value[1])));
@@ -110,7 +110,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      *
      * @param {K} key
      * @returns {boolean}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async has(key: K): Promise<boolean> {
         return this.store.has(key);
@@ -121,7 +121,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      *
      * @param {K[]} keys
      * @returns {boolean[]}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async hasMany(keys: K[]): Promise<boolean[]> {
         return Promise.all(keys.map((key: K) => this.has(key)));
@@ -132,7 +132,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      *
      * @param {K} key
      * @returns {boolean}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async missing(key: K): Promise<boolean> {
         return !this.has(key);
@@ -143,7 +143,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      *
      * @param {K[]} keys
      * @returns {boolean[]}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async missingMany(keys: K[]): Promise<boolean[]> {
         return Promise.all([...keys].map((key: K) => this.missing(key)));
@@ -155,7 +155,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @param {K} key
      * @param {T} value
      * @returns {boolean}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async forever(key: K, value: T): Promise<boolean> {
         throw new NotImplementedError(this.constructor.name, "forever");
@@ -167,7 +167,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * @param {Array<[K, T]>} values
      * @param {T} value
      * @returns {boolean[]}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async foreverMany(values: Array<[K, T]>, value: T): Promise<boolean[]> {
         throw new NotImplementedError(this.constructor.name, "foreverMany");
@@ -178,7 +178,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      *
      * @param {K} key
      * @returns {boolean}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async forget(key: K): Promise<boolean> {
         this.store.delete(key);
@@ -191,7 +191,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      *
      * @param {K[]} keys
      * @returns {boolean[]}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async forgetMany(keys: K[]): Promise<boolean[]> {
         return Promise.all(keys.map((key: K) => this.missing(key)));
@@ -201,7 +201,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * Remove all items from the cache.
      *
      * @returns {boolean}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async flush(): Promise<boolean> {
         this.store.clear();
@@ -213,7 +213,7 @@ export class MemoryStore<K, T> implements ICacheStore<K, T> {
      * Get the cache key prefix.
      *
      * @returns {string}
-     * @memberof MemoryStore
+     * @memberof Memory
      */
     public async getPrefix(): Promise<string> {
         throw new NotImplementedError(this.constructor.name, "getPrefix");

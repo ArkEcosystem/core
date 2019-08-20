@@ -2,24 +2,37 @@ import cosmiconfig from "cosmiconfig";
 import { set } from "dottie";
 import { parseFileSync } from "envfile";
 import { JsonObject } from "type-fest";
-import { Kernel } from "../../contracts";
-import { InvalidApplicationConfiguration, InvalidEnvironmentConfiguration } from "../../errors";
+import { Kernel } from "../../../contracts";
+import { InvalidApplicationConfiguration, InvalidEnvironmentConfiguration } from "../../../errors";
 
 /**
  * @export
- * @class LocalAdapter
+ * @class Local
  * @implements {Kernel.IConfigAdapter}
  */
-export class LocalAdapter implements Kernel.IConfigAdapter {
+export class Local implements Kernel.IConfigAdapter {
     /**
-     * @param {Kernel.IApplication} app
-     * @memberof BaseAdapter
+     * The application instance.
+     *
+     * @protected
+     * @type {Kernel.IApplication}
+     * @memberof Manager
      */
-    public constructor(protected readonly app: Kernel.IApplication) {}
+    protected readonly app: Kernel.IApplication;
+
+    /**
+     * Create a new manager instance.
+     *
+     * @param {{ app:Kernel.IApplication }} { app }
+     * @memberof Manager
+     */
+    public constructor({ app }: { app: Kernel.IApplication }) {
+        this.app = app;
+    }
 
     /**
      * @returns {Promise<void>}
-     * @memberof LocalAdapter
+     * @memberof Local
      */
     public async loadConfiguration(): Promise<void> {
         try {
@@ -35,7 +48,7 @@ export class LocalAdapter implements Kernel.IConfigAdapter {
 
     /**
      * @returns {Promise<void>}
-     * @memberof LocalAdapter
+     * @memberof Local
      */
     public async loadEnvironmentVariables(): Promise<void> {
         // @TODO: enable this after initial migration
@@ -57,11 +70,11 @@ export class LocalAdapter implements Kernel.IConfigAdapter {
     /**
      * @private
      * @returns {Promise<void>}
-     * @memberof LocalAdapter
+     * @memberof Local
      */
     private async loadServiceProviders(): Promise<void> {
         this.app.config(
-            "providers",
+            "service-providers",
             this.loadFromLocation([
                 this.app.configPath("service-providers.json"),
                 this.app.configPath("service-providers.js"),
@@ -72,7 +85,7 @@ export class LocalAdapter implements Kernel.IConfigAdapter {
     /**
      * @private
      * @returns {Promise<void>}
-     * @memberof LocalAdapter
+     * @memberof Local
      */
     private async loadPeers(): Promise<void> {
         this.app.config("peers", this.loadFromLocation([this.app.configPath("peers.json")]));
@@ -81,7 +94,7 @@ export class LocalAdapter implements Kernel.IConfigAdapter {
     /**
      * @private
      * @returns {Promise<void>}
-     * @memberof LocalAdapter
+     * @memberof Local
      */
     private async loadDelegates(): Promise<void> {
         this.app.config("delegates", this.loadFromLocation([this.app.configPath("delegates.json")]));
@@ -91,7 +104,7 @@ export class LocalAdapter implements Kernel.IConfigAdapter {
      * @private
      * @param {string[]} searchPlaces
      * @returns {JsonObject}
-     * @memberof LocalAdapter
+     * @memberof Local
      */
     private loadFromLocation(searchPlaces: string[]): JsonObject {
         return cosmiconfig(this.app.namespace(), {

@@ -3,12 +3,12 @@ import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
  * @export
- * @class LoadErrorHandler
+ * @class RegisterErrorHandler
  */
-export class LoadErrorHandler extends AbstractBootstrapper {
+export class RegisterErrorHandler extends AbstractBootstrapper {
     /**
      * @returns {Promise<void>}
-     * @memberof LoadErrorHandler
+     * @memberof RegisterErrorHandler
      */
     public async bootstrap(): Promise<void> {
         // @TODO: implement passing in of options and ensure handling of critical exceptions

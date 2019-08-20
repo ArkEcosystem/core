@@ -15,14 +15,14 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const providers: ProviderRepository = this.app.resolve<ProviderRepository>("providers");
+        const serviceProviders: ProviderRepository = this.app.resolve<ProviderRepository>("service-providers");
 
-        for (const [name, serviceProvider] of providers.all()) {
+        for (const [name, serviceProvider] of serviceProviders.all()) {
             if (this.satisfiesDependencies(serviceProvider)) {
                 // @TODO: check conditional state and mark as either deferred or failed
                 // @TODO: check dependencies and either register or mark as failed
 
-                await providers.register(name);
+                await serviceProviders.register(name);
             }
         }
     }
@@ -34,7 +34,7 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterProviders
      */
     private satisfiesDependencies(serviceProvider: AbstractServiceProvider): boolean {
-        const dependencies: Record<string, string> = serviceProvider.depends();
+        const dependencies: Record<string, string> = serviceProvider.getDependencies();
 
         if (!dependencies) {
             return true;

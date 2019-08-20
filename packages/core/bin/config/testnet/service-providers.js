@@ -1,6 +1,6 @@
 module.exports = {
+    "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-kernel-dummy": {},
-    // "@arkecosystem/core-logger-pino": {},
     // "@arkecosystem/core-state": {},
     // "@arkecosystem/core-database": {},
     // "@arkecosystem/core-database-postgres": {

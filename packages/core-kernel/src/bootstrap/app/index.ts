@@ -1,14 +1,15 @@
-export * from "./load-error-handler";
+// Foundation
+export * from "./register-error-handler";
+export * from "./register-base-service-providers";
+export * from "./register-base-bindings";
+export * from "./register-base-namespace";
+export * from "./register-base-paths";
+export * from "./register-application-service-providers";
 
-export * from "./load-factories";
-export * from "./load-services";
-
-export * from "./load-bindings";
-export * from "./load-namespace";
-export * from "./load-paths";
-
+// Configuration
 export * from "./load-environment-variables";
 export * from "./load-configuration";
 export * from "./load-cryptography";
 
+// Service Providers
 export * from "./load-service-providers";

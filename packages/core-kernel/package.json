@@ -36,6 +36,7 @@
         "micromatch": "^4.0.2",
         "nsfw": "^1.2.5",
         "semver": "^6.3.0",
+        "strman": "^2.0.1",
         "type-fest": "^0.7.1"
     },
     "publishConfig": {

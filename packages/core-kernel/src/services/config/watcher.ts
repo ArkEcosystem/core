@@ -1,5 +1,5 @@
 import nsfw from "nsfw";
-import { Kernel } from "../contracts";
+import { Kernel } from "../../contracts";
 
 /**
  * @interface IFileEvent

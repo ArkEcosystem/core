@@ -94,7 +94,6 @@ export class ProviderRepository {
     }
 
     /**
-     *
      * @param {string} name
      * @param {AbstractServiceProvider} provider
      * @memberof ProviderRepository

@@ -5,3 +5,4 @@ export * from "./container";
 export * from "./event-dispatcher";
 export * from "./filesystem";
 export * from "./logger";
+export * from "./queue";

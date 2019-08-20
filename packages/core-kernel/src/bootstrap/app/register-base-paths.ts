@@ -8,12 +8,12 @@ import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
  * @export
- * @class LoadPaths
+ * @class RegisterBasePaths
  */
-export class LoadPaths extends AbstractBootstrapper {
+export class RegisterBasePaths extends AbstractBootstrapper {
     /**
      * @returns {Promise<void>}
-     * @memberof LoadPaths
+     * @memberof RegisterBasePaths
      */
     public async bootstrap(): Promise<void> {
         const paths: Array<[string, string]> = Object.entries(envPaths(this.app.token(), { suffix: "core" }));

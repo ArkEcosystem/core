@@ -1,1 +1,2 @@
-export * from "./factory";
+export * from "./service-provider";
+export * from "./manager";

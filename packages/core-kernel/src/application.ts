@@ -43,7 +43,7 @@ export class Application extends Container implements Kernel.IApplication {
     public async bootstrap(config: JsonObject): Promise<void> {
         app.bind<JsonObject>("config", config);
 
-        app.singleton<ProviderRepository>("providers", ProviderRepository);
+        app.singleton<ProviderRepository>("service-providers", ProviderRepository);
 
         await this.runBootstrappers("app");
 
@@ -401,7 +401,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     private async disposeServiceProviders(): Promise<void> {
-        for (const provider of app.resolve<ProviderRepository>("providers").allLoadedProviders()) {
+        for (const provider of app.resolve<ProviderRepository>("service-providers").allLoadedProviders()) {
             await provider.dispose();
         }
     }

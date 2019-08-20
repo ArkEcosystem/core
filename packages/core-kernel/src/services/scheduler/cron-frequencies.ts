@@ -1,6 +1,7 @@
 /**
- * @see https://crontab.guru/
- * @see https://github.com/kelektiv/node-cron
+ * @remarks
+ * {@link https://crontab.guru/ | crontab guru}
+ * {@link https://github.com/kelektiv/node-cron | node-cron}
  *
  * @export
  * @class CronFrequencies

@@ -1,15 +1,14 @@
-import { IApplication, ILogger } from "../../../contracts/core-kernel";
+import { ILogger } from "../../../contracts/core-kernel";
 import { AbstractLogger } from "../logger";
 
-export class ConsoleLogger extends AbstractLogger implements ILogger {
+export class Console extends AbstractLogger implements ILogger {
     /**
-     * Create a new instance of the logger.
+     * Create a new instance of the Console driver.
      *
-     * @param {IApplication} app
      * @returns {Promise<ILogger>}
-     * @memberof ConsoleLogger
+     * @memberof Console
      */
-    public async make(app: IApplication): Promise<ILogger> {
+    public async make(): Promise<ILogger> {
         this.logger = console;
 
         return this;

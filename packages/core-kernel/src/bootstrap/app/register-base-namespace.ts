@@ -3,12 +3,12 @@ import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
  * @export
- * @class LoadNamespace
+ * @class RegisterBaseNamespace
  */
-export class LoadNamespace extends AbstractBootstrapper {
+export class RegisterBaseNamespace extends AbstractBootstrapper {
     /**
      * @returns {Promise<void>}
-     * @memberof LoadNamespace
+     * @memberof RegisterBaseNamespace
      */
     public async bootstrap(): Promise<void> {
         const token: string = this.app.token();

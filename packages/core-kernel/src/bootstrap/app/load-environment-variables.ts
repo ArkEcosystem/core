@@ -1,4 +1,5 @@
-import { Kernel } from "../../contracts";
+import { JsonObject } from "type-fest";
+import { ConfigManager } from "../../services/config";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
@@ -11,6 +12,10 @@ export class LoadEnvironmentVariables extends AbstractBootstrapper {
      * @memberof LoadEnvironmentVariables
      */
     public async bootstrap(): Promise<void> {
-        await this.app.resolve<Kernel.IConfigAdapter>("configLoader").loadEnvironmentVariables();
+        const config: JsonObject = this.app.resolve<JsonObject>("config");
+
+        await (await this.app
+            .resolve<ConfigManager>("configManager")
+            .driver((config.configLoader || "local") as string)).loadEnvironmentVariables();
     }
 }

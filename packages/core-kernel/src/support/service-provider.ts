@@ -4,6 +4,8 @@ import { ConfigObject } from "../types";
 
 export abstract class AbstractServiceProvider {
     /**
+     * The application instance.
+     *
      * @protected
      * @type {ConfigObject}
      * @memberof AbstractServiceProvider
@@ -11,6 +13,8 @@ export abstract class AbstractServiceProvider {
     protected opts: ConfigObject;
 
     /**
+     * Create a new service provider instance.
+     *
      * @param {Kernel.IApplication} app
      * @param {ConfigObject} [opts={}]
      * @memberof AbstractServiceProvider
@@ -20,6 +24,8 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
+     * Register the service provider.
+     *
      * @abstract
      * @returns {Promise<void>}
      * @memberof AbstractServiceProvider
@@ -27,6 +33,8 @@ export abstract class AbstractServiceProvider {
     public abstract async register(): Promise<void>;
 
     /**
+     * Boot the service provider.
+     *
      * @returns {Promise<void>}
      * @memberof AbstractServiceProvider
      */
@@ -35,6 +43,8 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
+     * Dispose the service provider.
+     *
      * @returns {Promise<void>}
      * @memberof AbstractServiceProvider
      */
@@ -43,6 +53,8 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
+     * Get the manifest of the service provider.
+     *
      * @abstract
      * @returns {PackageJson}
      * @memberof AbstractServiceProvider
@@ -50,6 +62,8 @@ export abstract class AbstractServiceProvider {
     public abstract getPackageJson(): PackageJson;
 
     /**
+     * Get the name of the service provider.
+     *
      * @returns {string}
      * @memberof AbstractServiceProvider
      */
@@ -58,6 +72,8 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
+     * Get the version of the service provider.
+     *
      * @returns {string}
      * @memberof AbstractServiceProvider
      */
@@ -66,6 +82,8 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
+     * Get the default of the service provider.
+     *
      * @returns {ConfigObject}
      * @memberof AbstractServiceProvider
      */
@@ -74,10 +92,12 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
+     * Get the dependencies of the service provider.
+     *
      * @returns {Record<string, string>}
      * @memberof AbstractServiceProvider
      */
-    public depends(): Record<string, string> {
+    public getDependencies(): Record<string, string> {
         return {};
     }
 
@@ -90,10 +110,14 @@ export abstract class AbstractServiceProvider {
     protected buildConfig(opts: ConfigObject): ConfigObject {
         opts = { ...opts, ...this.getDefaults() };
 
-        const globalOptions: ConfigObject | undefined = this.app.config("options")[this.getName()];
+        try {
+            const globalOptions: ConfigObject | undefined = this.app.config("options")[this.getName()];
 
-        if (globalOptions) {
-            this.opts = { ...this.opts, ...globalOptions };
+            if (globalOptions) {
+                this.opts = { ...this.opts, ...globalOptions };
+            }
+        } catch {
+            // ignore global configuration errors
         }
 
         return opts;

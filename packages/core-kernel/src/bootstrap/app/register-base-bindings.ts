@@ -2,13 +2,13 @@ import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
  * @export
- * @class LoadBindings
+ * @class RegisterBaseBindings
  */
-export class LoadBindings extends AbstractBootstrapper {
+export class RegisterBaseBindings extends AbstractBootstrapper {
     /**
      * @param {Kernel.IApplication} app
      * @returns {Promise<void>}
-     * @memberof LoadBindings
+     * @memberof RegisterBaseBindings
      */
     public async bootstrap(): Promise<void> {
         this.app.bind("app.env", this.app.config("env"));

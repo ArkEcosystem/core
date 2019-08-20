@@ -11,7 +11,7 @@ export class BootServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const repository: ProviderRepository = this.app.resolve<ProviderRepository>("providers");
+        const repository: ProviderRepository = this.app.resolve<ProviderRepository>("service-providers");
 
         for (const [name] of repository.all()) {
             await repository.boot(name);
