@@ -885,13 +885,8 @@ describe("Transaction Guard", () => {
                 .withPassphrase(wallets[11].passphrase)
                 .build();
 
-            await processor.validate(transactions.map(tx => tx.data));
-            expect(processor.getTransactions()).toEqual(transactions.map(tx => tx.data));
-
-            await processor.validate([transactions[0].data]);
-            expect(processor.getTransactions()).toEqual([]);
-
-            expect(processor.getErrors()).toEqual({
+            processor.validate(transactions.map(tx => tx.data));
+            await expect(processor.validate([transactions[0].data])).resolves.toHaveProperty("errors", {
                 [transactions[0].id]: [
                     {
                         message: "Already in cache.",
