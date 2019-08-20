@@ -40,15 +40,18 @@ export class WalletManager extends Wallets.WalletManager {
         }
 
         const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
-
-        return Handlers.Registry.get(transaction.type, transaction.typeGroup).throwIfCannotBeApplied(
-            transaction,
-            sender,
-            this.databaseService.walletManager,
+        const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+            transaction.type,
+            transaction.typeGroup,
         );
+        return handler.throwIfCannotBeApplied(transaction, sender, this.databaseService.walletManager);
     }
 
     public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
-        return Handlers.Registry.get(transaction.type, transaction.typeGroup).revertForSender(transaction, this);
+        const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+            transaction.type,
+            transaction.typeGroup,
+        );
+        return handler.revertForSender(transaction, this);
     }
 }

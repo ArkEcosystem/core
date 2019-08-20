@@ -72,7 +72,7 @@ describe("applyPoolTransactionToSender", () => {
             poolWalletManager.reindex(delegateWallet);
             poolWalletManager.reindex(newWallet);
 
-            const transactionHandler = Handlers.Registry.get(transfer.type);
+            const transactionHandler = await Handlers.Registry.get(transfer.type);
             await transactionHandler.applyToSender(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - 0.1 * 10 ** 8);
@@ -101,7 +101,7 @@ describe("applyPoolTransactionToSender", () => {
             poolWalletManager.reindex(delegateWallet);
             poolWalletManager.reindex(newWallet);
 
-            const transactionHandler = Handlers.Registry.get(transfer.type);
+            const transactionHandler = await Handlers.Registry.get(transfer.type);
             await transactionHandler.applyToSender(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee);
@@ -140,7 +140,7 @@ describe("applyPoolTransactionToSender", () => {
                     .withNetwork("unitnet")
                     .withPassphrase(t.from.passphrase)
                     .build()[0];
-                const transactionHandler = Handlers.Registry.get(transfer.type);
+                const transactionHandler = await Handlers.Registry.get(transfer.type);
 
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.

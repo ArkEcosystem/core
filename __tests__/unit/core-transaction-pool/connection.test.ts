@@ -559,7 +559,8 @@ describe("Connection", () => {
             const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4];
             addTransactions(transactions);
 
-            const spy = jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
+            const handler = await Handlers.Registry.get(0);
+            const spy = jest.spyOn(handler, "throwIfCannotBeApplied").mockResolvedValue();
             const transactionsForForging = await connection.getTransactionsForForging(4);
             spy.mockRestore();
 
@@ -577,7 +578,8 @@ describe("Connection", () => {
                 mockData.dummy1.id,
                 mockData.dummy2.id,
             ]);
-            jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
+            const handler = await Handlers.Registry.get(0);
+            jest.spyOn(handler, "throwIfCannotBeApplied").mockResolvedValue();
 
             const transactionsForForging = await connection.getTransactionsForForging(3);
             expect(transactionsForForging.length).toBe(1);
@@ -610,7 +612,8 @@ describe("Connection", () => {
 
             addTransactions([...transactions, ...largeTransactions]);
 
-            jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
+            const handler = await Handlers.Registry.get(0);
+            jest.spyOn(handler, "throwIfCannotBeApplied").mockResolvedValue();
             let transactionsForForging = await connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(6);
@@ -652,8 +655,8 @@ describe("Connection", () => {
     describe("acceptChainedBlock", () => {
         let mockPoolWallet: State.IWallet;
         let mockBlock: Interfaces.IBlock;
-        beforeEach(() => {
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+        beforeEach(async () => {
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockResolvedValue();
 
             mockPoolWallet = new Wallets.Wallet(delegates[0].address);
@@ -698,7 +701,7 @@ describe("Connection", () => {
         });
 
         it("should forget sender if throwIfApplyingFails() failed for a transaction in the chained block", async () => {
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
                 throw new Error("test error");
             });
@@ -731,8 +734,8 @@ describe("Connection", () => {
         const findByPublicKeyWallet = new Wallets.Wallet("ANwc3YQe3EBjuE5sNRacP7fhkngAPaBW4Y");
         findByPublicKeyWallet.publicKey = "02778aa3d5b332965ea2a5ef6ac479ce2478535bc681a098dff1d683ff6eccc417";
 
-        beforeEach(() => {
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+        beforeEach(async () => {
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockResolvedValue();
             applyToSender = jest.spyOn(transactionHandler, "applyToSender").mockResolvedValue();
 
@@ -782,7 +785,7 @@ describe("Connection", () => {
         });
 
         it("should not apply transaction to wallet if throwIfCannotBeApplied() failed", async () => {
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
                 throw new Error("throw from test");
             });

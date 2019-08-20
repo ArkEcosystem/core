@@ -1,7 +1,7 @@
 import { Enums, Errors, Transactions } from "@arkecosystem/crypto";
 
 import assert from "assert";
-import { InvalidTransactionTypeError } from "../errors";
+import { DeactivatedTransactionHandlerError, InvalidTransactionTypeError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { DelegateResignationTransactionHandler } from "./delegate-resignation";
 import { HtlcClaimTransactionHandler } from "./htlc-claim";
@@ -37,28 +37,36 @@ export class TransactionHandlerRegistry {
         this.registerTransactionHandler(HtlcRefundTransactionHandler);
     }
 
-    public get(type: number, typeGroup?: number): TransactionHandler {
+    public getAll(): TransactionHandler[] {
+        return [...this.registeredTransactionHandlers.values()];
+    }
+
+    public async get(type: number, typeGroup?: number): Promise<TransactionHandler> {
         const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
             type,
             typeGroup,
         );
         if (this.registeredTransactionHandlers.has(internalType)) {
-            return this.registeredTransactionHandlers.get(internalType);
+            const handler: TransactionHandler = this.registeredTransactionHandlers.get(internalType);
+            if (!(await handler.isActivated())) {
+                throw new DeactivatedTransactionHandlerError(internalType);
+            }
+            return handler;
         }
 
         throw new InvalidTransactionTypeError(internalType.toString());
     }
 
-    public async getActivatedTransactions(): Promise<TransactionHandler[]> {
-        const activatedTransactions: TransactionHandler[] = [];
+    public async getActivatedTransactionHandlers(): Promise<TransactionHandler[]> {
+        const activatedTransactionHandlers: TransactionHandler[] = [];
 
         for (const handler of this.registeredTransactionHandlers.values()) {
-            if ((await handler.isActivated()) || process.env.CORE_ENV === "test") {
-                activatedTransactions.push(handler);
+            if (await handler.isActivated()) {
+                activatedTransactionHandlers.push(handler);
             }
         }
 
-        return activatedTransactions;
+        return activatedTransactionHandlers;
     }
 
     public registerTransactionHandler(constructor: TransactionHandlerConstructor) {

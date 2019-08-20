@@ -1,4 +1,5 @@
 import { Utils } from "@arkecosystem/crypto";
+import { InternalTransactionType } from "@arkecosystem/crypto/dist/transactions";
 
 // tslint:disable:max-classes-per-file
 
@@ -29,6 +30,12 @@ export class NotImplementedError extends TransactionError {
 export class InvalidTransactionTypeError extends TransactionError {
     constructor(type: string) {
         super(`Transaction type ${type} does not exist.`);
+    }
+}
+
+export class DeactivatedTransactionHandlerError extends TransactionError {
+    constructor(type: InternalTransactionType) {
+        super(`Transaction type ${type.toString()} is deactivated.`);
     }
 }
 

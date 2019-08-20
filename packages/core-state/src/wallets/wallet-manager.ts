@@ -315,7 +315,7 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public async applyTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+        const transactionHandler: Handlers.TransactionHandler = await Handlers.Registry.get(
             transaction.type,
             transaction.typeGroup,
         );
@@ -339,7 +339,7 @@ export class WalletManager implements State.IWalletManager {
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler: TransactionInterfaces.ITransactionHandler = Handlers.Registry.get(
+        const transactionHandler: TransactionInterfaces.ITransactionHandler = await Handlers.Registry.get(
             transaction.type,
             transaction.typeGroup,
         );

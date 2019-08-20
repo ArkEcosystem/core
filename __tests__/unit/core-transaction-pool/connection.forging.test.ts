@@ -183,7 +183,8 @@ describe("Connection", () => {
 
         it("should call `TransactionHandler.throwIfCannotBeApplied`", async () => {
             const transactions = TransactionFactory.transfer().build(5);
-            const spy = jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied");
+            const handler = await Handlers.Registry.get(0);
+            const spy = jest.spyOn(handler, "throwIfCannotBeApplied");
             await expectForgingTransactions(transactions, 5);
             expect(spy).toHaveBeenCalled();
         });
@@ -335,7 +336,7 @@ describe("Connection", () => {
         });
 
         it("should remove transactions that have have data of a another transaction type", async () => {
-            const handlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactions();
+            const handlers: Handlers.TransactionHandler[] = Handlers.Registry.getAll();
             const transactions: Interfaces.ITransaction[] = TransactionFactory.transfer().build(handlers.length);
 
             for (let i = 0; i < handlers.length; i++) {

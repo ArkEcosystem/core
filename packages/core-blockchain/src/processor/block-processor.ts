@@ -72,7 +72,7 @@ export class BlockProcessor {
     private async verifyBlock(block: Interfaces.IBlock): Promise<boolean> {
         if (block.verification.containsMultiSignatures) {
             for (const transaction of block.transactions) {
-                const handler: Handlers.TransactionHandler = Handlers.Registry.get(
+                const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                     transaction.type,
                     transaction.typeGroup,
                 );
@@ -161,9 +161,9 @@ export class BlockProcessor {
             if (!nonceBySender[sender].plus(1).isEqualTo(data.nonce)) {
                 this.logger.warn(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
-                    `not accepted: invalid nonce order for sender ${sender}: ` +
-                    `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
-                    `transaction ${data.id} has nonce ${data.nonce.toFixed()}.`,
+                        `not accepted: invalid nonce order for sender ${sender}: ` +
+                        `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
+                        `transaction ${data.id} has nonce ${data.nonce.toFixed()}.`,
                 );
                 return true;
             }

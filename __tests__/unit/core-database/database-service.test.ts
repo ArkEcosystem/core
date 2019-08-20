@@ -223,7 +223,7 @@ describe("Database Service", () => {
             const delegatesRound2 = walletManager.loadActiveDelegateList(roundInfo1);
 
             // Prepare sender wallet
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             const originalApply = transactionHandler.throwIfCannotBeApplied;
             transactionHandler.throwIfCannotBeApplied = jest.fn();
 

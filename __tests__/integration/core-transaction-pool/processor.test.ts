@@ -154,7 +154,7 @@ describe("Transaction Guard", () => {
             expect(processor.getErrors()).toEqual({});
 
             // simulate forged transaction
-            const transactionHandler = Handlers.Registry.get(transfers[0].type);
+            const transactionHandler = await Handlers.Registry.get(transfers[0].type);
             transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
@@ -217,7 +217,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers.map(tx => tx.data));
 
             // simulate forged transaction
-            const transactionHandler = Handlers.Registry.get(transfers[0].type);
+            const transactionHandler = await Handlers.Registry.get(transfers[0].type);
             transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(processor.getErrors()).toEqual({});
@@ -260,7 +260,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
-            const transactionHandler = Handlers.Registry.get(transfers1[0].type);
+            const transactionHandler = await Handlers.Registry.get(transfers1[0].type);
             transactionHandler.applyToRecipient(transfers1[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
@@ -517,7 +517,7 @@ describe("Transaction Guard", () => {
                 const result = await processor.validate([multiSigRegistration.data]);
                 expect(result.errors[multiSigRegistration.id]).toEqual([
                     {
-                        message: "Version 2 not supported.",
+                        message: "Transaction type 1-4 is deactivated.",
                         type: "ERR_UNKNOWN",
                     },
                 ]);

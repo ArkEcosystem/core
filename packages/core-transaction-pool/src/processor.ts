@@ -119,14 +119,14 @@ export class Processor implements TransactionPool.IProcessor {
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
-                    const handler: Handlers.TransactionHandler = Handlers.Registry.get(
+                    const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                         transactionInstance.type,
                         transactionInstance.typeGroup,
                     );
                     if (await handler.verify(transactionInstance, this.pool.walletManager)) {
                         try {
                             await this.walletManager.throwIfCannotBeApplied(transactionInstance);
-                            const dynamicFee: IDynamicFeeMatch = dynamicFeeMatcher(transactionInstance);
+                            const dynamicFee: IDynamicFeeMatch = await dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,
@@ -206,11 +206,11 @@ export class Processor implements TransactionPool.IProcessor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            return Handlers.Registry.get(transaction.type, transaction.typeGroup).canEnterTransactionPool(
-                transaction,
-                this.pool,
-                this,
+            const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                transaction.type,
+                transaction.typeGroup,
             );
+            return handler.canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(
