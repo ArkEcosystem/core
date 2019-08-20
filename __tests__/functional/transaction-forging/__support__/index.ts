@@ -27,6 +27,7 @@ export const setUp = async (): Promise<void> => {
                 "@arkecosystem/core-blockchain",
                 "@arkecosystem/core-api",
                 "@arkecosystem/core-forger",
+                "@arkecosystem/core-marketplace",
             ],
         });
 

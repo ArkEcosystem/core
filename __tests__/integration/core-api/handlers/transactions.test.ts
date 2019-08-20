@@ -169,6 +169,12 @@ describe("API 2.0 - Transactions", () => {
                     HtlcLock: 8,
                     HtlcClaim: 9,
                     HtlcRefund: 10,
+                    BusinessRegistration: 11,
+                    BusinessResignation: 12,
+                    BusinessUpdate: 13,
+                    BridgechainRegistration: 14,
+                    BridgechainResignation: 15,
+                    BridgechainUpdate: 16,
                 },
             });
         });
