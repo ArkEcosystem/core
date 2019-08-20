@@ -5,6 +5,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import { Crypto } from "@arkecosystem/crypto";
 import delay from "delay";
+import cloneDeep from "lodash.clonedeep";
 import { secrets } from "../../../utils/config/testnet/delegates.json";
 import { setUpContainer } from "../../../utils/helpers/container";
 
@@ -63,6 +64,14 @@ export const snoozeForBlock = async (sleep: number = 0, height: number = 1): Pro
     const sleepTime = sleep * 1000;
 
     return delay(blockTime + remainingTimeInSlot + sleepTime);
+};
+
+export const injectMilestone = (index: number, milestone: Record<string, any>): void => {
+    (Managers.configManager as any).milestones.splice(
+        index,
+        0,
+        Object.assign(cloneDeep(Managers.configManager.getMilestone()), milestone),
+    );
 };
 
 export const getLastHeight = (): number => {
