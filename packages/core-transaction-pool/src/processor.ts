@@ -31,6 +31,10 @@ export class Processor implements TransactionPool.IProcessor {
 
             await this.addTransactionsToPool();
 
+            app.resolvePlugin<State.IStateService>("state")
+                .getStore()
+                .removeCachedTransactionIds([...new Set([...this.accept.keys(), ...Object.keys(this.errors)])]);
+
             this.printStats();
         }
 
@@ -84,10 +88,6 @@ export class Processor implements TransactionPool.IProcessor {
         const forgedIdsSet: string[] = await app
             .resolvePlugin<Database.IDatabaseService>("database")
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
-
-        app.resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .removeCachedTransactionIds(forgedIdsSet);
 
         for (const id of forgedIdsSet) {
             this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
