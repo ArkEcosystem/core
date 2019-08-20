@@ -7,6 +7,7 @@ import { Registry, TransactionHandler } from "../../../packages/core-transaction
 import { TransactionHandlerConstructor } from "../../../packages/core-transactions/src/handlers/transaction";
 import { TransferTransactionHandler } from "../../../packages/core-transactions/src/handlers/transfer";
 
+import { DeactivatedTransactionHandlerError } from "../../../packages/core-transactions/src/errors";
 import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
@@ -235,5 +236,17 @@ describe("Registry", () => {
 
         await expect(Registry.get(TEST_TRANSACTION_TYPE)).rejects.toThrowError();
         await expect(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toResolve();
+    });
+
+    it("should throw when trying to use a deactivated transaction type", async () => {
+        Managers.configManager.getMilestone().aip11 = false;
+
+        await expect(Registry.get(TransactionType.MultiSignature)).rejects.toThrowError(
+            DeactivatedTransactionHandlerError,
+        );
+
+        Managers.configManager.getMilestone().aip11 = true;
+
+        await expect(Registry.get(TransactionType.MultiSignature)).toResolve();
     });
 });
