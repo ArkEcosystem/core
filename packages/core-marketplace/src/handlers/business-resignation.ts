@@ -3,7 +3,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessWalletProperty } from "../interfaces";
+import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessResignationTransaction } from "../transactions";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -28,9 +28,9 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const walletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
+            const walletProperty = wallet.getAttribute<IBusinessWalletAttributes>("business");
             walletProperty.resigned = true;
-            wallet.setAttribute<IBusinessWalletProperty>("business", walletProperty);
+            wallet.setAttribute<IBusinessWalletAttributes>("business", walletProperty);
             walletManager.reindex(wallet);
         }
     }
@@ -44,7 +44,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
             throw new BusinessIsNotRegisteredError();
         }
 
-        if (wallet.getAttribute<IBusinessWalletProperty>("business").resigned) {
+        if (wallet.getAttribute<IBusinessWalletAttributes>("business").resigned) {
             throw new BusinessIsResignedError();
         }
 

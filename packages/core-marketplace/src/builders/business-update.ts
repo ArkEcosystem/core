@@ -1,15 +1,15 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { IBusinessUpdateAsset } from "../interfaces";
-import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BusinessUpdateTransaction } from "../transactions";
 
-const businessUpdateType: number = MarketplaceTransactionTypes.BusinessUpdate;
+const businessUpdateType: number = MarketplaceTransactionType.BusinessUpdate;
 
 export class BusinessUpdateBuilder extends Transactions.TransactionBuilder<BusinessUpdateBuilder> {
     constructor() {
         super();
         this.data.version = 2;
-        this.data.typeGroup = MarketplaceTransactionsGroup;
+        this.data.typeGroup = MarketplaceTransactionGroup;
         this.data.type = businessUpdateType;
         this.data.fee = BusinessUpdateTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
@@ -28,7 +28,7 @@ export class BusinessUpdateBuilder extends Transactions.TransactionBuilder<Busin
             name: businessAsset.name,
             website: businessAsset.website,
             vat: businessAsset.vat,
-            organizationRepository: businessAsset.organizationRepository,
+            repository: businessAsset.repository,
         };
         return this;
     }

@@ -1,25 +1,23 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import {
-    MarketplaceTransactionsGroup,
+    MarketplaceTransactionGroup,
     MarketplaceTransactionStaticFees,
-    MarketplaceTransactionTypes,
+    MarketplaceTransactionType,
 } from "../marketplace-transactions";
 
 const { schemas } = Transactions;
 
-const businessResignationType: number = MarketplaceTransactionTypes.BusinessResignation;
-
 export class BusinessResignationTransaction extends Transactions.Transaction {
-    public static typeGroup: number = MarketplaceTransactionsGroup;
-    public static type = businessResignationType;
+    public static typeGroup: number = MarketplaceTransactionGroup;
+    public static type: number = MarketplaceTransactionType.BusinessResignation;
     public static key: string = "businessResignation";
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "businessResignation",
             properties: {
-                type: { transactionType: businessResignationType },
+                type: { transactionType: MarketplaceTransactionType.BusinessResignation },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
             },
         });

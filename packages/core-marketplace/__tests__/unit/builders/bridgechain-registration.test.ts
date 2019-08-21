@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BridgechainRegistrationBuilder } from "../../../src/builders";
-import { MarketplaceTransactionTypes } from "../../../src/marketplace-transactions";
+import { MarketplaceTransactionType } from "../../../src/marketplace-transactions";
 import { BridgechainRegistrationTransaction } from "../../../src/transactions";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
 
@@ -34,7 +34,7 @@ describe("Bridgechain registration builder", () => {
 
     describe("should test properties", () => {
         it("should have its specific properties", () => {
-            expect(builder).toHaveProperty("data.type", MarketplaceTransactionTypes.BridgechainRegistration);
+            expect(builder).toHaveProperty("data.type", MarketplaceTransactionType.BridgechainRegistration);
             expect(builder).toHaveProperty("data.amount", Utils.BigNumber.ZERO);
             expect(builder).toHaveProperty("data.fee", BridgechainRegistrationTransaction.staticFee());
             expect(builder).toHaveProperty("data.recipientId", undefined);

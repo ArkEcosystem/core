@@ -27,13 +27,13 @@ export const businessRegistrationAsset3: IBusinessRegistrationAsset = {
     name: "google",
     website: "www.google.com",
     vat: "123456789",
-    organizationRepository: "www.organizationRepository.com/arkecosystem",
+    repository: "www.repository.com/arkecosystem",
 };
 
 export const businessRegistrationAsset4: IBusinessRegistrationAsset = {
     name: "google",
     website: "www.google.com",
-    organizationRepository: "www.organizationRepository.com/arkecosystem",
+    repository: "www.repository.com/arkecosystem",
 };
 
 // Business update
@@ -52,7 +52,7 @@ export const businessUpdateAsset3: IBusinessUpdateAsset = {
     name: "ark",
     website: "www.ark.io",
     vat: "1234567890",
-    organizationRepository: "www.organizationRepository.com/arkecosystem",
+    repository: "www.repository.com/arkecosystem",
 };
 
 // Bridgechain registration assets
@@ -68,12 +68,12 @@ export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
         "2001:4860:4860::8844",
     ],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    bridgechainRepository: "www.organizationRepository.com/google/crypto",
+    bridgechainRepository: "www.repository.com/google/crypto",
 };
 
 export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {
     name: "microsoft",
     seedNodes: ["1.2.3.4", "127.0.0.1", "192.168.1.0", "131.107.0.89"],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    bridgechainRepository: "www.organizationRepository.com/microsoft/crypto",
+    bridgechainRepository: "www.repository.com/microsoft/crypto",
 };

@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessRegistrationBuilder } from "../../../src/builders";
-import { MarketplaceTransactionTypes } from "../../../src/marketplace-transactions";
+import { MarketplaceTransactionType } from "../../../src/marketplace-transactions";
 import { BusinessRegistrationTransaction } from "../../../src/transactions";
 
 let builder: BusinessRegistrationBuilder;
@@ -48,7 +48,7 @@ describe("Business registration builder", () => {
                     name: "businessName",
                     website: "www.website.com",
                     vat: "1234567890",
-                    organizationRepository: "www.organizationRepository.com/google",
+                    repository: "www.repository.com/google",
                 })
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
             expect(actual.build().verified).toBeTrue();
@@ -58,7 +58,7 @@ describe("Business registration builder", () => {
 
     describe("should test properties", () => {
         it("should have its specific properties", () => {
-            expect(builder).toHaveProperty("data.type", MarketplaceTransactionTypes.BusinessRegistration);
+            expect(builder).toHaveProperty("data.type", MarketplaceTransactionType.BusinessRegistration);
             expect(builder).toHaveProperty("data.amount", Utils.BigNumber.ZERO);
             expect(builder).toHaveProperty("data.fee", BusinessRegistrationTransaction.staticFee());
             expect(builder).toHaveProperty("data.recipientId", undefined);
@@ -72,7 +72,7 @@ describe("Business registration builder", () => {
             expect(builder).not.toHaveProperty("data.name");
             expect(builder).not.toHaveProperty("data.website");
             expect(builder).not.toHaveProperty("data.vat");
-            expect(builder).not.toHaveProperty("data.organizationRepository");
+            expect(builder).not.toHaveProperty("data.repository");
         });
     });
 

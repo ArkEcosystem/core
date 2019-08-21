@@ -1,13 +1,13 @@
-export enum MarketplaceTransactionTypes {
-    BusinessRegistration = 11,
-    BusinessResignation = 12,
-    BusinessUpdate = 13,
-    BridgechainRegistration = 14,
-    BridgechainResignation = 15,
-    BridgechainUpdate = 16,
+export enum MarketplaceTransactionType {
+    BusinessRegistration = 0,
+    BusinessResignation = 1,
+    BusinessUpdate = 2,
+    BridgechainRegistration = 3,
+    BridgechainResignation = 4,
+    BridgechainUpdate = 5,
 }
 
-export const MarketplaceTransactionsGroup = 1;
+export const MarketplaceTransactionGroup = 2;
 
 export enum MarketplaceTransactionStaticFees {
     BusinessRegistration = "5000000000",

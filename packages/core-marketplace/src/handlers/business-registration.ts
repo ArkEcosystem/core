@@ -1,9 +1,9 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessWalletProperty } from "../interfaces";
+import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransaction } from "../transactions";
 
 export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
@@ -33,11 +33,13 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
-            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const businessProperty: IBusinessWalletProperty = {
+            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const asset: IBusinessWalletAttributes = {
                 businessAsset: transaction.asset.businessRegistration,
+                nonce: this.getNonce(walletManager),
             };
-            wallet.setAttribute<IBusinessWalletProperty>("business", businessProperty);
+
+            wallet.setAttribute<IBusinessWalletAttributes>("business", asset);
             walletManager.reindex(wallet);
         }
     }
@@ -82,11 +84,12 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessProperty: IBusinessWalletProperty = {
+        const businessAsset: IBusinessWalletAttributes = {
             businessAsset: transaction.data.asset.businessRegistration,
+            nonce: this.getNonce(walletManager),
         };
-        sender.setAttribute<IBusinessWalletProperty>("business", businessProperty);
 
+        sender.setAttribute<IBusinessWalletAttributes>("business", businessAsset);
         walletManager.reindex(sender);
     }
 
@@ -113,4 +116,8 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         walletManager: State.IWalletManager,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
+
+    private getNonce(walletManager: State.IWalletManager): Utils.BigNumber {
+        return Utils.BigNumber.make(walletManager.getIndex("businesses").all().length).plus(1);
+    }
 }

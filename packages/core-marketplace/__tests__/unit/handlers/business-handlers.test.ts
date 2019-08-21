@@ -15,7 +15,7 @@ import {
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
 } from "../../../src/handlers";
-import { IBusinessWalletProperty } from "../../../src/interfaces";
+import { IBusinessWalletAttributes } from "../../../src/interfaces";
 import { businessIndexer } from "../../../src/wallet-manager";
 import { businessRegistrationAsset1, businessRegistrationAsset2 } from "../helper";
 
@@ -63,14 +63,14 @@ describe("should test marketplace transaction handlers", () => {
             ).toResolve();
 
             await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
-            const currentSenderWallet = senderWallet.getAttribute<IBusinessWalletProperty>("business");
+            const currentSenderWallet = senderWallet.getAttribute<IBusinessWalletAttributes>("business");
             expect(currentSenderWallet.businessAsset).toStrictEqual(businessRegistrationAsset1);
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
             expect(senderWallet.hasAttribute("business")).toBeFalse();
         });
 
-        it("should pass all handler methods, with name, website, vat and organizationRepository", async () => {
+        it("should pass all handler methods, with name, website, vat and repository", async () => {
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset(businessRegistrationAsset2)
                 .fee("50000000")
@@ -82,7 +82,7 @@ describe("should test marketplace transaction handlers", () => {
             ).toResolve();
 
             await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
-            const currentSenderWallet = senderWallet.getAttribute<IBusinessWalletProperty>("business");
+            const currentSenderWallet = senderWallet.getAttribute<IBusinessWalletAttributes>("business");
             expect(currentSenderWallet.businessAsset).toStrictEqual(businessRegistrationAsset2);
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);

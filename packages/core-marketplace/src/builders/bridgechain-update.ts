@@ -1,15 +1,15 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { IBridgechainUpdateAsset } from "../interfaces";
-import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BridgechainUpdateTransaction } from "../transactions";
 
-const bridgechainUpdateType: number = MarketplaceTransactionTypes.BridgechainUpdate;
+const bridgechainUpdateType: number = MarketplaceTransactionType.BridgechainUpdate;
 
 export class BridgechainUpdateBuilder extends Transactions.TransactionBuilder<BridgechainUpdateBuilder> {
     constructor() {
         super();
         this.data.version = 2;
-        this.data.typeGroup = MarketplaceTransactionsGroup;
+        this.data.typeGroup = MarketplaceTransactionGroup;
         this.data.type = bridgechainUpdateType;
         this.data.fee = BridgechainUpdateTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;

@@ -2,18 +2,18 @@ import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { IBridgechainUpdateAsset } from "../interfaces";
 import {
-    MarketplaceTransactionsGroup,
+    MarketplaceTransactionGroup,
     MarketplaceTransactionStaticFees,
-    MarketplaceTransactionTypes,
+    MarketplaceTransactionType,
 } from "../marketplace-transactions";
-import { registeredBridgechainIdProperty, seedNodesProperties } from "./utils/bridgechain-schemas";
+import { seedNodesProperties } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
-const bridgechainUpdateType: number = MarketplaceTransactionTypes.BridgechainUpdate;
+const bridgechainUpdateType: number = MarketplaceTransactionType.BridgechainUpdate;
 
 export class BridgechainUpdateTransaction extends Transactions.Transaction {
-    public static typeGroup: number = MarketplaceTransactionsGroup;
+    public static typeGroup: number = MarketplaceTransactionGroup;
     public static type = bridgechainUpdateType;
     public static key: string = "bridgechainUpdate";
 
@@ -29,9 +29,9 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                     properties: {
                         bridgechainUpdate: {
                             type: "object",
-                            required: ["registeredBridgechainId", "seedNodes"],
+                            required: ["bridgechainId", "seedNodes"],
                             properties: {
-                                registeredBridgechainId: registeredBridgechainIdProperty,
+                                bridgechainId: { bignumber: { minimum: 1 } },
                                 seedNodes: seedNodesProperties,
                             },
                         },
@@ -59,8 +59,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         const buffer: ByteBuffer = new ByteBuffer(64 + seedNodesBuffersLength + 1 + seedNodes.length, true);
-
-        buffer.append(bridgechainUpdateId);
+        buffer.writeUint64(+bridgechainUpdateId);
 
         buffer.writeByte(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {
@@ -73,11 +72,10 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-
-        const registeredBridgechainId = buf.readString(64);
+        const bridgechainId: Utils.BigNumber = Utils.BigNumber.make(buf.readUint64().toString());
 
         const seedNodes: string[] = [];
-        const seedNodesLength = buf.readUint8();
+        const seedNodesLength: number = buf.readUint16();
         for (let i = 0; i < seedNodesLength; i++) {
             const ipLength = buf.readUint8();
             const ip = buf.readString(ipLength);
@@ -86,7 +84,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         data.asset = {
             bridgechainUpdate: {
-                registeredBridgechainId,
+                bridgechainId,
                 seedNodes,
             },
         };

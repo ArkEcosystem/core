@@ -1,10 +1,15 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
-import { IBridgechainWalletProperty, IBusinessWalletProperty } from "./interfaces";
+import { IBusinessWalletAttributes } from "./interfaces";
+
+export enum MarketplaceIndex {
+    Businesses = "businesses",
+    Bridgechains = "bridgechains",
+}
 
 export const businessIndexer = (index: State.IWalletIndex, wallet: Wallets.Wallet): void => {
     if (wallet.hasAttribute("business")) {
-        const business = wallet.getAttribute<IBusinessWalletProperty>("business");
+        const business = wallet.getAttribute<IBusinessWalletAttributes>("business");
         if (business !== undefined && !business.resigned && !index.has(wallet.publicKey)) {
             index.set(wallet.publicKey, wallet);
         }
@@ -12,14 +17,13 @@ export const businessIndexer = (index: State.IWalletIndex, wallet: Wallets.Walle
 };
 
 export const bridgechainIndexer = (index: State.IWalletIndex, wallet: Wallets.Wallet): void => {
-    if (wallet.hasAttribute("business.bridgechains")) {
-        const bridgechains: IBridgechainWalletProperty[] = wallet.getAttribute<IBusinessWalletProperty>("business")
-            .bridgechains;
-        for (const bridgechain of bridgechains) {
-            if (!index.has(bridgechain.registrationTransactionId)) {
-                bridgechain.bridgechainNonce = index.all().length + 1 + 1000;
-                index.set(bridgechain.registrationTransactionId, wallet);
-            }
-        }
-    }
+    // if (wallet.hasAttribute("business.bridgechains")) {
+    //     const bridgechains: IBridgechainWalletAttributes[] = wallet.getAttribute<IBusinessWalletAttributes>("business")
+    //         .bridgechains;
+    //     for (const bridgechain of bridgechains) {
+    //         if (!index.has(bridgechain.registrationTransactionId)) {
+    //             index.set(bridgechain.registrationTransactionId, wallet);
+    //         }
+    //     }
+    // }
 };

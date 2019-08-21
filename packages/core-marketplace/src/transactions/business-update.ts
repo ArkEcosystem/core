@@ -2,19 +2,17 @@ import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { IBusinessUpdateAsset } from "../interfaces";
 import {
-    MarketplaceTransactionsGroup,
+    MarketplaceTransactionGroup,
     MarketplaceTransactionStaticFees,
-    MarketplaceTransactionTypes,
+    MarketplaceTransactionType,
 } from "../marketplace-transactions";
 import { businessProperties } from "./utils/business-schema";
 
 const { schemas } = Transactions;
 
-const businessUpdateType: number = MarketplaceTransactionTypes.BusinessUpdate;
-
 export class BusinessUpdateTransaction extends Transactions.Transaction {
-    public static typeGroup: number = MarketplaceTransactionsGroup;
-    public static type = businessUpdateType;
+    public static typeGroup: number = MarketplaceTransactionGroup;
+    public static typ: number = MarketplaceTransactionType.BusinessUpdate;
     public static key: string = "businessUpdate";
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
@@ -22,7 +20,7 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
             $id: "businessUpdate",
             required: ["asset"],
             properties: {
-                type: { transactionType: businessUpdateType },
+                type: { transactionType: MarketplaceTransactionType.BusinessUpdate },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",
@@ -41,7 +39,7 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
                                     required: ["vat"],
                                 },
                                 {
-                                    required: ["github"],
+                                    required: ["repository"],
                                 },
                             ],
                             properties: businessProperties,
@@ -51,23 +49,26 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
             },
         });
     }
-    protected static defaultStaticFee = Utils.BigNumber.make(MarketplaceTransactionStaticFees.BusinessUpdate);
+
+    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
+        MarketplaceTransactionStaticFees.BusinessUpdate,
+    );
 
     public serialize(): ByteBuffer {
         const { data } = this;
         const businessUpdateAsset = data.asset.businessUpdate as IBusinessUpdateAsset;
 
         let businessName: Buffer;
-        let businessNameLength = 0;
+        let businessNameLength: number = 0;
 
         let businessWebsite: Buffer;
-        let businessWebsiteLength = 0;
+        let businessWebsiteLength: number = 0;
 
         let businessVat: Buffer;
-        let businessVatLength = 0;
+        let businessVatLength: number = 0;
 
-        let businessGithub: Buffer;
-        let businessGithubLength = 0;
+        let businessRepository: Buffer;
+        let businessRepositoryLength: number = 0;
 
         if (businessUpdateAsset.name) {
             businessName = Buffer.from(businessUpdateAsset.name, "utf8");
@@ -84,13 +85,13 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
             businessVatLength = businessVat.length;
         }
 
-        if (businessUpdateAsset.organizationRepository) {
-            businessGithub = Buffer.from(businessUpdateAsset.organizationRepository, "utf8");
-            businessGithubLength = businessGithub.length;
+        if (businessUpdateAsset.repository) {
+            businessRepository = Buffer.from(businessUpdateAsset.repository, "utf8");
+            businessRepositoryLength = businessRepository.length;
         }
 
         const buffer: ByteBuffer = new ByteBuffer(
-            businessNameLength + businessWebsiteLength + businessVatLength + businessGithubLength + 4,
+            businessNameLength + businessWebsiteLength + businessVatLength + businessRepositoryLength + 4,
             true,
         );
 
@@ -109,9 +110,9 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
             buffer.append(businessVat);
         }
 
-        buffer.writeByte(businessGithubLength);
-        if (businessGithubLength !== 0) {
-            buffer.append(businessGithub);
+        buffer.writeByte(businessRepositoryLength);
+        if (businessRepositoryLength !== 0) {
+            buffer.append(businessRepository);
         }
 
         return buffer;
@@ -122,24 +123,24 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
 
         const businessUpdate: IBusinessUpdateAsset = {};
 
-        const nameLength = buf.readUint8();
+        const nameLength: number = buf.readUint8();
         if (nameLength !== 0) {
             businessUpdate.name = buf.readString(nameLength);
         }
 
-        const websiteLength = buf.readUint8();
+        const websiteLength: number = buf.readUint8();
         if (websiteLength !== 0) {
             businessUpdate.website = buf.readString(websiteLength);
         }
 
-        const vatLength = buf.readUint8();
+        const vatLength: number = buf.readUint8();
         if (vatLength !== 0) {
             businessUpdate.vat = buf.readString(vatLength);
         }
 
-        const githubLength = buf.readUint8();
-        if (githubLength !== 0) {
-            businessUpdate.organizationRepository = buf.readString(githubLength);
+        const repositoryLength: number = buf.readUint8();
+        if (repositoryLength !== 0) {
+            businessUpdate.repository = buf.readString(repositoryLength);
         }
 
         data.asset = {

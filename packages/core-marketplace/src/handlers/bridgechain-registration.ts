@@ -3,7 +3,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessWalletProperty } from "../interfaces";
+import { IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransaction } from "../transactions";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -28,15 +28,15 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const businessWalletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
+            const businessWalletProperty = wallet.getAttribute<IBusinessWalletAttributes>("business");
             if (!businessWalletProperty.bridgechains) {
-                businessWalletProperty.bridgechains = [];
+                businessWalletProperty.bridgechains = {};
             }
             businessWalletProperty.bridgechains.push({
                 bridgechain: transaction.data.asset.bridgechainRegistration,
                 registrationTransactionId: transaction.id,
             });
-            wallet.setAttribute<IBusinessWalletProperty>("business", businessWalletProperty);
+            wallet.setAttribute<IBusinessWalletAttributes>("business", businessWalletProperty);
             walletManager.reindex(wallet);
         }
     }
@@ -50,7 +50,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             throw new WalletIsNotBusinessError();
         }
 
-        if (wallet.getAttribute<IBusinessWalletProperty>("business").resigned === true) {
+        if (wallet.getAttribute<IBusinessWalletAttributes>("business").resigned === true) {
             throw new BusinessIsResignedError();
         }
 
@@ -76,7 +76,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessProperty: IBusinessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
+        const businessProperty: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>("business");
         if (!businessProperty.bridgechains) {
             businessProperty.bridgechains = [];
         }
@@ -84,7 +84,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             bridgechain: transaction.data.asset.bridgechainRegistration,
             registrationTransactionId: transaction.id,
         });
-        sender.setAttribute<IBusinessWalletProperty>("business", businessProperty);
+        sender.setAttribute<IBusinessWalletAttributes>("business", businessProperty);
         walletManager.reindex(sender);
     }
 
@@ -95,7 +95,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessProperty: IBusinessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
+        const businessProperty: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>("business");
         businessProperty.bridgechains.filter(bridgechain => {
             return bridgechain.registrationTransactionId !== transaction.data.asset.registrationTransactionId;
         });

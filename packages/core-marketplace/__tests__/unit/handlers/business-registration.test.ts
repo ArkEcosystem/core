@@ -7,7 +7,7 @@ import { Managers, Utils } from "@arkecosystem/crypto";
 import { BusinessRegistrationBuilder } from "../../../src/builders";
 import { BusinessAlreadyRegisteredError } from "../../../src/errors";
 import { BusinessRegistrationTransactionHandler } from "../../../src/handlers";
-import { IBusinessRegistrationAsset, IBusinessWalletProperty } from "../../../src/interfaces";
+import { IBusinessRegistrationAsset, IBusinessWalletAttributes } from "../../../src/interfaces";
 import { businessIndexer } from "../../../src/wallet-manager";
 import { businessRegistrationAsset1 } from "../helper";
 
@@ -101,7 +101,7 @@ describe("Business registration handler", () => {
 
     describe("revertForSender", () => {
         it("should not fail", async () => {
-            senderWallet.setAttribute<IBusinessWalletProperty>("business", {
+            senderWallet.setAttribute<IBusinessWalletAttributes>("business", {
                 businessAsset: businessRegistrationAsset1,
             });
             senderWallet.nonce = Utils.BigNumber.make(1);
@@ -115,7 +115,7 @@ describe("Business registration handler", () => {
         });
 
         it("should be undefined", async () => {
-            senderWallet.setAttribute<IBusinessWalletProperty>("business", {
+            senderWallet.setAttribute<IBusinessWalletAttributes>("business", {
                 businessAsset: businessRegistrationAsset1,
             });
             senderWallet.nonce = Utils.BigNumber.make(1);

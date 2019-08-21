@@ -8,7 +8,7 @@ import {
     WalletIsNotBusinessError,
 } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessWalletProperty } from "../interfaces";
+import { IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainResignationTransaction } from "../transactions";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
@@ -33,7 +33,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const businessWalletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
+            const businessWalletProperty = wallet.getAttribute<IBusinessWalletAttributes>("business");
             businessWalletProperty.bridgechains.map(bridgechain => {
                 if (
                     bridgechain.registrationTransactionId ===
@@ -42,7 +42,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
                     bridgechain.resigned = true;
                 }
             });
-            wallet.setAttribute<IBusinessWalletProperty>("business", businessWalletProperty);
+            wallet.setAttribute<IBusinessWalletAttributes>("business", businessWalletProperty);
             walletManager.reindex(wallet);
         }
     }
@@ -55,7 +55,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }
-        const businessWalletProperty = wallet.getAttribute<IBusinessWalletProperty>("business");
+        const businessWalletProperty = wallet.getAttribute<IBusinessWalletAttributes>("business");
         if (businessWalletProperty.resigned) {
             throw new BusinessIsNotRegisteredError();
         }
@@ -105,7 +105,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
+        const businessWalletProperty = sender.getAttribute<IBusinessWalletAttributes>("business");
         businessWalletProperty.bridgechains.map(bridgechain => {
             if (
                 bridgechain.registrationTransactionId ===
@@ -123,7 +123,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessWalletProperty = sender.getAttribute<IBusinessWalletProperty>("business");
+        const businessWalletProperty = sender.getAttribute<IBusinessWalletAttributes>("business");
 
         businessWalletProperty.bridgechains.map(bridgechain => {
             if (

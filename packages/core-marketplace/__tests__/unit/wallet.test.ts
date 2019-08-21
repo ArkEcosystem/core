@@ -3,13 +3,13 @@ import "jest-extended";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { BusinessRegistrationTransactionHandler } from "../../src/handlers";
-import { IBusinessWalletProperty } from "../../src/interfaces";
+import { IBusinessWalletAttributes } from "../../src/interfaces";
 
 describe("should test wallet", () => {
     it("should return the same data as added", () => {
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
         const senderWallet: Wallets.Wallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
-        const businessProperty: IBusinessWalletProperty = {
+        const businessProperty: IBusinessWalletAttributes = {
             businessAsset: {
                 name: "google",
                 website: "www.google.com",
@@ -33,8 +33,8 @@ describe("should test wallet", () => {
                 },
             ],
         };
-        senderWallet.setAttribute<IBusinessWalletProperty>("business", businessProperty);
-        const senderWalletData = senderWallet.getAttribute<IBusinessWalletProperty>("business");
+        senderWallet.setAttribute<IBusinessWalletAttributes>("business", businessProperty);
+        const senderWalletData = senderWallet.getAttribute<IBusinessWalletAttributes>("business");
         expect(senderWalletData).toStrictEqual(businessProperty);
     });
 

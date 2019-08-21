@@ -218,13 +218,13 @@ describe("Business registration transaction", () => {
             });
         });
 
-        describe("should test edge cases for organizationRepository", () => {
-            it("should fail because max organizationRepository length is 50", () => {
+        describe("should test edge cases for repository", () => {
+            it("should fail because max repository length is 50", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "ark",
                         website: "ark.io",
-                        organizationRepository: "a".repeat(51),
+                        repository: "a".repeat(51),
                     })
                     .network(23)
                     .sign("passphrase");

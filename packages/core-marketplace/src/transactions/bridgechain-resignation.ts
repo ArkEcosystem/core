@@ -3,18 +3,17 @@ import { Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { IBridgechainResignationAsset } from "../interfaces";
 import {
-    MarketplaceTransactionsGroup,
+    MarketplaceTransactionGroup,
     MarketplaceTransactionStaticFees,
-    MarketplaceTransactionTypes,
+    MarketplaceTransactionType,
 } from "../marketplace-transactions";
-import { registeredBridgechainIdProperty } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
-const bridgechainResignationType: number = MarketplaceTransactionTypes.BridgechainResignation;
+const bridgechainResignationType: number = MarketplaceTransactionType.BridgechainResignation;
 
 export class BridgechainResignationTransaction extends Transactions.Transaction {
-    public static typeGroup: number = MarketplaceTransactionsGroup;
+    public static typeGroup: number = MarketplaceTransactionGroup;
     public static type = bridgechainResignationType;
     public static key: string = "bridgechainResignation";
 
@@ -32,7 +31,7 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
                             type: "object",
                             required: ["registeredBridgechainId"],
                             properties: {
-                                registeredBridgechainId: registeredBridgechainIdProperty,
+                                bridgechainId: { bignumber: { minimum: 1 } },
                             },
                         },
                     },

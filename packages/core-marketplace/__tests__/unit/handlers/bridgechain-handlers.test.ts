@@ -16,7 +16,7 @@ import {
     BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
 } from "../../../src/handlers";
-import { IBusinessWalletProperty } from "../../../src/interfaces";
+import { IBusinessWalletAttributes } from "../../../src/interfaces";
 import { bridgechainIndexer, businessIndexer } from "../../../src/wallet-manager";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, businessRegistrationAsset1 } from "../helper";
 
@@ -134,7 +134,7 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
 
                 expect(
-                    senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[0].bridgechainNonce,
+                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[0].bridgechainNonce,
                 ).toBe(1001);
 
                 bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
@@ -143,7 +143,7 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
 
                 expect(
-                    senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce,
+                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[1].bridgechainNonce,
                 ).toBe(1002);
 
                 const bridgechainResignation = bridgechainResignationBuilder
@@ -178,7 +178,8 @@ describe("should test marketplace transaction handlers", () => {
                     await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
 
                     expect(
-                        senderWallet.getAttribute<IBusinessWalletProperty>("business").bridgechains[1].bridgechainNonce,
+                        senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[1]
+                            .bridgechainNonce,
                     ).toBe(1002);
                 });
             });
