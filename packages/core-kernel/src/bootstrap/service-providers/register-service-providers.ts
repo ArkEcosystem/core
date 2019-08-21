@@ -1,8 +1,8 @@
 import semver from "semver";
 import { IServiceProviderDependency } from "../../contracts/core-kernel";
-// @ts-ignore
 import { FailedDependencySatisfaction, FailedServiceProviderRegistration, MissingDependency } from "../../errors";
 import { ServiceProviderRepository } from "../../repositories";
+import { ConfigRepository } from "../../services/config";
 import { AbstractServiceProvider } from "../../support/service-provider";
 import { AbstractBootstrapper } from "../bootstrapper";
 
@@ -22,6 +22,10 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
+            if (!this.shouldBeIncluded(serviceProvider.name()) || this.shouldBeExcluded(serviceProvider.name())) {
+                continue;
+            }
+
             if (await this.satisfiesDependencies(serviceProvider)) {
                 try {
                     await serviceProviders.register(name);
@@ -86,5 +90,29 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
         }
 
         return true;
+    }
+
+    /**
+     * @private
+     * @param {string} name
+     * @returns {boolean}
+     * @memberof RegisterServiceProviders
+     */
+    private shouldBeIncluded(name: string): boolean {
+        const includes: string[] = this.app.resolve<ConfigRepository>("config").get<string[]>("include", []);
+
+        return includes.length > 0 ? includes.includes(name) : true;
+    }
+
+    /**
+     * @private
+     * @param {string} name
+     * @returns {boolean}
+     * @memberof RegisterServiceProviders
+     */
+    private shouldBeExcluded(name: string): boolean {
+        const excludes: string[] = this.app.resolve<ConfigRepository>("config").get<string[]>("exclude", []);
+
+        return excludes.length > 0 ? excludes.includes(name) : false;
     }
 }
