@@ -11,7 +11,7 @@ import { replySchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
 export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
-    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
         "events",
     );

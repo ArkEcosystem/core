@@ -15,7 +15,7 @@ export const loadQueryFile = (directory, file) => {
     const query = new QueryFile(fullPath, options);
 
     if (query.error) {
-        app.resolve<Contracts.Kernel.ILogger>("logger").error(query.error.toString());
+        app.resolve<Contracts.Kernel.ILogger>("log").error(query.error.toString());
     }
 
     return query;

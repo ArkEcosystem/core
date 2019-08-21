@@ -20,7 +20,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
 
-    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
         "events",
     );

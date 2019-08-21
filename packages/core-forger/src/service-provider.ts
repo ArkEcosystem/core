@@ -19,7 +19,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         const forger = this.app.resolve("forger");
 
         if (forger) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Forger Manager");
+            this.app.resolve<Contracts.Kernel.ILogger>("log").info("Stopping Forger Manager");
 
             return forger.stopForging();
         }

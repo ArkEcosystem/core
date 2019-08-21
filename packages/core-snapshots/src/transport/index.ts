@@ -12,7 +12,7 @@ import * as utils from "../utils";
 import { Codec } from "./codec";
 import { canImportRecord, verifyData } from "./verification";
 
-const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+const logger = app.resolve<Contracts.Kernel.ILogger>("log");
 const emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("events");
 
 const fixData = (table, data) => {

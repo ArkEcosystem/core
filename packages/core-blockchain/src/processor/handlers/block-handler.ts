@@ -4,7 +4,7 @@ import { Blockchain } from "../../blockchain";
 import { BlockProcessorResult } from "../block-processor";
 
 export abstract class BlockHandler {
-    protected readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    protected readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
 
     public constructor(protected readonly blockchain: Blockchain, protected readonly block: Interfaces.IBlock) {}
 

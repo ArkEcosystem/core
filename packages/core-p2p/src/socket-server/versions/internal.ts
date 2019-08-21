@@ -63,7 +63,7 @@ export const getNetworkState = async ({
 };
 
 export const syncBlockchain = (): void => {
-    app.resolve<Contracts.Kernel.ILogger>("logger").debug("Blockchain sync check WAKEUP requested by forger");
+    app.resolve<Contracts.Kernel.ILogger>("log").debug("Blockchain sync check WAKEUP requested by forger");
 
     app.resolve<Contracts.Blockchain.IBlockchain>("blockchain").forceWakeup();
 };

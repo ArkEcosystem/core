@@ -5,7 +5,7 @@ import { Server } from "./server";
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         if (!this.opts.enabled) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Public API is disabled");
+            this.app.resolve<Contracts.Kernel.ILogger>("log").info("Public API is disabled");
             return;
         }
 
@@ -18,7 +18,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
 
     public async dispose(): Promise<void> {
         if (this.opts.enabled) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info(`Stopping Public API`);
+            this.app.resolve<Contracts.Kernel.ILogger>("log").info(`Stopping Public API`);
 
             await this.app.resolve<Server>("api").stop();
         }

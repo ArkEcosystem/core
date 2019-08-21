@@ -190,7 +190,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public logPath(path: string = ""): string {
-        return join(this.getPath("logger"), path);
+        return join(this.getPath("log"), path);
     }
 
     /**
@@ -330,7 +330,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public get log(): Contracts.Kernel.ILogger {
-        return this.resolve<Contracts.Kernel.ILogger>("logger");
+        return this.resolve<Contracts.Kernel.ILogger>("log");
     }
 
     /**

@@ -3,7 +3,7 @@ import { app, Contracts } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 
 export class Server {
-    private logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    private logger = app.resolve<Contracts.Kernel.ILogger>("log");
 
     private http: any;
     private https: any;

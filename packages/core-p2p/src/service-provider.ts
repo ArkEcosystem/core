@@ -13,7 +13,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.app.bind("p2p.options", this.opts);
 
-        this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Starting P2P Interface");
+        this.app.resolve<Contracts.Kernel.ILogger>("log").info("Starting P2P Interface");
 
         const service: Contracts.P2P.IPeerService = this.makePeerService(this.opts);
 
@@ -28,7 +28,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping P2P Interface");
+        this.app.resolve<Contracts.Kernel.ILogger>("log").info("Stopping P2P Interface");
 
         this.app
             .resolve<Contracts.P2P.IPeerService>("p2p")

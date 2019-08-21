@@ -31,7 +31,7 @@ export class PostgresConnection implements Contracts.Database.IConnection {
     public walletsRepository: Contracts.Database.IWalletsRepository;
     // @TODO: make this private
     public pgp: IMain;
-    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
     private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
         "events",
     );

@@ -117,7 +117,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async init() {
-        logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+        logger = app.resolve<Contracts.Kernel.ILogger>("log");
         stateStorage = app.resolve<Contracts.State.IStateService>("state").getStore();
         blockchainMachine.state = stateStorage;
 

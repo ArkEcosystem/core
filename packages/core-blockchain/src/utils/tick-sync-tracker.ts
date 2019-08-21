@@ -44,7 +44,7 @@ export const tickSyncTracker = (blockCount, count): void => {
             secondsDecimalDigits: 0,
         });
 
-        app.resolve<Contracts.Kernel.ILogger>("logger").info(
+        app.resolve<Contracts.Kernel.ILogger>("log").info(
             `Synchronising In Progress (${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`,
         );
     }

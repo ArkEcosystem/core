@@ -4,7 +4,7 @@ export const mountServer = async (name, server) => {
     try {
         await server.start();
 
-        app.resolve("logger").info(`${name} Server running at: ${server.info.uri}`);
+        app.resolve("log").info(`${name} Server running at: ${server.info.uri}`);
 
         return server;
     } catch (error) {

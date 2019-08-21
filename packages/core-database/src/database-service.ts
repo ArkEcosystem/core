@@ -9,7 +9,7 @@ import cloneDeep from "lodash.clonedeep";
 export class DatabaseService implements Contracts.Database.IDatabaseService {
     public connection: Contracts.Database.IConnection;
     public walletManager: Contracts.State.IWalletManager;
-    public logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    public logger = app.resolve<Contracts.Kernel.ILogger>("log");
     public emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("events");
     public options: any;
     public wallets: Contracts.Database.IWalletsBusinessRepository;

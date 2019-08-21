@@ -6,7 +6,7 @@ import { defaults } from "./defaults";
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         if (!this.opts.enabled) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Exchange JSON-RPC Server is disabled");
+            this.app.resolve<Contracts.Kernel.ILogger>("log").info("Exchange JSON-RPC Server is disabled");
             return;
         }
 
@@ -17,14 +17,14 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             await start({
                 database: this.opts.database as string,
                 server: this.opts,
-                logger: this.app.resolve<Contracts.Kernel.ILogger>("logger"),
+                logger: this.app.resolve<Contracts.Kernel.ILogger>("log"),
             }),
         );
     }
 
     public async dispose(): Promise<void> {
         if (this.opts.enabled) {
-            this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Stopping Exchange JSON-RPC Server");
+            this.app.resolve<Contracts.Kernel.ILogger>("log").info("Stopping Exchange JSON-RPC Server");
 
             await this.app.resolve("exchange-json-rpc").stop();
         }

@@ -4,7 +4,7 @@ import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
     const database: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
-    const logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("logger");
+    const logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
 
     const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
     const delegates: Contracts.State.IWallet[] = await database.getActiveDelegates(roundInfo);

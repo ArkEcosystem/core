@@ -45,11 +45,11 @@ export const startListeners = (): void => {
                         timeout: app.resolve("webhooks.options").timeout,
                     });
 
-                    app.resolve<Contracts.Kernel.ILogger>("logger").debug(
+                    app.resolve<Contracts.Kernel.ILogger>("log").debug(
                         `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
                     );
                 } catch (error) {
-                    app.resolve<Contracts.Kernel.ILogger>("logger").error(
+                    app.resolve<Contracts.Kernel.ILogger>("log").error(
                         `Webhooks Job ${webhook.id} failed: ${error.message}`,
                     );
                 }

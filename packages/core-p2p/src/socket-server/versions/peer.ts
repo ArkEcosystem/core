@@ -68,7 +68,7 @@ export const postBlock = async ({ req }): Promise<void> => {
         }
     }
 
-    app.resolve<Contracts.Kernel.ILogger>("logger").info(
+    app.resolve<Contracts.Kernel.ILogger>("log").info(
         `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
             "transaction",
             block.numberOfTransactions,
@@ -118,7 +118,7 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Cont
         blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
     }
 
-    app.resolve<Contracts.Kernel.ILogger>("logger").info(
+    app.resolve<Contracts.Kernel.ILogger>("log").info(
         `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(
             "block",
             blocks.length,

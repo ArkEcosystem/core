@@ -23,7 +23,7 @@ export const getHandlers = (): { [key: string]: string[] } => {
 };
 
 export const log = ({ req }): void => {
-    app.resolve("logger")[req.data.level](req.data.message);
+    app.resolve("log")[req.data.level](req.data.message);
 };
 
 export const isForgerAuthorized = ({ req }): { authorized: boolean } => {

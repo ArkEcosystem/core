@@ -5,7 +5,7 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
-const logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+const logger = app.resolve<Contracts.Kernel.ILogger>("log");
 
 export class Database {
     public db: any;

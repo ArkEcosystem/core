@@ -25,7 +25,7 @@ export class ReplayBlockchain extends Blockchain {
         this.walletManager = new Wallets.WalletManager();
         this.memoryDatabase = new MemoryDatabaseService(this.walletManager);
 
-        this.logger = app.resolve<Contracts.Kernel.ILogger>("logger");
+        this.logger = app.resolve<Contracts.Kernel.ILogger>("log");
         this.localDatabase = app.resolve<Contracts.Database.IDatabaseService>("database");
         this.localDatabase.walletManager = this.walletManager;
 
