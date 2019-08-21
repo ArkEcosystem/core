@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
 import { Database, State } from "@arkecosystem/core-interfaces";
-import { Blocks, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import { genesisBlock } from "../../utils/config/testnet/genesisBlock";
 import { setUp, tearDown } from "./__support__/setup";
 
@@ -12,11 +12,7 @@ let databaseService: Database.IDatabaseService;
 
 beforeAll(async () => {
     await setUp();
-
     databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
-    await databaseService.deleteBlocks([genesisBlock]);
-    await databaseService.saveBlock(BlockFactory.fromData(genesisBlock));
 });
 
 afterAll(async () => {
@@ -53,7 +49,9 @@ describe("Connection", () => {
 
     describe("getLastBlock", () => {
         it("should get the genesis block as last block", async () => {
+            Managers.configManager.getMilestone().aip11 = false;
             await expect(databaseService.getLastBlock()).resolves.toEqual(BlockFactory.fromData(genesisBlock));
+            Managers.configManager.getMilestone().aip11 = true;
         });
     });
 });

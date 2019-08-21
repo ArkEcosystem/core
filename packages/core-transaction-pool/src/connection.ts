@@ -205,7 +205,7 @@ export class Connection implements TransactionPool.IConnection {
             const { data }: Interfaces.ITransaction = transaction;
             const exists: boolean = await this.has(data.id);
             const senderPublicKey: string = data.senderPublicKey;
-            const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+            const transactionHandler: Handlers.TransactionHandler = await Handlers.Registry.get(
                 transaction.type,
                 transaction.typeGroup,
             );
@@ -291,7 +291,7 @@ export class Connection implements TransactionPool.IConnection {
 
             // TODO: rework error handling
             try {
-                const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+                const transactionHandler: Handlers.TransactionHandler = await Handlers.Registry.get(
                     transaction.type,
                     transaction.typeGroup,
                 );
@@ -434,10 +434,12 @@ export class Connection implements TransactionPool.IConnection {
 
         try {
             await this.walletManager.throwIfCannotBeApplied(transaction);
-            await Handlers.Registry.get(transaction.type, transaction.typeGroup).applyToSender(
-                transaction,
-                this.walletManager,
+
+            const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                transaction.type,
+                transaction.typeGroup,
             );
+            await handler.applyToSender(transaction, this.walletManager);
         } catch (error) {
             this.logger.error(error.message);
 
@@ -483,7 +485,7 @@ export class Connection implements TransactionPool.IConnection {
 
                 const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletManager);
 
-                const handler: Handlers.TransactionHandler = Handlers.Registry.get(
+                const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                     transaction.type,
                     transaction.typeGroup,
                 );

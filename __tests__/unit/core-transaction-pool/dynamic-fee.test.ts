@@ -13,22 +13,28 @@ describe("static fees", () => {
         });
     });
 
-    it("should accept transactions matching the static fee for broadcast", () => {
-        expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
-        expect(dynamicFeeMatcher(transactions.dummy2).broadcast).toBeTrue();
+    it("should accept transactions matching the static fee for broadcast", async () => {
+        await expect(dynamicFeeMatcher(transactions.dummy1)).resolves.toHaveProperty("broadcast", true);
+        await expect(dynamicFeeMatcher(transactions.dummy2)).resolves.toHaveProperty("broadcast", true);
     });
 
-    it("should accept transactions matching the static fee to enter pool", () => {
-        expect(dynamicFeeMatcher(transactions.dummy1).enterPool).toBeTrue();
-        expect(dynamicFeeMatcher(transactions.dummy2).enterPool).toBeTrue();
+    it("should accept transactions matching the static fee to enter pool", async () => {
+        await expect(dynamicFeeMatcher(transactions.dummy1)).resolves.toHaveProperty("enterPool", true);
+        await expect(dynamicFeeMatcher(transactions.dummy2)).resolves.toHaveProperty("enterPool", true);
     });
 
-    it("should not broadcast transactions with a fee other than the static fee", () => {
-        expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).broadcast).toBeFalse();
+    it("should not broadcast transactions with a fee other than the static fee", async () => {
+        await expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1)).resolves.toHaveProperty(
+            "broadcast",
+            false,
+        );
     });
 
-    it("should not allow transactions with a fee other than the static fee to enter the pool", () => {
-        expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).enterPool).toBeFalse();
+    it("should not allow transactions with a fee other than the static fee to enter the pool", async () => {
+        await expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1)).resolves.toHaveProperty(
+            "enterPool",
+            false,
+        );
     });
 });
 
@@ -42,20 +48,20 @@ describe("dynamic fees", () => {
         });
     });
 
-    it("should broadcast transactions with high enough fee", () => {
-        expect(dynamicFeeMatcher(transactions.dummy1).broadcast).toBeTrue();
-        expect(dynamicFeeMatcher(transactions.dummy2).broadcast).toBeTrue();
+    it("should broadcast transactions with high enough fee", async () => {
+        await expect(dynamicFeeMatcher(transactions.dummy1)).resolves.toHaveProperty("broadcast", true);
+        await expect(dynamicFeeMatcher(transactions.dummy2)).resolves.toHaveProperty("broadcast", true);
 
         const addonBytes: number = (container.app.resolveOptions() as any).dynamicFees.addonBytes[
             transactions.dynamicFeeNormalDummy1.key
         ];
 
-        const handler = Handlers.Registry.get(transactions.dummy1.type);
+        const handler = await Handlers.Registry.get(transactions.dummy1.type);
         transactions.dynamicFeeNormalDummy1.data.fee = handler
             .dynamicFee(transactions.dynamicFeeNormalDummy1, addonBytes, dynamicFeeConfig.minFeeBroadcast)
             .plus(100);
 
-        expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).broadcast).toBeTrue();
+        await expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1)).resolves.toHaveProperty("broadcast", true);
 
         // testing with transaction fee === min fee for transaction broadcast
         transactions.dummy3.data.fee = handler.dynamicFee(
@@ -68,25 +74,25 @@ describe("dynamic fees", () => {
             addonBytes,
             dynamicFeeConfig.minFeeBroadcast,
         );
-        expect(dynamicFeeMatcher(transactions.dummy3).broadcast).toBeTrue();
-        expect(dynamicFeeMatcher(transactions.dummy4).broadcast).toBeTrue();
+        await expect(dynamicFeeMatcher(transactions.dummy3)).resolves.toHaveProperty("broadcast", true);
+        await expect(dynamicFeeMatcher(transactions.dummy4)).resolves.toHaveProperty("broadcast", true);
     });
 
-    it("should accept transactions with high enough fee to enter the pool", () => {
+    it("should accept transactions with high enough fee to enter the pool", async () => {
         const addonBytes: number = (container.app.resolveOptions() as any).dynamicFees.addonBytes[
             transactions.dynamicFeeNormalDummy1.key
         ];
 
-        const handler = Handlers.Registry.get(transactions.dummy1.type);
+        const handler = await Handlers.Registry.get(transactions.dummy1.type);
 
-        expect(dynamicFeeMatcher(transactions.dummy1).enterPool).toBeTrue();
-        expect(dynamicFeeMatcher(transactions.dummy2).enterPool).toBeTrue();
+        await expect(dynamicFeeMatcher(transactions.dummy1)).resolves.toHaveProperty("enterPool", true);
+        await expect(dynamicFeeMatcher(transactions.dummy2)).resolves.toHaveProperty("enterPool", true);
 
         transactions.dynamicFeeNormalDummy1.data.fee = handler
             .dynamicFee(transactions.dynamicFeeNormalDummy1, addonBytes, dynamicFeeConfig.minFeePool)
             .plus(100);
 
-        expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1).enterPool).toBeTrue();
+        await expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1)).resolves.toHaveProperty("enterPool", true);
 
         // testing with transaction fee === min fee for transaction enter pool
         transactions.dummy3.data.fee = handler.dynamicFee(
@@ -99,15 +105,15 @@ describe("dynamic fees", () => {
             addonBytes,
             dynamicFeeConfig.minFeeBroadcast,
         );
-        expect(dynamicFeeMatcher(transactions.dummy3).enterPool).toBeTrue();
-        expect(dynamicFeeMatcher(transactions.dummy4).enterPool).toBeTrue();
+        await expect(dynamicFeeMatcher(transactions.dummy3)).resolves.toHaveProperty("enterPool", true);
+        await expect(dynamicFeeMatcher(transactions.dummy4)).resolves.toHaveProperty("enterPool", true);
     });
 
-    it("should not broadcast transactions with too low fee", () => {
-        expect(dynamicFeeMatcher(transactions.dynamicFeeLowDummy2).broadcast).toBeFalse();
+    it("should not broadcast transactions with too low fee", async () => {
+        await expect(dynamicFeeMatcher(transactions.dynamicFeeLowDummy2)).resolves.toHaveProperty("broadcast", false);
     });
 
-    it("should not allow transactions with too low fee to enter the pool", () => {
-        expect(dynamicFeeMatcher(transactions.dynamicFeeLowDummy2).enterPool).toBeFalse();
+    it("should not allow transactions with too low fee to enter the pool", async () => {
+        await expect(dynamicFeeMatcher(transactions.dynamicFeeLowDummy2)).resolves.toHaveProperty("enterPool", false);
     });
 });

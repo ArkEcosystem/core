@@ -5,10 +5,11 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Blocks, Constants, Enums, Identities, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { DatabaseService } from "../../../packages/core-database/src/database-service";
 import { Wallet, WalletManager } from "../../../packages/core-state/src/wallets";
-import { roundCalculator } from "../../../packages/core-utils/dist";
+import { roundCalculator } from "../../../packages/core-utils";
+import { BlockFactory as TestBlockFactory } from "../../helpers/block-factory";
 import { genesisBlock } from "../../utils/fixtures/testnet/block-model";
 import { DatabaseConnectionStub } from "./__fixtures__/database-connection-stub";
 import { stateStorageStub } from "./__fixtures__/state-storage-stub";
@@ -165,8 +166,11 @@ describe("Database Service", () => {
         it("should fetch blocks from lastBlock height", async () => {
             databaseService = createService();
 
+            const mockBlock = TestBlockFactory.createDummy();
+            mockBlock.data.height = 51;
+
             // @ts-ignore
-            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(genesisBlock);
+            jest.spyOn(databaseService, "getLastBlock").mockReturnValue(mockBlock);
             // @ts-ignore
             jest.spyOn(databaseService, "getBlocks").mockReturnValue([]);
             jest.spyOn(container, "has").mockReturnValue(false);
@@ -191,6 +195,7 @@ describe("Database Service", () => {
             const initialHeight = 52;
 
             // Create delegates
+            Managers.configManager.getMilestone().aip11 = false;
             for (const transaction of genesisBlock.transactions) {
                 if (transaction.type === TransactionType.DelegateRegistration) {
                     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
@@ -203,6 +208,7 @@ describe("Database Service", () => {
                     walletManager.reindex(wallet);
                 }
             }
+            Managers.configManager.getMilestone().aip11 = true;
 
             const keys = {
                 passphrase: "this is a secret passphrase",
@@ -217,7 +223,7 @@ describe("Database Service", () => {
             const delegatesRound2 = walletManager.loadActiveDelegateList(roundInfo1);
 
             // Prepare sender wallet
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             const originalApply = transactionHandler.throwIfCannotBeApplied;
             transactionHandler.throwIfCannotBeApplied = jest.fn();
 

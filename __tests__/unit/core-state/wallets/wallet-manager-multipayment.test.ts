@@ -1,9 +1,13 @@
 /* tslint:disable:max-line-length no-empty */
 import { State } from "@arkecosystem/core-interfaces";
-import { Identities, Transactions, Utils } from "@arkecosystem/crypto";
+import { Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 
 let walletManager: State.IWalletManager;
+
+beforeAll(() => {
+    Managers.configManager.setFromPreset("unitnet");
+});
 
 describe("Wallet Manager", () => {
     describe("Multipayment", () => {
@@ -57,6 +61,7 @@ describe("Wallet Manager", () => {
                 const voteTransaction = Transactions.BuilderFactory.vote()
                     .votesAsset([`+${delegateKeys.publicKey}`])
                     .fee("125")
+                    .nonce("1")
                     .sign(senderPassphrase)
                     .build();
 
@@ -82,7 +87,7 @@ describe("Wallet Manager", () => {
                 const multiPaymentAmount = "10";
                 const multipaymentBuilder = Transactions.BuilderFactory.multiPayment()
                     .fee(multiPaymentFee)
-                    .nonce("1");
+                    .nonce("2");
                 for (const w of recipientsWallets) {
                     multipaymentBuilder.addPayment(w.address, multiPaymentAmount);
                 }
@@ -131,6 +136,7 @@ describe("Wallet Manager", () => {
                         .votesAsset([`+${delegateKeys.publicKey}`])
                         .fee(voteTransactionFee)
                         .sign(passphrase)
+                        .nonce("1")
                         .build();
 
                     await walletManager.applyTransaction(voteTransaction);

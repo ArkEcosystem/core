@@ -6,17 +6,7 @@ import { state } from "./mocks/state";
 import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import {
-    Blocks,
-    Constants,
-    Crypto,
-    Enums,
-    Identities,
-    Interfaces,
-    Managers,
-    Transactions,
-    Utils,
-} from "@arkecosystem/crypto";
+import { Constants, Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
@@ -27,12 +17,11 @@ import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
 import { Storage } from "../../../packages/core-transaction-pool/src/storage";
 import { WalletManager } from "../../../packages/core-transaction-pool/src/wallet-manager";
-import { TransactionFactory } from "../../helpers/transaction-factory";
-import { block2, delegates } from "../../utils/fixtures/unitnet";
+import { BlockFactory, TransactionFactory } from "../../helpers";
+import { delegates } from "../../utils/fixtures/unitnet";
 import { transactions as mockData } from "./__fixtures__/transactions";
 import { database as databaseService } from "./mocks/database";
 
-const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
 const { TransactionType } = Enums;
 
@@ -333,6 +322,10 @@ describe("Connection", () => {
             for (const t of transactions) {
                 connection.removeTransactionById(t.id);
             }
+
+            if (transactionVersion === 1) {
+                Managers.configManager.getMilestone().aip11 = true;
+            }
         });
     });
 
@@ -566,7 +559,8 @@ describe("Connection", () => {
             const transactions = [mockData.dummy1, mockData.dummy2, mockData.dummy3, mockData.dummy4];
             addTransactions(transactions);
 
-            const spy = jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
+            const handler = await Handlers.Registry.get(0);
+            const spy = jest.spyOn(handler, "throwIfCannotBeApplied").mockResolvedValue();
             const transactionsForForging = await connection.getTransactionsForForging(4);
             spy.mockRestore();
 
@@ -584,7 +578,8 @@ describe("Connection", () => {
                 mockData.dummy1.id,
                 mockData.dummy2.id,
             ]);
-            jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
+            const handler = await Handlers.Registry.get(0);
+            jest.spyOn(handler, "throwIfCannotBeApplied").mockResolvedValue();
 
             const transactionsForForging = await connection.getTransactionsForForging(3);
             expect(transactionsForForging.length).toBe(1);
@@ -617,7 +612,8 @@ describe("Connection", () => {
 
             addTransactions([...transactions, ...largeTransactions]);
 
-            jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied").mockResolvedValue();
+            const handler = await Handlers.Registry.get(0);
+            jest.spyOn(handler, "throwIfCannotBeApplied").mockResolvedValue();
             let transactionsForForging = await connection.getTransactionsForForging(7);
 
             expect(transactionsForForging.length).toBe(6);
@@ -657,32 +653,35 @@ describe("Connection", () => {
     });
 
     describe("acceptChainedBlock", () => {
-        let mockWallet;
-        beforeEach(() => {
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+        let mockPoolWallet: State.IWallet;
+        let mockBlock: Interfaces.IBlock;
+        beforeEach(async () => {
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockResolvedValue();
 
-            mockWallet = new Wallets.Wallet(block2.transactions[0].recipientId);
-            mockWallet.balance = Utils.BigNumber.make(1e12);
-            jest.spyOn(connection.walletManager, "hasByAddress").mockReturnValue(true);
-            jest.spyOn(connection.walletManager, "hasByPublicKey").mockReturnValue(true);
-            jest.spyOn(connection.walletManager, "findByPublicKey").mockImplementation(publicKey => {
-                if (publicKey === block2.generatorPublicKey) {
-                    return new Wallets.Wallet("thisIsTheDelegateGeneratorAddress0");
-                }
-                return mockWallet;
-            });
-            jest.spyOn(connection.walletManager, "findByAddress").mockReturnValue(mockWallet);
+            mockPoolWallet = new Wallets.Wallet(delegates[0].address);
+            mockPoolWallet.publicKey = delegates[0].publicKey;
+
+            mockPoolWallet.balance = Utils.BigNumber.make(1e12);
+
+            const transactions = TransactionFactory.transfer(delegates[1].address, 5 * 1e8)
+                .withPassphrase(delegates[0].passphrase)
+                .create(10);
+
+            mockBlock = BlockFactory.createDummy(transactions);
+
+            connection.walletManager.reindex(mockPoolWallet);
+            connection.walletManager.reindex(new Wallets.Wallet(delegates[1].address));
         });
         afterEach(() => {
             jest.restoreAllMocks();
         });
 
         it("should update wallet when accepting a chained block", async () => {
-            const balanceBefore = mockWallet.balance;
-            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            const balanceBefore = mockPoolWallet.balance;
+            await connection.acceptChainedBlock(mockBlock);
 
-            expect(+mockWallet.balance).toBe(+balanceBefore.minus(block2.totalFee));
+            expect(+mockPoolWallet.balance).toBe(+balanceBefore.minus(mockBlock.data.totalAmount));
         });
 
         it("should remove transaction from pool if it's in the chained block", async () => {
@@ -693,45 +692,38 @@ describe("Connection", () => {
             let transactions = await connection.getTransactions(0, 10);
             expect(transactions).toEqual([mockData.dummy2.serialized]);
 
-            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
+            mockBlock.transactions.push(mockData.dummy2);
 
-            const chainedBlock = BlockFactory.fromData(block2);
-            chainedBlock.transactions.push(mockData.dummy2);
-
-            await connection.acceptChainedBlock(chainedBlock);
+            await connection.acceptChainedBlock(mockBlock);
 
             transactions = await connection.getTransactions(0, 10);
             expect(transactions).toEqual([]);
         });
 
         it("should forget sender if throwIfApplyingFails() failed for a transaction in the chained block", async () => {
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
                 throw new Error("test error");
             });
 
-            const { senderPublicKey } = block2.transactions[0];
+            const { senderPublicKey } = mockBlock.transactions[0].data;
             const forget = jest.spyOn(connection.walletManager, "forget");
             const applyToSender = jest.spyOn(transactionHandler, "applyToSender");
 
-            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
-            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
-            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            await connection.acceptChainedBlock(mockBlock);
 
             expect(connection.walletManager.hasByIndex(State.WalletIndexes.PublicKeys, senderPublicKey)).toBeFalse();
             expect(applyToSender).not.toHaveBeenCalled();
-            expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
+            expect(forget).toHaveBeenCalled();
         });
 
         it("should delete wallet of transaction sender if its balance is down to zero", async () => {
             jest.spyOn(connection.walletManager, "canBePurged").mockReturnValue(true);
             const forget = jest.spyOn(connection.walletManager, "forget");
 
-            // WORKAROUND: nonce is decremented when added so it can't be 0 else it hits the assert.
-            mockWallet.nonce = Utils.BigNumber.make(block2.numberOfTransactions + 1);
-            await connection.acceptChainedBlock(BlockFactory.fromData(block2));
+            await connection.acceptChainedBlock(mockBlock);
 
-            expect(forget).toHaveBeenCalledTimes(block2.transactions.length);
+            expect(forget).toHaveBeenCalled();
         });
     });
 
@@ -742,8 +734,8 @@ describe("Connection", () => {
         const findByPublicKeyWallet = new Wallets.Wallet("ANwc3YQe3EBjuE5sNRacP7fhkngAPaBW4Y");
         findByPublicKeyWallet.publicKey = "02778aa3d5b332965ea2a5ef6ac479ce2478535bc681a098dff1d683ff6eccc417";
 
-        beforeEach(() => {
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+        beforeEach(async () => {
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockResolvedValue();
             applyToSender = jest.spyOn(transactionHandler, "applyToSender").mockResolvedValue();
 
@@ -793,7 +785,7 @@ describe("Connection", () => {
         });
 
         it("should not apply transaction to wallet if throwIfCannotBeApplied() failed", async () => {
-            const transactionHandler = Handlers.Registry.get(TransactionType.Transfer);
+            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
             throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
                 throw new Error("throw from test");
             });

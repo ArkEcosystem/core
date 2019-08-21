@@ -3,11 +3,11 @@ import "jest-extended";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import { Errors } from "../../../packages/core-transactions/src";
 import { Registry, TransactionHandler } from "../../../packages/core-transactions/src/handlers";
 import { TransactionHandlerConstructor } from "../../../packages/core-transactions/src/handlers/transaction";
 import { TransferTransactionHandler } from "../../../packages/core-transactions/src/handlers/transfer";
 
+import { DeactivatedTransactionHandlerError } from "../../../packages/core-transactions/src/errors";
 import { testnet } from "../../../packages/crypto/src/networks";
 
 const { transactionBaseSchema, extend } = Transactions.schemas;
@@ -122,24 +122,26 @@ beforeAll(() => {
 describe("Registry", () => {
     const NUMBER_OF_CORE_TRANSACTIONS: number = Object.keys(Enums.TransactionType).length / 2;
 
-    it("should register core transaction types", () => {
-        expect(() => {
-            Registry.get(TransactionType.Transfer);
-            Registry.get(TransactionType.SecondSignature);
-            Registry.get(TransactionType.DelegateRegistration);
-            Registry.get(TransactionType.Vote);
-            Registry.get(TransactionType.MultiSignature);
-            Registry.get(TransactionType.Ipfs);
-            Registry.get(TransactionType.HtlcLock);
-            Registry.get(TransactionType.HtlcClaim);
-            Registry.get(TransactionType.HtlcRefund);
-            Registry.get(TransactionType.MultiPayment);
-        }).not.toThrow(Errors.InvalidTransactionTypeError);
+    it("should register core transaction types", async () => {
+        await expect(
+            Promise.all([
+                Registry.get(TransactionType.Transfer),
+                Registry.get(TransactionType.SecondSignature),
+                Registry.get(TransactionType.DelegateRegistration),
+                Registry.get(TransactionType.Vote),
+                Registry.get(TransactionType.MultiSignature),
+                Registry.get(TransactionType.Ipfs),
+                Registry.get(TransactionType.HtlcLock),
+                Registry.get(TransactionType.HtlcClaim),
+                Registry.get(TransactionType.HtlcRefund),
+                Registry.get(TransactionType.MultiPayment),
+            ]),
+        ).toResolve();
     });
 
-    it("should register a custom type", () => {
+    it("should register a custom type", async () => {
         expect(() => Registry.registerTransactionHandler(TestTransactionHandler)).not.toThrowError();
-        expect(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toBeInstanceOf(
+        await expect(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).resolves.toBeInstanceOf(
             TestTransactionHandler,
         );
         expect(Transactions.TransactionTypeFactory.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toBe(
@@ -186,24 +188,29 @@ describe("Registry", () => {
         expect(() => Registry.deregisterTransactionHandler(TransferTransactionHandler)).toThrowError();
     });
 
+    it("should return all bootstrapped transaction handlers", () => {
+        const handlers = Registry.getAll();
+        expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
+    });
+
     it("should return all activated transactions", async () => {
-        let handlers = await Registry.getActivatedTransactions();
+        let handlers = await Registry.getActivatedTransactionHandlers();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
 
         Registry.registerTransactionHandler(TestTransactionHandler);
 
-        handlers = await Registry.getActivatedTransactions();
+        handlers = await Registry.getActivatedTransactionHandlers();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS + 1);
 
         jest.spyOn(
-            Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test),
+            await Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test),
             "isActivated",
         ).mockResolvedValueOnce(false);
 
-        handlers = await Registry.getActivatedTransactions();
+        handlers = await Registry.getActivatedTransactionHandlers();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
 
-        handlers = await Registry.getActivatedTransactions();
+        handlers = await Registry.getActivatedTransactionHandlers();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS + 1);
 
         Registry.deregisterTransactionHandler(TestTransactionHandler);
@@ -212,22 +219,34 @@ describe("Registry", () => {
     it("should only return V1 transactions when AIP11 is off", async () => {
         Managers.configManager.getMilestone().aip11 = false;
 
-        let handlers = await Registry.getActivatedTransactions();
+        let handlers = await Registry.getActivatedTransactionHandlers();
         expect(handlers).toHaveLength(4);
 
         Managers.configManager.getMilestone().aip11 = true;
 
-        handlers = await Registry.getActivatedTransactions();
+        handlers = await Registry.getActivatedTransactionHandlers();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS);
     });
 
     it("should not find the transaction type on typeGroup mismatch", async () => {
         Registry.registerTransactionHandler(TestTransactionHandler);
 
-        const handlers = await Registry.getActivatedTransactions();
+        const handlers = await Registry.getActivatedTransactionHandlers();
         expect(handlers).toHaveLength(NUMBER_OF_CORE_TRANSACTIONS + 1);
 
-        expect(() => Registry.get(TEST_TRANSACTION_TYPE)).toThrowError();
-        expect(() => Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).not.toThrowError();
+        await expect(Registry.get(TEST_TRANSACTION_TYPE)).rejects.toThrowError();
+        await expect(Registry.get(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test)).toResolve();
+    });
+
+    it("should throw when trying to use a deactivated transaction type", async () => {
+        Managers.configManager.getMilestone().aip11 = false;
+
+        await expect(Registry.get(TransactionType.MultiSignature)).rejects.toThrowError(
+            DeactivatedTransactionHandlerError,
+        );
+
+        Managers.configManager.getMilestone().aip11 = true;
+
+        await expect(Registry.get(TransactionType.MultiSignature)).toResolve();
     });
 });

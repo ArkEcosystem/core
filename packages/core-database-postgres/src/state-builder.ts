@@ -13,7 +13,7 @@ export class StateBuilder {
     ) {}
 
     public async run(): Promise<void> {
-        const transactionHandlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactions();
+        const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.getAll();
         const steps = transactionHandlers.length + 2;
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);

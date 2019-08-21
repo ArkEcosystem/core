@@ -46,6 +46,10 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
+        if (process.env.CORE_ENV === "test") {
+            Managers.configManager.getMilestone().aip11 = false;
+        }
+
         app.resolvePlugin<State.IStateService>("state")
             .getStore()
             .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
@@ -83,7 +87,7 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.applyRound(block.data.height);
 
         for (const transaction of block.transactions) {
-            this.emitTransactionEvents(transaction);
+            await this.emitTransactionEvents(transaction);
         }
 
         this.emitter.emit(ApplicationEvents.BlockApplied, block.data);
@@ -324,14 +328,25 @@ export class DatabaseService implements Database.IDatabaseService {
 
         if (!lastBlock) {
             return [];
+        } else if (lastBlock.data.height === 1) {
+            return [lastBlock];
         }
 
         if (!roundInfo) {
             roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
         }
 
-        return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map((b: Interfaces.IBlockData) =>
-            Blocks.BlockFactory.fromData(b),
+        return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map(
+            (block: Interfaces.IBlockData) => {
+                if (block.height === 1) {
+                    return app
+                        .resolvePlugin<State.IStateService>("state")
+                        .getStore()
+                        .getGenesisBlock();
+                }
+
+                return Blocks.BlockFactory.fromData(block);
+            },
         );
     }
 
@@ -361,7 +376,13 @@ export class DatabaseService implements Database.IDatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        return Blocks.BlockFactory.fromData(block);
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block);
+
+        if (block.height === 1 && process.env.CORE_ENV === "test") {
+            Managers.configManager.getMilestone().aip11 = true;
+        }
+
+        return lastBlock;
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
@@ -490,7 +511,10 @@ export class DatabaseService implements Database.IDatabaseService {
     public async verifyBlockchain(): Promise<boolean> {
         const errors: string[] = [];
 
-        const lastBlock: Interfaces.IBlock = await this.getLastBlock();
+        const lastBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlock();
 
         // Last block is available
         if (!lastBlock) {
@@ -554,7 +578,7 @@ export class DatabaseService implements Database.IDatabaseService {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
         const sender: State.IWallet = this.walletManager.findByAddress(senderId);
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
+        const transactionHandler: Handlers.TransactionHandler = await Handlers.Registry.get(
             transaction.type,
             transaction.typeGroup,
         );
@@ -604,6 +628,10 @@ export class DatabaseService implements Database.IDatabaseService {
             this.logger.warn("No block found in database");
 
             lastBlock = await this.createGenesisBlock();
+
+            if (process.env.CORE_ENV === "test") {
+                Managers.configManager.getMilestone().aip11 = true;
+            }
         }
 
         this.configureState(lastBlock);
@@ -713,10 +741,10 @@ export class DatabaseService implements Database.IDatabaseService {
         return delegates;
     }
 
-    private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
+    private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {
         this.emitter.emit(ApplicationEvents.TransactionApplied, transaction.data);
 
-        Handlers.Registry.get(transaction.type, transaction.typeGroup).emitEvents(transaction, this.emitter);
+        (await Handlers.Registry.get(transaction.type, transaction.typeGroup)).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {

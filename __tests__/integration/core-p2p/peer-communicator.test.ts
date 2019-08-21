@@ -4,6 +4,7 @@ import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { Transactions } from "@arkecosystem/crypto";
+import { BlockFactory } from "../../helpers";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
@@ -64,7 +65,10 @@ describe("PeerCommunicator", () => {
 
     describe("downloadBlocks", () => {
         it("should be ok", async () => {
-            await socketManager.addMock("getBlocks", [genesisBlockJSON, genesisBlockJSON]);
+            await socketManager.addMock("getBlocks", [
+                BlockFactory.createDummy().toJson(),
+                BlockFactory.createDummy().toJson(),
+            ]);
 
             const blocks = await communicator.downloadBlocks(stubPeer, 1);
 
@@ -73,11 +77,12 @@ describe("PeerCommunicator", () => {
         });
 
         it("should return the blocks with status 200", async () => {
-            await socketManager.addMock("getBlocks", [genesisBlock]);
+            const block = BlockFactory.createDummy();
+            await socketManager.addMock("getBlocks", [block.toJson()]);
             const response = await communicator.downloadBlocks(stubPeer, 1);
 
             expect(response).toBeArrayOfSize(1);
-            expect(response[0].id).toBe(genesisBlock.id);
+            expect(response[0].id).toBe(block.data.id);
         });
 
         it("should update the height after download", async () => {

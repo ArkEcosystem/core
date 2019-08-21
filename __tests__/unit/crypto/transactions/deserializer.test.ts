@@ -613,6 +613,8 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("getBytesV1", () => {
+        beforeAll(() => configManager.getMilestone().aip11 = false);
+        afterAll(() => configManager.getMilestone().aip11 = true);
         let bytes;
 
         // it('should return Buffer of simply transaction and buffer must be 292 length', () => {

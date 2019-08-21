@@ -1,4 +1,4 @@
-import { Identities } from "@arkecosystem/crypto";
+import { Identities, Managers } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
@@ -124,28 +124,54 @@ describe("Transaction Forging - Transfer", () => {
             .withExpiration(support.getLastHeight() + 1)
             .createOne();
 
-        await expect(transfer.id).toBeRejected();
-        await expect(transfer2.id).toBeRejected();
+        await expect(transfer).toBeRejected();
+        await expect(transfer2).toBeRejected();
         await support.snoozeForBlock(1);
         await expect(transfer.id).not.toBeForged();
     });
 
-    it("should broadcast, accept and forge it [Legacy, Without Nonce]", async () => {
-        const transferWithNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+    it("should accept V1 before AIP11 milestone and reject after AIP11 milestone", async () => {
+        const transfer = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[0])
             .createOne();
 
+        await expect(transfer).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(transfer.id).toBeForged();
+
+        const transfersLegacyWithoutNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withVersion(1)
+            .withPassphrase(secrets[0])
+            .create(2);
+
+        Managers.configManager.getMilestone().aip11 = false;
+
+        support.injectMilestone(1, {
+            height: support.getLastHeight() + 1,
+            aip11: true,
+        });
+
+        // Still accepts 1 height before milestone
+        await expect(transfersLegacyWithoutNonce[0]).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(transfersLegacyWithoutNonce[0].id).toBeForged();
+
+        // Now got activated
+        expect(Managers.configManager.getMilestone().aip11).toBeTrue();
+
+        // Rejects V1
+        await expect(transfersLegacyWithoutNonce[1]).toBeRejected();
+        await support.snoozeForBlock(1);
+        await expect(transfersLegacyWithoutNonce[1].id).not.toBeForged();
+
+        // and accepts V2
+        const transferWithNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
+            .withPassphrase(secrets[1])
+            .createOne();
+
+        expect(transferWithNonce.version).toBe(2);
         await expect(transferWithNonce).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(transferWithNonce.id).toBeForged();
-
-        const transferLegacyWithoutNonce = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase))
-            .withVersion(1)
-            .withPassphrase(secrets[0])
-            .createOne();
-
-        await expect(transferLegacyWithoutNonce).toBeAccepted();
-        await support.snoozeForBlock(1);
-        await expect(transferLegacyWithoutNonce.id).toBeForged();
     });
 });

@@ -154,7 +154,7 @@ describe("Transaction Guard", () => {
             expect(processor.getErrors()).toEqual({});
 
             // simulate forged transaction
-            const transactionHandler = Handlers.Registry.get(transfers[0].type);
+            const transactionHandler = await Handlers.Registry.get(transfers[0].type);
             transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate1.balance - amount1 - fee);
@@ -217,7 +217,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers.map(tx => tx.data));
 
             // simulate forged transaction
-            const transactionHandler = Handlers.Registry.get(transfers[0].type);
+            const transactionHandler = await Handlers.Registry.get(transfers[0].type);
             transactionHandler.applyToRecipient(transfers[0], transactionPool.walletManager);
 
             expect(processor.getErrors()).toEqual({});
@@ -260,7 +260,7 @@ describe("Transaction Guard", () => {
             await processor.validate(transfers1.map(tx => tx.data));
 
             // simulate forged transaction
-            const transactionHandler = Handlers.Registry.get(transfers1[0].type);
+            const transactionHandler = await Handlers.Registry.get(transfers1[0].type);
             transactionHandler.applyToRecipient(transfers1[0], transactionPool.walletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate3.balance - amount1 - fee);
@@ -488,14 +488,6 @@ describe("Transaction Guard", () => {
         });
 
         describe("MultiSignature", () => {
-            beforeEach(() => {
-                Managers.configManager.getMilestone().aip11 = true;
-            });
-
-            afterEach(() => {
-                Managers.configManager.getMilestone().aip11 = false;
-            });
-
             it("should accept multi signature registration with AIP11 milestone", async () => {
                 const passphrases = [delegates[0].secret, delegates[1].secret, delegates[2].secret];
                 const participants = passphrases.map(passphrase => Identities.PublicKey.fromPassphrase(passphrase));
@@ -525,10 +517,11 @@ describe("Transaction Guard", () => {
                 const result = await processor.validate([multiSigRegistration.data]);
                 expect(result.errors[multiSigRegistration.id]).toEqual([
                     {
-                        message: "Version 2 not supported.",
+                        message: "Transaction type 1-4 is deactivated.",
                         type: "ERR_UNKNOWN",
                     },
                 ]);
+                Managers.configManager.getMilestone().aip11 = true;
             });
         });
 
@@ -539,7 +532,7 @@ describe("Transaction Guard", () => {
 
                 // the fields we are going to modify after signing
                 const modifiedFields = [
-                    { timestamp: 111111 },
+                    { nonce: 99 },
                     { amount: 111 },
                     { fee: 1111111 },
                     { recipientId: "ANqvJEMZcmUpcKBC8xiP1TntVkJeuZ3Lw3" },
@@ -587,7 +580,7 @@ describe("Transaction Guard", () => {
                 // the fields we are going to modify after signing
                 const modifiedFieldsDelReg = [
                     {
-                        timestamp: 111111,
+                        nonce: 111111,
                     },
                     {
                         fee: 1111111,
@@ -650,7 +643,7 @@ describe("Transaction Guard", () => {
             it("should not validate when changing fields after signing - vote", async () => {
                 // the fields we are going to modify after signing
                 const modifiedFieldsVote = [
-                    { timestamp: 111111 },
+                    { nonce: 111111 },
                     { fee: 1111111 },
                     // we are also going to modify senderPublicKey but separately
                 ];
@@ -707,7 +700,7 @@ describe("Transaction Guard", () => {
             it("should not validate when changing fields after signing - 2nd signature registration", async () => {
                 // the fields we are going to modify after signing
                 const modifiedFields2ndSig = [
-                    { timestamp: 111111 },
+                    { nonce: 111111 },
                     { fee: 1111111 },
                     { senderPublicKey: wallets[50].keys.publicKey },
                 ];
@@ -776,15 +769,6 @@ describe("Transaction Guard", () => {
                 await blockchain.processBlocks([blockVerified], () => undefined);
             };
 
-            const forgedErrorMessage = id => ({
-                [id]: [
-                    {
-                        message: "Already forged.",
-                        type: "ERR_FORGED",
-                    },
-                ],
-            });
-
             it("should not validate an already forged transaction", async () => {
                 const transfers = TransactionFactory.transfer(wallets[1].address, 11)
                     .withNetwork("unitnet")
@@ -794,7 +778,9 @@ describe("Transaction Guard", () => {
 
                 const result = await processor.validate(transfers);
 
-                expect(result.errors).toEqual(forgedErrorMessage(transfers[0].id));
+                expect(result.errors).toContainKey(transfers[0].id);
+                expect(result.errors[transfers[0].id][0].message).toStartWith("Cannot apply a transaction with nonce");
+                expect(result.errors[transfers[0].id][0].type).toEqual("ERR_APPLY");
             });
 
             it("should not validate an already forged transaction - trying to tweak tx id", async () => {
@@ -804,12 +790,13 @@ describe("Transaction Guard", () => {
                     .create();
                 await addBlock(transfers);
 
-                const realTransferId = transfers[0].id;
                 transfers[0].id = "c".repeat(64);
 
                 const result = await processor.validate(transfers);
 
-                expect(result.errors).toEqual(forgedErrorMessage(realTransferId));
+                expect(result.errors).toContainKey(transfers[0].id);
+                expect(result.errors[transfers[0].id][0].message).toStartWith("Cannot apply a transaction with nonce");
+                expect(result.errors[transfers[0].id][0].type).toEqual("ERR_APPLY");
             });
         });
 
@@ -898,13 +885,8 @@ describe("Transaction Guard", () => {
                 .withPassphrase(wallets[11].passphrase)
                 .build();
 
-            await processor.validate(transactions.map(tx => tx.data));
-            expect(processor.getTransactions()).toEqual(transactions.map(tx => tx.data));
-
-            await processor.validate([transactions[0].data]);
-            expect(processor.getTransactions()).toEqual([]);
-
-            expect(processor.getErrors()).toEqual({
+            processor.validate(transactions.map(tx => tx.data));
+            await expect(processor.validate([transactions[0].data])).resolves.toHaveProperty("errors", {
                 [transactions[0].id]: [
                     {
                         message: "Already in cache.",

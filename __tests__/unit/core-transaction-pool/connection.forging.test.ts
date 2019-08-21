@@ -183,7 +183,8 @@ describe("Connection", () => {
 
         it("should call `TransactionHandler.throwIfCannotBeApplied`", async () => {
             const transactions = TransactionFactory.transfer().build(5);
-            const spy = jest.spyOn(Handlers.Registry.get(0), "throwIfCannotBeApplied");
+            const handler = await Handlers.Registry.get(0);
+            const spy = jest.spyOn(handler, "throwIfCannotBeApplied");
             await expectForgingTransactions(transactions, 5);
             expect(spy).toHaveBeenCalled();
         });
@@ -325,19 +326,17 @@ describe("Connection", () => {
         });
 
         it("should remove transactions that have a disabled type", async () => {
-            const transactions = TransactionFactory.transfer()
-                .withVersion(1)
-                .build(2);
+            const transactions = TransactionFactory.transfer().build(2);
 
-            transactions[0].serialized = customSerialize(transactions[0].data, {
+            transactions[1].serialized = customSerialize(transactions[1].data, {
                 version: (b: ByteBuffer) => b.writeUint8(4),
             });
 
-            await expectForgingTransactions(transactions, 1);
+            await expectForgingTransactions(transactions, 1, true);
         });
 
         it("should remove transactions that have have data of a another transaction type", async () => {
-            const handlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactions();
+            const handlers: Handlers.TransactionHandler[] = Handlers.Registry.getAll();
             const transactions: Interfaces.ITransaction[] = TransactionFactory.transfer().build(handlers.length);
 
             for (let i = 0; i < handlers.length; i++) {
@@ -630,17 +629,15 @@ describe("Connection", () => {
         });
 
         it("should remove all invalid transactions from the transaction pool", async () => {
-            const transactions = TransactionFactory.transfer()
-                .withVersion(1)
-                .build(151);
-            for (let i = 0; i < transactions.length - 1; i++) {
+            const transactions = TransactionFactory.transfer().build(151);
+            for (let i = 1; i < transactions.length - 1; i++) {
                 transactions[i].serialized = customSerialize(transactions[i].data, {
                     signature: (b: ByteBuffer) => {
                         b.writeByte(0x01);
                     },
                 });
             }
-            await expectForgingTransactions(transactions, 1);
+            await expectForgingTransactions(transactions, 1, true);
         });
     });
 });

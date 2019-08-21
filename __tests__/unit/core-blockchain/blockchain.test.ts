@@ -3,7 +3,7 @@ import "./mocks/";
 import { container } from "./mocks/container";
 
 import * as Utils from "@arkecosystem/core-utils";
-import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import delay from "delay";
 import { Blockchain } from "../../../packages/core-blockchain/src/blockchain";
 import { stateMachine } from "../../../packages/core-blockchain/src/state-machine";
@@ -27,8 +27,9 @@ describe("Blockchain", () => {
     beforeAll(async () => {
         // Create the genesis block after the setup has finished or else it uses a potentially
         // wrong network config.
+        Managers.configManager.getMilestone().aip11 = false;
         genesisBlock = BlockFactory.fromData(GB);
-
+        Managers.configManager.getMilestone().aip11 = true;
         // Workaround: Add genesis transactions to the exceptions list, because they have a fee of 0
         // and otherwise don't pass validation.
         config["exceptions.transactions"] = genesisBlock.transactions.map(tx => tx.id);

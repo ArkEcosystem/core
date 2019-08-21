@@ -165,26 +165,16 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return [];
         }
 
-        // To stay backward compatible, don't assume peers respond with serialized transactions just yet.
-        // TODO: remove with 2.6
         for (const block of peerBlocks) {
             if (!block.transactions) {
                 continue;
             }
 
-            let transactions: Interfaces.ITransactionData[] = [];
-
-            try {
-                transactions = block.transactions.map(transaction => {
-                    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
-                    data.blockId = block.id;
-                    return data;
-                });
-            } catch {
-                transactions = block.transactions;
-            }
-
-            block.transactions = transactions;
+            block.transactions = block.transactions.map(transaction => {
+                const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                data.blockId = block.id;
+                return data;
+            });
         }
 
         return peerBlocks;

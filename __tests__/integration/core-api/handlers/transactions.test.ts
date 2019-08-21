@@ -3,7 +3,7 @@ import "../../../utils";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
-import { Address } from "../../../../packages/crypto/src/identities";
+import { Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
 import { delegates } from "../../../utils/fixtures/testnet/delegates";
@@ -44,7 +44,7 @@ beforeAll(async () => {
     wrongType = 3;
     version = 1;
     senderPublicKey = genesisTransaction.senderPublicKey;
-    senderAddress = Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
+    senderAddress = Identities.Address.fromPublicKey(genesisTransaction.senderPublicKey, 23);
     recipientAddress = genesisTransaction.recipientId;
     timestamp = genesisTransaction.timestamp;
     timestampFrom = timestamp;
@@ -539,12 +539,10 @@ describe("API 2.0 - Transactions", () => {
             const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee;
 
             const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
-                .withNetwork("testnet")
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
 
             const lastTransaction = TransactionFactory.transfer(receivers[0].address, lastAmountPlusFee - transferFee)
-                .withNetwork("testnet")
                 .withNonce(transactions[transactions.length - 1].nonce)
                 .withPassphrase(sender.secret)
                 .create();

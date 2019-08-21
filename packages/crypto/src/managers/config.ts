@@ -26,7 +26,6 @@ export class ConfigManager {
         };
 
         this.validateMilestones();
-
         this.buildConstants();
     }
 

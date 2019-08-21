@@ -108,10 +108,10 @@ export class TransactionsController extends Controller {
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const activatedTransactionTypes: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactions();
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactionHandlers();
             const typeGroups: Record<string | number, Record<string, number>> = {};
 
-            for (const handler of activatedTransactionTypes) {
+            for (const handler of activatedTransactionHandlers) {
                 const constructor = handler.getConstructor();
 
                 const { type, typeGroup, key } = constructor;
