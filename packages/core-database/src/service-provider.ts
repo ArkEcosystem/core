@@ -5,7 +5,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.app.resolve<Contracts.Kernel.ILogger>("logger").info("Starting Database Manager");
 
-        this.app.bind("database-manager", new ConnectionManager());
+        this.app.singleton("database-manager", ConnectionManager);
     }
 
     public getPackageJson(): Types.PackageJson {

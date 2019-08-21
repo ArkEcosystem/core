@@ -252,7 +252,7 @@ export abstract class BaseCommand extends Command {
             this.error(`The ${configDelegates} file does not exist.`);
         }
 
-        const { delegates } = require(configDelegates);
+        const delegates = require(configDelegates);
 
         if (!bip38 && delegates.bip38) {
             bip38 = delegates.bip38;

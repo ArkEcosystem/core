@@ -3,7 +3,7 @@ import { set } from "dottie";
 import { parseFileSync } from "envfile";
 import { JsonObject } from "type-fest";
 import { Kernel } from "../../../contracts";
-import { InvalidApplicationConfiguration, InvalidEnvironmentConfiguration } from "../../../errors";
+import { InvalidApplicationConfiguration, InvalidEnvironmentConfiguration } from "../../../errors/kernel";
 
 /**
  * @export

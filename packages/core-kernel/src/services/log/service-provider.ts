@@ -11,6 +11,9 @@ export class ServiceProvider extends AbstractServiceProvider {
      */
     public async register(): Promise<void> {
         this.app.singleton<LogManager>("logManager", LogManager);
+
+        // Note: Ensure that we rebind the logger that is bound to the container so IoC can do it's job.
+        this.app.bind("log", await this.app.resolve<LogManager>("logManager").driver());
     }
 
     /**

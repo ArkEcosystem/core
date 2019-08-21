@@ -115,7 +115,7 @@ export class FailedNetworkDetection extends KernelError {
      * @memberof FailedNetworkDetection
      */
     constructor() {
-        super("Unable to detect application token or network.");
+        super("Unable to discover application token or network.");
     }
 }
 
@@ -127,11 +127,11 @@ export class FailedNetworkDetection extends KernelError {
 export class FailedServiceProviderRegistration extends KernelError {
     /**
      * @param {string} name
-     * @param {string} dep
+     * @param {string} error
      * @memberof FailedServiceProviderRegistration
      */
-    constructor(name: string, dep: string) {
-        super(`Failed to register "${name}" as we did not detect "${dep}".`);
+    constructor(name: string, error: string) {
+        super(`Failed to register "${name}": "${error}".`);
     }
 }
 
@@ -149,6 +149,26 @@ export class FailedDependencySatisfaction extends KernelError {
      */
     constructor(dep: string, expected: string, given: string) {
         super(`Expected "${dep}" to satisfy "${expected}" but received "${given}".`);
+    }
+}
+
+/**
+ * @export
+ * @class MissingDependency
+ * @extends {KernelError}
+ */
+export class MissingDependency extends KernelError {
+    /**
+     * @param {string} dep
+     * @param {string} expected
+     * @param {string} given
+     * @memberof FailedDependencySatisfaction
+     */
+    constructor(serviceProvider: string, dependency: string, required: boolean = false) {
+        super(
+            `"${serviceProvider}" depends on "${dependency}" but "${dependency}" was not detected. ` +
+                (required ? "This is required for its full functionality." : "This might influence its functionality."),
+        );
     }
 }
 

@@ -194,3 +194,14 @@ export interface IApplication extends IContainer {
      */
     terminate(reason?: string, error?: Error): Promise<void>;
 }
+
+/**
+ * @export
+ * @interface IServiceProviderDependency
+ */
+export interface IServiceProviderDependency {
+    name: string;
+    version?: string;
+    required?: boolean;
+    requiredWhen?: () => Promise<boolean>;
+}

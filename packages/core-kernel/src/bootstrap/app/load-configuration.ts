@@ -1,4 +1,4 @@
-import { JsonObject } from "type-fest";
+import { IConfigAdapter } from "../../contracts/core-kernel";
 import { ConfigManager, ConfigRepository } from "../../services/config";
 import { AbstractBootstrapper } from "../bootstrapper";
 
@@ -12,12 +12,12 @@ export class LoadConfiguration extends AbstractBootstrapper {
      * @memberof LoadConfiguration
      */
     public async bootstrap(): Promise<void> {
-        const config: JsonObject = this.app.resolve<JsonObject>("config");
+        const configRepository: ConfigRepository = this.app.resolve<ConfigRepository>("config");
 
-        this.app.resolve<ConfigRepository>("config").set("options", config.options || {});
-
-        await (await this.app
+        const driver: IConfigAdapter = await this.app
             .resolve<ConfigManager>("configManager")
-            .driver((config.configLoader || "local") as string)).loadConfiguration();
+            .driver(configRepository.get<string>("configLoader", "local"));
+
+        await driver.loadConfiguration();
     }
 }

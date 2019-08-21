@@ -159,7 +159,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates || delegates.length === 0) {
-            delegates = (await this.connection.roundsRepository.findById(round)).map(({ round, publicKey, balance }) =>
+            delegates = (await this.connection.roundsRepository.findById(round)).map(({ publicKey, balance }) =>
                 Object.assign(new Wallets.Wallet(Identities.Address.fromPublicKey(publicKey)), {
                     publicKey,
                     attributes: {

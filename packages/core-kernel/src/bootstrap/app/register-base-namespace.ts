@@ -1,4 +1,4 @@
-import { FailedNetworkDetection } from "../../errors";
+import { FailedNetworkDetection } from "../../errors/kernel";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**

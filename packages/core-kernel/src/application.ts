@@ -7,7 +7,7 @@ import { AbstractBootstrapper } from "./bootstrap/bootstrapper";
 import { Container } from "./container";
 import { Kernel } from "./contracts";
 import * as Contracts from "./contracts";
-import { DirectoryNotFound } from "./errors";
+import { DirectoryNotFound } from "./errors/kernel";
 import { ProviderRepository } from "./repositories";
 
 /**
@@ -190,7 +190,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public logPath(path: string = ""): string {
-        return join(this.getPath("log"), path);
+        return join(this.getPath("logger"), path);
     }
 
     /**
@@ -313,7 +313,13 @@ export class Application extends Container implements Kernel.IApplication {
     public async terminate(reason?: string, error?: Error): Promise<void> {
         this.booted = false;
 
-        this.log.notice(reason);
+        if (reason) {
+            this.log.notice(reason);
+        }
+
+        if (error) {
+            this.log.notice(error.stack);
+        }
 
         await this.disposeServiceProviders();
     }
@@ -324,7 +330,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public get log(): Contracts.Kernel.ILogger {
-        return this.resolve<Contracts.Kernel.ILogger>("log");
+        return this.resolve<Contracts.Kernel.ILogger>("logger");
     }
 
     /**
@@ -333,7 +339,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public get events(): Contracts.Kernel.IEventDispatcher {
-        return this.resolve<Contracts.Kernel.IEventDispatcher>("event");
+        return this.resolve<Contracts.Kernel.IEventDispatcher>("events");
     }
 
     /**

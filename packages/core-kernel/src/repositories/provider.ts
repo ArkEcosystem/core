@@ -103,6 +103,58 @@ export class ProviderRepository {
     }
 
     /**
+     * @param {string} name
+     * @returns {boolean}
+     * @memberof ProviderRepository
+     */
+    public has(name: string): boolean {
+        return this.serviceProviders.has(name);
+    }
+
+    /**
+     * @param {string} name
+     * @returns {boolean}
+     * @memberof ProviderRepository
+     */
+    public loaded(name: string): boolean {
+        return this.loadedProviders.has(name);
+    }
+
+    /**
+     * @param {string} name
+     * @returns {boolean}
+     * @memberof ProviderRepository
+     */
+    public failed(name: string): boolean {
+        return this.failedProviders.has(name);
+    }
+
+    /**
+     * @param {string} name
+     * @returns {boolean}
+     * @memberof ProviderRepository
+     */
+    public deferred(name: string): boolean {
+        return this.deferredProviders.has(name);
+    }
+
+    /**
+     * @param {string} name
+     * @memberof ProviderRepository
+     */
+    public fail(name: string): void {
+        this.failedProviders.add(name);
+    }
+
+    /**
+     * @param {string} name
+     * @memberof ProviderRepository
+     */
+    public defer(name: string): void {
+        this.deferredProviders.add(name);
+    }
+
+    /**
      * Register the given provider.
      *
      * @param {AbstractServiceProvider} provider
@@ -124,5 +176,22 @@ export class ProviderRepository {
         await this.serviceProviders.get(name).boot();
 
         this.loadedProviders.add(name);
+        this.failedProviders.delete(name);
+        this.deferredProviders.delete(name);
+    }
+
+    /**
+     * Dispose the given provider.
+     *
+     * @param {AbstractServiceProvider} provider
+     * @returns {Promise<void>}
+     * @memberof ProviderRepository
+     */
+    public async dispose(name: string): Promise<void> {
+        await this.serviceProviders.get(name).dispose();
+
+        this.loadedProviders.delete(name);
+        this.failedProviders.delete(name);
+        this.deferredProviders.add(name);
     }
 }

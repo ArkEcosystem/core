@@ -14,7 +14,7 @@ import {
     Resolver,
 } from "awilix";
 import { isClass, isFunction } from "typechecker";
-import { InvalidType } from "./errors";
+import { InvalidType } from "./errors/kernel";
 
 /**
  * @export

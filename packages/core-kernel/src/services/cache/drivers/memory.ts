@@ -1,6 +1,6 @@
 import { IApplication } from "../../../contracts/core-kernel";
 import { ICacheStore } from "../../../contracts/core-kernel/cache";
-import { NotImplementedError } from "../../../errors";
+import { NotImplementedError } from "../../../errors/kernel";
 
 /**
  * @export

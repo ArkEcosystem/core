@@ -94,11 +94,31 @@ export abstract class AbstractServiceProvider {
     /**
      * Get the dependencies of the service provider.
      *
-     * @returns {Record<string, string>}
+     * @returns {Kernel.IServiceProviderDependency[]}
      * @memberof AbstractServiceProvider
      */
-    public getDependencies(): Record<string, string> {
-        return {};
+    public getDependencies(): Kernel.IServiceProviderDependency[] {
+        return [];
+    }
+
+    /**
+     * Enable the service provider when the given conditions are met.
+     *
+     * @returns {Promise<boolean>}
+     * @memberof AbstractServiceProvider
+     */
+    public async enableWhen(): Promise<boolean> {
+        return true;
+    }
+
+    /**
+     * Disable the service provider when the given conditions are met.
+     *
+     * @returns {Promise<boolean>}
+     * @memberof AbstractServiceProvider
+     */
+    public async disableWhen(): Promise<boolean> {
+        return false;
     }
 
     /**
@@ -110,14 +130,10 @@ export abstract class AbstractServiceProvider {
     protected buildConfig(opts: ConfigObject): ConfigObject {
         opts = { ...opts, ...this.getDefaults() };
 
-        try {
-            const globalOptions: ConfigObject | undefined = this.app.config("options")[this.getName()];
+        const globalOptions: ConfigObject | undefined = this.app.config("options")[this.getName()];
 
-            if (globalOptions) {
-                this.opts = { ...this.opts, ...globalOptions };
-            }
-        } catch {
-            // ignore global configuration errors
+        if (globalOptions) {
+            opts = { ...opts, ...globalOptions };
         }
 
         return opts;
