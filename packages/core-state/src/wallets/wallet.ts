@@ -1,6 +1,7 @@
 import { State } from "@arkecosystem/core-interfaces";
-import { Errors } from "@arkecosystem/core-transactions";
+import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import assert from "assert";
 import dottie from "dottie";
 
 export class Wallet implements State.IWallet {
@@ -20,18 +21,22 @@ export class Wallet implements State.IWallet {
     }
 
     public hasAttribute(key: string): boolean {
+        this.assertKnownAttribute(key);
         return dottie.exists(this.attributes, key);
     }
 
     public getAttribute<T>(key: string, defaultValue?: T): T {
+        this.assertKnownAttribute(key);
         return dottie.get(this.attributes, key, defaultValue);
     }
 
     public setAttribute<T = any>(key: string, value: T): void {
+        this.assertKnownAttribute(key);
         dottie.set(this.attributes, key, value);
     }
 
     public forgetAttribute(key: string): void {
+        this.assertKnownAttribute(key);
         this.setAttribute(key, undefined);
     }
 
@@ -231,5 +236,9 @@ export class Wallet implements State.IWallet {
 
     public toString(): string {
         return `${this.address} (${Utils.formatSatoshi(this.balance)})`;
+    }
+
+    private assertKnownAttribute(key: string): void {
+        assert(Handlers.Registry.isKnownWalletAttribute(key), `Tried to access unknown attribute: ${key}`);
     }
 }

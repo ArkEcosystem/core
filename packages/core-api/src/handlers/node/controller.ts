@@ -49,6 +49,9 @@ export class NodeController extends Controller {
 
             return {
                 data: {
+                    core: {
+                        version: app.getVersion(),
+                    },
                     nethash: network.nethash,
                     slip44: network.slip44,
                     wif: network.wif,

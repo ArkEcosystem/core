@@ -65,6 +65,7 @@ describe("Delegate resignation handler bootstrap", () => {
             .withNetwork("unitnet")
             .withPassphrase(sender.passphrase)
             .withTimestamp(optionsDefault.timestamp)
+            .withNonce(Utils.BigNumber.make(1)) // this will generate a transaction with nonce=2
             .createOne();
 
         const blockResignation = delegate.forge([resignation], {

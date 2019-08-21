@@ -101,6 +101,7 @@ describe("Vote handler bootstrap", () => {
             .withNetwork("unitnet")
             .withPassphrase(sender.passphrase)
             .withTimestamp(optionsDefault.timestamp + 100)
+            .withNonce(Utils.BigNumber.make(1)) // this will generate a transaction with nonce=2
             .createOne();
         const blockUnvote = delegate.forge([unvote], {
             timestamp: 12345789,
