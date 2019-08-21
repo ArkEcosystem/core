@@ -18,7 +18,7 @@ export const transactionPayload = {
                     return h.continue;
                 }
 
-                const transactionPool = app.resolve("transaction-pool.options");
+                const transactionPool = app.resolve("transactionPool.options");
 
                 if (!transactionPool) {
                     return h.continue;

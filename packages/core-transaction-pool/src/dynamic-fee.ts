@@ -8,14 +8,14 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;
 
-    const { dynamicFees } = app.resolve("transaction-pool.options");
+    const { dynamicFees } = app.resolve("transactionPool.options");
 
     let broadcast: boolean;
     let enterPool: boolean;
 
     if (dynamicFees.enabled) {
         const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type, transaction.typeGroup);
-        const addonBytes: number = app.resolve("transaction-pool.options").dynamicFees.addonBytes[transaction.key];
+        const addonBytes: number = app.resolve("transactionPool.options").dynamicFees.addonBytes[transaction.key];
         const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee(
             transaction,
             addonBytes,

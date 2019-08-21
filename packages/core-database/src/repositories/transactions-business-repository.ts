@@ -100,7 +100,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.ITrans
     > {
         return this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
             days,
-            app.resolve("transaction-pool.options").dynamicFees.minFeeBroadcast,
+            app.resolve("transactionPool.options").dynamicFees.minFeeBroadcast,
         );
     }
 

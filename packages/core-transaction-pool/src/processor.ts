@@ -102,7 +102,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
     }
 
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
-        const { maxTransactionBytes } = app.resolve("transaction-pool.options");
+        const { maxTransactionBytes } = app.resolve("transactionPool.options");
 
         for (const transaction of transactions) {
             const exists: boolean = await this.pool.has(transaction.id);

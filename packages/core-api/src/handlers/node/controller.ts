@@ -44,7 +44,7 @@ export class NodeController extends Controller {
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const network = this.config.get("network");
-            const dynamicFees = app.resolve("transaction-pool.options").dynamicFees;
+            const dynamicFees = app.resolve("transactionPool.options").dynamicFees;
 
             return {
                 data: {
