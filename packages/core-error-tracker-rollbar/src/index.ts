@@ -4,14 +4,18 @@ import { defaults } from "./defaults";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind("error-tracker", new Rollbar(this.opts));
+        this.app.bind("errorTracker", new Rollbar(this.opts));
     }
 
-    public getDefaults(): Types.ConfigObject {
+    public manifest(): Types.PackageJson {
+        return require("../package.json");
+    }
+
+    public defaults(): Types.ConfigObject {
         return defaults;
     }
 
-    public getPackageJson(): Types.PackageJson {
-        return require("../package.json");
+    public provides(): string[] {
+        return ["errorTracker"];
     }
 }

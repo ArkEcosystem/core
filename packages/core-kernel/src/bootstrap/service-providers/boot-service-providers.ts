@@ -1,5 +1,5 @@
 import { State } from "../../enums/event";
-import { ProviderRepository } from "../../repositories";
+import { ServiceProviderRepository } from "../../repositories";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
@@ -12,7 +12,9 @@ export class BootServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const serviceProviders: ProviderRepository = this.app.resolve<ProviderRepository>("service-providers");
+        const serviceProviders: ServiceProviderRepository = this.app.resolve<ServiceProviderRepository>(
+            "serviceProviderRepository",
+        );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
             if (await serviceProvider.enableWhen()) {

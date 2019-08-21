@@ -5,7 +5,7 @@ import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
-    private readonly transactionPool = app.resolve<Contracts.TransactionPool.IConnection>("transaction-pool");
+    private readonly transactionPool = app.resolve<Contracts.TransactionPool.IConnection>("transactionPool");
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {

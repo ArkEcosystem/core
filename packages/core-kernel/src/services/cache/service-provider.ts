@@ -19,7 +19,7 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @returns {PackageJson}
      * @memberof ServiceProvider
      */
-    public getPackageJson(): PackageJson {
+    public manifest(): PackageJson {
         return {};
     }
 }

@@ -12,11 +12,15 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("snapshots", manager.make(databaseService.connection as PostgresConnection));
     }
 
-    public getDefaults(): Types.ConfigObject {
+    public manifest(): Types.PackageJson {
+        return require("../package.json");
+    }
+
+    public defaults(): Types.ConfigObject {
         return defaults;
     }
 
-    public getPackageJson(): Types.PackageJson {
-        return require("../package.json");
+    public provides(): string[] {
+        return ["snapshots"];
     }
 }

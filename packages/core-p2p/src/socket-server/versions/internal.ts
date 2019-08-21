@@ -15,7 +15,7 @@ export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUncon
     const { maxTransactions } = Managers.configManager.getMilestone(blockchain.getLastBlock().data.height).block;
 
     const transactionPool: Contracts.TransactionPool.IConnection = app.resolve<Contracts.TransactionPool.IConnection>(
-        "transaction-pool",
+        "transactionPool",
     );
 
     return {

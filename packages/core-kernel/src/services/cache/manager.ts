@@ -1,8 +1,7 @@
-// import { Kernel } from "../../contracts";
-import { Manager } from "../../support/manager";
+import { AbstractManager } from "../../support/manager";
 import { Memory } from "./drivers";
 
-export class CacheManager extends Manager<any> {
+export class CacheManager extends AbstractManager<any> {
     /**
      * Create an instance of the Memory driver.
      *

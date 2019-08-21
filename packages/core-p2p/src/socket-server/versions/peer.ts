@@ -87,7 +87,7 @@ export const postTransactions = async ({
     req;
 }): Promise<string[]> => {
     const processor: Contracts.TransactionPool.IProcessor = app
-        .resolve<Contracts.TransactionPool.IConnection>("transaction-pool")
+        .resolve<Contracts.TransactionPool.IConnection>("transactionPool")
         .makeProcessor();
 
     const result: Contracts.TransactionPool.IProcessorResult = await processor.validate(req.data.transactions);

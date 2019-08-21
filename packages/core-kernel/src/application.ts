@@ -8,7 +8,7 @@ import { Container } from "./container";
 import { Kernel } from "./contracts";
 import * as Contracts from "./contracts";
 import { DirectoryNotFound } from "./errors/kernel";
-import { ProviderRepository } from "./repositories";
+import { ServiceProviderRepository } from "./repositories";
 
 /**
  * @export
@@ -43,7 +43,7 @@ export class Application extends Container implements Kernel.IApplication {
     public async bootstrap(config: JsonObject): Promise<void> {
         app.bind<JsonObject>("config", config);
 
-        app.singleton<ProviderRepository>("service-providers", ProviderRepository);
+        app.singleton<ServiceProviderRepository>("serviceProviderRepository", ServiceProviderRepository);
 
         await this.runBootstrappers("app");
 
@@ -384,7 +384,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public get transactionPool(): Contracts.TransactionPool.IConnection {
-        return this.resolve<Contracts.TransactionPool.IConnection>("transaction-pool");
+        return this.resolve<Contracts.TransactionPool.IConnection>("transactionPool");
     }
 
     /**
@@ -407,7 +407,9 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     private async disposeServiceProviders(): Promise<void> {
-        for (const provider of app.resolve<ProviderRepository>("service-providers").allLoadedProviders()) {
+        for (const provider of app
+            .resolve<ServiceProviderRepository>("serviceProviderRepository")
+            .allLoadedProviders()) {
             await provider.dispose();
         }
     }

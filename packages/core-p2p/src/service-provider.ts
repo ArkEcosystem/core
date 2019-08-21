@@ -36,14 +36,19 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             .stopServer();
     }
 
-    public getDefaults(): Types.ConfigObject {
-        return defaults;
-    }
-
-    public getPackageJson(): Types.PackageJson {
+    public manifest(): Types.PackageJson {
         return require("../package.json");
     }
 
+    public defaults(): Types.ConfigObject {
+        return defaults;
+    }
+
+    public provides(): string[] {
+        return ["p2p"];
+    }
+
+    // @TODO: ioc
     private makePeerService(options): PeerService {
         const storage = new PeerStorage();
         const connector = new PeerConnector();

@@ -6,14 +6,18 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         Sentry.init(this.opts);
 
-        this.app.bind("error-tracker", Sentry);
+        this.app.bind("errorTracker", Sentry);
     }
 
-    public getDefaults(): Types.ConfigObject {
+    public manifest(): Types.PackageJson {
+        return require("../package.json");
+    }
+
+    public defaults(): Types.ConfigObject {
         return defaults;
     }
 
-    public getPackageJson(): Types.PackageJson {
-        return require("../package.json");
+    public provides(): string[] {
+        return ["errorTracker"];
     }
 }

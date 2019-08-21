@@ -1,8 +1,8 @@
 import { Kernel } from "../../contracts";
-import { Manager } from "../../support/manager";
+import { AbstractManager } from "../../support/manager";
 import { Local, Remote } from "./drivers";
 
-export class ConfigManager extends Manager<Kernel.IConfigAdapter> {
+export class ConfigManager extends AbstractManager<Kernel.IConfigAdapter> {
     /**
      * Create an instance of the Local driver.
      *

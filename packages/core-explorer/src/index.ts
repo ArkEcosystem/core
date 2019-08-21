@@ -44,11 +44,15 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         }
     }
 
-    public getDefaults(): Types.ConfigObject {
+    public manifest(): Types.PackageJson {
+        return require("../package.json");
+    }
+
+    public defaults(): Types.ConfigObject {
         return defaults;
     }
 
-    public getPackageJson(): Types.PackageJson {
-        return require("../package.json");
+    public provides(): string[] {
+        return ["explorer"];
     }
 }

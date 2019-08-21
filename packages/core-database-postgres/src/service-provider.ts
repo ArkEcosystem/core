@@ -10,7 +10,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
 
         const walletManager = new Wallets.WalletManager();
 
-        const connectionManager = this.app.resolve<ConnectionManager>("database-manager");
+        const connectionManager = this.app.resolve<ConnectionManager>("databaseManager");
         const connection = await connectionManager.createConnection(new PostgresConnection(this.opts, walletManager));
 
         this.app.bind("database", await databaseServiceFactory(this.opts, walletManager, connection));
@@ -22,11 +22,15 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         await this.app.resolve<Contracts.Database.IDatabaseService>("database").connection.disconnect();
     }
 
-    public getDefaults(): Types.ConfigObject {
+    public manifest(): Types.PackageJson {
+        return require("../package.json");
+    }
+
+    public defaults(): Types.ConfigObject {
         return defaults;
     }
 
-    public getPackageJson(): Types.PackageJson {
-        return require("../package.json");
+    public provides(): string[] {
+        return ["database"];
     }
 }

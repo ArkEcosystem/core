@@ -4,14 +4,18 @@ import { defaults } from "./defaults";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind("error-tracker", new raygun.Client().init((this.opts as unknown) as raygun.raygun.RaygunOptions));
+        this.app.bind("errorTracker", new raygun.Client().init((this.opts as unknown) as raygun.raygun.RaygunOptions));
     }
 
-    public getDefaults(): Types.ConfigObject {
+    public manifest(): Types.PackageJson {
+        return require("../package.json");
+    }
+
+    public defaults(): Types.ConfigObject {
         return defaults;
     }
 
-    public getPackageJson(): Types.PackageJson {
-        return require("../package.json");
+    public provides(): string[] {
+        return ["errorTracker"];
     }
 }

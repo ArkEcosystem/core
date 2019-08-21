@@ -1,8 +1,8 @@
 import { Kernel } from "../../contracts";
-import { Manager } from "../../support/manager";
+import { AbstractManager } from "../../support/manager";
 import { Local } from "./drivers/local";
 
-export class FilesystemManager extends Manager<Kernel.IFilesystem> {
+export class FilesystemManager extends AbstractManager<Kernel.IFilesystem> {
     /**
      * Create an instance of the Local driver.
      *

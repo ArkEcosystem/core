@@ -19,25 +19,29 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             }),
         );
 
-        this.app.bind("transaction-pool", connection);
-        this.app.bind("transaction-pool.options", this.opts);
+        this.app.bind("transactionPool", connection);
+        this.app.bind("transactionPool.options", this.opts);
     }
 
     public async dispose(): Promise<void> {
         try {
             this.app.resolve<Contracts.Kernel.ILogger>("log").info("Disconnecting from transaction pool");
 
-            this.app.resolve<Contracts.TransactionPool.IConnection>("transaction-pool").disconnect();
+            this.app.resolve<Contracts.TransactionPool.IConnection>("transactionPool").disconnect();
         } catch (error) {
             // @TODO: handle
         }
     }
 
-    public getDefaults(): Types.ConfigObject {
+    public manifest(): Types.PackageJson {
+        return require("../package.json");
+    }
+
+    public defaults(): Types.ConfigObject {
         return defaults;
     }
 
-    public getPackageJson(): Types.PackageJson {
-        return require("../package.json");
+    public provides(): string[] {
+        return ["transactionPool"];
     }
 }

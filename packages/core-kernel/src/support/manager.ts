@@ -4,23 +4,23 @@ import { IApplication } from "../contracts/core-kernel";
 /**
  * @export
  * @abstract
- * @class Manager
+ * @class AbstractManager
  * @template T
  */
-export abstract class Manager<T> {
+export abstract class AbstractManager<T> {
     /**
      * The application instance.
      *
      * @protected
      * @type {IApplication}
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     protected readonly app: IApplication;
 
     /**
      * @private
      * @type {string}
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     private defaultDriver: string;
 
@@ -29,7 +29,7 @@ export abstract class Manager<T> {
      *
      * @private
      * @type {Map<string, T>}
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     private drivers: Map<string, T> = new Map<string, T>();
 
@@ -38,7 +38,7 @@ export abstract class Manager<T> {
      *
      * @private
      * @type {Map<string, (app: IApplication) => Promise<T>>}
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     private customCreators: Map<string, (app: IApplication) => Promise<T>> = new Map<
         string,
@@ -49,7 +49,7 @@ export abstract class Manager<T> {
      * Create a new manager instance.
      *
      * @param {{ app:IApplication }} { app }
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     public constructor({ app }: { app: IApplication }) {
         this.app = app;
@@ -61,7 +61,7 @@ export abstract class Manager<T> {
      *
      * @param {string} [name]
      * @returns {Promise<T>}
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     public async driver(name?: string): Promise<T> {
         name = name || this.defaultDriver;
@@ -82,7 +82,7 @@ export abstract class Manager<T> {
      *
      * @param {string} name
      * @param {(app: IApplication) => T} callback
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     public extend(name: string, callback: (app: IApplication) => Promise<T>): void {
         this.customCreators.set(name, callback);
@@ -92,7 +92,7 @@ export abstract class Manager<T> {
      * Set the default driver name.
      *
      * @param {string} name
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     public setDefaultDriver(name: string): void {
         this.defaultDriver = name;
@@ -104,7 +104,7 @@ export abstract class Manager<T> {
      * @protected
      * @abstract
      * @returns {string}
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     protected abstract getDefaultDriver(): string;
 
@@ -114,7 +114,7 @@ export abstract class Manager<T> {
      * @private
      * @param {string} name
      * @returns {Promise<T>}
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     private async callCustomCreator(name: string): Promise<T> {
         // tslint:disable-next-line: await-promise
@@ -130,7 +130,7 @@ export abstract class Manager<T> {
      * @private
      * @param {string} name
      * @returns {Promise<T>}
-     * @memberof Manager
+     * @memberof AbstractManager
      */
     private async createDriver(name: string): Promise<T> {
         const creatorFunction: string = `create${toStudlyCaps(name)}Driver`;

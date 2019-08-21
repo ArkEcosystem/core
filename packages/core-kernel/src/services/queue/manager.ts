@@ -1,8 +1,8 @@
 import { Kernel } from "../../contracts";
-import { Manager } from "../../support/manager";
+import { AbstractManager } from "../../support/manager";
 import { Memory } from "./drivers/memory";
 
-export class QueueManager extends Manager<Kernel.IQueue> {
+export class QueueManager extends AbstractManager<Kernel.IQueue> {
     /**
      * Create an instance of the Memory driver.
      *

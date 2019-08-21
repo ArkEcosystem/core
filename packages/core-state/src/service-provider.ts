@@ -19,11 +19,15 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.bind("state.options", this.opts);
     }
 
-    public getDefaults(): Types.ConfigObject {
+    public manifest(): Types.PackageJson {
+        return require("../package.json");
+    }
+
+    public defaults(): Types.ConfigObject {
         return defaults;
     }
 
-    public getPackageJson(): Types.PackageJson {
-        return require("../package.json");
+    public provides(): string[] {
+        return ["state"];
     }
 }

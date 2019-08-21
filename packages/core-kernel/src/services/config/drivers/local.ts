@@ -74,11 +74,8 @@ export class Local implements Kernel.IConfigAdapter {
      */
     private async loadServiceProviders(): Promise<void> {
         this.app.config(
-            "service-providers",
-            this.loadFromLocation([
-                this.app.configPath("service-providers.json"),
-                this.app.configPath("service-providers.js"),
-            ]),
+            "packages",
+            this.loadFromLocation([this.app.configPath("packages.json"), this.app.configPath("packages.js")]),
         );
     }
 

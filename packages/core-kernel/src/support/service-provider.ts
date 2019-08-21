@@ -39,7 +39,7 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     public async boot(): Promise<void> {
-        // do nothing by default...
+        // ...
     }
 
     /**
@@ -49,7 +49,7 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     public async dispose(): Promise<void> {
-        // do nothing by default...
+        // ...
     }
 
     /**
@@ -59,7 +59,7 @@ export abstract class AbstractServiceProvider {
      * @returns {PackageJson}
      * @memberof AbstractServiceProvider
      */
-    public abstract getPackageJson(): PackageJson;
+    public abstract manifest(): PackageJson;
 
     /**
      * Get the name of the service provider.
@@ -67,8 +67,8 @@ export abstract class AbstractServiceProvider {
      * @returns {string}
      * @memberof AbstractServiceProvider
      */
-    public getName(): string {
-        return this.getPackageJson().name;
+    public name(): string {
+        return this.manifest().name;
     }
 
     /**
@@ -77,17 +77,17 @@ export abstract class AbstractServiceProvider {
      * @returns {string}
      * @memberof AbstractServiceProvider
      */
-    public getVersion(): string {
-        return this.getPackageJson().version;
+    public version(): string {
+        return this.manifest().version;
     }
 
     /**
-     * Get the default of the service provider.
+     * Get the default configuration of the service provider.
      *
      * @returns {ConfigObject}
      * @memberof AbstractServiceProvider
      */
-    public getDefaults(): ConfigObject {
+    public defaults(): ConfigObject {
         return {};
     }
 
@@ -97,7 +97,17 @@ export abstract class AbstractServiceProvider {
      * @returns {Kernel.IServiceProviderDependency[]}
      * @memberof AbstractServiceProvider
      */
-    public getDependencies(): Kernel.IServiceProviderDependency[] {
+    public dependencies(): Kernel.IServiceProviderDependency[] {
+        return [];
+    }
+
+    /**
+     * Get the services provided by the provider.
+     *
+     * @returns {string[]}
+     * @memberof AbstractServiceProvider
+     */
+    public provides(): string[] {
         return [];
     }
 
@@ -128,9 +138,9 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     protected buildConfig(opts: ConfigObject): ConfigObject {
-        opts = { ...opts, ...this.getDefaults() };
+        opts = { ...opts, ...this.defaults() };
 
-        const globalOptions: ConfigObject | undefined = this.app.config("options")[this.getName()];
+        const globalOptions: ConfigObject | undefined = this.app.config("options")[this.name()];
 
         if (globalOptions) {
             opts = { ...opts, ...globalOptions };
