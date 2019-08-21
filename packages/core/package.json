@@ -83,6 +83,7 @@
         "latest-version": "^5.1.0",
         "listr": "^0.14.3",
         "lodash.minby": "^4.6.0",
+        "ngrok": "^3.2.5",
         "nodejs-tail": "^1.1.0",
         "pretty-bytes": "^5.2.0",
         "pretty-ms": "^5.0.0",
