@@ -44,4 +44,8 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     public provides(): string[] {
         return ["transactionPool"];
     }
+
+    public async required(): Promise<boolean> {
+        return true;
+    }
 }

@@ -1,4 +1,5 @@
 import { State } from "../../enums/event";
+import { FailedServiceProviderBoot } from "../../errors";
 import { ServiceProviderRepository } from "../../repositories";
 import { AbstractBootstrapper } from "../bootstrapper";
 
@@ -18,7 +19,15 @@ export class BootServiceProviders extends AbstractBootstrapper {
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
             if (await serviceProvider.enableWhen()) {
-                await serviceProviders.boot(name);
+                try {
+                    await serviceProviders.boot(name);
+                } catch (error) {
+                    if (await serviceProvider.required()) {
+                        throw new FailedServiceProviderBoot(serviceProvider.name(), error.message);
+                    }
+
+                    serviceProviders.fail(serviceProvider.name());
+                }
             } else {
                 serviceProviders.defer(name);
             }

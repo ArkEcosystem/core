@@ -30,7 +30,11 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
                 try {
                     await serviceProviders.register(name);
                 } catch (error) {
-                    throw new FailedServiceProviderRegistration(serviceProvider.name(), error.message);
+                    if (await serviceProvider.required()) {
+                        throw new FailedServiceProviderRegistration(serviceProvider.name(), error.message);
+                    }
+
+                    serviceProviders.fail(serviceProvider.name());
                 }
             }
         }
@@ -54,14 +58,10 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
         );
 
         for (const dependency of dependencies) {
-            const { name, version, required, requiredWhen } = dependency;
+            const { name, version, required } = dependency;
 
             if (!serviceProviders.has(name)) {
-                let isRequired: boolean = !!required;
-
-                if (requiredWhen) {
-                    isRequired = await requiredWhen();
-                }
+                const isRequired: boolean = typeof required === "function" ? await required() : !!required;
 
                 const error: MissingDependency = new MissingDependency(serviceProvider.name(), name, isRequired);
 

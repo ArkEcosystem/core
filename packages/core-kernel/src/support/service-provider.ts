@@ -132,6 +132,16 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
+     * Terminate the process if the package is required.
+     *
+     * @returns {Promise<boolean>}
+     * @memberof AbstractServiceProvider
+     */
+    public async required(): Promise<boolean> {
+        return true;
+    }
+
+    /**
      * @protected
      * @param {ConfigObject} opts
      * @returns {ConfigObject}

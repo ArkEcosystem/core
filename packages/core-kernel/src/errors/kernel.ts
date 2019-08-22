@@ -137,6 +137,22 @@ export class FailedServiceProviderRegistration extends KernelError {
 
 /**
  * @export
+ * @class FailedServiceProviderBoot
+ * @extends {KernelError}
+ */
+export class FailedServiceProviderBoot extends KernelError {
+    /**
+     * @param {string} name
+     * @param {string} error
+     * @memberof FailedServiceProviderBoot
+     */
+    constructor(name: string, error: string) {
+        super(`Failed to boot "${name}": "${error}".`);
+    }
+}
+
+/**
+ * @export
  * @class FailedDependencySatisfaction
  * @extends {KernelError}
  */

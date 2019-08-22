@@ -200,8 +200,20 @@ export interface IApplication extends IContainer {
  * @interface IServiceProviderDependency
  */
 export interface IServiceProviderDependency {
+    /**
+     * @type {string}
+     * @memberof IServiceProviderDependency
+     */
     name: string;
+
+    /**
+     * @type {string}
+     * @memberof IServiceProviderDependency
+     */
     version?: string;
-    required?: boolean;
-    requiredWhen?: () => Promise<boolean>;
+
+    /**
+     * @memberof IServiceProviderDependency
+     */
+    required?: boolean | (() => Promise<boolean>);
 }

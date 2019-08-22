@@ -33,4 +33,8 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     public provides(): string[] {
         return ["database"];
     }
+
+    public async required(): Promise<boolean> {
+        return true;
+    }
 }

@@ -48,6 +48,10 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return ["p2p"];
     }
 
+    public async required(): Promise<boolean> {
+        return true;
+    }
+
     // @TODO: ioc
     private makePeerService(options): PeerService {
         const storage = new PeerStorage();
