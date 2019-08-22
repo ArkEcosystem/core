@@ -1056,6 +1056,11 @@
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-6.2.1.tgz#d3a66329159af879bfdf0b0cff2229c43c5a3451"
 
+"@hapi/hoek@7.x.x":
+  version "7.2.1"
+  resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-7.2.1.tgz#14c4a1ae8795472c2d5e27ee61fd7bed1b8de226"
+  integrity sha512-X6YzLoU+VvZwUNe0VFJV/r4IiFHf61/6VItdnKjlay+YS/5qoczO3u/7wyTj2NtaOZHlFJBndNkfZ2Ag2XxCsg==
+
 "@hapi/iron@5.x.x":
   version "5.1.0"
   resolved "https://registry.yarnpkg.com/@hapi/iron/-/iron-5.1.0.tgz#c3b34783cd19b7b8aabe11b72b0ce3781fcee08d"
@@ -1087,6 +1092,17 @@
   dependencies:
     "@hapi/address" "2.x.x"
     "@hapi/hoek" "6.x.x"
+    "@hapi/marker" "1.x.x"
+    "@hapi/topo" "3.x.x"
+
+"@hapi/joi@^16.0.0-preview":
+  version "16.0.0-rc2"
+  resolved "https://registry.yarnpkg.com/@hapi/joi/-/joi-16.0.0-rc2.tgz#7a31a185c282530a48864e2681967c7f6b2ef8c7"
+  integrity sha512-lrErR1oaXT/ugFLfoQkqEytJuLvXG0aRXV83qVfPjVbgyQBG0HnSG7tSIiB+OlkJYDHngE29cqNOq/hcski6hQ==
+  dependencies:
+    "@hapi/address" "2.x.x"
+    "@hapi/bourne" "1.x.x"
+    "@hapi/hoek" "7.x.x"
     "@hapi/marker" "1.x.x"
     "@hapi/topo" "3.x.x"
 
