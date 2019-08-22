@@ -10,7 +10,7 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app.singleton("validationManager", ValidationManager);
+        this.app.singleton<ValidationManager>("validationManager", ValidationManager);
     }
 
     /**

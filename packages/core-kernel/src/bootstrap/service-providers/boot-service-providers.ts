@@ -22,7 +22,10 @@ export class BootServiceProviders extends AbstractBootstrapper {
                 try {
                     await serviceProviders.boot(name);
                 } catch (error) {
-                    if (await serviceProvider.required()) {
+                    // Determine if the plugin is required to decide how to handle errors.
+                    const isRequired: boolean = await serviceProvider.required();
+
+                    if (isRequired) {
                         throw new FailedServiceProviderBoot(serviceProvider.name(), error.message);
                     }
 

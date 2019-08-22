@@ -118,6 +118,21 @@ export class FailedNetworkDetection extends KernelError {
         super("Unable to discover application token or network.");
     }
 }
+/**
+ * @export
+ * @class InvalidPackageConfiguration
+ * @extends {KernelError}
+ */
+export class InvalidPackageConfiguration extends KernelError {
+    /**
+     * @param {string} name
+     * @param {Record<string, string[]>} errors
+     * @memberof InvalidPackageConfiguration
+     */
+    constructor(name: string, errors: Record<string, string[]>) {
+        super(`[${name}] Failed to validate the configuration: "${JSON.stringify(errors, undefined, 4)}".`);
+    }
+}
 
 /**
  * @export
@@ -131,7 +146,7 @@ export class FailedServiceProviderRegistration extends KernelError {
      * @memberof FailedServiceProviderRegistration
      */
     constructor(name: string, error: string) {
-        super(`Failed to register "${name}": "${error}".`);
+        super(`[${name}] Failed to register: "${error}".`);
     }
 }
 
@@ -147,7 +162,7 @@ export class FailedServiceProviderBoot extends KernelError {
      * @memberof FailedServiceProviderBoot
      */
     constructor(name: string, error: string) {
-        super(`Failed to boot "${name}": "${error}".`);
+        super(`[${name}] Failed to boot: "${error}".`);
     }
 }
 

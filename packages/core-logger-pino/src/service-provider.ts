@@ -16,7 +16,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return require("../package.json");
     }
 
-    public defaults(): Types.ConfigObject {
+    public configDefaults(): Types.ConfigObject {
         return defaults;
     }
 

@@ -5,5 +5,6 @@ import * as Filesystem from "./filesystem";
 import * as Log from "./log";
 import * as Queue from "./queue";
 import * as Scheduler from "./scheduler";
+import * as Validation from "./validation";
 
-export { Cache, Config, Events, Filesystem, Log, Queue, Scheduler };
+export { Cache, Config, Events, Filesystem, Log, Queue, Scheduler, Validation };

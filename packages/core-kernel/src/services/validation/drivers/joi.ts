@@ -15,14 +15,14 @@ export class Joi implements IValidator {
      * @type {*}
      * @memberof Joi
      */
-    private resultValue: any;
+    private resultValue: any = undefined;
 
     /**
      * @private
      * @type {ValidationErrorItem[]}
      * @memberof Joi
      */
-    private resultError: ValidationErrorItem[];
+    private resultError: ValidationErrorItem[] = [];
 
     /**
      * Run the validator's rules against its data.
@@ -32,10 +32,13 @@ export class Joi implements IValidator {
     public validate<T>(data: T, schema: any): this {
         this.data = data;
 
-        const { error, value } = schema.validate(data);
+        const { error, value } = schema.validate(this.data);
 
-        this.resultValue = error.details ? undefined : value;
-        this.resultError = error.details;
+        this.resultValue = error ? undefined : value;
+
+        if (error) {
+            this.resultError = error.details;
+        }
 
         return this;
     }

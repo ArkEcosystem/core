@@ -82,12 +82,37 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
-     * Get the default configuration of the service provider.
+     * Get the configuration of the service provider.
+     *
+     * @param {ConfigObject} [opts]
+     * @returns {ConfigObject}
+     * @memberof AbstractServiceProvider
+     */
+    public config(opts?: ConfigObject): ConfigObject {
+        if (opts) {
+            this.opts = this.opts;
+        }
+
+        return this.opts;
+    }
+
+    /**
+     * Get the configuration defaults of the service provider.
      *
      * @returns {ConfigObject}
      * @memberof AbstractServiceProvider
      */
-    public defaults(): ConfigObject {
+    public configDefaults(): ConfigObject {
+        return {};
+    }
+
+    /**
+     * Get the configuration schema of the service provider.
+     *
+     * @returns {ConfigObject}
+     * @memberof AbstractServiceProvider
+     */
+    public configSchema(): object {
         return {};
     }
 
@@ -132,13 +157,13 @@ export abstract class AbstractServiceProvider {
     }
 
     /**
-     * Terminate the process if the package is required.
+     * Determine if the package is required, which influences how bootstrapping errors are handled.
      *
      * @returns {Promise<boolean>}
      * @memberof AbstractServiceProvider
      */
     public async required(): Promise<boolean> {
-        return true;
+        return false;
     }
 
     /**
@@ -148,7 +173,7 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     protected buildConfig(opts: ConfigObject): ConfigObject {
-        opts = { ...opts, ...this.defaults() };
+        opts = { ...opts, ...this.configDefaults() };
 
         const globalOptions: ConfigObject | undefined = this.app.config("options")[this.name()];
 

@@ -1,4 +1,4 @@
-import { Cache, Events, Filesystem, Log, Queue } from "../../services";
+import { Cache, Events, Filesystem, Log, Queue, Validation } from "../../services";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
@@ -21,5 +21,7 @@ export class RegisterBaseServiceProviders extends AbstractBootstrapper {
         await new Cache.ServiceProvider(this.app).register();
 
         await new Queue.ServiceProvider(this.app).register();
+
+        await new Validation.ServiceProvider(this.app).register();
     }
 }

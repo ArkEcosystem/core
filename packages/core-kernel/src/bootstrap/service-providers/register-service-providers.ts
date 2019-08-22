@@ -1,8 +1,15 @@
 import semver from "semver";
 import { IServiceProviderDependency } from "../../contracts/core-kernel";
-import { FailedDependencySatisfaction, FailedServiceProviderRegistration, MissingDependency } from "../../errors";
+import { IValidator } from "../../contracts/validation/validator";
+import {
+    FailedDependencySatisfaction,
+    FailedServiceProviderRegistration,
+    InvalidPackageConfiguration,
+    MissingDependency,
+} from "../../errors";
 import { ServiceProviderRepository } from "../../repositories";
 import { ConfigRepository } from "../../services/config";
+import { ValidationManager } from "../../services/validation";
 import { AbstractServiceProvider } from "../../support/service-provider";
 import { AbstractBootstrapper } from "../bootstrapper";
 
@@ -22,21 +29,61 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
+            // Shall we include the plugin?
             if (!this.shouldBeIncluded(serviceProvider.name()) || this.shouldBeExcluded(serviceProvider.name())) {
                 continue;
             }
 
+            // Determine if the plugin is required to decide how to handle errors.
+            const isRequired: boolean = await serviceProvider.required();
+
+            // Does the configuration conform to the given rules?
+            try {
+                await this.validateConfiguration(serviceProvider);
+            } catch (error) {
+                if (isRequired) {
+                    throw new FailedServiceProviderRegistration(serviceProvider.name(), error.message);
+                }
+
+                serviceProviders.fail(serviceProvider.name());
+
+                continue;
+            }
+
+            // Are all dependencies installed with the correct versions?
             if (await this.satisfiesDependencies(serviceProvider)) {
                 try {
                     await serviceProviders.register(name);
                 } catch (error) {
-                    if (await serviceProvider.required()) {
+                    if (isRequired) {
                         throw new FailedServiceProviderRegistration(serviceProvider.name(), error.message);
                     }
 
                     serviceProviders.fail(serviceProvider.name());
                 }
             }
+        }
+    }
+
+    /**
+     * @private
+     * @param {AbstractServiceProvider} serviceProvider
+     * @returns {Promise<void>}
+     * @memberof RegisterServiceProviders
+     */
+    private async validateConfiguration(serviceProvider: AbstractServiceProvider): Promise<void> {
+        const configSchema: object = serviceProvider.configSchema();
+
+        if (Object.keys(configSchema).length > 0) {
+            const validator: IValidator = await this.app.resolve<ValidationManager>("validationManager").driver();
+
+            validator.validate(serviceProvider.config(), configSchema);
+
+            if (validator.fails()) {
+                throw new InvalidPackageConfiguration(serviceProvider.name(), validator.errors());
+            }
+
+            serviceProvider.config(validator.valid());
         }
     }
 
