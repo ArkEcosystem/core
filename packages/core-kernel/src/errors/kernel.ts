@@ -218,3 +218,18 @@ export class NotImplementedError extends KernelError {
         super(`Method [${method}] is not implemented in [${klass}].`);
     }
 }
+
+/**
+ * @export
+ * @class InvalidBindingName
+ * @extends {KernelError}
+ */
+export class InvalidBindingName extends KernelError {
+    /**
+     * @param {string} name
+     * @memberof InvalidBindingName
+     */
+    constructor(name: string) {
+        super(`The name/prefix [${name}] is reserved.`);
+    }
+}

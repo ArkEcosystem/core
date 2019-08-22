@@ -1,16 +1,7 @@
 import { BuildResolverOptions, ClassOrFunctionReturning, Resolver } from "awilix";
+import { AwilixContainer } from "awilix";
 
 export interface IContainer {
-    /**
-     * Resolve the given name from the container.
-     *
-     * @template T
-     * @param {string} name
-     * @returns {T}
-     * @memberof IContainer
-     */
-    resolve<T = any>(name: string): T;
-
     /**
      * Register a class within the container.
      *
@@ -30,6 +21,27 @@ export interface IContainer {
      * @memberof IContainer
      */
     singleton<T = any>(name: string, concrete: ClassOrFunctionReturning<T>): void;
+    /**
+     * Resolve the given name from the container.
+     *
+     * @template T
+     * @param {string} name
+     * @returns {T}
+     * @memberof IContainer
+     */
+    resolve<T = any>(name: string): T;
+
+    /**
+     * Disposes this container and it's children, calling the disposer
+     * on all disposable registrations and clearing the cache.
+     *
+     * @remarks
+     * Only applies to registrations with `SCOPED` or `SINGLETON` lifetime.
+     *
+     * @returns {Promise<void>}
+     * @memberof Container
+     */
+    dispose(): Promise<void>;
 
     /**
      * Alias a registration to a different name.
@@ -59,4 +71,21 @@ export interface IContainer {
      * @memberof IContainer
      */
     build<T>(targetOrResolver: ClassOrFunctionReturning<T> | Resolver<T>, opts?: BuildResolverOptions<{}>): any;
+
+    /**
+     * Creates a scoped container with this one as the parent.
+     *
+     * @remark
+     * By default all scopes are returned as-is and not bound to the container!
+     *
+     * This is due to the fact that scopes are recommended to be used internally
+     * in your plugin to have an isolated container that doesn't pollute the core
+     * container and gives you full access to the power of {@link https://github.com/jeffijoe/awilix | awilix}.
+     *
+     * Use scopes with care as they are completely under your own control, detached from core.
+     *
+     * @returns {AwilixContainer}
+     * @memberof IContainer
+     */
+    createScope(): AwilixContainer;
 }
