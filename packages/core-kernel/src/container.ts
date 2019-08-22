@@ -145,8 +145,8 @@ export class Container {
      * @returns
      * @memberof Container
      */
-    public build<T>(targetOrResolver: ClassOrFunctionReturning<T> | Resolver<T>, opts?: BuildResolverOptions<{}>) {
-        return this.container.build(targetOrResolver, opts);
+    public build<T>(targetOrResolver: ClassOrFunctionReturning<T> | Resolver<T>, opts?: BuildResolverOptions<T>): T {
+        return this.container.build<T>(targetOrResolver, opts);
     }
 
     /**

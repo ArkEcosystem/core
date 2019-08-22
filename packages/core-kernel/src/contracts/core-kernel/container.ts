@@ -70,7 +70,7 @@ export interface IContainer {
      * @returns {*}
      * @memberof IContainer
      */
-    build<T>(targetOrResolver: ClassOrFunctionReturning<T> | Resolver<T>, opts?: BuildResolverOptions<{}>): any;
+    build<T>(targetOrResolver: ClassOrFunctionReturning<T> | Resolver<T>, opts?: BuildResolverOptions<T>): any;
 
     /**
      * Creates a scoped container with this one as the parent.

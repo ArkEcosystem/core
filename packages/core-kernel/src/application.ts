@@ -1,3 +1,4 @@
+import { Constructor } from "awilix";
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import { join } from "path";
 import { JsonObject } from "type-fest";
@@ -5,10 +6,12 @@ import { app } from ".";
 import * as Bootstrappers from "./bootstrap";
 import { AbstractBootstrapper } from "./bootstrap/bootstrapper";
 import { Container } from "./container";
-import { Kernel } from "./contracts";
 import * as Contracts from "./contracts";
+import { Kernel } from "./contracts";
 import { DirectoryNotFound } from "./errors/kernel";
 import { ServiceProviderRepository } from "./repositories";
+import { EventDispatcher } from "./services/events";
+import { EventListener } from "./types";
 
 /**
  * @export
@@ -41,11 +44,13 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public async bootstrap(config: JsonObject): Promise<void> {
+        await this.registerEventDispatcher();
+
         app.bind<JsonObject>("config", config);
 
         app.singleton<ServiceProviderRepository>("serviceProviderRepository", ServiceProviderRepository);
 
-        await this.runBootstrappers("app");
+        await this.bootstrapWith("app");
 
         await this.boot();
     }
@@ -55,7 +60,7 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     public async boot(): Promise<void> {
-        await this.runBootstrappers("serviceProviders");
+        await this.bootstrapWith("serviceProviders");
 
         this.booted = true;
     }
@@ -388,17 +393,53 @@ export class Application extends Container implements Kernel.IApplication {
     }
 
     /**
+     * Run the given type of bootstrap classes.
+     *
+     * @param {string} type
+     * @returns {Promise<void>}
+     * @memberof Application
+     */
+    public async bootstrapWith(type: string): Promise<void> {
+        const bootstrappers: Array<Constructor<AbstractBootstrapper>> = Object.values(Bootstrappers[type]);
+
+        for (const bootstrapper of bootstrappers) {
+            this.events.dispatch(`bootstrapping:${bootstrapper.name}`, this);
+
+            await this.build<AbstractBootstrapper>(bootstrapper).bootstrap();
+
+            this.events.dispatch(`bootstrapped:${bootstrapper.name}`, this);
+        }
+    }
+
+    /**
+     * Register a listener to run before a bootstrapper.
+     *
+     * @param {string} bootstrapper
+     * @param {EventListener} listener
+     * @memberof Application
+     */
+    public beforeBootstrapping(bootstrapper: string, listener: EventListener) {
+        this.events.listen(`bootstrapping:${bootstrapper}`, listener);
+    }
+
+    /**
+     * Register a listener to run after a bootstrapper.
+     *
+     * @param {string} bootstrapper
+     * @param {EventListener} listener
+     * @memberof Application
+     */
+    public afterBootstrapping(bootstrapper: string, listener: EventListener) {
+        this.events.listen(`bootstrapped:${bootstrapper}`, listener);
+    }
+
+    /**
      * @private
      * @returns {Promise<void>}
      * @memberof Application
      */
-    private async runBootstrappers(type: string): Promise<void> {
-        const bootstrappers: AbstractBootstrapper[] = Object.values(Bootstrappers[type]);
-
-        for (const Bootstrapper of bootstrappers) {
-            // @ts-ignore
-            await new Bootstrapper(this).bootstrap();
-        }
+    private async registerEventDispatcher(): Promise<void> {
+        this.singleton("events", EventDispatcher);
     }
 
     /**
