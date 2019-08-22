@@ -1,16 +1,16 @@
 {
-    "private": true,
     "name": "@arkecosystem/core-marketplace",
-    "description": "Provides ... for Ark Core",
-    "version": "0.0.1",
+    "version": "2.5.0-next.10",
+    "description": "ARK Marketplace transactions",
+    "license": "MIT",
     "contributors": [
+        "Joshua Noack",
         "Žan Kovač"
     ],
-    "license": "MIT",
-    "main": "dist/index.js",
     "files": [
         "dist"
     ],
+    "main": "dist/index.js",
     "scripts": {
         "prepublishOnly": "yarn test && yarn build",
         "pretest": "yarn lint && yarn build",
@@ -36,48 +36,8 @@
         "@arkecosystem/core-utils": "^2.5.0-next.10",
         "@arkecosystem/crypto": "^2.5.0-next.10"
     },
-    "devDependencies": {
-        "@types/jest": "^24.0.15",
-        "@types/node": "^12.6.2",
-        "typescript": "^3.2.4",
-        "ts-jest": "^24.0.2",
-        "jest": "^24.8.0",
-        "jest-extended": "^0.11.2"
-    },
-    "jest": {
-        "testEnvironment": "node",
-        "bail": true,
-        "verbose": true,
-        "transform": {
-            "^.+\\.tsx?$": "ts-jest"
-        },
-        "testMatch": [
-            "**/*.test.ts"
-        ],
-        "moduleFileExtensions": [
-            "ts",
-            "tsx",
-            "js",
-            "jsx",
-            "json",
-            "node"
-        ],
-        "collectCoverage": false,
-        "coverageDirectory": "<rootDir>/.coverage",
-        "collectCoverageFrom": [
-            "packages/**/src/**/*.ts",
-            "!**/node_modules/**"
-        ],
-        "coverageReporters": [
-            "json",
-            "lcov",
-            "text",
-            "clover",
-            "html"
-        ],
-        "watchman": false,
-        "setupFilesAfterEnv": [
-            "jest-extended"
-        ]
+    "devDependencies": {},
+    "publishConfig": {
+        "access": "public"
     }
 }
