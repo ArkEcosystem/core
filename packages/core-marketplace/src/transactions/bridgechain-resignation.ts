@@ -45,20 +45,18 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
         const { data } = this;
 
         const bridgechainResignationAsset = data.asset.bridgechainResignation as IBridgechainResignationAsset;
-        const bridgechainResignationBufs: Buffer = Buffer.from(bridgechainResignationAsset.registeredBridgechainId);
-        const buffer: ByteBuffer = new ByteBuffer(64, true);
-        buffer.append(bridgechainResignationBufs, "utf-8");
+        const buffer: ByteBuffer = new ByteBuffer(8, true);
+        buffer.writeUint64(+bridgechainResignationAsset.bridgechainId);
         return buffer;
     }
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const registeredBridgechainId = buf.readString(64);
-
+        const bridgechainId: Utils.BigNumber = Utils.BigNumber.make(buf.readUint64().toString());
         data.asset = {
             bridgechainResignation: {
-                registeredBridgechainId,
+                bridgechainId,
             },
         };
     }
