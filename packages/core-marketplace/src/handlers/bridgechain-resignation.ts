@@ -4,11 +4,11 @@ import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
     BridgechainIsNotRegisteredError,
     BridgechainIsResignedError,
-    BusinessIsNotRegisteredError,
+    BusinessIsResignedError,
     WalletIsNotBusinessError,
 } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessWalletAttributes } from "../interfaces";
+import { IBridgechainResignationAsset, IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainResignationTransaction } from "../transactions";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
@@ -30,19 +30,20 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
+            this.getConstructor().type,
+        );
         for (const transaction of transactions) {
-            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const businessWalletProperty = wallet.getAttribute<IBusinessWalletAttributes>("business");
-            businessWalletProperty.bridgechains.map(bridgechain => {
-                if (
-                    bridgechain.registrationTransactionId ===
-                    transaction.data.asset.bridgechainResignation.registeredBridgechainId
-                ) {
-                    bridgechain.resigned = true;
-                }
-            });
-            wallet.setAttribute<IBusinessWalletAttributes>("business", businessWalletProperty);
+            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
+                "business",
+            );
+
+            const bridgechainAsset =
+                businessAttributes.bridgechains[transaction.asset.bridgechainResignation.bridgechainId];
+            bridgechainAsset.resigned = true;
+
+            wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
             walletManager.reindex(wallet);
         }
     }
@@ -55,22 +56,22 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }
-        const businessWalletProperty = wallet.getAttribute<IBusinessWalletAttributes>("business");
-        if (businessWalletProperty.resigned) {
-            throw new BusinessIsNotRegisteredError();
+
+        const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
+            "business",
+        );
+        if (businessAttributes.resigned) {
+            throw new BusinessIsResignedError();
         }
 
-        const hasBridgechain = businessWalletProperty.bridgechains.find(
-            bridgechain =>
-                bridgechain.registrationTransactionId ===
-                transaction.data.asset.bridgechainResignation.registeredBridgechainId,
-        );
-
-        if (!hasBridgechain) {
+        const bridgechainResignation: IBridgechainResignationAsset = transaction.data.asset.bridgechainResignation;
+        const bridgechainAttributes: IBridgechainWalletAttributes =
+            businessAttributes.bridgechains[bridgechainResignation.bridgechainId];
+        if (!bridgechainAttributes) {
             throw new BridgechainIsNotRegisteredError();
         }
 
-        if (hasBridgechain.resigned) {
+        if (bridgechainAttributes.resigned) {
             throw new BridgechainIsResignedError();
         }
 
@@ -105,15 +106,12 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessWalletProperty = sender.getAttribute<IBusinessWalletAttributes>("business");
-        businessWalletProperty.bridgechains.map(bridgechain => {
-            if (
-                bridgechain.registrationTransactionId ===
-                transaction.data.asset.bridgechainResignation.registeredBridgechainId
-            ) {
-                bridgechain.resigned = true;
-            }
-        });
+        const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
+            "business",
+        );
+
+        const bridgechainResignation: IBridgechainResignationAsset = transaction.data.asset.bridgechainResignation;
+        businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = true;
     }
 
     public async revertForSender(
@@ -123,16 +121,12 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessWalletProperty = sender.getAttribute<IBusinessWalletAttributes>("business");
+        const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
+            "business",
+        );
 
-        businessWalletProperty.bridgechains.map(bridgechain => {
-            if (
-                bridgechain.registrationTransactionId ===
-                transaction.data.asset.bridgechainResignation.registeredBridgechainId
-            ) {
-                bridgechain.resigned = false;
-            }
-        });
+        const bridgechainResignation: IBridgechainResignationAsset = transaction.data.asset.bridgechainResignation;
+        businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = false;
     }
 
     public async applyToRecipient(

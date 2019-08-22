@@ -3,14 +3,12 @@ import { IBridgechainRegistrationAsset } from "../interfaces";
 import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BridgechainRegistrationTransaction } from "../transactions";
 
-const bridgechainRegistrationType: number = MarketplaceTransactionType.BridgechainRegistration;
-
 export class BridgechainRegistrationBuilder extends Transactions.TransactionBuilder<BridgechainRegistrationBuilder> {
     constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MarketplaceTransactionGroup;
-        this.data.type = bridgechainRegistrationType;
+        this.data.type = MarketplaceTransactionType.BridgechainRegistration;
         this.data.fee = BridgechainRegistrationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
         this.data.asset = { bridgechainRegistration: {} };

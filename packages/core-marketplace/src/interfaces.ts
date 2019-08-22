@@ -16,7 +16,7 @@ export interface IBusinessUpdateAsset {
 
 export interface IBusinessWalletAttributes {
     businessAsset: IBusinessRegistrationAsset;
-    nonce: Utils.BigNumber;
+    businessId: Utils.BigNumber;
     resigned?: boolean;
     bridgechains?: Record<string, IBridgechainWalletAttributes>;
 }
@@ -29,16 +29,16 @@ export interface IBridgechainRegistrationAsset {
 }
 
 export interface IBridgechainUpdateAsset {
-    registeredBridgechainId: string;
+    bridgechainId: Utils.BigNumber;
     seedNodes: string[];
 }
 
 export interface IBridgechainResignationAsset {
-    registeredBridgechainId: string;
+    bridgechainId: string;
 }
 
 export interface IBridgechainWalletAttributes {
-    bridgechain: IBridgechainRegistrationAsset;
-    nonce: Utils.BigNumber;
+    bridgechainAsset: IBridgechainRegistrationAsset;
+    bridgechainId: Utils.BigNumber;
     resigned?: boolean;
 }

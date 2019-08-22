@@ -6,7 +6,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionType,
 } from "../marketplace-transactions";
-import { businessProperties } from "./utils/business-schema";
+import { businessSchema } from "./utils/business-schema";
 
 const { schemas } = Transactions;
 
@@ -42,7 +42,7 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
                                     required: ["repository"],
                                 },
                             ],
-                            properties: businessProperties,
+                            properties: businessSchema,
                         },
                     },
                 },

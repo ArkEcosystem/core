@@ -25,12 +25,12 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
+            this.getConstructor().type,
+        );
         for (const transaction of transactions) {
-            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const walletProperty = wallet.getAttribute<IBusinessWalletAttributes>("business");
-            walletProperty.resigned = true;
-            wallet.setAttribute<IBusinessWalletAttributes>("business", walletProperty);
+            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.setAttribute("business.resigned", true);
             walletManager.reindex(wallet);
         }
     }

@@ -4,6 +4,17 @@ import { ITransactionsPaginated } from "../business-repository";
 import { ISearchOrderBy, ISearchPaginate, ISearchParameters } from "../search";
 import { IRepository } from "./repository";
 
+export interface IBootstrapTransaction {
+    id: string;
+    version: number;
+    timestamp: number;
+    senderPublicKey: string;
+    recipientId: string;
+    fee: Utils.BigNumber;
+    amount: Utils.BigNumber;
+    asset: Interfaces.ITransactionAsset;
+}
+
 export interface ITransactionsRepository extends IRepository {
     findById(id: string): Promise<Interfaces.ITransactionData>;
 
@@ -35,7 +46,7 @@ export interface ITransactionsRepository extends IRepository {
         }>
     >;
 
-    getAssetsByType(type: Enums.TransactionType | number): Promise<any>;
+    getAssetsByType(type: Enums.TransactionType | number): Promise<IBootstrapTransaction[]>;
 
     getReceivedTransactions(): Promise<any>;
 

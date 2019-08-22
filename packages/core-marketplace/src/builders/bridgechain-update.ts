@@ -3,14 +3,12 @@ import { IBridgechainUpdateAsset } from "../interfaces";
 import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BridgechainUpdateTransaction } from "../transactions";
 
-const bridgechainUpdateType: number = MarketplaceTransactionType.BridgechainUpdate;
-
 export class BridgechainUpdateBuilder extends Transactions.TransactionBuilder<BridgechainUpdateBuilder> {
     constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MarketplaceTransactionGroup;
-        this.data.type = bridgechainUpdateType;
+        this.data.type = MarketplaceTransactionType.BridgechainUpdate;
         this.data.fee = BridgechainUpdateTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
         this.data.asset = { bridgechainUpdate: {} };
@@ -18,7 +16,7 @@ export class BridgechainUpdateBuilder extends Transactions.TransactionBuilder<Br
 
     public bridgechainUpdateAsset(bridgechainUpdateAsset: IBridgechainUpdateAsset): BridgechainUpdateBuilder {
         this.data.asset.bridgechainUpdate = {
-            registeredBridgechainId: bridgechainUpdateAsset.registeredBridgechainId,
+            bridgechainId: bridgechainUpdateAsset.bridgechainId,
             seedNodes: bridgechainUpdateAsset.seedNodes,
         };
         return this;

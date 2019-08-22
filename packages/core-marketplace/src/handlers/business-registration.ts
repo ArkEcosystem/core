@@ -5,6 +5,7 @@ import { BusinessAlreadyRegisteredError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransaction } from "../transactions";
+import { MarketplaceIndex } from "../wallet-manager";
 
 export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
@@ -30,13 +31,14 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
-
+        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
+            this.getConstructor().type,
+        );
         for (const transaction of transactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const asset: IBusinessWalletAttributes = {
                 businessAsset: transaction.asset.businessRegistration,
-                nonce: this.getNonce(walletManager),
+                businessId: this.getBusinessId(walletManager),
             };
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", asset);
@@ -86,7 +88,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const businessAsset: IBusinessWalletAttributes = {
             businessAsset: transaction.data.asset.businessRegistration,
-            nonce: this.getNonce(walletManager),
+            businessId: this.getBusinessId(walletManager),
         };
 
         sender.setAttribute<IBusinessWalletAttributes>("business", businessAsset);
@@ -102,7 +104,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.forgetAttribute("business");
 
-        walletManager.forgetByIndex("byBusiness", sender.publicKey);
+        walletManager.forgetByIndex(MarketplaceIndex.Businesses, sender.publicKey);
     }
 
     public async applyToRecipient(
@@ -117,7 +119,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 
-    private getNonce(walletManager: State.IWalletManager): Utils.BigNumber {
-        return Utils.BigNumber.make(walletManager.getIndex("businesses").all().length).plus(1);
+    private getBusinessId(walletManager: State.IWalletManager): Utils.BigNumber {
+        return Utils.BigNumber.make(walletManager.getIndex(MarketplaceIndex.Businesses).all().length).plus(1);
     }
 }

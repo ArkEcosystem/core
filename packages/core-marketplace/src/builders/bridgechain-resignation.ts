@@ -2,21 +2,19 @@ import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BridgechainResignationTransaction } from "../transactions";
 
-const bridgechainResignationType: number = MarketplaceTransactionType.BridgechainResignation;
-
 export class BridgechainResignationBuilder extends Transactions.TransactionBuilder<BridgechainResignationBuilder> {
     constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MarketplaceTransactionGroup;
-        this.data.type = bridgechainResignationType;
+        this.data.type = MarketplaceTransactionType.BridgechainResignation;
         this.data.fee = BridgechainResignationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
         this.data.asset = { bridgechainResignation: {} };
     }
 
-    public businessResignationAsset(registeredBridgechainId: string): BridgechainResignationBuilder {
-        this.data.asset.bridgechainResignation.registeredBridgechainId = registeredBridgechainId;
+    public businessResignationAsset(bridgechainId: string | Utils.BigNumber): BridgechainResignationBuilder {
+        this.data.asset.bridgechainResignation.bridgechainId = bridgechainId;
         return this;
     }
 

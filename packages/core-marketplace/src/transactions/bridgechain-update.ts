@@ -46,7 +46,6 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         const { data } = this;
 
         const bridgechainUpdateAsset = data.asset.bridgechainUpdate as IBridgechainUpdateAsset;
-        const bridgechainUpdateId: Buffer = Buffer.from(bridgechainUpdateAsset.registeredBridgechainId);
 
         let seedNodesBuffersLength = 0;
         const seedNodesBuffers: Buffer[] = [];
@@ -59,7 +58,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         const buffer: ByteBuffer = new ByteBuffer(64 + seedNodesBuffersLength + 1 + seedNodes.length, true);
-        buffer.writeUint64(+bridgechainUpdateId);
+        buffer.writeUint64(+bridgechainUpdateAsset.bridgechainId);
 
         buffer.writeByte(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {
