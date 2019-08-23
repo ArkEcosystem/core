@@ -1,7 +1,7 @@
 import { Identities } from "@arkecosystem/crypto";
-import * as support from "../../../../__tests__/functional/transaction-forging/__support__";
-import { secrets } from "../../../../__tests__/utils/config/testnet/delegates.json";
-import { MarketplaceTransactionFactory } from "./helper";
+import { TransactionFactory } from "../../helpers/transaction-factory";
+import { secrets } from "../../utils/config/testnet/delegates.json";
+import * as support from "./__support__";
 
 const { passphrase } = support.passphrases;
 
@@ -11,7 +11,7 @@ afterAll(support.tearDown);
 describe("Transaction Forging - Business resignation", () => {
     it("should broadcast, accept and forge it", async () => {
         // Initial Funds
-        const initialFunds = MarketplaceTransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
 
@@ -20,7 +20,7 @@ describe("Transaction Forging - Business resignation", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Registering a business
-        const businessRegistration = MarketplaceTransactionFactory.businessRegistration({
+        const businessRegistration = TransactionFactory.businessRegistration({
             name: "google",
             website: "www.google.com",
         })
@@ -32,7 +32,7 @@ describe("Transaction Forging - Business resignation", () => {
         await expect(businessRegistration.id).toBeForged();
 
         // Resigning a business
-        const businessResignation = MarketplaceTransactionFactory
+        const businessResignation = TransactionFactory
             .businessResignation()
             .withPassphrase(secrets[0])
             .createOne();
@@ -44,7 +44,7 @@ describe("Transaction Forging - Business resignation", () => {
 
     it("should be rejected, becuase wallet is already resigned", async () => {
         // Resigning a business again
-        const businessResignation = MarketplaceTransactionFactory
+        const businessResignation = TransactionFactory
             .businessResignation()
             .withPassphrase(secrets[0])
             .createOne();
@@ -54,9 +54,9 @@ describe("Transaction Forging - Business resignation", () => {
         await expect(businessResignation.id).not.toBeForged();
     });
 
-    it("should broadcast, accept and forge it, because wallet is resigned and can register again", async ()=> {
+    it("should broadcast, accept and forge it, because wallet is resigned and can register again", async () => {
         // Registering a business again
-        const businessRegistration = MarketplaceTransactionFactory.businessRegistration({
+        const businessRegistration = TransactionFactory.businessRegistration({
             name: "google",
             website: "www.google.com",
         })

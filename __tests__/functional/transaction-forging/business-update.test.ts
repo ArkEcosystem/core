@@ -1,7 +1,7 @@
 import { Identities } from "@arkecosystem/crypto";
-import * as support from "../../../../__tests__/functional/transaction-forging/__support__";
-import { secrets } from "../../../../__tests__/utils/config/testnet/delegates.json";
-import { MarketplaceTransactionFactory } from "./helper";
+import { TransactionFactory } from "../../helpers/transaction-factory";
+import { secrets } from "../../utils/config/testnet/delegates.json";
+import * as support from "./__support__";
 
 const { passphrase } = support.passphrases;
 
@@ -11,7 +11,7 @@ afterAll(support.tearDown);
 describe("Transaction Forging - Business update", () => {
     it("should broadcast, accept and forge it", async () => {
         // Initial Funds
-        const initialFunds = MarketplaceTransactionFactory.transfer(
+        const initialFunds = TransactionFactory.transfer(
             Identities.Address.fromPassphrase(passphrase),
             100 * 1e8,
         )
@@ -23,7 +23,7 @@ describe("Transaction Forging - Business update", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Registering a business
-        const businessRegistration = MarketplaceTransactionFactory.businessRegistration({
+        const businessRegistration = TransactionFactory.businessRegistration({
             name: "google",
             website: "www.google.com",
         })
@@ -35,7 +35,7 @@ describe("Transaction Forging - Business update", () => {
         await expect(businessRegistration.id).toBeForged();
 
         // Updating a business
-        const businessUpdate = MarketplaceTransactionFactory.businessUpdate({
+        const businessUpdate = TransactionFactory.businessUpdate({
             name: "google2",
         })
             .withPassphrase(secrets[0])
@@ -48,7 +48,7 @@ describe("Transaction Forging - Business update", () => {
 
     it("should broadcast, accept and forge it ", async () => {
         // Resigning a business
-        const businessResignation = MarketplaceTransactionFactory.businessResignation()
+        const businessResignation = TransactionFactory.businessResignation()
             .withPassphrase(secrets[0])
             .createOne();
 
@@ -57,7 +57,7 @@ describe("Transaction Forging - Business update", () => {
         await expect(businessResignation.id).toBeForged();
 
         // Updating a business
-        const businessUpdate = MarketplaceTransactionFactory.businessUpdate({
+        const businessUpdate = TransactionFactory.businessUpdate({
             name: "google3",
         })
             .withPassphrase(secrets[0])
