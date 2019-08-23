@@ -1,5 +1,5 @@
 import nsfw from "nsfw";
-import { Kernel } from "../../contracts";
+import { IApplication } from "../../contracts/kernel";
 
 /**
  * @interface IFileEvent
@@ -36,15 +36,15 @@ export class Watcher {
      * @type {IApplication}
      * @memberof AbstractManager
      */
-    private readonly app: Kernel.IApplication;
+    private readonly app: IApplication;
 
     /**
      * Creates an instance of AbstractBootstrapper.
      *
-     * @param {{ app: Kernel.IApplication }} { app }
+     * @param {{ app: IApplication }} { app }
      * @memberof AbstractBootstrapper
      */
-    public constructor({ app }: { app: Kernel.IApplication }) {
+    public constructor({ app }: { app: IApplication }) {
         this.app = app;
     }
 

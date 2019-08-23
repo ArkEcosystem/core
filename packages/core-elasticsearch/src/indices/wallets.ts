@@ -31,7 +31,7 @@ export class Wallets extends Index {
     }
 
     public listen(): void {
-        this.emitter.listen(Enums.Event.State.RoundApplied, () => this.index());
+        this.emitter.listen(Enums.Events.State.RoundApplied, () => this.index());
     }
 
     protected async countWithDatabase(): Promise<number> {

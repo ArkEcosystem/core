@@ -1,15 +1,20 @@
-import { Kernel } from "../../contracts";
+import { IFilesystem } from "../../contracts/kernel/filesystem";
 import { AbstractManager } from "../../support/manager";
 import { Local } from "./drivers/local";
 
-export class FilesystemManager extends AbstractManager<Kernel.IFilesystem> {
+/**
+ * @export
+ * @class FilesystemManager
+ * @extends {AbstractManager<IFilesystem>}
+ */
+export class FilesystemManager extends AbstractManager<IFilesystem> {
     /**
      * Create an instance of the Local driver.
      *
-     * @returns {Promise<Kernel.IFilesystem>}
+     * @returns {Promise<IFilesystem>}
      * @memberof FilesystemManager
      */
-    public async createLocalDriver(): Promise<Kernel.IFilesystem> {
+    public async createLocalDriver(): Promise<IFilesystem> {
         return this.app.build(Local).make();
     }
 

@@ -1,6 +1,12 @@
-import { ILogger } from "../../../contracts/core-kernel";
+import { ILogger } from "../../../contracts/kernel/log";
 import { AbstractLogger } from "../logger";
 
+/**
+ * @export
+ * @class Console
+ * @extends {AbstractLogger}
+ * @implements {ILogger}
+ */
 export class Console extends AbstractLogger implements ILogger {
     /**
      * Create a new instance of the Console driver.

@@ -1,8 +1,14 @@
-import { ICacheStore } from "../../contracts/core-kernel";
+import { ICacheStore } from "../../contracts/kernel/cache";
 import { AbstractManager } from "../../support/manager";
 import { Memory } from "./drivers";
 
-// @TODO: add K,T to the ICacheStore interface
+/**
+ * @TODO: add K,T to the ICacheStore interface
+ *
+ * @export
+ * @class CacheManager
+ * @extends {AbstractManager<ICacheStore>}
+ */
 export class CacheManager extends AbstractManager<ICacheStore> {
     /**
      * Create an instance of the Memory driver.

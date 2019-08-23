@@ -20,8 +20,8 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
 
-    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<Contracts.Kernel.Events.IEventDispatcher>(
         "events",
     );
 
@@ -151,7 +151,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                         peerErrors[error] = [peer];
                     }
 
-                    this.emitter.dispatch(Enums.Event.State.PeerRemoved, peer);
+                    this.emitter.dispatch(Enums.Events.State.PeerRemoved, peer);
 
                     this.storage.forgetPeer(peer);
 

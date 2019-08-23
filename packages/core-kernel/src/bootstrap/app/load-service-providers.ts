@@ -1,6 +1,5 @@
 import { JsonObject } from "type-fest";
-import { ServiceProviderRepository } from "../../repositories";
-import { AbstractServiceProvider } from "../../support";
+import { AbstractServiceProvider, ServiceProviderRepository } from "../../support";
 import { PackageConfiguration } from "../../support/package-configuration";
 import { PackageManifest } from "../../support/package-manifest";
 import { AbstractBootstrapper } from "../bootstrapper";

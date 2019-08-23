@@ -1,3 +1,3 @@
-export * from "./service-provider";
-export * from "./manager";
 export * from "./logger";
+export * from "./manager";
+export * from "./service-provider";

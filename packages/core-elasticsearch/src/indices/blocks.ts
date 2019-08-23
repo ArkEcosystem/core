@@ -37,7 +37,7 @@ export class Blocks extends Index {
     }
 
     public listen(): void {
-        this.registerListener("create", Enums.Event.State.BlockApplied);
-        this.registerListener("delete", Enums.Event.State.BlockReceived);
+        this.registerListener("create", Enums.Events.State.BlockApplied);
+        this.registerListener("delete", Enums.Events.State.BlockReceived);
     }
 }

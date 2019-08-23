@@ -10,7 +10,7 @@ export const checkNTP = (hosts, timeout = 1000): any => {
 
                 return resolve({ time, host });
             } catch (err) {
-                app.resolve<Contracts.Kernel.ILogger>("log").error(`Host ${host} responsed with: ${err.message}`);
+                app.resolve<Contracts.Kernel.Log.ILogger>("log").error(`Host ${host} responsed with: ${err.message}`);
             }
         }
 

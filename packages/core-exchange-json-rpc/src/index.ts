@@ -5,7 +5,7 @@ import { start } from "@arkecosystem/exchange-json-rpc";
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
         if (!this.config().get("enabled")) {
-            this.app.resolve<Contracts.Kernel.ILogger>("log").info("Exchange JSON-RPC Server is disabled");
+            this.app.resolve<Contracts.Kernel.Log.ILogger>("log").info("Exchange JSON-RPC Server is disabled");
             return;
         }
 
@@ -16,14 +16,14 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             await start({
                 database: this.config().get("database"),
                 server: this.config().all(),
-                logger: this.app.resolve<Contracts.Kernel.ILogger>("log"),
+                logger: this.app.resolve<Contracts.Kernel.Log.ILogger>("log"),
             }),
         );
     }
 
     public async dispose(): Promise<void> {
         if (this.config().get("enabled")) {
-            this.app.resolve<Contracts.Kernel.ILogger>("log").info("Stopping Exchange JSON-RPC Server");
+            this.app.resolve<Contracts.Kernel.Log.ILogger>("log").info("Stopping Exchange JSON-RPC Server");
 
             await this.app.resolve("exchange-json-rpc").stop();
         }

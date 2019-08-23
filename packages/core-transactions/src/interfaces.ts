@@ -31,5 +31,5 @@ export interface ITransactionHandler {
         processor: Contracts.TransactionPool.IProcessor,
     ): Promise<boolean>;
 
-    emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void;
+    emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.IEventDispatcher): void;
 }

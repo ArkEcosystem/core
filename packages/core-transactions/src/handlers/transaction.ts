@@ -209,7 +209,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
      * Database Service
      */
     // tslint:disable-next-line:no-empty
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {}
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.IEventDispatcher): void {}
 
     /**
      * Transaction Pool logic

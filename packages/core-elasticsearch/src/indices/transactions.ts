@@ -47,9 +47,9 @@ export class Transactions extends Index {
     }
 
     public listen(): void {
-        this.registerListener("create", Enums.Event.State.TransactionApplied);
+        this.registerListener("create", Enums.Events.State.TransactionApplied);
 
-        this.registerListener("delete", Enums.Event.State.TransactionExpired);
-        this.registerListener("delete", Enums.Event.State.TransactionReverted);
+        this.registerListener("delete", Enums.Events.State.TransactionExpired);
+        this.registerListener("delete", Enums.Events.State.TransactionReverted);
     }
 }

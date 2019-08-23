@@ -37,6 +37,6 @@ export class Rounds extends Index {
     }
 
     public listen(): void {
-        this.emitter.listen(Enums.Event.State.RoundCreated, () => this.index());
+        this.emitter.listen(Enums.Events.State.RoundCreated, () => this.index());
     }
 }

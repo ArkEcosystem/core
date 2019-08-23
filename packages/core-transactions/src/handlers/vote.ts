@@ -91,7 +91,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.IEventDispatcher): void {
         const vote: string = transaction.data.asset.votes[0];
 
         emitter.dispatch(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {

@@ -20,7 +20,7 @@ export class TransactionError extends Error {
     }
 }
 
-export class NotImplementedError extends TransactionError {
+export class NotImplemented extends TransactionError {
     constructor() {
         super(`Feature is not available.`);
     }

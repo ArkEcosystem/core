@@ -23,7 +23,7 @@ export class PeerVerifier {
     private readonly database: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>(
         "database",
     );
-    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
     private logPrefix: string;
 
     public constructor(

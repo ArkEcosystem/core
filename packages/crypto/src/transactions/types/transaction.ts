@@ -1,5 +1,5 @@
 import { TransactionTypeGroup } from "../../enums";
-import { NotImplementedError } from "../../errors";
+import { NotImplemented } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
 import { configManager } from "../../managers/config";
 import { BigNumber } from "../../utils/bignum";
@@ -36,7 +36,7 @@ export abstract class Transaction implements ITransaction {
     public static key: string = undefined;
 
     public static getSchema(): TransactionSchema {
-        throw new NotImplementedError();
+        throw new NotImplemented();
     }
 
     public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {

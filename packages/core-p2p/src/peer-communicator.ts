@@ -11,8 +11,8 @@ import { replySchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
 export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
-    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<Contracts.Kernel.Events.IEventDispatcher>(
         "events",
     );
 
@@ -133,7 +133,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
 
             this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
 
-            this.emitter.dispatch(Enums.Event.Internal.DisconnectPeer, { peer });
+            this.emitter.dispatch(Enums.Events.Internal.DisconnectPeer, { peer });
         }
 
         return false;
@@ -270,7 +270,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
-                this.emitter.dispatch(Enums.Event.Internal.DisconnectPeer, { peer });
+                this.emitter.dispatch(Enums.Events.Internal.DisconnectPeer, { peer });
         }
     }
 }

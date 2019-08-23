@@ -3,6 +3,7 @@ import { BlockFrequencies } from "./block-frequencies";
 /**
  * @export
  * @class BlockJob
+ * @extends {BlockFrequencies}
  */
 export class BlockJob extends BlockFrequencies {
     /**

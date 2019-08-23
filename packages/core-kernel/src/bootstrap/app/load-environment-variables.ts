@@ -1,10 +1,11 @@
 import { JsonObject } from "type-fest";
-import { ConfigManager } from "../../services/config";
+import { Config } from "../../services";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
  * @export
  * @class LoadEnvironmentVariables
+ * @extends {AbstractBootstrapper}
  */
 export class LoadEnvironmentVariables extends AbstractBootstrapper {
     /**
@@ -15,7 +16,7 @@ export class LoadEnvironmentVariables extends AbstractBootstrapper {
         const config: JsonObject = this.app.resolve<JsonObject>("config");
 
         await this.app
-            .resolve<ConfigManager>("configManager")
+            .resolve<Config.ConfigManager>("configManager")
             .driver((config.configLoader || "local") as string)
             .loadEnvironmentVariables();
     }

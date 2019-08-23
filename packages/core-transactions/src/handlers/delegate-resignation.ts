@@ -48,8 +48,8 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {
-        emitter.dispatch(Enums.Event.State.DelegateResigned, transaction.data);
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.IEventDispatcher): void {
+        emitter.dispatch(Enums.Events.State.DelegateResigned, transaction.data);
     }
 
     public async canEnterTransactionPool(

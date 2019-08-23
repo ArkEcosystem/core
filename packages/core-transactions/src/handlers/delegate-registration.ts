@@ -108,8 +108,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.IEventDispatcher): void {
-        emitter.dispatch(AppEnums.Event.State.DelegateRegistered, transaction.data);
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.IEventDispatcher): void {
+        emitter.dispatch(AppEnums.Events.State.DelegateRegistered, transaction.data);
     }
 
     public async canEnterTransactionPool(

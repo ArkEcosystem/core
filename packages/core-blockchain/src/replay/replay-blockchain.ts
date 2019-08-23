@@ -7,7 +7,7 @@ import { FailedToReplayBlocksError } from "./errors";
 import { MemoryDatabaseService } from "./memory-database-service";
 
 export class ReplayBlockchain extends Blockchain {
-    private logger: Contracts.Kernel.ILogger;
+    private logger: Contracts.Kernel.Log.ILogger;
     private localDatabase: Contracts.Database.IDatabaseService;
     private walletManager: Wallets.WalletManager;
     private targetHeight: number;
@@ -25,7 +25,7 @@ export class ReplayBlockchain extends Blockchain {
         this.walletManager = new Wallets.WalletManager();
         this.memoryDatabase = new MemoryDatabaseService(this.walletManager);
 
-        this.logger = app.resolve<Contracts.Kernel.ILogger>("log");
+        this.logger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
         this.localDatabase = app.resolve<Contracts.Database.IDatabaseService>("database");
         this.localDatabase.walletManager = this.walletManager;
 

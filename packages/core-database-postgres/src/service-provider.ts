@@ -5,7 +5,7 @@ import { PostgresConnection } from "./postgres-connection";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.resolve<Contracts.Kernel.ILogger>("log").info("Establishing Database Connection");
+        this.app.resolve<Contracts.Kernel.Log.ILogger>("log").info("Establishing Database Connection");
 
         const walletManager = new Wallets.WalletManager();
 
@@ -18,7 +18,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        this.app.resolve<Contracts.Kernel.ILogger>("log").info("Closing Database Connection");
+        this.app.resolve<Contracts.Kernel.Log.ILogger>("log").info("Closing Database Connection");
 
         await this.app.resolve<Contracts.Database.IDatabaseService>("database").connection.disconnect();
     }

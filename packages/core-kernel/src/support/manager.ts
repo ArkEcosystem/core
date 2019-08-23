@@ -1,6 +1,6 @@
 import { toStudlyCaps } from "strman";
-import { IApplication } from "../contracts/core-kernel";
-import { FailedDriverResolution } from "../errors";
+import { Kernel } from "../contracts";
+import { DriverCannotBeResolved } from "../exceptions/kernel";
 
 /**
  * @export
@@ -13,10 +13,10 @@ export abstract class AbstractManager<T> {
      * The application instance.
      *
      * @protected
-     * @type {IApplication}
+     * @type {Kernel.IApplication}
      * @memberof AbstractManager
      */
-    protected readonly app: IApplication;
+    protected readonly app: Kernel.IApplication;
 
     /**
      * @private
@@ -37,10 +37,10 @@ export abstract class AbstractManager<T> {
     /**
      * Create a new manager instance.
      *
-     * @param {{ app:IApplication }} { app }
+     * @param {{ app:Kernel.IApplication }} { app }
      * @memberof AbstractManager
      */
-    public constructor({ app }: { app: IApplication }) {
+    public constructor({ app }: { app: Kernel.IApplication }) {
         this.app = app;
         this.defaultDriver = this.getDefaultDriver();
     }
@@ -65,7 +65,7 @@ export abstract class AbstractManager<T> {
         name = name || this.defaultDriver;
 
         if (!this.drivers.has(name)) {
-            throw new FailedDriverResolution(name);
+            throw new DriverCannotBeResolved(name);
         }
 
         return this.drivers.get(name);
@@ -75,10 +75,10 @@ export abstract class AbstractManager<T> {
      * Register and call a custom driver creator.
      *
      * @param {string} name
-     * @param {(app: IApplication) => T} callback
+     * @param {(app: Kernel.IApplication) => T} callback
      * @memberof AbstractManager
      */
-    public async extend(name: string, callback: (app: IApplication) => Promise<T>): Promise<void> {
+    public async extend(name: string, callback: (app: Kernel.IApplication) => Promise<T>): Promise<void> {
         this.drivers.set(name, await callback(this.app));
     }
 

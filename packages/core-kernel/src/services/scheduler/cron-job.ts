@@ -4,6 +4,7 @@ import { CronFrequencies } from "./cron-frequencies";
 /**
  * @export
  * @class CronJob
+ * @extends {CronFrequencies}
  */
 export class CronJob extends CronFrequencies {
     /**

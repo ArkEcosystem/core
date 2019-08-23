@@ -1,9 +1,10 @@
-import { FailedNetworkDetection } from "../../errors/kernel";
+import { NetworkCannotBeDetermined } from "../../exceptions/kernel";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
  * @export
  * @class RegisterBaseNamespace
+ * @extends {AbstractBootstrapper}
  */
 export class RegisterBaseNamespace extends AbstractBootstrapper {
     /**
@@ -15,7 +16,7 @@ export class RegisterBaseNamespace extends AbstractBootstrapper {
         const network: string = this.app.network();
 
         if (!token || !network) {
-            throw new FailedNetworkDetection();
+            throw new NetworkCannotBeDetermined();
         }
 
         this.app.bind("app.namespace", `${token}-${network}`);

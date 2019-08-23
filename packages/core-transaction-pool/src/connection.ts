@@ -22,10 +22,10 @@ export class Connection implements Contracts.TransactionPool.IConnection {
     private readonly databaseService: Contracts.Database.IDatabaseService = app.resolve<
         Contracts.Database.IDatabaseService
     >("database");
-    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "events",
-    );
-    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<
+        Contracts.Kernel.Events.IEventDispatcher
+    >("events");
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
 
     constructor({
         options,
@@ -106,11 +106,11 @@ export class Connection implements Contracts.TransactionPool.IConnection {
         }
 
         if (added.length > 0) {
-            this.emitter.dispatch(AppEnums.Event.State.TransactionPoolAdded, added);
+            this.emitter.dispatch(AppEnums.Events.State.TransactionPoolAdded, added);
         }
 
         if (notAdded.length > 0) {
-            this.emitter.dispatch(AppEnums.Event.State.TransactionPoolRejected, notAdded);
+            this.emitter.dispatch(AppEnums.Events.State.TransactionPoolRejected, notAdded);
         }
 
         return { added, notAdded };
@@ -125,7 +125,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
 
         this.syncToPersistentStorageIfNecessary();
 
-        this.emitter.dispatch(AppEnums.Event.State.TransactionPoolRemoved, id);
+        this.emitter.dispatch(AppEnums.Events.State.TransactionPoolRemoved, id);
     }
 
     public removeTransactionsById(ids: string[]): void {
@@ -324,7 +324,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
     }
 
     public async purgeInvalidTransactions(): Promise<void> {
-        return this.purgeTransactions(AppEnums.Event.State.TransactionPoolRemoved, this.memory.getInvalid());
+        return this.purgeTransactions(AppEnums.Events.State.TransactionPoolRemoved, this.memory.getInvalid());
     }
 
     public async senderHasTransactionsOfType(
@@ -565,7 +565,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
     }
 
     private async purgeExpired(): Promise<void> {
-        return this.purgeTransactions(AppEnums.Event.State.TransactionExpired, this.memory.getExpired());
+        return this.purgeTransactions(AppEnums.Events.State.TransactionExpired, this.memory.getExpired());
     }
 
     /**

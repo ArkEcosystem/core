@@ -5,6 +5,7 @@ import { AbstractBootstrapper } from "../bootstrapper";
 /**
  * @export
  * @class RegisterBaseConfiguration
+ * @extends {AbstractBootstrapper}
  */
 export class RegisterBaseConfiguration extends AbstractBootstrapper {
     /**

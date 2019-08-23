@@ -1,27 +1,28 @@
-import { Kernel } from "../../../contracts";
+import { IApplication } from "../../../contracts/kernel";
+import { IConfigLoader } from "../../../contracts/kernel/config";
 
 /**
  * @export
  * @class Remote
- * @implements {Kernel.IConfigAdapter}
+ * @implements {IConfigLoader}
  */
-export class Remote implements Kernel.IConfigAdapter {
+export class Remote implements IConfigLoader {
     /**
      * The application instance.
      *
      * @protected
-     * @type {Kernel.IApplication}
+     * @type {IApplication}
      * @memberof Manager
      */
-    protected readonly app: Kernel.IApplication;
+    protected readonly app: IApplication;
 
     /**
      * Create a new manager instance.
      *
-     * @param {{ app:Kernel.IApplication }} { app }
+     * @param {{ app:IApplication }} { app }
      * @memberof Manager
      */
-    public constructor({ app }: { app: Kernel.IApplication }) {
+    public constructor({ app }: { app: IApplication }) {
         this.app = app;
     }
 

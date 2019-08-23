@@ -2,31 +2,35 @@ import cosmiconfig from "cosmiconfig";
 import { set } from "dottie";
 import { parseFileSync } from "envfile";
 import { JsonObject } from "type-fest";
-import { Kernel } from "../../../contracts";
-import { InvalidApplicationConfiguration, InvalidEnvironmentConfiguration } from "../../../errors/kernel";
+import { IApplication } from "../../../contracts/kernel";
+import { IConfigLoader } from "../../../contracts/kernel/config";
+import {
+    ApplicationConfigurationCannotBeLoaded,
+    EnvironmentConfigurationCannotBeLoaded,
+} from "../../../exceptions/kernel";
 
 /**
  * @export
  * @class Local
- * @implements {Kernel.IConfigAdapter}
+ * @implements {IConfigLoader}
  */
-export class Local implements Kernel.IConfigAdapter {
+export class Local implements IConfigLoader {
     /**
      * The application instance.
      *
      * @protected
-     * @type {Kernel.IApplication}
-     * @memberof Manager
+     * @type {IApplication}
+     * @memberof Local
      */
-    protected readonly app: Kernel.IApplication;
+    protected readonly app: IApplication;
 
     /**
      * Create a new manager instance.
      *
-     * @param {{ app:Kernel.IApplication }} { app }
-     * @memberof Manager
+     * @param {{ app:IApplication }} { app }
+     * @memberof Local
      */
-    public constructor({ app }: { app: Kernel.IApplication }) {
+    public constructor({ app }: { app: IApplication }) {
         this.app = app;
     }
 
@@ -42,7 +46,7 @@ export class Local implements Kernel.IConfigAdapter {
 
             await this.loadDelegates();
         } catch {
-            throw new InvalidApplicationConfiguration();
+            throw new ApplicationConfigurationCannotBeLoaded();
         }
     }
 
@@ -63,7 +67,7 @@ export class Local implements Kernel.IConfigAdapter {
                 set(process.env, key, value);
             }
         } catch (error) {
-            throw new InvalidEnvironmentConfiguration();
+            throw new EnvironmentConfigurationCannotBeLoaded();
         }
     }
 

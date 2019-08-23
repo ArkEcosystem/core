@@ -1,6 +1,6 @@
 import mm from "micromatch";
-import { IEventDispatcher } from "../../contracts/core-kernel";
-import { EventListener, EventName } from "../../types";
+import { IEventDispatcher } from "../../contracts/kernel/events";
+import { EventListener, EventName } from "../../types/events";
 
 /**
  * @export

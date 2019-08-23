@@ -12,14 +12,19 @@ import {
     writeFile,
 } from "fs-extra";
 import { resolve } from "path";
-import { IFilesystem } from "../../../contracts/core-kernel";
+import { IFilesystem } from "../../../contracts/kernel/filesystem";
 
+/**
+ * @export
+ * @class Local
+ * @implements {IFilesystem}
+ */
 export class Local implements IFilesystem {
     /**
      * Create a new instance of the filesystem.
      *
      * @returns {Promise<IFilesystem>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async make(): Promise<IFilesystem> {
         return this;
@@ -30,7 +35,7 @@ export class Local implements IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async exists(path: string): Promise<boolean> {
         return pathExists(path);
@@ -41,7 +46,7 @@ export class Local implements IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<Buffer>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async get(path: string): Promise<Buffer> {
         return readFile(path);
@@ -53,7 +58,7 @@ export class Local implements IFilesystem {
      * @param {string} path
      * @param {string} contents
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async put(path: string, contents: string): Promise<boolean> {
         try {
@@ -70,7 +75,7 @@ export class Local implements IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async delete(path: string): Promise<boolean> {
         try {
@@ -88,7 +93,7 @@ export class Local implements IFilesystem {
      * @param {string} from
      * @param {string} to
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async copy(from: string, to: string): Promise<boolean> {
         try {
@@ -106,7 +111,7 @@ export class Local implements IFilesystem {
      * @param {string} from
      * @param {string} to
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async move(from: string, to: string): Promise<boolean> {
         try {
@@ -123,7 +128,7 @@ export class Local implements IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<number>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async size(path: string): Promise<number> {
         return (await stat(path)).size;
@@ -134,7 +139,7 @@ export class Local implements IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<number>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async lastModified(path: string): Promise<number> {
         return +(await stat(path)).mtime;
@@ -145,7 +150,7 @@ export class Local implements IFilesystem {
      *
      * @param {string} directory
      * @returns {Promise<string[]>}
-     * @memberof LocalAdapter
+     * @memberof Local
      */
     public async files(directory: string): Promise<string[]> {
         directory = resolve(directory);
@@ -160,7 +165,7 @@ export class Local implements IFilesystem {
      *
      * @param {string} directory
      * @returns {Promise<string>[]}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async directories(directory: string): Promise<string[]> {
         directory = resolve(directory);
@@ -175,7 +180,7 @@ export class Local implements IFilesystem {
      *
      * @param {*} path
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async makeDirectory(path): Promise<boolean> {
         try {
@@ -192,7 +197,7 @@ export class Local implements IFilesystem {
      *
      * @param {string} directory
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Local
      */
     public async deleteDirectory(directory: string): Promise<boolean> {
         try {

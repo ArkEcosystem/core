@@ -14,7 +14,7 @@ import {
     Resolver,
 } from "awilix";
 import { isClass, isFunction } from "typechecker";
-import { InvalidBindingName, InvalidType } from "./errors/kernel";
+import { InvalidBindingName, InvalidType } from "./exceptions/kernel";
 
 /**
  * @export

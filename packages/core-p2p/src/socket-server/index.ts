@@ -35,7 +35,7 @@ export const startSocketServer = async (
         ...config.server,
     });
 
-    server.on("fail", data => app.resolve<Contracts.Kernel.ILogger>("log").error(data.message));
+    server.on("fail", data => app.resolve<Contracts.Kernel.Log.ILogger>("log").error(data.message));
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
@@ -67,7 +67,7 @@ export const startSocketServer = async (
                 return res(error);
             }
 
-            app.resolve<Contracts.Kernel.ILogger>("log").error(error.message);
+            app.resolve<Contracts.Kernel.Log.ILogger>("log").error(error.message);
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
     });

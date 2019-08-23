@@ -48,7 +48,7 @@ export class NetworkVersionError extends CryptoError {
     }
 }
 
-export class NotImplementedError extends CryptoError {
+export class NotImplemented extends CryptoError {
     constructor() {
         super(`Feature is not available.`);
     }

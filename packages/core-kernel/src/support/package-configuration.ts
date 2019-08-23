@@ -1,7 +1,6 @@
 import { get, set } from "dottie";
-import { JsonObject } from "type-fest";
 import { Kernel } from "../contracts";
-import { ConfigObject } from "../types";
+import { JsonObject } from "../types";
 
 /**
  * @export
@@ -143,7 +142,7 @@ export class PackageConfiguration {
      * @memberof PackageConfiguration
      */
     private mergeWithGlobal(name: string): void {
-        const globalOptions: ConfigObject | undefined = this.app.config("options")[name];
+        const globalOptions: JsonObject | undefined = this.app.config("options")[name];
 
         if (globalOptions) {
             this.merge(globalOptions);

@@ -7,7 +7,7 @@ export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.I
 };
 
 export const emitEvent = ({ req }): void => {
-    app.resolve<Contracts.Kernel.IEventDispatcher>("events").dispatch(req.data.event, req.data.body);
+    app.resolve<Contracts.Kernel.Events.IEventDispatcher>("events").dispatch(req.data.event, req.data.body);
 };
 
 export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUnconfirmedTransactions> => {
@@ -63,7 +63,7 @@ export const getNetworkState = async ({
 };
 
 export const syncBlockchain = (): void => {
-    app.resolve<Contracts.Kernel.ILogger>("log").debug("Blockchain sync check WAKEUP requested by forger");
+    app.resolve<Contracts.Kernel.Log.ILogger>("log").debug("Blockchain sync check WAKEUP requested by forger");
 
     app.resolve<Contracts.Blockchain.IBlockchain>("blockchain").forceWakeup();
 };

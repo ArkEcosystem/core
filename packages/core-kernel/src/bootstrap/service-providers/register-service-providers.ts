@@ -1,15 +1,14 @@
 import semver from "semver";
-import { IServiceProviderDependency } from "../../contracts/core-kernel";
-import { IValidator } from "../../contracts/validation/validator";
+import { Kernel } from "../../contracts";
 import {
-    FailedDependencySatisfaction,
-    FailedServiceProviderRegistration,
+    DependencyDoesNotExist,
+    DependencyVersionOutOfRange,
     InvalidPackageConfiguration,
-    MissingDependency,
-} from "../../errors";
-import { ServiceProviderRepository } from "../../repositories";
+    ServiceProviderCannotBeRegistered,
+} from "../../exceptions/kernel";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
+import { ServiceProviderRepository } from "../../support";
 import { PackageConfiguration } from "../../support/package-configuration";
 import { AbstractServiceProvider } from "../../support/service-provider";
 import { AbstractBootstrapper } from "../bootstrapper";
@@ -43,7 +42,7 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
                 await this.validateConfiguration(serviceProvider);
             } catch (error) {
                 if (isRequired) {
-                    throw new FailedServiceProviderRegistration(serviceProvider.name(), error.message);
+                    throw new ServiceProviderCannotBeRegistered(serviceProvider.name(), error.message);
                 }
 
                 serviceProviders.fail(serviceProvider.name());
@@ -57,7 +56,7 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
                     await serviceProviders.register(name);
                 } catch (error) {
                     if (isRequired) {
-                        throw new FailedServiceProviderRegistration(serviceProvider.name(), error.message);
+                        throw new ServiceProviderCannotBeRegistered(serviceProvider.name(), error.message);
                     }
 
                     serviceProviders.fail(serviceProvider.name());
@@ -78,7 +77,9 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
         if (Object.keys(configSchema).length > 0) {
             const config: PackageConfiguration = serviceProvider.config();
 
-            const validator: IValidator = this.app.resolve<ValidationManager>("validationManager").driver();
+            const validator: Kernel.Validation.IValidator = this.app
+                .resolve<ValidationManager>("validationManager")
+                .driver();
 
             validator.validate(config.all(), configSchema);
 
@@ -97,7 +98,7 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterProviders
      */
     private async satisfiesDependencies(serviceProvider: AbstractServiceProvider): Promise<boolean> {
-        const dependencies: IServiceProviderDependency[] = serviceProvider.dependencies();
+        const dependencies: Kernel.IPackageDependency[] = serviceProvider.dependencies();
 
         if (!dependencies) {
             return true;
@@ -113,7 +114,11 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
             if (!serviceProviders.has(name)) {
                 const isRequired: boolean = typeof required === "function" ? await required() : !!required;
 
-                const error: MissingDependency = new MissingDependency(serviceProvider.name(), name, isRequired);
+                const error: DependencyDoesNotExist = new DependencyDoesNotExist(
+                    serviceProvider.name(),
+                    name,
+                    isRequired,
+                );
 
                 // The dependency is necessary for this package to function. We'll output an error and terminate the process.
                 if (isRequired) {
@@ -134,7 +139,7 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
                 if (!semver.satisfies(constraint, version)) {
                     serviceProviders.fail(serviceProvider.name());
 
-                    throw new FailedDependencySatisfaction(name, constraint, version);
+                    throw new DependencyVersionOutOfRange(name, constraint, version);
                 }
             }
         }

@@ -1,6 +1,5 @@
 import { JsonObject } from "type-fest";
 import { Kernel } from "../contracts";
-// import { ConfigObject } from "../types";
 import { PackageConfiguration } from "./package-configuration";
 import { PackageManifest } from "./package-manifest";
 
@@ -154,10 +153,10 @@ export abstract class AbstractServiceProvider {
     /**
      * Get the dependencies of the service provider.
      *
-     * @returns {Kernel.IServiceProviderDependency[]}
+     * @returns {Kernel.IPackageDependency[]}
      * @memberof AbstractServiceProvider
      */
-    public dependencies(): Kernel.IServiceProviderDependency[] {
+    public dependencies(): Kernel.IPackageDependency[] {
         return [];
     }
 

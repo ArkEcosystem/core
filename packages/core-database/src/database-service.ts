@@ -9,8 +9,8 @@ import cloneDeep from "lodash.clonedeep";
 export class DatabaseService implements Contracts.Database.IDatabaseService {
     public connection: Contracts.Database.IConnection;
     public walletManager: Contracts.State.IWalletManager;
-    public logger = app.resolve<Contracts.Kernel.ILogger>("log");
-    public emitter = app.resolve<Contracts.Kernel.IEventDispatcher>("events");
+    public logger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
+    public emitter = app.resolve<Contracts.Kernel.Events.IEventDispatcher>("events");
     public options: any;
     public wallets: Contracts.Database.IWalletsBusinessRepository;
     public delegates: Contracts.Database.IDelegatesBusinessRepository;
@@ -83,7 +83,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
             this.emitTransactionEvents(transaction);
         }
 
-        this.emitter.dispatch(Enums.Event.State.BlockApplied, block.data);
+        this.emitter.dispatch(Enums.Events.State.BlockApplied, block.data);
     }
 
     public async applyRound(height: number): Promise<void> {
@@ -113,7 +113,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
                     this.blocksInCurrentRound.length = 0;
 
-                    this.emitter.dispatch(Enums.Event.State.RoundApplied);
+                    this.emitter.dispatch(Enums.Events.State.RoundApplied);
                 } catch (error) {
                     // trying to leave database state has it was
                     await this.deleteRound(round);
@@ -411,7 +411,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
-        this.emitter.dispatch(Enums.Event.State.BlockReverted, block.data);
+        this.emitter.dispatch(Enums.Events.State.BlockReverted, block.data);
     }
 
     public async revertRound(height: number): Promise<void> {
@@ -445,7 +445,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
         await this.connection.roundsRepository.insert(activeDelegates);
 
-        this.emitter.dispatch(Enums.Event.State.RoundCreated, activeDelegates);
+        this.emitter.dispatch(Enums.Events.State.RoundCreated, activeDelegates);
     }
 
     public updateDelegateStats(delegates: Contracts.State.IWallet[]): void {
@@ -474,7 +474,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
                         }) just missed a block.`,
                     );
 
-                    this.emitter.dispatch(Enums.Event.State.ForgerMissing, {
+                    this.emitter.dispatch(Enums.Events.State.ForgerMissing, {
                         delegate: wallet,
                     });
                 }
@@ -714,17 +714,17 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
-        this.emitter.dispatch(Enums.Event.State.TransactionApplied, transaction.data);
+        this.emitter.dispatch(Enums.Events.State.TransactionApplied, transaction.data);
 
         Handlers.Registry.get(transaction.type, transaction.typeGroup).emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {
-        this.emitter.listen(Enums.Event.State.StateStarted, () => {
+        this.emitter.listen(Enums.Events.State.StateStarted, () => {
             this.stateStarted = true;
         });
 
-        this.emitter.listen(Enums.Event.State.WalletColdCreated, async (name, coldWallet) => {
+        this.emitter.listen(Enums.Events.State.WalletColdCreated, async (name, coldWallet) => {
             try {
                 const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
 

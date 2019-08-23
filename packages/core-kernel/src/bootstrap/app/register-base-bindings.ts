@@ -3,6 +3,7 @@ import { AbstractBootstrapper } from "../bootstrapper";
 /**
  * @export
  * @class RegisterBaseBindings
+ * @extends {AbstractBootstrapper}
  */
 export class RegisterBaseBindings extends AbstractBootstrapper {
     /**

@@ -1,8 +1,13 @@
 import { validate } from "@hapi/joi";
 import { ValidationErrorItem } from "@hapi/joi";
 import { JsonObject } from "type-fest";
-import { IValidator } from "../../../contracts/validation/validator";
+import { IValidator } from "../../../contracts/kernel/validation";
 
+/**
+ * @export
+ * @class Joi
+ * @implements {IValidator}
+ */
 export class Joi implements IValidator {
     /**
      * The data under validation.

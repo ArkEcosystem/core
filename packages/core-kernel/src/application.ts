@@ -7,19 +7,18 @@ import * as Bootstrappers from "./bootstrap";
 import { AbstractBootstrapper } from "./bootstrap/bootstrapper";
 import { Container } from "./container";
 import * as Contracts from "./contracts";
-import { Kernel } from "./contracts";
-import { DirectoryNotFound } from "./errors/kernel";
-import { ServiceProviderRepository } from "./repositories";
+import { DirectoryCannotBeFound } from "./exceptions/kernel";
 import { EventDispatcher } from "./services/events";
-import { EventListener } from "./types";
+import { AbstractServiceProvider, ServiceProviderRepository } from "./support";
+import { EventListener } from "./types/events";
 
 /**
  * @export
  * @class Application
  * @extends {Container}
- * @implements {Kernel.IApplication}
+ * @implements {Contracts.Kernel.IApplication}
  */
-export class Application extends Container implements Kernel.IApplication {
+export class Application extends Container implements Contracts.Kernel.IApplication {
     /**
      * @private
      * @type {boolean}
@@ -35,7 +34,7 @@ export class Application extends Container implements Kernel.IApplication {
     public constructor() {
         super();
 
-        this.bind<Kernel.IApplication>("app", this);
+        this.bind<Contracts.Kernel.IApplication>("app", this);
     }
 
     /**
@@ -331,29 +330,29 @@ export class Application extends Container implements Kernel.IApplication {
 
     /**
      * @readonly
-     * @type {Contracts.Kernel.ILogger}
+     * @type {Contracts.Kernel.Log.ILogger}
      * @memberof Application
      */
-    public get log(): Contracts.Kernel.ILogger {
-        return this.resolve<Contracts.Kernel.ILogger>("log");
+    public get log(): Contracts.Kernel.Log.ILogger {
+        return this.resolve<Contracts.Kernel.Log.ILogger>("log");
     }
 
     /**
      * @readonly
-     * @type {Contracts.Kernel.IEventDispatcher}
+     * @type {Contracts.Kernel.Events.IEventDispatcher}
      * @memberof Application
      */
-    public get events(): Contracts.Kernel.IEventDispatcher {
-        return this.resolve<Contracts.Kernel.IEventDispatcher>("events");
+    public get events(): Contracts.Kernel.Events.IEventDispatcher {
+        return this.resolve<Contracts.Kernel.Events.IEventDispatcher>("events");
     }
 
     /**
      * @readonly
-     * @type {Contracts.Kernel.IFilesystem}
+     * @type {Contracts.Kernel.Filesystem.IFilesystem}
      * @memberof Application
      */
-    public get filesystem(): Contracts.Kernel.IFilesystem {
-        return this.resolve<Contracts.Kernel.IFilesystem>("filesystem");
+    public get filesystem(): Contracts.Kernel.Filesystem.IFilesystem {
+        return this.resolve<Contracts.Kernel.Filesystem.IFilesystem>("filesystem");
     }
 
     /**
@@ -448,9 +447,11 @@ export class Application extends Container implements Kernel.IApplication {
      * @memberof Application
      */
     private async disposeServiceProviders(): Promise<void> {
-        for (const provider of app
+        const providers: AbstractServiceProvider[] = app
             .resolve<ServiceProviderRepository>("serviceProviderRepository")
-            .allLoadedProviders()) {
+            .allLoadedProviders();
+
+        for (const provider of providers) {
             await provider.dispose();
         }
     }
@@ -465,7 +466,7 @@ export class Application extends Container implements Kernel.IApplication {
         const path: string = this.resolve<string>(`path.${type}`);
 
         if (!existsSync(path)) {
-            throw new DirectoryNotFound(path);
+            throw new DirectoryCannotBeFound(path);
         }
 
         return path;
@@ -479,7 +480,7 @@ export class Application extends Container implements Kernel.IApplication {
      */
     private usePath(type: string, path: string): void {
         if (!existsSync(path)) {
-            throw new DirectoryNotFound(path);
+            throw new DirectoryCannotBeFound(path);
         }
 
         this.bind(`path.${type}`, path);

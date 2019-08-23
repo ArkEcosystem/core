@@ -9,6 +9,7 @@ import { AbstractBootstrapper } from "../bootstrapper";
 /**
  * @export
  * @class RegisterBasePaths
+ * @extends {AbstractBootstrapper}
  */
 export class RegisterBasePaths extends AbstractBootstrapper {
     /**

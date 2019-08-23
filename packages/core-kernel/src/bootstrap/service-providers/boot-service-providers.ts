@@ -1,11 +1,12 @@
-import { State } from "../../enums/event";
-import { FailedServiceProviderBoot } from "../../errors";
-import { ServiceProviderRepository } from "../../repositories";
+import { Events } from "../../enums";
+import { Kernel } from "../../exceptions";
+import { ServiceProviderRepository } from "../../support";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
  * @export
  * @class RegisterProviders
+ * @extends {AbstractBootstrapper}
  */
 export class BootServiceProviders extends AbstractBootstrapper {
     /**
@@ -26,7 +27,7 @@ export class BootServiceProviders extends AbstractBootstrapper {
                     const isRequired: boolean = await serviceProvider.required();
 
                     if (isRequired) {
-                        throw new FailedServiceProviderBoot(serviceProvider.name(), error.message);
+                        throw new Kernel.ServiceProviderCannotBeBooted(serviceProvider.name(), error.message);
                     }
 
                     serviceProviders.fail(serviceProvider.name());
@@ -35,7 +36,8 @@ export class BootServiceProviders extends AbstractBootstrapper {
                 serviceProviders.defer(name);
             }
 
-            this.app.events.listen(State.BlockApplied, async () => {
+            // Register the "enable/disableWhen" listeners to be triggered on every block. Use with care!
+            this.app.events.listen(Events.State.BlockApplied, async () => {
                 if (serviceProviders.failed(name)) {
                     return;
                 }

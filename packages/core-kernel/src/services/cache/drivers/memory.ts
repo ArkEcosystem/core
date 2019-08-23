@@ -1,5 +1,5 @@
-import { ICacheStore } from "../../../contracts/core-kernel/cache";
-import { NotImplementedError } from "../../../errors/kernel";
+import { ICacheStore } from "../../../contracts/kernel/cache";
+import { NotImplemented } from "../../../exceptions/kernel";
 
 /**
  * @export
@@ -157,7 +157,7 @@ export class Memory<K, T> implements ICacheStore<K, T> {
      * @memberof Memory
      */
     public async forever(key: K, value: T): Promise<boolean> {
-        throw new NotImplementedError(this.constructor.name, "forever");
+        throw new NotImplemented(this.constructor.name, "forever");
     }
 
     /**
@@ -169,7 +169,7 @@ export class Memory<K, T> implements ICacheStore<K, T> {
      * @memberof Memory
      */
     public async foreverMany(values: Array<[K, T]>, value: T): Promise<boolean[]> {
-        throw new NotImplementedError(this.constructor.name, "foreverMany");
+        throw new NotImplemented(this.constructor.name, "foreverMany");
     }
 
     /**
@@ -215,6 +215,6 @@ export class Memory<K, T> implements ICacheStore<K, T> {
      * @memberof Memory
      */
     public async getPrefix(): Promise<string> {
-        throw new NotImplementedError(this.constructor.name, "getPrefix");
+        throw new NotImplemented(this.constructor.name, "getPrefix");
     }
 }

@@ -3,10 +3,10 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
-    private readonly logger: Contracts.Kernel.ILogger = app.resolve<Contracts.Kernel.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.IEventDispatcher = app.resolve<Contracts.Kernel.IEventDispatcher>(
-        "events",
-    );
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<
+        Contracts.Kernel.Events.IEventDispatcher
+    >("events");
 
     constructor(
         private readonly connection: Contracts.Database.IConnection,
@@ -40,7 +40,7 @@ export class StateBuilder {
 
         this.verifyWalletsConsistency();
 
-        this.emitter.dispatch(Enums.Event.Internal.StateBuilderFinished);
+        this.emitter.dispatch(Enums.Events.Internal.StateBuilderFinished);
     }
 
     private async buildBlockRewards(): Promise<void> {

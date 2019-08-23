@@ -4,6 +4,7 @@ import { AbstractBootstrapper } from "../bootstrapper";
 /**
  * @export
  * @class LoadCryptography
+ * @extends {AbstractBootstrapper}
  */
 export class LoadCryptography extends AbstractBootstrapper {
     /**
@@ -11,16 +12,7 @@ export class LoadCryptography extends AbstractBootstrapper {
      * @memberof LoadCryptography
      */
     public async bootstrap(): Promise<void> {
-        this.configure(Managers.NetworkManager.findByName(this.app.network() as any));
-    }
-
-    /**
-     * @private
-     * @param {*} config
-     * @memberof LoadCryptography
-     */
-    private configure(config: any): void {
-        Managers.configManager.setConfig(config);
+        Managers.configManager.setFromPreset(this.app.network() as any);
 
         this.app.bind("crypto.network", Managers.configManager.all());
         this.app.bind("crypto.exceptions", Managers.configManager.get("exceptions"));
