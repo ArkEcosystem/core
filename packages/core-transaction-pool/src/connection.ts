@@ -1,5 +1,4 @@
 import { strictEqual } from "assert";
-import clonedeep from "lodash.clonedeep";
 
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
@@ -473,7 +472,7 @@ export class Connection implements TransactionPool.IConnection {
         );
 
         const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
-        const localWalletManager: Wallets.WalletManager = new Wallets.WalletManager();
+        const localWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(databaseWalletManager);
 
         for (const transaction of unforgedTransactions) {
             try {
@@ -483,7 +482,12 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
-                const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletManager);
+                const sender: State.IWallet = localWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+                let recipient: State.IWallet | undefined;
+                if (transaction.data.recipientId) {
+                    recipient = localWalletManager.findByAddress(transaction.data.recipientId);
+                }
 
                 const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                     transaction.type,
@@ -507,50 +511,6 @@ export class Connection implements TransactionPool.IConnection {
         }
 
         return validTransactions;
-    }
-
-    private getSenderAndRecipient(
-        transaction: Interfaces.ITransaction,
-        localWalletManager: State.IWalletManager,
-    ): { sender: State.IWallet; recipient: State.IWallet } {
-        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
-        const { senderPublicKey, recipientId } = transaction.data;
-
-        let sender: State.IWallet;
-        let recipient: State.IWallet;
-
-        if (localWalletManager.hasByPublicKey(senderPublicKey)) {
-            sender = localWalletManager.findByPublicKey(senderPublicKey);
-        } else {
-            sender = clonedeep(databaseWalletManager.findByPublicKey(senderPublicKey));
-            localWalletManager.reindex(sender);
-        }
-
-        // HACK: need tx agonistic way for wallets which are modified by transaction
-        if (transaction.type === Enums.TransactionType.Vote) {
-            const vote = transaction.data.asset.votes[0].slice(1);
-            if (!localWalletManager.hasByPublicKey(vote)) {
-                localWalletManager.reindex(clonedeep(databaseWalletManager.findByPublicKey(vote)));
-            }
-        } else if (transaction.type === Enums.TransactionType.HtlcClaim) {
-            const lockId = transaction.data.asset.claim.lockTransactionId;
-            if (!localWalletManager.hasByIndex(State.WalletIndexes.Locks, lockId)) {
-                localWalletManager.reindex(
-                    clonedeep(databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId)),
-                );
-            }
-        }
-
-        if (recipientId) {
-            if (localWalletManager.hasByAddress(recipientId)) {
-                recipient = localWalletManager.findByAddress(recipientId);
-            } else {
-                recipient = clonedeep(databaseWalletManager.findByAddress(recipientId));
-                localWalletManager.reindex(recipient);
-            }
-        }
-
-        return { sender, recipient };
     }
 
     private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {

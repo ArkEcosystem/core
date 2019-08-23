@@ -10,6 +10,19 @@ export class WalletManager extends Wallets.WalletManager {
         "database",
     );
 
+    public constructor() {
+        super();
+
+        const indexes: string[] = this.databaseService.walletManager.getIndexNames();
+        for (const index of indexes) {
+            if (this.indexes[index]) {
+                continue;
+            }
+
+            this.registerIndex(index, this.databaseService.walletManager.getIndex(index).indexer);
+        }
+    }
+
     public findByAddress(address: string): State.IWallet {
         if (address && !this.hasByAddress(address)) {
             this.reindex(clonedeep(this.databaseService.walletManager.findByAddress(address)));

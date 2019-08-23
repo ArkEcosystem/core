@@ -10,18 +10,16 @@ import { seedNodesProperties } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
-const bridgechainUpdateType: number = MarketplaceTransactionType.BridgechainUpdate;
-
 export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public static typeGroup: number = MarketplaceTransactionGroup;
-    public static type = bridgechainUpdateType;
+    public static type = MarketplaceTransactionType.BridgechainUpdate;
     public static key: string = "bridgechainUpdate";
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "bridgechainUpdate",
             properties: {
-                type: { transactionType: bridgechainUpdateType },
+                type: { transactionType: MarketplaceTransactionType.BridgechainUpdate },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",

@@ -12,7 +12,7 @@ const { schemas } = Transactions;
 
 export class BusinessUpdateTransaction extends Transactions.Transaction {
     public static typeGroup: number = MarketplaceTransactionGroup;
-    public static typ: number = MarketplaceTransactionType.BusinessUpdate;
+    public static type: number = MarketplaceTransactionType.BusinessUpdate;
     public static key: string = "businessUpdate";
 
     public static getSchema(): Transactions.schemas.TransactionSchema {

@@ -12,7 +12,7 @@ export class WalletManager implements State.IWalletManager {
     // @TODO: make this private and read-only
     public logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    private readonly indexes: Record<string, State.IWalletIndex> = {};
+    protected readonly indexes: Record<string, State.IWalletIndex> = {};
     private currentBlock: Interfaces.IBlock;
 
     constructor() {
@@ -68,6 +68,10 @@ export class WalletManager implements State.IWalletManager {
         }
 
         return this.indexes[name];
+    }
+
+    public getIndexNames(): string[] {
+        return Object.keys(this.indexes);
     }
 
     public allByAddress(): ReadonlyArray<State.IWallet> {

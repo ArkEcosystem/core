@@ -3,7 +3,7 @@ import { State } from "@arkecosystem/core-interfaces";
 export class WalletIndex implements State.IWalletIndex {
     private walletIndex: Record<string, State.IWallet>;
 
-    public constructor(private readonly indexer: State.WalletIndexer) {
+    public constructor(public readonly indexer: State.WalletIndexer) {
         this.walletIndex = {};
     }
 
