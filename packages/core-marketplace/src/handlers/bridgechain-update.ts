@@ -15,7 +15,7 @@ import {
     IBridgechainWalletAttributes,
     IBusinessWalletAttributes,
 } from "../interfaces";
-import { MarketplaceTransactionType } from "../marketplace-transactions";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BridgechainUpdateTransaction } from "../transactions";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
@@ -39,6 +39,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
             this.getConstructor().type,
+            this.getConstructor().typeGroup,
         );
         for (const transaction of transactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -131,6 +132,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         ).transactionsRepository;
         const updateTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
             MarketplaceTransactionType.BridgechainUpdate,
+            MarketplaceTransactionGroup,
         );
 
         if (updateTransactions.length > 1) {

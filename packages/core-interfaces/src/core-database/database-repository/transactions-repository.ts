@@ -1,4 +1,4 @@
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { IWallet } from "../../core-state/wallets";
 import { ITransactionsPaginated } from "../business-repository";
 import { ISearchOrderBy, ISearchPaginate, ISearchParameters } from "../search";
@@ -46,7 +46,7 @@ export interface ITransactionsRepository extends IRepository {
         }>
     >;
 
-    getAssetsByType(type: Enums.TransactionType | number): Promise<IBootstrapTransaction[]>;
+    getAssetsByType(type: number, typeGroup?: number): Promise<IBootstrapTransaction[]>;
 
     getReceivedTransactions(): Promise<any>;
 

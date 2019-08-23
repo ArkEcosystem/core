@@ -28,6 +28,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
             this.getConstructor().type,
+            this.getConstructor().typeGroup,
         );
         for (const transaction of transactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);

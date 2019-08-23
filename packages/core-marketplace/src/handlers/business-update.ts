@@ -5,7 +5,7 @@ import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessRegistrationAsset, IBusinessUpdateAsset, IBusinessWalletAttributes } from "../interfaces";
-import { MarketplaceTransactionType } from "../marketplace-transactions";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BusinessUpdateTransaction } from "../transactions";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -29,6 +29,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
             this.getConstructor().type,
+            this.getConstructor().typeGroup,
         );
         for (const transaction of transactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
@@ -105,6 +106,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         ).transactionsRepository;
         const updateTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
             MarketplaceTransactionType.BusinessUpdate,
+            MarketplaceTransactionGroup,
         );
 
         if (updateTransactions.length > 0) {
@@ -118,6 +120,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         } else {
             const registerTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
                 MarketplaceTransactionType.BusinessRegistration,
+                MarketplaceTransactionGroup,
             );
 
             const registerTransaction: Database.IBootstrapTransaction = registerTransactions.pop();

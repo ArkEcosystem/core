@@ -27,6 +27,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
             this.getConstructor().type,
+            this.getConstructor().typeGroup,
         );
         for (const transaction of transactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);

@@ -105,8 +105,8 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         );
     }
 
-    public async getAssetsByType(type: Enums.TransactionType | number): Promise<any> {
-        return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(type);
+    public async getAssetsByType(type: number, typeGroup?: number): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(type, typeGroup);
     }
 
     public async getReceivedTransactions(): Promise<any> {
