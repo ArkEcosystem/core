@@ -1,6 +1,6 @@
 import { toStudlyCaps } from "strman";
 import { Kernel } from "../contracts";
-import { DriverCannotBeResolved } from "../exceptions/kernel";
+import { DriverCannotBeResolved } from "../exceptions/container";
 
 /**
  * @export

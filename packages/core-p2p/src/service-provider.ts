@@ -43,7 +43,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         return true;
     }
 
-    // @TODO: ioc
+    // @todo: ioc
     private makePeerService(options): PeerService {
         const storage = new PeerStorage();
         const connector = new PeerConnector();

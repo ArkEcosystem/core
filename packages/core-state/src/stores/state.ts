@@ -6,11 +6,11 @@ import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
 
 /**
- * @TODO
+ * @todo
  * - extract block and transaction behaviours into their respective stores
  */
 export class StateStore implements Contracts.State.IStateStore {
-    // @TODO: make all properties private and expose them one-by-one through a getter if used outside of this class
+    // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
     public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
@@ -31,7 +31,7 @@ export class StateStore implements Contracts.State.IStateStore {
 
     /**
      * Resets the state.
-     * @TODO: remove the need for this method.
+     * @todo: remove the need for this method.
      */
     public reset(blockchainMachine): void {
         this.blockchain = blockchainMachine.initialState;

@@ -31,7 +31,7 @@ export class Remote implements IConfigLoader {
      * @memberof Remote
      */
     public async loadConfiguration(): Promise<void> {
-        // @TODO
+        // @todo
     }
 
     /**
@@ -39,6 +39,6 @@ export class Remote implements IConfigLoader {
      * @memberof Remote
      */
     public async loadEnvironmentVariables(): Promise<void> {
-        // @TODO
+        // @todo
     }
 }

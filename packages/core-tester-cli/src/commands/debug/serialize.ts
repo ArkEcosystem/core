@@ -31,7 +31,7 @@ export class SerializeCommand extends BaseCommand {
         if (flags.type === "transaction") {
             serialized = Transactions.TransactionFactory.fromData(JSON.parse(flags.data)).serialized;
         } else {
-            // @TODO: call applySchema in @arkecosystem/crypto before serialising
+            // @todo: call applySchema in @arkecosystem/crypto before serialising
             const block: Interfaces.IBlockData = Blocks.Block.applySchema(JSON.parse(flags.data));
 
             serialized = Blocks.Block[flags.full ? "serializeWithTransactions" : "serialize"](block);

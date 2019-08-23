@@ -3,7 +3,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { IDynamicFeeMatch } from "./interfaces";
 
-// @TODO: better name
+// @todo: better name
 export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynamicFeeMatch => {
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;

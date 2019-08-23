@@ -1,4 +1,5 @@
 import { JsonObject } from "type-fest";
+import { Exception } from "../../exceptions/base";
 import { IBlockchain } from "../blockchain";
 import { IDatabaseService } from "../database";
 import { IPeerService } from "../p2p";
@@ -216,4 +217,16 @@ export interface IPackageDependency {
      * @memberof IPackageDependency
      */
     required?: boolean | (() => Promise<boolean>);
+}
+
+export interface IExceptionHandler {
+    /**
+     * Report or log an exception.
+     */
+    report(exception: Exception);
+
+    /**
+     * Determine if the exception should be reported.
+     */
+    shouldReport(exception: Exception);
 }

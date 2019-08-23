@@ -93,7 +93,7 @@ export class Worker extends SCWorker {
             return next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
         }
 
-        // @TODO: check if this is still needed
+        // @todo: check if this is still needed
         if (!req.data) {
             return next(this.createError(SocketErrors.HeadersRequired, "Request data and is mandatory"));
         }

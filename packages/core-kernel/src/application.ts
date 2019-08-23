@@ -7,7 +7,7 @@ import * as Bootstrappers from "./bootstrap";
 import { AbstractBootstrapper } from "./bootstrap/bootstrapper";
 import { Container } from "./container";
 import * as Contracts from "./contracts";
-import { DirectoryCannotBeFound } from "./exceptions/kernel";
+import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { EventDispatcher } from "./services/events";
 import { AbstractServiceProvider, ServiceProviderRepository } from "./support";
 import { EventListener } from "./types/events";

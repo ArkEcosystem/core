@@ -59,7 +59,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.ITrans
         return this.search({ type, ...parameters });
     }
 
-    // @TODO: simplify this
+    // @todo: simplify this
     public async findAllByWallet(
         wallet: Contracts.State.IWallet,
         parameters: Contracts.Database.IParameters = {},
@@ -77,7 +77,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.ITrans
         return result;
     }
 
-    // @TODO: simplify this
+    // @todo: simplify this
     public async findById(id: string) {
         return (await this.mapBlocksToTransactions(
             await this.databaseServiceProvider().connection.transactionsRepository.findById(id),

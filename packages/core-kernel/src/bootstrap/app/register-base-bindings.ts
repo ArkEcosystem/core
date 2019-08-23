@@ -17,7 +17,7 @@ export class RegisterBaseBindings extends AbstractBootstrapper {
         this.app.bind("app.network", this.app.config("network"));
         this.app.bind("app.version", this.app.config("version"));
 
-        // @TODO: implement a getter/setter that sets vars locally and in the process.env variables
+        // @todo: implement a getter/setter that sets vars locally and in the process.env variables
         process.env.CORE_ENV = this.app.config("env");
         process.env.NODE_ENV = process.env.CORE_ENV;
         process.env.CORE_TOKEN = this.app.config("token");

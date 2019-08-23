@@ -15,21 +15,21 @@ import { StateBuilder } from "./state-builder";
 import { camelizeColumns } from "./utils";
 
 export class PostgresConnection implements Contracts.Database.IConnection {
-    // @TODO: make this private
+    // @todo: make this private
     public models: { [key: string]: Model } = {};
-    // @TODO: make this private
+    // @todo: make this private
     public query: QueryExecutor;
-    // @TODO: make this private
+    // @todo: make this private
     public db: any;
-    // @TODO: make this private
+    // @todo: make this private
     public blocksRepository: Contracts.Database.IBlocksRepository;
-    // @TODO: make this private
+    // @todo: make this private
     public roundsRepository: Contracts.Database.IRoundsRepository;
-    // @TODO: make this private
+    // @todo: make this private
     public transactionsRepository: Contracts.Database.ITransactionsRepository;
-    // @TODO: make this private
+    // @todo: make this private
     public walletsRepository: Contracts.Database.IWalletsRepository;
-    // @TODO: make this private
+    // @todo: make this private
     public pgp: IMain;
     private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
     private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<Contracts.Kernel.Events.IEventDispatcher>(

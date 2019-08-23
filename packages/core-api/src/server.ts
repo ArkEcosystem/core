@@ -148,7 +148,7 @@ export class Server {
             },
         });
 
-        // @TODO: remove this with the release of 3.0 - adds support for /api and /api/v2
+        // @todo: remove this with the release of 3.0 - adds support for /api and /api/v2
         server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
             if (request.url) {
                 const path: string = request.url.pathname.replace("/v2", "");

@@ -1,5 +1,5 @@
 /**
- * @TODO: remove the generic defaults
+ * @todo: remove the generic defaults
  *
  * @export
  * @interface ICacheStore

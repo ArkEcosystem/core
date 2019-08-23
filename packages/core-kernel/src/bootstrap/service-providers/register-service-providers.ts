@@ -5,7 +5,7 @@ import {
     DependencyVersionOutOfRange,
     InvalidPackageConfiguration,
     ServiceProviderCannotBeRegistered,
-} from "../../exceptions/kernel";
+} from "../../exceptions/packages";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
 import { ServiceProviderRepository } from "../../support";

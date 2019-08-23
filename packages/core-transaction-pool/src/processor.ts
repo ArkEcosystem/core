@@ -7,7 +7,7 @@ import { IDynamicFeeMatch, ITransactionsCached, ITransactionsProcessed } from ".
 import { WalletManager } from "./wallet-manager";
 
 /**
- * @TODO: this class has too many responsibilities at the moment.
+ * @todo: this class has too many responsibilities at the moment.
  * Its sole responsibility should be to validate transactions and return them.
  */
 export class Processor implements Contracts.TransactionPool.IProcessor {
@@ -209,7 +209,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
         }
 
         try {
-            // @TODO: this leaks private members, refactor this
+            // @todo: this leaks private members, refactor this
             return Handlers.Registry.get(transaction.type, transaction.typeGroup).canEnterTransactionPool(
                 transaction,
                 this.pool,

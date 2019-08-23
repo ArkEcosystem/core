@@ -63,7 +63,7 @@ export class ForgerManager {
         this.isStopped = true;
     }
 
-    // @TODO: make this private
+    // @todo: make this private
     public async checkSlot(): Promise<void> {
         try {
             if (this.isStopped) {

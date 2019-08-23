@@ -44,7 +44,7 @@ export class BlockJob extends BlockFrequencies {
      * @memberof BlockJob
      */
     public start(): void {
-        // @TODO
+        // @todo
 
         console.log(this.job);
         console.log(this.onTick);
@@ -55,6 +55,6 @@ export class BlockJob extends BlockFrequencies {
      * @memberof BlockJob
      */
     public stop(): void {
-        // @TODO
+        // @todo
     }
 }

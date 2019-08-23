@@ -8,7 +8,7 @@ import { Wallet } from "./wallet";
 import { WalletIndex } from "./wallet-index";
 
 export class WalletManager implements Contracts.State.IWalletManager {
-    // @TODO: make this private and read-only
+    // @todo: make this private and read-only
     public logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
 
     private readonly indexes: Record<string, Contracts.State.IWalletIndex> = {};

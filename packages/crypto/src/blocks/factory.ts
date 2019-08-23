@@ -5,7 +5,7 @@ import { Block } from "./block";
 import { deserializer } from "./deserializer";
 
 export class BlockFactory {
-    // @TODO: add a proper type hint for data
+    // @todo: add a proper type hint for data
     public static make(data: any, keys: IKeyPair): IBlock {
         data.generatorPublicKey = keys.publicKey;
 

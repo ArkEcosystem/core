@@ -1,5 +1,5 @@
 import { Events } from "../../enums";
-import { Kernel } from "../../exceptions";
+import { ServiceProviderCannotBeBooted } from "../../exceptions/packages";
 import { ServiceProviderRepository } from "../../support";
 import { AbstractBootstrapper } from "../bootstrapper";
 
@@ -27,7 +27,7 @@ export class BootServiceProviders extends AbstractBootstrapper {
                     const isRequired: boolean = await serviceProvider.required();
 
                     if (isRequired) {
-                        throw new Kernel.ServiceProviderCannotBeBooted(serviceProvider.name(), error.message);
+                        throw new ServiceProviderCannotBeBooted(serviceProvider.name(), error.message);
                     }
 
                     serviceProviders.fail(serviceProvider.name());

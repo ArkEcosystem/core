@@ -12,9 +12,9 @@ import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
 export class Connection implements Contracts.TransactionPool.IConnection {
-    // @TODO: make this private, requires some bigger changes to tests
+    // @todo: make this private, requires some bigger changes to tests
     public options: Record<string, any>;
-    // @TODO: make this private, requires some bigger changes to tests
+    // @todo: make this private, requires some bigger changes to tests
     public walletManager: WalletManager;
     private readonly memory: Memory;
     private readonly storage: Storage;
@@ -164,7 +164,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
         }
     }
 
-    // @TODO: move this to a more appropriate place
+    // @todo: move this to a more appropriate place
     public async hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean> {
         await this.purgeExpired();
 

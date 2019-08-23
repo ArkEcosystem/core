@@ -28,7 +28,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
 
             this.app.resolve<Contracts.TransactionPool.IConnection>("transactionPool").disconnect();
         } catch (error) {
-            // @TODO: handle
+            // @todo: handle
         }
     }
 

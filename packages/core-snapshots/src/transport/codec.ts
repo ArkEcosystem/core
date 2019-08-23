@@ -13,11 +13,11 @@ const encodeBlock = block => {
 
 const decodeBlock = (buffer: Buffer) => {
     const block = Blocks.Block.deserialize(buffer.toString("hex"), true);
-    // @ts-ignore - @TODO: remove ts-ignore
+    // @ts-ignore - @todo: remove ts-ignore
     block.totalAmount = block.totalAmount.toFixed();
-    // @ts-ignore - @TODO: remove ts-ignore
+    // @ts-ignore - @todo: remove ts-ignore
     block.totalFee = block.totalFee.toFixed();
-    // @ts-ignore - @TODO: remove ts-ignore
+    // @ts-ignore - @todo: remove ts-ignore
     block.reward = block.reward.toFixed();
 
     return decamelizeKeys(block);

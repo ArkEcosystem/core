@@ -14,7 +14,8 @@ import {
     Resolver,
 } from "awilix";
 import { isClass, isFunction } from "typechecker";
-import { InvalidBindingName, InvalidType } from "./exceptions/kernel";
+import { InvalidBindingName } from "./exceptions/container";
+import { UnexpectedType } from "./exceptions/logic";
 
 /**
  * @export
@@ -31,7 +32,7 @@ export class Container {
     private readonly container: AwilixContainer = createContainer();
 
     /**
-     * @TODO: remove any after initial migration
+     * @todo: remove any after initial migration
      *
      * Adds a single registration using a pre-constructed resolver.
      *
@@ -59,7 +60,7 @@ export class Container {
     }
 
     /**
-     * @TODO: remove any after initial migration
+     * @todo: remove any after initial migration
      *
      * Adds a single registration using a pre-constructed resolver. The registration is always reused
      *
@@ -80,7 +81,7 @@ export class Container {
         } else if (isFunction(concrete)) {
             binding = asFunction(concrete as FunctionReturning<T>);
         } else {
-            throw new InvalidType("singleton", "concrete", "class or function", typeof concrete);
+            throw new UnexpectedType("concrete", "class or function", typeof concrete);
         }
 
         this.container.register<T>(name, binding.singleton());

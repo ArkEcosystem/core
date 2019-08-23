@@ -76,7 +76,7 @@ export class Delegate {
         this.encryptedKeys = undefined;
     }
 
-    // @TODO: reduce nesting
+    // @todo: reduce nesting
     public forge(
         transactions: Interfaces.ITransactionData[],
         options: Record<string, any>,

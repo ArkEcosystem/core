@@ -3,7 +3,7 @@ import { AbstractManager } from "../../support/manager";
 import { Memory } from "./drivers";
 
 /**
- * @TODO: add K,T to the ICacheStore interface
+ * @todo: add K,T to the ICacheStore interface
  *
  * @export
  * @class CacheManager

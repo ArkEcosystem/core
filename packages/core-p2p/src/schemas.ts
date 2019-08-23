@@ -118,7 +118,7 @@ export const replySchemas = {
             state: { type: "object" },
             config: { type: "object" },
         },
-        // @TODO: adjust schema to match { state, config }
+        // @todo: adjust schema to match { state, config }
         // type: "object",
         // properties: {
         //     header: {

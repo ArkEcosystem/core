@@ -7,7 +7,7 @@ import { IConfigLoader } from "../../../contracts/kernel/config";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
-} from "../../../exceptions/kernel";
+} from "../../../exceptions/config";
 
 /**
  * @export
@@ -55,7 +55,7 @@ export class Local implements IConfigLoader {
      * @memberof Local
      */
     public async loadEnvironmentVariables(): Promise<void> {
-        // @TODO: enable this after initial migration
+        // @todo: enable this after initial migration
         // if (this.app.runningTests()) {
         //     return;
         // }

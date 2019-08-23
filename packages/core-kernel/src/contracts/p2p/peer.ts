@@ -43,5 +43,5 @@ export interface IPeerState {
     height: number;
     forgingAllowed: boolean;
     currentSlot: number;
-    header: Record<string, any>; // @TODO: rename, those are block headers but the name is horrible
+    header: Record<string, any>; // @todo: rename, those are block headers but the name is horrible
 }

@@ -1,5 +1,5 @@
 import { ICacheStore } from "../../../contracts/kernel/cache";
-import { NotImplemented } from "../../../exceptions/kernel";
+import { NotImplemented } from "../../../exceptions/runtime";
 
 /**
  * @export

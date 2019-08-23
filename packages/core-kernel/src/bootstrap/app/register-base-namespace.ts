@@ -1,4 +1,4 @@
-import { NetworkCannotBeDetermined } from "../../exceptions/kernel";
+import { NetworkCannotBeDetermined } from "../../exceptions/config";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**

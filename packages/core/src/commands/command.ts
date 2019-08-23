@@ -245,7 +245,7 @@ export abstract class BaseCommand extends Command {
         // config
         const { config } = await this.getPaths(flags);
 
-        // @TODO: update to follow new config convention
+        // @todo: update to follow new config convention
         const configDelegates = join(config, "delegates.json");
 
         if (!existsSync(configDelegates)) {
