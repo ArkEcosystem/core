@@ -93,9 +93,9 @@ describe("Conditions - greater than", () => {
         expect(gt(1, 2)).toBeFalse();
         expect(gt("1", "2")).toBeFalse();
         expect(gt("2", "10")).toBeFalse();
-        expect(gt(null, NaN)).toBeFalse();
+        expect(gt(undefined, NaN)).toBeFalse();
         expect(gt(1, NaN)).toBeFalse();
-        expect(gt(null, 1)).toBeFalse();
+        expect(gt(undefined, 1)).toBeFalse();
         expect(gt("null", "NaN")).toBeFalse();
         expect(gt("1", "NaN")).toBeFalse();
         expect(gt("null", "1")).toBeFalse();
@@ -113,9 +113,9 @@ describe("Conditions - greater than or equal", () => {
     it("should be false", () => {
         expect(gte(1, 2)).toBeFalse();
         expect(gte("1", "2")).toBeFalse();
-        expect(gt(null, NaN)).toBeFalse();
+        expect(gt(undefined, NaN)).toBeFalse();
         expect(gt(1, NaN)).toBeFalse();
-        expect(gt(null, 1)).toBeFalse();
+        expect(gt(undefined, 1)).toBeFalse();
         expect(gt("null", "NaN")).toBeFalse();
         expect(gt("1", "NaN")).toBeFalse();
         expect(gt("null", "1")).toBeFalse();
@@ -131,9 +131,9 @@ describe("Conditions - less than", () => {
     it("should be false", () => {
         expect(lt(2, 1)).toBeFalse();
         expect(lt("2", "1")).toBeFalse();
-        expect(gt(null, NaN)).toBeFalse();
+        expect(gt(undefined, NaN)).toBeFalse();
         expect(gt(1, NaN)).toBeFalse();
-        expect(gt(null, 1)).toBeFalse();
+        expect(gt(undefined, 1)).toBeFalse();
         expect(gt("null", "NaN")).toBeFalse();
         expect(gt("1", "NaN")).toBeFalse();
         expect(gt("null", "1")).toBeFalse();
@@ -151,9 +151,9 @@ describe("Conditions - less than or equal", () => {
     it("should be false", () => {
         expect(lte(2, 1)).toBeFalse();
         expect(lte("2", "1")).toBeFalse();
-        expect(gt(null, NaN)).toBeFalse();
+        expect(gt(undefined, NaN)).toBeFalse();
         expect(gt(1, NaN)).toBeFalse();
-        expect(gt(null, 1)).toBeFalse();
+        expect(gt(undefined, 1)).toBeFalse();
         expect(gt("null", "NaN")).toBeFalse();
         expect(gt("1", "NaN")).toBeFalse();
         expect(gt("null", "1")).toBeFalse();
