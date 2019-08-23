@@ -16,12 +16,13 @@ export class InternalTransactionType {
 
     private static types: Map<string, InternalTransactionType> = new Map();
 
-    private compositeType: string;
-    private constructor(public readonly type: number, public readonly typeGroup: number) {
-        this.compositeType = `${typeGroup}-${type}`;
-    }
+    private constructor(public readonly type: number, public readonly typeGroup: number) {}
 
     public toString(): string {
-        return this.compositeType;
+        if (this.typeGroup === TransactionTypeGroup.Core) {
+            return `Core/${this.type}`;
+        } else {
+            return `${this.typeGroup}/${this.type}`;
+        }
     }
 }

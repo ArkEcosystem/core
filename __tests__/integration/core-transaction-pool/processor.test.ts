@@ -517,7 +517,7 @@ describe("Transaction Guard", () => {
                 const result = await processor.validate([multiSigRegistration.data]);
                 expect(result.errors[multiSigRegistration.id]).toEqual([
                     {
-                        message: "Transaction type 1-4 is deactivated.",
+                        message: "Transaction type Core/4 is deactivated.",
                         type: "ERR_UNKNOWN",
                     },
                 ]);
