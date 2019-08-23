@@ -27,7 +27,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         parameters: Database.IParameters = {},
     ): Promise<Database.ITransactionsPaginated> {
         return this.search({
-            ...{ senderPublicKey, type: Enums.TransactionType.Vote },
+            ...{ senderPublicKey, type: Enums.TransactionType.Vote, typeGroup: Enums.TransactionTypeGroup.Core },
             ...parameters,
         });
     }
