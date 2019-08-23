@@ -59,10 +59,12 @@ describe("Conditions - contains", () => {
 describe("Conditions - equal", () => {
     it("should be true", () => {
         expect(eq(1, 1)).toBeTrue();
+        expect(eq("1", "1")).toBeTrue();
     });
 
     it("should be false", () => {
         expect(eq(1, 2)).toBeFalse();
+        expect(eq("1", "2")).toBeFalse();
     });
 });
 
@@ -70,11 +72,13 @@ describe("Conditions - falsy", () => {
     it("should be true", () => {
         expect(falsy(false)).toBeTrue();
         expect(falsy("false")).toBeTrue();
+        expect(falsy("FaLsE")).toBeTrue();
     });
 
     it("should be false", () => {
         expect(falsy(true)).toBeFalse();
         expect(falsy("true")).toBeFalse();
+        expect(falsy("TrUe")).toBeFalse();
     });
 });
 
@@ -89,6 +93,12 @@ describe("Conditions - greater than", () => {
         expect(gt(1, 2)).toBeFalse();
         expect(gt("1", "2")).toBeFalse();
         expect(gt("2", "10")).toBeFalse();
+        expect(gt(null, NaN)).toBeFalse();
+        expect(gt(1, NaN)).toBeFalse();
+        expect(gt(null, 1)).toBeFalse();
+        expect(gt("null", "NaN")).toBeFalse();
+        expect(gt("1", "NaN")).toBeFalse();
+        expect(gt("null", "1")).toBeFalse();
     });
 });
 
@@ -103,6 +113,12 @@ describe("Conditions - greater than or equal", () => {
     it("should be false", () => {
         expect(gte(1, 2)).toBeFalse();
         expect(gte("1", "2")).toBeFalse();
+        expect(gt(null, NaN)).toBeFalse();
+        expect(gt(1, NaN)).toBeFalse();
+        expect(gt(null, 1)).toBeFalse();
+        expect(gt("null", "NaN")).toBeFalse();
+        expect(gt("1", "NaN")).toBeFalse();
+        expect(gt("null", "1")).toBeFalse();
     });
 });
 
@@ -115,6 +131,12 @@ describe("Conditions - less than", () => {
     it("should be false", () => {
         expect(lt(2, 1)).toBeFalse();
         expect(lt("2", "1")).toBeFalse();
+        expect(gt(null, NaN)).toBeFalse();
+        expect(gt(1, NaN)).toBeFalse();
+        expect(gt(null, 1)).toBeFalse();
+        expect(gt("null", "NaN")).toBeFalse();
+        expect(gt("1", "NaN")).toBeFalse();
+        expect(gt("null", "1")).toBeFalse();
     });
 });
 
@@ -129,16 +151,24 @@ describe("Conditions - less than or equal", () => {
     it("should be false", () => {
         expect(lte(2, 1)).toBeFalse();
         expect(lte("2", "1")).toBeFalse();
+        expect(gt(null, NaN)).toBeFalse();
+        expect(gt(1, NaN)).toBeFalse();
+        expect(gt(null, 1)).toBeFalse();
+        expect(gt("null", "NaN")).toBeFalse();
+        expect(gt("1", "NaN")).toBeFalse();
+        expect(gt("null", "1")).toBeFalse();
     });
 });
 
 describe("Conditions - not equal", () => {
     it("should be true", () => {
         expect(ne(1, 2)).toBeTrue();
+        expect(ne("1", "2")).toBeTrue();
     });
 
     it("should be false", () => {
         expect(ne(1, 1)).toBeFalse();
+        expect(ne("1", "1")).toBeFalse();
     });
 });
 
@@ -150,6 +180,12 @@ describe("Conditions - not-between", () => {
                 max: 2,
             }),
         ).toBeTrue();
+        expect(
+            notBetween("3", {
+                min: "1",
+                max: "2",
+            }),
+        ).toBeTrue();
     });
 
     it("should be false", () => {
@@ -157,6 +193,12 @@ describe("Conditions - not-between", () => {
             notBetween(1.5, {
                 min: 1,
                 max: 2,
+            }),
+        ).toBeFalse();
+        expect(
+            notBetween("1.5", {
+                min: "1",
+                max: "2",
             }),
         ).toBeFalse();
     });
@@ -176,10 +218,12 @@ describe("Conditions - truthy", () => {
     it("should be true", () => {
         expect(truthy(true)).toBeTrue();
         expect(truthy("true")).toBeTrue();
+        expect(truthy("TrUe")).toBeTrue();
     });
 
     it("should be false", () => {
         expect(truthy(false)).toBeFalse();
         expect(truthy("false")).toBeFalse();
+        expect(truthy("FaLsE")).toBeFalse();
     });
 });
