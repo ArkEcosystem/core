@@ -233,3 +233,18 @@ export class InvalidBindingName extends KernelError {
         super(`The name/prefix [${name}] is reserved.`);
     }
 }
+
+/**
+ * @export
+ * @class FailedDriverResolution
+ * @extends {KernelError}
+ */
+export class FailedDriverResolution extends KernelError {
+    /**
+     * @param {string} name
+     * @memberof FailedDriverResolution
+     */
+    constructor(name: string) {
+        super(`Unable to resolve driver for [${name}].'`);
+    }
+}

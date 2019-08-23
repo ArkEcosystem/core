@@ -1,4 +1,3 @@
-import { PackageJson } from "type-fest";
 import { AbstractServiceProvider } from "../../support";
 import { FilesystemManager } from "./manager";
 
@@ -12,16 +11,9 @@ export class ServiceProvider extends AbstractServiceProvider {
     public async register(): Promise<void> {
         this.app.singleton("filesystemManager", FilesystemManager);
 
-        this.app.bind("filesystem", await this.app.resolve<FilesystemManager>("filesystemManager").driver());
-    }
+        const filesystemManager: FilesystemManager = this.app.resolve<FilesystemManager>("filesystemManager");
+        await filesystemManager.boot();
 
-    /**
-     * Get the manifest of the service provider.
-     *
-     * @returns {PackageJson}
-     * @memberof ServiceProvider
-     */
-    public manifest(): PackageJson {
-        return {};
+        this.app.bind("filesystem", filesystemManager.driver());
     }
 }

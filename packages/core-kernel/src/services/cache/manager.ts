@@ -1,14 +1,16 @@
+import { ICacheStore } from "../../contracts/core-kernel";
 import { AbstractManager } from "../../support/manager";
 import { Memory } from "./drivers";
 
-export class CacheManager extends AbstractManager<any> {
+// @TODO: add K,T to the ICacheStore interface
+export class CacheManager extends AbstractManager<ICacheStore> {
     /**
      * Create an instance of the Memory driver.
      *
-     * @returns {Promise<any>}
+     * @returns {Promise<ICacheStore>}
      * @memberof CacheManager
      */
-    public async createMemoryDriver(): Promise<any> {
+    public async createMemoryDriver(): Promise<ICacheStore> {
         return this.app.build(Memory).make();
     }
 

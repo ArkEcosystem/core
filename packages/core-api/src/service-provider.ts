@@ -1,35 +1,27 @@
-import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
-import { defaults } from "./defaults";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import { Server } from "./server";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        if (!this.opts.enabled) {
+        if (!this.config().get("enabled")) {
             this.app.resolve<Contracts.Kernel.ILogger>("log").info("Public API is disabled");
             return;
         }
 
-        const server = new Server(this.opts);
-        await server.start();
+        this.app.bind("api.options", this.config().all());
+        this.app.singleton<Server>("api", Server);
+    }
 
-        this.app.bind("api", server);
-        this.app.bind("api.options", this.opts);
+    public async boot(): Promise<void> {
+        await this.app.resolve<Server>("api").start();
     }
 
     public async dispose(): Promise<void> {
-        if (this.opts.enabled) {
+        if (this.config().get("enabled")) {
             this.app.resolve<Contracts.Kernel.ILogger>("log").info(`Stopping Public API`);
 
             await this.app.resolve<Server>("api").stop();
         }
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
     }
 
     public provides(): string[] {

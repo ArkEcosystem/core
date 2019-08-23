@@ -10,6 +10,7 @@ import {
 import { ServiceProviderRepository } from "../../repositories";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
+import { PackageConfiguration } from "../../support/package-configuration";
 import { AbstractServiceProvider } from "../../support/service-provider";
 import { AbstractBootstrapper } from "../bootstrapper";
 
@@ -75,15 +76,17 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
         const configSchema: object = serviceProvider.configSchema();
 
         if (Object.keys(configSchema).length > 0) {
-            const validator: IValidator = await this.app.resolve<ValidationManager>("validationManager").driver();
+            const config: PackageConfiguration = serviceProvider.config();
 
-            validator.validate(serviceProvider.config(), configSchema);
+            const validator: IValidator = this.app.resolve<ValidationManager>("validationManager").driver();
+
+            validator.validate(config.all(), configSchema);
 
             if (validator.fails()) {
                 throw new InvalidPackageConfiguration(serviceProvider.name(), validator.errors());
             }
 
-            serviceProvider.config(validator.valid());
+            serviceProvider.setConfig(config.merge(validator.valid()));
         }
     }
 

@@ -1,14 +1,32 @@
 import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 
 export class Server {
-    private logger = app.resolve<Contracts.Kernel.ILogger>("log");
+    /**
+     * The application instance.
+     *
+     * @protected
+     * @type {Contracts.Kernel.IApplication}
+     * @memberof AbstractManager
+     */
+    private readonly app: Contracts.Kernel.IApplication;
+
+    private readonly config: any;
 
     private http: any;
     private https: any;
 
-    public constructor(private config: any) {}
+    /**
+     * Creates an instance of AbstractBootstrapper.
+     *
+     * @param {{ app: Contracts.Kernel.IApplication }} { app }
+     * @memberof AbstractBootstrapper
+     */
+    public constructor({ app }: { app: Contracts.Kernel.IApplication }) {
+        this.app = app;
+        this.config = app.resolve("api.options");
+    }
 
     public async start(): Promise<void> {
         const options = {
@@ -37,12 +55,12 @@ export class Server {
 
     public async stop(): Promise<void> {
         if (this.http) {
-            this.logger.info(`Stopping Public HTTP API`);
+            this.app.log.info(`Stopping Public HTTP API`);
             await this.http.stop();
         }
 
         if (this.https) {
-            this.logger.info(`Stopping Public HTTPS API`);
+            this.app.log.info(`Stopping Public HTTPS API`);
             await this.https.stop();
         }
     }

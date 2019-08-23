@@ -1,4 +1,3 @@
-import { PackageJson } from "type-fest";
 import { AbstractServiceProvider } from "../../support";
 import { ValidationManager } from "./manager";
 
@@ -11,15 +10,7 @@ export class ServiceProvider extends AbstractServiceProvider {
      */
     public async register(): Promise<void> {
         this.app.singleton<ValidationManager>("validationManager", ValidationManager);
-    }
 
-    /**
-     * Get the manifest of the service provider.
-     *
-     * @returns {PackageJson}
-     * @memberof ServiceProvider
-     */
-    public manifest(): PackageJson {
-        return {};
+        await this.app.resolve<ValidationManager>("validationManager").boot();
     }
 }

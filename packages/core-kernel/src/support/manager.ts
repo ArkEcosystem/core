@@ -1,5 +1,6 @@
 import { toStudlyCaps } from "strman";
 import { IApplication } from "../contracts/core-kernel";
+import { FailedDriverResolution } from "../errors";
 
 /**
  * @export
@@ -22,7 +23,7 @@ export abstract class AbstractManager<T> {
      * @type {string}
      * @memberof AbstractManager
      */
-    private defaultDriver: string;
+    private defaultDriver: string | undefined;
 
     /**
      * The array of created "drivers".
@@ -32,18 +33,6 @@ export abstract class AbstractManager<T> {
      * @memberof AbstractManager
      */
     private drivers: Map<string, T> = new Map<string, T>();
-
-    /**
-     * The registered custom driver creators.
-     *
-     * @private
-     * @type {Map<string, (app: IApplication) => Promise<T>>}
-     * @memberof AbstractManager
-     */
-    private customCreators: Map<string, (app: IApplication) => Promise<T>> = new Map<
-        string,
-        (app: IApplication) => Promise<T>
-    >();
 
     /**
      * Create a new manager instance.
@@ -57,35 +46,40 @@ export abstract class AbstractManager<T> {
     }
 
     /**
-     * Get a driver instance.
+     * Boot the default driver.
      *
-     * @param {string} [name]
-     * @returns {Promise<T>}
      * @memberof AbstractManager
      */
-    public async driver(name?: string): Promise<T> {
-        name = name || this.defaultDriver;
-
-        if (this.drivers.has(name)) {
-            return this.drivers.get(name);
-        }
-
-        if (this.customCreators.has(name)) {
-            return this.callCustomCreator(name);
-        }
-
-        return this.createDriver(name);
+    public async boot(): Promise<void> {
+        await this.createDriver(this.defaultDriver);
     }
 
     /**
-     * Register a custom driver creator callback.
+     * Get a driver instance.
+     *
+     * @param {string} [name]
+     * @returns {T}
+     * @memberof AbstractManager
+     */
+    public driver(name?: string): T {
+        name = name || this.defaultDriver;
+
+        if (!this.drivers.has(name)) {
+            throw new FailedDriverResolution(name);
+        }
+
+        return this.drivers.get(name);
+    }
+
+    /**
+     * Register and call a custom driver creator.
      *
      * @param {string} name
      * @param {(app: IApplication) => T} callback
      * @memberof AbstractManager
      */
-    public extend(name: string, callback: (app: IApplication) => Promise<T>): void {
-        this.customCreators.set(name, callback);
+    public async extend(name: string, callback: (app: IApplication) => Promise<T>): Promise<void> {
+        this.drivers.set(name, await callback(this.app));
     }
 
     /**
@@ -99,6 +93,16 @@ export abstract class AbstractManager<T> {
     }
 
     /**
+     * Get all of the created drivers.
+     *
+     * @returns {T[]}
+     * @memberof AbstractManager
+     */
+    public getDrivers(): T[] {
+        return Object.values(this.drivers);
+    }
+
+    /**
      * Get the default driver name.
      *
      * @protected
@@ -109,39 +113,19 @@ export abstract class AbstractManager<T> {
     protected abstract getDefaultDriver(): string;
 
     /**
-     * Call a custom driver creator.
-     *
-     * @private
-     * @param {string} name
-     * @returns {Promise<T>}
-     * @memberof AbstractManager
-     */
-    private async callCustomCreator(name: string): Promise<T> {
-        // tslint:disable-next-line: await-promise
-        const value: T = await this.customCreators.get(name)(this.app);
-        this.drivers.set(name, value);
-
-        return value;
-    }
-
-    /**
      * Create a new driver instance.
      *
      * @private
      * @param {string} name
-     * @returns {Promise<T>}
      * @memberof AbstractManager
      */
-    private async createDriver(name: string): Promise<T> {
+    private async createDriver(name: string): Promise<void> {
         const creatorFunction: string = `create${toStudlyCaps(name)}Driver`;
 
         if (typeof this[creatorFunction] !== "function") {
             throw new Error(`${name} driver is not supported by ${this.constructor.name}.`);
         }
 
-        const value: T = await this[creatorFunction](this.app);
-        this.drivers.set(name, value);
-
-        return value;
+        this.drivers.set(name, await this[creatorFunction](this.app));
     }
 }

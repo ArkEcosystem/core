@@ -1,4 +1,4 @@
-import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import { ConnectionManager } from "./manager";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
@@ -6,10 +6,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.app.resolve<Contracts.Kernel.ILogger>("log").info("Starting Database Manager");
 
         this.app.singleton("databaseManager", ConnectionManager);
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
     }
 
     public provides(): string[] {

@@ -14,8 +14,9 @@ export class LoadEnvironmentVariables extends AbstractBootstrapper {
     public async bootstrap(): Promise<void> {
         const config: JsonObject = this.app.resolve<JsonObject>("config");
 
-        await (await this.app
+        await this.app
             .resolve<ConfigManager>("configManager")
-            .driver((config.configLoader || "local") as string)).loadEnvironmentVariables();
+            .driver((config.configLoader || "local") as string)
+            .loadEnvironmentVariables();
     }
 }

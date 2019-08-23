@@ -1,6 +1,5 @@
-import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import { Connection } from "./connection";
-import { defaults } from "./defaults";
 import { ConnectionManager } from "./manager";
 import { Memory } from "./memory";
 import { Storage } from "./storage";
@@ -12,15 +11,15 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
 
         const connection = await new ConnectionManager().createConnection(
             new Connection({
-                options: this.opts,
+                options: this.config().all(),
                 walletManager: new WalletManager(),
-                memory: new Memory(this.opts.maxTransactionAge as number),
+                memory: new Memory(this.config().get("maxTransactionAge") as number),
                 storage: new Storage(),
             }),
         );
 
         this.app.bind("transactionPool", connection);
-        this.app.bind("transactionPool.options", this.opts);
+        this.app.bind("transactionPool.options", this.config().all());
     }
 
     public async dispose(): Promise<void> {
@@ -31,14 +30,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         } catch (error) {
             // @TODO: handle
         }
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
     }
 
     public provides(): string[] {

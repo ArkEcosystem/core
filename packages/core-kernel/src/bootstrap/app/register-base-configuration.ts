@@ -15,6 +15,8 @@ export class RegisterBaseConfiguration extends AbstractBootstrapper {
     public async bootstrap(): Promise<void> {
         this.app.singleton("configManager", ConfigManager);
 
+        await this.app.resolve<ConfigManager>("configManager").boot();
+
         const config: JsonObject = this.app.resolve<JsonObject>("config");
         const configRepository: ConfigRepository = new ConfigRepository(config);
         configRepository.set("options", config.options || {});

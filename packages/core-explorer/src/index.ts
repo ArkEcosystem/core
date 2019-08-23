@@ -1,12 +1,11 @@
-import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import history from "connect-history-api-fallback";
 import express, { Handler } from "express";
 import { existsSync } from "fs";
-import { defaults } from "./defaults";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        const distPath: string = this.opts.path as string;
+        const distPath: string = this.config().get("path");
 
         if (!existsSync(distPath)) {
             this.app
@@ -24,7 +23,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         app.get("/", (req, res) => res.render(`${distPath}/index.html`));
 
         // @ts-ignore
-        const server = app.listen(this.opts.server.port, this.opts.server.host, () => {
+        const server = app.listen(this.config().get("server.port"), this.config().get("server.host"), () => {
             this.app
                 .resolve<Contracts.Kernel.ILogger>("log")
                 // @ts-ignore
@@ -42,14 +41,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         } catch (error) {
             // do nothing...
         }
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
     }
 
     public provides(): string[] {

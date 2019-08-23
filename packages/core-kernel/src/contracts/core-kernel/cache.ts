@@ -1,14 +1,12 @@
-import { IApplication } from "./application";
-
-export interface ICacheStore<K, T> {
+// @TODO: remove the defaults
+export interface ICacheStore<K = string, T = any> {
     /**
      * Create a new instance of the cache store.
      *
-     * @param {IApplication} app
      * @returns {ICacheStore<K, T>}
      * @memberof ICacheStore
      */
-    make(app: IApplication): Promise<ICacheStore<K, T>>;
+    make(): Promise<ICacheStore<K, T>>;
 
     /**
      * Get all of the items in the cache.

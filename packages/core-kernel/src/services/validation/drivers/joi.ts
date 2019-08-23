@@ -1,46 +1,53 @@
+import { validate } from "@hapi/joi";
 import { ValidationErrorItem } from "@hapi/joi";
 import { JsonObject } from "type-fest";
 import { IValidator } from "../../../contracts/validation/validator";
 
 export class Joi implements IValidator {
     /**
-     * @private
-     * @type {*}
-     * @memberof Joi
-     */
-    private data: any;
-
-    /**
-     * @private
-     * @type {*}
-     * @memberof Joi
-     */
-    private resultValue: any = undefined;
-
-    /**
-     * @private
-     * @type {ValidationErrorItem[]}
-     * @memberof Joi
-     */
-    private resultError: ValidationErrorItem[] = [];
-
-    /**
-     * Run the validator's rules against its data.
+     * The data under validation.
      *
-     * @memberof IValidator
+     * @private
+     * @type {JsonObject}
+     * @memberof Joi
      */
-    public validate<T>(data: T, schema: any): this {
+    private data: JsonObject;
+
+    /**
+     * The validated data.
+     *
+     * @private
+     * @type {(JsonObject | undefined)}
+     * @memberof Joi
+     */
+    private resultValue: JsonObject | undefined;
+
+    /**
+     * The error messages.
+     *
+     * @private
+     * @type {(ValidationErrorItem[] | undefined)}
+     * @memberof Joi
+     */
+    private resultError: ValidationErrorItem[] | undefined;
+
+    /**
+     * Run the schema against the given data.
+     *
+     * @param {JsonObject} data
+     * @param {object} schema
+     * @memberof Joi
+     */
+    public validate(data: JsonObject, schema: object): void {
         this.data = data;
 
-        const { error, value } = schema.validate(this.data);
+        const { error, value } = validate(this.data, schema);
 
         this.resultValue = error ? undefined : value;
 
         if (error) {
             this.resultError = error.details;
         }
-
-        return this;
     }
 
     /**
@@ -76,7 +83,7 @@ export class Joi implements IValidator {
     /**
      * Get all of the validation error messages.
      *
-     * @returns {string[]}
+     * @returns {Record<string, string[]>}
      * @memberof IValidator
      */
     public errors(): Record<string, string[]> {

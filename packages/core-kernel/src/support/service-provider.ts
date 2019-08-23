@@ -1,26 +1,45 @@
-import { PackageJson } from "type-fest";
+import { JsonObject } from "type-fest";
 import { Kernel } from "../contracts";
-import { ConfigObject } from "../types";
+// import { ConfigObject } from "../types";
+import { PackageConfiguration } from "./package-configuration";
+import { PackageManifest } from "./package-manifest";
 
 export abstract class AbstractServiceProvider {
     /**
      * The application instance.
      *
      * @protected
-     * @type {ConfigObject}
+     * @type {Kernel.IApplication}
+     * @memberof Manager
+     */
+    protected readonly app: Kernel.IApplication;
+
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {PackageConfiguration}
      * @memberof AbstractServiceProvider
      */
-    protected opts: ConfigObject;
+    private packageConfiguration: PackageConfiguration;
+
+    /**
+     * The loaded manifest.
+     *
+     * @private
+     * @type {PackageManifest}
+     * @memberof PackageManifest
+     */
+    private packageManifest: PackageManifest;
 
     /**
      * Create a new service provider instance.
      *
-     * @param {Kernel.IApplication} app
-     * @param {ConfigObject} [opts={}]
-     * @memberof AbstractServiceProvider
+     * @param {{ app:Kernel.IApplication }} { app }
+     * @memberof Manager
      */
-    public constructor(protected readonly app: Kernel.IApplication, opts: ConfigObject = {}) {
-        this.opts = this.buildConfig(opts);
+    public constructor({ app }: { app: Kernel.IApplication }) {
+        this.app = app;
     }
 
     /**
@@ -55,11 +74,22 @@ export abstract class AbstractServiceProvider {
     /**
      * Get the manifest of the service provider.
      *
-     * @abstract
-     * @returns {PackageJson}
+     * @returns {PackageManifest}
      * @memberof AbstractServiceProvider
      */
-    public abstract manifest(): PackageJson;
+    public manifest(): PackageManifest {
+        return this.packageManifest;
+    }
+
+    /**
+     * Set the manifest of the service provider.
+     *
+     * @param {PackageManifest} manifest
+     * @memberof AbstractServiceProvider
+     */
+    public setManifest(manifest: PackageManifest): void {
+        this.packageManifest = manifest;
+    }
 
     /**
      * Get the name of the service provider.
@@ -68,7 +98,7 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     public name(): string {
-        return this.manifest().name;
+        return this.packageManifest ? this.packageManifest.get("name") : undefined;
     }
 
     /**
@@ -78,38 +108,43 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     public version(): string {
-        return this.manifest().version;
+        return this.packageManifest ? this.packageManifest.get("version") : undefined;
     }
 
     /**
      * Get the configuration of the service provider.
      *
-     * @param {ConfigObject} [opts]
-     * @returns {ConfigObject}
+     * @returns {PackageConfiguration}
      * @memberof AbstractServiceProvider
      */
-    public config(opts?: ConfigObject): ConfigObject {
-        if (opts) {
-            this.opts = this.opts;
-        }
+    public config(): PackageConfiguration {
+        return this.packageConfiguration;
+    }
 
-        return this.opts;
+    /**
+     * Set the configuration of the service provider.
+     *
+     * @param {PackageConfiguration} config
+     * @memberof AbstractServiceProvider
+     */
+    public setConfig(config: PackageConfiguration): void {
+        this.packageConfiguration = config;
     }
 
     /**
      * Get the configuration defaults of the service provider.
      *
-     * @returns {ConfigObject}
+     * @returns {JsonObject}
      * @memberof AbstractServiceProvider
      */
-    public configDefaults(): ConfigObject {
+    public configDefaults(): JsonObject {
         return {};
     }
 
     /**
      * Get the configuration schema of the service provider.
      *
-     * @returns {ConfigObject}
+     * @returns {object}
      * @memberof AbstractServiceProvider
      */
     public configSchema(): object {
@@ -164,23 +199,5 @@ export abstract class AbstractServiceProvider {
      */
     public async required(): Promise<boolean> {
         return false;
-    }
-
-    /**
-     * @protected
-     * @param {ConfigObject} opts
-     * @returns {ConfigObject}
-     * @memberof AbstractServiceProvider
-     */
-    protected buildConfig(opts: ConfigObject): ConfigObject {
-        opts = { ...opts, ...this.configDefaults() };
-
-        const globalOptions: ConfigObject | undefined = this.app.config("options")[this.name()];
-
-        if (globalOptions) {
-            opts = { ...opts, ...globalOptions };
-        }
-
-        return opts;
     }
 }

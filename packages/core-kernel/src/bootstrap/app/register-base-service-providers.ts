@@ -12,14 +12,14 @@ export class RegisterBaseServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterBaseServiceProviders
      */
     public async bootstrap(): Promise<void> {
-        await new Log.ServiceProvider(this.app).register();
+        await this.app.build(Log.ServiceProvider).register();
 
-        await new Filesystem.ServiceProvider(this.app).register();
+        await this.app.build(Filesystem.ServiceProvider).register();
 
-        await new Cache.ServiceProvider(this.app).register();
+        await this.app.build(Cache.ServiceProvider).register();
 
-        await new Queue.ServiceProvider(this.app).register();
+        await this.app.build(Queue.ServiceProvider).register();
 
-        await new Validation.ServiceProvider(this.app).register();
+        await this.app.build(Validation.ServiceProvider).register();
     }
 }

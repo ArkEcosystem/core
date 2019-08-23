@@ -1,5 +1,4 @@
-import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
-import { defaults } from "./defaults";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
 import { PeerCommunicator } from "./peer-communicator";
@@ -11,17 +10,17 @@ import { startSocketServer } from "./socket-server";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind("p2p.options", this.opts);
+        this.app.bind("p2p.options", this.config().all());
 
         this.app.resolve<Contracts.Kernel.ILogger>("log").info("Starting P2P Interface");
 
-        const service: Contracts.P2P.IPeerService = this.makePeerService(this.opts);
+        const service: Contracts.P2P.IPeerService = this.makePeerService(this.config().all());
 
         // tslint:disable-next-line: no-unused-expression
         new EventListener(service);
 
         if (!process.env.DISABLE_P2P_SERVER) {
-            service.getMonitor().setServer(await startSocketServer(service, this.opts));
+            service.getMonitor().setServer(await startSocketServer(service, this.config().all()));
         }
 
         this.app.bind("p2p", service);
@@ -34,14 +33,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             .resolve<Contracts.P2P.IPeerService>("p2p")
             .getMonitor()
             .stopServer();
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
     }
 
     public provides(): string[] {

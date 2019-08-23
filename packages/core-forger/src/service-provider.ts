@@ -1,16 +1,15 @@
-import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
-import { defaults } from "./defaults";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import { ForgerManager } from "./manager";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        const forgerManager: ForgerManager = new ForgerManager(this.opts);
+        const forgerManager: ForgerManager = new ForgerManager(this.config().all());
 
-        await forgerManager.startForging(this.opts.bip38 as string, this.opts.password as string);
+        await forgerManager.startForging(this.config().get("bip38") as string, this.config().get("password") as string);
 
         // Don't keep bip38 password in memory
-        delete this.opts.bip38;
-        delete this.opts.password;
+        this.config().set("bip38", undefined);
+        this.config().set("password", undefined);
 
         this.app.bind("forger", forgerManager);
     }
@@ -23,14 +22,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
 
             return forger.stopForging();
         }
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
     }
 
     public provides(): string[] {

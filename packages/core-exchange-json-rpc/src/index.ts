@@ -1,41 +1,32 @@
-import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import { start } from "@arkecosystem/exchange-json-rpc";
-import { defaults } from "./defaults";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        if (!this.opts.enabled) {
+        if (!this.config().get("enabled")) {
             this.app.resolve<Contracts.Kernel.ILogger>("log").info("Exchange JSON-RPC Server is disabled");
             return;
         }
 
-        this.opts.network = Managers.configManager.get("network.name");
+        this.config().set("network", Managers.configManager.get("network.name"));
 
         this.app.bind(
             "exchange-json-rpc",
             await start({
-                database: this.opts.database as string,
-                server: this.opts,
+                database: this.config().get("database"),
+                server: this.config().all(),
                 logger: this.app.resolve<Contracts.Kernel.ILogger>("log"),
             }),
         );
     }
 
     public async dispose(): Promise<void> {
-        if (this.opts.enabled) {
+        if (this.config().get("enabled")) {
             this.app.resolve<Contracts.Kernel.ILogger>("log").info("Stopping Exchange JSON-RPC Server");
 
             await this.app.resolve("exchange-json-rpc").stop();
         }
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
     }
 
     public provides(): string[] {

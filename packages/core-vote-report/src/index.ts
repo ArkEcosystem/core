@@ -1,23 +1,14 @@
-import { Support, Types } from "@arkecosystem/core-kernel";
-import { defaults } from "./defaults";
+import { Support } from "@arkecosystem/core-kernel";
 import { startServer } from "./server";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind("vote-report", startServer(this.opts));
-        this.app.bind("vote-report.options", this.opts);
+        this.app.bind("vote-report", startServer(this.config().all()));
+        this.app.bind("vote-report.options", this.config().all());
     }
 
     public async dispose(): Promise<void> {
         await this.app.resolve("vote-report").stop();
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
     }
 
     public provides(): string[] {

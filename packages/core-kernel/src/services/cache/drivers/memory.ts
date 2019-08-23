@@ -1,4 +1,3 @@
-import { IApplication } from "../../../contracts/core-kernel";
 import { ICacheStore } from "../../../contracts/core-kernel/cache";
 import { NotImplementedError } from "../../../errors/kernel";
 
@@ -22,7 +21,7 @@ export class Memory<K, T> implements ICacheStore<K, T> {
      * @returns {ICacheStore<K, T>}
      * @memberof ICacheStore
      */
-    public async make(app: IApplication): Promise<ICacheStore<K, T>> {
+    public async make(): Promise<ICacheStore<K, T>> {
         return this;
     }
 

@@ -4,12 +4,11 @@ export interface IValidator {
     /**
      * Run the validator's rules against its data.
      *
-     * @template T
-     * @param {T} data
-     * @param {*} schema
+     * @param {JsonObject} data
+     * @param {object} schema
      * @memberof IValidator
      */
-    validate<T>(data: T, schema: any): void;
+    validate(data: JsonObject, schema: object): void;
 
     /**
      * Determine if the data passes the validation rules.

@@ -1,5 +1,4 @@
-import { Support, Types } from "@arkecosystem/core-kernel";
-import { defaults } from "./defaults";
+import { Support } from "@arkecosystem/core-kernel";
 import { StateService } from "./service";
 import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
@@ -16,15 +15,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             }),
         );
 
-        this.app.bind("state.options", this.opts);
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
+        this.app.bind("state.options", this.config().all());
     }
 
     public provides(): string[] {

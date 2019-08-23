@@ -1,4 +1,3 @@
-import { PackageJson } from "type-fest";
 import { AbstractServiceProvider } from "../../support";
 import { LogManager } from "./manager";
 
@@ -12,17 +11,10 @@ export class ServiceProvider extends AbstractServiceProvider {
     public async register(): Promise<void> {
         this.app.singleton<LogManager>("logManager", LogManager);
 
-        // Note: Ensure that we rebind the logger that is bound to the container so IoC can do it's job.
-        this.app.bind("log", await this.app.resolve<LogManager>("logManager").driver());
-    }
+        const logManager: LogManager = this.app.resolve<LogManager>("logManager");
+        await logManager.boot();
 
-    /**
-     * Get the manifest of the service provider.
-     *
-     * @returns {PackageJson}
-     * @memberof ServiceProvider
-     */
-    public manifest(): PackageJson {
-        return {};
+        // Note: Ensure that we rebind the logger that is bound to the container so IoC can do it's job.
+        this.app.bind("log", logManager.driver());
     }
 }

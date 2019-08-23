@@ -1,7 +1,6 @@
-import { Contracts, Support, Types } from "@arkecosystem/core-kernel";
+import { Contracts, Support } from "@arkecosystem/core-kernel";
 import { isWhitelisted } from "@arkecosystem/core-utils";
 import ip from "ip";
-import { defaults } from "./defaults";
 import { startServer } from "./server";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
@@ -11,7 +10,7 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             return;
         }
 
-        return startServer(this.opts.server);
+        return startServer(this.config().get("server"));
     }
 
     public async dispose(): Promise<void> {
@@ -22,14 +21,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         } catch (error) {
             // do nothing...
         }
-    }
-
-    public manifest(): Types.PackageJson {
-        return require("../package.json");
-    }
-
-    public configDefaults(): Types.ConfigObject {
-        return defaults;
     }
 
     public provides(): string[] {

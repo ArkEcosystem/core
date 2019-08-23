@@ -30,10 +30,23 @@ interface IFileEvent {
  */
 export class Watcher {
     /**
-     * @param {Kernel.IApplication} app
-     * @memberof Watcher
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof AbstractManager
      */
-    public constructor(readonly app: Kernel.IApplication) {}
+    private readonly app: Kernel.IApplication;
+
+    /**
+     * Creates an instance of AbstractBootstrapper.
+     *
+     * @param {{ app: Kernel.IApplication }} { app }
+     * @memberof AbstractBootstrapper
+     */
+    public constructor({ app }: { app: Kernel.IApplication }) {
+        this.app = app;
+    }
 
     /**
      * @returns {Promise<void>}
