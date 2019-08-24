@@ -11,6 +11,7 @@ import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { EventDispatcher } from "./services/events";
 import { AbstractServiceProvider, ServiceProviderRepository } from "./support";
 import { EventListener } from "./types/events";
+import { ShutdownSignal } from "./enums/process";
 
 /**
  * @export
@@ -33,6 +34,8 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      */
     public constructor() {
         super();
+
+        this.listenToShutdownSignals();
 
         this.bind<Contracts.Kernel.IApplication>("app", this);
     }
@@ -451,7 +454,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
             .resolve<ServiceProviderRepository>("serviceProviderRepository")
             .allLoadedProviders();
 
-        for (const provider of providers) {
+        for (const provider of providers.reverse()) {
             await provider.dispose();
         }
     }
@@ -484,5 +487,19 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
         }
 
         this.bind(`path.${type}`, path);
+    }
+
+    /**
+     * @private
+     * @memberof Application
+     */
+    private listenToShutdownSignals(): void {
+        for (const signal in ShutdownSignal) {
+            process.on(signal as any, async code => {
+                await this.terminate(signal);
+
+                process.exit(code || 1);
+            });
+        }
     }
 }

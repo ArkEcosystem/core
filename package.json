@@ -120,7 +120,7 @@
         "collectCoverage": false,
         "coverageDirectory": "<rootDir>/.coverage",
         "collectCoverageFrom": [
-            "packages/**/src/**/*.ts",
+            "packages/**/src/**/{!(index|service-provider),}.ts",
             "!**/node_modules/**"
         ],
         "coverageReporters": [

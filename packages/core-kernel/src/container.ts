@@ -176,8 +176,12 @@ export class Container {
      * @memberof Container
      */
     private usesReservedBindingName(name: string): boolean {
-        if (name.startsWith("scopes.")) {
-            return true;
+        const prefixes: string[] = ["scopes."];
+
+        for (const prefix of prefixes) {
+            if (name.startsWith(prefix)) {
+                return true;
+            }
         }
 
         return false;

@@ -1,4 +1,4 @@
-import { Cache, Filesystem, Log, Queue, Validation } from "../../services";
+import { Actions, Cache, Filesystem, Log, Queue, Validation } from "../../services";
 import { AbstractBootstrapper } from "../bootstrapper";
 
 /**
@@ -13,6 +13,8 @@ export class RegisterBaseServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterBaseServiceProviders
      */
     public async bootstrap(): Promise<void> {
+        await this.app.build(Actions.ServiceProvider).register();
+
         await this.app.build(Log.ServiceProvider).register();
 
         await this.app.build(Filesystem.ServiceProvider).register();

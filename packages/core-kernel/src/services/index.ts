@@ -1,3 +1,4 @@
+import * as Actions from "./actions";
 import * as Cache from "./cache";
 import * as Config from "./config";
 import * as Events from "./events";
@@ -7,4 +8,4 @@ import * as Queue from "./queue";
 import * as Scheduler from "./scheduler";
 import * as Validation from "./validation";
 
-export { Cache, Config, Events, Filesystem, Log, Queue, Scheduler, Validation };
+export { Actions, Cache, Config, Events, Filesystem, Log, Queue, Scheduler, Validation };

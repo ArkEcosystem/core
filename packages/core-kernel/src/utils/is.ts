@@ -13,3 +13,9 @@ export const isString = (fn: any): fn is string => typeof fn === "string";
 export const isConstructor = (fn: any): boolean => fn === "constructor";
 
 export const isSymbol = (fn: any): fn is symbol => typeof fn === "symbol";
+
+export const isNumberArray = (value: unknown): value is number[] =>
+    Array.isArray(value) && value.every(element => typeof element === "number");
+
+export const isStringArray = (value: unknown): value is string[] =>
+    Array.isArray(value) && value.every(element => typeof element === "string");
