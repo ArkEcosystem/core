@@ -11,10 +11,7 @@ afterAll(support.tearDown);
 describe("Transaction Forging - Business update", () => {
     it("should broadcast, accept and forge it", async () => {
         // Initial Funds
-        const initialFunds = TransactionFactory.transfer(
-            Identities.Address.fromPassphrase(passphrase),
-            100 * 1e8,
-        )
+        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
 
@@ -24,8 +21,8 @@ describe("Transaction Forging - Business update", () => {
 
         // Registering a business
         const businessRegistration = TransactionFactory.businessRegistration({
-            name: "google",
-            website: "www.google.com",
+            name: "ark",
+            website: "ark.io",
         })
             .withPassphrase(secrets[0])
             .createOne();
@@ -36,7 +33,7 @@ describe("Transaction Forging - Business update", () => {
 
         // Updating a business
         const businessUpdate = TransactionFactory.businessUpdate({
-            name: "google2",
+            name: "ark2",
         })
             .withPassphrase(secrets[0])
             .createOne();
@@ -58,7 +55,7 @@ describe("Transaction Forging - Business update", () => {
 
         // Updating a business
         const businessUpdate = TransactionFactory.businessUpdate({
-            name: "google3",
+            name: "ark3",
         })
             .withPassphrase(secrets[0])
             .createOne();

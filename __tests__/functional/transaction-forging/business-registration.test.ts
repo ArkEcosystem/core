@@ -21,8 +21,8 @@ describe("Transaction Forging - Business registration", () => {
 
         // Registering a business
         const businessRegistration = TransactionFactory.businessRegistration({
-            name: "google",
-            website: "www.google.com",
+            name: "ark",
+            website: "ark.io",
         })
             .withPassphrase(secrets[0])
             .createOne();
@@ -33,11 +33,10 @@ describe("Transaction Forging - Business registration", () => {
     });
 
     it("should be rejected, because wallet is already a business", async () => {
-
         // Registering a business again
         const businessRegistration = TransactionFactory.businessRegistration({
-            name: "google",
-            website: "www.google.com",
+            name: "ark",
+            website: "ark.io",
         })
             .withPassphrase(secrets[0])
             .createOne();
@@ -45,6 +44,5 @@ describe("Transaction Forging - Business registration", () => {
         await expect(businessRegistration).toBeRejected();
         await support.snoozeForBlock(1);
         await expect(businessRegistration.id).not.toBeForged();
-
     });
 });

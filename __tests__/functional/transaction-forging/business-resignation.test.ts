@@ -21,8 +21,8 @@ describe("Transaction Forging - Business resignation", () => {
 
         // Registering a business
         const businessRegistration = TransactionFactory.businessRegistration({
-            name: "google",
-            website: "www.google.com",
+            name: "ark",
+            website: "ark.io",
         })
             .withPassphrase(secrets[0])
             .createOne();
@@ -32,8 +32,7 @@ describe("Transaction Forging - Business resignation", () => {
         await expect(businessRegistration.id).toBeForged();
 
         // Resigning a business
-        const businessResignation = TransactionFactory
-            .businessResignation()
+        const businessResignation = TransactionFactory.businessResignation()
             .withPassphrase(secrets[0])
             .createOne();
 
@@ -44,8 +43,7 @@ describe("Transaction Forging - Business resignation", () => {
 
     it("should be rejected, becuase wallet is already resigned", async () => {
         // Resigning a business again
-        const businessResignation = TransactionFactory
-            .businessResignation()
+        const businessResignation = TransactionFactory.businessResignation()
             .withPassphrase(secrets[0])
             .createOne();
 
@@ -57,8 +55,8 @@ describe("Transaction Forging - Business resignation", () => {
     it("should broadcast, accept and forge it, because wallet is resigned and can register again", async () => {
         // Registering a business again
         const businessRegistration = TransactionFactory.businessRegistration({
-            name: "google",
-            website: "www.google.com",
+            name: "ark",
+            website: "ark.io",
         })
             .withPassphrase(secrets[0])
             .createOne();
