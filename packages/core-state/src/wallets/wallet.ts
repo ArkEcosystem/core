@@ -181,7 +181,8 @@ export class Wallet implements State.IWallet {
             });
         }
 
-        if (transaction.typeGroup === Enums.TransactionTypeGroup.Core) {
+        const typeGroup: number = transaction.typeGroup || Enums.TransactionTypeGroup.Core;
+        if (typeGroup === Enums.TransactionTypeGroup.Core) {
             if (transaction.type === Enums.TransactionType.Transfer) {
                 audit.push({ Transfer: true });
             }
@@ -226,6 +227,10 @@ export class Wallet implements State.IWallet {
             if (transaction.type === Enums.TransactionType.MultiPayment) {
                 const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
                 audit.push({ "Multipayment remaining amount": amount });
+            }
+
+            if (!(transaction.type in Enums.TransactionType)) {
+                audit.push({ "Unknown Type": true });
             }
         } else {
             audit.push({ Type: transaction.type, TypeGroup: transaction.typeGroup });
