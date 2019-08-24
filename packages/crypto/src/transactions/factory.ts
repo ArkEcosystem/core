@@ -1,5 +1,10 @@
 // tslint:disable:member-ordering
-import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../errors";
+import {
+    DuplicateParticipantInMultiSignatureError,
+    MalformedTransactionBytesError,
+    TransactionSchemaError,
+    TransactionVersionError,
+} from "../errors";
 import {
     IDeserializeOptions,
     ISerializeOptions,
@@ -85,7 +90,11 @@ export class TransactionFactory {
 
             return transaction;
         } catch (error) {
-            if (error instanceof TransactionVersionError || error instanceof TransactionSchemaError) {
+            if (
+                error instanceof TransactionVersionError ||
+                error instanceof TransactionSchemaError ||
+                error instanceof DuplicateParticipantInMultiSignatureError
+            ) {
                 throw error;
             }
 

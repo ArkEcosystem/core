@@ -76,7 +76,7 @@ export class TransactionFactory {
             factory.withPassphraseList(passphrases);
         }
 
-        factory.builder.senderPublicKey(participants[0]);
+        factory.withSenderPublicKey(participants[0]);
         return factory;
     }
 
@@ -305,8 +305,6 @@ export class TransactionFactory {
             if (this.expiration) {
                 this.builder.expiration(this.expiration);
             }
-
-            this.builder.senderPublicKey(this.senderPublicKey);
 
             let sign: boolean = true;
             if (this.passphraseList && this.passphraseList.length) {
