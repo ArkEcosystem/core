@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { Managers, Transactions } from "@arkecosystem/crypto";
-import { BridgechainUpdateBuilder } from "../../../src/builders";
-import { BridgechainUpdateTransaction } from "../../../src/transactions";
+import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { BridgechainUpdateBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { BridgechainUpdateTransaction } from "../../../../packages/core-marketplace/src/transactions";
 import { checkCommonFields } from "../helper";
 
 let builder: BridgechainUpdateBuilder;
@@ -14,11 +14,12 @@ describe("Bridgechain update ser/deser", () => {
     beforeEach(() => {
         builder = new BridgechainUpdateBuilder();
     });
+
     it("should ser/deserialize giving back original fields", () => {
         const businessResignation = builder
             .network(23)
             .bridgechainUpdateAsset({
-                registeredBridgechainId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainId: Utils.BigNumber.ONE,
                 seedNodes: ["74.125.224.72"],
             })
             .sign("passphrase")

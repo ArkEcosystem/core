@@ -9,8 +9,11 @@ import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
-} from "../../../src/handlers";
-import { MarketplaceTransactionsGroup, MarketplaceTransactionType } from "../../../src/marketplace-transactions";
+} from "../../../../packages/core-marketplace/src/handlers";
+import {
+    MarketplaceTransactionGroup,
+    MarketplaceTransactionType,
+} from "../../../../packages/core-marketplace/src/marketplace-transactions";
 
 describe("Registry test", () => {
     Managers.configManager.setFromPreset("testnet");
@@ -24,12 +27,12 @@ describe("Registry test", () => {
         Handlers.Registry.registerTransactionHandler(BridgechainUpdateTransactionHandler);
 
         expect(() => {
-            Handlers.Registry.get(MarketplaceTransactionType.BusinessRegistration, MarketplaceTransactionsGroup);
-            Handlers.Registry.get(MarketplaceTransactionType.BusinessResignation, MarketplaceTransactionsGroup);
-            Handlers.Registry.get(MarketplaceTransactionType.BridgechainRegistration, MarketplaceTransactionsGroup);
-            Handlers.Registry.get(MarketplaceTransactionType.BridgechainResignation, MarketplaceTransactionsGroup);
-            Handlers.Registry.get(MarketplaceTransactionType.BusinessUpdate, MarketplaceTransactionsGroup);
-            Handlers.Registry.get(MarketplaceTransactionType.BridgechainUpdate, MarketplaceTransactionsGroup);
+            Handlers.Registry.get(MarketplaceTransactionType.BusinessRegistration, MarketplaceTransactionGroup);
+            Handlers.Registry.get(MarketplaceTransactionType.BusinessResignation, MarketplaceTransactionGroup);
+            Handlers.Registry.get(MarketplaceTransactionType.BridgechainRegistration, MarketplaceTransactionGroup);
+            Handlers.Registry.get(MarketplaceTransactionType.BridgechainResignation, MarketplaceTransactionGroup);
+            Handlers.Registry.get(MarketplaceTransactionType.BusinessUpdate, MarketplaceTransactionGroup);
+            Handlers.Registry.get(MarketplaceTransactionType.BridgechainUpdate, MarketplaceTransactionGroup);
         }).not.toThrowError();
     });
 });

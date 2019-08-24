@@ -4,11 +4,14 @@ import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
-import { BusinessRegistrationBuilder } from "../../../src/builders";
-import { BusinessAlreadyRegisteredError } from "../../../src/errors";
-import { BusinessRegistrationTransactionHandler } from "../../../src/handlers";
-import { IBusinessRegistrationAsset, IBusinessWalletAttributes } from "../../../src/interfaces";
-import { businessIndexer } from "../../../src/wallet-manager";
+import { BusinessRegistrationBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { BusinessAlreadyRegisteredError } from "../../../../packages/core-marketplace/src/errors";
+import { BusinessRegistrationTransactionHandler } from "../../../../packages/core-marketplace/src/handlers";
+import {
+    IBusinessRegistrationAsset,
+    IBusinessWalletAttributes,
+} from "../../../../packages/core-marketplace/src/interfaces";
+import { businessIndexer, MarketplaceIndex } from "../../../../packages/core-marketplace/src/wallet-manager";
 import { businessRegistrationAsset1 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
@@ -29,7 +32,7 @@ describe("Business registration handler", () => {
         businessRegistrationBuilder = new BusinessRegistrationBuilder();
 
         walletManager = new Wallets.WalletManager();
-        walletManager.registerIndex("byBusiness", businessIndexer);
+        walletManager.registerIndex(MarketplaceIndex.Businesses, businessIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make(4527654311);
@@ -94,7 +97,7 @@ describe("Business registration handler", () => {
 
             await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
 
-            const wallet = walletManager.findByIndex("byBusiness", senderWallet.publicKey);
+            const wallet = walletManager.findByIndex(MarketplaceIndex.Businesses, senderWallet.publicKey);
             expect(wallet).toStrictEqual(senderWallet);
         });
     });
@@ -102,6 +105,7 @@ describe("Business registration handler", () => {
     describe("revertForSender", () => {
         it("should not fail", async () => {
             senderWallet.setAttribute<IBusinessWalletAttributes>("business", {
+                businessId: Utils.BigNumber.ZERO,
                 businessAsset: businessRegistrationAsset1,
             });
             senderWallet.nonce = Utils.BigNumber.make(1);
@@ -116,6 +120,7 @@ describe("Business registration handler", () => {
 
         it("should be undefined", async () => {
             senderWallet.setAttribute<IBusinessWalletAttributes>("business", {
+                businessId: Utils.BigNumber.ZERO,
                 businessAsset: businessRegistrationAsset1,
             });
             senderWallet.nonce = Utils.BigNumber.make(1);
@@ -127,7 +132,7 @@ describe("Business registration handler", () => {
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
-            const wallet = walletManager.findByIndex("byBusiness", senderWallet.publicKey);
+            const wallet = walletManager.findByIndex(MarketplaceIndex.Businesses, senderWallet.publicKey);
             expect(wallet).toBeUndefined();
         });
     });

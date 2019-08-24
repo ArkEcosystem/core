@@ -1,7 +1,11 @@
 import "jest-extended";
 
 import { Interfaces } from "@arkecosystem/crypto";
-import { IBridgechainRegistrationAsset, IBusinessRegistrationAsset, IBusinessUpdateAsset } from "../../src/interfaces";
+import {
+    IBridgechainRegistrationAsset,
+    IBusinessRegistrationAsset,
+    IBusinessUpdateAsset,
+} from "../../../packages/core-marketplace/src/interfaces";
 
 export const checkCommonFields = (deserialized: Interfaces.ITransaction, expected) => {
     const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount", "nonce"];
@@ -13,27 +17,27 @@ export const checkCommonFields = (deserialized: Interfaces.ITransaction, expecte
 // Business registration assets
 
 export const businessRegistrationAsset1: IBusinessRegistrationAsset = {
-    name: "google",
-    website: "www.google.com",
+    name: "arkecosystem",
+    website: "https://ark.io",
 };
 
 export const businessRegistrationAsset2: IBusinessRegistrationAsset = {
-    name: "google",
-    website: "www.google.com",
+    name: "arkecosystem",
+    website: "https://ark.io",
     vat: "123456789",
 };
 
 export const businessRegistrationAsset3: IBusinessRegistrationAsset = {
-    name: "google",
-    website: "www.google.com",
+    name: "arkecosystem",
+    website: "https://ark.io",
     vat: "123456789",
-    repository: "www.repository.com/arkecosystem",
+    repository: "arkecosystem.com/repo",
 };
 
 export const businessRegistrationAsset4: IBusinessRegistrationAsset = {
-    name: "google",
-    website: "www.google.com",
-    repository: "www.repository.com/arkecosystem",
+    name: "arkecosystemARK",
+    website: "https://ark.io",
+    repository: "arkecosystem.com/repo",
 };
 
 // Business update
@@ -52,12 +56,12 @@ export const businessUpdateAsset3: IBusinessUpdateAsset = {
     name: "ark",
     website: "www.ark.io",
     vat: "1234567890",
-    repository: "www.repository.com/arkecosystem",
+    repository: "arkecosystem.com/repo",
 };
 
 // Bridgechain registration assets
 export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
-    name: "google",
+    name: "arkecosystem1",
     seedNodes: [
         "1.2.3.4",
         "127.0.0.1",
@@ -68,12 +72,12 @@ export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
         "2001:4860:4860::8844",
     ],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    bridgechainRepository: "www.repository.com/google/crypto",
+    bridgechainRepository: "arkecosystem1.com/repo",
 };
 
 export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {
-    name: "microsoft",
+    name: "arkecosystem2",
     seedNodes: ["1.2.3.4", "127.0.0.1", "192.168.1.0", "131.107.0.89"],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    bridgechainRepository: "www.repository.com/microsoft/crypto",
+    bridgechainRepository: "arkecosystem2.com/repo",
 };

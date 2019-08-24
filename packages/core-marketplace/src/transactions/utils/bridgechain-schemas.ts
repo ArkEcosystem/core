@@ -1,4 +1,4 @@
-export const seedNodesProperties = {
+export const seedNodesSchema = {
     type: "array",
     minItems: 1,
     maxItems: 10,

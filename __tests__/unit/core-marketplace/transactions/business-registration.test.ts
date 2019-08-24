@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
-import { BusinessRegistrationBuilder } from "../../../src/builders";
-import { BusinessRegistrationTransaction } from "../../../src/transactions";
+import { BusinessRegistrationBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { BusinessRegistrationTransaction } from "../../../../packages/core-marketplace/src/transactions";
 import {
     businessRegistrationAsset1,
     businessRegistrationAsset2,

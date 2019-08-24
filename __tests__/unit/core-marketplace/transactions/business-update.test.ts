@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
-import { BusinessUpdateBuilder } from "../../../src/builders";
-import { BusinessUpdateTransaction } from "../../../src/transactions";
+import { BusinessUpdateBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { BusinessUpdateTransaction } from "../../../../packages/core-marketplace/src/transactions";
 import { businessUpdateAsset1, businessUpdateAsset2, businessUpdateAsset3, checkCommonFields } from "../helper";
 
 let builder: BusinessUpdateBuilder;

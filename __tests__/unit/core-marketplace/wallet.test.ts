@@ -2,24 +2,25 @@ import "jest-extended";
 
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { BusinessRegistrationTransactionHandler } from "../../src/handlers";
-import { IBusinessWalletAttributes } from "../../src/interfaces";
+import { IBusinessWalletAttributes } from "../../../packages/core-marketplace/src/interfaces";
+import { Utils } from "@arkecosystem/crypto";
+import { BusinessRegistrationTransactionHandler } from "../../../packages/core-marketplace/src/handlers";
 
 describe("should test wallet", () => {
     it("should return the same data as added", () => {
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
         const senderWallet: Wallets.Wallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
-        const businessProperty: IBusinessWalletAttributes = {
+        const businessAttributes: IBusinessWalletAttributes = {
+            businessId: Utils.BigNumber.make(1),
             businessAsset: {
                 name: "google",
                 website: "www.google.com",
             },
             resigned: false,
-            bridgechains: [
-                {
-                    registrationTransactionId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                    bridgechainNonce: 1001,
-                    bridgechain: {
+            bridgechains: {
+                "1001": {
+                    bridgechainId: Utils.BigNumber.make(1001),
+                    bridgechainAsset: {
                         name: "googleCrypto",
                         seedNodes: [
                             "1.2.3.4",
@@ -31,11 +32,11 @@ describe("should test wallet", () => {
                         bridgechainRepository: "github",
                     },
                 },
-            ],
+            },
         };
-        senderWallet.setAttribute<IBusinessWalletAttributes>("business", businessProperty);
+        senderWallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
         const senderWalletData = senderWallet.getAttribute<IBusinessWalletAttributes>("business");
-        expect(senderWalletData).toStrictEqual(businessProperty);
+        expect(senderWalletData).toStrictEqual(businessAttributes);
     });
 
     describe("should test wallet attributes for BusinessRegistrationTransactionHandler", () => {

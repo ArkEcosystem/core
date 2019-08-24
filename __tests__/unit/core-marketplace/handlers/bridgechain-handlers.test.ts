@@ -8,16 +8,20 @@ import {
     BridgechainRegistrationBuilder,
     BridgechainResignationBuilder,
     BusinessRegistrationBuilder,
-} from "../../../src/builders";
+} from "../../../../packages/core-marketplace/src/builders";
 
-import { BridgechainIsResignedError, WalletIsNotBusinessError } from "../../../src/errors";
+import { BridgechainIsResignedError, WalletIsNotBusinessError } from "../../../../packages/core-marketplace/src/errors";
 import {
     BridgechainRegistrationTransactionHandler,
     BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
-} from "../../../src/handlers";
-import { IBusinessWalletAttributes } from "../../../src/interfaces";
-import { bridgechainIndexer, businessIndexer } from "../../../src/wallet-manager";
+} from "../../../../packages/core-marketplace/src/handlers";
+import { IBusinessWalletAttributes } from "../../../../packages/core-marketplace/src/interfaces";
+import {
+    bridgechainIndexer,
+    businessIndexer,
+    MarketplaceIndex,
+} from "../../../../packages/core-marketplace/src/wallet-manager";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, businessRegistrationAsset1 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
@@ -48,8 +52,8 @@ describe("should test marketplace transaction handlers", () => {
         bridgechainResignationBuilder = new BridgechainResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
-        walletManager.registerIndex("byBusiness", businessIndexer);
-        walletManager.registerIndex("byBridgechain", bridgechainIndexer);
+        walletManager.registerIndex(MarketplaceIndex.Businesses, businessIndexer);
+        walletManager.registerIndex(MarketplaceIndex.Bridgechains, bridgechainIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make(4527654310);
@@ -134,8 +138,10 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
 
                 expect(
-                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[0].bridgechainNonce,
-                ).toBe(1001);
+                    senderWallet
+                        .getAttribute<IBusinessWalletAttributes>("business")
+                        .bridgechains["1"].bridgechainId.toFixed(),
+                ).toBe("1");
 
                 bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
                 await expect(
@@ -143,11 +149,13 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
 
                 expect(
-                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[1].bridgechainNonce,
-                ).toBe(1002);
+                    senderWallet
+                        .getAttribute<IBusinessWalletAttributes>("business")
+                        .bridgechains["2"].bridgechainId.toFixed(),
+                ).toBe("2");
 
                 const bridgechainResignation = bridgechainResignationBuilder
-                    .businessResignationAsset(bridgechainRegistrationBuild.id)
+                    .businessResignationAsset("2")
                     .fee("50000000")
                     .nonce("4")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
@@ -178,9 +186,10 @@ describe("should test marketplace transaction handlers", () => {
                     await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
 
                     expect(
-                        senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[1]
-                            .bridgechainNonce,
-                    ).toBe(1002);
+                        senderWallet
+                            .getAttribute<IBusinessWalletAttributes>("business")
+                            .bridgechains[1].bridgechainId.toFixed(),
+                    ).toEqual("1");
                 });
             });
         });

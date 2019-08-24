@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
-import { BridgechainRegistrationBuilder } from "../../../src/builders";
-import { BridgechainRegistrationTransaction } from "../../../src/transactions";
+import { BridgechainRegistrationBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { BridgechainRegistrationTransaction } from "../../../../packages/core-marketplace/src/transactions";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, checkCommonFields } from "../helper";
 
 let builder: BridgechainRegistrationBuilder;

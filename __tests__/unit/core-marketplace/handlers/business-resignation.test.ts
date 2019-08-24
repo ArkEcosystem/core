@@ -4,10 +4,16 @@ import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
-import { BusinessRegistrationBuilder, BusinessResignationBuilder } from "../../../src/builders";
-import { BusinessIsNotRegisteredError } from "../../../src/errors";
-import { BusinessRegistrationTransactionHandler, BusinessResignationTransactionHandler } from "../../../src/handlers";
-import { businessIndexer } from "../../../src/wallet-manager";
+import {
+    BusinessRegistrationBuilder,
+    BusinessResignationBuilder,
+} from "../../../../packages/core-marketplace/src/builders";
+import { BusinessIsNotRegisteredError } from "../../../../packages/core-marketplace/src/errors";
+import {
+    BusinessRegistrationTransactionHandler,
+    BusinessResignationTransactionHandler,
+} from "../../../../packages/core-marketplace/src/handlers";
+import { businessIndexer, MarketplaceIndex } from "../../../../packages/core-marketplace/src/wallet-manager";
 
 // @ts-ignore
 let businessRegistrationHandler: Handlers.TransactionHandler;
@@ -34,7 +40,7 @@ describe("Business resignation handler", () => {
         businessResignationBuilder = new BusinessResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
-        walletManager.registerIndex("byBusiness", businessIndexer);
+        walletManager.registerIndex(MarketplaceIndex.Businesses, businessIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make(4527654312);

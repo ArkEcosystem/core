@@ -29,7 +29,7 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
                     properties: {
                         bridgechainResignation: {
                             type: "object",
-                            required: ["registeredBridgechainId"],
+                            required: ["bridgechainId"],
                             properties: {
                                 bridgechainId: { bignumber: { minimum: 1 } },
                             },

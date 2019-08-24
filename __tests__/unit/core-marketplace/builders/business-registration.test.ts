@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { BusinessRegistrationBuilder } from "../../../src/builders";
-import { MarketplaceTransactionType } from "../../../src/marketplace-transactions";
-import { BusinessRegistrationTransaction } from "../../../src/transactions";
+import { BusinessRegistrationBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { MarketplaceTransactionType } from "../../../../packages/core-marketplace/src/marketplace-transactions";
+import { BusinessRegistrationTransaction } from "../../../../packages/core-marketplace/src/transactions";
 
 let builder: BusinessRegistrationBuilder;
 

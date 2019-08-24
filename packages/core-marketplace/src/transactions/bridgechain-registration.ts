@@ -6,7 +6,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionType,
 } from "../marketplace-transactions";
-import { seedNodesProperties } from "./utils/bridgechain-schemas";
+import { seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -34,7 +34,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                     minLength: 1,
                                     maxLength: 40,
                                 },
-                                seedNodes: seedNodesProperties,
+                                seedNodes: seedNodesSchema,
                                 genesisHash: {
                                     type: "string",
                                     minLength: 64,
@@ -87,15 +87,15 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         buffer.writeUint8(bridgechainName.length);
         buffer.append(bridgechainName);
 
-        buffer.writeUint16(seedNodesBuffers.length);
+        buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuffer of seedNodesBuffers) {
-            buffer.writeByte(seedBuffer.length);
+            buffer.writeUint8(seedBuffer.length);
             buffer.append(seedBuffer);
         }
 
         buffer.append(bridgechainGenesisHash);
 
-        buffer.writeByte(bridgechainRepository.length);
+        buffer.writeUint8(bridgechainRepository.length);
         buffer.append(bridgechainRepository);
 
         return buffer;
@@ -108,7 +108,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const nameLength: number = buf.readUint8();
         const name: string = buf.readString(nameLength);
 
-        const seedNodesLength: number = buf.readUint16();
+        const seedNodesLength: number = buf.readUint8();
         for (let i = 0; i < seedNodesLength; i++) {
             const ipLength: number = buf.readUint8();
             const ip: string = buf.readString(ipLength);

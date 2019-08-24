@@ -4,19 +4,22 @@ import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
-import { BusinessRegistrationBuilder, BusinessResignationBuilder } from "../../../src/builders";
+import {
+    BusinessRegistrationBuilder,
+    BusinessResignationBuilder,
+} from "../../../../packages/core-marketplace/src/builders";
 import {
     BusinessAlreadyRegisteredError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
-} from "../../../src/errors";
+} from "../../../../packages/core-marketplace/src/errors";
 import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
-} from "../../../src/handlers";
-import { IBusinessWalletAttributes } from "../../../src/interfaces";
-import { businessIndexer } from "../../../src/wallet-manager";
+} from "../../../../packages/core-marketplace/src/handlers";
+import { IBusinessWalletAttributes } from "../../../../packages/core-marketplace/src/interfaces";
+import { businessIndexer, MarketplaceIndex } from "../../../../packages/core-marketplace/src/wallet-manager";
 import { businessRegistrationAsset1, businessRegistrationAsset2 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
@@ -43,7 +46,7 @@ describe("should test marketplace transaction handlers", () => {
         businessResignationBuilder = new BusinessResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
-        walletManager.registerIndex("byBusiness", businessIndexer);
+        walletManager.registerIndex(MarketplaceIndex.Businesses, businessIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make(4527654310);

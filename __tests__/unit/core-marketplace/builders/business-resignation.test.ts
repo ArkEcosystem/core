@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Managers, Transactions } from "@arkecosystem/crypto";
-import { BusinessResignationBuilder } from "../../../src/builders";
-import { BusinessResignationTransaction } from "../../../src/transactions";
+import { BusinessResignationBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { BusinessResignationTransaction } from "../../../../packages/core-marketplace/src/transactions";
 
 let builder: BusinessResignationBuilder;
 

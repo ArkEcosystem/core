@@ -1,8 +1,8 @@
 import "jest-extended";
 
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
-import { BridgechainResignationBuilder } from "../../../src/builders";
-import { BridgechainResignationTransaction } from "../../../src/transactions";
+import { BridgechainResignationBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { BridgechainResignationTransaction } from "../../../../packages/core-marketplace/src/transactions";
 import { checkCommonFields } from "../helper";
 
 let builder: BridgechainResignationBuilder;
@@ -18,7 +18,7 @@ describe("Bridgechain registration transaction", () => {
     describe("Ser/deser", () => {
         it("should ser/deserialize giving back original fields", () => {
             const bridgechainResignation = builder
-                .businessResignationAsset("127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935")
+                .businessResignationAsset("1")
                 .network(23)
                 .sign("passphrase")
                 .getStruct();
@@ -40,27 +40,21 @@ describe("Bridgechain registration transaction", () => {
         });
 
         it("should not throw any error", () => {
-            const bridgechainRegistration = builder
-                .businessResignationAsset("127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935")
-                .sign("passphrase");
+            const bridgechainRegistration = builder.businessResignationAsset("1").sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
         it("should not throw any error", () => {
-            const bridgechainRegistration = builder
-                .businessResignationAsset("1af33cec01cac2492f20de1cf103f65882c5da3a7aee7b3583fa6fe68c084174")
-                .sign("passphrase");
+            const bridgechainRegistration = builder.businessResignationAsset("1").sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
-        it("should fail because &#x1F601; inside id", () => {
-            const bridgechainRegistration = builder
-                .businessResignationAsset("&#x1F601;1cac2492f20de1cf103f65882c5da3a7aee7b3583fa6fe68c084174")
-                .sign("passphrase");
+        it("should fail because invalid asset", () => {
+            const bridgechainRegistration = builder.businessResignationAsset("a").sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).not.toBeUndefined();

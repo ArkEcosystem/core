@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { BridgechainRegistrationBuilder } from "../../../src/builders";
-import { MarketplaceTransactionType } from "../../../src/marketplace-transactions";
-import { BridgechainRegistrationTransaction } from "../../../src/transactions";
+import { BridgechainRegistrationBuilder } from "../../../../packages/core-marketplace/src/builders";
+import { MarketplaceTransactionType } from "../../../../packages/core-marketplace/src/marketplace-transactions";
+import { BridgechainRegistrationTransaction } from "../../../../packages/core-marketplace/src/transactions";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
 
 let builder: BridgechainRegistrationBuilder;

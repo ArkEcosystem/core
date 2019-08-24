@@ -6,7 +6,7 @@ import {
     MarketplaceTransactionStaticFees,
     MarketplaceTransactionType,
 } from "../marketplace-transactions";
-import { seedNodesProperties } from "./utils/bridgechain-schemas";
+import { seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -30,7 +30,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                             required: ["bridgechainId", "seedNodes"],
                             properties: {
                                 bridgechainId: { bignumber: { minimum: 1 } },
-                                seedNodes: seedNodesProperties,
+                                seedNodes: seedNodesSchema,
                             },
                         },
                     },
@@ -58,9 +58,9 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         const buffer: ByteBuffer = new ByteBuffer(64 + seedNodesBuffersLength + 1 + seedNodes.length, true);
         buffer.writeUint64(+bridgechainUpdateAsset.bridgechainId);
 
-        buffer.writeByte(seedNodesBuffers.length);
+        buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {
-            buffer.writeByte(seedBuf.length);
+            buffer.writeUint8(seedBuf.length);
             buffer.append(seedBuf);
         }
 
@@ -72,7 +72,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         const bridgechainId: Utils.BigNumber = Utils.BigNumber.make(buf.readUint64().toString());
 
         const seedNodes: string[] = [];
-        const seedNodesLength: number = buf.readUint16();
+        const seedNodesLength: number = buf.readUint8();
         for (let i = 0; i < seedNodesLength; i++) {
             const ipLength = buf.readUint8();
             const ip = buf.readString(ipLength);
