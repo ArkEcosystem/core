@@ -24,7 +24,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @type {boolean}
      * @memberof Application
      */
-    private booted: boolean = false;
+    private booted = false;
 
     /**
      * Creates an instance of Application.
@@ -142,7 +142,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @returns {string}
      * @memberof Application
      */
-    public dataPath(path: string = ""): string {
+    public dataPath(path = ""): string {
         return join(this.getPath("data"), path);
     }
 
@@ -159,7 +159,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @returns {string}
      * @memberof Application
      */
-    public configPath(path: string = ""): string {
+    public configPath(path = ""): string {
         return join(this.getPath("config"), path);
     }
 
@@ -176,7 +176,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @returns {string}
      * @memberof Application
      */
-    public cachePath(path: string = ""): string {
+    public cachePath(path = ""): string {
         return join(this.getPath("cache"), path);
     }
 
@@ -193,7 +193,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @returns {string}
      * @memberof Application
      */
-    public logPath(path: string = ""): string {
+    public logPath(path = ""): string {
         return join(this.getPath("log"), path);
     }
 
@@ -210,7 +210,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @returns {string}
      * @memberof Application
      */
-    public tempPath(path: string = ""): string {
+    public tempPath(path = ""): string {
         return join(this.getPath("temp"), path);
     }
 

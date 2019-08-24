@@ -18,14 +18,14 @@ enum UnchainedBlockStatus {
 }
 
 class BlockNotReadyCounter {
-    public static maxAttempts: number = 5;
+    public static maxAttempts = 5;
 
-    private id: string = "";
-    private attempts: number = 0;
+    private id = "";
+    private attempts = 0;
 
     public increment(block: Interfaces.IBlock): boolean {
         const { id } = block.data;
-        let attemptsLeft: boolean = false;
+        let attemptsLeft = false;
 
         if (this.id !== id) {
             this.reset();

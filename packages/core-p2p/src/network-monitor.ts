@@ -18,7 +18,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public server: SocketCluster;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
-    private initializing: boolean = true;
+    private initializing = true;
 
     private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
     private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<Contracts.Kernel.Events.IEventDispatcher>(
@@ -172,7 +172,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     }
 
     public async discoverPeers(initialRun?: boolean): Promise<boolean> {
-        const maxPeersPerPeer: number = 50;
+        const maxPeersPerPeer = 50;
         const ownPeers: Contracts.P2P.IPeer[] = this.storage.getPeers();
         const theirPeers: Contracts.P2P.IPeer[] = Object.values(
             (await Promise.all(
@@ -279,7 +279,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     public async syncWithNetwork(
         fromBlockHeight: number,
-        maxParallelDownloads: number = 25,
+        maxParallelDownloads = 25,
     ): Promise<Interfaces.IBlockData[]> {
         try {
             const peersAll: Contracts.P2P.IPeer[] = this.storage.getPeers();
@@ -300,7 +300,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                 return this.communicator.downloadBlocks(sample(peersFiltered), fromBlockHeight);
             }
 
-            const chunkSize: number = 400;
+            const chunkSize = 400;
             const chunksMissingToSync: number = Math.ceil((networkHeight - fromBlockHeight) / chunkSize);
             const chunksToDownload: number = Math.min(chunksMissingToSync, peersFiltered.length, maxParallelDownloads);
 

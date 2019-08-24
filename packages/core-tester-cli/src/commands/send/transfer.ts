@@ -4,7 +4,7 @@ import { SendCommand } from "../../shared/send";
 import { WalletCommand } from "../make/wallets";
 
 export class TransferCommand extends SendCommand {
-    public static description: string = "send multiple transactions";
+    public static description = "send multiple transactions";
 
     public static flags = {
         ...SendCommand.flagsSend,

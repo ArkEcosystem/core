@@ -9,7 +9,7 @@ import { renderTable } from "../utils";
 import { BaseCommand } from "./command";
 
 export class TopCommand extends BaseCommand {
-    public static description: string = "List all core daemons";
+    public static description = "List all core daemons";
 
     public static examples: string[] = [
         `List all core daemons

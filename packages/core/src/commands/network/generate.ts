@@ -9,7 +9,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class GenerateCommand extends BaseCommand {
-    public static description: string = "Generates a new network configuration";
+    public static description = "Generates a new network configuration";
 
     public static examples: string[] = [
         `Generates a new network configuration

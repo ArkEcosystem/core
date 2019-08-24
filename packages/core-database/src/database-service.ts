@@ -17,8 +17,8 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     public blocksBusinessRepository: Contracts.Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Contracts.Database.ITransactionsBusinessRepository;
     public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
-    public stateStarted: boolean = false;
-    public restoredDatabaseIntegrity: boolean = false;
+    public stateStarted = false;
+    public restoredDatabaseIntegrity = false;
     public forgingDelegates: Contracts.State.IWallet[] = undefined;
     public cache: Map<any, any> = new Map();
 
@@ -692,7 +692,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         // Revert all blocks in reverse order
         const index: number = blocks.length - 1;
 
-        let height: number = 0;
+        let height = 0;
         for (let i = index; i >= 0; i--) {
             height = blocks[i].data.height;
 

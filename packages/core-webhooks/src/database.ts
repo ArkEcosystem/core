@@ -8,7 +8,7 @@ class Database {
     private database: lowdb.LowdbSync<any>;
 
     public make(): void {
-        const adapterFile: string = `${process.env.CORE_PATH_CACHE}/webhooks.json`;
+        const adapterFile = `${process.env.CORE_PATH_CACHE}/webhooks.json`;
 
         if (!existsSync(adapterFile)) {
             ensureFileSync(adapterFile);

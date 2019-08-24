@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class StartCommand extends AbstractStartCommand {
-    public static description: string = "Start the forger";
+    public static description = "Start the forger";
 
     public static examples: string[] = [
         `Run a forger with a bip39 passphrase

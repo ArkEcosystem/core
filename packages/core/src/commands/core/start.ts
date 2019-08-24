@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class StartCommand extends AbstractStartCommand {
-    public static description: string = "Start the core";
+    public static description = "Start the core";
 
     public static examples: string[] = [
         `Run core with a daemon

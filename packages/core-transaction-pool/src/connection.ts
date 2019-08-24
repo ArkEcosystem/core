@@ -345,13 +345,13 @@ export class Connection implements Contracts.TransactionPool.IConnection {
     private async getValidatedTransactions(
         start: number,
         size: number,
-        maxBytes: number = 0,
+        maxBytes = 0,
     ): Promise<Interfaces.ITransaction[]> {
         await this.purgeExpired();
 
         let data: Interfaces.ITransaction[] = [];
 
-        let transactionBytes: number = 0;
+        let transactionBytes = 0;
 
         const removeInvalid = async (transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> => {
             const valid = await this.validateTransactions(transactions);
@@ -371,7 +371,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
             }
 
             if (i >= start) {
-                let pushTransaction: boolean = false;
+                let pushTransaction = false;
 
                 if (maxBytes > 0) {
                     const transactionSize: number = JSON.stringify(transaction.data).length;

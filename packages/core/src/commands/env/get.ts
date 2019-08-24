@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class GetCommand extends BaseCommand {
-    public static description: string = "Get the value of an environment variable";
+    public static description = "Get the value of an environment variable";
 
     public static examples: string[] = [
         `Get the log level

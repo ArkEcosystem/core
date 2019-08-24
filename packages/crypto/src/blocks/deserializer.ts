@@ -8,7 +8,7 @@ import { Block } from "./block";
 class Deserializer {
     public deserialize(
         serializedHex: string,
-        headerOnly: boolean = false,
+        headerOnly = false,
     ): { data: IBlockData; transactions: ITransaction[] } {
         const block = {} as IBlockData;
         let transactions: ITransaction[] = [];

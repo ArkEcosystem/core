@@ -5,7 +5,7 @@ import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
 export class DelegateRegistrationCommand extends SendCommand {
-    public static description: string = "create multiple delegates";
+    public static description = "create multiple delegates";
 
     public static flags = {
         ...SendCommand.flagsSend,

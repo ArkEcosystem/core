@@ -6,7 +6,7 @@ import { BIP38Command } from "./bip38";
 import { BIP39Command } from "./bip39";
 
 export class ForgerCommand extends BaseCommand {
-    public static description: string = "Configure the forging delegate";
+    public static description = "Configure the forging delegate";
 
     public static examples: string[] = [
         `Configure a delegate using an encrypted BIP38

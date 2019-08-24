@@ -1,10 +1,11 @@
 import semver from "semver";
 import { Kernel } from "../../contracts";
 import {
-    DependencyDoesNotExist,
+    RequiredDependencyCannotBeFound,
     DependencyVersionOutOfRange,
     InvalidPackageConfiguration,
     ServiceProviderCannotBeRegistered,
+    OptionalDependencyCannotBeFound,
 } from "../../exceptions/packages";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
@@ -114,18 +115,22 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
             if (!serviceProviders.has(name)) {
                 const isRequired: boolean = typeof required === "function" ? await required() : !!required;
 
-                const error: DependencyDoesNotExist = new DependencyDoesNotExist(
-                    serviceProvider.name(),
-                    name,
-                    isRequired,
-                );
-
                 // The dependency is necessary for this package to function. We'll output an error and terminate the process.
                 if (isRequired) {
+                    const error: RequiredDependencyCannotBeFound = new RequiredDependencyCannotBeFound(
+                        serviceProvider.name(),
+                        name,
+                    );
+
                     await this.app.terminate(error.message, error);
                 }
 
                 // The dependency is optional for this package to function. We'll only output a warning.
+                const error: OptionalDependencyCannotBeFound = new OptionalDependencyCannotBeFound(
+                    serviceProvider.name(),
+                    name,
+                );
+
                 this.app.log.warning(error.message);
 
                 serviceProviders.fail(serviceProvider.version());

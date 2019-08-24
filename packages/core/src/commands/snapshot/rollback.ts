@@ -6,7 +6,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RollbackCommand extends BaseCommand {
-    public static description: string = "rollback chain to specified height";
+    public static description = "rollback chain to specified height";
 
     public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,

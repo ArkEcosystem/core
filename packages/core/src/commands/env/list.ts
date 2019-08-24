@@ -6,7 +6,7 @@ import { renderTable } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class ListCommand extends BaseCommand {
-    public static description: string = "List all environment variables";
+    public static description = "List all environment variables";
 
     public static examples: string[] = [
         `List all environment variables

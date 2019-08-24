@@ -7,7 +7,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RestoreCommand extends BaseCommand {
-    public static description: string = "import data from specified snapshot";
+    public static description = "import data from specified snapshot";
 
     public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,

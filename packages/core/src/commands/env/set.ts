@@ -3,7 +3,7 @@ import { updateEnvironmentVariables } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class SetCommand extends BaseCommand {
-    public static description: string = "Set the value of an environment variable";
+    public static description = "Set the value of an environment variable";
 
     public static examples: string[] = [
         `Set the log level

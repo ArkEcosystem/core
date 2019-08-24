@@ -6,7 +6,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class PublishCommand extends BaseCommand {
-    public static description: string = "Publish the configuration";
+    public static description = "Publish the configuration";
 
     public static examples: string[] = [
         `Publish the configuration for the mainnet network

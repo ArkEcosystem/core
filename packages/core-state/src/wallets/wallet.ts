@@ -122,8 +122,8 @@ export class Wallet implements Contracts.State.IWallet {
             excludeMultiSignature: true,
         });
 
-        let verified: boolean = false;
-        let verifiedSignatures: number = 0;
+        let verified = false;
+        let verifiedSignatures = 0;
         for (let i = 0; i < signatures.length; i++) {
             const signature: string = signatures[i];
             const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);

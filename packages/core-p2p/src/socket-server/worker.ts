@@ -151,7 +151,7 @@ export class Worker extends SCWorker {
         next();
     }
 
-    private async log(message: string, level: string = "info"): Promise<void> {
+    private async log(message: string, level = "info"): Promise<void> {
         try {
             await this.sendToMasterAsync("p2p.utils.log", {
                 data: { level, message },

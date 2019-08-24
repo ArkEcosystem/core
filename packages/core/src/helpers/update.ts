@@ -42,7 +42,7 @@ export const installFromChannel = async (pkg, channel) => {
 export const getRegistryChannel = (config: IConfig): string => {
     const channels: string[] = ["next"];
 
-    let channel: string = "latest";
+    let channel = "latest";
     for (const item of channels) {
         if (config.version.includes(`-${item}`)) {
             channel = item;

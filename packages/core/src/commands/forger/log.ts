@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class LogCommand extends AbstractLogCommand {
-    public static description: string = "Show the forger log";
+    public static description = "Show the forger log";
 
     public static examples: string[] = [`$ ark forger:log`];
 

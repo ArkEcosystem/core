@@ -7,14 +7,14 @@ import SocketCluster from "socketcluster";
 import { getHeaders } from "./utils/get-headers";
 
 class PayloadProcessor {
-    private payloadDatabasePath: string = `${process.env.CORE_PATH_DATA}/transactions-received.sqlite`;
+    private payloadDatabasePath = `${process.env.CORE_PATH_DATA}/transactions-received.sqlite`;
 
     private databaseSize: number = (500 * 1024 * 1024) / 4096; // 500 MB
     private payloadDatabase: sqlite3.Database;
     private payloadQueue: any[] = [];
     private payloadOverflowQueue: any[] = [];
-    private maxPayloadQueueSize: number = 100;
-    private maxPayloadOverflowQueueSize: number = 50;
+    private maxPayloadQueueSize = 100;
+    private maxPayloadOverflowQueueSize = 50;
     private listener: any;
 
     public constructor() {

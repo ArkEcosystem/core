@@ -6,7 +6,7 @@ import { updateEnvironmentVariables } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class DatabaseCommand extends BaseCommand {
-    public static description: string = "Update the Database configuration";
+    public static description = "Update the Database configuration";
 
     public static examples: string[] = [
         `Set the database host
@@ -50,7 +50,7 @@ $ ark config:database --password=password
     public async run(): Promise<void> {
         const { flags, paths } = await this.parseWithNetwork(DatabaseCommand);
 
-        const envFile: string = `${paths.config}/.env`;
+        const envFile = `${paths.config}/.env`;
 
         if (this.hasValidFlag(flags)) {
             updateEnvironmentVariables(envFile, this.conform(flags));

@@ -3,7 +3,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class StatusCommand extends AbstractStatusCommand {
-    public static description: string = "Show the core status";
+    public static description = "Show the core status";
 
     public static examples: string[] = [`$ ark core:status`];
 

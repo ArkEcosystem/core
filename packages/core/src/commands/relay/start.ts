@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class StartCommand extends AbstractStartCommand {
-    public static description: string = "Start the relay";
+    public static description = "Start the relay";
 
     public static examples: string[] = [
         `Run a relay with a pm2 daemon

@@ -48,7 +48,7 @@ export class Database {
 
     public async truncate() {
         try {
-            const tables: string = "rounds, transactions, blocks";
+            const tables = "rounds, transactions, blocks";
 
             logger.info(`Truncating tables: ${tables}`);
 

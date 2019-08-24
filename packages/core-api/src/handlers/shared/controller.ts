@@ -21,11 +21,11 @@ export class Controller {
         return paginate(request);
     }
 
-    protected respondWithResource(data, transformer, transform: boolean = true): any {
+    protected respondWithResource(data, transformer, transform = true): any {
         return respondWithResource(data, transformer, transform);
     }
 
-    protected respondWithCollection(data, transformer, transform: boolean = true): object {
+    protected respondWithCollection(data, transformer, transform = true): object {
         return respondWithCollection(data, transformer, transform);
     }
 
@@ -33,15 +33,15 @@ export class Controller {
         return respondWithCache(data, h);
     }
 
-    protected toResource(data, transformer, transform: boolean = true): object {
+    protected toResource(data, transformer, transform = true): object {
         return toResource(data, transformer, transform);
     }
 
-    protected toCollection(data, transformer, transform: boolean = true): object {
+    protected toCollection(data, transformer, transform = true): object {
         return toCollection(data, transformer, transform);
     }
 
-    protected toPagination(data, transformer, transform: boolean = true): object {
+    protected toPagination(data, transformer, transform = true): object {
         return toPagination(data, transformer, transform);
     }
 }

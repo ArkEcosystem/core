@@ -45,7 +45,7 @@ export class Verifier {
         return this.internalVerifySignature(hash, signature, senderPublicKey);
     }
 
-    public static verifySchema(data: ITransactionData, strict: boolean = true): ISchemaValidationResult {
+    public static verifySchema(data: ITransactionData, strict = true): ISchemaValidationResult {
         const { $id } = TransactionTypeFactory.get(data.type, data.typeGroup).getSchema();
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }

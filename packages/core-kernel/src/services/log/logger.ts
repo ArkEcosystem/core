@@ -19,7 +19,7 @@ export abstract class AbstractLogger {
      * @type {boolean}
      * @memberof AbstractLogger
      */
-    protected silentConsole: boolean = false;
+    protected silentConsole = false;
 
     /**
      * @protected
@@ -129,7 +129,7 @@ export abstract class AbstractLogger {
      * @param {boolean} [suppress=true]
      * @memberof AbstractLogger
      */
-    public suppressConsoleOutput(suppress: boolean = true): void {
+    public suppressConsoleOutput(suppress = true): void {
         this.silentConsole = suppress;
     }
 

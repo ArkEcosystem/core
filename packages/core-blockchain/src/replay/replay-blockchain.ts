@@ -11,7 +11,7 @@ export class ReplayBlockchain extends Blockchain {
     private localDatabase: Contracts.Database.IDatabaseService;
     private walletManager: Wallets.WalletManager;
     private targetHeight: number;
-    private chunkSize: number = 20000;
+    private chunkSize = 20000;
 
     private memoryDatabase: Contracts.Database.IDatabaseService;
 
@@ -50,11 +50,11 @@ export class ReplayBlockchain extends Blockchain {
         return;
     }
 
-    public async replay(targetHeight: number = -1): Promise<void> {
+    public async replay(targetHeight = -1): Promise<void> {
         this.logger.info("Starting replay...");
 
         const lastBlock: Interfaces.IBlock = await this.localDatabase.getLastBlock();
-        const startHeight: number = 2;
+        const startHeight = 2;
 
         if (targetHeight <= startHeight || targetHeight > lastBlock.data.height) {
             targetHeight = lastBlock.data.height;
@@ -64,7 +64,7 @@ export class ReplayBlockchain extends Blockchain {
 
         await this.processGenesisBlock();
 
-        const replayBatch = async (batch: number, lastAcceptedHeight: number = 1): Promise<void> => {
+        const replayBatch = async (batch: number, lastAcceptedHeight = 1): Promise<void> => {
             if (lastAcceptedHeight === targetHeight) {
                 this.logger.info("Successfully finished replay to target height.");
                 return this.disconnect();

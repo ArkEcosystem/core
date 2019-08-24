@@ -445,7 +445,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
         transaction: Interfaces.ITransactionData,
         lockWallet: Contracts.State.IWallet,
         lockTransaction: Interfaces.ITransactionData,
-        revert: boolean = false,
+        revert = false,
     ): void {
         if (transaction.type !== Enums.TransactionType.Vote) {
             // Update vote balance of the sender's delegate

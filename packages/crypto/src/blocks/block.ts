@@ -21,7 +21,7 @@ export class Block implements IBlock {
         return value;
     }
 
-    public static deserialize(hexString: string, headerOnly: boolean = false): IBlockData {
+    public static deserialize(hexString: string, headerOnly = false): IBlockData {
         return deserializer.deserialize(hexString, headerOnly).data;
     }
 
@@ -29,7 +29,7 @@ export class Block implements IBlock {
         return Serializer.serializeWithTransactions(block);
     }
 
-    public static serialize(block: IBlockData, includeSignature: boolean = true) {
+    public static serialize(block: IBlockData, includeSignature = true) {
         return Serializer.serialize(block, includeSignature);
     }
 
@@ -162,7 +162,7 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block timestamp");
             }
 
-            let size: number = 0;
+            let size = 0;
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");

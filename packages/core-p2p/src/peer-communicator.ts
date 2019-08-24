@@ -45,7 +45,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
         return this.emit(peer, "p2p.peer.postTransactions", { transactions });
     }
 
-    public async ping(peer: Contracts.P2P.IPeer, timeoutMsec: number, force: boolean = false): Promise<any> {
+    public async ping(peer: Contracts.P2P.IPeer, timeoutMsec: number, force = false): Promise<any> {
         const deadline = new Date().getTime() + timeoutMsec;
 
         if (peer.recentlyPinged() && !force) {

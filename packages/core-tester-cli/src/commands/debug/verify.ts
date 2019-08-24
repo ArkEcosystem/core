@@ -4,7 +4,7 @@ import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class VerifyCommand extends BaseCommand {
-    public static description: string = "Verify the given HEX";
+    public static description = "Verify the given HEX";
 
     public static flags = {
         ...BaseCommand.flagsDebug,

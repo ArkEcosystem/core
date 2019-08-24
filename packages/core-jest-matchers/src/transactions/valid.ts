@@ -13,7 +13,7 @@ declare global {
 
 expect.extend({
     toBeValidTransaction: actual => {
-        let verified: boolean = false;
+        let verified = false;
 
         try {
             verified = Transactions.Verifier.verifyHash(actual);

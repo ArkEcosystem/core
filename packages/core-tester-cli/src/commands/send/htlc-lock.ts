@@ -5,7 +5,7 @@ import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
 export class HtlcLockCommand extends SendCommand {
-    public static description: string = "create multiple htlc lock transactions";
+    public static description = "create multiple htlc lock transactions";
 
     public static flags = {
         ...SendCommand.flagsSend,

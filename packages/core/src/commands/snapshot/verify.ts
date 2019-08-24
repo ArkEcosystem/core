@@ -6,7 +6,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class VerifyCommand extends BaseCommand {
-    public static description: string = "check validity of specified snapshot";
+    public static description = "check validity of specified snapshot";
 
     public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,

@@ -3,7 +3,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RestartCommand extends AbstractRestartCommand {
-    public static description: string = "Restart the core";
+    public static description = "Restart the core";
 
     public static examples: string[] = [
         `Restart the core

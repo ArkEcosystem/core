@@ -6,7 +6,7 @@ export class InternalTransactionType {
             typeGroup = TransactionTypeGroup.Core;
         }
 
-        const compositeType: string = `${typeGroup}-${type}`;
+        const compositeType = `${typeGroup}-${type}`;
         if (!this.types.has(compositeType)) {
             this.types.set(compositeType, new InternalTransactionType(type, typeGroup));
         }

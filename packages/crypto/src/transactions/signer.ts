@@ -28,7 +28,7 @@ export class Signer {
         return signature;
     }
 
-    public static multiSign(transaction: ITransactionData, keys: IKeyPair, index: number = -1): string {
+    public static multiSign(transaction: ITransactionData, keys: IKeyPair, index = -1): string {
         if (!transaction.signatures) {
             transaction.signatures = [];
         }
@@ -42,7 +42,7 @@ export class Signer {
         });
 
         const signature: string = Hash.signSchnorr(hash, keys);
-        const indexedSignature: string = `${numberToHex(index)}${signature}`;
+        const indexedSignature = `${numberToHex(index)}${signature}`;
         transaction.signatures.push(indexedSignature);
 
         return indexedSignature;

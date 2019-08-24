@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RunCommand extends BaseCommand {
-    public static description: string = "Run the forger (without pm2)";
+    public static description = "Run the forger (without pm2)";
 
     public static examples: string[] = [
         `Run a forger with a bip39 passphrase

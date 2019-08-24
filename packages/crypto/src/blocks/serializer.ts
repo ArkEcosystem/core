@@ -25,7 +25,7 @@ export class Serializer {
         return buffer.flip().toBuffer();
     }
 
-    public static serialize(block: IBlockData, includeSignature: boolean = true): Buffer {
+    public static serialize(block: IBlockData, includeSignature = true): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(512, true);
 
         this.serializeHeader(block, buffer);

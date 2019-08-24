@@ -207,7 +207,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
     /**
      * Push a block to the process queue.
      */
-    public handleIncomingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
+    public handleIncomingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         this.pushPingBlock(block, fromForger);
 
         const currentSlot: number = Crypto.Slots.getSlotNumber();
@@ -510,7 +510,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
+    public pushPingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         this.state.pushPingBlock(block, fromForger);
     }
 }

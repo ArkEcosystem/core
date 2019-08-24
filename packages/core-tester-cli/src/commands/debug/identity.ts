@@ -4,7 +4,7 @@ import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class IdentityCommand extends BaseCommand {
-    public static description: string = "Get identities from the given input";
+    public static description = "Get identities from the given input";
 
     public static flags = {
         ...BaseCommand.flagsDebug,

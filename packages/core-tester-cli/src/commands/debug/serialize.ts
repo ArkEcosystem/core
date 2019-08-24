@@ -4,7 +4,7 @@ import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class SerializeCommand extends BaseCommand {
-    public static description: string = "Serialize the given JSON";
+    public static description = "Serialize the given JSON";
 
     public static flags = {
         ...BaseCommand.flagsDebug,

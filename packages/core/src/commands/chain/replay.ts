@@ -5,7 +5,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class ReplayCommand extends BaseCommand {
-    public static description: string = "replay the blockchain from the local database";
+    public static description = "replay the blockchain from the local database";
 
     public static flags: CommandFlags = {
         ...BaseCommand.flagsNetwork,

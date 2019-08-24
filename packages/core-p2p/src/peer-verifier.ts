@@ -84,7 +84,7 @@ export class PeerVerifier {
             return undefined;
         }
 
-        const claimedHeight: number = Number(claimedState.header.height);
+        const claimedHeight = Number(claimedState.header.height);
         const ourHeight: number = this.ourHeight();
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
@@ -107,7 +107,7 @@ export class PeerVerifier {
 
     private checkStateHeader(claimedState: Contracts.P2P.IPeerState): boolean {
         const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
-        const claimedHeight: number = Number(blockHeader.height);
+        const claimedHeight = Number(blockHeader.height);
         if (claimedHeight !== claimedState.height) {
             this.log(
                 Severity.DEBUG_EXTRA,
@@ -547,7 +547,7 @@ export class PeerVerifier {
      * logged if enabled in the environment.
      */
     private log(severity: Severity, msg: string): void {
-        const fullMsg: string = `${this.logPrefix} ${msg}`;
+        const fullMsg = `${this.logPrefix} ${msg}`;
         switch (severity) {
             case Severity.DEBUG_EXTRA:
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {

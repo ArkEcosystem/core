@@ -4,7 +4,7 @@ import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
 export class IpfsCommand extends SendCommand {
-    public static description: string = "create multiple ipfs transactions";
+    public static description = "create multiple ipfs transactions";
 
     public static flags = {
         ...SendCommand.flagsSend,

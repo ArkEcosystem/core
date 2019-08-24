@@ -4,7 +4,7 @@ import { renderTable } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class PathsCommand extends BaseCommand {
-    public static description: string = "Get all of the environment paths";
+    public static description = "Get all of the environment paths";
 
     public static examples: string[] = [
         `List all environment paths

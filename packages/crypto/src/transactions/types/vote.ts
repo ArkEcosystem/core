@@ -8,7 +8,7 @@ import { Transaction } from "./transaction";
 export class VoteTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.Vote;
-    public static key: string = "vote";
+    public static key = "vote";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.vote;

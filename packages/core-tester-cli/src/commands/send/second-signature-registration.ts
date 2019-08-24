@@ -5,7 +5,7 @@ import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
 export class SecondSignatureRegistrationCommand extends SendCommand {
-    public static description: string = "create wallets with second signature";
+    public static description = "create wallets with second signature";
 
     public static flags = {
         ...SendCommand.flagsSend,

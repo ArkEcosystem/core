@@ -4,7 +4,7 @@ import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class VerifySecondSignatureCommand extends BaseCommand {
-    public static description: string = "Verify a second signature of a transaction";
+    public static description = "Verify a second signature of a transaction";
 
     public static flags = {
         ...BaseCommand.flagsDebug,

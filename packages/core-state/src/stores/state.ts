@@ -15,13 +15,13 @@ export class StateStore implements Contracts.State.IStateStore {
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
     public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
     public blockPing: any = undefined;
-    public started: boolean = false;
+    public started = false;
     public forkedBlock: Interfaces.IBlock | undefined = undefined;
     public wakeUpTimeout: any = undefined;
-    public noBlockCounter: number = 0;
-    public p2pUpdateCounter: number = 0;
+    public noBlockCounter = 0;
+    public p2pUpdateCounter = 0;
     public numberOfBlocksToRollback: number | undefined = undefined;
-    public networkStart: boolean = false;
+    public networkStart = false;
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
     private lastBlocks: OrderedMap<number, Interfaces.IBlock> = OrderedMap<number, Interfaces.IBlock>();
@@ -232,7 +232,7 @@ export class StateStore implements Contracts.State.IStateStore {
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
+    public pushPingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         if (this.blockPing) {
             app.resolve<Contracts.Kernel.Log.ILogger>("log").info(
                 `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${this.blockPing.count} times`,

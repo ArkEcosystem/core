@@ -10,7 +10,7 @@ export class BlockFrequencies {
      * @type {number}
      * @memberof BlockFrequencies
      */
-    protected blockCount: number = 1;
+    protected blockCount = 1;
 
     /**
      * The number of blocks representing the job's frequency.

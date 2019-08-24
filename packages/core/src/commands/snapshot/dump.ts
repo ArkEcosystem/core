@@ -6,7 +6,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class DumpCommand extends BaseCommand {
-    public static description: string = "create a full snapshot of the database";
+    public static description = "create a full snapshot of the database";
 
     public static flags: CommandFlags = {
         ...BaseCommand.flagsSnapshot,

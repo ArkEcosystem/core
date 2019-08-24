@@ -9,7 +9,7 @@ import { Transaction } from "./transaction";
 export class HtlcLockTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.HtlcLock;
-    public static key: string = "htlcLock";
+    public static key = "htlcLock";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.htlcLock;

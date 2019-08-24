@@ -13,7 +13,7 @@ declare global {
 
 expect.extend({
     toBeForged: async (id: string) => {
-        let pass: boolean = false;
+        let pass = false;
 
         try {
             const { body } = await got.get(`http://localhost:4003/api/v2/transactions/${id}`);

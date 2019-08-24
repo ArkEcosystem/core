@@ -9,7 +9,7 @@ import { CommandFlags } from "../types";
 import { BaseCommand } from "./command";
 
 export class UpdateCommand extends BaseCommand {
-    public static description: string = "Update the core installation";
+    public static description = "Update the core installation";
 
     public static flags: CommandFlags = {
         force: flags.boolean({

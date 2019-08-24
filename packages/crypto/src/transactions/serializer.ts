@@ -48,7 +48,7 @@ export class Serializer {
      * Serializes the given transaction prior to AIP11 (legacy).
      */
     private static getBytesV1(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
-        let assetSize: number = 0;
+        let assetSize = 0;
         let assetBytes: Buffer | Uint8Array;
 
         switch (transaction.type) {

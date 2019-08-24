@@ -3,7 +3,7 @@ import dayjs from "dayjs";
 import { Format } from "logform";
 import { format } from "winston";
 
-export const formatter = (colorOutput: boolean = true): Format => {
+export const formatter = (colorOutput = true): Format => {
     const { colorize, combine, timestamp, printf } = format;
 
     return combine(

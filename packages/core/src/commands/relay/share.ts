@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class ShareCommand extends BaseCommand {
-    public static description: string = "Share the instance via ngrok";
+    public static description = "Share the instance via ngrok";
 
     public static flags: CommandFlags = {
         proto: flags.string({

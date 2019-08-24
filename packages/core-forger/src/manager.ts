@@ -151,11 +151,11 @@ export class ForgerManager {
             reward: round.reward,
         });
 
-        const minimumMs: number = 2000;
+        const minimumMs = 2000;
         const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
         const currentSlot: number = Crypto.Slots.getSlotNumber();
         const roundSlot: number = Crypto.Slots.getSlotNumber(round.timestamp);
-        const prettyName: string = `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`;
+        const prettyName = `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`;
 
         if (timeLeftInMs >= minimumMs && currentSlot === roundSlot) {
             this.logger.info(`Forged new block ${block.data.id} by delegate ${prettyName}`);

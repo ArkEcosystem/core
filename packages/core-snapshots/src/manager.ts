@@ -123,7 +123,7 @@ export class SnapshotManager {
         return this.rollbackByHeight(height - amount);
     }
 
-    private async init(options, exportAction: boolean = false) {
+    private async init(options, exportAction = false) {
         const params: any = pick(options, [
             "truncate",
             "blocks",

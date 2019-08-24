@@ -5,7 +5,8 @@ import * as Exceptions from "./exceptions";
 import * as Services from "./services";
 import * as Support from "./support";
 import * as Types from "./types";
+import * as Utils from "./utils";
 
 const app: Contracts.Kernel.IApplication = new Application();
 
-export { app, Contracts, Enums, Exceptions, Services, Support, Types };
+export { app, Contracts, Enums, Exceptions, Services, Support, Types, Utils };

@@ -9,7 +9,7 @@ import { Transaction } from "./transaction";
 export class TransferTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.Transfer;
-    public static key: string = "transfer";
+    public static key = "transfer";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.transfer;

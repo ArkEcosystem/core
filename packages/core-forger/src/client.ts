@@ -126,7 +126,7 @@ export class Client {
         throw new HostNoResponseError(this.hosts.map(host => host.hostname).join());
     }
 
-    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout: number = 4000): Promise<T> {
+    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
             const response: Contracts.P2P.IResponse<T> = await socketEmit(
                 this.host.hostname,

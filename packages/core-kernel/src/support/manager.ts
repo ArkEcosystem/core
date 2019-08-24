@@ -120,7 +120,7 @@ export abstract class AbstractManager<T> {
      * @memberof AbstractManager
      */
     private async createDriver(name: string): Promise<void> {
-        const creatorFunction: string = `create${toStudlyCaps(name)}Driver`;
+        const creatorFunction = `create${toStudlyCaps(name)}Driver`;
 
         if (typeof this[creatorFunction] !== "function") {
             throw new Error(`${name} driver is not supported by ${this.constructor.name}.`);

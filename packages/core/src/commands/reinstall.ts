@@ -7,7 +7,7 @@ import { CommandFlags } from "../types";
 import { BaseCommand } from "./command";
 
 export class ReinstallCommand extends BaseCommand {
-    public static description: string = "Reinstall the core";
+    public static description = "Reinstall the core";
 
     public static flags: CommandFlags = {
         force: flags.boolean({

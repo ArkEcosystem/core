@@ -13,7 +13,7 @@ declare global {
 
 expect.extend({
     toBeRejected: async (transactions, id) => {
-        let pass: boolean = true;
+        let pass = true;
 
         try {
             const { body } = await got.post(`http://localhost:4003/api/v2/transactions`, {

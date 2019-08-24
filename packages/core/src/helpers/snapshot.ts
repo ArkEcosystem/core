@@ -17,7 +17,7 @@ export const setUpLite = async (options): Promise<Contracts.Kernel.IContainer> =
 };
 
 export const chooseSnapshot = async (flags: CommandFlags, message: string) => {
-    const source: string = `${process.env.CORE_PATH_DATA}/snapshots`;
+    const source = `${process.env.CORE_PATH_DATA}/snapshots`;
 
     const snapshots: string[] = readdirSync(source).filter((name: string) =>
         lstatSync(`${source}/${name}`).isDirectory(),

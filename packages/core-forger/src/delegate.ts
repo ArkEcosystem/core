@@ -29,7 +29,7 @@ export class Delegate {
     public publicKey: string;
     public address: string;
     public otpSecret: string;
-    public bip38: boolean = false;
+    public bip38 = false;
     public otp: string;
     public encryptedKeys: string;
 

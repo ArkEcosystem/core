@@ -108,8 +108,8 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Cont
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
     const reqBlockLimit: number = +req.data.blockLimit || 400;
-    const reqHeadersOnly: boolean = !!req.data.headersOnly;
-    const reqSerialized: boolean = !!req.data.serialized; // TODO: remove in 2.6 and only return serialized blocks
+    const reqHeadersOnly = !!req.data.headersOnly;
+    const reqSerialized = !!req.data.serialized; // TODO: remove in 2.6 and only return serialized blocks
 
     let blocks: Interfaces.IBlockData[] | Contracts.Database.IDownloadBlock[];
     if (reqSerialized) {

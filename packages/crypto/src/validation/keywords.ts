@@ -69,7 +69,7 @@ const bignumber = (ajv: Ajv) => {
                     return false;
                 }
 
-                let bypassGenesis: boolean = false;
+                let bypassGenesis = false;
                 if (schema.bypassGenesis) {
                     if (parentObject.id) {
                         if (schema.block) {

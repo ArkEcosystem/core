@@ -6,7 +6,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class CommandLineInterfaceCommand extends BaseCommand {
-    public static description: string = "Update the CLI configuration";
+    public static description = "Update the CLI configuration";
 
     public static examples: string[] = [
         `Set the token that should be used for configuration

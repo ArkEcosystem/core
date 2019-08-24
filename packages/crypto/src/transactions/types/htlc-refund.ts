@@ -8,7 +8,7 @@ import { Transaction } from "./transaction";
 export class HtlcRefundTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.HtlcRefund;
-    public static key: string = "htlcRefund";
+    public static key = "htlcRefund";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.htlcRefund;

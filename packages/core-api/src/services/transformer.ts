@@ -19,11 +19,11 @@ class Transformer {
         wallet: transformWallet,
     };
 
-    public toResource(data, transformer, transform: boolean = true): object {
+    public toResource(data, transformer, transform = true): object {
         return this.transformers[transformer](data, transform);
     }
 
-    public toCollection(data, transformer, transform: boolean = true): object[] {
+    public toCollection(data, transformer, transform = true): object[] {
         return data.map(d => this.toResource(d, transformer, transform));
     }
 }

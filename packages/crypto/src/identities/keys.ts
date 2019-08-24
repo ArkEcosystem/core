@@ -7,11 +7,11 @@ import { INetwork } from "../interfaces/networks";
 import { configManager } from "../managers";
 
 export class Keys {
-    public static fromPassphrase(passphrase: string, compressed: boolean = true): IKeyPair {
+    public static fromPassphrase(passphrase: string, compressed = true): IKeyPair {
         return Keys.fromPrivateKey(HashAlgorithms.sha256(Buffer.from(passphrase, "utf8")), compressed);
     }
 
-    public static fromPrivateKey(privateKey: Buffer | string, compressed: boolean = true): IKeyPair {
+    public static fromPrivateKey(privateKey: Buffer | string, compressed = true): IKeyPair {
         privateKey = privateKey instanceof Buffer ? privateKey : Buffer.from(privateKey, "hex");
 
         return {

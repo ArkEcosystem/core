@@ -8,13 +8,13 @@ export class ConnectionManager {
         Contracts.TransactionPool.IConnection
     >();
 
-    public connection(name: string = "default"): Contracts.TransactionPool.IConnection {
+    public connection(name = "default"): Contracts.TransactionPool.IConnection {
         return this.connections.get(name);
     }
 
     public async createConnection(
         connection: Contracts.TransactionPool.IConnection,
-        name: string = "default",
+        name = "default",
     ): Promise<Contracts.TransactionPool.IConnection> {
         this.connections.set(name, await this.factory.make(connection));
 

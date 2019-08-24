@@ -20,11 +20,11 @@ export const paginate = (request: Hapi.Request): any => {
     return pagination;
 };
 
-export const respondWithResource = (data, transformer, transform: boolean = true): object => {
+export const respondWithResource = (data, transformer, transform = true): object => {
     return data ? { data: transformerService.toResource(data, transformer, transform) } : Boom.notFound();
 };
 
-export const respondWithCollection = (data, transformer, transform: boolean = true): object => {
+export const respondWithCollection = (data, transformer, transform = true): object => {
     return {
         data: transformerService.toCollection(data, transformer, transform),
     };
@@ -57,15 +57,15 @@ export const respondWithCache = (data, h): any => {
     return h.response(arg).header("Last-modified", lastModified.toUTCString());
 };
 
-export const toResource = (data, transformer, transform: boolean = true): object => {
+export const toResource = (data, transformer, transform = true): object => {
     return transformerService.toResource(data, transformer, transform);
 };
 
-export const toCollection = (data, transformer, transform: boolean = true): object => {
+export const toCollection = (data, transformer, transform = true): object => {
     return transformerService.toCollection(data, transformer, transform);
 };
 
-export const toPagination = (data, transformer, transform: boolean = true): object => {
+export const toPagination = (data, transformer, transform = true): object => {
     return {
         results: transformerService.toCollection(data.rows, transformer, transform),
         totalCount: data.count,

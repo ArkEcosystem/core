@@ -14,7 +14,7 @@ declare global {
 
 expect.extend({
     toBeAccepted: async transaction => {
-        let pass: boolean = false;
+        let pass = false;
         let error: string;
 
         try {
@@ -44,7 +44,7 @@ expect.extend({
         };
     },
     toBeAllAccepted: async transactions => {
-        let pass: boolean = true;
+        let pass = true;
         let error: string;
 
         try {

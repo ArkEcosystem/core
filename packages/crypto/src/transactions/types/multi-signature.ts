@@ -13,7 +13,7 @@ import { Transaction } from "./transaction";
 export class MultiSignatureRegistrationTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.MultiSignature;
-    public static key: string = "multiSignature";
+    public static key = "multiSignature";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.multiSignature;

@@ -30,7 +30,7 @@ export class WalletManager extends Wallets.WalletManager {
             const senderAddress: string = Identities.Address.fromPublicKey(senderPublicKey);
 
             if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
-                const message: string = "Wallet not allowed to spend before funding is confirmed.";
+                const message = "Wallet not allowed to spend before funding is confirmed.";
 
                 this.logger.error(message);
 

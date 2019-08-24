@@ -8,8 +8,8 @@ export const transformPlugins = (plugins): Contracts.P2P.IPeerPlugins => {
             options = { enabled: options.enabled, ...options.server };
         }
 
-        const port: number = Number(options.port);
-        const enabled: boolean = !!options.enabled;
+        const port = Number(options.port);
+        const enabled = !!options.enabled;
 
         if (isNaN(port) || name.includes("core-p2p")) {
             continue;

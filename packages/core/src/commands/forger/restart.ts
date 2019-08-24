@@ -3,7 +3,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RestartCommand extends AbstractRestartCommand {
-    public static description: string = "Restart the forger";
+    public static description = "Restart the forger";
 
     public static examples: string[] = [
         `Restart the forger

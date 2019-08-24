@@ -13,7 +13,7 @@ import { Verifier } from "../../verifier";
 export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBuilder>> {
     public data: ITransactionData;
 
-    protected signWithSenderAsRecipient: boolean = false;
+    protected signWithSenderAsRecipient = false;
 
     constructor() {
         this.data = {

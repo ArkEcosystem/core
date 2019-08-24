@@ -304,7 +304,7 @@ export abstract class BaseCommand extends Command {
         return this.getNetworks().map(network => ({ title: network, value: network }));
     }
 
-    protected async restartRunningProcessPrompt(processName: string, showPrompt: boolean = true) {
+    protected async restartRunningProcessPrompt(processName: string, showPrompt = true) {
         if (processManager.isOnline(processName)) {
             if (showPrompt) {
                 await confirm(`Would you like to restart the ${processName} process?`, () => {

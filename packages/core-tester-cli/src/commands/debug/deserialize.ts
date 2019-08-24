@@ -4,7 +4,7 @@ import { handleOutput } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class DeserializeCommand extends BaseCommand {
-    public static description: string = "Deserialize the given HEX";
+    public static description = "Deserialize the given HEX";
 
     public static flags = {
         ...BaseCommand.flagsDebug,

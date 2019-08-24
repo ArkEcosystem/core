@@ -5,7 +5,7 @@ import { BaseCommand } from "../command";
 import { PublishCommand } from "./publish";
 
 export class ResetCommand extends BaseCommand {
-    public static description: string = "Reset the configuration";
+    public static description = "Reset the configuration";
 
     public static examples: string[] = [
         `Reset the configuration for the mainnet network

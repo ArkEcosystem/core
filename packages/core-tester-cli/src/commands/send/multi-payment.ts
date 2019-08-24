@@ -5,7 +5,7 @@ import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
 export class MultiPaymentCommand extends SendCommand {
-    public static description: string = "create wallets with multi signature";
+    public static description = "create wallets with multi signature";
 
     public static flags = {
         ...SendCommand.flagsSend,

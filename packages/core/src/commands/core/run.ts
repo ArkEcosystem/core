@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class RunCommand extends BaseCommand {
-    public static description: string = "Run the core (without pm2)";
+    public static description = "Run the core (without pm2)";
 
     public static examples: string[] = [
         `Run core

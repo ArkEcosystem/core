@@ -18,7 +18,7 @@ export class WinstonLogger extends Services.Log.AbstractLogger implements Contra
         return this;
     }
 
-    public suppressConsoleOutput(suppress: boolean = true): void {
+    public suppressConsoleOutput(suppress = true): void {
         const consoleTransport = this.logger.transports.find(
             (transport: ITransportStream) => transport.name === "console",
         );

@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class StopCommand extends AbstractStopCommand {
-    public static description: string = "Stop the core";
+    public static description = "Stop the core";
 
     public static examples: string[] = [
         `Stop the core

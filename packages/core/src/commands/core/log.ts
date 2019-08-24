@@ -4,7 +4,7 @@ import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
 export class LogCommand extends AbstractLogCommand {
-    public static description: string = "Show the core log";
+    public static description = "Show the core log";
 
     public static examples: string[] = [`$ ark core:log`];
 

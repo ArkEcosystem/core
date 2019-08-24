@@ -4,7 +4,7 @@ import { SendCommand } from "../../shared/send";
 import { HtlcLockCommand } from "./htlc-lock";
 
 export class HtlcClaimCommand extends SendCommand {
-    public static description: string = "create multiple htlc claim transactions";
+    public static description = "create multiple htlc claim transactions";
 
     public static flags = {
         ...SendCommand.flagsSend,

@@ -12,7 +12,7 @@ export class CronFrequencies {
      * @type {string}
      * @memberof CronFrequencies
      */
-    protected expression: string = "* * * * *";
+    protected expression = "* * * * *";
 
     /**
      * The Cron expression representing the job's frequency.
@@ -249,7 +249,7 @@ export class CronFrequencies {
      * @returns {this}
      * @memberof CronFrequencies
      */
-    public weeklyOn(day: string, hour: string = "0", minute: string = "0"): this {
+    public weeklyOn(day: string, hour = "0", minute = "0"): this {
         return this.setMinute(minute)
             .setHour(hour)
             .setDayWeek(day);
@@ -276,7 +276,7 @@ export class CronFrequencies {
      * @returns {this}
      * @memberof CronFrequencies
      */
-    public monthlyOn(day: string, hour: string = "0", minute: string = "0"): this {
+    public monthlyOn(day: string, hour = "0", minute = "0"): this {
         return this.setMinute(minute)
             .setHour(hour)
             .setDayMonth(day);
