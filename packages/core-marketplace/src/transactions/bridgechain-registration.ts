@@ -1,11 +1,7 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import { MarketplaceTransactionGroup, MarketplaceTransactionStaticFees, MarketplaceTransactionType } from "../enums";
 import { IBridgechainRegistrationAsset } from "../interfaces";
-import {
-    MarketplaceTransactionGroup,
-    MarketplaceTransactionStaticFees,
-    MarketplaceTransactionType,
-} from "../marketplace-transactions";
 import { seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;

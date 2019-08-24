@@ -52,7 +52,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        if (wallet.hasAttribute("business") && wallet.getAttribute("business.resigned") !== true) {
+        if (wallet.hasAttribute("business") && wallet.getAttribute<boolean>("business.resigned") !== true) {
             throw new BusinessAlreadyRegisteredError();
         }
 

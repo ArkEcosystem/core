@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../enums";
 import {
     BridgechainIsNotRegisteredError,
     BridgechainIsResignedError,
@@ -15,7 +16,6 @@ import {
     IBridgechainWalletAttributes,
     IBusinessWalletAttributes,
 } from "../interfaces";
-import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BridgechainUpdateTransaction } from "../transactions";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 

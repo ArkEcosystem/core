@@ -1,11 +1,7 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import { MarketplaceTransactionGroup, MarketplaceTransactionStaticFees, MarketplaceTransactionType } from "../enums";
 import { IBusinessUpdateAsset } from "../interfaces";
-import {
-    MarketplaceTransactionGroup,
-    MarketplaceTransactionStaticFees,
-    MarketplaceTransactionType,
-} from "../marketplace-transactions";
 import { businessSchema } from "./utils/business-schema";
 
 const { schemas } = Transactions;

@@ -1,6 +1,6 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../enums";
 import { IBusinessUpdateAsset } from "../interfaces";
-import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BusinessUpdateTransaction } from "../transactions";
 
 export class BusinessUpdateBuilder extends Transactions.TransactionBuilder<BusinessUpdateBuilder> {

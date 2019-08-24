@@ -3,6 +3,10 @@ import "jest-extended";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers } from "@arkecosystem/crypto";
 import {
+    MarketplaceTransactionGroup,
+    MarketplaceTransactionType,
+} from "../../../../packages/core-marketplace/src/enums";
+import {
     BridgechainRegistrationTransactionHandler,
     BridgechainResignationTransactionHandler,
     BridgechainUpdateTransactionHandler,
@@ -10,10 +14,6 @@ import {
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
 } from "../../../../packages/core-marketplace/src/handlers";
-import {
-    MarketplaceTransactionGroup,
-    MarketplaceTransactionType,
-} from "../../../../packages/core-marketplace/src/marketplace-transactions";
 
 describe("Registry test", () => {
     Managers.configManager.setFromPreset("testnet");

@@ -2,10 +2,10 @@ import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../enums";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessRegistrationAsset, IBusinessUpdateAsset, IBusinessWalletAttributes } from "../interfaces";
-import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
 import { BusinessUpdateTransaction } from "../transactions";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 

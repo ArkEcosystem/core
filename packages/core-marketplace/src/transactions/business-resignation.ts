@@ -1,10 +1,6 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import {
-    MarketplaceTransactionGroup,
-    MarketplaceTransactionStaticFees,
-    MarketplaceTransactionType,
-} from "../marketplace-transactions";
+import { MarketplaceTransactionGroup, MarketplaceTransactionStaticFees, MarketplaceTransactionType } from "../enums";
 
 const { schemas } = Transactions;
 

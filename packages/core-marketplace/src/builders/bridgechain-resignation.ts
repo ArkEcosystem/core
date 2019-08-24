@@ -1,5 +1,5 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../marketplace-transactions";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../enums";
 import { BridgechainResignationTransaction } from "../transactions";
 
 export class BridgechainResignationBuilder extends Transactions.TransactionBuilder<BridgechainResignationBuilder> {

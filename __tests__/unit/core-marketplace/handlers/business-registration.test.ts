@@ -97,7 +97,11 @@ describe("Business registration handler", () => {
 
             await businessRegistrationHandler.applyToSender(actual.build(), walletManager);
 
-            const wallet = walletManager.findByIndex(MarketplaceIndex.Businesses, senderWallet.publicKey);
+            const wallet = walletManager.findByIndex(
+                MarketplaceIndex.Businesses,
+                senderWallet.getAttribute<IBusinessWalletAttributes>("business").businessId.toFixed(),
+            );
+
             expect(wallet).toStrictEqual(senderWallet);
         });
     });
@@ -105,7 +109,7 @@ describe("Business registration handler", () => {
     describe("revertForSender", () => {
         it("should not fail", async () => {
             senderWallet.setAttribute<IBusinessWalletAttributes>("business", {
-                businessId: Utils.BigNumber.ZERO,
+                businessId: Utils.BigNumber.ONE,
                 businessAsset: businessRegistrationAsset1,
             });
             senderWallet.nonce = Utils.BigNumber.make(1);
@@ -120,11 +124,15 @@ describe("Business registration handler", () => {
 
         it("should be undefined", async () => {
             senderWallet.setAttribute<IBusinessWalletAttributes>("business", {
-                businessId: Utils.BigNumber.ZERO,
+                businessId: Utils.BigNumber.ONE,
                 businessAsset: businessRegistrationAsset1,
             });
             senderWallet.nonce = Utils.BigNumber.make(1);
             walletManager.reindex(senderWallet);
+
+            let wallet = walletManager.findByIndex(MarketplaceIndex.Businesses, "1");
+            expect(wallet).toBe(senderWallet);
+
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset(businessRegistrationAsset1)
                 .fee("1200")
@@ -132,8 +140,9 @@ describe("Business registration handler", () => {
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
             await businessRegistrationHandler.revertForSender(actual.build(), walletManager);
-            const wallet = walletManager.findByIndex(MarketplaceIndex.Businesses, senderWallet.publicKey);
-            expect(wallet).toBeUndefined();
+
+            wallet = walletManager.findByIndex(MarketplaceIndex.Businesses, "1");
+            expect(wallet.getAttribute("business")).toBeUndefined();
         });
     });
 });

@@ -10,8 +10,8 @@ export enum MarketplaceIndex {
 export const businessIndexer = (index: State.IWalletIndex, wallet: Wallets.Wallet): void => {
     if (wallet.hasAttribute("business")) {
         const business: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>("business");
-        if (business !== undefined && !business.resigned && !index.has(wallet.publicKey)) {
-            index.set(wallet.publicKey, wallet);
+        if (business !== undefined && !business.resigned) {
+            index.set(business.businessId.toFixed(), wallet);
         }
     }
 };
