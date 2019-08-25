@@ -153,3 +153,9 @@ export class InvalidMultiSignatureAssetError extends CryptoError {
         super(`The multi signature asset is invalid.`);
     }
 }
+
+export class DuplicateParticipantInMultiSignatureError extends CryptoError {
+    constructor() {
+        super(`Invalid multi signature, because duplicate participant found.`);
+    }
+}

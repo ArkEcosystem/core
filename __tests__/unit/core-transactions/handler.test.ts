@@ -3,7 +3,7 @@ import "jest-extended";
 import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { formatTimestamp } from "@arkecosystem/core-utils";
-import { Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
     HtlcLockExpiredError,
@@ -627,6 +627,63 @@ describe("MultiSignatureRegistrationTransaction", () => {
             instance.data.signatures.splice(0, 2);
             await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 MultiSignatureKeyCountMismatchError,
+            );
+        });
+
+        it("should throw if the same participant provides multiple signatures", async () => {
+            const passphrases = ["secret1", "secret2", "secret3"];
+            const participants = [
+                Identities.PublicKey.fromPassphrase(passphrases[0]),
+                Identities.PublicKey.fromPassphrase(passphrases[1]),
+                Identities.PublicKey.fromPassphrase(passphrases[2]),
+            ];
+
+            const participantWallet = walletManager.findByPublicKey(participants[0]);
+            participantWallet.balance = Utils.BigNumber.make(1e8 * 100);
+
+            const multSigRegistration = TransactionFactory.multiSignature(participants)
+                .withPassphrase(passphrases[0])
+                .withPassphraseList(passphrases)
+                .build()[0];
+
+            const multiSigWallet = walletManager.findByPublicKey(
+                Identities.PublicKey.fromMultiSignatureAsset(multSigRegistration.data.asset.multiSignature),
+            );
+
+            await expect(
+                handler.throwIfCannotBeApplied(multSigRegistration, participantWallet, walletManager),
+            ).toResolve();
+
+            expect(multiSigWallet.hasMultiSignature()).toBeFalse();
+
+            await handler.apply(multSigRegistration, walletManager);
+
+            expect(multiSigWallet.hasMultiSignature()).toBeTrue();
+
+            multiSigWallet.balance = Utils.BigNumber.make(1e8 * 100);
+
+            const transferBuilder = Transactions.BuilderFactory.transfer()
+                .recipientId(multiSigWallet.address)
+                .nonce("1")
+                .amount("100")
+                .senderPublicKey(multiSigWallet.publicKey);
+
+            // Different valid signatures of same payload and private key
+            const signatures = [
+                "774b430573285f09bd8e61bf04582b06ef55ee0e454cd0f86b396c47ea1269f514748e8fb2315f2f0ce4bb81777ae673d8cab44a54a773f3c20cb0c754fd67ed",
+                "dfb75f880769c3ae27640e1214a7ece017ddd684980e2276c908fe7806c1d6e8ceac47bb53004d84bdac22cdcb482445c056256a6cd417c5dc973d8266164ec0",
+                "64233bb62b694eb0004e1d5d497b0b0e6d977b3a0e2403a9abf59502aef65c36c6e0eed599d314d4f55a03fc0dc48f0c9c9fd4bfab65e5ac8fe2a5c5ac3ed2ae",
+            ];
+
+            // All verify with participants[0]
+            transferBuilder.data.signatures = [];
+            for (const signature of signatures) {
+                transferBuilder.data.signatures.push(`${Utils.numberToHex(0)}${signature}`);
+            }
+
+            expect(() => transferBuilder.build()).toThrow(Errors.DuplicateParticipantInMultiSignatureError);
+            expect(() => multiSigWallet.verifySignatures(transferBuilder.getStruct())).toThrow(
+                Errors.DuplicateParticipantInMultiSignatureError,
             );
         });
 
