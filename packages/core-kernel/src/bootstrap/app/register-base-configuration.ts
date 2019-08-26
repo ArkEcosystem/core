@@ -1,4 +1,4 @@
-import { JsonObject } from "type-fest";
+import { JsonObject } from "../../types";
 import { ConfigManager, ConfigRepository } from "../../services/config";
 import { IApplication } from "../../contracts/kernel";
 import { IBootstrapper } from "../interfaces";

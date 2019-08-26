@@ -17,7 +17,7 @@ export class CacheManager extends AbstractManager<ICacheStore> {
      * @memberof CacheManager
      */
     public async createMemoryDriver(): Promise<ICacheStore> {
-        return this.app.ioc.get<ICacheStore>(Memory).make();
+        return this.app.ioc.resolve<ICacheStore>(Memory).make();
     }
 
     /**

@@ -76,7 +76,7 @@ export class Application implements IApplication {
      * @memberof Application
      */
     public async reboot(): Promise<void> {
-        await this.terminate();
+        await this.disposeServiceProviders();
 
         await this.boot();
     }

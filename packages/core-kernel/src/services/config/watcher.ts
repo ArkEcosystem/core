@@ -1,6 +1,6 @@
 import nsfw from "nsfw";
 import { IApplication } from "../../contracts/kernel";
-import { inject } from "../../ioc";
+import { inject, injectable } from "../../ioc";
 
 /**
  * @interface IFileEvent
@@ -29,6 +29,7 @@ interface IFileEvent {
  * @export
  * @class Watcher
  */
+@injectable()
 export class Watcher {
     /**
      * The application instance.
@@ -37,24 +38,15 @@ export class Watcher {
      * @type {IApplication}
      * @memberof AbstractManager
      */
+    @inject("app")
     private readonly app: IApplication;
-
-    /**
-     * Creates an instance of Watcher.
-     *
-     * @param {{ app: IApplication }} { app }
-     * @memberof Watcher
-     */
-    public constructor(@inject("app") app: IApplication) {
-        this.app = app;
-    }
 
     /**
      * @returns {Promise<void>}
      * @memberof Watcher
      */
     public async watch(): Promise<void> {
-        const configFiles = [".env", "config.yml"];
+        const configFiles: string[] = [".env", "delegates.json", "packages.js", "peers.json"];
 
         const watcher = await nsfw(this.app.configPath(), (events: IFileEvent[]) => {
             for (const event of events) {
