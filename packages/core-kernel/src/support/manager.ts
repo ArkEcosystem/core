@@ -1,7 +1,7 @@
 import { toStudlyCaps } from "strman";
 import { Kernel } from "../contracts";
 import { DriverCannotBeResolved } from "../exceptions/container";
-import { injectable, inject } from "../ioc";
+import { injectable, inject } from "../container";
 import { IApplication } from "../contracts/kernel";
 
 /**

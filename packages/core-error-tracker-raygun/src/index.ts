@@ -1,7 +1,7 @@
-import { Support } from "@arkecosystem/core-kernel";
+import { Providers } from "@arkecosystem/core-kernel";
 import raygun from "raygun";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.ioc
             .bind("errorTracker")

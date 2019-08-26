@@ -1,7 +1,7 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Providers } from "@arkecosystem/core-kernel";
 import { ForgerManager } from "./manager";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         const forgerManager: ForgerManager = new ForgerManager(this.config().all());
 

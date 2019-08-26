@@ -1,8 +1,8 @@
 import { validate } from "@hapi/joi";
 import { ValidationErrorItem } from "@hapi/joi";
-import { JsonObject } from "type-fest";
+import { JsonObject } from "../../../types";
 import { IValidator } from "../../../contracts/kernel/validation";
-import { injectable } from "../../../ioc";
+import { injectable } from "../../../container";
 
 /**
  * @export

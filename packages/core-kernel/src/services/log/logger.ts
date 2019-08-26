@@ -1,6 +1,6 @@
 import isEmpty from "lodash.isempty";
 import { inspect } from "util";
-import { injectable } from "../../ioc";
+import { injectable } from "../../container";
 
 /**
  * @export

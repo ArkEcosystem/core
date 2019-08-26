@@ -1,7 +1,7 @@
 import { IConfigLoader } from "../../contracts/kernel/config";
 import { AbstractManager } from "../../support/manager";
 import { Local, Remote } from "./drivers";
-import { injectable } from "../../ioc";
+import { injectable } from "../../container";
 
 /**
  * @export

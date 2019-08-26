@@ -1,7 +1,7 @@
-import { Contracts, IoC } from "@arkecosystem/core-kernel";
+import { Contracts, Container } from "@arkecosystem/core-kernel";
 import { ConnectionFactory } from "./factory";
 
-@IoC.injectable()
+@Container.injectable()
 export class ConnectionManager {
     private readonly factory: ConnectionFactory = new ConnectionFactory();
     private readonly connections: Map<string, Contracts.Database.IConnection> = new Map<

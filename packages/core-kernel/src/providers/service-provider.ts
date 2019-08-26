@@ -1,8 +1,8 @@
-import { JsonObject } from "type-fest";
+import { JsonObject } from "../types";
 import { Kernel } from "../contracts";
 import { PackageConfiguration } from "./package-configuration";
 import { PackageManifest } from "./package-manifest";
-import { inject, injectable } from "../ioc";
+import { inject, injectable } from "../container";
 import { IApplication } from "../contracts/kernel";
 
 /**
@@ -25,10 +25,10 @@ export abstract class AbstractServiceProvider {
      * The application container.
      *
      * @protected
-     * @type {Kernel.IoC.Container}
+     * @type {Kernel.Container.Container}
      * @memberof Manager
      */
-    protected readonly ioc: Kernel.IoC.Container;
+    protected readonly ioc: Kernel.Container.Container;
 
     /**
      * The application instance.

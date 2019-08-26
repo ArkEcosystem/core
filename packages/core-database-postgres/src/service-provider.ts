@@ -1,9 +1,9 @@
 import { ConnectionManager, databaseServiceFactory } from "@arkecosystem/core-database";
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { PostgresConnection } from "./postgres-connection";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Establishing Database Connection");
 

@@ -1,4 +1,4 @@
-import { AbstractServiceProvider } from "../../support";
+import { AbstractServiceProvider } from "../../providers";
 import { Actions } from "./actions";
 
 export class ServiceProvider extends AbstractServiceProvider {

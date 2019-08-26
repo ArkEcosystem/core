@@ -1,7 +1,7 @@
 import { ConfigManager, ConfigRepository } from "../../services/config";
 import { IApplication } from "../../contracts/kernel";
 import { IBootstrapper } from "../interfaces";
-import { injectable, inject } from "../../ioc";
+import { injectable, inject } from "../../container";
 
 /**
  * @export

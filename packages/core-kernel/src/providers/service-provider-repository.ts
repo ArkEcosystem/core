@@ -1,5 +1,5 @@
-import { AbstractServiceProvider } from "../support";
-import { injectable } from "../ioc";
+import { AbstractServiceProvider } from "./service-provider";
+import { injectable } from "../container";
 
 /**
  * @export

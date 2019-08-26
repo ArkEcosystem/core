@@ -1,9 +1,9 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Providers } from "@arkecosystem/core-kernel";
 import history from "connect-history-api-fallback";
 import express, { Handler } from "express";
 import { existsSync } from "fs";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         const distPath: string = this.config().get("path");
 

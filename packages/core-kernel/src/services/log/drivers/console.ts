@@ -1,6 +1,6 @@
 import { ILogger } from "../../../contracts/kernel/log";
 import { AbstractLogger } from "../logger";
-import { injectable } from "../../../ioc";
+import { injectable } from "../../../container";
 
 /**
  * @export

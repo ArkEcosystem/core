@@ -13,7 +13,7 @@ import {
 } from "fs-extra";
 import { resolve } from "path";
 import { IFilesystem } from "../../../contracts/kernel/filesystem";
-import { injectable } from "../../../ioc";
+import { injectable } from "../../../container";
 
 /**
  * @export

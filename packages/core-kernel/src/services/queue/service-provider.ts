@@ -1,10 +1,8 @@
-import { AbstractServiceProvider } from "../../support";
+import { AbstractServiceProvider } from "../../providers";
 import { QueueManager } from "./manager";
 
 export class ServiceProvider extends AbstractServiceProvider {
     /**
-     * Register the service provider.
-     *
      * @returns {Promise<void>}
      * @memberof ServiceProvider
      */

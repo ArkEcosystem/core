@@ -1,5 +1,5 @@
 import { get, set } from "dottie";
-import { JsonObject } from "type-fest";
+import { JsonObject } from "../../types";
 
 /**
  * @export

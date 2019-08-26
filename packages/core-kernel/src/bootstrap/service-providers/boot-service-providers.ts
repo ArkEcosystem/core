@@ -1,9 +1,9 @@
 import { Events } from "../../enums";
 import { ServiceProviderCannotBeBooted } from "../../exceptions/packages";
-import { ServiceProviderRepository } from "../../support";
+import { ServiceProviderRepository } from "../../providers";
 import { IBootstrapper } from "../interfaces";
 import { IApplication } from "../../contracts/kernel";
-import { injectable, inject } from "../../ioc";
+import { injectable, inject } from "../../container";
 
 /**
  * @export

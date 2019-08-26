@@ -1,7 +1,7 @@
 import { Actions, Cache, Filesystem, Log, Queue, Validation } from "../../services";
 import { IApplication } from "../../contracts/kernel";
 import { IBootstrapper } from "../interfaces";
-import { injectable, inject } from "../../ioc";
+import { injectable, inject } from "../../container";
 
 /**
  * @export

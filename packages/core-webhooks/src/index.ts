@@ -1,9 +1,9 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Providers } from "@arkecosystem/core-kernel";
 import { database } from "./database";
 import { startListeners } from "./listener";
 import { startServer } from "./server";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         if (!this.config().get("enabled")) {
             this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Webhooks are disabled");

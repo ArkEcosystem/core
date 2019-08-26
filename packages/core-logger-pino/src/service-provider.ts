@@ -1,7 +1,7 @@
-import { Services, Support } from "@arkecosystem/core-kernel";
+import { Services, Providers } from "@arkecosystem/core-kernel";
 import { PinoLogger } from "./driver";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         const logManager: Services.Log.LogManager = this.ioc.get<Services.Log.LogManager>("logManager");
         await logManager.extend("pino", async () => new PinoLogger(this.config().all()).make());

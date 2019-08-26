@@ -1,4 +1,4 @@
-import { JsonObject } from "type-fest";
+import { JsonObject } from "../../types";
 import { Exception } from "../../exceptions/base";
 import { IBlockchain } from "../blockchain";
 import { IDatabaseService } from "../database";
@@ -7,13 +7,13 @@ import { IConnection } from "../transaction-pool";
 import { IEventDispatcher } from "./events";
 import { IFilesystem } from "./filesystem";
 import { ILogger } from "./log";
-import { interfaces as IoC } from "inversify";
+import { Container } from "./container";
 
 export interface IApplication {
     /**
      * Get an instance of the application container.
      */
-    readonly ioc: IoC.Container;
+    readonly ioc: Container.Container;
 
     /**
      * Get an instance of the application logger.

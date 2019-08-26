@@ -1,9 +1,9 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Blockchain } from "./blockchain";
 import { blockchainMachine } from "./machines/blockchain";
 import { ReplayBlockchain } from "./replay";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         const blockchain: Blockchain = this.config().get("replay")
             ? new ReplayBlockchain()

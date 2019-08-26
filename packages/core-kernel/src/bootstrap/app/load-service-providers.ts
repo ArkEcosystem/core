@@ -1,10 +1,13 @@
-import { JsonObject } from "type-fest";
-import { AbstractServiceProvider, ServiceProviderRepository } from "../../support";
-import { PackageConfiguration } from "../../support/package-configuration";
-import { PackageManifest } from "../../support/package-manifest";
+import { JsonObject } from "../../types";
+import {
+    AbstractServiceProvider,
+    ServiceProviderRepository,
+    PackageConfiguration,
+    PackageManifest,
+} from "../../providers";
 import { IApplication } from "../../contracts/kernel";
 import { IBootstrapper } from "../interfaces";
-import { injectable, inject } from "../../ioc";
+import { injectable, inject } from "../../container";
 
 /**
  * @export

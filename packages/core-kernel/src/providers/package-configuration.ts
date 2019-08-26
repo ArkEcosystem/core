@@ -1,7 +1,7 @@
 import { get, set } from "dottie";
 import { Kernel } from "../contracts";
 import { JsonObject } from "../types";
-import { inject, injectable } from "../ioc";
+import { inject, injectable } from "../container";
 
 /**
  * @export

@@ -1,14 +1,14 @@
 import cosmiconfig from "cosmiconfig";
 import { set } from "dottie";
 import { parseFileSync } from "envfile";
-import { JsonObject } from "type-fest";
+import { JsonObject } from "../../../types";
 import { IApplication } from "../../../contracts/kernel";
 import { IConfigLoader } from "../../../contracts/kernel/config";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
-import { injectable, inject } from "../../../ioc";
+import { injectable, inject } from "../../../container";
 
 /**
  * @export

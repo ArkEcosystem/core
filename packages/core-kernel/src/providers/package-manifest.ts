@@ -1,6 +1,6 @@
 import { get } from "dottie";
-import { PackageJson } from "type-fest";
-import { injectable } from "../ioc";
+import { PackageJson } from "../types";
+import { injectable } from "../container";
 
 /**
  * @export

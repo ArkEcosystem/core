@@ -1,12 +1,12 @@
 import { Constructor } from "awilix";
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import { join } from "path";
-import { JsonObject } from "type-fest";
+import { JsonObject } from "./types";
 import * as Bootstrappers from "./bootstrap";
 import * as Contracts from "./contracts";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { EventDispatcher } from "./services/events";
-import { AbstractServiceProvider, ServiceProviderRepository } from "./support";
+import { AbstractServiceProvider, ServiceProviderRepository } from "./providers";
 import { EventListener } from "./types/events";
 // import { ShutdownSignal } from "./enums/process";
 import { IApplication } from "./contracts/kernel";
@@ -30,10 +30,10 @@ export class Application implements IApplication {
     /**
      * Creates an instance of Application.
      *
-     * @param {Contracts.Kernel.IoC.Container} container
+     * @param {Contracts.Kernel.Container.Container} container
      * @memberof Application
      */
-    public constructor(private readonly container: Contracts.Kernel.IoC.Container) {
+    public constructor(private readonly container: Contracts.Kernel.Container.Container) {
         // this.listenToShutdownSignals();
 
         // this.container.bind<IApplication>(Application).toSelf();
@@ -341,10 +341,10 @@ export class Application implements IApplication {
      * @todo remove after initial migration
      *
      * @readonly
-     * @type {Contracts.Kernel.IoC.Container}
+     * @type {Contracts.Kernel.Container.Container}
      * @memberof Application
      */
-    public get ioc(): Contracts.Kernel.IoC.Container {
+    public get ioc(): Contracts.Kernel.Container.Container {
         return this.container;
     }
 

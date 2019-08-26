@@ -1,6 +1,6 @@
 import { IApplication } from "../../../contracts/kernel";
 import { IConfigLoader } from "../../../contracts/kernel/config";
-import { inject } from "../../../ioc";
+import { inject } from "../../../container";
 
 /**
  * @export

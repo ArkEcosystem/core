@@ -9,12 +9,10 @@ import {
 } from "../../exceptions/packages";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
-import { ServiceProviderRepository } from "../../support";
-import { PackageConfiguration } from "../../support/package-configuration";
-import { AbstractServiceProvider } from "../../support/service-provider";
+import { AbstractServiceProvider, ServiceProviderRepository, PackageConfiguration } from "../../providers";
 import { IApplication } from "../../contracts/kernel";
 import { IBootstrapper } from "../interfaces";
-import { injectable, inject } from "../../ioc";
+import { injectable, inject } from "../../container";
 
 /**
  * @export

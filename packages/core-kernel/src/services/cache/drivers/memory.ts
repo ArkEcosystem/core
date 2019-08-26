@@ -1,6 +1,6 @@
 import { ICacheStore } from "../../../contracts/kernel/cache";
 import { NotImplemented } from "../../../exceptions/runtime";
-import { injectable } from "../../../ioc";
+import { injectable } from "../../../container";
 
 /**
  * @export

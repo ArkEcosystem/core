@@ -1,10 +1,10 @@
-import { Support } from "@arkecosystem/core-kernel";
+import { Providers } from "@arkecosystem/core-kernel";
 import { StateService } from "./service";
 import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.ioc.bind("state").toConstantValue(
             new StateService({

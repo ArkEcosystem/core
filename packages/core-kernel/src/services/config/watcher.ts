@@ -1,6 +1,6 @@
 import nsfw from "nsfw";
 import { IApplication } from "../../contracts/kernel";
-import { inject, injectable } from "../../ioc";
+import { inject, injectable } from "../../container";
 
 /**
  * @interface IFileEvent

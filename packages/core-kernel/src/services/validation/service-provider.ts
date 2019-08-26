@@ -1,4 +1,4 @@
-import { AbstractServiceProvider } from "../../support";
+import { AbstractServiceProvider } from "../../providers";
 import { ValidationManager } from "./manager";
 
 export class ServiceProvider extends AbstractServiceProvider {

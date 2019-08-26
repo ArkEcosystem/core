@@ -1,4 +1,4 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Providers } from "@arkecosystem/core-kernel";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
 import { PeerCommunicator } from "./peer-communicator";
@@ -8,7 +8,7 @@ import { PeerService } from "./peer-service";
 import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.ioc.bind("p2p.options").toConstantValue(this.config().all());
 

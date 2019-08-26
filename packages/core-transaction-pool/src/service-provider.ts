@@ -1,11 +1,11 @@
-import { Contracts, Support } from "@arkecosystem/core-kernel";
+import { Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Connection } from "./connection";
 import { ConnectionManager } from "./manager";
 import { Memory } from "./memory";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
-export class ServiceProvider extends Support.AbstractServiceProvider {
+export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Connecting to transaction pool");
 
