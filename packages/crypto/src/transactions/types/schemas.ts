@@ -166,6 +166,7 @@ export const multiSignature = extend(transactionBaseSchema, {
                             minItems: 1,
                             maxItems: 16,
                             additionalItems: false,
+                            uniqueItems: true,
                             items: { $ref: "publicKey" },
                         },
                     },

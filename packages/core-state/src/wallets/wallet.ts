@@ -1,6 +1,14 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import {
+    Crypto,
+    Enums,
+    Errors as CryptoErrors,
+    Identities,
+    Interfaces,
+    Transactions,
+    Utils,
+} from "@arkecosystem/crypto";
 import assert from "assert";
 import dottie from "dottie";
 
@@ -122,11 +130,19 @@ export class Wallet implements State.IWallet {
             excludeMultiSignature: true,
         });
 
+        const publicKeyIndexes: { [index: number]: boolean } = {};
         let verified: boolean = false;
         let verifiedSignatures: number = 0;
         for (let i = 0; i < signatures.length; i++) {
             const signature: string = signatures[i];
             const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
+
+            if (!publicKeyIndexes[publicKeyIndex]) {
+                publicKeyIndexes[publicKeyIndex] = true;
+            } else {
+                throw new CryptoErrors.DuplicateParticipantInMultiSignatureError();
+            }
+
             const partialSignature: string = signature.slice(2, 130);
             const publicKey: string = publicKeys[publicKeyIndex];
 

@@ -1,6 +1,10 @@
 import ByteBuffer from "bytebuffer";
 import { TransactionType, TransactionTypeGroup } from "../enums";
-import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
+import {
+    DuplicateParticipantInMultiSignatureError,
+    MalformedTransactionBytesError,
+    TransactionVersionError,
+} from "../errors";
 import { Address } from "../identities";
 import { IDeserializeOptions, ITransaction, ITransactionData } from "../interfaces";
 import { BigNumber, isSupportedTansactionVersion } from "../utils";
@@ -147,9 +151,18 @@ class Deserializer {
             if (buf.remaining() % 65 === 0) {
                 transaction.signatures = [];
 
-                const count = buf.remaining() / 65;
+                const count: number = buf.remaining() / 65;
+                const publicKeyIndexes: { [index: number]: boolean } = {};
                 for (let i = 0; i < count; i++) {
-                    const multiSignaturePart = buf.readBytes(65).toString("hex");
+                    const multiSignaturePart: string = buf.readBytes(65).toString("hex");
+                    const publicKeyIndex: number = parseInt(multiSignaturePart.slice(0, 2), 16);
+
+                    if (!publicKeyIndexes[publicKeyIndex]) {
+                        publicKeyIndexes[publicKeyIndex] = true;
+                    } else {
+                        throw new DuplicateParticipantInMultiSignatureError();
+                    }
+
                     transaction.signatures.push(multiSignaturePart);
                 }
             } else {
