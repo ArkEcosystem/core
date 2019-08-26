@@ -10,9 +10,9 @@ import { startSocketServer } from "./socket-server";
 
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.ioc.bind("p2p.options").toConstantValue(this.config().all());
+        this.app.bind("p2p.options").toConstantValue(this.config().all());
 
-        this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Starting P2P Interface");
+        this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Starting P2P Interface");
 
         const service: Contracts.P2P.IPeerService = this.makePeerService(this.config().all());
 
@@ -23,13 +23,13 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
             service.getMonitor().setServer(await startSocketServer(service, this.config().all()));
         }
 
-        this.ioc.bind("p2p").toConstantValue(service);
+        this.app.bind("p2p").toConstantValue(service);
     }
 
     public async dispose(): Promise<void> {
-        this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping P2P Interface");
+        this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping P2P Interface");
 
-        this.ioc
+        this.app
             .get<Contracts.P2P.IPeerService>("p2p")
             .getMonitor()
             .stopServer();

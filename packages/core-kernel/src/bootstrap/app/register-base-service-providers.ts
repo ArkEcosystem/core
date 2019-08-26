@@ -26,18 +26,18 @@ export class RegisterBaseServiceProviders implements IBootstrapper {
      * @memberof RegisterBaseServiceProviders
      */
     public async bootstrap(): Promise<void> {
-        await this.app.ioc.resolve(Actions.ServiceProvider).register();
+        await this.app.resolve(Actions.ServiceProvider).register();
 
-        await this.app.ioc.resolve(Log.ServiceProvider).register();
+        await this.app.resolve(Log.ServiceProvider).register();
 
-        await this.app.ioc.resolve(Filesystem.ServiceProvider).register();
+        await this.app.resolve(Filesystem.ServiceProvider).register();
 
-        await this.app.ioc.resolve(Cache.ServiceProvider).register();
+        await this.app.resolve(Cache.ServiceProvider).register();
 
-        await this.app.ioc.resolve(Queue.ServiceProvider).register();
+        await this.app.resolve(Queue.ServiceProvider).register();
 
-        await this.app.ioc.resolve(Validation.ServiceProvider).register();
+        await this.app.resolve(Validation.ServiceProvider).register();
 
-        await this.app.ioc.resolve(Schedule.ServiceProvider).register();
+        await this.app.resolve(Schedule.ServiceProvider).register();
     }
 }

@@ -22,7 +22,7 @@ export class Schedule {
      * @memberof Schedule
      */
     public cron(): CronJob {
-        return this.app.ioc.resolve<CronJob>(CronJob);
+        return this.app.resolve<CronJob>(CronJob);
     }
 
     /**
@@ -30,6 +30,6 @@ export class Schedule {
      * @memberof Schedule
      */
     public block(): BlockJob {
-        return this.app.ioc.resolve<BlockJob>(BlockJob);
+        return this.app.resolve<BlockJob>(BlockJob);
     }
 }

@@ -4,7 +4,7 @@ import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements Contracts.P2P.IPeer {
     public readonly ports: Contracts.P2P.IPeerPorts = {};
-    public readonly port: number = +app.ioc.get<any>("p2p.options").server.port;
+    public readonly port: number = +app.get<any>("p2p.options").server.port;
 
     public version: string;
     public latency: number;

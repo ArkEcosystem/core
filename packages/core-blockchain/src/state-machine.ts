@@ -11,7 +11,7 @@ import { blockchainMachine } from "./machines/blockchain";
 import { Blockchain } from "./blockchain";
 
 const { BlockFactory } = Blocks;
-const emitter = app.ioc.get<Contracts.Kernel.Events.IEventDispatcher>("events");
+const emitter = app.get<Contracts.Kernel.Events.IEventDispatcher>("events");
 
 // defer initialisation to "init" due to this being resolved before the container kicks in
 let logger;
@@ -117,8 +117,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async init() {
-        logger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
-        stateStorage = app.ioc.get<Contracts.State.IStateService>("state").getStore();
+        logger = app.get<Contracts.Kernel.Log.ILogger>("log");
+        stateStorage = app.get<Contracts.State.IStateService>("state").getStore();
         blockchainMachine.state = stateStorage;
 
         try {
@@ -285,7 +285,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     async rollbackDatabase() {
         logger.info("Trying to restore database integrity");
 
-        const { maxBlockRewind, steps } = app.ioc.get<any>("blockchain.options").databaseRollback;
+        const { maxBlockRewind, steps } = app.get<any>("blockchain.options").databaseRollback;
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await blockchain.removeTopBlocks(steps);

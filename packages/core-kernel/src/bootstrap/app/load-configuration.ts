@@ -25,9 +25,9 @@ export class LoadConfiguration implements IBootstrapper {
      * @memberof LoadConfiguration
      */
     public async bootstrap(): Promise<void> {
-        await this.app.ioc
+        await this.app
             .get<ConfigManager>("configManager")
-            .driver(this.app.ioc.get<ConfigRepository>("config").get<string>("configLoader", "local"))
+            .driver(this.app.get<ConfigRepository>("config").get<string>("configLoader", "local"))
             .loadConfiguration();
     }
 }

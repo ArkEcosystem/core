@@ -28,10 +28,10 @@ export class DumpCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.ioc.isBound("snapshots")) {
+        if (!app.isBound("snapshots")) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        await app.ioc.get<SnapshotManager>("snapshots").dump(flags);
+        await app.get<SnapshotManager>("snapshots").dump(flags);
     }
 }

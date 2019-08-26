@@ -36,7 +36,7 @@ export class RegisterServiceProviders implements IBootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const serviceProviders: ServiceProviderRepository = this.app.ioc.get<ServiceProviderRepository>(
+        const serviceProviders: ServiceProviderRepository = this.app.get<ServiceProviderRepository>(
             "serviceProviderRepository",
         );
 
@@ -91,7 +91,7 @@ export class RegisterServiceProviders implements IBootstrapper {
         if (Object.keys(configSchema).length > 0) {
             const config: PackageConfiguration = serviceProvider.config();
 
-            const validator: Kernel.Validation.IValidator = this.app.ioc
+            const validator: Kernel.Validation.IValidator = this.app
                 .get<ValidationManager>("validationManager")
                 .driver();
 
@@ -118,7 +118,7 @@ export class RegisterServiceProviders implements IBootstrapper {
             return true;
         }
 
-        const serviceProviders: ServiceProviderRepository = this.app.ioc.get<ServiceProviderRepository>(
+        const serviceProviders: ServiceProviderRepository = this.app.get<ServiceProviderRepository>(
             "serviceProviderRepository",
         );
 
@@ -172,7 +172,7 @@ export class RegisterServiceProviders implements IBootstrapper {
      * @memberof RegisterServiceProviders
      */
     private shouldBeIncluded(name: string): boolean {
-        const includes: string[] = this.app.ioc.get<ConfigRepository>("config").get<string[]>("include", []);
+        const includes: string[] = this.app.get<ConfigRepository>("config").get<string[]>("include", []);
 
         return includes.length > 0 ? includes.includes(name) : true;
     }
@@ -184,7 +184,7 @@ export class RegisterServiceProviders implements IBootstrapper {
      * @memberof RegisterServiceProviders
      */
     private shouldBeExcluded(name: string): boolean {
-        const excludes: string[] = this.app.ioc.get<ConfigRepository>("config").get<string[]>("exclude", []);
+        const excludes: string[] = this.app.get<ConfigRepository>("config").get<string[]>("exclude", []);
 
         return excludes.length > 0 ? excludes.includes(name) : false;
     }

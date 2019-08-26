@@ -3,6 +3,6 @@ import newrelic from "newrelic";
 
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.ioc.bind("newRelic").toConstantValue(newrelic);
+        this.app.bind("newRelic").toConstantValue(newrelic);
     }
 }

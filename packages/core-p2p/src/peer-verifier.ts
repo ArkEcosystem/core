@@ -20,10 +20,10 @@ export class PeerVerifier {
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
     private static readonly verifiedBlocks = new CappedSet();
-    private readonly database: Contracts.Database.IDatabaseService = app.ioc.get<Contracts.Database.IDatabaseService>(
+    private readonly database: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>(
         "database",
     );
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
     private logPrefix: string;
 
     public constructor(
@@ -118,7 +118,7 @@ export class PeerVerifier {
         }
 
         try {
-            const ownBlock: Interfaces.IBlock = app.ioc
+            const ownBlock: Interfaces.IBlock = app
                 .get<Contracts.State.IStateService>("state")
                 .getStore()
                 .getLastBlocks()
@@ -149,7 +149,7 @@ export class PeerVerifier {
     }
 
     private ourHeight(): number {
-        const height: number = app.ioc
+        const height: number = app
             .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastHeight();

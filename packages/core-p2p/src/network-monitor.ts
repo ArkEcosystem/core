@@ -20,8 +20,8 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing = true;
 
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
         Contracts.Kernel.Events.IEventDispatcher
     >("events");
 
@@ -129,7 +129,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         let max = peers.length;
 
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : app.ioc.get<any>("p2p.options").verifyTimeout;
+        const pingDelay = fast ? 1500 : app.get<any>("p2p.options").verifyTimeout;
 
         if (peerCount) {
             peers = shuffle(peers).slice(0, peerCount);
@@ -232,7 +232,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public async checkNetworkHealth(): Promise<Contracts.P2P.INetworkStatus> {
         await this.cleansePeers({ forcePing: true });
 
-        const lastBlock = app.ioc
+        const lastBlock = app
             .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlock();
@@ -328,7 +328,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     }
 
     public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
-        const blockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
+        const blockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
             this.logger.info(
@@ -373,7 +373,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {
         const peers: Contracts.P2P.IPeer[] = take(
             shuffle(this.storage.getPeers()),
-            app.ioc.get<any>("p2p.options").maxPeersBroadcast,
+            app.get<any>("p2p.options").maxPeersBroadcast,
         );
 
         this.logger.debug(
@@ -455,7 +455,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
             return true;
         }
 
-        return Object.keys(this.storage.getPeers()).length >= app.ioc.get<any>("p2p.options").minimumNetworkReach;
+        return Object.keys(this.storage.getPeers()).length >= app.get<any>("p2p.options").minimumNetworkReach;
     }
 
     private async populateSeedPeers(): Promise<any> {

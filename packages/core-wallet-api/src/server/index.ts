@@ -26,16 +26,16 @@ export const startServer = async config => {
 
     server.route([{ method: "GET", path: "/config", ...handlers.config }]);
 
-    if (app.ioc.isBound("api")) {
+    if (app.isBound("api")) {
         await server.register({
             plugin: require("hapi-rate-limit"),
-            options: app.ioc.get<any>("api.options").rateLimit,
+            options: app.get<any>("api.options").rateLimit,
         });
 
         await server.register({
             plugin: plugins.whitelist,
             options: {
-                whitelist: app.ioc.get<any>("api.options").whitelist,
+                whitelist: app.get<any>("api.options").whitelist,
             },
         });
 
@@ -45,8 +45,8 @@ export const startServer = async config => {
             handler: {
                 proxy: {
                     protocol: "http",
-                    host: app.ioc.get<any>("api.options").host,
-                    port: app.ioc.get<any>("api.options").port,
+                    host: app.get<any>("api.options").host,
+                    port: app.get<any>("api.options").port,
                     passThrough: true,
                 },
             },

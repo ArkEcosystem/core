@@ -360,12 +360,12 @@ export class Application implements IApplication {
     }
 
     /**
-            * @todo remove after initial migration
-
-            * @readonly
-            * @type {Contracts.Kernel.Events.IEventDispatcher}
-            * @memberof Application
-            */
+     * @todo remove after initial migration
+     *
+     * @readonly
+     * @type {Contracts.Kernel.Events.IEventDispatcher}
+     * @memberof Application
+     */
     public get events(): Contracts.Kernel.Events.IEventDispatcher {
         return this.container.get<Contracts.Kernel.Events.IEventDispatcher>("events");
     }
@@ -426,22 +426,55 @@ export class Application implements IApplication {
     }
 
     /**
-     * Run the given type of bootstrap classes.
-     *
-     * @param {string} type
-     * @returns {Promise<void>}
+     * @template T
+     * @param {Contracts.Kernel.Container.ServiceIdentifier<T>} serviceIdentifier
+     * @returns {Contracts.Kernel.Container.BindingToSyntax<T>}
      * @memberof Application
      */
-    public async bootstrapWith(type: string): Promise<void> {
-        const bootstrappers: Array<Constructor<IBootstrapper>> = Object.values(Bootstrappers[type]);
+    public bind<T>(
+        serviceIdentifier: Contracts.Kernel.Container.ServiceIdentifier<T>,
+    ): Contracts.Kernel.Container.BindingToSyntax<T> {
+        return this.container.bind(serviceIdentifier);
+    }
 
-        for (const bootstrapper of bootstrappers) {
-            this.events.dispatch(`bootstrapping:${bootstrapper.name}`, this);
+    /**
+     * @template T
+     * @param {Contracts.Kernel.Container.ServiceIdentifier<T>} serviceIdentifier
+     * @returns {void}
+     * @memberof Application
+     */
+    public unbind<T>(serviceIdentifier: Contracts.Kernel.Container.ServiceIdentifier<T>): void {
+        return this.container.unbind(serviceIdentifier);
+    }
 
-            await this.container.resolve<IBootstrapper>(bootstrapper).bootstrap();
+    /**
+     * @template T
+     * @param {Contracts.Kernel.Container.ServiceIdentifier<T>} serviceIdentifier
+     * @returns {T}
+     * @memberof Application
+     */
+    public get<T>(serviceIdentifier: Contracts.Kernel.Container.ServiceIdentifier<T>): T {
+        return this.container.get(serviceIdentifier);
+    }
 
-            this.events.dispatch(`bootstrapped:${bootstrapper.name}`, this);
-        }
+    /**
+     * @template T
+     * @param {Contracts.Kernel.Container.ServiceIdentifier<T>} serviceIdentifier
+     * @returns {boolean}
+     * @memberof Application
+     */
+    public isBound<T>(serviceIdentifier: Contracts.Kernel.Container.ServiceIdentifier<T>): boolean {
+        return this.container.isBound(serviceIdentifier);
+    }
+
+    /**
+     * @template T
+     * @param {Contracts.Kernel.Container.Newable<T>} constructorFunction
+     * @returns {T}
+     * @memberof Application
+     */
+    public resolve<T>(constructorFunction: Contracts.Kernel.Container.Newable<T>): T {
+        return this.container.resolve(constructorFunction);
     }
 
     /**
@@ -464,6 +497,25 @@ export class Application implements IApplication {
      */
     public afterBootstrapping(bootstrapper: string, listener: EventListener) {
         this.events.listen(`bootstrapped:${bootstrapper}`, listener);
+    }
+
+    /**
+     * Run the given type of bootstrap classes.
+     *
+     * @param {string} type
+     * @returns {Promise<void>}
+     * @memberof Application
+     */
+    private async bootstrapWith(type: string): Promise<void> {
+        const bootstrappers: Array<Constructor<IBootstrapper>> = Object.values(Bootstrappers[type]);
+
+        for (const bootstrapper of bootstrappers) {
+            this.events.dispatch(`bootstrapping:${bootstrapper.name}`, this);
+
+            await this.container.resolve<IBootstrapper>(bootstrapper).bootstrap();
+
+            this.events.dispatch(`bootstrapped:${bootstrapper.name}`, this);
+        }
     }
 
     /**

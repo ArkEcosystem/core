@@ -9,11 +9,11 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app.ioc
+        this.app
             .bind<CacheManager>("cacheManager")
             .to(CacheManager)
             .inSingletonScope();
 
-        await this.app.ioc.get<CacheManager>("cacheManager").boot();
+        await this.app.get<CacheManager>("cacheManager").boot();
     }
 }

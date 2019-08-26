@@ -70,7 +70,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
     }
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
-        const { added, notAdded }: ITransactionsCached = app.ioc
+        const { added, notAdded }: ITransactionsCached = app
             .get<Contracts.State.IStateService>("state")
             .getStore()
             .cacheTransactions(transactions);
@@ -85,11 +85,11 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
     }
 
     private async removeForgedTransactions(): Promise<void> {
-        const forgedIdsSet: string[] = await app.ioc
+        const forgedIdsSet: string[] = await app
             .get<Contracts.Database.IDatabaseService>("database")
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.ioc
+        app
             .get<Contracts.State.IStateService>("state")
             .getStore()
             .removeCachedTransactionIds(forgedIdsSet);
@@ -103,7 +103,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
     }
 
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
-        const { maxTransactionBytes } = app.ioc.get<any>("transactionPool.options");
+        const { maxTransactionBytes } = app.get<any>("transactionPool.options");
 
         for (const transaction of transactions) {
             const exists: boolean = await this.pool.has(transaction.id);
@@ -172,7 +172,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
 
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
-        const lastHeight: number = app.ioc
+        const lastHeight: number = app
             .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastHeight();
@@ -250,7 +250,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.ioc
+        app
             .get<Contracts.Kernel.Log.ILogger>("log")
             .info(`Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`);
     }

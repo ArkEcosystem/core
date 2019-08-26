@@ -11,8 +11,8 @@ import { replySchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
 export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
         Contracts.Kernel.Events.IEventDispatcher
     >("events");
 
@@ -159,7 +159,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
                     "Content-Type": "application/json",
                 },
             },
-            app.ioc.get<any>("p2p.options").getBlocksTimeout,
+            app.get<any>("p2p.options").getBlocksTimeout,
         );
 
         if (!peerBlocks) {

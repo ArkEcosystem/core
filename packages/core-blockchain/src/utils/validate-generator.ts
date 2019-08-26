@@ -3,8 +3,8 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
-    const database: Contracts.Database.IDatabaseService = app.ioc.get<Contracts.Database.IDatabaseService>("database");
-    const logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
+    const database: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>("database");
+    const logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
 
     const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
     const delegates: Contracts.State.IWallet[] = await database.getActiveDelegates(roundInfo);

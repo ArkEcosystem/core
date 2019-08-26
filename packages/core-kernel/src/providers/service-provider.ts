@@ -3,7 +3,6 @@ import { Kernel } from "../contracts";
 import { PackageConfiguration } from "./package-configuration";
 import { PackageManifest } from "./package-manifest";
 import { inject, injectable } from "../container";
-import { IApplication } from "../contracts/kernel";
 
 /**
  * @export
@@ -19,16 +18,8 @@ export abstract class AbstractServiceProvider {
      * @type {Kernel.IApplication}
      * @memberof Manager
      */
+    @inject("app")
     protected readonly app: Kernel.IApplication;
-
-    /**
-     * The application container.
-     *
-     * @protected
-     * @type {Kernel.Container.Container}
-     * @memberof Manager
-     */
-    protected readonly ioc: Kernel.Container.Container;
 
     /**
      * The application instance.
@@ -47,17 +38,6 @@ export abstract class AbstractServiceProvider {
      * @memberof PackageManifest
      */
     private packageManifest: PackageManifest;
-
-    /**
-     * Create a new service provider instance.
-     *
-     * @param {{ app:Kernel.IApplication }} { app }
-     * @memberof Manager
-     */
-    public constructor(@inject("app") app: IApplication) {
-        this.app = app;
-        this.ioc = app.ioc;
-    }
 
     /**
      * Register the service provider.

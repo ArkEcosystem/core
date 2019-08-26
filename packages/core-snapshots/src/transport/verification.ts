@@ -13,7 +13,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
         };
 
         if (!isBlockChained()) {
-            app.ioc.get<Contracts.Kernel.Log.ILogger>("log").error(
+            app.get<Contracts.Kernel.Log.ILogger>("log").error(
                 `Blocks are not chained. Current block: ${JSON.stringify(data)}, previous block: ${JSON.stringify(
                     prevData,
                 )}`,
@@ -29,7 +29,7 @@ export const verifyData = (context, data, prevData, verifySignatures) => {
             const signatureVerify = Crypto.Hash.verifyECDSA(hash, data.block_signature, data.generator_public_key);
 
             if (!signatureVerify) {
-                app.ioc.get<Contracts.Kernel.Log.ILogger>("log").error(
+                app.get<Contracts.Kernel.Log.ILogger>("log").error(
                     `Failed to verify signature: ${JSON.stringify(data)}`,
                 );
             }

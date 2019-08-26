@@ -10,11 +10,11 @@ export const transformBlock = (model, transform) => {
         return model;
     }
 
-    const databaseService: Contracts.Database.IDatabaseService = app.ioc.get<Contracts.Database.IDatabaseService>(
+    const databaseService: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>(
         "database",
     );
     const generator: Contracts.State.IWallet = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
-    const lastBlock: Interfaces.IBlock = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock();
+    const lastBlock: Interfaces.IBlock = app.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     model.reward = Utils.BigNumber.make(model.reward);
     model.totalFee = Utils.BigNumber.make(model.totalFee);

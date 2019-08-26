@@ -130,7 +130,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         const lastBlock: Interfaces.IBlock = app
-            .ioc.get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlock();
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
@@ -231,7 +231,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         // todo to improve : not so good to call database from here, would need a better way
-        const databaseService = app.ioc.get<Contracts.Database.IDatabaseService>("database");
+        const databaseService = app.get<Contracts.Database.IDatabaseService>("database");
 
         const lockId = data.asset.claim.lockTransactionId;
         const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);

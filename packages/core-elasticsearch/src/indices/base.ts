@@ -4,11 +4,11 @@ import { client } from "../client";
 import { storage } from "../storage";
 
 export abstract class Index {
-    protected readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
+    protected readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
         Contracts.Kernel.Events.IEventDispatcher
     >("events");
-    protected readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
-    protected readonly database: Contracts.Database.IDatabaseService = app.ioc.get<Contracts.Database.IDatabaseService>(
+    protected readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    protected readonly database: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>(
         "database",
     );
 

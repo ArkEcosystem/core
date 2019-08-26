@@ -32,11 +32,11 @@ export class LoadServiceProviders implements IBootstrapper {
      */
     public async bootstrap(): Promise<void> {
         for (const [name, opts] of Object.entries(this.app.config<JsonObject>("packages"))) {
-            const serviceProvider: AbstractServiceProvider = this.app.ioc.resolve(require(name).ServiceProvider);
-            serviceProvider.setManifest(this.app.ioc.resolve(PackageManifest).discover(name));
+            const serviceProvider: AbstractServiceProvider = this.app.resolve(require(name).ServiceProvider);
+            serviceProvider.setManifest(this.app.resolve(PackageManifest).discover(name));
             serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, opts as JsonObject));
 
-            this.app.ioc.get<ServiceProviderRepository>("serviceProviderRepository").set(name, serviceProvider);
+            this.app.get<ServiceProviderRepository>("serviceProviderRepository").set(name, serviceProvider);
         }
     }
 
@@ -53,13 +53,13 @@ export class LoadServiceProviders implements IBootstrapper {
         const hasDefaults: boolean = Object.keys(serviceProvider.configDefaults()).length > 0;
 
         if (hasDefaults) {
-            return this.app.ioc
+            return this.app
                 .resolve(PackageConfiguration)
                 .from(serviceProvider.name(), serviceProvider.configDefaults())
                 .merge(opts);
         }
 
-        return this.app.ioc
+        return this.app
             .resolve(PackageConfiguration)
             .discover(serviceProvider.name())
             .merge(opts);

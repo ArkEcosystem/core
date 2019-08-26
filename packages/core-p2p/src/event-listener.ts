@@ -1,7 +1,7 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 
 export class EventListener {
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
         Contracts.Kernel.Events.IEventDispatcher
     >("events");
 

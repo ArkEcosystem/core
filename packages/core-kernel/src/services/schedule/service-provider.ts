@@ -12,7 +12,7 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.ioc
+        this.app
             .bind<Schedule>("schedule")
             .to(Schedule)
             .inSingletonScope();

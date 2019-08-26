@@ -23,7 +23,7 @@ export const getCommonBlocks = async ({
     common: Interfaces.IBlockData;
     lastBlockHeight: number;
 }> => {
-    const blockchain: Contracts.Blockchain.IBlockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
+    const blockchain: Contracts.Blockchain.IBlockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
     const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids);
 
     if (!commonBlocks.length) {
@@ -37,7 +37,7 @@ export const getCommonBlocks = async ({
 };
 
 export const getStatus = async (): Promise<IPeerPingResponse> => {
-    const lastBlock: Interfaces.IBlock = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock();
+    const lastBlock: Interfaces.IBlock = app.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock();
 
     return {
         state: {
@@ -51,10 +51,10 @@ export const getStatus = async (): Promise<IPeerPingResponse> => {
 };
 
 export const postBlock = async ({ req }): Promise<void> => {
-    const blockchain: Contracts.Blockchain.IBlockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
+    const blockchain: Contracts.Blockchain.IBlockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
 
     const block: Interfaces.IBlockData = req.data.block;
-    const fromForger: boolean = isWhitelisted(app.ioc.get<any>("p2p.options").remoteAccess, req.headers.remoteAddress);
+    const fromForger: boolean = isWhitelisted(app.get<any>("p2p.options").remoteAccess, req.headers.remoteAddress);
 
     if (!fromForger) {
         if (blockchain.pingBlock(block)) {
@@ -68,7 +68,7 @@ export const postBlock = async ({ req }): Promise<void> => {
         }
     }
 
-    app.ioc
+    app
         .get<Contracts.Kernel.Log.ILogger>("log")
         .info(
             `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
@@ -88,7 +88,7 @@ export const postTransactions = async ({
     service: Contracts.P2P.IPeerService;
     req;
 }): Promise<string[]> => {
-    const processor: Contracts.TransactionPool.IProcessor = app.ioc
+    const processor: Contracts.TransactionPool.IProcessor = app
         .get<Contracts.TransactionPool.IConnection>("transactionPool")
         .makeProcessor();
 
@@ -106,7 +106,7 @@ export const postTransactions = async ({
 };
 
 export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Contracts.Database.IDownloadBlock[]> => {
-    const database: Contracts.Database.IDatabaseService = app.ioc.get<Contracts.Database.IDatabaseService>("database");
+    const database: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>("database");
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
     const reqBlockLimit: number = +req.data.blockLimit || 400;
@@ -120,7 +120,7 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Cont
         blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
     }
 
-    app.ioc
+    app
         .get<Contracts.Kernel.Log.ILogger>("log")
         .info(
             `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(

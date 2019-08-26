@@ -23,7 +23,7 @@ export class VerifyCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.ioc.isBound("snapshots")) {
+        if (!app.isBound("snapshots")) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
@@ -35,6 +35,6 @@ export class VerifyCommand extends BaseCommand {
             }
         }
 
-        await app.ioc.get<SnapshotManager>("snapshots").verify(flags);
+        await app.get<SnapshotManager>("snapshots").verify(flags);
     }
 }

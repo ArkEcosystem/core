@@ -26,9 +26,9 @@ export class LoadEnvironmentVariables implements IBootstrapper {
      * @memberof LoadEnvironmentVariables
      */
     public async bootstrap(): Promise<void> {
-        const configRepository: ConfigRepository = this.app.ioc.get<ConfigRepository>("config");
+        const configRepository: ConfigRepository = this.app.get<ConfigRepository>("config");
 
-        await this.app.ioc
+        await this.app
             .get<Config.ConfigManager>("configManager")
             .driver(configRepository.get<string>("configLoader", "local"))
             .loadEnvironmentVariables();

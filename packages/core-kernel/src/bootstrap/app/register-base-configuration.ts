@@ -27,18 +27,18 @@ export class RegisterBaseConfiguration implements IBootstrapper {
      * @memberof RegisterBaseConfiguration
      */
     public async bootstrap(): Promise<void> {
-        this.app.ioc
+        this.app
             .bind<ConfigManager>("configManager")
             .to(ConfigManager)
             .inSingletonScope();
 
-        await this.app.ioc.get<ConfigManager>("configManager").boot();
+        await this.app.get<ConfigManager>("configManager").boot();
 
-        const config: JsonObject = this.app.ioc.get<JsonObject>("config");
+        const config: JsonObject = this.app.get<JsonObject>("config");
         const configRepository: ConfigRepository = new ConfigRepository(config);
         configRepository.set("options", config.options || {});
 
-        this.app.ioc.unbind("config");
-        this.app.ioc.bind<ConfigRepository>("config").toConstantValue(configRepository);
+        this.app.unbind("config");
+        this.app.bind<ConfigRepository>("config").toConstantValue(configRepository);
     }
 }

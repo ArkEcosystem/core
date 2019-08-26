@@ -6,7 +6,7 @@ import { startServer } from "./server";
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         if (!this.config().get("enabled")) {
-            this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Webhooks are disabled");
+            this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Webhooks are disabled");
             return;
         }
 
@@ -14,15 +14,15 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
 
         startListeners();
 
-        this.ioc.bind("webhooks").toConstantValue(await startServer(this.config().get("server")));
-        this.ioc.bind("webhooks.options").toConstantValue(this.config().all());
+        this.app.bind("webhooks").toConstantValue(await startServer(this.config().get("server")));
+        this.app.bind("webhooks.options").toConstantValue(this.config().all());
     }
 
     public async dispose(): Promise<void> {
         if (this.config().get("enabled")) {
-            this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Webhook API");
+            this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Webhook API");
 
-            await this.ioc.get<any>("webhooks").stop();
+            await this.app.get<any>("webhooks").stop();
         }
     }
 }

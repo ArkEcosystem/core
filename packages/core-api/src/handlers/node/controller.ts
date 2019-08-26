@@ -44,7 +44,7 @@ export class NodeController extends Controller {
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const network = this.config.get("network");
-            const dynamicFees = app.ioc.get<any>("transactionPool.options").dynamicFees;
+            const dynamicFees = app.get<any>("transactionPool.options").dynamicFees;
 
             return {
                 data: {
@@ -81,7 +81,7 @@ export class NodeController extends Controller {
     }
 
     public async fees(request: Hapi.Request) {
-        const { transactionsBusinessRepository } = app.ioc.get<Contracts.Database.IDatabaseService>("database");
+        const { transactionsBusinessRepository } = app.get<Contracts.Database.IDatabaseService>("database");
 
         // @ts-ignore
         const results = await transactionsBusinessRepository.getFeeStatistics(request.query.days);

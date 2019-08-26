@@ -5,7 +5,7 @@ import { Identities, Interfaces } from "@arkecosystem/crypto";
 import clonedeep from "lodash.clonedeep";
 
 export class WalletManager extends Wallets.WalletManager {
-    private readonly databaseService: Contracts.Database.IDatabaseService = app.ioc.get<
+    private readonly databaseService: Contracts.Database.IDatabaseService = app.get<
         Contracts.Database.IDatabaseService
     >("database");
 

@@ -47,11 +47,11 @@ export class RegisterBasePaths implements IBootstrapper {
 
             const binding = `path.${type}`;
 
-            if (this.app.ioc.isBound(binding)) {
-                this.app.ioc.unbind(binding);
+            if (this.app.isBound(binding)) {
+                this.app.unbind(binding);
             }
 
-            this.app.ioc.bind<string>(binding).toConstantValue(path);
+            this.app.bind<string>(binding).toConstantValue(path);
         }
     }
 }

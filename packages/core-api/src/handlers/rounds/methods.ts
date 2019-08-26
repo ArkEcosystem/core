@@ -5,7 +5,7 @@ import { ServerCache } from "../../services";
 import { respondWithCollection } from "../utils";
 
 const delegates = async request => {
-    const databaseService = app.ioc.get<Contracts.Database.IDatabaseService>("database");
+    const databaseService = app.get<Contracts.Database.IDatabaseService>("database");
     const roundsRepository = databaseService.connection.roundsRepository;
 
     const delegates = await roundsRepository.findById(request.params.id);

@@ -7,7 +7,7 @@ export const tickSyncTracker = (blockCount, count): void => {
     if (!tracker) {
         tracker = {
             start: new Date().getTime(),
-            networkHeight: app.ioc
+            networkHeight: app
                 .get<Contracts.P2P.IPeerService>("p2p")
                 .getMonitor()
                 .getNetworkHeight(),
@@ -44,7 +44,7 @@ export const tickSyncTracker = (blockCount, count): void => {
             secondsDecimalDigits: 0,
         });
 
-        app.ioc
+        app
             .get<Contracts.Kernel.Log.ILogger>("log")
             .info(`Synchronising In Progress (${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`);
     }

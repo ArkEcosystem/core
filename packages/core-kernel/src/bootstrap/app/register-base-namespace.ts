@@ -32,7 +32,7 @@ export class RegisterBaseNamespace implements IBootstrapper {
             throw new NetworkCannotBeDetermined();
         }
 
-        this.app.ioc.bind<string>("app.namespace").toConstantValue(`${token}-${network}`);
-        this.app.ioc.bind<string>("app.dirPrefix").toConstantValue(`${token}/${network}`);
+        this.app.bind<string>("app.namespace").toConstantValue(`${token}-${network}`);
+        this.app.bind<string>("app.dirPrefix").toConstantValue(`${token}/${network}`);
     }
 }

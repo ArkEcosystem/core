@@ -9,7 +9,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
             ? new ReplayBlockchain()
             : new Blockchain(this.config().all());
 
-        this.ioc
+        this.app
             .get<Contracts.State.IStateService>("state")
             .getStore()
             .reset(blockchainMachine);
@@ -18,12 +18,12 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
             await blockchain.start();
         }
 
-        this.ioc.bind("blockchain").toConstantValue(blockchain);
-        this.ioc.bind("blockchain.options").toConstantValue(this.config().all());
+        this.app.bind("blockchain").toConstantValue(blockchain);
+        this.app.bind("blockchain.options").toConstantValue(this.config().all());
     }
 
     public async dispose(): Promise<void> {
-        await this.ioc.get<Blockchain>("blockchain").stop();
+        await this.app.get<Blockchain>("blockchain").stop();
     }
 
     public async required(): Promise<boolean> {

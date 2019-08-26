@@ -31,7 +31,7 @@ export const respondWithCollection = (data, transformer, transform = true): obje
 };
 
 export const respondWithCache = (data, h): any => {
-    if (!app.ioc.get<any>("api.options").cache.enabled) {
+    if (!app.get<any>("api.options").cache.enabled) {
         return data;
     }
 

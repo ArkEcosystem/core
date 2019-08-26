@@ -273,7 +273,7 @@ export class Memory {
 
     private currentHeight(): number {
         return app
-            .ioc.get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastHeight();
     }

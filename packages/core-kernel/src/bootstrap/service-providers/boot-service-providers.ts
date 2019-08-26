@@ -27,7 +27,7 @@ export class BootServiceProviders implements IBootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const serviceProviders: ServiceProviderRepository = this.app.ioc.get<ServiceProviderRepository>(
+        const serviceProviders: ServiceProviderRepository = this.app.get<ServiceProviderRepository>(
             "serviceProviderRepository",
         );
 

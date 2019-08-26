@@ -17,7 +17,7 @@ export class ConfigManager extends AbstractManager<IConfigLoader> {
      * @memberof ConfigManager
      */
     public async createLocalDriver(): Promise<IConfigLoader> {
-        return this.app.ioc.resolve(Local);
+        return this.app.resolve(Local);
     }
 
     /**
@@ -27,7 +27,7 @@ export class ConfigManager extends AbstractManager<IConfigLoader> {
      * @memberof ConfigManager
      */
     public async createRemoteDriver(): Promise<IConfigLoader> {
-        return this.app.ioc.resolve(Remote);
+        return this.app.resolve(Remote);
     }
 
     /**

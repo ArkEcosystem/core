@@ -8,8 +8,8 @@ export class PeerProcessor implements Contracts.P2P.IPeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean;
 
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
         Contracts.Kernel.Events.IEventDispatcher
     >("events");
 
@@ -45,7 +45,7 @@ export class PeerProcessor implements Contracts.P2P.IPeerProcessor {
     }
 
     public validatePeerIp(peer, options: Contracts.P2P.IAcceptNewPeerOptions = {}): boolean {
-        if (app.ioc.get<any>("p2p.options").disableDiscovery && !this.storage.hasPendingPeer(peer.ip)) {
+        if (app.get<any>("p2p.options").disableDiscovery && !this.storage.hasPendingPeer(peer.ip)) {
             this.logger.warning(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
         }
@@ -54,18 +54,18 @@ export class PeerProcessor implements Contracts.P2P.IPeerProcessor {
             return false;
         }
 
-        if (!isWhitelisted(app.ioc.get<any>("p2p.options").whitelist, peer.ip)) {
+        if (!isWhitelisted(app.get<any>("p2p.options").whitelist, peer.ip)) {
             return false;
         }
 
         if (
-            this.storage.getSameSubnetPeers(peer.ip).length >= app.ioc.get<any>("p2p.options").maxSameSubnetPeers &&
+            this.storage.getSameSubnetPeers(peer.ip).length >= app.get<any>("p2p.options").maxSameSubnetPeers &&
             !options.seed
         ) {
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.warning(
                     `Rejected ${peer.ip} because we are already at the ${
-                        app.ioc.get<any>("p2p.options").maxSameSubnetPeers
+                        app.get<any>("p2p.options").maxSameSubnetPeers
                     } limit for peers sharing the same /24 subnet.`,
                 );
             }
@@ -96,7 +96,7 @@ export class PeerProcessor implements Contracts.P2P.IPeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            await this.communicator.ping(newPeer, app.ioc.get<any>("p2p.options").verifyTimeout);
+            await this.communicator.ping(newPeer, app.get<any>("p2p.options").verifyTimeout);
 
             this.storage.setPeer(newPeer);
 

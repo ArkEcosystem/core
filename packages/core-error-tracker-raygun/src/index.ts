@@ -3,7 +3,7 @@ import raygun from "raygun";
 
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.ioc
+        this.app
             .bind("errorTracker")
             .toConstantValue(new raygun.Client().init((this.config().all() as unknown) as raygun.raygun.RaygunOptions));
     }

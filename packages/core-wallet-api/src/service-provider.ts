@@ -5,8 +5,8 @@ import { startServer } from "./server";
 
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
-        if (!isWhitelisted(this.ioc.get<any>("api.options").whitelist, ip.address())) {
-            this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Wallet API is disabled");
+        if (!isWhitelisted(this.app.get<any>("api.options").whitelist, ip.address())) {
+            this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Wallet API is disabled");
             return;
         }
 
@@ -15,9 +15,9 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
 
     public async dispose(): Promise<void> {
         try {
-            this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Wallet API");
+            this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Wallet API");
 
-            await this.ioc.get<any>("wallet-api").stop();
+            await this.app.get<any>("wallet-api").stop();
         } catch (error) {
             // do nothing...
         }

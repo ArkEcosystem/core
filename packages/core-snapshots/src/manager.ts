@@ -6,7 +6,7 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 
 import pick from "lodash.pick";
 
-const logger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
+const logger = app.get<Contracts.Kernel.Log.ILogger>("log");
 import { database, Database } from "./db";
 import * as utils from "./utils";
 

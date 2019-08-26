@@ -37,8 +37,8 @@ export const requestSchemas = {
                 transactions: {
                     $ref: "transactions",
                     minItems: 1,
-                    maxItems: app.ioc.isBound("transactionPool")
-                        ? app.ioc.get<any>("transactionPool.options").maxTransactionsPerRequest || 40
+                    maxItems: app.isBound("transactionPool")
+                        ? app.get<any>("transactionPool.options").maxTransactionsPerRequest || 40
                         : 40,
                 },
             },

@@ -127,7 +127,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
-        const lastBlock: Interfaces.IBlock = app.ioc
+        const lastBlock: Interfaces.IBlock = app
             .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlock();
@@ -220,7 +220,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         // todo to improve : not so good to call database from here, would need a better way
-        const databaseService = app.ioc.get<Contracts.Database.IDatabaseService>("database");
+        const databaseService = app.get<Contracts.Database.IDatabaseService>("database");
 
         const lockId = transaction.data.asset.refund.lockTransactionId;
         const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);

@@ -27,9 +27,9 @@ export class LoadCryptography implements IBootstrapper {
     public async bootstrap(): Promise<void> {
         Managers.configManager.setFromPreset(this.app.network() as any);
 
-        this.app.ioc.bind<Interfaces.INetworkConfig>("crypto.network").toConstantValue(Managers.configManager.all());
-        this.app.ioc.bind<string>("crypto.exceptions").toConstantValue(Managers.configManager.get("exceptions"));
-        this.app.ioc.bind<string>("crypto.milestones").toConstantValue(Managers.configManager.get("milestones"));
-        this.app.ioc.bind<string>("crypto.genesisBlock").toConstantValue(Managers.configManager.get("genesisBlock"));
+        this.app.bind<Interfaces.INetworkConfig>("crypto.network").toConstantValue(Managers.configManager.all());
+        this.app.bind<string>("crypto.exceptions").toConstantValue(Managers.configManager.get("exceptions"));
+        this.app.bind<string>("crypto.milestones").toConstantValue(Managers.configManager.get("milestones"));
+        this.app.bind<string>("crypto.genesisBlock").toConstantValue(Managers.configManager.get("genesisBlock"));
     }
 }

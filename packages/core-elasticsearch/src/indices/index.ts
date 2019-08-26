@@ -10,7 +10,7 @@ export const watchIndices = async (chunkSize: number): Promise<void> => {
     for (const Indicer of indicers) {
         const instance = new Indicer(chunkSize);
 
-        app.ioc.get<Contracts.Kernel.Log.ILogger>("log").info(`[ES] Initialising ${instance.constructor.name}`);
+        app.get<Contracts.Kernel.Log.ILogger>("log").info(`[ES] Initialising ${instance.constructor.name}`);
 
         await instance.index();
 

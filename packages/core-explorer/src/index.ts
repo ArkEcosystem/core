@@ -8,7 +8,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
         const distPath: string = this.config().get("path");
 
         if (!existsSync(distPath)) {
-            this.ioc
+            this.app
                 .get<Contracts.Kernel.Log.ILogger>("log")
                 .error(`The ${distPath} directory does not exist. Please build the explorer before using this plugin.`);
             return;
@@ -24,20 +24,20 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
 
         // @ts-ignore
         const server = app.listen(this.config().get("server.port"), this.config().get("server.host"), () => {
-            this.ioc
+            this.app
                 .get<Contracts.Kernel.Log.ILogger>("log")
                 // @ts-ignore
                 .info(`Explorer is listening on http://${server.address().address}:${server.address().port}.`);
         });
 
-        this.ioc.bind("explorer").toConstantValue(server);
+        this.app.bind("explorer").toConstantValue(server);
     }
 
     public async dispose(): Promise<void> {
         try {
-            this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Explorer");
+            this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Explorer");
 
-            await this.ioc.get<any>("explorer").close();
+            await this.app.get<any>("explorer").close();
         } catch (error) {
             // do nothing...
         }

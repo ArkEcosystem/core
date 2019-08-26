@@ -17,10 +17,10 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
 
         await watchIndices(this.config().get("chunkSize"));
 
-        this.ioc.bind("elasticsearch").toConstantValue(await startServer(this.config().get("server")));
+        this.app.bind("elasticsearch").toConstantValue(await startServer(this.config().get("server")));
     }
 
     public async dispose(): Promise<void> {
-        await this.ioc.get<any>("elasticsearch").stop();
+        await this.app.get<any>("elasticsearch").stop();
     }
 }

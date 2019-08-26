@@ -3,7 +3,7 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const transactionsRepository = app.ioc.get<Contracts.Database.IDatabaseService>("database")
+const transactionsRepository = app.get<Contracts.Database.IDatabaseService>("database")
     .transactionsBusinessRepository;
 
 const index = async request => {

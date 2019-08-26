@@ -5,7 +5,7 @@ const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
 
 export const calculateApproval = (delegate: Contracts.State.IWallet, height?: number): number => {
     if (!height) {
-        height = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock().data.height;
+        height = app.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock().data.height;
     }
 
     const constants = Managers.configManager.getMilestone(height);

@@ -19,13 +19,13 @@ export class Connection implements Contracts.TransactionPool.IConnection {
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
-    private readonly databaseService: Contracts.Database.IDatabaseService = app.ioc.get<
+    private readonly databaseService: Contracts.Database.IDatabaseService = app.get<
         Contracts.Database.IDatabaseService
     >("database");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
         Contracts.Kernel.Events.IEventDispatcher
     >("events");
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
 
     constructor({
         options,
@@ -268,7 +268,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
-        app.ioc.get<Contracts.State.IStateService>("state")
+        app.get<Contracts.State.IStateService>("state")
             .getStore()
             .removeCachedTransactionIds(block.transactions.map(tx => tx.id));
     }
@@ -278,7 +278,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
-        app.ioc.get<Contracts.State.IStateService>("state")
+        app.get<Contracts.State.IStateService>("state")
             .getStore()
             .removeCachedTransactionIds(transactionIds);
 

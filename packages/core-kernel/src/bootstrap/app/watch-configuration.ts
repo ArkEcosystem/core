@@ -25,6 +25,6 @@ export class WatchConfiguration implements IBootstrapper {
      * @memberof WatchConfiguration
      */
     public async bootstrap(): Promise<void> {
-        this.app.ioc.resolve<Watcher>(Watcher).watch();
+        this.app.resolve<Watcher>(Watcher).watch();
     }
 }

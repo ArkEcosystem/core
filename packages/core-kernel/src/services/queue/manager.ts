@@ -15,7 +15,7 @@ export class QueueManager extends AbstractManager<IQueue> {
      * @memberof QueueManager
      */
     public async createMemoryDriver(): Promise<IQueue> {
-        return this.app.ioc.resolve<IQueue>(Memory);
+        return this.app.resolve<IQueue>(Memory);
     }
 
     /**

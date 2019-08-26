@@ -199,6 +199,16 @@ export interface IApplication {
      * Terminate the application.
      */
     terminate(reason?: string, error?: Error): Promise<void>;
+
+    bind<T>(serviceIdentifier: Container.ServiceIdentifier<T>): Container.BindingToSyntax<T>;
+
+    unbind<T>(serviceIdentifier: Container.ServiceIdentifier<T>): void;
+
+    get<T>(serviceIdentifier: Container.ServiceIdentifier<T>): T;
+
+    isBound<T>(serviceIdentifier: Container.ServiceIdentifier<T>): boolean;
+
+    resolve<T>(constructorFunction: Container.Newable<T>): T;
 }
 
 /**

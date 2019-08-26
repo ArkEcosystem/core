@@ -9,15 +9,15 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app.ioc
+        this.app
             .bind<LogManager>("logManager")
             .to(LogManager)
             .inSingletonScope();
 
-        const logManager: LogManager = this.app.ioc.get<LogManager>("logManager");
+        const logManager: LogManager = this.app.get<LogManager>("logManager");
         await logManager.boot();
 
         // Note: Ensure that we rebind the logger that is bound to the container so IoC can do it's job.
-        this.app.ioc.bind("log").toConstantValue(logManager.driver());
+        this.app.bind("log").toConstantValue(logManager.driver());
     }
 }

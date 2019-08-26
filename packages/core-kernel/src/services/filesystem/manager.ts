@@ -15,7 +15,7 @@ export class FilesystemManager extends AbstractManager<IFilesystem> {
      * @memberof FilesystemManager
      */
     public async createLocalDriver(): Promise<IFilesystem> {
-        return this.app.ioc.resolve(Local).make();
+        return this.app.resolve(Local).make();
     }
 
     /**
