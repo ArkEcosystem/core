@@ -47,31 +47,22 @@ const updateSenderNonce = (transaction: Interfaces.ITransaction) => {
 };
 
 beforeAll(async () => {
-    try {
-        memory = new Memory(maxTransactionAge);
+    memory = new Memory(maxTransactionAge);
 
-        container.app.resolvePlugin("database").walletManager = new Wallets.WalletManager();
+    container.app.resolvePlugin("database").walletManager = new Wallets.WalletManager();
 
-        connection = new Connection({
-            options: defaults,
-            walletManager: new WalletManager(),
-            memory,
-            storage: new Storage(),
-        });
+    connection = new Connection({
+        options: defaults,
+        walletManager: new WalletManager(),
+        memory,
+        storage: new Storage(),
+    });
 
-        for (const transaction of Object.values(mockData)) {
-            indexWalletWithSufficientBalance(transaction);
-        }
-
-        await connection.make();
-    } catch (ex) {
-        console.log(ex.stack);
-        console.log(ex.stack);
-        console.log(ex.stack);
-        console.log(ex.stack);
-        console.log(ex.stack);
-        setTimeout(() => process.exit(1), 1);
+    for (const transaction of Object.values(mockData)) {
+        indexWalletWithSufficientBalance(transaction);
     }
+
+    await connection.make();
 });
 
 beforeEach(() => connection.flush());

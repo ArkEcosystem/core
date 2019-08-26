@@ -14,9 +14,10 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "businessRegistration",
-            required: ["asset"],
+            required: ["asset", "typeGroup"],
             properties: {
                 type: { transactionType: MarketplaceTransactionType.BusinessRegistration },
+                typeGroup: { const: MarketplaceTransactionGroup },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",

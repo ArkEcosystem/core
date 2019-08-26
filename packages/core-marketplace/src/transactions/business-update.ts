@@ -14,13 +14,15 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "businessUpdate",
-            required: ["asset"],
+            required: ["asset", "typeGroup"],
             properties: {
                 type: { transactionType: MarketplaceTransactionType.BusinessUpdate },
+                typeGroup: { const: MarketplaceTransactionGroup },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",
                     required: ["businessUpdate"],
+                    additionalProperties: false,
                     properties: {
                         businessUpdate: {
                             type: "object",

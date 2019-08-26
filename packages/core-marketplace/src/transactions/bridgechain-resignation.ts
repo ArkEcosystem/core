@@ -16,8 +16,10 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "bridgechainResignation",
+            required: ["asset", "typeGroup"],
             properties: {
                 type: { transactionType: bridgechainResignationType },
+                typeGroup: { const: MarketplaceTransactionGroup },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",

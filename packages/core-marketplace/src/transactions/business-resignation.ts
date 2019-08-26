@@ -12,8 +12,10 @@ export class BusinessResignationTransaction extends Transactions.Transaction {
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "businessResignation",
+            required: ["typeGroup"],
             properties: {
                 type: { transactionType: MarketplaceTransactionType.BusinessResignation },
+                typeGroup: { const: MarketplaceTransactionGroup },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
             },
         });

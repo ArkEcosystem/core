@@ -14,8 +14,10 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "bridgechainUpdate",
+            required: ["asset", "typeGroup"],
             properties: {
                 type: { transactionType: MarketplaceTransactionType.BridgechainUpdate },
+                typeGroup: { const: MarketplaceTransactionGroup },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",
