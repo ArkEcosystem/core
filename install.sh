@@ -201,7 +201,33 @@ success "Installed system updates!"
 
 heading "Installing ARK Core..."
 
-yarn global add @arkecosystem/core
+shopt -s expand_aliases
+alias ark="$HOME/core-bridgechain/packages/core/bin/run"
+echo 'alias test-halissonvit-mlh="$HOME/core-bridgechain/packages/core/bin/run"' >> ~/.bashrc
+
+rm -rf "$HOME/core-bridgechain"
+git clone "git@github.com:halissonvit/core.git" "$HOME/core-bridgechain" || FAILED="Y"
+if [ "$FAILED" == "Y" ]; then
+    echo "Failed to fetch core repo with origin 'git@github.com:halissonvit/core.git'"
+
+    exit 1
+fi
+
+cd "$HOME/core-bridgechain"
+HAS_REMOTE=$(git branch -a | fgrep -o "remotes/origin/chore/bridgechain-changes")
+if [ ! -z "$HAS_REMOTE" ]; then
+    git checkout chore/bridgechain-changes
+fi
+
+YARN_SETUP="N"
+while [ "$YARN_SETUP" == "N" ]; do
+  YARN_SETUP="Y"
+  yarn setup || YARN_SETUP="N"
+done
+rm -rf "$HOME/.config/@test-halissonvit-mlh"
+rm -rf "$HOME/.config/@test-halissonvit-mlh"
+rm -rf "$HOME/.config/test-halissonvit-mlh-core"
+
 echo 'export PATH=$(yarn global bin):$PATH' >> ~/.bashrc
 export PATH=$(yarn global bin):$PATH
 ark config:publish
