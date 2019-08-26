@@ -19,6 +19,7 @@
     "scripts": {
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
+        "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
         "clean": "del dist",
         "compile": "../../node_modules/typescript/bin/tsc",
         "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",

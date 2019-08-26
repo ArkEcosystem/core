@@ -18,6 +18,7 @@
     "scripts": {
         "build": "yarn clean && yarn compile",
         "build:watch": "yarn clean && yarn compile -w",
+        "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
         "clean": "del dist",
         "compile": "../../node_modules/typescript/bin/tsc",
         "prepublishOnly": "yarn build",

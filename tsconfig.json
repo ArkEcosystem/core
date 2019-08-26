@@ -5,7 +5,6 @@
         "emitDecoratorMetadata": true,
         "esModuleInterop": true,
         "experimentalDecorators": true,
-        "incremental": true,
         "lib": ["es2019"],
         "module": "commonjs",
         "moduleResolution": "node",

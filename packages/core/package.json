@@ -23,6 +23,7 @@
         "ark": "./bin/run",
         "build": "yarn clean && yarn compile && yarn copy",
         "build:watch": "yarn clean && yarn copy && yarn compile -w",
+        "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
         "clean": "del dist",
         "compile": "../../node_modules/typescript/bin/tsc",
         "copy": "cd ./src && cpy './config' '../dist/' --parents && cd ..",

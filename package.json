@@ -9,6 +9,7 @@
         "bootstrap": "yarn lerna bootstrap",
         "clean": "yarn lerna clean --yes",
         "build": "yarn lerna run build",
+        "build:docs": "yarn lerna run build:docs",
         "lint": "./node_modules/eslint/bin/eslint.js packages --ext .js,.ts --fix",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\" \"./__tests__/**/*.{ts,js,json,md}\"",
@@ -91,6 +92,7 @@
         "rimraf": "^2.6.3",
         "snyk": "^1.193.1",
         "ts-jest": "^24.0.2",
+        "typedoc": "^0.15.0",
         "typescript": "^3.5.3",
         "typesync": "^0.5.1",
         "uuid": "^3.3.2"
