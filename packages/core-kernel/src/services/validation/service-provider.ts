@@ -9,8 +9,11 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app.singleton<ValidationManager>("validationManager", ValidationManager);
+        this.app.ioc
+            .bind<ValidationManager>("validationManager")
+            .to(ValidationManager)
+            .inSingletonScope();
 
-        await this.app.resolve<ValidationManager>("validationManager").boot();
+        await this.app.ioc.get<ValidationManager>("validationManager").boot();
     }
 }

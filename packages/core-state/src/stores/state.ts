@@ -98,13 +98,13 @@ export class StateStore implements Contracts.State.IStateStore {
         Managers.configManager.setHeight(block.data.height);
 
         if (Managers.configManager.isNewMilestone()) {
-            app.resolve<Contracts.Kernel.Events.IEventDispatcher>("events").dispatch(
-                Enums.Events.Internal.MilestoneChanged,
-            );
+            app.ioc
+                .get<Contracts.Kernel.Events.IEventDispatcher>("events")
+                .dispatch(Enums.Events.Internal.MilestoneChanged);
         }
 
         // Delete oldest block if size exceeds the maximum
-        if (this.lastBlocks.size > app.resolve("state.options").storage.maxLastBlocks) {
+        if (this.lastBlocks.size > app.ioc.get<any>("state.options").storage.maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
     }
@@ -189,7 +189,7 @@ export class StateStore implements Contracts.State.IStateStore {
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
-        const limit = app.resolve("state.options").storage.maxLastTransactionIds;
+        const limit = app.ioc.get<any>("state.options").storage.maxLastTransactionIds;
         if (this.cachedTransactionIds.size > limit) {
             this.cachedTransactionIds = this.cachedTransactionIds.takeLast(limit);
         }
@@ -234,9 +234,13 @@ export class StateStore implements Contracts.State.IStateStore {
      */
     public pushPingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         if (this.blockPing) {
-            app.resolve<Contracts.Kernel.Log.ILogger>("log").info(
-                `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${this.blockPing.count} times`,
-            );
+            app.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
+                .info(
+                    `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
+                        this.blockPing.count
+                    } times`,
+                );
         }
 
         this.blockPing = {

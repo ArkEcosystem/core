@@ -1,11 +1,13 @@
 import { get, set } from "dottie";
 import { Kernel } from "../contracts";
 import { JsonObject } from "../types";
+import { inject, injectable } from "../ioc";
 
 /**
  * @export
  * @class PackageConfiguration
  */
+@injectable()
 export class PackageConfiguration {
     /**
      * The application instance.
@@ -31,7 +33,7 @@ export class PackageConfiguration {
      * @param {{ app:Kernel.IApplication }} { app }
      * @memberof Manager
      */
-    public constructor({ app }: { app: Kernel.IApplication }) {
+    public constructor(@inject("app") app: Kernel.IApplication) {
         this.app = app;
     }
 

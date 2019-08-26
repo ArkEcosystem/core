@@ -1,12 +1,12 @@
 import logProcessErrors from "log-process-errors";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IBootstrapper } from "../interfaces";
 
 /**
  * @export
  * @class RegisterErrorHandler
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class RegisterErrorHandler extends AbstractBootstrapper {
+export class RegisterErrorHandler implements IBootstrapper {
     /**
      * @returns {Promise<void>}
      * @memberof RegisterErrorHandler

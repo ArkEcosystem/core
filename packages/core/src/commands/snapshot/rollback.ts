@@ -23,14 +23,14 @@ export class RollbackCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.has("snapshots")) {
+        if (!app.ioc.isBound("snapshots")) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
         if (flags.height) {
-            await app.resolve<SnapshotManager>("snapshots").rollbackByHeight(flags.height);
+            await app.ioc.get<SnapshotManager>("snapshots").rollbackByHeight(flags.height);
         } else if (flags.number) {
-            await app.resolve<SnapshotManager>("snapshots").rollbackByNumber(flags.number);
+            await app.ioc.get<SnapshotManager>("snapshots").rollbackByNumber(flags.number);
         } else {
             this.error("Please specify either a height or number of blocks to roll back.");
         }

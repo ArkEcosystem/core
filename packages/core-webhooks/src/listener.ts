@@ -6,7 +6,7 @@ import { IWebhook } from "./interfaces";
 
 export const startListeners = (): void => {
     for (const event of Object.values(Enums.Events.State)) {
-        app.resolve<Contracts.Kernel.Events.IEventDispatcher>("events").listen(event, async payload => {
+        app.ioc.get<Contracts.Kernel.Events.IEventDispatcher>("events").listen(event, async payload => {
             const webhooks: IWebhook[] = database.findByEvent(event).filter((webhook: IWebhook) => {
                 if (!webhook.enabled) {
                     return false;
@@ -42,16 +42,18 @@ export const startListeners = (): void => {
                         headers: {
                             Authorization: webhook.token,
                         },
-                        timeout: app.resolve("webhooks.options").timeout,
+                        timeout: app.ioc.get<any>("webhooks.options").timeout,
                     });
 
-                    app.resolve<Contracts.Kernel.Log.ILogger>("log").debug(
-                        `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
-                    );
+                    app.ioc
+                        .get<Contracts.Kernel.Log.ILogger>("log")
+                        .debug(
+                            `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
+                        );
                 } catch (error) {
-                    app.resolve<Contracts.Kernel.Log.ILogger>("log").error(
-                        `Webhooks Job ${webhook.id} failed: ${error.message}`,
-                    );
+                    app.ioc
+                        .get<Contracts.Kernel.Log.ILogger>("log")
+                        .error(`Webhooks Job ${webhook.id} failed: ${error.message}`);
                 }
             }
         });

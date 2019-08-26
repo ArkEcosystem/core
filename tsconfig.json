@@ -15,7 +15,7 @@
         "sourceMap": true,
         "strict": false,
         "target": "es2019",
-        "typeRoots": ["node_modules/@types"]
+        "typeRoots": ["reflect-metadata", "node_modules/@types"]
     },
     "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
 }

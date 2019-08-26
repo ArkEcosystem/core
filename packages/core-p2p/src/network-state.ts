@@ -42,10 +42,10 @@ export class NetworkState implements Contracts.P2P.INetworkState {
         monitor: Contracts.P2P.INetworkMonitor,
         storage: Contracts.P2P.IPeerStorage,
     ): Contracts.P2P.INetworkState {
-        const lastBlock: Interfaces.IBlock = app.resolve("blockchain").getLastBlock();
+        const lastBlock: Interfaces.IBlock = app.ioc.get<any>("blockchain").getLastBlock();
 
         const peers: Contracts.P2P.IPeer[] = storage.getPeers();
-        const minimumNetworkReach: number = app.resolve("p2p.options").minimumNetworkReach || 20;
+        const minimumNetworkReach: number = app.ioc.get<any>("p2p.options").minimumNetworkReach || 20;
 
         if (process.env.CORE_ENV === "test") {
             return new NetworkState(NetworkStateStatus.Test, lastBlock);

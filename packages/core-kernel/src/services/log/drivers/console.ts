@@ -1,5 +1,6 @@
 import { ILogger } from "../../../contracts/kernel/log";
 import { AbstractLogger } from "../logger";
+import { injectable } from "../../../ioc";
 
 /**
  * @export
@@ -7,6 +8,7 @@ import { AbstractLogger } from "../logger";
  * @extends {AbstractLogger}
  * @implements {ILogger}
  */
+@injectable()
 export class Console extends AbstractLogger implements ILogger {
     /**
      * Create a new instance of the Console driver.

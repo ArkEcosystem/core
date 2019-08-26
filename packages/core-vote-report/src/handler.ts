@@ -12,7 +12,7 @@ const formatDelegates = (
     votes: string;
     voterCount: string;
 }> => {
-    const databaseService: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>(
+    const databaseService: Contracts.Database.IDatabaseService = app.ioc.get<Contracts.Database.IDatabaseService>(
         "database",
     );
 
@@ -56,8 +56,8 @@ const formatDelegates = (
 };
 
 export const handler = (request, h) => {
-    const blockchain: Contracts.Blockchain.IBlockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
-    const databaseService: Contracts.Database.IDatabaseService = app.resolve<Contracts.Database.IDatabaseService>(
+    const blockchain: Contracts.Blockchain.IBlockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
+    const databaseService: Contracts.Database.IDatabaseService = app.ioc.get<Contracts.Database.IDatabaseService>(
         "database",
     );
 
@@ -77,7 +77,7 @@ export const handler = (request, h) => {
     const active: Contracts.State.IWallet[] = allByUsername.slice(0, maxDelegates);
     const standby: Contracts.State.IWallet[] = allByUsername.slice(
         maxDelegates + 1,
-        app.resolve("vote-report.options").delegateRows,
+        app.ioc.get<any>("vote-report.options").delegateRows,
     );
 
     const voters: Contracts.State.IWallet[] = databaseService.walletManager

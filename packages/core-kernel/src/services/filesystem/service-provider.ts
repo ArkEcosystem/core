@@ -9,11 +9,14 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app.singleton("filesystemManager", FilesystemManager);
+        this.app.ioc
+            .bind<FilesystemManager>("filesystemManager")
+            .to(FilesystemManager)
+            .inSingletonScope();
 
-        const filesystemManager: FilesystemManager = this.app.resolve<FilesystemManager>("filesystemManager");
+        const filesystemManager: FilesystemManager = this.app.ioc.get<FilesystemManager>("filesystemManager");
         await filesystemManager.boot();
 
-        this.app.bind("filesystem", filesystemManager.driver());
+        this.app.ioc.bind("filesystem").toConstantValue(filesystemManager.driver());
     }
 }

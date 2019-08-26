@@ -6,10 +6,7 @@ import { BigNumber } from "../utils";
 import { Block } from "./block";
 
 class Deserializer {
-    public deserialize(
-        serializedHex: string,
-        headerOnly = false,
-    ): { data: IBlockData; transactions: ITransaction[] } {
+    public deserialize(serializedHex: string, headerOnly = false): { data: IBlockData; transactions: ITransaction[] } {
         const block = {} as IBlockData;
         let transactions: ITransaction[] = [];
 

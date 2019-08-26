@@ -8,8 +8,8 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         const distPath: string = this.config().get("path");
 
         if (!existsSync(distPath)) {
-            this.app
-                .resolve<Contracts.Kernel.Log.ILogger>("log")
+            this.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
                 .error(`The ${distPath} directory does not exist. Please build the explorer before using this plugin.`);
             return;
         }
@@ -24,26 +24,22 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
 
         // @ts-ignore
         const server = app.listen(this.config().get("server.port"), this.config().get("server.host"), () => {
-            this.app
-                .resolve<Contracts.Kernel.Log.ILogger>("log")
+            this.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
                 // @ts-ignore
                 .info(`Explorer is listening on http://${server.address().address}:${server.address().port}.`);
         });
 
-        this.app.bind("explorer", server);
+        this.ioc.bind("explorer").toConstantValue(server);
     }
 
     public async dispose(): Promise<void> {
         try {
-            this.app.resolve<Contracts.Kernel.Log.ILogger>("log").info("Stopping Explorer");
+            this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Explorer");
 
-            await this.app.resolve("explorer").close();
+            await this.ioc.get<any>("explorer").close();
         } catch (error) {
             // do nothing...
         }
-    }
-
-    public provides(): string[] {
-        return ["explorer"];
     }
 }

@@ -8,12 +8,14 @@ import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
+import { injectable, inject } from "../../../ioc";
 
 /**
  * @export
  * @class Local
  * @implements {IConfigLoader}
  */
+@injectable()
 export class Local implements IConfigLoader {
     /**
      * The application instance.
@@ -30,7 +32,7 @@ export class Local implements IConfigLoader {
      * @param {{ app:IApplication }} { app }
      * @memberof Local
      */
-    public constructor({ app }: { app: IApplication }) {
+    public constructor(@inject("app") app: IApplication) {
         this.app = app;
     }
 
@@ -67,7 +69,7 @@ export class Local implements IConfigLoader {
                 set(process.env, key, value);
             }
         } catch (error) {
-            throw new EnvironmentConfigurationCannotBeLoaded();
+            throw new EnvironmentConfigurationCannotBeLoaded(error.stack);
         }
     }
 

@@ -8,14 +8,14 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;
 
-    const { dynamicFees } = app.resolve("transactionPool.options");
+    const { dynamicFees } = app.ioc.get<any>("transactionPool.options");
 
     let broadcast: boolean;
     let enterPool: boolean;
 
     if (dynamicFees.enabled) {
         const handler: Handlers.TransactionHandler = Handlers.Registry.get(transaction.type, transaction.typeGroup);
-        const addonBytes: number = app.resolve("transactionPool.options").dynamicFees.addonBytes[transaction.key];
+        const addonBytes: number = app.ioc.get<any>("transactionPool.options").dynamicFees.addonBytes[transaction.key];
         const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee(
             transaction,
             addonBytes,
@@ -25,19 +25,23 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
         if (fee.isGreaterThanOrEqualTo(minFeeBroadcast)) {
             broadcast = true;
 
-            app.resolve<Contracts.Kernel.Log.ILogger>("log").debug(
-                `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
-                    fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
-                } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
-            );
+            app.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
+                .debug(
+                    `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
+                        fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
+                    } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
+                );
         } else {
             broadcast = false;
 
-            app.resolve<Contracts.Kernel.Log.ILogger>("log").debug(
-                `Transaction ${id} not eligible for broadcast - fee of ${Utils.formatSatoshi(
-                    fee,
-                )} is smaller than minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
-            );
+            app.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
+                .debug(
+                    `Transaction ${id} not eligible for broadcast - fee of ${Utils.formatSatoshi(
+                        fee,
+                    )} is smaller than minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
+                );
         }
 
         const minFeePool: Utils.BigNumber = handler.dynamicFee(transaction, addonBytes, dynamicFees.minFeePool);
@@ -45,19 +49,23 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
         if (fee.isGreaterThanOrEqualTo(minFeePool)) {
             enterPool = true;
 
-            app.resolve<Contracts.Kernel.Log.ILogger>("log").debug(
-                `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
-                    fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
-                } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
-            );
+            app.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
+                .debug(
+                    `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
+                        fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
+                    } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
+                );
         } else {
             enterPool = false;
 
-            app.resolve<Contracts.Kernel.Log.ILogger>("log").debug(
-                `Transaction ${id} not eligible to enter pool - fee of ${Utils.formatSatoshi(
-                    fee,
-                )} is smaller than minimum fee (${Utils.formatSatoshi(minFeePool)})`,
-            );
+            app.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
+                .debug(
+                    `Transaction ${id} not eligible to enter pool - fee of ${Utils.formatSatoshi(
+                        fee,
+                    )} is smaller than minimum fee (${Utils.formatSatoshi(minFeePool)})`,
+                );
         }
     } else {
         const staticFee: Utils.BigNumber = transaction.staticFee;
@@ -65,20 +73,24 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
             broadcast = true;
             enterPool = true;
 
-            app.resolve<Contracts.Kernel.Log.ILogger>("log").debug(
-                `Transaction ${id} eligible for broadcast and to enter pool - fee of ${Utils.formatSatoshi(
-                    fee,
-                )} is equal to static fee (${Utils.formatSatoshi(staticFee)})`,
-            );
+            app.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
+                .debug(
+                    `Transaction ${id} eligible for broadcast and to enter pool - fee of ${Utils.formatSatoshi(
+                        fee,
+                    )} is equal to static fee (${Utils.formatSatoshi(staticFee)})`,
+                );
         } else {
             broadcast = false;
             enterPool = false;
 
-            app.resolve<Contracts.Kernel.Log.ILogger>("log").debug(
-                `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${Utils.formatSatoshi(
-                    fee,
-                )} does not match static fee (${Utils.formatSatoshi(staticFee)})`,
-            );
+            app.ioc
+                .get<Contracts.Kernel.Log.ILogger>("log")
+                .debug(
+                    `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${Utils.formatSatoshi(
+                        fee,
+                    )} does not match static fee (${Utils.formatSatoshi(staticFee)})`,
+                );
         }
     }
 

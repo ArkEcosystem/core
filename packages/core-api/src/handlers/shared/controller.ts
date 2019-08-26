@@ -13,8 +13,8 @@ import {
 
 export class Controller {
     protected readonly config = Managers.configManager;
-    protected readonly blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
-    protected readonly databaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
+    protected readonly blockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
+    protected readonly databaseService = app.ioc.get<Contracts.Database.IDatabaseService>("database");
 
     protected paginate(request: Hapi.Request): any {
         // @ts-ignore

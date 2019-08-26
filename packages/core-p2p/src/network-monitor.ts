@@ -20,10 +20,10 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing = true;
 
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<Contracts.Kernel.Events.IEventDispatcher>(
-        "events",
-    );
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
+        Contracts.Kernel.Events.IEventDispatcher
+    >("events");
 
     private readonly communicator: Contracts.P2P.IPeerCommunicator;
     private readonly processor: Contracts.P2P.IPeerProcessor;
@@ -129,7 +129,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         let max = peers.length;
 
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : app.resolve("p2p.options").verifyTimeout;
+        const pingDelay = fast ? 1500 : app.ioc.get<any>("p2p.options").verifyTimeout;
 
         if (peerCount) {
             peers = shuffle(peers).slice(0, peerCount);
@@ -232,8 +232,8 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public async checkNetworkHealth(): Promise<Contracts.P2P.INetworkStatus> {
         await this.cleansePeers({ forcePing: true });
 
-        const lastBlock = app
-            .resolve("state")
+        const lastBlock = app.ioc
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlock();
 
@@ -277,10 +277,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         return { forked: true, blocksToRollback: Math.min(lastBlock.data.height - highestCommonHeight, 5000) };
     }
 
-    public async syncWithNetwork(
-        fromBlockHeight: number,
-        maxParallelDownloads = 25,
-    ): Promise<Interfaces.IBlockData[]> {
+    public async syncWithNetwork(fromBlockHeight: number, maxParallelDownloads = 25): Promise<Interfaces.IBlockData[]> {
         try {
             const peersAll: Contracts.P2P.IPeer[] = this.storage.getPeers();
             const peersFiltered: Contracts.P2P.IPeer[] = peersAll.filter(peer => !peer.isForked());
@@ -331,7 +328,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     }
 
     public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
-        const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
+        const blockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
 
         if (!blockchain) {
             this.logger.info(
@@ -376,7 +373,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {
         const peers: Contracts.P2P.IPeer[] = take(
             shuffle(this.storage.getPeers()),
-            app.resolve("p2p.options").maxPeersBroadcast,
+            app.ioc.get<any>("p2p.options").maxPeersBroadcast,
         );
 
         this.logger.debug(
@@ -458,7 +455,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
             return true;
         }
 
-        return Object.keys(this.storage.getPeers()).length >= app.resolve("p2p.options").minimumNetworkReach;
+        return Object.keys(this.storage.getPeers()).length >= app.ioc.get<any>("p2p.options").minimumNetworkReach;
     }
 
     private async populateSeedPeers(): Promise<any> {

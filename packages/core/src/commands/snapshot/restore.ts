@@ -30,7 +30,7 @@ export class RestoreCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.has("snapshots")) {
+        if (!app.ioc.isBound("snapshots")) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
@@ -42,7 +42,7 @@ export class RestoreCommand extends BaseCommand {
             }
         }
 
-        const emitter = app.resolve<Contracts.Kernel.Events.IEventDispatcher>("events");
+        const emitter = app.ioc.get<Contracts.Kernel.Events.IEventDispatcher>("events");
 
         const progressBar = new cliProgress.Bar(
             {
@@ -61,6 +61,6 @@ export class RestoreCommand extends BaseCommand {
 
         emitter.listen("complete", () => progressBar.stop());
 
-        await app.resolve<SnapshotManager>("snapshots").import(flags);
+        await app.ioc.get<SnapshotManager>("snapshots").import(flags);
     }
 }

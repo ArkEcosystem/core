@@ -1,20 +1,33 @@
 import { ConfigManager, ConfigRepository } from "../../services/config";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IApplication } from "../../contracts/kernel";
+import { IBootstrapper } from "../interfaces";
+import { injectable, inject } from "../../ioc";
 
 /**
  * @export
  * @class LoadConfiguration
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class LoadConfiguration extends AbstractBootstrapper {
+@injectable()
+export class LoadConfiguration implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @returns {Promise<void>}
      * @memberof LoadConfiguration
      */
     public async bootstrap(): Promise<void> {
-        await this.app
-            .resolve<ConfigManager>("configManager")
-            .driver(this.app.resolve<ConfigRepository>("config").get<string>("configLoader", "local"))
+        await this.app.ioc
+            .get<ConfigManager>("configManager")
+            .driver(this.app.ioc.get<ConfigRepository>("config").get<string>("configLoader", "local"))
             .loadConfiguration();
     }
 }

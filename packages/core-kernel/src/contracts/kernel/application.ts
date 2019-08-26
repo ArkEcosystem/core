@@ -4,12 +4,17 @@ import { IBlockchain } from "../blockchain";
 import { IDatabaseService } from "../database";
 import { IPeerService } from "../p2p";
 import { IConnection } from "../transaction-pool";
-import { IContainer } from "./container";
 import { IEventDispatcher } from "./events";
 import { IFilesystem } from "./filesystem";
 import { ILogger } from "./log";
+import { interfaces as IoC } from "inversify";
 
-export interface IApplication extends IContainer {
+export interface IApplication {
+    /**
+     * Get an instance of the application container.
+     */
+    readonly ioc: IoC.Container;
+
     /**
      * Get an instance of the application logger.
      */

@@ -70,8 +70,8 @@ export class UnchainedHandler extends BlockHandler {
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
                 const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(this.block.data.height);
-                const delegates: Contracts.State.IWallet[] = await app
-                    .resolve("database")
+                const delegates: Contracts.State.IWallet[] = await app.ioc
+                    .get<any>("database")
                     .getActiveDelegates(roundInfo);
 
                 if (delegates.some(delegate => delegate.publicKey === this.block.data.generatorPublicKey)) {

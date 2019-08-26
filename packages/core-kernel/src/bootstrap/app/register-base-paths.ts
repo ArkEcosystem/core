@@ -4,14 +4,27 @@ import expandHomeDir from "expand-home-dir";
 import { ensureDirSync } from "fs-extra";
 import camelCase from "lodash/camelCase";
 import { resolve } from "path";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IApplication } from "../../contracts/kernel";
+import { IBootstrapper } from "../interfaces";
+import { injectable, inject } from "../../ioc";
 
 /**
  * @export
  * @class RegisterBasePaths
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class RegisterBasePaths extends AbstractBootstrapper {
+@injectable()
+export class RegisterBasePaths implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @returns {Promise<void>}
      * @memberof RegisterBasePaths
@@ -32,7 +45,13 @@ export class RegisterBasePaths extends AbstractBootstrapper {
 
             this.app[camelCase(`use_${type}_path`)](path);
 
-            this.app.bind(`path.${type}`, path);
+            const binding = `path.${type}`;
+
+            if (this.app.ioc.isBound(binding)) {
+                this.app.ioc.unbind(binding);
+            }
+
+            this.app.ioc.bind<string>(binding).toConstantValue(path);
         }
     }
 }

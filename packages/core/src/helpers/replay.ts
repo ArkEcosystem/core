@@ -1,6 +1,6 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 
-export const setUpLite = async (options): Promise<Contracts.Kernel.IContainer> => {
+export const setUpLite = async (options): Promise<Contracts.Kernel.IApplication> => {
     // await app.setUp(version, options, {
     //     options: {
     //         "@arkecosystem/core-blockchain": { replay: true },

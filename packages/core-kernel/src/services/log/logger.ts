@@ -1,11 +1,13 @@
 import isEmpty from "lodash.isempty";
 import { inspect } from "util";
+import { injectable } from "../../ioc";
 
 /**
  * @export
  * @abstract
  * @class AbstractLogger
  */
+@injectable()
 export abstract class AbstractLogger {
     /**
      * @protected

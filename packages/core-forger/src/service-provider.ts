@@ -11,20 +11,12 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
         this.config().set("bip38", undefined);
         this.config().set("password", undefined);
 
-        this.app.bind("forger", forgerManager);
+        this.ioc.bind("forger").toConstantValue(forgerManager);
     }
 
     public async dispose(): Promise<void> {
-        const forger = this.app.resolve("forger");
+        this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Forger Manager");
 
-        if (forger) {
-            this.app.resolve<Contracts.Kernel.Log.ILogger>("log").info("Stopping Forger Manager");
-
-            return forger.stopForging();
-        }
-    }
-
-    public provides(): string[] {
-        return ["forger"];
+        return this.ioc.get<ForgerManager>("forger").stopForging();
     }
 }

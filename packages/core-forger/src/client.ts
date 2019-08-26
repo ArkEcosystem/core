@@ -8,7 +8,7 @@ import { IRelayHost } from "./interfaces";
 
 export class Client {
     public hosts: IRelayHost[];
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
     private host: IRelayHost;
 
     constructor(hosts: IRelayHost[]) {

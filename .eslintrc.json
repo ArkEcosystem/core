@@ -23,9 +23,12 @@
         "no-async-promise-executor": 0,
         "no-empty": 0,
         "no-prototype-builtins": 0,
-        "prefer-const": ["error", {
-            "destructuring": "all"
-        }],
+        "prefer-const": [
+            "error",
+            {
+                "destructuring": "all"
+            }
+        ],
         "require-atomic-updates": 0
     }
 }

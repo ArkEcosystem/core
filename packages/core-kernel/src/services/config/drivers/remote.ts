@@ -1,5 +1,6 @@
 import { IApplication } from "../../../contracts/kernel";
 import { IConfigLoader } from "../../../contracts/kernel/config";
+import { inject } from "../../../ioc";
 
 /**
  * @export
@@ -22,7 +23,7 @@ export class Remote implements IConfigLoader {
      * @param {{ app:IApplication }} { app }
      * @memberof Manager
      */
-    public constructor({ app }: { app: IApplication }) {
+    public constructor(@inject("app") app: IApplication) {
         this.app = app;
     }
 

@@ -1,23 +1,36 @@
-import { JsonObject } from "type-fest";
 import { Config } from "../../services";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IApplication } from "../../contracts/kernel";
+import { IBootstrapper } from "../interfaces";
+import { injectable, inject } from "../../ioc";
+import { ConfigRepository } from "../../services/config";
 
 /**
  * @export
  * @class LoadEnvironmentVariables
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class LoadEnvironmentVariables extends AbstractBootstrapper {
+@injectable()
+export class LoadEnvironmentVariables implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @returns {Promise<void>}
      * @memberof LoadEnvironmentVariables
      */
     public async bootstrap(): Promise<void> {
-        const config: JsonObject = this.app.resolve<JsonObject>("config");
+        const configRepository: ConfigRepository = this.app.ioc.get<ConfigRepository>("config");
 
-        await this.app
-            .resolve<Config.ConfigManager>("configManager")
-            .driver((config.configLoader || "local") as string)
+        await this.app.ioc
+            .get<Config.ConfigManager>("configManager")
+            .driver(configRepository.get<string>("configLoader", "local"))
             .loadEnvironmentVariables();
     }
 }

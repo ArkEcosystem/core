@@ -1,9 +1,11 @@
 import { AbstractServiceProvider } from "../support";
+import { injectable } from "../ioc";
 
 /**
  * @export
  * @class ServiceProviderRepository
  */
+@injectable()
 export class ServiceProviderRepository {
     /**
      * All of the registered service providers.

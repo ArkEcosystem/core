@@ -9,8 +9,8 @@ import cloneDeep from "lodash.clonedeep";
 export class DatabaseService implements Contracts.Database.IDatabaseService {
     public connection: Contracts.Database.IConnection;
     public walletManager: Contracts.State.IWalletManager;
-    public logger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
-    public emitter = app.resolve<Contracts.Kernel.Events.IEventDispatcher>("events");
+    public logger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
+    public emitter = app.ioc.get<Contracts.Kernel.Events.IEventDispatcher>("events");
     public options: any;
     public wallets: Contracts.Database.IWalletsBusinessRepository;
     public delegates: Contracts.Database.IDelegatesBusinessRepository;
@@ -43,7 +43,8 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
-        app.resolve<Contracts.State.IStateService>("state")
+        app.ioc
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
 
@@ -218,8 +219,8 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         const start: number = offset;
         const end: number = offset + limit - 1;
 
-        let blocks: Interfaces.IBlockData[] = app
-            .resolve<Contracts.State.IStateService>("state")
+        let blocks: Interfaces.IBlockData[] = app.ioc
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlocksByHeight(start, end, headersOnly);
 
@@ -282,8 +283,8 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         const toGetFromDB = {};
 
         for (const [i, height] of heights.entries()) {
-            const stateBlocks = app
-                .resolve<Contracts.State.IStateService>("state")
+            const stateBlocks = app.ioc
+                .get<Contracts.State.IStateService>("state")
                 .getStore()
                 .getLastBlocksByHeight(height, height, true);
 
@@ -310,8 +311,8 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     public async getBlocksForRound(roundInfo?: Contracts.Shared.IRoundInfo): Promise<Interfaces.IBlock[]> {
-        let lastBlock: Interfaces.IBlock = app
-            .resolve<Contracts.State.IStateService>("state")
+        let lastBlock: Interfaces.IBlock = app.ioc
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlock();
 
@@ -362,8 +363,8 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
-        let commonBlocks: Interfaces.IBlockData[] = app
-            .resolve<Contracts.State.IStateService>("state")
+        let commonBlocks: Interfaces.IBlockData[] = app.ioc
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .getCommonBlocks(ids);
 
@@ -375,8 +376,8 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     public async getRecentBlockIds(): Promise<string[]> {
-        let blocks: Interfaces.IBlockData[] = app
-            .resolve("state")
+        let blocks: any[] = app.ioc
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .getLastBlockIds()
             .reverse()
@@ -644,8 +645,8 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     private async createGenesisBlock(): Promise<Interfaces.IBlock> {
-        const genesisBlock: Interfaces.IBlock = app
-            .resolve<Contracts.State.IStateService>("state")
+        const genesisBlock: Interfaces.IBlock = app.ioc
+            .get<Contracts.State.IStateService>("state")
             .getStore()
             .getGenesisBlock();
 
@@ -655,7 +656,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     private configureState(lastBlock: Interfaces.IBlock): void {
-        const state: Contracts.State.IStateService = app.resolve<Contracts.State.IStateService>("state");
+        const state: Contracts.State.IStateService = app.ioc.get<Contracts.State.IStateService>("state");
 
         state.getStore().setLastBlock(lastBlock);
 

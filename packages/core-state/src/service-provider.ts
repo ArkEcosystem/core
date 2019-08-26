@@ -6,8 +6,7 @@ import { TransactionStore } from "./stores/transactions";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind(
-            "state",
+        this.ioc.bind("state").toConstantValue(
             new StateService({
                 blocks: new BlockStore(1000),
                 transactions: new TransactionStore(1000),
@@ -15,10 +14,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             }),
         );
 
-        this.app.bind("state.options", this.config().all());
-    }
-
-    public provides(): string[] {
-        return ["state"];
+        this.ioc.bind("state.options").toConstantValue(this.config().all());
     }
 }

@@ -1,26 +1,41 @@
 import { Events } from "../../enums";
 import { ServiceProviderCannotBeBooted } from "../../exceptions/packages";
 import { ServiceProviderRepository } from "../../support";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IBootstrapper } from "../interfaces";
+import { IApplication } from "../../contracts/kernel";
+import { injectable, inject } from "../../ioc";
 
 /**
  * @export
  * @class RegisterProviders
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class BootServiceProviders extends AbstractBootstrapper {
+@injectable()
+export class BootServiceProviders implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @returns {Promise<void>}
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const serviceProviders: ServiceProviderRepository = this.app.resolve<ServiceProviderRepository>(
+        const serviceProviders: ServiceProviderRepository = this.app.ioc.get<ServiceProviderRepository>(
             "serviceProviderRepository",
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
             if (await serviceProvider.enableWhen()) {
                 try {
+                    this.app.log.debug(`Booting ${serviceProvider.name()}...`);
+
                     await serviceProviders.boot(name);
                 } catch (error) {
                     // Determine if the plugin is required to decide how to handle errors.
@@ -33,6 +48,8 @@ export class BootServiceProviders extends AbstractBootstrapper {
                     serviceProviders.fail(serviceProvider.name());
                 }
             } else {
+                this.app.log.debug(`Deferring ${serviceProvider.name()}...`);
+
                 serviceProviders.defer(name);
             }
 

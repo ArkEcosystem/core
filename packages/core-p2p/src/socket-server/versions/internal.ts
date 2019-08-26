@@ -7,14 +7,14 @@ export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.I
 };
 
 export const emitEvent = ({ req }): void => {
-    app.resolve<Contracts.Kernel.Events.IEventDispatcher>("events").dispatch(req.data.event, req.data.body);
+    app.ioc.get<Contracts.Kernel.Events.IEventDispatcher>("events").dispatch(req.data.event, req.data.body);
 };
 
 export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUnconfirmedTransactions> => {
-    const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
+    const blockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
     const { maxTransactions } = Managers.configManager.getMilestone(blockchain.getLastBlock().data.height).block;
 
-    const transactionPool: Contracts.TransactionPool.IConnection = app.resolve<Contracts.TransactionPool.IConnection>(
+    const transactionPool: Contracts.TransactionPool.IConnection = app.ioc.get<Contracts.TransactionPool.IConnection>(
         "transactionPool",
     );
 
@@ -25,8 +25,8 @@ export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUncon
 };
 
 export const getCurrentRound = async (): Promise<Contracts.P2P.ICurrentRound> => {
-    const databaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
-    const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
+    const databaseService = app.ioc.get<Contracts.Database.IDatabaseService>("database");
+    const blockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
 
     const lastBlock = blockchain.getLastBlock();
 
@@ -63,7 +63,7 @@ export const getNetworkState = async ({
 };
 
 export const syncBlockchain = (): void => {
-    app.resolve<Contracts.Kernel.Log.ILogger>("log").debug("Blockchain sync check WAKEUP requested by forger");
+    app.ioc.get<Contracts.Kernel.Log.ILogger>("log").debug("Blockchain sync check WAKEUP requested by forger");
 
-    app.resolve<Contracts.Blockchain.IBlockchain>("blockchain").forceWakeup();
+    app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain").forceWakeup();
 };

@@ -54,7 +54,7 @@ export const store: object = {
         transactions: {
             $ref: "transactions",
             minItems: 1,
-            maxItems: app.resolve("transactionPool.options").maxTransactionsPerRequest,
+            maxItems: app.ioc.get<any>("transactionPool.options").maxTransactionsPerRequest,
         },
     },
 };

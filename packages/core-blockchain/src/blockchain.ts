@@ -17,7 +17,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
      * @return {IStateStore}
      */
     get state(): Contracts.State.IStateStore {
-        return app.resolve<Contracts.State.IStateService>("state").getStore();
+        return app.ioc.get<Contracts.State.IStateService>("state").getStore();
     }
 
     /**

@@ -18,7 +18,7 @@ export const transactionPayload = {
                     return h.continue;
                 }
 
-                const transactionPool = app.resolve("transactionPool.options");
+                const transactionPool = app.ioc.get<any>("transactionPool.options");
 
                 if (!transactionPool) {
                     return h.continue;

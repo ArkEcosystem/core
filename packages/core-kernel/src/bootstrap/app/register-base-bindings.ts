@@ -1,21 +1,34 @@
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IApplication } from "../../contracts/kernel";
+import { IBootstrapper } from "../interfaces";
+import { injectable, inject } from "../../ioc";
 
 /**
  * @export
  * @class RegisterBaseBindings
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class RegisterBaseBindings extends AbstractBootstrapper {
+@injectable()
+export class RegisterBaseBindings implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @param {Kernel.IApplication} app
      * @returns {Promise<void>}
      * @memberof RegisterBaseBindings
      */
     public async bootstrap(): Promise<void> {
-        this.app.bind("app.env", this.app.config("env"));
-        this.app.bind("app.token", this.app.config("token"));
-        this.app.bind("app.network", this.app.config("network"));
-        this.app.bind("app.version", this.app.config("version"));
+        this.app.ioc.bind<string>("app.env").toConstantValue(this.app.config("env"));
+        this.app.ioc.bind<string>("app.token").toConstantValue(this.app.config("token"));
+        this.app.ioc.bind<string>("app.network").toConstantValue(this.app.config("network"));
+        this.app.ioc.bind<string>("app.version").toConstantValue(this.app.config("version"));
 
         // @todo: implement a getter/setter that sets vars locally and in the process.env variables
         process.env.CORE_ENV = this.app.config("env");

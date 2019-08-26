@@ -25,7 +25,7 @@ export class Server {
      */
     public constructor({ app }: { app: Contracts.Kernel.IApplication }) {
         this.app = app;
-        this.config = app.resolve("api.options");
+        this.config = app.ioc.get<any>("api.options");
     }
 
     public async start(): Promise<void> {

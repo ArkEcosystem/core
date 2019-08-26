@@ -31,10 +31,10 @@ export class PostgresConnection implements Contracts.Database.IConnection {
     public walletsRepository: Contracts.Database.IWalletsRepository;
     // @todo: make this private
     public pgp: IMain;
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<Contracts.Kernel.Events.IEventDispatcher>(
-        "events",
-    );
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
+        Contracts.Kernel.Events.IEventDispatcher
+    >("events");
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
 

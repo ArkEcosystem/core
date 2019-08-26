@@ -1,12 +1,25 @@
 import { NetworkCannotBeDetermined } from "../../exceptions/config";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IApplication } from "../../contracts/kernel";
+import { IBootstrapper } from "../interfaces";
+import { injectable, inject } from "../../ioc";
 
 /**
  * @export
  * @class RegisterBaseNamespace
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class RegisterBaseNamespace extends AbstractBootstrapper {
+@injectable()
+export class RegisterBaseNamespace implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @returns {Promise<void>}
      * @memberof RegisterBaseNamespace
@@ -19,7 +32,7 @@ export class RegisterBaseNamespace extends AbstractBootstrapper {
             throw new NetworkCannotBeDetermined();
         }
 
-        this.app.bind("app.namespace", `${token}-${network}`);
-        this.app.bind("app.dirPrefix", `${token}/${network}`);
+        this.app.ioc.bind<string>("app.namespace").toConstantValue(`${token}-${network}`);
+        this.app.ioc.bind<string>("app.dirPrefix").toConstantValue(`${token}/${network}`);
     }
 }

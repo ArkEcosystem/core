@@ -5,7 +5,7 @@ export const calculate = (height: number): string => {
     const { genesisBlock, milestones } = Managers.configManager.all();
 
     if (!height) {
-        const blockchain = app.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
+        const blockchain = app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain");
         height = blockchain ? blockchain.getLastBlock().data.height : 0;
     }
 

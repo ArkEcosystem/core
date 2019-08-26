@@ -2,7 +2,15 @@ import { JsonObject } from "type-fest";
 import { Kernel } from "../contracts";
 import { PackageConfiguration } from "./package-configuration";
 import { PackageManifest } from "./package-manifest";
+import { inject, injectable } from "../ioc";
+import { IApplication } from "../contracts/kernel";
 
+/**
+ * @export
+ * @abstract
+ * @class AbstractServiceProvider
+ */
+@injectable()
 export abstract class AbstractServiceProvider {
     /**
      * The application instance.
@@ -12,6 +20,15 @@ export abstract class AbstractServiceProvider {
      * @memberof Manager
      */
     protected readonly app: Kernel.IApplication;
+
+    /**
+     * The application container.
+     *
+     * @protected
+     * @type {Kernel.IoC.Container}
+     * @memberof Manager
+     */
+    protected readonly ioc: Kernel.IoC.Container;
 
     /**
      * The application instance.
@@ -37,8 +54,9 @@ export abstract class AbstractServiceProvider {
      * @param {{ app:Kernel.IApplication }} { app }
      * @memberof Manager
      */
-    public constructor({ app }: { app: Kernel.IApplication }) {
+    public constructor(@inject("app") app: IApplication) {
         this.app = app;
+        this.ioc = app.ioc;
     }
 
     /**
@@ -57,7 +75,7 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     public async boot(): Promise<void> {
-        // ...
+        //
     }
 
     /**
@@ -67,7 +85,7 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     public async dispose(): Promise<void> {
-        // ...
+        //
     }
 
     /**
@@ -157,16 +175,6 @@ export abstract class AbstractServiceProvider {
      * @memberof AbstractServiceProvider
      */
     public dependencies(): Kernel.IPackageDependency[] {
-        return [];
-    }
-
-    /**
-     * Get the services provided by the provider.
-     *
-     * @returns {string[]}
-     * @memberof AbstractServiceProvider
-     */
-    public provides(): string[] {
         return [];
     }
 

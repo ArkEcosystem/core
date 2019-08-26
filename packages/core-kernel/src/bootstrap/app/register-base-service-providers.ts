@@ -1,28 +1,41 @@
 import { Actions, Cache, Filesystem, Log, Queue, Validation } from "../../services";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IApplication } from "../../contracts/kernel";
+import { IBootstrapper } from "../interfaces";
+import { injectable, inject } from "../../ioc";
 
 /**
  * @export
  * @class RegisterBaseServiceProviders
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class RegisterBaseServiceProviders extends AbstractBootstrapper {
+@injectable()
+export class RegisterBaseServiceProviders implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @param {Kernel.IApplication} app
      * @returns {Promise<void>}
      * @memberof RegisterBaseServiceProviders
      */
     public async bootstrap(): Promise<void> {
-        await this.app.build(Actions.ServiceProvider).register();
+        await this.app.ioc.resolve(Actions.ServiceProvider).register();
 
-        await this.app.build(Log.ServiceProvider).register();
+        await this.app.ioc.resolve(Log.ServiceProvider).register();
 
-        await this.app.build(Filesystem.ServiceProvider).register();
+        await this.app.ioc.resolve(Filesystem.ServiceProvider).register();
 
-        await this.app.build(Cache.ServiceProvider).register();
+        await this.app.ioc.resolve(Cache.ServiceProvider).register();
 
-        await this.app.build(Queue.ServiceProvider).register();
+        await this.app.ioc.resolve(Queue.ServiceProvider).register();
 
-        await this.app.build(Validation.ServiceProvider).register();
+        await this.app.ioc.resolve(Validation.ServiceProvider).register();
     }
 }

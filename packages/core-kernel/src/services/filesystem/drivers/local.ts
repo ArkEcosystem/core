@@ -13,12 +13,14 @@ import {
 } from "fs-extra";
 import { resolve } from "path";
 import { IFilesystem } from "../../../contracts/kernel/filesystem";
+import { injectable } from "../../../ioc";
 
 /**
  * @export
  * @class Local
  * @implements {IFilesystem}
  */
+@injectable()
 export class Local implements IFilesystem {
     /**
      * Create a new instance of the filesystem.

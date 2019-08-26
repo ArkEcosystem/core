@@ -1,5 +1,6 @@
 import nsfw from "nsfw";
 import { IApplication } from "../../contracts/kernel";
+import { inject } from "../../ioc";
 
 /**
  * @interface IFileEvent
@@ -39,12 +40,12 @@ export class Watcher {
     private readonly app: IApplication;
 
     /**
-     * Creates an instance of AbstractBootstrapper.
+     * Creates an instance of Watcher.
      *
      * @param {{ app: IApplication }} { app }
-     * @memberof AbstractBootstrapper
+     * @memberof Watcher
      */
-    public constructor({ app }: { app: IApplication }) {
+    public constructor(@inject("app") app: IApplication) {
         this.app = app;
     }
 

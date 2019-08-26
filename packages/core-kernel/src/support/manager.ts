@@ -1,6 +1,8 @@
 import { toStudlyCaps } from "strman";
 import { Kernel } from "../contracts";
 import { DriverCannotBeResolved } from "../exceptions/container";
+import { injectable, inject } from "../ioc";
+import { IApplication } from "../contracts/kernel";
 
 /**
  * @export
@@ -8,6 +10,7 @@ import { DriverCannotBeResolved } from "../exceptions/container";
  * @class AbstractManager
  * @template T
  */
+@injectable()
 export abstract class AbstractManager<T> {
     /**
      * The application instance.
@@ -40,7 +43,7 @@ export abstract class AbstractManager<T> {
      * @param {{ app:Kernel.IApplication }} { app }
      * @memberof AbstractManager
      */
-    public constructor({ app }: { app: Kernel.IApplication }) {
+    public constructor(@inject("app") app: IApplication) {
         this.app = app;
         this.defaultDriver = this.getDefaultDriver();
     }

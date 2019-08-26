@@ -12,20 +12,33 @@ import { ValidationManager } from "../../services/validation";
 import { ServiceProviderRepository } from "../../support";
 import { PackageConfiguration } from "../../support/package-configuration";
 import { AbstractServiceProvider } from "../../support/service-provider";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IApplication } from "../../contracts/kernel";
+import { IBootstrapper } from "../interfaces";
+import { injectable, inject } from "../../ioc";
 
 /**
  * @export
  * @class RegisterServiceProviders
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class RegisterServiceProviders extends AbstractBootstrapper {
+@injectable()
+export class RegisterServiceProviders implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @returns {Promise<void>}
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const serviceProviders: ServiceProviderRepository = this.app.resolve<ServiceProviderRepository>(
+        const serviceProviders: ServiceProviderRepository = this.app.ioc.get<ServiceProviderRepository>(
             "serviceProviderRepository",
         );
 
@@ -54,6 +67,8 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
             // Are all dependencies installed with the correct versions?
             if (await this.satisfiesDependencies(serviceProvider)) {
                 try {
+                    this.app.log.debug(`Registering ${serviceProvider.name()}...`);
+
                     await serviceProviders.register(name);
                 } catch (error) {
                     if (isRequired) {
@@ -78,8 +93,8 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
         if (Object.keys(configSchema).length > 0) {
             const config: PackageConfiguration = serviceProvider.config();
 
-            const validator: Kernel.Validation.IValidator = this.app
-                .resolve<ValidationManager>("validationManager")
+            const validator: Kernel.Validation.IValidator = this.app.ioc
+                .get<ValidationManager>("validationManager")
                 .driver();
 
             validator.validate(config.all(), configSchema);
@@ -105,7 +120,7 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
             return true;
         }
 
-        const serviceProviders: ServiceProviderRepository = this.app.resolve<ServiceProviderRepository>(
+        const serviceProviders: ServiceProviderRepository = this.app.ioc.get<ServiceProviderRepository>(
             "serviceProviderRepository",
         );
 
@@ -159,7 +174,7 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterServiceProviders
      */
     private shouldBeIncluded(name: string): boolean {
-        const includes: string[] = this.app.resolve<ConfigRepository>("config").get<string[]>("include", []);
+        const includes: string[] = this.app.ioc.get<ConfigRepository>("config").get<string[]>("include", []);
 
         return includes.length > 0 ? includes.includes(name) : true;
     }
@@ -171,7 +186,7 @@ export class RegisterServiceProviders extends AbstractBootstrapper {
      * @memberof RegisterServiceProviders
      */
     private shouldBeExcluded(name: string): boolean {
-        const excludes: string[] = this.app.resolve<ConfigRepository>("config").get<string[]>("exclude", []);
+        const excludes: string[] = this.app.ioc.get<ConfigRepository>("config").get<string[]>("exclude", []);
 
         return excludes.length > 0 ? excludes.includes(name) : false;
     }

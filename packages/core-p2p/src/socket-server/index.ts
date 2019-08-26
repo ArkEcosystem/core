@@ -28,14 +28,14 @@ export const startSocketServer = async (
             // See https://github.com/SocketCluster/socketcluster/issues/506 about
             // details on how pingTimeout works.
             pingTimeout: Math.max(
-                app.resolve("p2p.options").getBlocksTimeout,
-                app.resolve("p2p.options").verifyTimeout,
+                app.ioc.get<any>("p2p.options").getBlocksTimeout,
+                app.ioc.get<any>("p2p.options").verifyTimeout,
             ),
         },
         ...config.server,
     });
 
-    server.on("fail", data => app.resolve<Contracts.Kernel.Log.ILogger>("log").error(data.message));
+    server.on("fail", data => app.ioc.get<Contracts.Kernel.Log.ILogger>("log").error(data.message));
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
@@ -67,7 +67,7 @@ export const startSocketServer = async (
                 return res(error);
             }
 
-            app.resolve<Contracts.Kernel.Log.ILogger>("log").error(error.message);
+            app.ioc.get<Contracts.Kernel.Log.ILogger>("log").error(error.message);
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
     });

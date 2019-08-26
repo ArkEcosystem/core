@@ -24,10 +24,10 @@ export class ReplayCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.has("blockchain")) {
+        if (!app.ioc.isBound("blockchain")) {
             this.error("The @arkecosystem/core-blockchain plugin is not installed.");
         }
 
-        await app.resolve<Contracts.Blockchain.IBlockchain>("blockchain").replay(flags.targetHeight);
+        await app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain").replay(flags.targetHeight);
     }
 }

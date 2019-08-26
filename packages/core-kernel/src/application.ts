@@ -2,24 +2,24 @@ import { Constructor } from "awilix";
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import { join } from "path";
 import { JsonObject } from "type-fest";
-import { app } from ".";
 import * as Bootstrappers from "./bootstrap";
-import { AbstractBootstrapper } from "./bootstrap/bootstrapper";
-import { Container } from "./container";
 import * as Contracts from "./contracts";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { EventDispatcher } from "./services/events";
 import { AbstractServiceProvider, ServiceProviderRepository } from "./support";
 import { EventListener } from "./types/events";
-import { ShutdownSignal } from "./enums/process";
+// import { ShutdownSignal } from "./enums/process";
+import { IApplication } from "./contracts/kernel";
+import { ConfigRepository } from "./services/config";
+import { IBootstrapper } from "./bootstrap/interfaces";
 
 /**
  * @export
  * @class Application
  * @extends {Container}
- * @implements {Contracts.Kernel.IApplication}
+ * @implements {IApplication}
  */
-export class Application extends Container implements Contracts.Kernel.IApplication {
+export class Application implements IApplication {
     /**
      * @private
      * @type {boolean}
@@ -30,14 +30,15 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
     /**
      * Creates an instance of Application.
      *
+     * @param {Contracts.Kernel.IoC.Container} container
      * @memberof Application
      */
-    public constructor() {
-        super();
+    public constructor(private readonly container: Contracts.Kernel.IoC.Container) {
+        // this.listenToShutdownSignals();
 
-        this.listenToShutdownSignals();
+        // this.container.bind<IApplication>(Application).toSelf();
 
-        this.bind<Contracts.Kernel.IApplication>("app", this);
+        this.container.bind<IApplication>("app").toConstantValue(this);
     }
 
     /**
@@ -48,9 +49,12 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
     public async bootstrap(config: JsonObject): Promise<void> {
         await this.registerEventDispatcher();
 
-        app.bind<JsonObject>("config", config);
+        this.container.bind<JsonObject>("config").toConstantValue(config);
 
-        app.singleton<ServiceProviderRepository>("serviceProviderRepository", ServiceProviderRepository);
+        this.container
+            .bind<ServiceProviderRepository>("serviceProviderRepository")
+            .to(ServiceProviderRepository)
+            .inSingletonScope();
 
         await this.bootstrapWith("app");
 
@@ -85,11 +89,13 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public config<T = any>(key: string, value?: T): T {
+        const config: ConfigRepository = this.container.get<ConfigRepository>("config");
+
         if (value) {
-            this.resolve("config").set(key, value);
+            config.set(key, value);
         }
 
-        return this.resolve("config").get(key);
+        return config.get(key);
     }
 
     /**
@@ -97,7 +103,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public dirPrefix(): string {
-        return this.resolve("app.dirPrefix");
+        return this.container.get("app.dirPrefix");
     }
 
     /**
@@ -105,7 +111,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public namespace(): string {
-        return this.resolve("app.namespace");
+        return this.container.get("app.namespace");
     }
 
     /**
@@ -113,7 +119,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public version(): string {
-        return this.resolve("app.version");
+        return this.container.get("app.version");
     }
 
     /**
@@ -121,7 +127,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public token(): string {
-        return this.resolve("app.token");
+        return this.container.get("app.token");
     }
 
     /**
@@ -129,7 +135,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public network(): string {
-        return this.resolve("app.network");
+        return this.container.get("app.network");
     }
 
     /**
@@ -137,7 +143,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public useNetwork(value: string): void {
-        this.bind("app.network", value);
+        this.container.bind<string>("app.network").toConstantValue(value);
     }
 
     /**
@@ -238,7 +244,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public environment(): string {
-        return this.resolve("app.env");
+        return this.container.get("app.env");
     }
 
     /**
@@ -246,7 +252,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public useEnvironment(value: string): void {
-        this.bind("app.env", value);
+        this.container.bind<string>("app.env").toConstantValue(value);
     }
 
     /**
@@ -332,66 +338,91 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
     }
 
     /**
+     * @todo remove after initial migration
+     *
+     * @readonly
+     * @type {Contracts.Kernel.IoC.Container}
+     * @memberof Application
+     */
+    public get ioc(): Contracts.Kernel.IoC.Container {
+        return this.container;
+    }
+
+    /**
+     * @todo remove after initial migration
+     *
      * @readonly
      * @type {Contracts.Kernel.Log.ILogger}
      * @memberof Application
      */
     public get log(): Contracts.Kernel.Log.ILogger {
-        return this.resolve<Contracts.Kernel.Log.ILogger>("log");
+        return this.container.get<Contracts.Kernel.Log.ILogger>("log");
     }
 
     /**
-     * @readonly
-     * @type {Contracts.Kernel.Events.IEventDispatcher}
-     * @memberof Application
-     */
+            * @todo remove after initial migration
+
+            * @readonly
+            * @type {Contracts.Kernel.Events.IEventDispatcher}
+            * @memberof Application
+            */
     public get events(): Contracts.Kernel.Events.IEventDispatcher {
-        return this.resolve<Contracts.Kernel.Events.IEventDispatcher>("events");
+        return this.container.get<Contracts.Kernel.Events.IEventDispatcher>("events");
     }
 
     /**
+     * @todo remove after initial migration
+     *
      * @readonly
      * @type {Contracts.Kernel.Filesystem.IFilesystem}
      * @memberof Application
      */
     public get filesystem(): Contracts.Kernel.Filesystem.IFilesystem {
-        return this.resolve<Contracts.Kernel.Filesystem.IFilesystem>("filesystem");
+        return this.container.get<Contracts.Kernel.Filesystem.IFilesystem>("filesystem");
     }
 
     /**
+     * @todo remove after initial migration
+     *
      * @readonly
      * @type {Contracts.Database.IDatabaseService}
      * @memberof Application
      */
     public get database(): Contracts.Database.IDatabaseService {
-        return this.resolve<Contracts.Database.IDatabaseService>("database");
+        return this.container.get<Contracts.Database.IDatabaseService>("database");
     }
 
     /**
+     * @todo remove after initial migration
+     *
      * @readonly
      * @type {Contracts.Blockchain.IBlockchain}
      * @memberof Application
      */
     public get blockchain(): Contracts.Blockchain.IBlockchain {
-        return this.resolve<Contracts.Blockchain.IBlockchain>("blockchain");
+        return this.container.get<Contracts.Blockchain.IBlockchain>("blockchain");
     }
 
     /**
+     * @todo remove after initial migration
+     *
      * @readonly
      * @type {Contracts.P2P.IPeerService}
      * @memberof Application
      */
     public get p2p(): Contracts.P2P.IPeerService {
-        return this.resolve<Contracts.P2P.IPeerService>("p2p");
+        return this.container.get<Contracts.P2P.IPeerService>("p2p");
     }
 
     /**
+     * @todo remove after initial migration
+     *
      * @readonly
      * @type {Contracts.TransactionPool.IConnection}
      * @memberof Application
      */
     public get transactionPool(): Contracts.TransactionPool.IConnection {
-        return this.resolve<Contracts.TransactionPool.IConnection>("transactionPool");
+        return this.container.get<Contracts.TransactionPool.IConnection>("transactionPool");
     }
 
     /**
@@ -402,12 +433,12 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     public async bootstrapWith(type: string): Promise<void> {
-        const bootstrappers: Array<Constructor<AbstractBootstrapper>> = Object.values(Bootstrappers[type]);
+        const bootstrappers: Array<Constructor<IBootstrapper>> = Object.values(Bootstrappers[type]);
 
         for (const bootstrapper of bootstrappers) {
             this.events.dispatch(`bootstrapping:${bootstrapper.name}`, this);
 
-            await this.build<AbstractBootstrapper>(bootstrapper).bootstrap();
+            await this.container.resolve<IBootstrapper>(bootstrapper).bootstrap();
 
             this.events.dispatch(`bootstrapped:${bootstrapper.name}`, this);
         }
@@ -441,7 +472,10 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     private async registerEventDispatcher(): Promise<void> {
-        this.singleton("events", EventDispatcher);
+        this.container
+            .bind<EventDispatcher>("events")
+            .to(EventDispatcher)
+            .inSingletonScope();
     }
 
     /**
@@ -450,12 +484,14 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     private async disposeServiceProviders(): Promise<void> {
-        const providers: AbstractServiceProvider[] = app
-            .resolve<ServiceProviderRepository>("serviceProviderRepository")
+        const serviceProviders: AbstractServiceProvider[] = this.container
+            .get<ServiceProviderRepository>("serviceProviderRepository")
             .allLoadedProviders();
 
-        for (const provider of providers.reverse()) {
-            await provider.dispose();
+        for (const serviceProvider of serviceProviders.reverse()) {
+            this.log.debug(`Disposing ${serviceProvider.name()}...`);
+
+            await serviceProvider.dispose();
         }
     }
 
@@ -466,7 +502,7 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
      * @memberof Application
      */
     private getPath(type: string): string {
-        const path: string = this.resolve<string>(`path.${type}`);
+        const path: string = this.container.get<string>(`path.${type}`);
 
         if (!existsSync(path)) {
             throw new DirectoryCannotBeFound(path);
@@ -486,20 +522,26 @@ export class Application extends Container implements Contracts.Kernel.IApplicat
             throw new DirectoryCannotBeFound(path);
         }
 
-        this.bind(`path.${type}`, path);
-    }
+        const binding = `path.${type}`;
 
-    /**
-     * @private
-     * @memberof Application
-     */
-    private listenToShutdownSignals(): void {
-        for (const signal in ShutdownSignal) {
-            process.on(signal as any, async code => {
-                await this.terminate(signal);
-
-                process.exit(code || 1);
-            });
+        if (this.container.isBound(binding)) {
+            this.container.unbind(binding);
         }
+
+        this.container.bind<string>(binding).toConstantValue(path);
     }
+
+    // /**
+    //  * @private
+    //  * @memberof Application
+    //  */
+    // private listenToShutdownSignals(): void {
+    //     for (const signal in ShutdownSignal) {
+    //         process.on(signal as any, async code => {
+    //             await this.terminate(signal);
+
+    //             process.exit(code || 1);
+    //         });
+    //     }
+    // }
 }

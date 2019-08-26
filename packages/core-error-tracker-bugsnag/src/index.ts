@@ -9,10 +9,6 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             throw new Error("Bugsnag plugin config invalid");
         }
 
-        this.app.bind("errorTracker", bugsnag(this.config().all() as Bugsnag.IConfig));
-    }
-
-    public provides(): string[] {
-        return ["errorTracker"];
+        this.ioc.bind("errorTracker").toConstantValue(bugsnag(this.config().all() as Bugsnag.IConfig));
     }
 }

@@ -5,7 +5,7 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
-const logger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
+const logger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
 
 export class Database {
     public db: any;
@@ -23,7 +23,7 @@ export class Database {
     }
 
     public close() {
-        if (!app.has("blockchain")) {
+        if (!app.ioc.isBound("blockchain")) {
             this.db.$pool.end();
             this.pgp.end();
         }

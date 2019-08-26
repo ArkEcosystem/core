@@ -1,11 +1,13 @@
 import { ICacheStore } from "../../../contracts/kernel/cache";
 import { NotImplemented } from "../../../exceptions/runtime";
+import { injectable } from "../../../ioc";
 
 /**
  * @export
  * @class Memory
  * @implements {ICacheStore}
  */
+@injectable()
 export class Memory<K, T> implements ICacheStore<K, T> {
     /**
      * @private

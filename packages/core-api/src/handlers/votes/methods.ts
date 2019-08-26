@@ -6,7 +6,7 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 
 const { TransactionType } = Enums;
 
-const databaseService = app.resolve<Contracts.Database.IDatabaseService>("database");
+const databaseService = app.ioc.get<Contracts.Database.IDatabaseService>("database");
 const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {

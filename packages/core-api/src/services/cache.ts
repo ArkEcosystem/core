@@ -34,7 +34,7 @@ export class ServerCache {
     }
 
     private getCacheTimeout(): number | boolean {
-        const { generateTimeout } = app.resolve("api.options").cache;
+        const { generateTimeout } = app.ioc.get<any>("api.options").cache;
 
         return JSON.parse(generateTimeout);
     }

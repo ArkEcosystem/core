@@ -2,25 +2,38 @@ import { JsonObject } from "type-fest";
 import { AbstractServiceProvider, ServiceProviderRepository } from "../../support";
 import { PackageConfiguration } from "../../support/package-configuration";
 import { PackageManifest } from "../../support/package-manifest";
-import { AbstractBootstrapper } from "../bootstrapper";
+import { IApplication } from "../../contracts/kernel";
+import { IBootstrapper } from "../interfaces";
+import { injectable, inject } from "../../ioc";
 
 /**
  * @export
  * @class LoadServiceProviders
- * @extends {AbstractBootstrapper}
+ * @implements {IBootstrapper}
  */
-export class LoadServiceProviders extends AbstractBootstrapper {
+@injectable()
+export class LoadServiceProviders implements IBootstrapper {
+    /**
+     * The application instance.
+     *
+     * @private
+     * @type {IApplication}
+     * @memberof Local
+     */
+    @inject("app")
+    private readonly app: IApplication;
+
     /**
      * @returns {Promise<void>}
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
         for (const [name, opts] of Object.entries(this.app.config<JsonObject>("packages"))) {
-            const serviceProvider: AbstractServiceProvider = this.app.build(require(name).ServiceProvider);
-            serviceProvider.setManifest(this.app.build(PackageManifest).discover(name));
+            const serviceProvider: AbstractServiceProvider = this.app.ioc.resolve(require(name).ServiceProvider);
+            serviceProvider.setManifest(this.app.ioc.resolve(PackageManifest).discover(name));
             serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, opts as JsonObject));
 
-            this.app.resolve<ServiceProviderRepository>("serviceProviderRepository").set(name, serviceProvider);
+            this.app.ioc.get<ServiceProviderRepository>("serviceProviderRepository").set(name, serviceProvider);
         }
     }
 
@@ -37,14 +50,14 @@ export class LoadServiceProviders extends AbstractBootstrapper {
         const hasDefaults: boolean = Object.keys(serviceProvider.configDefaults()).length > 0;
 
         if (hasDefaults) {
-            return this.app
-                .build(PackageConfiguration)
+            return this.app.ioc
+                .resolve(PackageConfiguration)
                 .from(serviceProvider.name(), serviceProvider.configDefaults())
                 .merge(opts);
         }
 
-        return this.app
-            .build(PackageConfiguration)
+        return this.app.ioc
+            .resolve(PackageConfiguration)
             .discover(serviceProvider.name())
             .merge(opts);
     }

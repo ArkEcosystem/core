@@ -9,6 +9,9 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app.singleton("actions", Actions);
+        this.app.ioc
+            .bind<Actions>("actions")
+            .to(Actions)
+            .inSingletonScope();
     }
 }

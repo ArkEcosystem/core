@@ -11,10 +11,10 @@ export class TruncateCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.has("snapshots")) {
+        if (!app.ioc.isBound("snapshots")) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        await app.resolve<SnapshotManager>("snapshots").truncate();
+        await app.ioc.get<SnapshotManager>("snapshots").truncate();
     }
 }

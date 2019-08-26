@@ -29,7 +29,7 @@ export const loadQueryFile = (directory, file): QueryFile => {
     });
 
     if (query.error) {
-        app.resolve<Contracts.Kernel.Log.ILogger>("log").error(query.error.toString());
+        app.ioc.get<Contracts.Kernel.Log.ILogger>("log").error(query.error.toString());
     }
 
     return query;

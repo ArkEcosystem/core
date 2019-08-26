@@ -15,7 +15,7 @@ export class ValidationManager extends AbstractManager<IValidator> {
      * @memberof ValidationManager
      */
     public createJoiDriver(): IValidator {
-        return this.app.build(Joi);
+        return this.app.ioc.resolve(Joi);
     }
 
     /**

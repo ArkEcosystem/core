@@ -3,8 +3,8 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.resolve<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.resolve<
+    private readonly logger: Contracts.Kernel.Log.ILogger = app.ioc.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.ioc.get<
         Contracts.Kernel.Events.IEventDispatcher
     >("events");
 

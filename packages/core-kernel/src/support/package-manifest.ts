@@ -1,10 +1,12 @@
 import { get } from "dottie";
 import { PackageJson } from "type-fest";
+import { injectable } from "../ioc";
 
 /**
  * @export
  * @class PackageManifest
  */
+@injectable()
 export class PackageManifest {
     /**
      * The loaded manifest.

@@ -1,12 +1,14 @@
 import mm from "micromatch";
 import { IEventDispatcher } from "../../contracts/kernel/events";
 import { EventListener, EventName } from "../../types/events";
+import { injectable } from "../../ioc";
 
 /**
  * @export
  * @class EventDispatcher
  * @implements {IEventDispatcher}
  */
+@injectable()
 export class EventDispatcher implements IEventDispatcher {
     /**
      * @private

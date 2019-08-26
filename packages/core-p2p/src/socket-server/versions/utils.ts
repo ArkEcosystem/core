@@ -9,9 +9,9 @@ export const isAppReady = (): {
     p2p: boolean;
 } => {
     return {
-        transactionPool: !!app.has("transactionPool"),
-        blockchain: !!app.has("blockchain"),
-        p2p: !!app.has("p2p"),
+        transactionPool: !!app.ioc.isBound("transactionPool"),
+        blockchain: !!app.ioc.isBound("blockchain"),
+        p2p: !!app.ioc.isBound("p2p"),
     };
 };
 
@@ -23,13 +23,13 @@ export const getHandlers = (): { [key: string]: string[] } => {
 };
 
 export const log = ({ req }): void => {
-    app.resolve("log")[req.data.level](req.data.message);
+    app.log[req.data.level](req.data.message);
 };
 
 export const isForgerAuthorized = ({ req }): { authorized: boolean } => {
-    return { authorized: isWhitelisted(app.resolve("p2p.options").remoteAccess, req.data.ip) };
+    return { authorized: isWhitelisted(app.ioc.get<any>("p2p.options").remoteAccess, req.data.ip) };
 };
 
 export const getConfig = (): Record<string, any> => {
-    return app.resolve("p2p.options");
+    return app.ioc.get<any>("p2p.options");
 };

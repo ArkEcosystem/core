@@ -7,7 +7,7 @@ import { WalletManager } from "./wallet-manager";
 
 export class ServiceProvider extends Support.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.resolve<Contracts.Kernel.Log.ILogger>("log").info("Connecting to transaction pool");
+        this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Connecting to transaction pool");
 
         const connection = await new ConnectionManager().createConnection(
             new Connection({
@@ -18,22 +18,18 @@ export class ServiceProvider extends Support.AbstractServiceProvider {
             }),
         );
 
-        this.app.bind("transactionPool", connection);
-        this.app.bind("transactionPool.options", this.config().all());
+        this.ioc.bind("transactionPool").toConstantValue(connection);
+        this.ioc.bind("transactionPool.options").toConstantValue(this.config().all());
     }
 
     public async dispose(): Promise<void> {
         try {
-            this.app.resolve<Contracts.Kernel.Log.ILogger>("log").info("Disconnecting from transaction pool");
+            this.ioc.get<Contracts.Kernel.Log.ILogger>("log").info("Disconnecting from transaction pool");
 
-            this.app.resolve<Contracts.TransactionPool.IConnection>("transactionPool").disconnect();
+            this.ioc.get<Contracts.TransactionPool.IConnection>("transactionPool").disconnect();
         } catch (error) {
             // @todo: handle
         }
-    }
-
-    public provides(): string[] {
-        return ["transactionPool"];
     }
 
     public async required(): Promise<boolean> {

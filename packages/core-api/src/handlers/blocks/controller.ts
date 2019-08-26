@@ -18,8 +18,8 @@ export class BlocksController extends Controller {
     public async first(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWithResource(
-                app
-                    .resolve<Contracts.State.IStateService>("state")
+                app.ioc
+                    .get<Contracts.State.IStateService>("state")
                     .getStore()
                     .getGenesisBlock().data,
                 "block",
@@ -33,7 +33,7 @@ export class BlocksController extends Controller {
     public async last(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWithResource(
-                app.resolve<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock().data,
+                app.ioc.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock().data,
                 "block",
                 (request.query.transform as unknown) as boolean,
             );

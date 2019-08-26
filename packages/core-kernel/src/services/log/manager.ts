@@ -15,7 +15,7 @@ export class LogManager extends AbstractManager<ILogger> {
      * @memberof LogManager
      */
     public async createConsoleDriver(): Promise<ILogger> {
-        return this.app.build(Console).make();
+        return this.app.ioc.resolve(Console).make();
     }
 
     /**

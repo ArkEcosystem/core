@@ -9,8 +9,11 @@ export class ServiceProvider extends AbstractServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app.singleton("queueManager", QueueManager);
+        this.app.ioc
+            .bind<QueueManager>("queueManager")
+            .to(QueueManager)
+            .inSingletonScope();
 
-        // await this.app.resolve<QueueManager>("queueManager").boot();
+        // await this.app.ioc.get<QueueManager>("queueManager").boot();
     }
 }
