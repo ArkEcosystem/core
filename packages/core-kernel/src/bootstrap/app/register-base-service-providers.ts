@@ -1,4 +1,4 @@
-import { Actions, Cache, Filesystem, Log, Queue, Validation } from "../../services";
+import { Actions, Cache, Filesystem, Log, Queue, Schedule, Validation } from "../../services";
 import { IApplication } from "../../contracts/kernel";
 import { IBootstrapper } from "../interfaces";
 import { injectable, inject } from "../../container";
@@ -37,5 +37,7 @@ export class RegisterBaseServiceProviders implements IBootstrapper {
         await this.app.ioc.resolve(Queue.ServiceProvider).register();
 
         await this.app.ioc.resolve(Validation.ServiceProvider).register();
+
+        await this.app.ioc.resolve(Schedule.ServiceProvider).register();
     }
 }

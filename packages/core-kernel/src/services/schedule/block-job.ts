@@ -1,23 +1,49 @@
-import { Managers } from "@arkecosystem/crypto";
+import { IEventDispatcher } from "../../contracts/kernel/events";
+import { injectable, inject } from "../../container";
+import { State } from "../../enums/events";
+import { Job } from "./interfaces";
+import { Interfaces, Managers } from "@arkecosystem/crypto";
 
 /**
  * @export
- * @class BlockFrequencies
+ * @class BlockJob
+ * @implements {Job}
  */
-export class BlockFrequencies {
+@injectable()
+export class BlockJob implements Job {
+    /**
+     * @private
+     * @type {IEventDispatcher}
+     * @memberof BlockJob
+     */
+    @inject("events")
+    private readonly events: IEventDispatcher;
+
     /**
      * @private
      * @type {number}
-     * @memberof BlockFrequencies
+     * @memberof BlockJob
      */
     protected blockCount = 1;
+
+    /**
+     * @param {() => void} callback
+     * @memberof BlockJob
+     */
+    public execute(callback: () => void): void {
+        this.events.listen(State.BlockReceived, async (_, data: Interfaces.IBlockData) => {
+            if (data.height % this.blockCount === 0) {
+                await callback();
+            }
+        });
+    }
 
     /**
      * The number of blocks representing the job's frequency.
      *
      * @param {number} blockCount
      * @returns {this}
-     * @memberof BlockFrequencies
+     * @memberof BlockJob
      */
     public cron(blockCount: number): this {
         this.blockCount = blockCount;
@@ -29,7 +55,7 @@ export class BlockFrequencies {
      * Schedule the job to run every block.
      *
      * @returns {this}
-     * @memberof BlockFrequencies
+     * @memberof BlockJob
      */
     public everyBlock(): this {
         return this.cron(1);
@@ -39,7 +65,7 @@ export class BlockFrequencies {
      * Schedule the job to run every five blocks.
      *
      * @returns {this}
-     * @memberof BlockFrequencies
+     * @memberof BlockJob
      */
     public everyFiveBlocks(): this {
         return this.cron(5);
@@ -49,7 +75,7 @@ export class BlockFrequencies {
      * Schedule the job to run every ten blocks.
      *
      * @returns {this}
-     * @memberof BlockFrequencies
+     * @memberof BlockJob
      */
     public everyTenBlocks(): this {
         return this.cron(10);
@@ -59,7 +85,7 @@ export class BlockFrequencies {
      * Schedule the job to run every fifteen blocks.
      *
      * @returns {this}
-     * @memberof BlockFrequencies
+     * @memberof BlockJob
      */
     public everyFifteenBlocks(): this {
         return this.cron(15);
@@ -69,7 +95,7 @@ export class BlockFrequencies {
      * Schedule the job to run every thirty blocks.
      *
      * @returns {this}
-     * @memberof BlockFrequencies
+     * @memberof BlockJob
      */
     public everyThirtyBlocks(): this {
         return this.cron(30);
@@ -79,7 +105,7 @@ export class BlockFrequencies {
      * Schedule the job to run every round.
      *
      * @returns {this}
-     * @memberof BlockFrequencies
+     * @memberof BlockJob
      */
     public everyRound(): this {
         return this.cron(Managers.configManager.getMilestone().activeDelegates);

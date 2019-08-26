@@ -5,7 +5,7 @@ import * as Events from "./events";
 import * as Filesystem from "./filesystem";
 import * as Log from "./log";
 import * as Queue from "./queue";
-import * as Scheduler from "./scheduler";
+import * as Schedule from "./schedule";
 import * as Validation from "./validation";
 
-export { Actions, Cache, Config, Events, Filesystem, Log, Queue, Scheduler, Validation };
+export { Actions, Cache, Config, Events, Filesystem, Log, Queue, Schedule, Validation };

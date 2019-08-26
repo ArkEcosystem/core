@@ -1,25 +1,39 @@
+import { CronJob as Cron } from "cron";
+import { Job } from "./interfaces";
+import { injectable } from "../../container";
+
 /**
  * @remarks
  * {@link https://crontab.guru/ | crontab guru}
  * {@link https://github.com/kelektiv/node-cron | node-cron}
  *
  * @export
- * @class CronFrequencies
+ * @class CronJob
+ * @implements {Job}
  */
-export class CronFrequencies {
+@injectable()
+export class CronJob implements Job {
     /**
      * @private
      * @type {string}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     protected expression = "* * * * *";
+
+    /**
+     * @param {() => void} callback
+     * @memberof CronJob
+     */
+    public execute(callback: () => void): void {
+        new Cron(this.expression, callback).start();
+    }
 
     /**
      * The Cron expression representing the job's frequency.
      *
      * @param {string} expression
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public cron(expression: string): this {
         this.expression = expression;
@@ -31,7 +45,7 @@ export class CronFrequencies {
      * Schedule the job to run every minute.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public everyMinute(): this {
         return this.setMinute("*");
@@ -41,7 +55,7 @@ export class CronFrequencies {
      * Schedule the job to run every five minutes.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public everyFiveMinutes(): this {
         return this.setMinute("*/5");
@@ -51,7 +65,7 @@ export class CronFrequencies {
      * Schedule the job to run every ten minutes.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public everyTenMinutes(): this {
         return this.setMinute("*/10");
@@ -61,7 +75,7 @@ export class CronFrequencies {
      * Schedule the job to run every fifteen minutes.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public everyFifteenMinutes(): this {
         return this.setMinute("*/15");
@@ -71,7 +85,7 @@ export class CronFrequencies {
      * Schedule the job to run every thirty minutes.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public everyThirtyMinutes(): this {
         return this.setMinute("*/30");
@@ -81,7 +95,7 @@ export class CronFrequencies {
      * Schedule the job to run hourly.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public hourly(): this {
         return this.setMinute("0");
@@ -92,7 +106,7 @@ export class CronFrequencies {
      *
      * @param {string} minute
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public hourlyAt(minute: string): this {
         return this.setMinute(minute);
@@ -102,7 +116,7 @@ export class CronFrequencies {
      * Schedule the job to run daily.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public daily(): this {
         return this.setMinute("0").setHour("0");
@@ -114,7 +128,7 @@ export class CronFrequencies {
      * @param {string} hour
      * @param {string} minute
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public dailyAt(hour: string, minute: string): this {
         return this.setMinute(minute).setHour(hour);
@@ -124,7 +138,7 @@ export class CronFrequencies {
      * Schedule the job to run only on weekdays.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public weekdays(): this {
         return this.setMinute("0")
@@ -136,7 +150,7 @@ export class CronFrequencies {
      * Schedule the job to run only on weekends.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public weekends(): this {
         return this.setMinute("0")
@@ -148,7 +162,7 @@ export class CronFrequencies {
      * Schedule the job to run only on Mondays.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public mondays(): this {
         return this.setMinute("0")
@@ -160,7 +174,7 @@ export class CronFrequencies {
      * Schedule the job to run only on Tuesdays.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public tuesdays(): this {
         return this.setMinute("0")
@@ -172,7 +186,7 @@ export class CronFrequencies {
      * Schedule the job to run only on Wednesdays.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public wednesdays(): this {
         return this.setMinute("0")
@@ -184,7 +198,7 @@ export class CronFrequencies {
      * Schedule the job to run only on Thursdays.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public thursdays(): this {
         return this.setMinute("0")
@@ -196,7 +210,7 @@ export class CronFrequencies {
      * Schedule the job to run only on Fridays.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public fridays(): this {
         return this.setMinute("0")
@@ -208,7 +222,7 @@ export class CronFrequencies {
      * Schedule the job to run only on Saturdays.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public saturdays(): this {
         return this.setMinute("0")
@@ -220,7 +234,7 @@ export class CronFrequencies {
      * Schedule the job to run only on Sundays.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public sundays(): this {
         return this.setMinute("0")
@@ -232,7 +246,7 @@ export class CronFrequencies {
      * Schedule the job to run weekly.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public weekly(): this {
         return this.setMinute("0")
@@ -247,7 +261,7 @@ export class CronFrequencies {
      * @param {string} [hour="0"]
      * @param {string} [minute="0"]
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public weeklyOn(day: string, hour = "0", minute = "0"): this {
         return this.setMinute(minute)
@@ -259,7 +273,7 @@ export class CronFrequencies {
      * Schedule the job to run monthly.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public monthly(): this {
         return this.setMinute("0")
@@ -274,7 +288,7 @@ export class CronFrequencies {
      * @param {string} [hour="0"]
      * @param {string} [minute="0"]
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public monthlyOn(day: string, hour = "0", minute = "0"): this {
         return this.setMinute(minute)
@@ -286,7 +300,7 @@ export class CronFrequencies {
      * Schedule the job to run quarterly.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public quarterly(): this {
         return this.setMinute("0")
@@ -299,7 +313,7 @@ export class CronFrequencies {
      * Schedule the job to run yearly.
      *
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     public yearly(): this {
         return this.setMinute("0")
@@ -312,7 +326,7 @@ export class CronFrequencies {
      * @private
      * @param {string} value
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     private setMinute(value: string): this {
         return this.spliceIntoPosition(0, value);
@@ -322,7 +336,7 @@ export class CronFrequencies {
      * @private
      * @param {string} value
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     private setHour(value: string): this {
         return this.spliceIntoPosition(1, value);
@@ -332,7 +346,7 @@ export class CronFrequencies {
      * @private
      * @param {string} value
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     private setDayMonth(value: string): this {
         return this.spliceIntoPosition(2, value);
@@ -342,7 +356,7 @@ export class CronFrequencies {
      * @private
      * @param {string} value
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     private setMonth(value: string): this {
         return this.spliceIntoPosition(3, value);
@@ -352,7 +366,7 @@ export class CronFrequencies {
      * @private
      * @param {string} value
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     private setDayWeek(value: string): this {
         return this.spliceIntoPosition(4, value);
@@ -365,7 +379,7 @@ export class CronFrequencies {
      * @param {number} position
      * @param {string} value
      * @returns {this}
-     * @memberof CronFrequencies
+     * @memberof CronJob
      */
     private spliceIntoPosition(position: number, value: string): this {
         const segments: string[] = this.expression.split(" ");
