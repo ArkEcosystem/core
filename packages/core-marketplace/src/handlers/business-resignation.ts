@@ -91,7 +91,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.setAttribute("business.resigned", false);
+        sender.forgetAttribute("business.resigned");
         walletManager.reindex(sender);
     }
 

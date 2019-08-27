@@ -71,7 +71,7 @@ describe("Wallet Manager", () => {
                 };
                 const lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
                     .withPassphrase(lockPassphrase)
-                    .withNonce(Utils.BigNumber.make(2))
+                    .withNonce(Utils.BigNumber.ONE)
                     .withFee(1e7)
                     .build(1)[0];
 
@@ -319,7 +319,7 @@ describe("Wallet Manager", () => {
         });
 
         describe("apply and revert transaction", () => {
-            it.only("should update balance and vote balance when lock wallet votes for a delegate", async () => {
+            it("should update balance and vote balance when lock wallet votes for a delegate", async () => {
                 lockWallet.nonce = Utils.BigNumber.ZERO;
                 // prepare htlc lock transaction
                 const amount = 6 * 1e8;

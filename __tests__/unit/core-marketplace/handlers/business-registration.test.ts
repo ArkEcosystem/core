@@ -65,7 +65,7 @@ describe("Business registration handler", () => {
             ).rejects.toThrowError(BusinessAlreadyRegisteredError);
         });
 
-        it("should resolve because business is resigned", async () => {
+        it("should reject business registration when resigned", async () => {
             senderWallet.setAttribute("business.resigned", true);
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset(businessRegistrationAsset1)
@@ -74,7 +74,7 @@ describe("Business registration handler", () => {
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
             await expect(
                 businessRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-            ).toResolve();
+            ).toReject();
         });
     });
 

@@ -1,7 +1,6 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { MarketplaceTransactionType } from "../enums";
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
@@ -53,7 +52,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        if (wallet.hasAttribute("business") && wallet.getAttribute<boolean>("business.resigned") !== true) {
+        if (wallet.hasAttribute("business")) {
             throw new BusinessAlreadyRegisteredError();
         }
 

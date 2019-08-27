@@ -55,7 +55,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             throw new BusinessIsNotRegisteredError();
         }
 
-        if (wallet.getAttribute("business.resigned") === true) {
+        if (wallet.getAttribute<IBusinessWalletAttributes>("business").resigned) {
             throw new BusinessIsResignedError();
         }
 
@@ -138,11 +138,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }
