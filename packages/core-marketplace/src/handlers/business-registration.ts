@@ -1,6 +1,7 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { MarketplaceTransactionType } from "../enums";
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";

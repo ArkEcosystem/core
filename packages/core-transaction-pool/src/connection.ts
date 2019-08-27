@@ -76,10 +76,14 @@ export class Connection implements TransactionPool.IConnection {
         return new Processor(this, this.walletManager);
     }
 
-    public async getTransactionsByType(type: number): Promise<Set<Interfaces.ITransaction>> {
+    public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
+        if (typeGroup === undefined) {
+            typeGroup = Enums.TransactionTypeGroup.Core;
+        }
+
         await this.purgeExpired();
 
-        return this.memory.getByType(type);
+        return this.memory.getByType(type, typeGroup);
     }
 
     public async getPoolSize(): Promise<number> {
@@ -324,12 +328,20 @@ export class Connection implements TransactionPool.IConnection {
 
     public async senderHasTransactionsOfType(
         senderPublicKey: string,
-        transactionType: Enums.TransactionType,
+        type: number,
+        typeGroup?: number,
     ): Promise<boolean> {
         await this.purgeExpired();
 
+        if (typeGroup === undefined) {
+            typeGroup = Enums.TransactionTypeGroup.Core;
+        }
+
         for (const transaction of this.memory.getBySender(senderPublicKey)) {
-            if (transaction.type === transactionType) {
+            const transactionGroup: number =
+                transaction.typeGroup === undefined ? Enums.TransactionTypeGroup.Core : transaction.typeGroup;
+
+            if (transaction.type === type && transactionGroup === typeGroup) {
                 return true;
             }
         }
