@@ -10,7 +10,7 @@ import { Delegate } from "./delegate";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
 export class ForgerManager {
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
 
     private secrets: string[];
     private network: Types.NetworkType;
@@ -18,7 +18,7 @@ export class ForgerManager {
     private delegates: Delegate[];
     private usernames: { [key: string]: string };
     private isStopped: boolean;
-    private round: Contracts.P2P.ICurrentRound;
+    private round: Contracts.P2P.CurrentRound;
     private initialized: boolean;
 
     constructor(options) {
@@ -93,7 +93,7 @@ export class ForgerManager {
                 return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
             }
 
-            const networkState: Contracts.P2P.INetworkState = await this.client.getNetworkState();
+            const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
 
             if (networkState.nodeHeight !== this.round.lastBlock.height) {
                 this.logger.warning(
@@ -132,8 +132,8 @@ export class ForgerManager {
 
     public async forgeNewBlock(
         delegate: Delegate,
-        round: Contracts.P2P.ICurrentRound,
-        networkState: Contracts.P2P.INetworkState,
+        round: Contracts.P2P.CurrentRound,
+        networkState: Contracts.P2P.NetworkState,
     ): Promise<void> {
         Managers.configManager.setHeight(networkState.nodeHeight);
 
@@ -181,7 +181,7 @@ export class ForgerManager {
     }
 
     public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
-        const response: Contracts.P2P.IForgingTransactions = await this.client.getTransactions();
+        const response: Contracts.P2P.ForgingTransactions = await this.client.getTransactions();
 
         if (isEmpty(response)) {
             this.logger.error("Could not get unconfirmed transactions from transaction pool.");
@@ -202,7 +202,7 @@ export class ForgerManager {
         return transactions;
     }
 
-    public isForgingAllowed(networkState: Contracts.P2P.INetworkState, delegate: Delegate): boolean {
+    public isForgingAllowed(networkState: Contracts.P2P.NetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
 

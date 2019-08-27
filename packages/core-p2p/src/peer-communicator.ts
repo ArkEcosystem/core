@@ -5,20 +5,20 @@ import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
-import { IPeerConfig, IPeerPingResponse } from "./interfaces";
+import { PeerConfig, PeerPingResponse } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
-export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
-        Contracts.Kernel.Events.IEventDispatcher
+export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
+    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
+        Contracts.Kernel.Events.EventDispatcher
     >("events");
 
-    constructor(private readonly connector: Contracts.P2P.IPeerConnector) {}
+    constructor(private readonly connector: Contracts.P2P.PeerConnector) {}
 
-    public async downloadBlocks(peer: Contracts.P2P.IPeer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
+    public async downloadBlocks(peer: Contracts.P2P.Peer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
         this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
 
         let blocks: Interfaces.IBlockData[];
@@ -34,25 +34,25 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
         return blocks;
     }
 
-    public async postBlock(peer: Contracts.P2P.IPeer, block: Interfaces.IBlockJson) {
+    public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlockJson) {
         return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
     }
 
     public async postTransactions(
-        peer: Contracts.P2P.IPeer,
+        peer: Contracts.P2P.Peer,
         transactions: Interfaces.ITransactionJson[],
     ): Promise<any> {
         return this.emit(peer, "p2p.peer.postTransactions", { transactions });
     }
 
-    public async ping(peer: Contracts.P2P.IPeer, timeoutMsec: number, force = false): Promise<any> {
+    public async ping(peer: Contracts.P2P.Peer, timeoutMsec: number, force = false): Promise<any> {
         const deadline = new Date().getTime() + timeoutMsec;
 
         if (peer.recentlyPinged() && !force) {
             return undefined;
         }
 
-        const pingResponse: IPeerPingResponse = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
+        const pingResponse: PeerPingResponse = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
 
         if (!pingResponse) {
             throw new PeerStatusResponseError(peer.ip);
@@ -83,7 +83,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
         return pingResponse.state;
     }
 
-    public async pingPorts(peer: Contracts.P2P.IPeer): Promise<void> {
+    public async pingPorts(peer: Contracts.P2P.Peer): Promise<void> {
         Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
@@ -99,7 +99,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
         );
     }
 
-    public validatePeerConfig(peer: Contracts.P2P.IPeer, config: IPeerConfig): boolean {
+    public validatePeerConfig(peer: Contracts.P2P.Peer, config: PeerConfig): boolean {
         if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
             return false;
         }
@@ -113,13 +113,13 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
         return true;
     }
 
-    public async getPeers(peer: Contracts.P2P.IPeer): Promise<any> {
+    public async getPeers(peer: Contracts.P2P.Peer): Promise<any> {
         this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
         return this.emit(peer, "p2p.peer.getPeers");
     }
 
-    public async hasCommonBlocks(peer: Contracts.P2P.IPeer, ids: string[], timeoutMsec?: number): Promise<any> {
+    public async hasCommonBlocks(peer: Contracts.P2P.Peer, ids: string[], timeoutMsec?: number): Promise<any> {
         try {
             const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, timeoutMsec);
 
@@ -140,7 +140,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
     }
 
     public async getPeerBlocks(
-        peer: Contracts.P2P.IPeer,
+        peer: Contracts.P2P.Peer,
         {
             fromBlockHeight,
             blockLimit,
@@ -194,13 +194,13 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
         return peerBlocks;
     }
 
-    private parseHeaders(peer: Contracts.P2P.IPeer, response): void {
+    private parseHeaders(peer: Contracts.P2P.Peer, response): void {
         if (response.headers.height) {
             peer.state.height = +response.headers.height;
         }
     }
 
-    private validateReply(peer: Contracts.P2P.IPeer, reply: any, endpoint: string): boolean {
+    private validateReply(peer: Contracts.P2P.Peer, reply: any, endpoint: string): boolean {
         const schema = replySchemas[endpoint];
         if (schema === undefined) {
             this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined schemas matches.`);
@@ -216,7 +216,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
         return true;
     }
 
-    private async emit(peer: Contracts.P2P.IPeer, event: string, data?: any, timeout?: number) {
+    private async emit(peer: Contracts.P2P.Peer, event: string, data?: any, timeout?: number) {
         let response;
         try {
             this.connector.forgetError(peer);
@@ -249,7 +249,7 @@ export class PeerCommunicator implements Contracts.P2P.IPeerCommunicator {
         return response.data;
     }
 
-    private handleSocketError(peer: Contracts.P2P.IPeer, event: string, error: Error): void {
+    private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error): void {
         if (!error.name) {
             return;
         }

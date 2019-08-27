@@ -2,13 +2,13 @@ import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
-export class TransactionsBusinessRepository implements Contracts.Database.ITransactionsBusinessRepository {
-    constructor(private readonly databaseServiceProvider: () => Contracts.Database.IDatabaseService) {}
+export class TransactionsBusinessRepository implements Contracts.Database.TransactionsBusinessRepository {
+    constructor(private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) {}
 
     public async search(
-        params: Contracts.Database.IParameters = {},
+        params: Contracts.Database.Parameters = {},
         sequenceOrder: "asc" | "desc" = "desc",
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
+    ): Promise<Contracts.Database.TransactionsPaginated> {
         try {
             const result = await this.databaseServiceProvider().connection.transactionsRepository.search(
                 this.parseSearchParameters(params, sequenceOrder),
@@ -23,8 +23,8 @@ export class TransactionsBusinessRepository implements Contracts.Database.ITrans
 
     public async allVotesBySender(
         senderPublicKey: string,
-        parameters: Contracts.Database.IParameters = {},
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
+        parameters: Contracts.Database.Parameters = {},
+    ): Promise<Contracts.Database.TransactionsPaginated> {
         return this.search({
             ...{ senderPublicKey, type: Enums.TransactionType.Vote },
             ...parameters,
@@ -33,38 +33,38 @@ export class TransactionsBusinessRepository implements Contracts.Database.ITrans
 
     public async findAllByBlock(
         blockId: string,
-        parameters: Contracts.Database.IParameters = {},
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
+        parameters: Contracts.Database.Parameters = {},
+    ): Promise<Contracts.Database.TransactionsPaginated> {
         return this.search({ blockId, ...parameters }, "asc");
     }
 
     public async findAllByRecipient(
         recipientId: string,
-        parameters: Contracts.Database.IParameters = {},
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
+        parameters: Contracts.Database.Parameters = {},
+    ): Promise<Contracts.Database.TransactionsPaginated> {
         return this.search({ recipientId, ...parameters });
     }
 
     public async findAllBySender(
         senderPublicKey: string,
-        parameters: Contracts.Database.IParameters = {},
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
+        parameters: Contracts.Database.Parameters = {},
+    ): Promise<Contracts.Database.TransactionsPaginated> {
         return this.search({ senderPublicKey, ...parameters });
     }
 
     public async findAllByType(
         type: number,
-        parameters: Contracts.Database.IParameters = {},
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
+        parameters: Contracts.Database.Parameters = {},
+    ): Promise<Contracts.Database.TransactionsPaginated> {
         return this.search({ type, ...parameters });
     }
 
     // @todo: simplify this
     public async findAllByWallet(
-        wallet: Contracts.State.IWallet,
-        parameters: Contracts.Database.IParameters = {},
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
-        const { transactionsRepository }: Contracts.Database.IConnection = this.databaseServiceProvider().connection;
+        wallet: Contracts.State.Wallet,
+        parameters: Contracts.Database.Parameters = {},
+    ): Promise<Contracts.Database.TransactionsPaginated> {
+        const { transactionsRepository }: Contracts.Database.Connection = this.databaseServiceProvider().connection;
         const searchParameters = new SearchParameterConverter(transactionsRepository.getModel()).convert(parameters);
 
         const result = await transactionsRepository.findAllByWallet(
@@ -117,7 +117,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.ITrans
     }
 
     private getPublicKeyFromAddress(senderId: string): string {
-        const { walletManager }: Contracts.Database.IDatabaseService = this.databaseServiceProvider();
+        const { walletManager }: Contracts.Database.DatabaseService = this.databaseServiceProvider();
 
         return walletManager.hasByAddress(senderId) ? walletManager.findByAddress(senderId).publicKey : undefined;
     }
@@ -176,8 +176,8 @@ export class TransactionsBusinessRepository implements Contracts.Database.ITrans
     private parseSearchParameters(
         params: any,
         sequenceOrder: "asc" | "desc" = "desc",
-    ): Contracts.Database.ISearchParameters {
-        const databaseService: Contracts.Database.IDatabaseService = this.databaseServiceProvider();
+    ): Contracts.Database.SearchParameters {
+        const databaseService: Contracts.Database.DatabaseService = this.databaseServiceProvider();
 
         if (params.senderId) {
             const senderPublicKey = this.getPublicKeyFromAddress(params.senderId);
@@ -204,7 +204,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.ITrans
             delete params.addresses;
         }
 
-        const searchParameters: Contracts.Database.ISearchParameters = new SearchParameterConverter(
+        const searchParameters: Contracts.Database.SearchParameters = new SearchParameterConverter(
             databaseService.connection.transactionsRepository.getModel(),
         ).convert(params);
 

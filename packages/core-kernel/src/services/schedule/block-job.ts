@@ -1,4 +1,4 @@
-import { IEventDispatcher } from "../../contracts/kernel/events";
+import { EventDispatcher } from "../../contracts/kernel/events";
 import { injectable, inject } from "../../container";
 import { State } from "../../enums/events";
 import { Job } from "./interfaces";
@@ -13,11 +13,11 @@ import { Interfaces, Managers } from "@arkecosystem/crypto";
 export class BlockJob implements Job {
     /**
      * @private
-     * @type {IEventDispatcher}
+     * @type {EventDispatcher}
      * @memberof BlockJob
      */
     @inject("events")
-    private readonly events: IEventDispatcher;
+    private readonly events: EventDispatcher;
 
     /**
      * @private

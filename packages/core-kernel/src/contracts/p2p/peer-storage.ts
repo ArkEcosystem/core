@@ -1,24 +1,24 @@
-import { IPeer } from "./peer";
+import { Peer } from "./peer";
 
-export interface IPeerStorage {
-    getPeers(): IPeer[];
+export interface PeerStorage {
+    getPeers(): Peer[];
     hasPeers(): boolean;
-    getPeer(ip: string): IPeer;
-    setPeer(peer: IPeer): void;
-    forgetPeer(peer: IPeer): void;
+    getPeer(ip: string): Peer;
+    setPeer(peer: Peer): void;
+    forgetPeer(peer: Peer): void;
     hasPeer(ip: string): boolean;
 
-    getPendingPeers(): IPeer[];
+    getPendingPeers(): Peer[];
     hasPendingPeers(): boolean;
-    getPendingPeer(ip: string): IPeer;
-    setPendingPeer(peer: IPeer): void;
-    forgetPendingPeer(peer: IPeer): void;
+    getPendingPeer(ip: string): Peer;
+    setPendingPeer(peer: Peer): void;
+    forgetPendingPeer(peer: Peer): void;
     hasPendingPeer(ip: string): boolean;
 
-    getSameSubnetPeers(ip: string): IPeer[];
+    getSameSubnetPeers(ip: string): Peer[];
 }
 
-export interface IPeerRepository<T> {
+export interface PeerRepository<T> {
     all(): Map<string, T>;
     entries(): Array<[string, T]>;
     keys(): string[];

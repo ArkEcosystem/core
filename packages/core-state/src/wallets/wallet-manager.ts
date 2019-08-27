@@ -7,11 +7,11 @@ import { TempWalletManager } from "./temp-wallet-manager";
 import { Wallet } from "./wallet";
 import { WalletIndex } from "./wallet-index";
 
-export class WalletManager implements Contracts.State.IWalletManager {
+export class WalletManager implements Contracts.State.WalletManager {
     // @todo: make this private and read-only
-    public logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    public logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
 
-    private readonly indexes: Record<string, Contracts.State.IWalletIndex> = {};
+    private readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
     private currentBlock: Interfaces.IBlock;
 
     constructor() {
@@ -19,7 +19,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
         this.registerIndex(
             Contracts.State.WalletIndexes.Addresses,
-            (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
+            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
                 if (wallet.address) {
                     index.set(wallet.address, wallet);
                 }
@@ -28,7 +28,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
         this.registerIndex(
             Contracts.State.WalletIndexes.PublicKeys,
-            (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
+            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
                 if (wallet.publicKey) {
                     index.set(wallet.publicKey, wallet);
                 }
@@ -37,7 +37,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
         this.registerIndex(
             Contracts.State.WalletIndexes.Usernames,
-            (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
+            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
                 if (wallet.isDelegate()) {
                     index.set(wallet.getAttribute("delegate.username"), wallet);
                 }
@@ -46,7 +46,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
         this.registerIndex(
             Contracts.State.WalletIndexes.Locks,
-            (index: Contracts.State.IWalletIndex, wallet: Contracts.State.IWallet) => {
+            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
                 const locks = wallet.getAttribute("htlc.locks");
                 if (locks) {
                     for (const lockId of Object.keys(locks)) {
@@ -73,7 +73,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
         delete this.indexes[name];
     }
 
-    public getIndex(name: string): Contracts.State.IWalletIndex {
+    public getIndex(name: string): Contracts.State.WalletIndex {
         if (!this.indexes[name]) {
             throw new WalletIndexNotFoundError(name);
         }
@@ -81,21 +81,21 @@ export class WalletManager implements Contracts.State.IWalletManager {
         return this.indexes[name];
     }
 
-    public allByAddress(): ReadonlyArray<Contracts.State.IWallet> {
+    public allByAddress(): ReadonlyArray<Contracts.State.Wallet> {
         return this.getIndex(Contracts.State.WalletIndexes.Addresses).all();
     }
 
-    public allByPublicKey(): ReadonlyArray<Contracts.State.IWallet> {
+    public allByPublicKey(): ReadonlyArray<Contracts.State.Wallet> {
         return this.getIndex(Contracts.State.WalletIndexes.PublicKeys).all();
     }
 
-    public allByUsername(): ReadonlyArray<Contracts.State.IWallet> {
+    public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
         return this.getIndex(Contracts.State.WalletIndexes.Usernames).all();
     }
 
-    public findById(id: string): Contracts.State.IWallet {
+    public findById(id: string): Contracts.State.Wallet {
         for (const index of Object.values(this.indexes)) {
-            const wallet: Contracts.State.IWallet = index.get(id);
+            const wallet: Contracts.State.Wallet = index.get(id);
             if (wallet) {
                 return wallet;
             }
@@ -104,8 +104,8 @@ export class WalletManager implements Contracts.State.IWalletManager {
         return undefined;
     }
 
-    public findByAddress(address: string): Contracts.State.IWallet {
-        const index: Contracts.State.IWalletIndex = this.getIndex(Contracts.State.WalletIndexes.Addresses);
+    public findByAddress(address: string): Contracts.State.Wallet {
+        const index: Contracts.State.WalletIndex = this.getIndex(Contracts.State.WalletIndexes.Addresses);
         if (address && !index.has(address)) {
             index.set(address, new Wallet(address));
         }
@@ -113,11 +113,11 @@ export class WalletManager implements Contracts.State.IWalletManager {
         return index.get(address);
     }
 
-    public findByPublicKey(publicKey: string): Contracts.State.IWallet {
-        const index: Contracts.State.IWalletIndex = this.getIndex(Contracts.State.WalletIndexes.PublicKeys);
+    public findByPublicKey(publicKey: string): Contracts.State.Wallet {
+        const index: Contracts.State.WalletIndex = this.getIndex(Contracts.State.WalletIndexes.PublicKeys);
         if (publicKey && !index.has(publicKey)) {
             const address: string = Identities.Address.fromPublicKey(publicKey);
-            const wallet: Contracts.State.IWallet = this.findByAddress(address);
+            const wallet: Contracts.State.Wallet = this.findByAddress(address);
             wallet.publicKey = publicKey;
             index.set(publicKey, wallet);
         }
@@ -125,11 +125,11 @@ export class WalletManager implements Contracts.State.IWalletManager {
         return index.get(publicKey);
     }
 
-    public findByUsername(username: string): Contracts.State.IWallet {
+    public findByUsername(username: string): Contracts.State.Wallet {
         return this.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
     }
 
-    public findByIndex(indexName: string, key: string): Contracts.State.IWallet | undefined {
+    public findByIndex(indexName: string, key: string): Contracts.State.Wallet | undefined {
         return this.getIndex(indexName).get(key);
     }
 
@@ -183,13 +183,13 @@ export class WalletManager implements Contracts.State.IWalletManager {
         this.getIndex(indexName).forget(key);
     }
 
-    public index(wallets: ReadonlyArray<Contracts.State.IWallet>): void {
+    public index(wallets: ReadonlyArray<Contracts.State.Wallet>): void {
         for (const wallet of wallets) {
             this.reindex(wallet);
         }
     }
 
-    public reindex(wallet: Contracts.State.IWallet): void {
+    public reindex(wallet: Contracts.State.Wallet): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.index(wallet);
         }
@@ -203,8 +203,8 @@ export class WalletManager implements Contracts.State.IWalletManager {
         return new TempWalletManager(this);
     }
 
-    public loadActiveDelegateList(roundInfo: Contracts.Shared.IRoundInfo): Contracts.State.IWallet[] {
-        const delegates: Contracts.State.IWallet[] = this.buildDelegateRanking(roundInfo);
+    public loadActiveDelegateList(roundInfo: Contracts.Shared.RoundInfo): Contracts.State.Wallet[] {
+        const delegates: Contracts.State.Wallet[] = this.buildDelegateRanking(roundInfo);
         const { maxDelegates } = roundInfo;
 
         if (delegates.length < maxDelegates) {
@@ -223,7 +223,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
     public buildVoteBalances(): void {
         for (const voter of this.allByPublicKey()) {
             if (voter.hasVoted()) {
-                const delegate: Contracts.State.IWallet = this.findByPublicKey(voter.getAttribute<string>("vote"));
+                const delegate: Contracts.State.Wallet = this.findByPublicKey(voter.getAttribute<string>("vote"));
                 const voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
                 const lockedBalance = voter.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
                 delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance).plus(lockedBalance));
@@ -235,7 +235,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
         this.currentBlock = block;
         const generatorPublicKey: string = block.data.generatorPublicKey;
 
-        let delegate: Contracts.State.IWallet;
+        let delegate: Contracts.State.Wallet;
         if (!this.has(generatorPublicKey)) {
             const generator: string = Identities.Address.fromPublicKey(generatorPublicKey);
 
@@ -266,7 +266,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
             // delegate's delegate has to be updated.
             if (applied && delegate.hasVoted()) {
                 const increase: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
-                const votedDelegate: Contracts.State.IWallet = this.findByPublicKey(
+                const votedDelegate: Contracts.State.Wallet = this.findByPublicKey(
                     delegate.getAttribute<string>("vote"),
                 );
                 const voteBalance: Utils.BigNumber = votedDelegate.getAttribute("delegate.voteBalance");
@@ -292,7 +292,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
         }
         this.currentBlock = block;
 
-        const delegate: Contracts.State.IWallet = this.findByPublicKey(block.data.generatorPublicKey);
+        const delegate: Contracts.State.Wallet = this.findByPublicKey(block.data.generatorPublicKey);
         const revertedTransactions: Interfaces.ITransaction[] = [];
 
         try {
@@ -310,7 +310,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
             // delegate's delegate has to be updated.
             if (reverted && delegate.hasVoted()) {
                 const decrease: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
-                const votedDelegate: Contracts.State.IWallet = this.findByPublicKey(
+                const votedDelegate: Contracts.State.Wallet = this.findByPublicKey(
                     delegate.getAttribute<string>("vote"),
                 );
                 const voteBalance: Utils.BigNumber = votedDelegate.getAttribute("delegate.voteBalance");
@@ -335,7 +335,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
             transaction.typeGroup,
         );
 
-        let lockWallet: Contracts.State.IWallet;
+        let lockWallet: Contracts.State.Wallet;
         let lockTransaction: Interfaces.ITransactionData;
         if (transaction.type === Enums.TransactionType.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
@@ -345,8 +345,8 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
         await transactionHandler.apply(transaction, this);
 
-        const sender: Contracts.State.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
-        const recipient: Contracts.State.IWallet = this.findByAddress(transaction.data.recipientId);
+        const sender: Contracts.State.Wallet = this.findByPublicKey(transaction.data.senderPublicKey);
+        const recipient: Contracts.State.Wallet = this.findByAddress(transaction.data.recipientId);
 
         this.updateVoteBalances(sender, recipient, transaction.data, lockWallet, lockTransaction);
     }
@@ -354,16 +354,16 @@ export class WalletManager implements Contracts.State.IWalletManager {
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler: TransactionInterfaces.ITransactionHandler = Handlers.Registry.get(
+        const transactionHandler: TransactionInterfaces.TransactionHandler = Handlers.Registry.get(
             transaction.type,
             transaction.typeGroup,
         );
-        const sender: Contracts.State.IWallet = this.findByPublicKey(data.senderPublicKey);
-        const recipient: Contracts.State.IWallet = this.findByAddress(data.recipientId);
+        const sender: Contracts.State.Wallet = this.findByPublicKey(data.senderPublicKey);
+        const recipient: Contracts.State.Wallet = this.findByAddress(data.recipientId);
 
         await transactionHandler.revert(transaction, this);
 
-        let lockWallet: Contracts.State.IWallet;
+        let lockWallet: Contracts.State.Wallet;
         let lockTransaction: Interfaces.ITransactionData;
         if (transaction.type === Enums.TransactionType.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
@@ -375,7 +375,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
         this.updateVoteBalances(sender, recipient, data, lockWallet, lockTransaction, true);
     }
 
-    public canBePurged(wallet: Contracts.State.IWallet): boolean {
+    public canBePurged(wallet: Contracts.State.Wallet): boolean {
         return wallet.canBePurged();
     }
 
@@ -385,9 +385,9 @@ export class WalletManager implements Contracts.State.IWalletManager {
         }
     }
 
-    public buildDelegateRanking(roundInfo?: Contracts.Shared.IRoundInfo): Contracts.State.IWallet[] {
-        const delegates: Contracts.State.IWallet[] = this.allByUsername().filter(
-            (wallet: Contracts.State.IWallet) => !wallet.hasAttribute("delegate.resigned"),
+    public buildDelegateRanking(roundInfo?: Contracts.Shared.RoundInfo): Contracts.State.Wallet[] {
+        const delegates: Contracts.State.Wallet[] = this.allByUsername().filter(
+            (wallet: Contracts.State.Wallet) => !wallet.hasAttribute("delegate.resigned"),
         );
 
         let delegateWallets = delegates
@@ -411,7 +411,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
                 return diff;
             })
             .map(
-                (delegate, i): Contracts.State.IWallet => {
+                (delegate, i): Contracts.State.Wallet => {
                     const rank = i + 1;
                     delegate.setAttribute("delegate.rank", rank);
                     return delegate;
@@ -440,17 +440,17 @@ export class WalletManager implements Contracts.State.IWalletManager {
      * If revert is set to true, the operations are reversed (plus -> minus, minus -> plus).
      */
     private updateVoteBalances(
-        sender: Contracts.State.IWallet,
-        recipient: Contracts.State.IWallet,
+        sender: Contracts.State.Wallet,
+        recipient: Contracts.State.Wallet,
         transaction: Interfaces.ITransactionData,
-        lockWallet: Contracts.State.IWallet,
+        lockWallet: Contracts.State.Wallet,
         lockTransaction: Interfaces.ITransactionData,
         revert = false,
     ): void {
         if (transaction.type !== Enums.TransactionType.Vote) {
             // Update vote balance of the sender's delegate
             if (sender.hasVoted()) {
-                const delegate: Contracts.State.IWallet = this.findByPublicKey(sender.getAttribute("vote"));
+                const delegate: Contracts.State.Wallet = this.findByPublicKey(sender.getAttribute("vote"));
                 const amount =
                     transaction.type === Enums.TransactionType.MultiPayment
                         ? transaction.asset.payments.reduce(
@@ -483,7 +483,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
             if (transaction.type === Enums.TransactionType.HtlcClaim && lockWallet.hasAttribute("vote")) {
                 // HTLC Claim transfers the locked amount to the lock recipient's (= claim sender) delegate vote balance
-                const lockWalletDelegate: Contracts.State.IWallet = this.findByPublicKey(
+                const lockWalletDelegate: Contracts.State.Wallet = this.findByPublicKey(
                     lockWallet.getAttribute("vote"),
                 );
                 const lockWalletDelegateVoteBalance: Utils.BigNumber = lockWalletDelegate.getAttribute(
@@ -501,10 +501,10 @@ export class WalletManager implements Contracts.State.IWalletManager {
             if (transaction.type === Enums.TransactionType.MultiPayment) {
                 // go through all payments and update recipients delegates vote balance
                 for (const { recipientId, amount } of transaction.asset.payments) {
-                    const recipientWallet: Contracts.State.IWallet = this.findByAddress(recipientId);
+                    const recipientWallet: Contracts.State.Wallet = this.findByAddress(recipientId);
                     const vote = recipientWallet.getAttribute("vote");
                     if (vote) {
-                        const delegate: Contracts.State.IWallet = this.findByPublicKey(vote);
+                        const delegate: Contracts.State.Wallet = this.findByPublicKey(vote);
                         const voteBalance: Utils.BigNumber = delegate.getAttribute(
                             "delegate.voteBalance",
                             Utils.BigNumber.ZERO,
@@ -519,7 +519,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
 
             // Update vote balance of recipient's delegate
             if (recipient && recipient.hasVoted() && transaction.type !== Enums.TransactionType.HtlcLock) {
-                const delegate: Contracts.State.IWallet = this.findByPublicKey(recipient.getAttribute("vote"));
+                const delegate: Contracts.State.Wallet = this.findByPublicKey(recipient.getAttribute("vote"));
                 const voteBalance: Utils.BigNumber = delegate.getAttribute(
                     "delegate.voteBalance",
                     Utils.BigNumber.ZERO,
@@ -532,7 +532,7 @@ export class WalletManager implements Contracts.State.IWalletManager {
             }
         } else {
             const vote: string = transaction.asset.votes[0];
-            const delegate: Contracts.State.IWallet = this.findByPublicKey(vote.substr(1));
+            const delegate: Contracts.State.Wallet = this.findByPublicKey(vote.substr(1));
             let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
 
             if (vote.startsWith("+")) {

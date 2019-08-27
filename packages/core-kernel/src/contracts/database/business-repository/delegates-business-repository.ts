@@ -1,9 +1,9 @@
-import { IWallet } from "../../state/wallets";
-import { IParameters } from "./parameters";
-import { IWalletsPaginated } from "./wallets-business-repository";
+import { Wallet } from "../../state/wallets";
+import { Parameters } from "./parameters";
+import { WalletsPaginated } from "./wallets-business-repository";
 
-export interface IDelegatesBusinessRepository {
-    search(params: IParameters): IWalletsPaginated;
+export interface DelegatesBusinessRepository {
+    search(params: Parameters): WalletsPaginated;
 
-    findById(id: string): IWallet;
+    findById(id: string): Wallet;
 }

@@ -1,17 +1,17 @@
 /**
  * @export
- * @interface IConfigLoader
+ * @interface ConfigLoader
  */
-export interface IConfigLoader {
+export interface ConfigLoader {
     /**
      * @returns {Promise<void>}
-     * @memberof IConfigLoader
+     * @memberof ConfigLoader
      */
     loadConfiguration(): Promise<void>;
 
     /**
      * @returns {Promise<void>}
-     * @memberof IConfigLoader
+     * @memberof ConfigLoader
      */
     loadEnvironmentVariables(): Promise<void>;
 }

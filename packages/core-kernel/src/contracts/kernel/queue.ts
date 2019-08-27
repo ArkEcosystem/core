@@ -1,7 +1,7 @@
 /**
  * @export
- * @interface IQueue
+ * @interface Queue
  */
-export interface IQueue {
+export interface Queue {
     //
 }

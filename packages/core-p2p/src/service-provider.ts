@@ -12,9 +12,9 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.app.bind("p2p.options").toConstantValue(this.config().all());
 
-        this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Starting P2P Interface");
+        this.app.get<Contracts.Kernel.Log.Logger>("log").info("Starting P2P Interface");
 
-        const service: Contracts.P2P.IPeerService = this.makePeerService(this.config().all());
+        const service: Contracts.P2P.PeerService = this.makePeerService(this.config().all());
 
         // tslint:disable-next-line: no-unused-expression
         new EventListener(service);
@@ -27,10 +27,10 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping P2P Interface");
+        this.app.get<Contracts.Kernel.Log.Logger>("log").info("Stopping P2P Interface");
 
         this.app
-            .get<Contracts.P2P.IPeerService>("p2p")
+            .get<Contracts.P2P.PeerService>("p2p")
             .getMonitor()
             .stopServer();
     }

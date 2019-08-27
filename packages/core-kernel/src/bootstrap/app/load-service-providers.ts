@@ -5,26 +5,26 @@ import {
     PackageConfiguration,
     PackageManifest,
 } from "../../providers";
-import { IApplication } from "../../contracts/kernel";
-import { IBootstrapper } from "../interfaces";
+import { Application } from "../../contracts/kernel";
+import { Bootstrapper } from "../interfaces";
 import { injectable, inject } from "../../container";
 
 /**
  * @export
  * @class LoadServiceProviders
- * @implements {IBootstrapper}
+ * @implements {Bootstrapper}
  */
 @injectable()
-export class LoadServiceProviders implements IBootstrapper {
+export class LoadServiceProviders implements Bootstrapper {
     /**
      * The application instance.
      *
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof Local
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
      * @returns {Promise<void>}

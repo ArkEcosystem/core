@@ -1,19 +1,19 @@
-import { IWallet } from "../../state/wallets";
-import { IParameters } from "./parameters";
+import { Wallet } from "../../state/wallets";
+import { Parameters } from "./parameters";
 
-export interface IWalletsPaginated {
-    rows: ReadonlyArray<IWallet>;
+export interface WalletsPaginated {
+    rows: ReadonlyArray<Wallet>;
     count: number;
 }
 
-export interface IWalletsBusinessRepository {
-    search(params: IParameters): IWalletsPaginated;
+export interface WalletsBusinessRepository {
+    search(params: Parameters): WalletsPaginated;
 
-    findAllByVote(publicKey: string, params?: IParameters): IWalletsPaginated;
+    findAllByVote(publicKey: string, params?: Parameters): WalletsPaginated;
 
-    findById(id: string): IWallet;
+    findById(id: string): Wallet;
 
     count(): number;
 
-    top(params?: IParameters): IWalletsPaginated;
+    top(params?: Parameters): WalletsPaginated;
 }

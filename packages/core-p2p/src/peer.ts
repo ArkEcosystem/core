@@ -2,8 +2,8 @@ import { app, Contracts } from "@arkecosystem/core-kernel";
 import dayjs, { Dayjs } from "dayjs";
 import { PeerVerificationResult } from "./peer-verifier";
 
-export class Peer implements Contracts.P2P.IPeer {
-    public readonly ports: Contracts.P2P.IPeerPorts = {};
+export class Peer implements Contracts.P2P.Peer {
+    public readonly ports: Contracts.P2P.PeerPorts = {};
     public readonly port: number = +app.get<any>("p2p.options").server.port;
 
     public version: string;
@@ -11,14 +11,14 @@ export class Peer implements Contracts.P2P.IPeer {
     public lastPinged: Dayjs | undefined;
     public verificationResult: PeerVerificationResult | undefined;
 
-    public state: Contracts.P2P.IPeerState = {
+    public state: Contracts.P2P.PeerState = {
         height: undefined,
         forgingAllowed: undefined,
         currentSlot: undefined,
         header: {},
     };
 
-    public plugins: Contracts.P2P.IPeerPlugins = {};
+    public plugins: Contracts.P2P.PeerPlugins = {};
 
     constructor(readonly ip: string) {}
 
@@ -38,7 +38,7 @@ export class Peer implements Contracts.P2P.IPeer {
         return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
     }
 
-    public toBroadcast(): Contracts.P2P.IPeerBroadcast {
+    public toBroadcast(): Contracts.P2P.PeerBroadcast {
         return {
             ip: this.ip,
             ports: this.ports,

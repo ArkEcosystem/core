@@ -1,16 +1,16 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { ISearchPaginate } from "../search";
-import { IParameters } from "./parameters";
+import { SearchPaginate } from "../search";
+import { Parameters } from "./parameters";
 
-export interface IBlocksPaginated {
+export interface BlocksPaginated {
     rows: Interfaces.IBlockData[];
     count: number;
 }
 
-export interface IBlocksBusinessRepository {
-    search(params: IParameters): Promise<IBlocksPaginated>;
+export interface BlocksBusinessRepository {
+    search(params: Parameters): Promise<BlocksPaginated>;
 
-    findAllByGenerator(generatorPublicKey: string, paginate: ISearchPaginate): Promise<IBlocksPaginated>;
+    findAllByGenerator(generatorPublicKey: string, paginate: SearchPaginate): Promise<BlocksPaginated>;
 
     findById(id: string): Promise<Interfaces.IBlockData>;
 

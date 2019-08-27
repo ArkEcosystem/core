@@ -3,12 +3,12 @@ import get from "lodash.get";
 import set from "lodash.set";
 import { InvalidMilestoneConfigurationError } from "../errors";
 import { IMilestone } from "../interfaces";
-import { INetworkConfig } from "../interfaces/networks";
+import { NetworkConfig } from "../interfaces/networks";
 import * as networks from "../networks";
 import { NetworkName } from "../types";
 
 export class ConfigManager {
-    private config: INetworkConfig;
+    private config: NetworkConfig;
     private height: number;
     private milestone: IMilestone;
     private milestones: Record<string, any>;
@@ -17,7 +17,7 @@ export class ConfigManager {
         this.setConfig(networks.devnet);
     }
 
-    public setConfig(config: INetworkConfig): void {
+    public setConfig(config: NetworkConfig): void {
         this.config = {
             network: config.network,
             exceptions: config.exceptions,
@@ -34,11 +34,11 @@ export class ConfigManager {
         this.setConfig(this.getPreset(network));
     }
 
-    public getPreset(network: NetworkName): INetworkConfig {
+    public getPreset(network: NetworkName): NetworkConfig {
         return networks[network.toLowerCase()];
     }
 
-    public all(): INetworkConfig {
+    public all(): NetworkConfig {
         return this.config;
     }
 

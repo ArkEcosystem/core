@@ -10,6 +10,6 @@ import * as Types from "./types";
 import * as Utils from "./utils";
 
 const container: Container.interfaces.Container = new Container.Container();
-const app: Contracts.Kernel.IApplication = new Application(container);
+const app: Contracts.Kernel.Application = new Application(container);
 
 export { app, container, Contracts, Enums, Exceptions, Container, Providers, Services, Support, Types, Utils };

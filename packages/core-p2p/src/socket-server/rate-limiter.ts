@@ -1,18 +1,18 @@
 import { RateLimiterMemory, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 
-export interface IRateLimiterConfiguration {
+export interface RateLimiterConfiguration {
     rateLimit: number;
     duration?: number;
     blockDuration?: number;
 }
 
-export interface IEndpointRateLimiterConfiguration extends IRateLimiterConfiguration {
+export interface EndpointRateLimiterConfiguration extends RateLimiterConfiguration {
     endpoint: string;
 }
 
-export interface IRateLimiterConfigurations {
-    global: IRateLimiterConfiguration;
-    endpoints: IEndpointRateLimiterConfiguration[];
+export interface RateLimiterConfigurations {
+    global: RateLimiterConfiguration;
+    endpoints: EndpointRateLimiterConfiguration[];
 }
 
 export class RateLimiter {
@@ -24,7 +24,7 @@ export class RateLimiter {
         configurations,
     }: {
         whitelist: string[];
-        configurations: IRateLimiterConfigurations;
+        configurations: RateLimiterConfigurations;
     }) {
         configurations.endpoints = configurations.endpoints || [];
 
@@ -55,7 +55,7 @@ export class RateLimiter {
         return res !== null && res.remainingPoints <= 0;
     }
 
-    private buildRateLimiter(configuration: IRateLimiterConfiguration, whitelist: string[]): RateLimiterMemory {
+    private buildRateLimiter(configuration: RateLimiterConfiguration, whitelist: string[]): RateLimiterMemory {
         return new RLWrapperBlackAndWhite({
             limiter: new RateLimiterMemory({
                 points: configuration.rateLimit,

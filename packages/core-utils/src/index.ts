@@ -2,7 +2,7 @@ import { CappedSet } from "./capped-set";
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { hasSomeProperty } from "./has-some-property";
-import { httpie, IHttpieResponse } from "./httpie";
+import { httpie, HttpieResponse } from "./httpie";
 import { isBlockChained } from "./is-block-chained";
 import { isWhitelisted } from "./is-whitelisted";
 import { NSect } from "./nsect";
@@ -20,7 +20,7 @@ export {
     formatTimestamp,
     hasSomeProperty,
     httpie,
-    IHttpieResponse,
+    HttpieResponse,
     isBlockChained,
     isWhitelisted,
     NSect,

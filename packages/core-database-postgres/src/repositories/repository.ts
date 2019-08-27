@@ -3,7 +3,7 @@ import { IMain } from "pg-promise";
 import { Executable, Query } from "sql";
 import { Model } from "../models";
 
-export abstract class Repository implements Contracts.Database.IRepository {
+export abstract class Repository implements Contracts.Database.Repository {
     protected model: Model;
 
     constructor(protected readonly db, protected readonly pgp: IMain, private readonly options) {
@@ -51,8 +51,8 @@ export abstract class Repository implements Contracts.Database.IRepository {
     protected async findManyWithCount<T = any>(
         selectQuery: Query<any>,
         selectQueryCount: Query<any>,
-        paginate?: Contracts.Database.ISearchPaginate,
-        orderBy?: Contracts.Database.ISearchOrderBy[],
+        paginate?: Contracts.Database.SearchPaginate,
+        orderBy?: Contracts.Database.SearchOrderBy[],
     ): Promise<{ rows: T; count: number; countIsEstimate: boolean }> {
         if (orderBy) {
             for (const o of orderBy) {

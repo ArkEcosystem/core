@@ -1,10 +1,10 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import { IColumnDescriptor } from "../interfaces";
+import { ColumnDescriptor } from "../interfaces";
 import { Model } from "./model";
 
 export class Transaction extends Model {
-    protected columnsDescriptor: IColumnDescriptor[] = [
+    protected columnsDescriptor: ColumnDescriptor[] = [
         {
             name: "id",
             supportedOperators: [Contracts.Database.SearchOperator.OP_EQ, Contracts.Database.SearchOperator.OP_IN],

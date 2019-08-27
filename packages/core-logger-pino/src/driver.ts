@@ -16,7 +16,7 @@ export class PinoLogger extends Services.Log.AbstractLogger {
         super();
     }
 
-    public async make(): Promise<Contracts.Kernel.Log.ILogger> {
+    public async make(): Promise<Contracts.Kernel.Log.Logger> {
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {

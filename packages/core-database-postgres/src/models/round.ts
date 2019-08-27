@@ -1,10 +1,10 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import { IColumnDescriptor } from "../interfaces";
+import { ColumnDescriptor } from "../interfaces";
 import { Model } from "./model";
 
 export class Round extends Model {
-    protected columnsDescriptor: IColumnDescriptor[] = [
+    protected columnsDescriptor: ColumnDescriptor[] = [
         {
             name: "public_key",
             prop: "publicKey",

@@ -11,20 +11,20 @@ import { stateMachine } from "./state-machine";
 
 const { BlockFactory } = Blocks;
 
-export class Blockchain implements Contracts.Blockchain.IBlockchain {
+export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Get the state of the blockchain.
-     * @return {IStateStore}
+     * @return {StateStore}
      */
-    get state(): Contracts.State.IStateStore {
-        return app.get<Contracts.State.IStateService>("state").getStore();
+    get state(): Contracts.State.StateStore {
+        return app.get<Contracts.State.StateService>("state").getStore();
     }
 
     /**
      * Get the network (p2p) interface.
-     * @return {IPeerService}
+     * @return {PeerService}
      */
-    get p2p(): Contracts.P2P.IPeerService {
+    get p2p(): Contracts.P2P.PeerService {
         return app.p2p;
     }
 
@@ -32,7 +32,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
      * Get the transaction handler.
      * @return {TransactionPool}
      */
-    get transactionPool(): Contracts.TransactionPool.IConnection {
+    get transactionPool(): Contracts.TransactionPool.Connection {
         return app.transactionPool;
     }
 
@@ -40,7 +40,7 @@ export class Blockchain implements Contracts.Blockchain.IBlockchain {
      * Get the database connection.
      * @return {ConnectionInterface}
      */
-    get database(): Contracts.Database.IDatabaseService {
+    get database(): Contracts.Database.DatabaseService {
         return app.database;
     }
 

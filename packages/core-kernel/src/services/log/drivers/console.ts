@@ -1,4 +1,4 @@
-import { ILogger } from "../../../contracts/kernel/log";
+import { Logger } from "../../../contracts/kernel/log";
 import { AbstractLogger } from "../logger";
 import { injectable } from "../../../container";
 
@@ -6,17 +6,17 @@ import { injectable } from "../../../container";
  * @export
  * @class Console
  * @extends {AbstractLogger}
- * @implements {ILogger}
+ * @implements {Logger}
  */
 @injectable()
-export class Console extends AbstractLogger implements ILogger {
+export class Console extends AbstractLogger implements Logger {
     /**
      * Create a new instance of the Console driver.
      *
-     * @returns {Promise<ILogger>}
+     * @returns {Promise<Logger>}
      * @memberof Console
      */
-    public async make(): Promise<ILogger> {
+    public async make(): Promise<Logger> {
         this.logger = console;
 
         return this;

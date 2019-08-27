@@ -7,15 +7,15 @@ import { FailedToReplayBlocksError } from "./errors";
 import { MemoryDatabaseService } from "./memory-database-service";
 
 export class ReplayBlockchain extends Blockchain {
-    private logger: Contracts.Kernel.Log.ILogger;
-    private localDatabase: Contracts.Database.IDatabaseService;
+    private logger: Contracts.Kernel.Log.Logger;
+    private localDatabase: Contracts.Database.DatabaseService;
     private walletManager: Wallets.WalletManager;
     private targetHeight: number;
     private chunkSize = 20000;
 
-    private memoryDatabase: Contracts.Database.IDatabaseService;
+    private memoryDatabase: Contracts.Database.DatabaseService;
 
-    public get database(): Contracts.Database.IDatabaseService {
+    public get database(): Contracts.Database.DatabaseService {
         return this.memoryDatabase;
     }
 
@@ -25,8 +25,8 @@ export class ReplayBlockchain extends Blockchain {
         this.walletManager = new Wallets.WalletManager();
         this.memoryDatabase = new MemoryDatabaseService(this.walletManager);
 
-        this.logger = app.get<Contracts.Kernel.Log.ILogger>("log");
-        this.localDatabase = app.get<Contracts.Database.IDatabaseService>("database");
+        this.logger = app.get<Contracts.Kernel.Log.Logger>("log");
+        this.localDatabase = app.get<Contracts.Database.DatabaseService>("database");
         this.localDatabase.walletManager = this.walletManager;
 
         this.queue.kill();
@@ -34,11 +34,11 @@ export class ReplayBlockchain extends Blockchain {
         this.queue.drain(() => undefined);
     }
 
-    public get p2p(): Contracts.P2P.IPeerService {
+    public get p2p(): Contracts.P2P.PeerService {
         return undefined;
     }
 
-    public get transactionPool(): Contracts.TransactionPool.IConnection {
+    public get transactionPool(): Contracts.TransactionPool.Connection {
         return undefined;
     }
 
@@ -106,7 +106,7 @@ export class ReplayBlockchain extends Blockchain {
         const { transactions }: Interfaces.IBlock = genesisBlock;
         for (const transaction of transactions) {
             if (transaction.type === Enums.TransactionType.Transfer) {
-                const recipient: Contracts.State.IWallet = this.walletManager.findByAddress(
+                const recipient: Contracts.State.Wallet = this.walletManager.findByAddress(
                     transaction.data.recipientId,
                 );
                 recipient.balance = new Utils.BigNumber(transaction.data.amount);
@@ -114,9 +114,7 @@ export class ReplayBlockchain extends Blockchain {
         }
 
         for (const transaction of transactions) {
-            const sender: Contracts.State.IWallet = this.walletManager.findByPublicKey(
-                transaction.data.senderPublicKey,
-            );
+            const sender: Contracts.State.Wallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
             sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
 
             if (transaction.type === Enums.TransactionType.DelegateRegistration) {
@@ -139,8 +137,8 @@ export class ReplayBlockchain extends Blockchain {
 
         this.state.setLastBlock(genesisBlock);
 
-        const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(1);
-        const delegates: Contracts.State.IWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+        const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(1);
+        const delegates: Contracts.State.Wallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
         (this.localDatabase as any).forgingDelegates = await this.localDatabase.getActiveDelegates(
             roundInfo,

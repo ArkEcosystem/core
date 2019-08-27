@@ -42,7 +42,7 @@ export class RestoreCommand extends BaseCommand {
             }
         }
 
-        const emitter = app.get<Contracts.Kernel.Events.IEventDispatcher>("events");
+        const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>("events");
 
         const progressBar = new cliProgress.Bar(
             {

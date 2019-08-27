@@ -1,29 +1,29 @@
-import { IApplication } from "../../../contracts/kernel";
-import { IConfigLoader } from "../../../contracts/kernel/config";
+import { Application } from "../../../contracts/kernel";
+import { ConfigLoader } from "../../../contracts/kernel/config";
 import { inject } from "../../../container";
 
 /**
  * @export
  * @class Remote
- * @implements {IConfigLoader}
+ * @implements {ConfigLoader}
  */
-export class Remote implements IConfigLoader {
+export class Remote implements ConfigLoader {
     /**
      * The application instance.
      *
      * @protected
-     * @type {IApplication}
+     * @type {Application}
      * @memberof Manager
      */
-    protected readonly app: IApplication;
+    protected readonly app: Application;
 
     /**
      * Create a new manager instance.
      *
-     * @param {{ app:IApplication }} { app }
+     * @param {{ app:Application }} { app }
      * @memberof Manager
      */
-    public constructor(@inject("app") app: IApplication) {
+    public constructor(@inject("app") app: Application) {
         this.app = app;
     }
 

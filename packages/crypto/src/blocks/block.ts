@@ -144,7 +144,7 @@ export class Block implements IBlock {
                 }
             }
 
-            if (!(block.reward as BigNumber).isEqualTo(constants.reward)) {
+            if (!(block.reward).isEqualTo(constants.reward)) {
                 result.errors.push(["Invalid block reward:", block.reward, "expected:", constants.reward].join(" "));
             }
 

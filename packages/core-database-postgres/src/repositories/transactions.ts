@@ -6,10 +6,10 @@ import { Transaction } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-export class TransactionsRepository extends Repository implements Contracts.Database.ITransactionsRepository {
+export class TransactionsRepository extends Repository implements Contracts.Database.TransactionsRepository {
     public async search(
-        parameters: Contracts.Database.ISearchParameters,
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
+        parameters: Contracts.Database.SearchParameters,
+    ): Promise<Contracts.Database.TransactionsPaginated> {
         if (!parameters.paginate) {
             parameters.paginate = {
                 limit: 100,
@@ -55,10 +55,10 @@ export class TransactionsRepository extends Repository implements Contracts.Data
                     first.operator === Contracts.Database.SearchOperator.OP_EQ
                 ) {
                     // Workaround to include transactions (e.g. type 2) where the recipient_id is missing in the database
-                    const walletManager: Contracts.State.IWalletManager = app.get<
-                        Contracts.Database.IDatabaseService
-                    >("database").walletManager;
-                    const recipientWallet: Contracts.State.IWallet = walletManager.findByAddress(first.value);
+                    const walletManager: Contracts.State.WalletManager = app.get<Contracts.Database.DatabaseService>(
+                        "database",
+                    ).walletManager;
+                    const recipientWallet: Contracts.State.Wallet = walletManager.findByAddress(first.value);
 
                     for (const query of [selectQuery, selectQueryCount]) {
                         query.or(
@@ -168,10 +168,10 @@ export class TransactionsRepository extends Repository implements Contracts.Data
     }
 
     public async findAllByWallet(
-        wallet: Contracts.State.IWallet,
-        paginate?: Contracts.Database.ISearchPaginate,
-        orderBy?: Contracts.Database.ISearchOrderBy[],
-    ): Promise<Contracts.Database.ITransactionsPaginated> {
+        wallet: Contracts.State.Wallet,
+        paginate?: Contracts.Database.SearchPaginate,
+        orderBy?: Contracts.Database.SearchOrderBy[],
+    ): Promise<Contracts.Database.TransactionsPaginated> {
         const selectQuery = this.query.select();
         const selectQueryCount = this.query.select(this.query.count().as("cnt"));
 

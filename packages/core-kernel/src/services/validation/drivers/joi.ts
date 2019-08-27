@@ -1,16 +1,16 @@
 import { validate } from "@hapi/joi";
 import { ValidationErrorItem } from "@hapi/joi";
 import { JsonObject } from "../../../types";
-import { IValidator } from "../../../contracts/kernel/validation";
+import { Validator } from "../../../contracts/kernel/validation";
 import { injectable } from "../../../container";
 
 /**
  * @export
  * @class Joi
- * @implements {IValidator}
+ * @implements {Validator}
  */
 @injectable()
-export class Joi implements IValidator {
+export class Joi implements Validator {
     /**
      * The data under validation.
      *
@@ -61,7 +61,7 @@ export class Joi implements IValidator {
      * Determine if the data passes the validation rules.
      *
      * @returns {boolean}
-     * @memberof IValidator
+     * @memberof Validator
      */
     public passes(): boolean {
         return !this.resultError;
@@ -71,7 +71,7 @@ export class Joi implements IValidator {
      * Determine if the data fails the validation rules.
      *
      * @returns {boolean}
-     * @memberof IValidator
+     * @memberof Validator
      */
     public fails(): boolean {
         return !this.passes();
@@ -81,7 +81,7 @@ export class Joi implements IValidator {
      * Get the failed validation rules.
      *
      * @returns {Record<string, string[]>}
-     * @memberof IValidator
+     * @memberof Validator
      */
     public failed(): Record<string, string[]> {
         return this.groupErrors("type");
@@ -91,7 +91,7 @@ export class Joi implements IValidator {
      * Get all of the validation error messages.
      *
      * @returns {Record<string, string[]>}
-     * @memberof IValidator
+     * @memberof Validator
      */
     public errors(): Record<string, string[]> {
         return this.groupErrors("message");
@@ -101,7 +101,7 @@ export class Joi implements IValidator {
      * Returns the data which was valid.
      *
      * @returns {JsonObject}
-     * @memberof IValidator
+     * @memberof Validator
      */
     public valid(): JsonObject {
         return this.resultValue;
@@ -111,7 +111,7 @@ export class Joi implements IValidator {
      * Returns the data which was invalid.
      *
      * @returns {JsonObject}
-     * @memberof IValidator
+     * @memberof Validator
      */
     public invalid(): JsonObject {
         const errors: JsonObject = {};
@@ -127,7 +127,7 @@ export class Joi implements IValidator {
      * Get the data under validation.
      *
      * @returns {JsonObject}
-     * @memberof IValidator
+     * @memberof Validator
      */
     public attributes(): JsonObject {
         return this.data;

@@ -53,7 +53,7 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
         } else {
             // Legacy
             const joined: string = data.asset.multiSignatureLegacy.keysgroup
-                .map(k => (k[0] === "+" ? k.slice(1) : k))
+                .map(k => (k.startsWith("+") ? k.slice(1) : k))
                 .join("");
             const keysgroupBuffer: Buffer = Buffer.from(joined, "hex");
 

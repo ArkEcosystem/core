@@ -4,14 +4,14 @@ import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
-import { IRelayHost } from "./interfaces";
+import { RelayHost } from "./interfaces";
 
 export class Client {
-    public hosts: IRelayHost[];
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
-    private host: IRelayHost;
+    public hosts: RelayHost[];
+    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private host: RelayHost;
 
-    constructor(hosts: IRelayHost[]) {
+    constructor(hosts: RelayHost[]) {
         this.hosts = hosts.map(host => {
             host.socket = socketCluster.create({
                 ...host,
@@ -59,24 +59,24 @@ export class Client {
         }
     }
 
-    public async getRound(): Promise<Contracts.P2P.ICurrentRound> {
+    public async getRound(): Promise<Contracts.P2P.CurrentRound> {
         await this.selectHost();
 
-        return this.emit<Contracts.P2P.ICurrentRound>("p2p.internal.getCurrentRound");
+        return this.emit<Contracts.P2P.CurrentRound>("p2p.internal.getCurrentRound");
     }
 
-    public async getNetworkState(): Promise<Contracts.P2P.INetworkState> {
+    public async getNetworkState(): Promise<Contracts.P2P.NetworkState> {
         try {
             return NetworkState.parse(
-                await this.emit<Contracts.P2P.INetworkState>("p2p.internal.getNetworkState", {}, 4000),
+                await this.emit<Contracts.P2P.NetworkState>("p2p.internal.getNetworkState", {}, 4000),
             );
         } catch (err) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
 
-    public async getTransactions(): Promise<Contracts.P2P.IForgingTransactions> {
-        return this.emit<Contracts.P2P.IForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
+    public async getTransactions(): Promise<Contracts.P2P.ForgingTransactions> {
+        return this.emit<Contracts.P2P.ForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
     }
 
     public async emitEvent(
@@ -89,7 +89,7 @@ export class Client {
 
         const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
 
-        const host: IRelayHost = this.hosts.find(item =>
+        const host: RelayHost = this.hosts.find(item =>
             allowedHosts.some(allowedHost => item.hostname.includes(allowedHost)),
         );
 
@@ -128,7 +128,7 @@ export class Client {
 
     private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
-            const response: Contracts.P2P.IResponse<T> = await socketEmit(
+            const response: Contracts.P2P.Response<T> = await socketEmit(
                 this.host.hostname,
                 this.host.socket,
                 event,

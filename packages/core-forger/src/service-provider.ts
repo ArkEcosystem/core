@@ -5,7 +5,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         const forgerManager: ForgerManager = new ForgerManager(this.config().all());
 
-        await forgerManager.startForging(this.config().get("bip38") as string, this.config().get("password") as string);
+        await forgerManager.startForging(this.config().get("bip38"), this.config().get("password"));
 
         // Don't keep bip38 password in memory
         this.config().set("bip38", undefined);
@@ -15,7 +15,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        this.app.get<Contracts.Kernel.Log.ILogger>("log").info("Stopping Forger Manager");
+        this.app.get<Contracts.Kernel.Log.Logger>("log").info("Stopping Forger Manager");
 
         return this.app.get<ForgerManager>("forger").stopForging();
     }

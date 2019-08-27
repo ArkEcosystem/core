@@ -15,11 +15,11 @@ export abstract class AbstractServiceProvider {
      * The application instance.
      *
      * @protected
-     * @type {Kernel.IApplication}
+     * @type {Kernel.Application}
      * @memberof Manager
      */
     @inject("app")
-    protected readonly app: Kernel.IApplication;
+    protected readonly app: Kernel.Application;
 
     /**
      * The application instance.
@@ -151,10 +151,10 @@ export abstract class AbstractServiceProvider {
     /**
      * Get the dependencies of the service provider.
      *
-     * @returns {Kernel.IPackageDependency[]}
+     * @returns {Kernel.PackageDependency[]}
      * @memberof AbstractServiceProvider
      */
-    public dependencies(): Kernel.IPackageDependency[] {
+    public dependencies(): Kernel.PackageDependency[] {
         return [];
     }
 

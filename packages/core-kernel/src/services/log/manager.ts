@@ -1,20 +1,20 @@
-import { ILogger } from "../../contracts/kernel/log";
+import { Logger } from "../../contracts/kernel/log";
 import { AbstractManager } from "../../support/manager";
 import { Console } from "./drivers";
 
 /**
  * @export
  * @class LogManager
- * @extends {AbstractManager<ILogger>}
+ * @extends {AbstractManager<Logger>}
  */
-export class LogManager extends AbstractManager<ILogger> {
+export class LogManager extends AbstractManager<Logger> {
     /**
      * Create an instance of the Console driver.
      *
-     * @returns {Promise<ILogger>}
+     * @returns {Promise<Logger>}
      * @memberof LogManager
      */
-    public async createConsoleDriver(): Promise<ILogger> {
+    public async createConsoleDriver(): Promise<Logger> {
         return this.app.resolve(Console).make();
     }
 

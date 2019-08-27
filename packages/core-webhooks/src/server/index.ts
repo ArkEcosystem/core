@@ -2,7 +2,7 @@ import { createServer, mountServer, plugins } from "@arkecosystem/core-http-util
 import Boom from "@hapi/boom";
 import { randomBytes } from "crypto";
 import { database } from "../database";
-import { IWebhook } from "../interfaces";
+import { Webhook } from "../interfaces";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
@@ -72,7 +72,7 @@ export const startServer = async config => {
                 return Boom.notFound();
             }
 
-            const webhook: IWebhook = { ...database.findById(request.params.id) };
+            const webhook: Webhook = { ...database.findById(request.params.id) };
             delete webhook.token;
 
             return utils.respondWithResource(webhook);
@@ -90,7 +90,7 @@ export const startServer = async config => {
                 return Boom.notFound();
             }
 
-            database.update(request.params.id, request.payload as IWebhook);
+            database.update(request.params.id, request.payload as Webhook);
 
             return h.response(undefined).code(204);
         },

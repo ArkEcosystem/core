@@ -23,7 +23,7 @@ export const isNewRound = (height: number): boolean => {
     return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
 };
 
-export const calculateRound = (height: number): Contracts.Shared.IRoundInfo => {
+export const calculateRound = (height: number): Contracts.Shared.RoundInfo => {
     const milestones = Managers.configManager.get("milestones");
 
     let round = 0;

@@ -1,7 +1,7 @@
-import { IModel } from "../database-model";
+import { Model } from "../database-model";
 
-export interface IRepository {
-    getModel(): IModel;
+export interface Repository {
+    getModel(): Model;
 
     truncate(): Promise<void>;
 

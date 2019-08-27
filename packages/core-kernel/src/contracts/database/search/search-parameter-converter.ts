@@ -1,6 +1,6 @@
-import { IParameters } from "../business-repository";
-import { ISearchParameters } from "./search-parameters";
+import { Parameters } from "../business-repository";
+import { SearchParameters } from "./search-parameters";
 
-export interface IISearchParameterConverter {
-    convert(params: IParameters, orderBy?: any, paginate?: any): ISearchParameters;
+export interface SearchParameterConverter {
+    convert(params: Parameters, orderBy?: any, paginate?: any): SearchParameters;
 }

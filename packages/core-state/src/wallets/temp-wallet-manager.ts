@@ -3,25 +3,25 @@ import cloneDeep from "lodash.clonedeep";
 import { WalletManager } from "./wallet-manager";
 
 export class TempWalletManager extends WalletManager {
-    public constructor(private walletManager: Contracts.State.IWalletManager) {
+    public constructor(private walletManager: Contracts.State.WalletManager) {
         super();
 
         this.index(this.walletManager.allByUsername());
     }
 
-    public reindex(wallet: Contracts.State.IWallet): void {
+    public reindex(wallet: Contracts.State.Wallet): void {
         super.reindex(cloneDeep(wallet));
     }
 
-    public findByAddress(address: string): Contracts.State.IWallet {
+    public findByAddress(address: string): Contracts.State.Wallet {
         return this.findClone(Contracts.State.WalletIndexes.Addresses, address);
     }
 
-    public findByPublicKey(publicKey: string): Contracts.State.IWallet {
+    public findByPublicKey(publicKey: string): Contracts.State.Wallet {
         return this.findClone(Contracts.State.WalletIndexes.PublicKeys, publicKey);
     }
 
-    public findByUsername(username: string): Contracts.State.IWallet {
+    public findByUsername(username: string): Contracts.State.Wallet {
         return this.findClone(Contracts.State.WalletIndexes.Usernames, username);
     }
 
@@ -37,10 +37,10 @@ export class TempWalletManager extends WalletManager {
         return this.walletManager.hasByUsername(username);
     }
 
-    private findClone(indexName: string, key: string): Contracts.State.IWallet {
-        const index: Contracts.State.IWalletIndex = this.getIndex(indexName);
+    private findClone(indexName: string, key: string): Contracts.State.Wallet {
+        const index: Contracts.State.WalletIndex = this.getIndex(indexName);
         if (!index.has(key)) {
-            const parentIndex: Contracts.State.IWalletIndex = this.walletManager.getIndex(indexName);
+            const parentIndex: Contracts.State.WalletIndex = this.walletManager.getIndex(indexName);
             index.set(key, cloneDeep(parentIndex.get(key)));
         }
 

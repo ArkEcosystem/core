@@ -1,45 +1,45 @@
 import { Dayjs } from "dayjs";
-import { IPeerVerificationResult } from "./peer-verifier";
+import { PeerVerificationResult } from "./peer-verifier";
 
-export interface IPeerPorts {
+export interface PeerPorts {
     [name: string]: number;
 }
 
-export interface IPeerPlugins {
+export interface PeerPlugins {
     [name: string]: { enabled: boolean; port: number };
 }
 
-export interface IPeer {
+export interface Peer {
     readonly url: string;
     readonly port: number;
 
     readonly ip: string;
-    readonly ports: IPeerPorts;
+    readonly ports: PeerPorts;
 
     version: string;
 
     latency: number;
-    state: IPeerState;
-    plugins: IPeerPlugins;
+    state: PeerState;
+    plugins: PeerPlugins;
     lastPinged: Dayjs | undefined;
-    verificationResult: IPeerVerificationResult | undefined;
+    verificationResult: PeerVerificationResult | undefined;
 
     isVerified(): boolean;
     isForked(): boolean;
     recentlyPinged(): boolean;
 
-    toBroadcast(): IPeerBroadcast;
+    toBroadcast(): PeerBroadcast;
 }
 
-export interface IPeerBroadcast {
+export interface PeerBroadcast {
     ip: string;
-    ports: IPeerPorts;
+    ports: PeerPorts;
     version: string;
     height: number;
     latency: number;
 }
 
-export interface IPeerState {
+export interface PeerState {
     height: number;
     forgingAllowed: boolean;
     currentSlot: number;

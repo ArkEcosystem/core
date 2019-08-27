@@ -11,7 +11,7 @@ import { blockchainMachine } from "./machines/blockchain";
 import { Blockchain } from "./blockchain";
 
 const { BlockFactory } = Blocks;
-const emitter = app.get<Contracts.Kernel.Events.IEventDispatcher>("events");
+const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>("events");
 
 // defer initialisation to "init" due to this being resolved before the container kicks in
 let logger;
@@ -117,8 +117,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async init() {
-        logger = app.get<Contracts.Kernel.Log.ILogger>("log");
-        stateStorage = app.get<Contracts.State.IStateService>("state").getStore();
+        logger = app.get<Contracts.Kernel.Log.Logger>("log");
+        stateStorage = app.get<Contracts.State.StateService>("state").getStore();
         blockchainMachine.state = stateStorage;
 
         try {

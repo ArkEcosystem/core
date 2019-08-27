@@ -3,8 +3,8 @@ import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export const transformTransaction = (model, transform) => {
-    const blockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
-    const databaseService = app.get<Contracts.Database.IDatabaseService>("database");
+    const blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
+    const databaseService = app.get<Contracts.Database.DatabaseService>("database");
 
     const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytesUnsafe(
         model.serialized,

@@ -2,19 +2,19 @@ import { app, Contracts } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
-export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.IPeerService; req }): Promise<void> => {
+export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.PeerService; req }): Promise<void> => {
     await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
 };
 
 export const emitEvent = ({ req }): void => {
-    app.get<Contracts.Kernel.Events.IEventDispatcher>("events").dispatch(req.data.event, req.data.body);
+    app.get<Contracts.Kernel.Events.EventDispatcher>("events").dispatch(req.data.event, req.data.body);
 };
 
-export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUnconfirmedTransactions> => {
-    const blockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
+export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.UnconfirmedTransactions> => {
+    const blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
     const { maxTransactions } = Managers.configManager.getMilestone(blockchain.getLastBlock().data.height).block;
 
-    const transactionPool: Contracts.TransactionPool.IConnection = app.get<Contracts.TransactionPool.IConnection>(
+    const transactionPool: Contracts.TransactionPool.Connection = app.get<Contracts.TransactionPool.Connection>(
         "transactionPool",
     );
 
@@ -24,9 +24,9 @@ export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.IUncon
     };
 };
 
-export const getCurrentRound = async (): Promise<Contracts.P2P.ICurrentRound> => {
-    const databaseService = app.get<Contracts.Database.IDatabaseService>("database");
-    const blockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
+export const getCurrentRound = async (): Promise<Contracts.P2P.CurrentRound> => {
+    const databaseService = app.get<Contracts.Database.DatabaseService>("database");
+    const blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
 
     const lastBlock = blockchain.getLastBlock();
 
@@ -57,13 +57,13 @@ export const getCurrentRound = async (): Promise<Contracts.P2P.ICurrentRound> =>
 export const getNetworkState = async ({
     service,
 }: {
-    service: Contracts.P2P.IPeerService;
-}): Promise<Contracts.P2P.INetworkState> => {
+    service: Contracts.P2P.PeerService;
+}): Promise<Contracts.P2P.NetworkState> => {
     return service.getMonitor().getNetworkState();
 };
 
 export const syncBlockchain = (): void => {
-    app.get<Contracts.Kernel.Log.ILogger>("log").debug("Blockchain sync check WAKEUP requested by forger");
+    app.get<Contracts.Kernel.Log.Logger>("log").debug("Blockchain sync check WAKEUP requested by forger");
 
-    app.get<Contracts.Blockchain.IBlockchain>("blockchain").forceWakeup();
+    app.get<Contracts.Blockchain.Blockchain>("blockchain").forceWakeup();
 };

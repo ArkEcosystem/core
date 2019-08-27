@@ -1,4 +1,4 @@
-export interface IWebhook {
+export interface Webhook {
     id?: string;
     token?: string;
 

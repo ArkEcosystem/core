@@ -1,4 +1,4 @@
-export interface IParameters {
+export interface Parameters {
     offset?: number;
     limit?: number;
     orderBy?: string;

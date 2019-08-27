@@ -2,7 +2,7 @@ import { toStudlyCaps } from "strman";
 import { Kernel } from "../contracts";
 import { DriverCannotBeResolved } from "../exceptions/container";
 import { injectable, inject } from "../container";
-import { IApplication } from "../contracts/kernel";
+import { Application } from "../contracts/kernel";
 
 /**
  * @export
@@ -16,10 +16,10 @@ export abstract class AbstractManager<T> {
      * The application instance.
      *
      * @protected
-     * @type {Kernel.IApplication}
+     * @type {Kernel.Application}
      * @memberof AbstractManager
      */
-    protected readonly app: Kernel.IApplication;
+    protected readonly app: Kernel.Application;
 
     /**
      * @private
@@ -40,10 +40,10 @@ export abstract class AbstractManager<T> {
     /**
      * Create a new manager instance.
      *
-     * @param {{ app:Kernel.IApplication }} { app }
+     * @param {{ app:Kernel.Application }} { app }
      * @memberof AbstractManager
      */
-    public constructor(@inject("app") app: IApplication) {
+    public constructor(@inject("app") app: Application) {
         this.app = app;
         this.defaultDriver = this.getDefaultDriver();
     }
@@ -78,10 +78,10 @@ export abstract class AbstractManager<T> {
      * Register and call a custom driver creator.
      *
      * @param {string} name
-     * @param {(app: Kernel.IApplication) => T} callback
+     * @param {(app: Kernel.Application) => T} callback
      * @memberof AbstractManager
      */
-    public async extend(name: string, callback: (app: Kernel.IApplication) => Promise<T>): Promise<void> {
+    public async extend(name: string, callback: (app: Kernel.Application) => Promise<T>): Promise<void> {
         this.drivers.set(name, await callback(this.app));
     }
 

@@ -1,7 +1,7 @@
 import Boom from "@hapi/boom";
-import { IWebhook } from "../interfaces";
+import { Webhook } from "../interfaces";
 
-export const transformResource = (model): IWebhook => {
+export const transformResource = (model): Webhook => {
     return {
         id: model.id,
         event: model.event,

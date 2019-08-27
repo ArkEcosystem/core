@@ -4,7 +4,7 @@ import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { NetworkStateStatus } from "./enums";
 
-class QuorumDetails implements Contracts.P2P.IQuorumDetails {
+class QuorumDetails implements Contracts.P2P.QuorumDetails {
     public peersQuorum = 0;
     public peersNoQuorum = 0;
     public peersOverHeight = 0;
@@ -20,7 +20,7 @@ class QuorumDetails implements Contracts.P2P.IQuorumDetails {
     }
 }
 
-export class NetworkState implements Contracts.P2P.INetworkState {
+export class NetworkState implements Contracts.P2P.NetworkState {
     public nodeHeight: number;
     public lastBlockId: string;
     private quorumDetails: QuorumDetails;
@@ -39,12 +39,12 @@ export class NetworkState implements Contracts.P2P.INetworkState {
     }
 
     public static analyze(
-        monitor: Contracts.P2P.INetworkMonitor,
-        storage: Contracts.P2P.IPeerStorage,
-    ): Contracts.P2P.INetworkState {
+        monitor: Contracts.P2P.NetworkMonitor,
+        storage: Contracts.P2P.PeerStorage,
+    ): Contracts.P2P.NetworkState {
         const lastBlock: Interfaces.IBlock = app.get<any>("blockchain").getLastBlock();
 
-        const peers: Contracts.P2P.IPeer[] = storage.getPeers();
+        const peers: Contracts.P2P.Peer[] = storage.getPeers();
         const minimumNetworkReach: number = app.get<any>("p2p.options").minimumNetworkReach || 20;
 
         if (process.env.CORE_ENV === "test") {
@@ -56,7 +56,7 @@ export class NetworkState implements Contracts.P2P.INetworkState {
         return this.analyzeNetwork(lastBlock, peers);
     }
 
-    public static parse(data: any): Contracts.P2P.INetworkState {
+    public static parse(data: any): Contracts.P2P.NetworkState {
         if (!data || data.status === undefined) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }
@@ -89,7 +89,7 @@ export class NetworkState implements Contracts.P2P.INetworkState {
         return JSON.stringify(data, undefined, 2);
     }
 
-    private static analyzeNetwork(lastBlock, peers: Contracts.P2P.IPeer[]): Contracts.P2P.INetworkState {
+    private static analyzeNetwork(lastBlock, peers: Contracts.P2P.Peer[]): Contracts.P2P.NetworkState {
         const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
         const currentSlot = Crypto.Slots.getSlotNumber();
 
@@ -100,7 +100,7 @@ export class NetworkState implements Contracts.P2P.INetworkState {
         return networkState;
     }
 
-    private update(peer: Contracts.P2P.IPeer, currentSlot: number): void {
+    private update(peer: Contracts.P2P.Peer, currentSlot: number): void {
         if (peer.state.height > this.nodeHeight) {
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;

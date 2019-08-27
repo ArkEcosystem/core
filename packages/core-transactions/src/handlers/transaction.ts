@@ -13,11 +13,12 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
-import { ITransactionHandler } from "../interfaces";
+
+import { TransactionHandler as TransactionHandlerContract } from "../interfaces";
 
 export type TransactionHandlerConstructor = new () => TransactionHandler;
 
-export abstract class TransactionHandler implements ITransactionHandler {
+export abstract class TransactionHandler implements TransactionHandlerContract {
     public abstract getConstructor(): Transactions.TransactionConstructor;
 
     public abstract dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
@@ -28,15 +29,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
      * Wallet logic
      */
     public abstract async bootstrap(
-        connection: Contracts.Database.IConnection,
-        walletManager: Contracts.State.IWalletManager,
+        connection: Contracts.Database.Connection,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void>;
 
     public async verify(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<boolean> {
-        const senderWallet: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const senderWallet: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.hasMultiSignature()) {
             transaction.isVerified = senderWallet.verifySignatures(transaction.data);
@@ -64,8 +65,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        sender: Contracts.State.IWallet,
-        databaseWalletManager: Contracts.State.IWalletManager,
+        sender: Contracts.State.Wallet,
+        databaseWalletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -92,7 +93,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
 
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
@@ -113,7 +114,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(
+            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
 
@@ -131,7 +132,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public async apply(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         await this.applyToSender(transaction, walletManager);
         await this.applyToRecipient(transaction, walletManager);
@@ -139,7 +140,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public async revert(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         await this.revertForSender(transaction, walletManager);
         await this.revertForRecipient(transaction, walletManager);
@@ -147,9 +148,9 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
-        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
@@ -179,9 +180,9 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
-        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         sender.balance = sender.balance.plus(data.amount).plus(data.fee);
@@ -197,27 +198,27 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public abstract async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void>;
 
     public abstract async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void>;
 
     /**
      * Database Service
      */
     // tslint:disable-next-line:no-empty
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.IEventDispatcher): void {}
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {}
 
     /**
      * Transaction Pool logic
      */
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.IConnection,
-        processor: Contracts.TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.Connection,
+        processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         processor.pushError(
             data,
@@ -230,8 +231,8 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     protected async typeFromSenderAlreadyInPool(
         data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.IConnection,
-        processor: Contracts.TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.Connection,
+        processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         const { senderPublicKey, type }: Interfaces.ITransactionData = data;
 

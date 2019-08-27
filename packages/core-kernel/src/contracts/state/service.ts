@@ -1,7 +1,7 @@
-import { IStateStore } from "./state-store";
+import { StateStore } from "./state-store";
 
-export interface IStateService {
+export interface StateService {
     getBlocks(): any; // @todo: add type
     getTransactions(): any; // @todo: add type
-    getStore(): IStateStore;
+    getStore(): StateStore;
 }

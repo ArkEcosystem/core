@@ -46,7 +46,7 @@ export class PackageManifest {
             return defaultValue;
         }
 
-        return get(this.manifest, key, defaultValue) as T;
+        return get(this.manifest, key, defaultValue);
     }
 
     /**

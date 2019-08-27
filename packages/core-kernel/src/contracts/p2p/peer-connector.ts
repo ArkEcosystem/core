@@ -1,17 +1,17 @@
 import { SCClientSocket } from "socketcluster-client";
-import { IPeer } from "./peer";
+import { Peer } from "./peer";
 
-export interface IPeerConnector {
+export interface PeerConnector {
     all(): SCClientSocket[];
-    connection(peer: IPeer): SCClientSocket;
+    connection(peer: Peer): SCClientSocket;
 
-    connect(peer: IPeer): SCClientSocket;
-    disconnect(peer: IPeer): void;
+    connect(peer: Peer): SCClientSocket;
+    disconnect(peer: Peer): void;
 
-    emit(peer: IPeer, event: string, data: any): void;
+    emit(peer: Peer, event: string, data: any): void;
 
-    getError(peer: IPeer): string;
-    setError(peer: IPeer, error: string): void;
-    hasError(peer: IPeer, error: string): boolean;
-    forgetError(peer: IPeer): void;
+    getError(peer: Peer): string;
+    setError(peer: Peer, error: string): void;
+    hasError(peer: Peer, error: string): boolean;
+    forgetError(peer: Peer): void;
 }

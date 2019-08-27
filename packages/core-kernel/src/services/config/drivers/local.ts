@@ -2,8 +2,8 @@ import cosmiconfig from "cosmiconfig";
 import { set } from "dottie";
 import { parseFileSync } from "envfile";
 import { JsonObject } from "../../../types";
-import { IApplication } from "../../../contracts/kernel";
-import { IConfigLoader } from "../../../contracts/kernel/config";
+import { Application } from "../../../contracts/kernel";
+import { ConfigLoader } from "../../../contracts/kernel/config";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
@@ -13,26 +13,26 @@ import { injectable, inject } from "../../../container";
 /**
  * @export
  * @class Local
- * @implements {IConfigLoader}
+ * @implements {ConfigLoader}
  */
 @injectable()
-export class Local implements IConfigLoader {
+export class Local implements ConfigLoader {
     /**
      * The application instance.
      *
      * @protected
-     * @type {IApplication}
+     * @type {Application}
      * @memberof Local
      */
-    protected readonly app: IApplication;
+    protected readonly app: Application;
 
     /**
      * Create a new manager instance.
      *
-     * @param {{ app:IApplication }} { app }
+     * @param {{ app:Application }} { app }
      * @memberof Local
      */
-    public constructor(@inject("app") app: IApplication) {
+    public constructor(@inject("app") app: Application) {
         this.app = app;
     }
 

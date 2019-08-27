@@ -3,7 +3,7 @@ import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosy
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 const formatDelegates = (
-    delegates: Contracts.State.IWallet[],
+    delegates: Contracts.State.Wallet[],
     lastHeight: number,
 ): Array<{
     rank: string;
@@ -12,12 +12,12 @@ const formatDelegates = (
     votes: string;
     voterCount: string;
 }> => {
-    const databaseService: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>(
+    const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         "database",
     );
 
-    return delegates.map((delegate: Contracts.State.IWallet) => {
-        const filteredVoters: Contracts.State.IWallet[] = databaseService.walletManager
+    return delegates.map((delegate: Contracts.State.Wallet) => {
+        const filteredVoters: Contracts.State.Wallet[] = databaseService.walletManager
             .allByPublicKey()
             .filter(
                 wallet => wallet.getAttribute<string>("vote") === delegate.publicKey && wallet.balance.gt(0.1 * 1e8),
@@ -56,8 +56,8 @@ const formatDelegates = (
 };
 
 export const handler = (request, h) => {
-    const blockchain: Contracts.Blockchain.IBlockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
-    const databaseService: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>(
+    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
+    const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         "database",
     );
 
@@ -66,7 +66,7 @@ export const handler = (request, h) => {
 
     const supply: Utils.BigNumber = Utils.BigNumber.make(supplyCalculator.calculate(lastBlock.data.height));
 
-    const allByUsername: Contracts.State.IWallet[] = databaseService.walletManager
+    const allByUsername: Contracts.State.Wallet[] = databaseService.walletManager
         .allByUsername()
         .map((delegate, index) => {
             delegate.setAttribute("delegate.rank", delegate.getAttribute("delegate.rank") || index + 1);
@@ -74,13 +74,13 @@ export const handler = (request, h) => {
         })
         .sort((a, b) => a.getAttribute<number>("delegate.rank") - b.getAttribute<number>("delegate.rank"));
 
-    const active: Contracts.State.IWallet[] = allByUsername.slice(0, maxDelegates);
-    const standby: Contracts.State.IWallet[] = allByUsername.slice(
+    const active: Contracts.State.Wallet[] = allByUsername.slice(0, maxDelegates);
+    const standby: Contracts.State.Wallet[] = allByUsername.slice(
         maxDelegates + 1,
         app.get<any>("vote-report.options").delegateRows,
     );
 
-    const voters: Contracts.State.IWallet[] = databaseService.walletManager
+    const voters: Contracts.State.Wallet[] = databaseService.walletManager
         .allByPublicKey()
         .filter(wallet => wallet.hasVoted() && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
 

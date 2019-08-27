@@ -1,24 +1,24 @@
 import { NetworkCannotBeDetermined } from "../../exceptions/config";
-import { IApplication } from "../../contracts/kernel";
-import { IBootstrapper } from "../interfaces";
+import { Application } from "../../contracts/kernel";
+import { Bootstrapper } from "../interfaces";
 import { injectable, inject } from "../../container";
 
 /**
  * @export
  * @class RegisterBaseNamespace
- * @implements {IBootstrapper}
+ * @implements {Bootstrapper}
  */
 @injectable()
-export class RegisterBaseNamespace implements IBootstrapper {
+export class RegisterBaseNamespace implements Bootstrapper {
     /**
      * The application instance.
      *
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof Local
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
      * @returns {Promise<void>}

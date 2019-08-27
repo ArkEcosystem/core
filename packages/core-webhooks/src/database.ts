@@ -2,7 +2,7 @@ import { ensureFileSync, existsSync, removeSync } from "fs-extra";
 import lowdb from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import uuidv4 from "uuid/v4";
-import { IWebhook } from "./interfaces";
+import { Webhook } from "./interfaces";
 
 class Database {
     private database: lowdb.LowdbSync<any>;
@@ -18,7 +18,7 @@ class Database {
         this.database.defaults({ webhooks: [] }).write();
     }
 
-    public all(): IWebhook[] {
+    public all(): Webhook[] {
         return this.database.get("webhooks", []).value();
     }
 
@@ -26,7 +26,7 @@ class Database {
         return !!this.findById(id);
     }
 
-    public findById(id: string): IWebhook {
+    public findById(id: string): Webhook {
         try {
             return this.database
                 .get("webhooks")
@@ -37,14 +37,14 @@ class Database {
         }
     }
 
-    public findByEvent(event: string): IWebhook[] {
+    public findByEvent(event: string): Webhook[] {
         return this.database
             .get("webhooks")
             .filter({ event })
             .value();
     }
 
-    public create(data: IWebhook): IWebhook {
+    public create(data: Webhook): Webhook {
         data.id = uuidv4();
 
         this.database
@@ -55,7 +55,7 @@ class Database {
         return this.findById(data.id);
     }
 
-    public update(id: string, data: IWebhook): IWebhook {
+    public update(id: string, data: Webhook): Webhook {
         return this.database
             .get("webhooks")
             .find({ id })

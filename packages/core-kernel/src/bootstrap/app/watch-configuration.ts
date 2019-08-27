@@ -1,24 +1,24 @@
-import { IApplication } from "../../contracts/kernel";
-import { IBootstrapper } from "../interfaces";
+import { Application } from "../../contracts/kernel";
+import { Bootstrapper } from "../interfaces";
 import { injectable, inject } from "../../container";
 import { Watcher } from "../../services/config/watcher";
 
 /**
  * @export
  * @class WatchConfiguration
- * @implements {IBootstrapper}
+ * @implements {Bootstrapper}
  */
 @injectable()
-export class WatchConfiguration implements IBootstrapper {
+export class WatchConfiguration implements Bootstrapper {
     /**
      * The application instance.
      *
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof WatchConfiguration
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
      * @returns {Promise<void>}

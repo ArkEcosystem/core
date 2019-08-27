@@ -1,14 +1,14 @@
-import { ICacheStore } from "../../../contracts/kernel/cache";
+import { CacheStore } from "../../../contracts/kernel/cache";
 import { NotImplemented } from "../../../exceptions/runtime";
 import { injectable } from "../../../container";
 
 /**
  * @export
  * @class Memory
- * @implements {ICacheStore}
+ * @implements {CacheStore}
  */
 @injectable()
-export class Memory<K, T> implements ICacheStore<K, T> {
+export class Memory<K, T> implements CacheStore<K, T> {
     /**
      * @private
      * @type {Map<K, T>}
@@ -19,11 +19,11 @@ export class Memory<K, T> implements ICacheStore<K, T> {
     /**
      * Create a new instance of the cache store.
      *
-     * @param {IApplication} app
-     * @returns {ICacheStore<K, T>}
-     * @memberof ICacheStore
+     * @param {Application} app
+     * @returns {CacheStore<K, T>}
+     * @memberof CacheStore
      */
-    public async make(): Promise<ICacheStore<K, T>> {
+    public async make(): Promise<CacheStore<K, T>> {
         return this;
     }
 

@@ -4,9 +4,9 @@ import { Block } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-export class BlocksRepository extends Repository implements Contracts.Database.IBlocksRepository {
+export class BlocksRepository extends Repository implements Contracts.Database.BlocksRepository {
     public async search(
-        params: Contracts.Database.ISearchParameters,
+        params: Contracts.Database.SearchParameters,
     ): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
         const selectQuery = this.query.select().from(this.query);
@@ -86,7 +86,7 @@ export class BlocksRepository extends Repository implements Contracts.Database.I
         return this.db.manyOrNone(queries.blocks.heightRange, { start, end });
     }
 
-    public async heightRangeWithTransactions(start: number, end: number): Promise<Contracts.Database.IDownloadBlock[]> {
+    public async heightRangeWithTransactions(start: number, end: number): Promise<Contracts.Database.DownloadBlock[]> {
         return this.db.manyOrNone(queries.blocks.heightRangeWithTransactions, { start, end }).map(block => {
             if (block.transactions === null) {
                 delete block.transactions;

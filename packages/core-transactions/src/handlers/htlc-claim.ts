@@ -32,18 +32,18 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(
-        connection: Contracts.Database.IConnection,
-        walletManager: Contracts.State.IWalletManager,
+        connection: Contracts.Database.Connection,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const lockId = transaction.asset.claim.lockTransactionId;
-            const lockWallet: Contracts.State.IWallet = walletManager.findByIndex(
+            const lockWallet: Contracts.State.Wallet = walletManager.findByIndex(
                 Contracts.State.WalletIndexes.Locks,
                 lockId,
             );
             const locks = lockWallet.getAttribute("htlc.locks");
-            const claimWallet: Contracts.State.IWallet = walletManager.findByAddress(locks[lockId].recipientId);
+            const claimWallet: Contracts.State.Wallet = walletManager.findByAddress(locks[lockId].recipientId);
             claimWallet.balance = claimWallet.balance.plus(locks[lockId].amount);
             const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
             lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
@@ -68,8 +68,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        sender: Contracts.State.IWallet,
-        databaseWalletManager: Contracts.State.IWalletManager,
+        sender: Contracts.State.Wallet,
+        databaseWalletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         // Common checks (copied from inherited transaction handler class)
         // Only common balance check was removed because we need a specific balance check here
@@ -89,7 +89,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
             }
@@ -108,7 +108,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
             }
@@ -130,7 +130,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         const lastBlock: Interfaces.IBlock = app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .getLastBlock();
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
@@ -150,11 +150,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.IConnection,
-        processor: Contracts.TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.Connection,
+        processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         const lockId = data.asset.claim.lockTransactionId;
-        const lockWallet: Contracts.State.IWallet = pool.walletManager.findByIndex(
+        const lockWallet: Contracts.State.Wallet = pool.walletManager.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -172,9 +172,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
-        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
@@ -192,7 +192,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const lockId = data.asset.claim.lockTransactionId;
-        const lockWallet: Contracts.State.IWallet = walletManager.findByIndex(
+        const lockWallet: Contracts.State.Wallet = walletManager.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -217,9 +217,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
-        const sender: Contracts.State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (data.version > 1) {
@@ -231,7 +231,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         // todo to improve : not so good to call database from here, would need a better way
-        const databaseService = app.get<Contracts.Database.IDatabaseService>("database");
+        const databaseService = app.get<Contracts.Database.DatabaseService>("database");
 
         const lockId = data.asset.claim.lockTransactionId;
         const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);
@@ -252,13 +252,13 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

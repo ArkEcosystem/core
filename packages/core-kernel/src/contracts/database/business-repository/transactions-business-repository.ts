@@ -1,26 +1,26 @@
 import { Enums, Interfaces } from "@arkecosystem/crypto";
-import { IWallet } from "../../state/wallets";
-import { IParameters } from "./parameters";
+import { Wallet } from "../../state/wallets";
+import { Parameters } from "./parameters";
 
-export interface ITransactionsPaginated {
+export interface TransactionsPaginated {
     rows: Interfaces.ITransactionData[];
     count: number;
 }
 
-export interface ITransactionsBusinessRepository {
-    search(params: IParameters, sequenceOrder?: "asc" | "desc"): Promise<ITransactionsPaginated>;
+export interface TransactionsBusinessRepository {
+    search(params: Parameters, sequenceOrder?: "asc" | "desc"): Promise<TransactionsPaginated>;
 
-    findAllByWallet(wallet: IWallet, parameters?: IParameters): Promise<ITransactionsPaginated>;
+    findAllByWallet(wallet: Wallet, parameters?: Parameters): Promise<TransactionsPaginated>;
 
-    findAllBySender(senderPublicKey: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
+    findAllBySender(senderPublicKey: string, parameters?: Parameters): Promise<TransactionsPaginated>;
 
-    findAllByRecipient(recipientId: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
+    findAllByRecipient(recipientId: string, parameters?: Parameters): Promise<TransactionsPaginated>;
 
-    allVotesBySender(senderPublicKey: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
+    allVotesBySender(senderPublicKey: string, parameters?: Parameters): Promise<TransactionsPaginated>;
 
-    findAllByBlock(blockId: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
+    findAllByBlock(blockId: string, parameters?: Parameters): Promise<TransactionsPaginated>;
 
-    findAllByType(type: number, parameters?: IParameters): Promise<ITransactionsPaginated>;
+    findAllByType(type: number, parameters?: Parameters): Promise<TransactionsPaginated>;
 
     findById(id: string): Promise<Interfaces.ITransactionData>;
 

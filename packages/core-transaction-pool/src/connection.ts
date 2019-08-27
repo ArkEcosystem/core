@@ -5,13 +5,13 @@ import { app, Contracts, Enums as AppEnums } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { ITransactionsProcessed } from "./interfaces";
+import { TransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
-export class Connection implements Contracts.TransactionPool.IConnection {
+export class Connection implements Contracts.TransactionPool.Connection {
     // @todo: make this private, requires some bigger changes to tests
     public options: Record<string, any>;
     // @todo: make this private, requires some bigger changes to tests
@@ -19,13 +19,13 @@ export class Connection implements Contracts.TransactionPool.IConnection {
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
-    private readonly databaseService: Contracts.Database.IDatabaseService = app.get<
-        Contracts.Database.IDatabaseService
-    >("database");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
-        Contracts.Kernel.Events.IEventDispatcher
+    private readonly databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+        "database",
+    );
+    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
+        Contracts.Kernel.Events.EventDispatcher
     >("events");
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
 
     constructor({
         options,
@@ -73,7 +73,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
         this.storage.disconnect();
     }
 
-    public makeProcessor(): Contracts.TransactionPool.IProcessor {
+    public makeProcessor(): Contracts.TransactionPool.Processor {
         return new Processor(this, this.walletManager);
     }
 
@@ -95,12 +95,12 @@ export class Connection implements Contracts.TransactionPool.IConnection {
         return this.memory.getBySender(senderPublicKey).size;
     }
 
-    public async addTransactions(transactions: Interfaces.ITransaction[]): Promise<ITransactionsProcessed> {
+    public async addTransactions(transactions: Interfaces.ITransaction[]): Promise<TransactionsProcessed> {
         const added: Interfaces.ITransaction[] = [];
-        const notAdded: Contracts.TransactionPool.IAddTransactionResponse[] = [];
+        const notAdded: Contracts.TransactionPool.AddTransactionResponse[] = [];
 
         for (const transaction of transactions) {
-            const result: Contracts.TransactionPool.IAddTransactionResponse = await this.addTransaction(transaction);
+            const result: Contracts.TransactionPool.AddTransactionResponse = await this.addTransaction(transaction);
 
             result.message ? notAdded.push(result) : added.push(transaction);
         }
@@ -210,11 +210,11 @@ export class Connection implements Contracts.TransactionPool.IConnection {
                 transaction.typeGroup,
             );
 
-            const senderWallet: Contracts.State.IWallet = this.walletManager.hasByPublicKey(senderPublicKey)
+            const senderWallet: Contracts.State.Wallet = this.walletManager.hasByPublicKey(senderPublicKey)
                 ? this.walletManager.findByPublicKey(senderPublicKey)
                 : undefined;
 
-            const recipientWallet: Contracts.State.IWallet = this.walletManager.hasByAddress(data.recipientId)
+            const recipientWallet: Contracts.State.Wallet = this.walletManager.hasByAddress(data.recipientId)
                 ? this.walletManager.findByAddress(data.recipientId)
                 : undefined;
 
@@ -261,14 +261,14 @@ export class Connection implements Contracts.TransactionPool.IConnection {
 
         // if delegate in poll wallet manager - apply rewards and fees
         if (this.walletManager.hasByPublicKey(block.data.generatorPublicKey)) {
-            const delegateWallet: Contracts.State.IWallet = this.walletManager.findByPublicKey(
+            const delegateWallet: Contracts.State.Wallet = this.walletManager.findByPublicKey(
                 block.data.generatorPublicKey,
             );
 
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
-        app.get<Contracts.State.IStateService>("state")
+        app.get<Contracts.State.StateService>("state")
             .getStore()
             .removeCachedTransactionIds(block.transactions.map(tx => tx.id));
     }
@@ -278,7 +278,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
-        app.get<Contracts.State.IStateService>("state")
+        app.get<Contracts.State.StateService>("state")
             .getStore()
             .removeCachedTransactionIds(transactionIds);
 
@@ -289,7 +289,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
                 return;
             }
 
-            const senderWallet: Contracts.State.IWallet = this.walletManager.findByPublicKey(
+            const senderWallet: Contracts.State.Wallet = this.walletManager.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
 
@@ -398,7 +398,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
 
     private async addTransaction(
         transaction: Interfaces.ITransaction,
-    ): Promise<Contracts.TransactionPool.IAddTransactionResponse> {
+    ): Promise<Contracts.TransactionPool.AddTransactionResponse> {
         if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
@@ -474,7 +474,7 @@ export class Connection implements Contracts.TransactionPool.IConnection {
             (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
         );
 
-        const databaseWalletManager: Contracts.State.IWalletManager = this.databaseService.walletManager;
+        const databaseWalletManager: Contracts.State.WalletManager = this.databaseService.walletManager;
         const localWalletManager: Wallets.WalletManager = new Wallets.WalletManager();
 
         for (const transaction of unforgedTransactions) {
@@ -513,13 +513,13 @@ export class Connection implements Contracts.TransactionPool.IConnection {
 
     private getSenderAndRecipient(
         transaction: Interfaces.ITransaction,
-        localWalletManager: Contracts.State.IWalletManager,
-    ): { sender: Contracts.State.IWallet; recipient: Contracts.State.IWallet } {
-        const databaseWalletManager: Contracts.State.IWalletManager = this.databaseService.walletManager;
+        localWalletManager: Contracts.State.WalletManager,
+    ): { sender: Contracts.State.Wallet; recipient: Contracts.State.Wallet } {
+        const databaseWalletManager: Contracts.State.WalletManager = this.databaseService.walletManager;
         const { senderPublicKey, recipientId } = transaction.data;
 
-        let sender: Contracts.State.IWallet;
-        let recipient: Contracts.State.IWallet;
+        let sender: Contracts.State.Wallet;
+        let recipient: Contracts.State.Wallet;
 
         if (localWalletManager.hasByPublicKey(senderPublicKey)) {
             sender = localWalletManager.findByPublicKey(senderPublicKey);

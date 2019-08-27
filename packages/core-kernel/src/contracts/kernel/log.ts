@@ -3,22 +3,22 @@
  * This interface represents the {@link https://tools.ietf.org/html/rfc5424 | The Syslog Protocol}.
  *
  * @export
- * @interface ILogger
+ * @interface Logger
  */
-export interface ILogger {
+export interface Logger {
     /**
      * Create a new instance of the logger.
      *
-     * @returns {Promise<ILogger>}
-     * @memberof ILogger
+     * @returns {Promise<Logger>}
+     * @memberof Logger
      */
-    make(): Promise<ILogger>;
+    make(): Promise<Logger>;
 
     /**
      * System is unusable.
      *
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     emergency(message: any): void;
 
@@ -29,7 +29,7 @@ export interface ILogger {
      * trigger the SMS alerts and wake you up.
      *
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     alert(message: any): void;
 
@@ -39,7 +39,7 @@ export interface ILogger {
      * Example: Application component unavailable, unexpected exception.
      *
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     critical(message: any): void;
 
@@ -48,7 +48,7 @@ export interface ILogger {
      * be logged and monitored.
      *
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     error(message: any): void;
 
@@ -59,7 +59,7 @@ export interface ILogger {
      * that are not necessarily wrong.
      *
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     warning(message: any): void;
 
@@ -67,7 +67,7 @@ export interface ILogger {
      * Normal but significant events.
      *
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     notice(message: any): void;
 
@@ -77,7 +77,7 @@ export interface ILogger {
      * Example: User logs in, SQL logs.
      *
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     info(message: any): void;
 
@@ -85,7 +85,7 @@ export interface ILogger {
      * Detailed debug information.
      *
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     debug(message: any): void;
 
@@ -94,7 +94,7 @@ export interface ILogger {
      *
      * @param {string} level
      * @param {*} message
-     * @memberof ILogger
+     * @memberof Logger
      */
     log(level: string, message: any): void;
 }

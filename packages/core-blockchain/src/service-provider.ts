@@ -10,7 +10,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
             : new Blockchain(this.config().all());
 
         this.app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .reset(blockchainMachine);
 

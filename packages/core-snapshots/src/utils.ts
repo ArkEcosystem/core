@@ -11,7 +11,7 @@ export const writeMetaFile = snapshotInfo =>
 export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;
 
 export const copySnapshot = (sourceFolder, destFolder) => {
-    const logger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    const logger = app.get<Contracts.Kernel.Log.Logger>("log");
     logger.info(`Copying snapshot ${sourceFolder} to ${destFolder} for appending of data`);
 
     const paths = {

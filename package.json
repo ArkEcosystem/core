@@ -10,7 +10,7 @@
         "clean": "yarn lerna clean --yes",
         "build": "yarn lerna run build",
         "build:docs": "yarn lerna run build:docs",
-        "lint": "./node_modules/eslint/bin/eslint.js packages --ext .js,.ts --fix",
+        "lint": "./node_modules/eslint/bin/eslint.js packages --ext .ts --fix",
         "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\" \"./__tests__/**/*.{ts,js,json,md}\"",
         "lint:tests": "./node_modules/tslint/bin/tslint -c ./tslint.json '__tests__/**/*.ts' --fix",

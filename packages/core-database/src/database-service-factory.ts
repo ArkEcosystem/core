@@ -5,13 +5,13 @@ import { DelegatesBusinessRepository } from "./repositories/delegates-business-r
 import { TransactionsBusinessRepository } from "./repositories/transactions-business-repository";
 import { WalletsBusinessRepository } from "./repositories/wallets-business-repository";
 
-// Allow extenders of core-database to provide, optionally, a IWalletManager concrete in addition to a IConnection, but keep the business repos common
+// Allow extenders of core-database to provide, optionally, a WalletManager concrete in addition to a Connection, but keep the business repos common
 export const databaseServiceFactory = async (
     opts: Record<string, any>,
-    walletManager: Contracts.State.IWalletManager,
-    connection: Contracts.Database.IConnection,
-): Promise<Contracts.Database.IDatabaseService> => {
-    const databaseService: Contracts.Database.IDatabaseService = new DatabaseService(
+    walletManager: Contracts.State.WalletManager,
+    connection: Contracts.Database.Connection,
+): Promise<Contracts.Database.DatabaseService> => {
+    const databaseService: Contracts.Database.DatabaseService = new DatabaseService(
         opts,
         connection,
         walletManager,

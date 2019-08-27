@@ -18,8 +18,8 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(
-        connection: Contracts.Database.IConnection,
-        walletManager: Contracts.State.IWalletManager,
+        connection: Contracts.Database.Connection,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
@@ -34,8 +34,8 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: Contracts.State.IWallet,
-        databaseWalletManager: Contracts.State.IWalletManager,
+        wallet: Contracts.State.Wallet,
+        databaseWalletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         if (!wallet.isDelegate()) {
             throw new WalletNotADelegateError();
@@ -48,17 +48,17 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.IEventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
         emitter.dispatch(Enums.Events.State.DelegateResigned, transaction.data);
     }
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.IConnection,
-        processor: Contracts.TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.Connection,
+        processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            const wallet: Contracts.State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
+            const wallet: Contracts.State.Wallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
             processor.pushError(
                 data,
                 "ERR_PENDING",
@@ -72,7 +72,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
 
@@ -81,7 +81,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
 
@@ -90,13 +90,13 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.IWalletManager,
+        walletManager: Contracts.State.WalletManager,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

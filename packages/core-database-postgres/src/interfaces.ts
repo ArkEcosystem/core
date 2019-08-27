@@ -1,11 +1,11 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 
-export interface IMigration {
+export interface Migration {
     id: number;
     name: string;
 }
 
-export interface IColumnDescriptor {
+export interface ColumnDescriptor {
     name: string;
     supportedOperators?: Contracts.Database.SearchOperator[];
     prop?: string;

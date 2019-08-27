@@ -40,7 +40,7 @@ export class ConfigRepository {
             return defaultValue;
         }
 
-        return get(this.items, key, defaultValue) as T;
+        return get(this.items, key, defaultValue);
     }
 
     /**

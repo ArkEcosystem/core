@@ -1,11 +1,11 @@
 /**
  * @export
- * @interface IBootstrapper
+ * @interface Bootstrapper
  */
-export interface IBootstrapper {
+export interface Bootstrapper {
     /**
      * @returns {Promise<void>}
-     * @memberof IBootstrapper
+     * @memberof Bootstrapper
      */
     bootstrap(): Promise<void>;
 }

@@ -3,14 +3,14 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
-        Contracts.Kernel.Events.IEventDispatcher
+    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
+        Contracts.Kernel.Events.EventDispatcher
     >("events");
 
     constructor(
-        private readonly connection: Contracts.Database.IConnection,
-        private readonly walletManager: Contracts.State.IWalletManager,
+        private readonly connection: Contracts.Database.Connection,
+        private readonly walletManager: Contracts.State.WalletManager,
     ) {}
 
     public async run(): Promise<void> {
@@ -62,7 +62,7 @@ export class StateBuilder {
         }
     }
 
-    private isGenesis(wallet: Contracts.State.IWallet): boolean {
+    private isGenesis(wallet: Contracts.State.Wallet): boolean {
         return Managers.configManager
             .get("genesisBlock.transactions")
             .map((tx: Interfaces.ITransactionData) => tx.senderPublicKey)

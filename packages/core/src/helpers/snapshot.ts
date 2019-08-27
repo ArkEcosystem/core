@@ -3,7 +3,7 @@ import { lstatSync, readdirSync } from "fs";
 import prompts from "prompts";
 import { CommandFlags } from "../types";
 
-export const setUpLite = async (options): Promise<Contracts.Kernel.IApplication> => {
+export const setUpLite = async (options): Promise<Contracts.Kernel.Application> => {
     // await app.setUp(version, options, {
     //     include: [
     //         "@arkecosystem/core-logger-pino",

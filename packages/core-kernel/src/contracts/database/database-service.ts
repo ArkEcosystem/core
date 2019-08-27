@@ -1,36 +1,36 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IEventDispatcher } from "../kernel/events";
-import { ILogger } from "../kernel/log";
-import { IRoundInfo } from "../shared";
-import { IWallet, IWalletManager } from "../state/wallets";
+import { EventDispatcher } from "../kernel/events";
+import { Logger } from "../kernel/log";
+import { RoundInfo } from "../shared";
+import { Wallet, WalletManager } from "../state/wallets";
 import {
-    IBlocksBusinessRepository,
-    IDelegatesBusinessRepository,
-    ITransactionsBusinessRepository,
-    IWalletsBusinessRepository,
+    BlocksBusinessRepository,
+    DelegatesBusinessRepository,
+    TransactionsBusinessRepository,
+    WalletsBusinessRepository,
 } from "./business-repository";
-import { IConnection } from "./database-connection";
+import { Connection } from "./database-connection";
 
-export interface IDownloadBlock extends Omit<Interfaces.IBlockData, "transactions"> {
+export interface DownloadBlock extends Omit<Interfaces.IBlockData, "transactions"> {
     transactions: string[];
 }
 
-export interface IDatabaseService {
-    walletManager: IWalletManager;
+export interface DatabaseService {
+    walletManager: WalletManager;
 
-    wallets: IWalletsBusinessRepository;
+    wallets: WalletsBusinessRepository;
 
-    delegates: IDelegatesBusinessRepository;
+    delegates: DelegatesBusinessRepository;
 
-    blocksBusinessRepository: IBlocksBusinessRepository;
+    blocksBusinessRepository: BlocksBusinessRepository;
 
-    transactionsBusinessRepository: ITransactionsBusinessRepository;
+    transactionsBusinessRepository: TransactionsBusinessRepository;
 
-    connection: IConnection;
+    connection: Connection;
 
-    logger: ILogger;
+    logger: Logger;
 
-    emitter: IEventDispatcher;
+    emitter: EventDispatcher;
 
     options: any;
 
@@ -40,7 +40,7 @@ export interface IDatabaseService {
 
     verifyBlockchain(): Promise<boolean>;
 
-    getActiveDelegates(roundInfo: IRoundInfo, delegates?: IWallet[]): Promise<IWallet[]>;
+    getActiveDelegates(roundInfo: RoundInfo, delegates?: Wallet[]): Promise<Wallet[]>;
 
     restoreCurrentRound(height: number): Promise<void>;
 
@@ -60,7 +60,7 @@ export interface IDatabaseService {
 
     getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]>;
 
-    getBlocksForDownload(offset: number, limit: number, headersOnly?: boolean): Promise<IDownloadBlock[]>;
+    getBlocksForDownload(offset: number, limit: number, headersOnly?: boolean): Promise<DownloadBlock[]>;
 
     /**
      * Get the blocks at the given heights.
@@ -86,7 +86,7 @@ export interface IDatabaseService {
 
     getRecentBlockIds(): Promise<string[]>;
 
-    saveRound(activeDelegates: IWallet[]): Promise<void>;
+    saveRound(activeDelegates: Wallet[]): Promise<void>;
 
     deleteRound(round: number): Promise<void>;
 
@@ -100,7 +100,7 @@ export interface IDatabaseService {
 
     loadBlocksFromCurrentRound(): Promise<void>;
 
-    updateDelegateStats(delegates: IWallet[]): void;
+    updateDelegateStats(delegates: Wallet[]): void;
 
     applyRound(height: number): Promise<void>;
 
@@ -112,7 +112,7 @@ export interface IDatabaseService {
 
     verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean>;
 
-    getBlocksForRound(roundInfo?: IRoundInfo): Promise<Interfaces.IBlock[]>;
+    getBlocksForRound(roundInfo?: RoundInfo): Promise<Interfaces.IBlock[]>;
 
     getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]>;
 }

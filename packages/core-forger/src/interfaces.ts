@@ -1,6 +1,6 @@
 import { SCClientSocket } from "socketcluster-client";
 
-export interface IRelayHost {
+export interface RelayHost {
     hostname: string;
     port: number;
     socket?: SCClientSocket;

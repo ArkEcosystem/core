@@ -4,7 +4,7 @@ import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise, { IMain } from "pg-promise";
-import { IMigration } from "./interfaces";
+import { Migration } from "./interfaces";
 import { migrations } from "./migrations";
 import { Model } from "./models";
 import { queries as sqlQueries } from "./queries";
@@ -14,7 +14,7 @@ import { QueryExecutor } from "./sql/query-executor";
 import { StateBuilder } from "./state-builder";
 import { camelizeColumns } from "./utils";
 
-export class PostgresConnection implements Contracts.Database.IConnection {
+export class PostgresConnection implements Contracts.Database.Connection {
     // @todo: make this private
     public models: { [key: string]: Model } = {};
     // @todo: make this private
@@ -22,28 +22,28 @@ export class PostgresConnection implements Contracts.Database.IConnection {
     // @todo: make this private
     public db: any;
     // @todo: make this private
-    public blocksRepository: Contracts.Database.IBlocksRepository;
+    public blocksRepository: Contracts.Database.BlocksRepository;
     // @todo: make this private
-    public roundsRepository: Contracts.Database.IRoundsRepository;
+    public roundsRepository: Contracts.Database.RoundsRepository;
     // @todo: make this private
-    public transactionsRepository: Contracts.Database.ITransactionsRepository;
+    public transactionsRepository: Contracts.Database.TransactionsRepository;
     // @todo: make this private
-    public walletsRepository: Contracts.Database.IWalletsRepository;
+    public walletsRepository: Contracts.Database.WalletsRepository;
     // @todo: make this private
     public pgp: IMain;
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
-    private readonly emitter: Contracts.Kernel.Events.IEventDispatcher = app.get<
-        Contracts.Kernel.Events.IEventDispatcher
+    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
+        Contracts.Kernel.Events.EventDispatcher
     >("events");
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
 
     public constructor(
         readonly options: Record<string, any>,
-        private readonly walletManager: Contracts.State.IWalletManager,
+        private readonly walletManager: Contracts.State.WalletManager,
     ) {}
 
-    public async make(): Promise<Contracts.Database.IConnection> {
+    public async make(): Promise<Contracts.Database.Connection> {
         if (this.db) {
             throw new Error("Database connection already initialised");
         }
@@ -205,7 +205,7 @@ export class PostgresConnection implements Contracts.Database.IConnection {
     }
 
     private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
-        const row: IMigration = await this.migrationsRepository.findByName(name);
+        const row: Migration = await this.migrationsRepository.findByName(name);
 
         // Also run migration if the asset column is present, but missing values. E.g.
         // after restoring a snapshot without assets even though the database has already been migrated.

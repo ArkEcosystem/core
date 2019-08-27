@@ -1,13 +1,13 @@
 import { IBlockJson } from "./block";
 
-export interface INetworkConfig {
+export interface NetworkConfig {
     exceptions: IExceptions;
     genesisBlock: IBlockJson;
     milestones: Array<Record<string, any>>;
-    network: INetwork;
+    network: Network;
 }
 
-export interface INetwork {
+export interface Network {
     name: string;
     messagePrefix: string;
     bip32: {

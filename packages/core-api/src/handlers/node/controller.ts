@@ -81,7 +81,7 @@ export class NodeController extends Controller {
     }
 
     public async fees(request: Hapi.Request) {
-        const { transactionsBusinessRepository } = app.get<Contracts.Database.IDatabaseService>("database");
+        const { transactionsBusinessRepository } = app.get<Contracts.Database.DatabaseService>("database");
 
         // @ts-ignore
         const results = await transactionsBusinessRepository.getFeeStatistics(request.query.days);

@@ -2,10 +2,10 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { BlockStore } from "./stores/blocks";
 import { TransactionStore } from "./stores/transactions";
 
-export class StateService implements Contracts.State.IStateService {
+export class StateService implements Contracts.State.StateService {
     private readonly blocks: BlockStore;
     private readonly transactions: TransactionStore;
-    private readonly storage: Contracts.State.IStateStore;
+    private readonly storage: Contracts.State.StateStore;
 
     public constructor({
         blocks,
@@ -14,7 +14,7 @@ export class StateService implements Contracts.State.IStateService {
     }: {
         blocks: BlockStore;
         transactions: TransactionStore;
-        storage: Contracts.State.IStateStore;
+        storage: Contracts.State.StateStore;
     }) {
         this.blocks = blocks;
         this.transactions = transactions;
@@ -29,7 +29,7 @@ export class StateService implements Contracts.State.IStateService {
         return this.transactions;
     }
 
-    public getStore(): Contracts.State.IStateStore {
+    public getStore(): Contracts.State.StateStore {
         return this.storage;
     }
 }

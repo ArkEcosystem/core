@@ -1,10 +1,10 @@
-import TransportStream from "winston-transport";
+import WinstonTransportStream from "winston-transport";
 
-export interface ITransportStream extends TransportStream {
+export interface TransportStream extends WinstonTransportStream {
     name: string;
 }
 
-export interface ITransport {
+export interface Transport {
     package?: string;
     constructor: string;
     options: Record<string, any>;

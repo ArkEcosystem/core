@@ -13,10 +13,10 @@ export class PackageConfiguration {
      * The application instance.
      *
      * @protected
-     * @type {Kernel.IApplication}
+     * @type {Kernel.Application}
      * @memberof Manager
      */
-    private readonly app: Kernel.IApplication;
+    private readonly app: Kernel.Application;
 
     /**
      * The loaded items.
@@ -30,10 +30,10 @@ export class PackageConfiguration {
     /**
      * Create a new package configuration.
      *
-     * @param {{ app:Kernel.IApplication }} { app }
+     * @param {{ app:Kernel.Application }} { app }
      * @memberof Manager
      */
-    public constructor(@inject("app") app: Kernel.IApplication) {
+    public constructor(@inject("app") app: Kernel.Application) {
         this.app = app;
     }
 
@@ -109,7 +109,7 @@ export class PackageConfiguration {
             return defaultValue;
         }
 
-        return get(this.items, key, defaultValue) as T;
+        return get(this.items, key, defaultValue);
     }
 
     /**

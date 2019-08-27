@@ -3,8 +3,8 @@ import { Round } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
-export class RoundsRepository extends Repository implements Contracts.Database.IRoundsRepository {
-    public async findById(round: number): Promise<Contracts.Database.IRound[]> {
+export class RoundsRepository extends Repository implements Contracts.Database.RoundsRepository {
+    public async findById(round: number): Promise<Contracts.Database.Round[]> {
         return this.db.manyOrNone(queries.rounds.find, { round });
     }
 
@@ -13,8 +13,8 @@ export class RoundsRepository extends Repository implements Contracts.Database.I
         return db.none(queries.rounds.delete, { round });
     }
 
-    public async insert(delegates: Contracts.State.IWallet[]): Promise<void> {
-        const rounds: Array<Partial<Contracts.Database.IRound>> = delegates.map(delegate => {
+    public async insert(delegates: Contracts.State.Wallet[]): Promise<void> {
+        const rounds: Array<Partial<Contracts.Database.Round>> = delegates.map(delegate => {
             return {
                 publicKey: delegate.publicKey,
                 balance: delegate.getAttribute("delegate.voteBalance"),

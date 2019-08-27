@@ -1,26 +1,26 @@
 import nsfw from "nsfw";
-import { IApplication } from "../../contracts/kernel";
+import { Application } from "../../contracts/kernel";
 import { inject, injectable } from "../../container";
 
 /**
- * @interface IFileEvent
+ * @interface FileEvent
  */
-interface IFileEvent {
+interface FileEvent {
     /**
      * @type {number}
-     * @memberof IFileEvent
+     * @memberof FileEvent
      */
     action: number;
 
     /**
      * @type {string}
-     * @memberof IFileEvent
+     * @memberof FileEvent
      */
     directory: string;
 
     /**
      * @type {string}
-     * @memberof IFileEvent
+     * @memberof FileEvent
      */
     file: string;
 }
@@ -35,11 +35,11 @@ export class Watcher {
      * The application instance.
      *
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof AbstractManager
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
      * @returns {Promise<void>}
@@ -48,7 +48,7 @@ export class Watcher {
     public async watch(): Promise<void> {
         const configFiles: string[] = [".env", "delegates.json", "packages.js", "peers.json"];
 
-        const watcher = await nsfw(this.app.configPath(), (events: IFileEvent[]) => {
+        const watcher = await nsfw(this.app.configPath(), (events: FileEvent[]) => {
             for (const event of events) {
                 if (configFiles.includes(event.file) && event.action === nsfw.actions.MODIFIED) {
                     this.app.reboot();

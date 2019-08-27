@@ -2,15 +2,15 @@ import { JsonObject } from "../../types";
 
 /**
  * @export
- * @interface IValidator
+ * @interface Validator
  */
-export interface IValidator {
+export interface Validator {
     /**
      * Run the validator's rules against its data.
      *
      * @param {JsonObject} data
      * @param {object} schema
-     * @memberof IValidator
+     * @memberof Validator
      */
     validate(data: JsonObject, schema: object): void;
 
@@ -18,7 +18,7 @@ export interface IValidator {
      * Determine if the data passes the validation rules.
      *
      * @returns {boolean}
-     * @memberof IValidator
+     * @memberof Validator
      */
     passes(): boolean;
 
@@ -26,7 +26,7 @@ export interface IValidator {
      * Determine if the data fails the validation rules.
      *
      * @returns {boolean}
-     * @memberof IValidator
+     * @memberof Validator
      */
     fails(): boolean;
 
@@ -34,7 +34,7 @@ export interface IValidator {
      * Get the failed validation rules.
      *
      * @returns {Record<string, string[]>}
-     * @memberof IValidator
+     * @memberof Validator
      */
     failed(): Record<string, string[]>;
 
@@ -42,7 +42,7 @@ export interface IValidator {
      * Get all of the validation error messages.
      *
      * @returns {Record<string, string[]>}
-     * @memberof IValidator
+     * @memberof Validator
      */
     errors(): Record<string, string[]>;
 
@@ -50,7 +50,7 @@ export interface IValidator {
      * Returns the data which was valid.
      *
      * @returns {JsonObject}
-     * @memberof IValidator
+     * @memberof Validator
      */
     valid(): JsonObject;
 
@@ -58,7 +58,7 @@ export interface IValidator {
      * Returns the data which was invalid.
      *
      * @returns {JsonObject}
-     * @memberof IValidator
+     * @memberof Validator
      */
     invalid(): JsonObject;
 
@@ -66,7 +66,7 @@ export interface IValidator {
      * Get the data under validation.
      *
      * @returns {JsonObject}
-     * @memberof IValidator
+     * @memberof Validator
      */
     attributes(): JsonObject;
 }

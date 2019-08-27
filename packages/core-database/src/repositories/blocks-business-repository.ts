@@ -2,11 +2,11 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
-export class BlocksBusinessRepository implements Contracts.Database.IBlocksBusinessRepository {
-    constructor(private readonly databaseServiceProvider: () => Contracts.Database.IDatabaseService) {}
+export class BlocksBusinessRepository implements Contracts.Database.BlocksBusinessRepository {
+    constructor(private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) {}
 
     public async search(
-        params: Contracts.Database.IParameters = {},
+        params: Contracts.Database.Parameters = {},
     ): Promise<{
         rows: Interfaces.IBlockData[];
         count: number;
@@ -16,7 +16,7 @@ export class BlocksBusinessRepository implements Contracts.Database.IBlocksBusin
 
     public async findAllByGenerator(
         generatorPublicKey: string,
-        paginate: Contracts.Database.ISearchPaginate,
+        paginate: Contracts.Database.SearchPaginate,
     ): Promise<{
         rows: Interfaces.IBlockData[];
         count: number;
@@ -54,8 +54,8 @@ export class BlocksBusinessRepository implements Contracts.Database.IBlocksBusin
         return this.databaseServiceProvider().connection.blocksRepository.getDelegatesForgedBlocks();
     }
 
-    private parseSearchParams(params: Contracts.Database.IParameters): Contracts.Database.ISearchParameters {
-        const blocksRepository: Contracts.Database.IBlocksRepository = this.databaseServiceProvider().connection
+    private parseSearchParams(params: Contracts.Database.Parameters): Contracts.Database.SearchParameters {
+        const blocksRepository: Contracts.Database.BlocksRepository = this.databaseServiceProvider().connection
             .blocksRepository;
         const searchParameters = new SearchParameterConverter(blocksRepository.getModel()).convert(params);
 

@@ -9,7 +9,7 @@ import { OrderedMap, OrderedSet, Seq } from "immutable";
  * @todo
  * - extract block and transaction behaviours into their respective stores
  */
-export class StateStore implements Contracts.State.IStateStore {
+export class StateStore implements Contracts.State.StateStore {
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
@@ -99,7 +99,7 @@ export class StateStore implements Contracts.State.IStateStore {
 
         if (Managers.configManager.isNewMilestone()) {
             app
-                .get<Contracts.Kernel.Events.IEventDispatcher>("events")
+                .get<Contracts.Kernel.Events.EventDispatcher>("events")
                 .dispatch(Enums.Events.Internal.MilestoneChanged);
         }
 
@@ -235,7 +235,7 @@ export class StateStore implements Contracts.State.IStateStore {
     public pushPingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         if (this.blockPing) {
             app
-                .get<Contracts.Kernel.Log.ILogger>("log")
+                .get<Contracts.Kernel.Log.Logger>("log")
                 .info(
                     `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
                         this.blockPing.count

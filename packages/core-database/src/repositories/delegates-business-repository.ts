@@ -6,10 +6,10 @@ import { sortEntries } from "./utils/sort-entries";
 
 type CallbackFunctionVariadicVoidReturn = (...args: any[]) => void;
 
-export class DelegatesBusinessRepository implements Contracts.Database.IDelegatesBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Contracts.Database.IDatabaseService) {}
+export class DelegatesBusinessRepository implements Contracts.Database.DelegatesBusinessRepository {
+    public constructor(private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) {}
 
-    public search(params: Contracts.Database.IParameters = {}): Contracts.Database.IWalletsPaginated {
+    public search(params: Contracts.Database.Parameters = {}): Contracts.Database.WalletsPaginated {
         // Prepare...
         const query: Record<string, string[]> = {
             exact: ["address", "publicKey"],
@@ -31,7 +31,7 @@ export class DelegatesBusinessRepository implements Contracts.Database.IDelegate
 
         // Execute...
         let delegates: ReadonlyArray<
-            Contracts.State.IWallet
+            Contracts.State.Wallet
         > = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
@@ -60,8 +60,8 @@ export class DelegatesBusinessRepository implements Contracts.Database.IDelegate
         };
     }
 
-    public findById(id): Contracts.State.IWallet {
-        const wallet: Contracts.State.IWallet = this.databaseServiceProvider().walletManager.findById(id);
+    public findById(id): Contracts.State.Wallet {
+        const wallet: Contracts.State.Wallet = this.databaseServiceProvider().walletManager.findById(id);
 
         if (wallet && wallet.isDelegate()) {
             return wallet;

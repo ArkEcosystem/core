@@ -4,7 +4,7 @@ import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@ark
 import assert from "assert";
 import dottie from "dottie";
 
-export class Wallet implements Contracts.State.IWallet {
+export class Wallet implements Contracts.State.Wallet {
     public address: string;
     public publicKey: string | undefined;
     public balance: Utils.BigNumber;
@@ -69,7 +69,7 @@ export class Wallet implements Contracts.State.IWallet {
         ) {
             this.balance = this.balance.plus(block.reward).plus(block.totalFee);
 
-            const delegate: Contracts.State.IWalletDelegateAttributes = this.getAttribute("delegate");
+            const delegate: Contracts.State.WalletDelegateAttributes = this.getAttribute("delegate");
 
             delegate.producedBlocks++;
             delegate.forgedFees = delegate.forgedFees.plus(block.totalFee);
@@ -89,7 +89,7 @@ export class Wallet implements Contracts.State.IWallet {
         ) {
             this.balance = this.balance.minus(block.reward).minus(block.totalFee);
 
-            const delegate: Contracts.State.IWalletDelegateAttributes = this.getAttribute("delegate");
+            const delegate: Contracts.State.WalletDelegateAttributes = this.getAttribute("delegate");
 
             delegate.forgedFees = delegate.forgedFees.minus(block.totalFee);
             delegate.forgedRewards = delegate.forgedRewards.minus(block.reward);
@@ -148,9 +148,9 @@ export class Wallet implements Contracts.State.IWallet {
     public auditApply(transaction: Interfaces.ITransactionData): any[] {
         const audit = [];
 
-        const delegate: Contracts.State.IWalletDelegateAttributes = this.getAttribute("delegate");
+        const delegate: Contracts.State.WalletDelegateAttributes = this.getAttribute("delegate");
         const secondPublicKey: string = this.getAttribute("secondPublicKey");
-        const multiSignature: Contracts.State.IWalletMultiSignatureAttributes = this.getAttribute("multiSignature");
+        const multiSignature: Contracts.State.WalletMultiSignatureAttributes = this.getAttribute("multiSignature");
 
         if (multiSignature) {
             audit.push({

@@ -1,21 +1,21 @@
-import { IQueue } from "../../contracts/kernel/queue";
+import { Queue } from "../../contracts/kernel/queue";
 import { AbstractManager } from "../../support/manager";
 import { Memory } from "./drivers/memory";
 
 /**
  * @export
  * @class QueueManager
- * @extends {AbstractManager<IQueue>}
+ * @extends {AbstractManager<Queue>}
  */
-export class QueueManager extends AbstractManager<IQueue> {
+export class QueueManager extends AbstractManager<Queue> {
     /**
      * Create an instance of the Memory driver.
      *
-     * @returns {Promise<IQueue>}
+     * @returns {Promise<Queue>}
      * @memberof QueueManager
      */
-    public async createMemoryDriver(): Promise<IQueue> {
-        return this.app.resolve<IQueue>(Memory);
+    public async createMemoryDriver(): Promise<Queue> {
+        return this.app.resolve<Queue>(Memory);
     }
 
     /**

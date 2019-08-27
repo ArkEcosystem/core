@@ -1,9 +1,9 @@
 import { app } from "@arkecosystem/core-kernel";
 // import { Plugins } from "@arkecosystem/core-utils";
 import { Managers } from "@arkecosystem/crypto";
-import { IPeerConfig } from "../../interfaces";
+import { PeerConfig } from "../../interfaces";
 
-export const getPeerConfig = (): IPeerConfig => {
+export const getPeerConfig = (): PeerConfig => {
     const appConfig = Managers.configManager;
 
     return {

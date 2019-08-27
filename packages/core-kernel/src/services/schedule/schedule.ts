@@ -1,7 +1,7 @@
 import { CronJob } from "./cron-job";
 import { BlockJob } from "./block-job";
 import { injectable, inject } from "../../container";
-import { IApplication } from "../../contracts/kernel";
+import { Application } from "../../contracts/kernel";
 
 /**
  * @export
@@ -11,11 +11,11 @@ import { IApplication } from "../../contracts/kernel";
 export class Schedule {
     /**
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof BlockJob
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
      * @returns {CronJob}

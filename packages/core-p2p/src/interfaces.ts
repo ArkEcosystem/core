@@ -1,12 +1,12 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 
-export interface IPeerData {
+export interface PeerData {
     ip: string;
-    ports: Contracts.P2P.IPeerPorts;
+    ports: Contracts.P2P.PeerPorts;
     version: string;
 }
 
-export interface IPeerConfig {
+export interface PeerConfig {
     version: string;
     network: {
         version: string;
@@ -18,10 +18,10 @@ export interface IPeerConfig {
             symbol: string;
         };
     };
-    plugins: Contracts.P2P.IPeerPlugins;
+    plugins: Contracts.P2P.PeerPlugins;
 }
 
-export interface IPeerPingResponse {
-    state: Contracts.P2P.IPeerState;
-    config: IPeerConfig;
+export interface PeerPingResponse {
+    state: Contracts.P2P.PeerState;
+    config: PeerConfig;
 }

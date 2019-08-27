@@ -1,15 +1,15 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IPeer } from "./peer";
+import { Peer } from "./peer";
 
-export interface IPeerCommunicator {
-    ping(peer: IPeer, timeoutMsec: number, force?: boolean): Promise<any>;
-    pingPorts(peer: IPeer): Promise<void>;
-    downloadBlocks(peer: IPeer, fromBlockHeight): Promise<any>;
-    postBlock(peer: IPeer, block: Interfaces.IBlockJson);
-    postTransactions(peer: IPeer, transactions: Interfaces.ITransactionJson[]): Promise<any>;
-    getPeers(peer: IPeer): Promise<any>;
+export interface PeerCommunicator {
+    ping(peer: Peer, timeoutMsec: number, force?: boolean): Promise<any>;
+    pingPorts(peer: Peer): Promise<void>;
+    downloadBlocks(peer: Peer, fromBlockHeight): Promise<any>;
+    postBlock(peer: Peer, block: Interfaces.IBlockJson);
+    postTransactions(peer: Peer, transactions: Interfaces.ITransactionJson[]): Promise<any>;
+    getPeers(peer: Peer): Promise<any>;
     getPeerBlocks(
-        peer: IPeer,
+        peer: Peer,
         {
             fromBlockHeight,
             blockLimit,
@@ -17,5 +17,5 @@ export interface IPeerCommunicator {
             headersOnly,
         }: { fromBlockHeight: number; blockLimit?: number; timeoutMsec?: number; headersOnly?: boolean },
     ): Promise<any>;
-    hasCommonBlocks(peer: IPeer, ids: string[], timeoutMsec?: number): Promise<any>;
+    hasCommonBlocks(peer: Peer, ids: string[], timeoutMsec?: number): Promise<any>;
 }

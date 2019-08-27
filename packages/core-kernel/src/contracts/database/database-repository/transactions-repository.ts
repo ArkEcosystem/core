@@ -1,10 +1,10 @@
 import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-import { IWallet } from "../../state/wallets";
-import { ITransactionsPaginated } from "../business-repository";
-import { ISearchOrderBy, ISearchPaginate, ISearchParameters } from "../search";
-import { IRepository } from "./repository";
+import { Wallet } from "../../state/wallets";
+import { TransactionsPaginated } from "../business-repository";
+import { SearchOrderBy, SearchPaginate, SearchParameters } from "../search";
+import { Repository } from "./repository";
 
-export interface ITransactionsRepository extends IRepository {
+export interface TransactionsRepository extends Repository {
     findById(id: string): Promise<Interfaces.ITransactionData>;
 
     findByBlockId(
@@ -57,10 +57,10 @@ export interface ITransactionsRepository extends IRepository {
     deleteByBlockId(blockIds: string[], db: any): Promise<void>;
 
     findAllByWallet(
-        wallet: IWallet,
-        paginate?: ISearchPaginate,
-        orderBy?: ISearchOrderBy[],
-    ): Promise<ITransactionsPaginated>;
+        wallet: Wallet,
+        paginate?: SearchPaginate,
+        orderBy?: SearchOrderBy[],
+    ): Promise<TransactionsPaginated>;
 
-    search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
+    search(parameters: SearchParameters): Promise<TransactionsPaginated>;
 }

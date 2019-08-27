@@ -1,18 +1,18 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IBlocksRepository } from "./database-repository";
-import { IRoundsRepository } from "./database-repository";
-import { ITransactionsRepository } from "./database-repository";
-import { IWalletsRepository } from "./database-repository";
+import { BlocksRepository } from "./database-repository";
+import { RoundsRepository } from "./database-repository";
+import { TransactionsRepository } from "./database-repository";
+import { WalletsRepository } from "./database-repository";
 
-export interface IConnection {
+export interface Connection {
     options: Record<string, any>;
 
-    blocksRepository: IBlocksRepository;
-    walletsRepository: IWalletsRepository;
-    roundsRepository: IRoundsRepository;
-    transactionsRepository: ITransactionsRepository;
+    blocksRepository: BlocksRepository;
+    walletsRepository: WalletsRepository;
+    roundsRepository: RoundsRepository;
+    transactionsRepository: TransactionsRepository;
 
-    make(): Promise<IConnection>;
+    make(): Promise<Connection>;
 
     connect(): Promise<void>;
 

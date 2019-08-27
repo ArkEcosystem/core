@@ -1,11 +1,11 @@
-export interface INetworkState {
+export interface NetworkState {
     readonly status: any;
 
     nodeHeight: number;
     lastBlockId: string;
 
-    // static analyze(monitor: INetworkMonitor, storage: IPeerStorage): INetworkState;
-    // static parse(data: any): INetworkState;
+    // static analyze(monitor: NetworkMonitor, storage: PeerStorage): NetworkState;
+    // static parse(data: any): NetworkState;
 
     setLastBlock(lastBlock);
     getQuorum();
@@ -13,7 +13,7 @@ export interface INetworkState {
     toJson();
 }
 
-export interface IQuorumDetails {
+export interface QuorumDetails {
     /**
      * Number of peers on same height, with same block and same slot. Used for
      * quorum calculation.

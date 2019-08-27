@@ -2,16 +2,16 @@ import { EventListener, EventName } from "../../types/events";
 
 /**
  * @export
- * @interface IEventDispatcher
+ * @interface EventDispatcher
  */
-export interface IEventDispatcher {
+export interface EventDispatcher {
     /**
      * Register a listener with the dispatcher.
      *
      * @param {EventName} event
      * @param {EventListener} listener
      * @returns {() => void}
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     listen(event: EventName, listener: EventListener): () => void;
 
@@ -20,7 +20,7 @@ export interface IEventDispatcher {
      *
      * @param {Array<[EventName, EventListener]>} events
      * @returns {Map<EventName, () => void>}
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     listenMany(events: Array<[EventName, EventListener]>): Map<EventName, () => void>;
 
@@ -29,7 +29,7 @@ export interface IEventDispatcher {
      *
      * @param {EventName} name
      * @param {EventListener} listener
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     listenOnce(name: EventName, listener: EventListener): void;
 
@@ -38,7 +38,7 @@ export interface IEventDispatcher {
      *
      * @param {EventName} event
      * @param {EventListener} listener
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     forget(event: EventName, listener: EventListener): void;
 
@@ -46,14 +46,14 @@ export interface IEventDispatcher {
      * Remove many listeners from the dispatcher.
      *
      * @param {Array<[EventName, EventListener]>} events
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     forgetMany(events: Array<[EventName, EventListener]>): void;
 
     /**
      * Remove all listeners from the dispatcher.
      *
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     flush(): void;
 
@@ -62,7 +62,7 @@ export interface IEventDispatcher {
      *
      * @param {EventName} event
      * @returns {EventListener[]}
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     getListeners(event: EventName): EventListener[];
 
@@ -71,7 +71,7 @@ export interface IEventDispatcher {
      *
      * @param {EventName} event
      * @returns {boolean}
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     hasListeners(event: EventName): boolean;
 
@@ -82,7 +82,7 @@ export interface IEventDispatcher {
      * @param {EventName} event
      * @param {T} [data]
      * @returns {Promise<void>}
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     dispatch<T = any>(event: EventName, data?: T): Promise<void>;
 
@@ -93,7 +93,7 @@ export interface IEventDispatcher {
      * @param {EventName} event
      * @param {T} [data]
      * @returns {Promise<void>}
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     dispatchSeq<T = any>(event: EventName, data?: T): Promise<void>;
 
@@ -103,7 +103,7 @@ export interface IEventDispatcher {
      * @template T
      * @param {EventName} event
      * @param {T} [data]
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     dispatchSync<T = any>(event: EventName, data?: T): void;
 
@@ -113,7 +113,7 @@ export interface IEventDispatcher {
      * @template T
      * @param {Array<[EventName, T]>} events
      * @returns {Promise<void>}
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     dispatchMany<T = any>(events: Array<[EventName, T]>): Promise<void>;
 
@@ -123,7 +123,7 @@ export interface IEventDispatcher {
      * @template T
      * @param {Array<[EventName, T]>} events
      * @returns {Promise<void>}
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     dispatchManySeq<T = any>(events: Array<[EventName, T]>): Promise<void>;
 
@@ -132,7 +132,7 @@ export interface IEventDispatcher {
      *
      * @template T
      * @param {Array<[EventName, T]>} events
-     * @memberof IEventDispatcher
+     * @memberof EventDispatcher
      */
     dispatchManySync<T = any>(events: Array<[EventName, T]>): void;
 }

@@ -5,7 +5,7 @@ import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
-    private readonly transactionPool = app.get<Contracts.TransactionPool.IConnection>("transactionPool");
+    private readonly transactionPool = app.get<Contracts.TransactionPool.Connection>("transactionPool");
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
@@ -20,12 +20,12 @@ export class TransactionsController extends Controller {
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const processor: Contracts.TransactionPool.IProcessor = this.transactionPool.makeProcessor();
+            const processor: Contracts.TransactionPool.Processor = this.transactionPool.makeProcessor();
             const result = await processor.validate((request.payload as any).transactions);
 
             if (result.broadcast.length > 0) {
                 app
-                    .get<Contracts.P2P.IPeerService>("p2p")
+                    .get<Contracts.P2P.PeerService>("p2p")
                     .getMonitor()
                     .broadcastTransactions(processor.getBroadcastTransactions());
             }

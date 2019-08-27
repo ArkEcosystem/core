@@ -7,10 +7,10 @@ export class Server {
      * The application instance.
      *
      * @protected
-     * @type {Contracts.Kernel.IApplication}
+     * @type {Contracts.Kernel.Application}
      * @memberof AbstractManager
      */
-    private readonly app: Contracts.Kernel.IApplication;
+    private readonly app: Contracts.Kernel.Application;
 
     private readonly config: any;
 
@@ -20,10 +20,10 @@ export class Server {
     /**
      * Creates an instance of AbstractBootstrapper.
      *
-     * @param {{ app: Contracts.Kernel.IApplication }} { app }
+     * @param {{ app: Contracts.Kernel.Application }} { app }
      * @memberof AbstractBootstrapper
      */
-    public constructor({ app }: { app: Contracts.Kernel.IApplication }) {
+    public constructor({ app }: { app: Contracts.Kernel.Application }) {
         this.app = app;
         this.config = app.get<any>("api.options");
     }

@@ -12,23 +12,23 @@ import {
     writeFile,
 } from "fs-extra";
 import { resolve } from "path";
-import { IFilesystem } from "../../../contracts/kernel/filesystem";
+import { Filesystem } from "../../../contracts/kernel/filesystem";
 import { injectable } from "../../../container";
 
 /**
  * @export
  * @class Local
- * @implements {IFilesystem}
+ * @implements {Filesystem}
  */
 @injectable()
-export class Local implements IFilesystem {
+export class Local implements Filesystem {
     /**
      * Create a new instance of the filesystem.
      *
-     * @returns {Promise<IFilesystem>}
+     * @returns {Promise<Filesystem>}
      * @memberof Local
      */
-    public async make(): Promise<IFilesystem> {
+    public async make(): Promise<Filesystem> {
         return this;
     }
 

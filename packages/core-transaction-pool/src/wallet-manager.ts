@@ -5,11 +5,11 @@ import { Identities, Interfaces } from "@arkecosystem/crypto";
 import clonedeep from "lodash.clonedeep";
 
 export class WalletManager extends Wallets.WalletManager {
-    private readonly databaseService: Contracts.Database.IDatabaseService = app.get<
-        Contracts.Database.IDatabaseService
+    private readonly databaseService: Contracts.Database.DatabaseService = app.get<
+        Contracts.Database.DatabaseService
     >("database");
 
-    public findByAddress(address: string): Contracts.State.IWallet {
+    public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
             this.reindex(clonedeep(this.databaseService.walletManager.findByAddress(address)));
         }
@@ -38,7 +38,7 @@ export class WalletManager extends Wallets.WalletManager {
             }
         }
 
-        const sender: Contracts.State.IWallet = this.findByPublicKey(senderPublicKey);
+        const sender: Contracts.State.Wallet = this.findByPublicKey(senderPublicKey);
 
         return Handlers.Registry.get(transaction.type, transaction.typeGroup).throwIfCannotBeApplied(
             transaction,

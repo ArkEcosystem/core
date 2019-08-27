@@ -14,7 +14,7 @@ export const checkDNS = async hosts => {
 
             return Promise.resolve(hosts[i]);
         } catch (err) {
-            app.get<Contracts.Kernel.Log.ILogger>("log").error(err.message);
+            app.get<Contracts.Kernel.Log.Logger>("log").error(err.message);
         }
     }
 

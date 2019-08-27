@@ -1,8 +1,8 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { ILogger } from "../kernel/log";
-import { IRoundInfo } from "../shared";
+import { Logger } from "../kernel/log";
+import { RoundInfo } from "../shared";
 
-export type WalletIndexer = (index: IWalletIndex, wallet: IWallet) => void;
+export type WalletIndexer = (index: WalletIndex, wallet: Wallet) => void;
 
 export enum WalletIndexes {
     Addresses = "addresses",
@@ -11,7 +11,7 @@ export enum WalletIndexes {
     Locks = "locks",
 }
 
-export interface IWallet {
+export interface Wallet {
     address: string;
     publicKey: string | undefined;
     balance: Utils.BigNumber;
@@ -41,7 +41,7 @@ export interface IWallet {
     ): boolean;
 }
 
-export interface IWalletDelegateAttributes {
+export interface WalletDelegateAttributes {
     username: string;
     voteBalance: Utils.BigNumber;
     forgedFees: Utils.BigNumber;
@@ -53,14 +53,14 @@ export interface IWalletDelegateAttributes {
     resigned?: boolean;
 }
 
-export type IWalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset;
+export type WalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset;
 
-export interface IWalletIpfsAttributes {
+export interface WalletIpfsAttributes {
     [hash: string]: boolean;
 }
 
-export interface IWalletManager {
-    logger: ILogger;
+export interface WalletManager {
+    logger: Logger;
 
     reset(): void;
 
@@ -68,45 +68,45 @@ export interface IWalletManager {
 
     unregisterIndex(name: string): void;
 
-    getIndex(name: string): IWalletIndex;
+    getIndex(name: string): WalletIndex;
 
-    allByAddress(): ReadonlyArray<IWallet>;
+    allByAddress(): ReadonlyArray<Wallet>;
 
-    allByPublicKey(): ReadonlyArray<IWallet>;
+    allByPublicKey(): ReadonlyArray<Wallet>;
 
-    allByUsername(): ReadonlyArray<IWallet>;
+    allByUsername(): ReadonlyArray<Wallet>;
 
-    findById(id: string): IWallet;
+    findById(id: string): Wallet;
 
-    findByAddress(address: string): IWallet;
+    findByAddress(address: string): Wallet;
 
     has(key: string): boolean;
 
     hasByIndex(indexName: string, key: string): boolean;
 
-    findByPublicKey(publicKey: string): IWallet;
+    findByPublicKey(publicKey: string): Wallet;
 
-    findByUsername(username: string): IWallet;
+    findByUsername(username: string): Wallet;
 
-    findByIndex(indexName: string, key: string): IWallet | undefined;
+    findByIndex(indexName: string, key: string): Wallet | undefined;
 
     getNonce(publicKey: string): Utils.BigNumber;
 
-    index(wallets: ReadonlyArray<IWallet>): void;
+    index(wallets: ReadonlyArray<Wallet>): void;
 
-    reindex(wallet: IWallet): void;
+    reindex(wallet: Wallet): void;
 
     getCurrentBlock(): Readonly<Interfaces.IBlock>;
 
-    clone(): IWalletManager;
+    clone(): WalletManager;
 
-    loadActiveDelegateList(roundInfo: IRoundInfo): IWallet[];
+    loadActiveDelegateList(roundInfo: RoundInfo): Wallet[];
 
     buildVoteBalances(): void;
 
     applyBlock(block: Interfaces.IBlock): Promise<void>;
 
-    buildDelegateRanking(roundInfo?: IRoundInfo): IWallet[];
+    buildDelegateRanking(roundInfo?: RoundInfo): Wallet[];
 
     revertBlock(block: Interfaces.IBlock): Promise<void>;
 
@@ -114,7 +114,7 @@ export interface IWalletManager {
 
     revertTransaction(transaction: Interfaces.ITransaction): Promise<void>;
 
-    canBePurged(wallet: IWallet): boolean;
+    canBePurged(wallet: Wallet): boolean;
 
     forgetByAddress(address: string): void;
 
@@ -131,12 +131,12 @@ export interface IWalletManager {
     hasByUsername(username: string): boolean;
 }
 
-export interface IWalletIndex {
-    index(wallet: IWallet): void;
+export interface WalletIndex {
+    index(wallet: Wallet): void;
     has(key: string): boolean;
-    get(key: string): IWallet | undefined;
-    set(key: string, wallet: IWallet): void;
+    get(key: string): Wallet | undefined;
+    set(key: string, wallet: Wallet): void;
     forget(key: string): void;
-    all(): ReadonlyArray<IWallet>;
+    all(): ReadonlyArray<Wallet>;
     clear(): void;
 }

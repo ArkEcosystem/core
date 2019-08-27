@@ -1,17 +1,17 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
-export interface ITransactionsCached {
+export interface TransactionsCached {
     added: Interfaces.ITransactionData[];
     notAdded: Interfaces.ITransactionData[];
 }
 
-export interface ITransactionsProcessed {
+export interface TransactionsProcessed {
     added: Interfaces.ITransaction[];
-    notAdded: Contracts.TransactionPool.IAddTransactionResponse[];
+    notAdded: Contracts.TransactionPool.AddTransactionResponse[];
 }
 
-export interface IDynamicFeeMatch {
+export interface DynamicFeeMatch {
     broadcast: boolean;
     enterPool: boolean;
 }

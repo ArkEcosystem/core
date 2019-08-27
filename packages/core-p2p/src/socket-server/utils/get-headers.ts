@@ -8,7 +8,7 @@ export const getHeaders = () => {
     };
 
     if (app.isBound("blockchain")) {
-        const lastBlock = app.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock();
+        const lastBlock = app.get<Contracts.Blockchain.Blockchain>("blockchain").getLastBlock();
 
         if (lastBlock) {
             headers.height = lastBlock.data.height;

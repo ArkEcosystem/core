@@ -9,7 +9,7 @@ export class Wallets extends Index {
         for (let i = 0; i < iterations; i++) {
             const offset: number = this.chunkSize * i;
 
-            const rows: Contracts.State.IWallet[] = this.database.walletManager
+            const rows: Contracts.State.Wallet[] = this.database.walletManager
                 .allByAddress()
                 .slice(offset, offset + this.chunkSize);
 

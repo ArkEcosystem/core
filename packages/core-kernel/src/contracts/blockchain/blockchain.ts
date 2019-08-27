@@ -1,32 +1,32 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IDatabaseService } from "../database";
-import { IPeerService } from "../p2p";
-import { IStateStore } from "../state";
-import { IConnection } from "../transaction-pool";
+import { DatabaseService } from "../database";
+import { PeerService } from "../p2p";
+import { StateStore } from "../state";
+import { Connection } from "../transaction-pool";
 
-export interface IBlockchain {
+export interface Blockchain {
     /**
      * Get the state of the blockchain.
-     * @return {IStateStore}
+     * @return {StateStore}
      */
-    readonly state: IStateStore;
+    readonly state: StateStore;
 
     /**
      * Get the network (p2p) interface.
      */
-    readonly p2p: IPeerService;
+    readonly p2p: PeerService;
 
     /**
      * Get the transaction handler.
-     * @return {IConnection}
+     * @return {Connection}
      */
-    readonly transactionPool: IConnection;
+    readonly transactionPool: Connection;
 
     /**
      * Get the database connection.
      * @return {ConnectionInterface}
      */
-    readonly database: IDatabaseService;
+    readonly database: DatabaseService;
 
     dispatch(event: string): void;
 

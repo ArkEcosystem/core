@@ -1,26 +1,26 @@
 import { Events } from "../../enums";
 import { ServiceProviderCannotBeBooted } from "../../exceptions/packages";
 import { ServiceProviderRepository } from "../../providers";
-import { IBootstrapper } from "../interfaces";
-import { IApplication } from "../../contracts/kernel";
+import { Bootstrapper } from "../interfaces";
+import { Application } from "../../contracts/kernel";
 import { injectable, inject } from "../../container";
 
 /**
  * @export
  * @class RegisterProviders
- * @implements {IBootstrapper}
+ * @implements {Bootstrapper}
  */
 @injectable()
-export class BootServiceProviders implements IBootstrapper {
+export class BootServiceProviders implements Bootstrapper {
     /**
      * The application instance.
      *
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof Local
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
      * @returns {Promise<void>}

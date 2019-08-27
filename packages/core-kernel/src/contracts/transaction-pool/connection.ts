@@ -1,16 +1,16 @@
 import { Enums, Interfaces } from "@arkecosystem/crypto";
-import { IProcessor } from "./processor";
+import { Processor } from "./processor";
 
-export interface IAddTransactionResponse {
+export interface AddTransactionResponse {
     transaction?: Interfaces.ITransaction;
     type?: string;
     message?: string;
 }
 
-export interface IConnection {
+export interface Connection {
     walletManager: any;
 
-    makeProcessor(): IProcessor;
+    makeProcessor(): Processor;
 
     make(): Promise<this>;
     disconnect(): void;
@@ -20,7 +20,7 @@ export interface IConnection {
         transactions: Interfaces.ITransaction[],
     ): Promise<{
         added: Interfaces.ITransaction[];
-        notAdded: IAddTransactionResponse[];
+        notAdded: AddTransactionResponse[];
     }>;
     acceptChainedBlock(block: Interfaces.IBlock): Promise<void>;
     buildWallets(): Promise<void>;

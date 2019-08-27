@@ -68,7 +68,7 @@ class PayloadProcessor {
                     });
                     saveToDB(this.payloadOverflowQueue);
                 } catch (error) {
-                    app.get<Contracts.Kernel.Log.ILogger>("log").warning(
+                    app.get<Contracts.Kernel.Log.Logger>("log").warning(
                         `Discarding ${pluralize(
                             "transaction payload",
                             overflowQueueSize,

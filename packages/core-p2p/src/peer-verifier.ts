@@ -6,7 +6,7 @@ import assert from "assert";
 import { inspect } from "util";
 import { Severity } from "./enums";
 
-export class PeerVerificationResult implements Contracts.P2P.IPeerVerificationResult {
+export class PeerVerificationResult implements Contracts.P2P.PeerVerificationResult {
     public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
 
     get forked(): boolean {
@@ -20,15 +20,15 @@ export class PeerVerifier {
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
     private static readonly verifiedBlocks = new CappedSet();
-    private readonly database: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>(
+    private readonly database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         "database",
     );
-    private readonly logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
     private logPrefix: string;
 
     public constructor(
-        private readonly communicator: Contracts.P2P.IPeerCommunicator,
-        private readonly peer: Contracts.P2P.IPeer,
+        private readonly communicator: Contracts.P2P.PeerCommunicator,
+        private readonly peer: Contracts.P2P.Peer,
     ) {
         this.logPrefix = `Peer verify ${peer.ip}:`;
     }
@@ -77,7 +77,7 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     public async checkState(
-        claimedState: Contracts.P2P.IPeerState,
+        claimedState: Contracts.P2P.PeerState,
         deadline: number,
     ): Promise<PeerVerificationResult | undefined> {
         if (!this.checkStateHeader(claimedState)) {
@@ -105,7 +105,7 @@ export class PeerVerifier {
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
 
-    private checkStateHeader(claimedState: Contracts.P2P.IPeerState): boolean {
+    private checkStateHeader(claimedState: Contracts.P2P.PeerState): boolean {
         const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
         const claimedHeight = Number(blockHeader.height);
         if (claimedHeight !== claimedState.height) {
@@ -119,7 +119,7 @@ export class PeerVerifier {
 
         try {
             const ownBlock: Interfaces.IBlock = app
-                .get<Contracts.State.IStateService>("state")
+                .get<Contracts.State.StateService>("state")
                 .getStore()
                 .getLastBlocks()
                 .find(block => block.data.height === blockHeader.height);
@@ -150,7 +150,7 @@ export class PeerVerifier {
 
     private ourHeight(): number {
         const height: number = app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .getLastHeight();
 
@@ -369,8 +369,8 @@ export class PeerVerifier {
      * Get the delegates for the given round.
      */
     private async getDelegatesByRound(
-        roundInfo: Contracts.Shared.IRoundInfo,
-    ): Promise<Record<string, Contracts.State.IWallet>> {
+        roundInfo: Contracts.Shared.RoundInfo,
+    ): Promise<Record<string, Contracts.State.Wallet>> {
         const { round, maxDelegates } = roundInfo;
 
         let delegates = await this.database.getActiveDelegates(roundInfo);
@@ -389,7 +389,7 @@ export class PeerVerifier {
             );
         }
 
-        const delegatesByPublicKey = {} as Record<string, Contracts.State.IWallet>;
+        const delegatesByPublicKey = {} as Record<string, Contracts.State.Wallet>;
 
         for (const delegate of delegates) {
             delegatesByPublicKey[delegate.publicKey] = delegate;
@@ -464,7 +464,7 @@ export class PeerVerifier {
     private async verifyPeerBlock(
         blockData: Interfaces.IBlockData,
         expectedHeight: number,
-        delegatesByPublicKey: Record<string, Contracts.State.IWallet>,
+        delegatesByPublicKey: Record<string, Contracts.State.Wallet>,
     ): Promise<boolean> {
         if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
             this.log(

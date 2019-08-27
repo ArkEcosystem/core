@@ -2,12 +2,12 @@ import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { httpie } from "@arkecosystem/core-utils";
 import * as conditions from "./conditions";
 import { database } from "./database";
-import { IWebhook } from "./interfaces";
+import { Webhook } from "./interfaces";
 
 export const startListeners = (): void => {
     for (const event of Object.values(Enums.Events.State)) {
-        app.get<Contracts.Kernel.Events.IEventDispatcher>("events").listen(event, async payload => {
-            const webhooks: IWebhook[] = database.findByEvent(event).filter((webhook: IWebhook) => {
+        app.get<Contracts.Kernel.Events.EventDispatcher>("events").listen(event, async payload => {
+            const webhooks: Webhook[] = database.findByEvent(event).filter((webhook: Webhook) => {
                 if (!webhook.enabled) {
                     return false;
                 }
@@ -45,15 +45,13 @@ export const startListeners = (): void => {
                         timeout: app.get<any>("webhooks.options").timeout,
                     });
 
-                    app
-                        .get<Contracts.Kernel.Log.ILogger>("log")
-                        .debug(
-                            `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
-                        );
+                    app.get<Contracts.Kernel.Log.Logger>("log").debug(
+                        `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
+                    );
                 } catch (error) {
-                    app
-                        .get<Contracts.Kernel.Log.ILogger>("log")
-                        .error(`Webhooks Job ${webhook.id} failed: ${error.message}`);
+                    app.get<Contracts.Kernel.Log.Logger>("log").error(
+                        `Webhooks Job ${webhook.id} failed: ${error.message}`,
+                    );
                 }
             }
         });

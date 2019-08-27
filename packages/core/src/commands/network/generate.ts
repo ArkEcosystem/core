@@ -89,7 +89,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
                 type: "confirm",
                 name: "confirm",
                 message: "Can you confirm?",
-            } as prompts.PromptObject<string>) as Array<prompts.PromptObject<string>>);
+            } as prompts.PromptObject<string>));
 
         if (Object.keys(GenerateCommand.flags).find(flagName => !response[flagName])) {
             // one of the flags was not filled, we can't continue

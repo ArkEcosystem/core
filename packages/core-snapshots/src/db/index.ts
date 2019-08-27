@@ -5,7 +5,7 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
-const logger = app.get<Contracts.Kernel.Log.ILogger>("log");
+const logger = app.get<Contracts.Kernel.Log.Logger>("log");
 
 export class Database {
     public db: any;
@@ -58,7 +58,7 @@ export class Database {
         }
     }
 
-    public async rollbackChain(roundInfo: Contracts.Shared.IRoundInfo) {
+    public async rollbackChain(roundInfo: Contracts.Shared.RoundInfo) {
         const { round, roundHeight } = roundInfo;
         const lastRemainingBlock = await this.getBlockByHeight(roundHeight);
 
@@ -97,8 +97,8 @@ export class Database {
             );
         }
 
-        const roundInfoStart: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight);
-        const roundInfoEnd: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(meta.endHeight);
+        const roundInfoStart: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(meta.startHeight);
+        const roundInfoEnd: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(meta.endHeight);
 
         return {
             blocks: rawQuery(this.pgp, queries.blocks.heightRange, {

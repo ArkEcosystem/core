@@ -3,9 +3,9 @@ import { Managers, Utils } from "@arkecosystem/crypto";
 
 const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
 
-export const calculateApproval = (delegate: Contracts.State.IWallet, height?: number): number => {
+export const calculateApproval = (delegate: Contracts.State.Wallet, height?: number): number => {
     if (!height) {
-        height = app.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock().data.height;
+        height = app.get<Contracts.Blockchain.Blockchain>("blockchain").getLastBlock().data.height;
     }
 
     const constants = Managers.configManager.getMilestone(height);
@@ -20,8 +20,8 @@ export const calculateApproval = (delegate: Contracts.State.IWallet, height?: nu
         .toFixed(2);
 };
 
-export const calculateForgedTotal = (wallet: Contracts.State.IWallet): string => {
-    const delegate: Contracts.State.IWalletDelegateAttributes = wallet.getAttribute("delegate");
+export const calculateForgedTotal = (wallet: Contracts.State.Wallet): string => {
+    const delegate: Contracts.State.WalletDelegateAttributes = wallet.getAttribute("delegate");
     const forgedFees: Utils.BigNumber = Utils.BigNumber.make(delegate.forgedFees);
     const forgedRewards: Utils.BigNumber = Utils.BigNumber.make(delegate.forgedRewards);
 

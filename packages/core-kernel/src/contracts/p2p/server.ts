@@ -1,28 +1,28 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IWallet } from "../state";
+import { Wallet } from "../state";
 
-export interface IResponse<T> {
+export interface Response<T> {
     data: T;
 }
 
-export interface ICurrentRound {
+export interface CurrentRound {
     current: number;
     reward: string;
     timestamp: number;
-    delegates: IWallet[];
-    currentForger: IWallet;
-    nextForger: IWallet;
+    delegates: Wallet[];
+    currentForger: Wallet;
+    nextForger: Wallet;
     lastBlock: Interfaces.IBlockData;
     canForge: boolean;
 }
 
-export interface IForgingTransactions {
+export interface ForgingTransactions {
     transactions: string[];
     poolSize: number;
     count: number;
 }
 
-export interface IUnconfirmedTransactions {
+export interface UnconfirmedTransactions {
     transactions: string[];
     poolSize: number;
 }

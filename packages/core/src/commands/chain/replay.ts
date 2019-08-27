@@ -28,6 +28,6 @@ export class ReplayCommand extends BaseCommand {
             this.error("The @arkecosystem/core-blockchain plugin is not installed.");
         }
 
-        await app.get<Contracts.Blockchain.IBlockchain>("blockchain").replay(flags.targetHeight);
+        await app.get<Contracts.Blockchain.Blockchain>("blockchain").replay(flags.targetHeight);
     }
 }

@@ -1,13 +1,13 @@
-import { IRepository } from "./repository";
+import { Repository } from "./repository";
 
-export interface IRound {
+export interface Round {
     id: number;
     publicKey: string;
     balance: string;
     round: number;
 }
 
-export interface IRoundsRepository extends IRepository {
-    findById(id: number): Promise<IRound[]>;
+export interface RoundsRepository extends Repository {
+    findById(id: number): Promise<Round[]>;
     delete(id: number, db?: any): Promise<void>;
 }

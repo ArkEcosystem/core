@@ -1,20 +1,20 @@
-import { IValidator } from "../../contracts/kernel/validation";
+import { Validator } from "../../contracts/kernel/validation";
 import { AbstractManager } from "../../support/manager";
 import { Joi } from "./drivers";
 
 /**
  * @export
  * @class ValidationManager
- * @extends {AbstractManager<IValidator>}
+ * @extends {AbstractManager<Validator>}
  */
-export class ValidationManager extends AbstractManager<IValidator> {
+export class ValidationManager extends AbstractManager<Validator> {
     /**
      * Create an instance of the Joi driver.
      *
-     * @returns {IValidator}
+     * @returns {Validator}
      * @memberof ValidationManager
      */
-    public createJoiDriver(): IValidator {
+    public createJoiDriver(): Validator {
         return this.app.resolve(Joi);
     }
 

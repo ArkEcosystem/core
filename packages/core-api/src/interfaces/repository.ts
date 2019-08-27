@@ -1,4 +1,4 @@
-export interface IRepository {
+export interface Repository {
     databaseService: any;
     cache: any;
     model: any;

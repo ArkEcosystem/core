@@ -2,8 +2,8 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { delegateCalculator, formatTimestamp } from "@arkecosystem/core-utils";
 import { Utils } from "@arkecosystem/crypto";
 
-export const transformDelegate = (delegate: Contracts.State.IWallet) => {
-    const attributes: Contracts.State.IWalletDelegateAttributes = delegate.getAttribute("delegate");
+export const transformDelegate = (delegate: Contracts.State.Wallet) => {
+    const attributes: Contracts.State.WalletDelegateAttributes = delegate.getAttribute("delegate");
 
     const data = {
         username: attributes.username,

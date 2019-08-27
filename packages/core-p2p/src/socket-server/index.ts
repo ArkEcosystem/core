@@ -9,7 +9,7 @@ import { validate } from "./utils/validate";
 import * as handlers from "./versions";
 
 export const startSocketServer = async (
-    service: Contracts.P2P.IPeerService,
+    service: Contracts.P2P.PeerService,
     config: Record<string, any>,
 ): Promise<any> => {
     // when testing we also need to get socket files from dist folder
@@ -35,7 +35,7 @@ export const startSocketServer = async (
         ...config.server,
     });
 
-    server.on("fail", data => app.get<Contracts.Kernel.Log.ILogger>("log").error(data.message));
+    server.on("fail", data => app.get<Contracts.Kernel.Log.Logger>("log").error(data.message));
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
@@ -67,7 +67,7 @@ export const startSocketServer = async (
                 return res(error);
             }
 
-            app.get<Contracts.Kernel.Log.ILogger>("log").error(error.message);
+            app.get<Contracts.Kernel.Log.Logger>("log").error(error.message);
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
     });

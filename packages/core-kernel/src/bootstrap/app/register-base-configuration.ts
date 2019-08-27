@@ -1,7 +1,7 @@
 import { JsonObject } from "../../types";
 import { ConfigManager, ConfigRepository } from "../../services/config";
-import { IApplication } from "../../contracts/kernel";
-import { IBootstrapper } from "../interfaces";
+import { Application } from "../../contracts/kernel";
+import { Bootstrapper } from "../interfaces";
 import { injectable, inject } from "../../container";
 
 /**
@@ -10,19 +10,19 @@ import { injectable, inject } from "../../container";
  * @extends {AbstractBootstrapper}
  */
 @injectable()
-export class RegisterBaseConfiguration implements IBootstrapper {
+export class RegisterBaseConfiguration implements Bootstrapper {
     /**
      * The application instance.
      *
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof Local
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
-     * @param {Kernel.IApplication} app
+     * @param {Kernel.Application} app
      * @returns {Promise<void>}
      * @memberof RegisterBaseConfiguration
      */

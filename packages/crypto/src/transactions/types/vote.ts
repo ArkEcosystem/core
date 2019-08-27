@@ -20,7 +20,7 @@ export class VoteTransaction extends Transaction {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(24, true);
 
-        const voteBytes = data.asset.votes.map(vote => (vote[0] === "+" ? "01" : "00") + vote.slice(1)).join("");
+        const voteBytes = data.asset.votes.map(vote => (vote.startsWith("+") ? "01" : "00") + vote.slice(1)).join("");
         buffer.writeByte(data.asset.votes.length);
         buffer.append(voteBytes, "hex");
 

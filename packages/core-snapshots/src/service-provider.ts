@@ -6,7 +6,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         const manager = new SnapshotManager(this.config().all());
 
-        const databaseService = this.app.get<Contracts.Database.IDatabaseService>("database");
+        const databaseService = this.app.get<Contracts.Database.DatabaseService>("database");
 
         // Why is a builder pattern with a manager used?
         this.app.bind("snapshots").toConstantValue(manager.make(databaseService.connection as PostgresConnection));

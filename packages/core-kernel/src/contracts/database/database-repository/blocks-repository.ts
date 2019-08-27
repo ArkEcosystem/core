@@ -1,10 +1,10 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { IBlocksPaginated } from "../business-repository";
-import { IDownloadBlock } from "../database-service";
-import { ISearchParameters } from "../search";
-import { IRepository } from "./repository";
+import { BlocksPaginated } from "../business-repository";
+import { DownloadBlock } from "../database-service";
+import { SearchParameters } from "../search";
+import { Repository } from "./repository";
 
-export interface IBlocksRepository extends IRepository {
+export interface BlocksRepository extends Repository {
     findById(id: string): Promise<Interfaces.IBlockData>;
     findByIds(id: string[]): Promise<Interfaces.IBlockData[]>;
 
@@ -14,7 +14,7 @@ export interface IBlocksRepository extends IRepository {
     count(): Promise<number>;
     common(ids: string[]): Promise<Interfaces.IBlockData[]>;
     heightRange(start: number, end: number): Promise<Interfaces.IBlockData[]>;
-    heightRangeWithTransactions(start: number, end: number): Promise<IDownloadBlock[]>;
+    heightRangeWithTransactions(start: number, end: number): Promise<DownloadBlock[]>;
     latest(): Promise<Interfaces.IBlockData>;
     recent(count: number): Promise<Interfaces.IBlockData[]>;
 
@@ -34,5 +34,5 @@ export interface IBlocksRepository extends IRepository {
 
     getDelegatesForgedBlocks(): Promise<any>;
 
-    search(params: ISearchParameters): Promise<IBlocksPaginated>;
+    search(params: SearchParameters): Promise<BlocksPaginated>;
 }

@@ -1,14 +1,14 @@
-import { IWallet } from "../../state/wallets";
-import { IRepository } from "./repository";
+import { Wallet } from "../../state/wallets";
+import { Repository } from "./repository";
 
-export interface IWalletsRepository extends IRepository {
-    all(): Promise<IWallet[]>;
+export interface WalletsRepository extends Repository {
+    all(): Promise<Wallet[]>;
 
-    findByAddress(address: string): Promise<IWallet>;
+    findByAddress(address: string): Promise<Wallet>;
 
     tallyWithNegativeBalance(): Promise<number>;
 
     tallyWithNegativeVoteBalance(): Promise<number>;
 
-    updateOrCreate(wallet: IWallet): Promise<void>;
+    updateOrCreate(wallet: Wallet): Promise<void>;
 }

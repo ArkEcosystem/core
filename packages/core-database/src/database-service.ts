@@ -6,30 +6,30 @@ import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils }
 import assert from "assert";
 import cloneDeep from "lodash.clonedeep";
 
-export class DatabaseService implements Contracts.Database.IDatabaseService {
-    public connection: Contracts.Database.IConnection;
-    public walletManager: Contracts.State.IWalletManager;
-    public logger = app.get<Contracts.Kernel.Log.ILogger>("log");
-    public emitter = app.get<Contracts.Kernel.Events.IEventDispatcher>("events");
+export class DatabaseService implements Contracts.Database.DatabaseService {
+    public connection: Contracts.Database.Connection;
+    public walletManager: Contracts.State.WalletManager;
+    public logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    public emitter = app.get<Contracts.Kernel.Events.EventDispatcher>("events");
     public options: any;
-    public wallets: Contracts.Database.IWalletsBusinessRepository;
-    public delegates: Contracts.Database.IDelegatesBusinessRepository;
-    public blocksBusinessRepository: Contracts.Database.IBlocksBusinessRepository;
-    public transactionsBusinessRepository: Contracts.Database.ITransactionsBusinessRepository;
+    public wallets: Contracts.Database.WalletsBusinessRepository;
+    public delegates: Contracts.Database.DelegatesBusinessRepository;
+    public blocksBusinessRepository: Contracts.Database.BlocksBusinessRepository;
+    public transactionsBusinessRepository: Contracts.Database.TransactionsBusinessRepository;
     public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
     public stateStarted = false;
     public restoredDatabaseIntegrity = false;
-    public forgingDelegates: Contracts.State.IWallet[] = undefined;
+    public forgingDelegates: Contracts.State.Wallet[] = undefined;
     public cache: Map<any, any> = new Map();
 
     constructor(
         options: Record<string, any>,
-        connection: Contracts.Database.IConnection,
-        walletManager: Contracts.State.IWalletManager,
-        walletsBusinessRepository: Contracts.Database.IWalletsBusinessRepository,
-        delegatesBusinessRepository: Contracts.Database.IDelegatesBusinessRepository,
-        transactionsBusinessRepository: Contracts.Database.ITransactionsBusinessRepository,
-        blocksBusinessRepository: Contracts.Database.IBlocksBusinessRepository,
+        connection: Contracts.Database.Connection,
+        walletManager: Contracts.State.WalletManager,
+        walletsBusinessRepository: Contracts.Database.WalletsBusinessRepository,
+        delegatesBusinessRepository: Contracts.Database.DelegatesBusinessRepository,
+        transactionsBusinessRepository: Contracts.Database.TransactionsBusinessRepository,
+        blocksBusinessRepository: Contracts.Database.BlocksBusinessRepository,
     ) {
         this.connection = connection;
         this.walletManager = walletManager;
@@ -43,8 +43,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     public async init(): Promise<void> {
-        app
-            .get<Contracts.State.IStateService>("state")
+        app.get<Contracts.State.StateService>("state")
             .getStore()
             .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
 
@@ -91,7 +90,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         const nextHeight: number = height === 1 ? 1 : height + 1;
 
         if (roundCalculator.isNewRound(nextHeight)) {
-            const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(nextHeight);
+            const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(nextHeight);
             const { round } = roundInfo;
 
             if (
@@ -107,7 +106,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
                         this.updateDelegateStats(this.forgingDelegates);
                     }
 
-                    const delegates: Contracts.State.IWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+                    const delegates: Contracts.State.Wallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
                     await this.saveRound(delegates);
@@ -145,9 +144,9 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     public async getActiveDelegates(
-        roundInfo: Contracts.Shared.IRoundInfo,
-        delegates?: Contracts.State.IWallet[],
-    ): Promise<Contracts.State.IWallet[]> {
+        roundInfo: Contracts.Shared.RoundInfo,
+        delegates?: Contracts.State.Wallet[],
+    ): Promise<Contracts.State.Wallet[]> {
         const { round } = roundInfo;
 
         if (
@@ -220,7 +219,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         const end: number = offset + limit - 1;
 
         let blocks: Interfaces.IBlockData[] = app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .getLastBlocksByHeight(start, end, headersOnly);
 
@@ -244,10 +243,10 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         offset: number,
         limit: number,
         headersOnly?: boolean,
-    ): Promise<Contracts.Database.IDownloadBlock[]> {
+    ): Promise<Contracts.Database.DownloadBlock[]> {
         if (headersOnly) {
             return (this.connection.blocksRepository.heightRange(offset, offset + limit - 1) as unknown) as Promise<
-                Contracts.Database.IDownloadBlock[]
+                Contracts.Database.DownloadBlock[]
             >;
         }
 
@@ -284,7 +283,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
         for (const [i, height] of heights.entries()) {
             const stateBlocks = app
-                .get<Contracts.State.IStateService>("state")
+                .get<Contracts.State.StateService>("state")
                 .getStore()
                 .getLastBlocksByHeight(height, height, true);
 
@@ -310,9 +309,9 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         return blocks;
     }
 
-    public async getBlocksForRound(roundInfo?: Contracts.Shared.IRoundInfo): Promise<Interfaces.IBlock[]> {
+    public async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
         let lastBlock: Interfaces.IBlock = app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .getLastBlock();
 
@@ -364,7 +363,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
         let commonBlocks: Interfaces.IBlockData[] = app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .getCommonBlocks(ids);
 
@@ -377,7 +376,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
     public async getRecentBlockIds(): Promise<string[]> {
         let blocks: any[] = app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .getLastBlockIds()
             .reverse()
@@ -416,7 +415,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     public async revertRound(height: number): Promise<void> {
-        const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(height);
+        const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(height);
         const { round, nextRound, maxDelegates } = roundInfo;
 
         if (nextRound === round + 1 && height >= maxDelegates) {
@@ -441,7 +440,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         await this.connection.saveBlocks(blocks);
     }
 
-    public async saveRound(activeDelegates: Contracts.State.IWallet[]): Promise<void> {
+    public async saveRound(activeDelegates: Contracts.State.Wallet[]): Promise<void> {
         this.logger.info(`Saving round ${activeDelegates[0].getAttribute("delegate.round").toLocaleString()}`);
 
         await this.connection.roundsRepository.insert(activeDelegates);
@@ -449,7 +448,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
         this.emitter.dispatch(Enums.Events.State.RoundCreated, activeDelegates);
     }
 
-    public updateDelegateStats(delegates: Contracts.State.IWallet[]): void {
+    public updateDelegateStats(delegates: Contracts.State.Wallet[]): void {
         if (!delegates || !this.blocksInCurrentRound) {
             return;
         }
@@ -467,7 +466,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
                 );
 
                 if (producedBlocks.length === 0) {
-                    const wallet: Contracts.State.IWallet = this.walletManager.findByPublicKey(delegate.publicKey);
+                    const wallet: Contracts.State.Wallet = this.walletManager.findByPublicKey(delegate.publicKey);
 
                     this.logger.debug(
                         `Delegate ${wallet.getAttribute("delegate.username")} (${
@@ -551,7 +550,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.IWallet = this.walletManager.findByAddress(senderId);
+        const sender: Contracts.State.Wallet = this.walletManager.findByAddress(senderId);
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
             transaction.type,
             transaction.typeGroup,
@@ -646,7 +645,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
     private async createGenesisBlock(): Promise<Interfaces.IBlock> {
         const genesisBlock: Interfaces.IBlock = app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .getGenesisBlock();
 
@@ -656,7 +655,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     }
 
     private configureState(lastBlock: Interfaces.IBlock): void {
-        const state: Contracts.State.IStateService = app.get<Contracts.State.IStateService>("state");
+        const state: Contracts.State.StateService = app.get<Contracts.State.StateService>("state");
 
         state.getStore().setLastBlock(lastBlock);
 
@@ -670,22 +669,22 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
     private async initializeActiveDelegates(height: number): Promise<void> {
         this.forgingDelegates = undefined;
 
-        const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(height);
+        const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(height);
 
         await this.setForgingDelegatesOfRound(roundInfo, await this.calcPreviousActiveDelegates(roundInfo));
     }
 
     private async setForgingDelegatesOfRound(
-        roundInfo: Contracts.Shared.IRoundInfo,
-        delegates?: Contracts.State.IWallet[],
+        roundInfo: Contracts.Shared.RoundInfo,
+        delegates?: Contracts.State.Wallet[],
     ): Promise<void> {
         this.forgingDelegates = await this.getActiveDelegates(roundInfo, delegates);
     }
 
     private async calcPreviousActiveDelegates(
-        roundInfo: Contracts.Shared.IRoundInfo,
+        roundInfo: Contracts.Shared.RoundInfo,
         blocks?: Interfaces.IBlock[],
-    ): Promise<Contracts.State.IWallet[]> {
+    ): Promise<Contracts.State.Wallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
         const tempWalletManager = this.walletManager.clone();
@@ -704,7 +703,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
             await tempWalletManager.revertBlock(blocks[i]);
         }
 
-        const delegates: Contracts.State.IWallet[] = tempWalletManager.loadActiveDelegateList(roundInfo);
+        const delegates: Contracts.State.Wallet[] = tempWalletManager.loadActiveDelegateList(roundInfo);
 
         for (const delegate of tempWalletManager.allByUsername()) {
             const delegateWallet = this.walletManager.findByUsername(delegate.getAttribute("delegate.username"));
@@ -731,7 +730,7 @@ export class DatabaseService implements Contracts.Database.IDatabaseService {
 
                 if (wallet) {
                     for (const key of Object.keys(wallet)) {
-                        if (["balance"].indexOf(key) !== -1) {
+                        if (["balance"].includes(key)) {
                             return;
                         }
 

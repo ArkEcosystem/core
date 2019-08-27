@@ -9,17 +9,16 @@ import { EventDispatcher } from "./services/events";
 import { AbstractServiceProvider, ServiceProviderRepository } from "./providers";
 import { EventListener } from "./types/events";
 // import { ShutdownSignal } from "./enums/process";
-import { IApplication } from "./contracts/kernel";
 import { ConfigRepository } from "./services/config";
-import { IBootstrapper } from "./bootstrap/interfaces";
+import { Bootstrapper } from "./bootstrap/interfaces";
 
 /**
  * @export
  * @class Application
  * @extends {Container}
- * @implements {IApplication}
+ * @implements {Application}
  */
-export class Application implements IApplication {
+export class Application implements Contracts.Kernel.Application {
     /**
      * @private
      * @type {boolean}
@@ -31,14 +30,14 @@ export class Application implements IApplication {
      * Creates an instance of Application.
      *
      * @param {Contracts.Kernel.Container.Container} container
-     * @memberof Application
+     * @memberof Contracts.Kernel.Application
      */
     public constructor(private readonly container: Contracts.Kernel.Container.Container) {
         // this.listenToShutdownSignals();
 
-        // this.container.bind<IApplication>(Application).toSelf();
+        // this.container.bind<Application>(Application).toSelf();
 
-        this.container.bind<IApplication>("app").toConstantValue(this);
+        this.container.bind<Contracts.Kernel.Application>("app").toConstantValue(this);
     }
 
     /**
@@ -352,77 +351,77 @@ export class Application implements IApplication {
      * @todo remove after initial migration
      *
      * @readonly
-     * @type {Contracts.Kernel.Log.ILogger}
+     * @type {Contracts.Kernel.Log.Logger}
      * @memberof Application
      */
-    public get log(): Contracts.Kernel.Log.ILogger {
-        return this.container.get<Contracts.Kernel.Log.ILogger>("log");
+    public get log(): Contracts.Kernel.Log.Logger {
+        return this.container.get<Contracts.Kernel.Log.Logger>("log");
     }
 
     /**
      * @todo remove after initial migration
      *
      * @readonly
-     * @type {Contracts.Kernel.Events.IEventDispatcher}
+     * @type {Contracts.Kernel.Events.EventDispatcher}
      * @memberof Application
      */
-    public get events(): Contracts.Kernel.Events.IEventDispatcher {
-        return this.container.get<Contracts.Kernel.Events.IEventDispatcher>("events");
+    public get events(): Contracts.Kernel.Events.EventDispatcher {
+        return this.container.get<Contracts.Kernel.Events.EventDispatcher>("events");
     }
 
     /**
      * @todo remove after initial migration
      *
      * @readonly
-     * @type {Contracts.Kernel.Filesystem.IFilesystem}
+     * @type {Contracts.Kernel.Filesystem.Filesystem}
      * @memberof Application
      */
-    public get filesystem(): Contracts.Kernel.Filesystem.IFilesystem {
-        return this.container.get<Contracts.Kernel.Filesystem.IFilesystem>("filesystem");
+    public get filesystem(): Contracts.Kernel.Filesystem.Filesystem {
+        return this.container.get<Contracts.Kernel.Filesystem.Filesystem>("filesystem");
     }
 
     /**
      * @todo remove after initial migration
      *
      * @readonly
-     * @type {Contracts.Database.IDatabaseService}
+     * @type {Contracts.Database.DatabaseService}
      * @memberof Application
      */
-    public get database(): Contracts.Database.IDatabaseService {
-        return this.container.get<Contracts.Database.IDatabaseService>("database");
+    public get database(): Contracts.Database.DatabaseService {
+        return this.container.get<Contracts.Database.DatabaseService>("database");
     }
 
     /**
      * @todo remove after initial migration
      *
      * @readonly
-     * @type {Contracts.Blockchain.IBlockchain}
+     * @type {Contracts.Blockchain.Blockchain}
      * @memberof Application
      */
-    public get blockchain(): Contracts.Blockchain.IBlockchain {
-        return this.container.get<Contracts.Blockchain.IBlockchain>("blockchain");
+    public get blockchain(): Contracts.Blockchain.Blockchain {
+        return this.container.get<Contracts.Blockchain.Blockchain>("blockchain");
     }
 
     /**
      * @todo remove after initial migration
      *
      * @readonly
-     * @type {Contracts.P2P.IPeerService}
+     * @type {Contracts.P2P.PeerService}
      * @memberof Application
      */
-    public get p2p(): Contracts.P2P.IPeerService {
-        return this.container.get<Contracts.P2P.IPeerService>("p2p");
+    public get p2p(): Contracts.P2P.PeerService {
+        return this.container.get<Contracts.P2P.PeerService>("p2p");
     }
 
     /**
      * @todo remove after initial migration
      *
      * @readonly
-     * @type {Contracts.TransactionPool.IConnection}
+     * @type {Contracts.TransactionPool.Connection}
      * @memberof Application
      */
-    public get transactionPool(): Contracts.TransactionPool.IConnection {
-        return this.container.get<Contracts.TransactionPool.IConnection>("transactionPool");
+    public get transactionPool(): Contracts.TransactionPool.Connection {
+        return this.container.get<Contracts.TransactionPool.Connection>("transactionPool");
     }
 
     /**
@@ -507,12 +506,12 @@ export class Application implements IApplication {
      * @memberof Application
      */
     private async bootstrapWith(type: string): Promise<void> {
-        const bootstrappers: Array<Constructor<IBootstrapper>> = Object.values(Bootstrappers[type]);
+        const bootstrappers: Array<Constructor<Bootstrapper>> = Object.values(Bootstrappers[type]);
 
         for (const bootstrapper of bootstrappers) {
             this.events.dispatch(`bootstrapping:${bootstrapper.name}`, this);
 
-            await this.container.resolve<IBootstrapper>(bootstrapper).bootstrap();
+            await this.container.resolve<Bootstrapper>(bootstrapper).bootstrap();
 
             this.events.dispatch(`bootstrapped:${bootstrapper.name}`, this);
         }

@@ -1,4 +1,4 @@
-export interface IRoundInfo {
+export interface RoundInfo {
     round: number;
     nextRound: number;
     maxDelegates: number;

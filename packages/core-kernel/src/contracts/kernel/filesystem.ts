@@ -1,22 +1,22 @@
 /**
  * @export
- * @interface IFilesystem
+ * @interface Filesystem
  */
-export interface IFilesystem {
+export interface Filesystem {
     /**
      * Create a new instance of the filesystem.
      *
-     * @returns {Promise<IFilesystem>}
-     * @memberof IFilesystem
+     * @returns {Promise<Filesystem>}
+     * @memberof Filesystem
      */
-    make(): Promise<IFilesystem>;
+    make(): Promise<Filesystem>;
 
     /**
      * Determine if a file exists.
      *
      * @param {string} path
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     exists(path: string): Promise<boolean>;
 
@@ -25,7 +25,7 @@ export interface IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<Buffer>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     get(path: string): Promise<Buffer>;
 
@@ -35,7 +35,7 @@ export interface IFilesystem {
      * @param {string} path
      * @param {string} contents
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     put(path: string, contents: string): Promise<boolean>;
 
@@ -44,7 +44,7 @@ export interface IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     delete(path: string): Promise<boolean>;
 
@@ -54,7 +54,7 @@ export interface IFilesystem {
      * @param {string} from
      * @param {string} to
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     copy(from: string, to: string): Promise<boolean>;
 
@@ -64,7 +64,7 @@ export interface IFilesystem {
      * @param {string} from
      * @param {string} to
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     move(from: string, to: string): Promise<boolean>;
 
@@ -73,7 +73,7 @@ export interface IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<number>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     size(path: string): Promise<number>;
 
@@ -82,7 +82,7 @@ export interface IFilesystem {
      *
      * @param {string} path
      * @returns {Promise<number>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     lastModified(path: string): Promise<number>;
 
@@ -91,7 +91,7 @@ export interface IFilesystem {
      *
      * @param {string} directory
      * @returns {Promise<string[]>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     files(directory: string): Promise<string[]>;
 
@@ -100,7 +100,7 @@ export interface IFilesystem {
      *
      * @param {string} directory
      * @returns {Promise<string[]>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     directories(directory: string): Promise<string[]>;
 
@@ -109,7 +109,7 @@ export interface IFilesystem {
      *
      * @param {*} path
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     makeDirectory(path): Promise<boolean>;
 
@@ -118,7 +118,7 @@ export interface IFilesystem {
      *
      * @param {string} directory
      * @returns {Promise<boolean>}
-     * @memberof IFilesystem
+     * @memberof Filesystem
      */
     deleteDirectory(directory: string): Promise<boolean>;
 }

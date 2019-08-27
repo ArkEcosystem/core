@@ -2,24 +2,24 @@
  * @todo: remove the generic defaults
  *
  * @export
- * @interface ICacheStore
+ * @interface CacheStore
  * @template K
  * @template T
  */
-export interface ICacheStore<K = string, T = any> {
+export interface CacheStore<K = string, T = any> {
     /**
      * Create a new instance of the cache store.
      *
-     * @returns {ICacheStore<K, T>}
-     * @memberof ICacheStore
+     * @returns {CacheStore<K, T>}
+     * @memberof CacheStore
      */
-    make(): Promise<ICacheStore<K, T>>;
+    make(): Promise<CacheStore<K, T>>;
 
     /**
      * Get all of the items in the cache.
      *
      * @returns {Array<[K, T]>}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     all(): Promise<Array<[K, T]>>;
 
@@ -27,7 +27,7 @@ export interface ICacheStore<K = string, T = any> {
      * Get the keys of the cache items.
      *
      * @returns {K[]}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     keys(): Promise<K[]>;
 
@@ -35,7 +35,7 @@ export interface ICacheStore<K = string, T = any> {
      * Get the values of the cache items.
      *
      * @returns {T[]}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     values(): Promise<T[]>;
 
@@ -44,7 +44,7 @@ export interface ICacheStore<K = string, T = any> {
      *
      * @param {K} key
      * @returns {(T | undefined)}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     get(key: K): Promise<T | undefined>;
 
@@ -53,7 +53,7 @@ export interface ICacheStore<K = string, T = any> {
      *
      * @param {K[]} keys
      * @returns {(Array<T | undefined>)}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     getMany(keys: K[]): Promise<Array<T | undefined>>;
 
@@ -64,7 +64,7 @@ export interface ICacheStore<K = string, T = any> {
      * @param {T} value
      * @param {number} seconds
      * @returns {boolean}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     put(key: K, value: T, seconds: number): Promise<boolean>;
 
@@ -74,7 +74,7 @@ export interface ICacheStore<K = string, T = any> {
      * @param {Array<[K, T]>} values
      * @param {number} seconds
      * @returns {boolean[]}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     putMany(values: Array<[K, T]>, seconds: number): Promise<boolean[]>;
 
@@ -83,7 +83,7 @@ export interface ICacheStore<K = string, T = any> {
      *
      * @param {K} key
      * @returns {boolean}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     has(key: K): Promise<boolean>;
 
@@ -92,7 +92,7 @@ export interface ICacheStore<K = string, T = any> {
      *
      * @param {K[]} keys
      * @returns {boolean[]}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     hasMany(keys: K[]): Promise<boolean[]>;
 
@@ -101,7 +101,7 @@ export interface ICacheStore<K = string, T = any> {
      *
      * @param {K} key
      * @returns {boolean}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     missing(key: K): Promise<boolean>;
 
@@ -110,7 +110,7 @@ export interface ICacheStore<K = string, T = any> {
      *
      * @param {K[]} keys
      * @returns {boolean[]}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     missingMany(keys: K[]): Promise<boolean[]>;
 
@@ -120,7 +120,7 @@ export interface ICacheStore<K = string, T = any> {
      * @param {K} key
      * @param {T} value
      * @returns {boolean}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     forever(key: K, value: T): Promise<boolean>;
 
@@ -130,7 +130,7 @@ export interface ICacheStore<K = string, T = any> {
      * @param {Array<[K, T]>} values
      * @param {T} value
      * @returns {boolean[]}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     foreverMany(values: Array<[K, T]>, value: T): Promise<boolean[]>;
 
@@ -139,7 +139,7 @@ export interface ICacheStore<K = string, T = any> {
      *
      * @param {K} key
      * @returns {boolean}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     forget(key: K): Promise<boolean>;
 
@@ -148,7 +148,7 @@ export interface ICacheStore<K = string, T = any> {
      *
      * @param {K[]} keys
      * @returns {boolean[]}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     forgetMany(keys: K[]): Promise<boolean[]>;
 
@@ -156,7 +156,7 @@ export interface ICacheStore<K = string, T = any> {
      * Remove all items from the cache.
      *
      * @returns {boolean}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     flush(): Promise<boolean>;
 
@@ -164,7 +164,7 @@ export interface ICacheStore<K = string, T = any> {
      * Get the cache key prefix.
      *
      * @returns {string}
-     * @memberof ICacheStore
+     * @memberof CacheStore
      */
     getPrefix(): Promise<string>;
 }

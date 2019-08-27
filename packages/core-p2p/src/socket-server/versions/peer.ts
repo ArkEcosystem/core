@@ -3,13 +3,13 @@ import { isBlockChained } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { MissingCommonBlockError } from "../../errors";
-import { IPeerPingResponse } from "../../interfaces";
+import { PeerPingResponse } from "../../interfaces";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
 
-export const getPeers = ({ service }: { service: Contracts.P2P.IPeerService }): Contracts.P2P.IPeerBroadcast[] => {
+export const getPeers = ({ service }: { service: Contracts.P2P.PeerService }): Contracts.P2P.PeerBroadcast[] => {
     return service
         .getStorage()
         .getPeers()
@@ -23,7 +23,7 @@ export const getCommonBlocks = async ({
     common: Interfaces.IBlockData;
     lastBlockHeight: number;
 }> => {
-    const blockchain: Contracts.Blockchain.IBlockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
+    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
     const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids);
 
     if (!commonBlocks.length) {
@@ -36,8 +36,8 @@ export const getCommonBlocks = async ({
     };
 };
 
-export const getStatus = async (): Promise<IPeerPingResponse> => {
-    const lastBlock: Interfaces.IBlock = app.get<Contracts.Blockchain.IBlockchain>("blockchain").getLastBlock();
+export const getStatus = async (): Promise<PeerPingResponse> => {
+    const lastBlock: Interfaces.IBlock = app.get<Contracts.Blockchain.Blockchain>("blockchain").getLastBlock();
 
     return {
         state: {
@@ -51,7 +51,7 @@ export const getStatus = async (): Promise<IPeerPingResponse> => {
 };
 
 export const postBlock = async ({ req }): Promise<void> => {
-    const blockchain: Contracts.Blockchain.IBlockchain = app.get<Contracts.Blockchain.IBlockchain>("blockchain");
+    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
 
     const block: Interfaces.IBlockData = req.data.block;
     const fromForger: boolean = isWhitelisted(app.get<any>("p2p.options").remoteAccess, req.headers.remoteAddress);
@@ -68,15 +68,13 @@ export const postBlock = async ({ req }): Promise<void> => {
         }
     }
 
-    app
-        .get<Contracts.Kernel.Log.ILogger>("log")
-        .info(
-            `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
-                "transaction",
-                block.numberOfTransactions,
-                true,
-            )} from ${mapAddr(req.headers.remoteAddress)}`,
-        );
+    app.get<Contracts.Kernel.Log.Logger>("log").info(
+        `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
+            "transaction",
+            block.numberOfTransactions,
+            true,
+        )} from ${mapAddr(req.headers.remoteAddress)}`,
+    );
 
     blockchain.handleIncomingBlock(block, fromForger);
 };
@@ -85,14 +83,14 @@ export const postTransactions = async ({
     service,
     req,
 }: {
-    service: Contracts.P2P.IPeerService;
+    service: Contracts.P2P.PeerService;
     req;
 }): Promise<string[]> => {
-    const processor: Contracts.TransactionPool.IProcessor = app
-        .get<Contracts.TransactionPool.IConnection>("transactionPool")
+    const processor: Contracts.TransactionPool.Processor = app
+        .get<Contracts.TransactionPool.Connection>("transactionPool")
         .makeProcessor();
 
-    const result: Contracts.TransactionPool.IProcessorResult = await processor.validate(req.data.transactions);
+    const result: Contracts.TransactionPool.ProcessorResult = await processor.validate(req.data.transactions);
 
     if (result.invalid.length > 0) {
         throw new InvalidTransactionsError();
@@ -105,30 +103,28 @@ export const postTransactions = async ({
     return result.accept;
 };
 
-export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Contracts.Database.IDownloadBlock[]> => {
-    const database: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>("database");
+export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Contracts.Database.DownloadBlock[]> => {
+    const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>("database");
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
     const reqBlockLimit: number = +req.data.blockLimit || 400;
     const reqHeadersOnly = !!req.data.headersOnly;
     const reqSerialized = !!req.data.serialized; // TODO: remove in 2.6 and only return serialized blocks
 
-    let blocks: Interfaces.IBlockData[] | Contracts.Database.IDownloadBlock[];
+    let blocks: Interfaces.IBlockData[] | Contracts.Database.DownloadBlock[];
     if (reqSerialized) {
         blocks = await database.getBlocksForDownload(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
     } else {
         blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
     }
 
-    app
-        .get<Contracts.Kernel.Log.ILogger>("log")
-        .info(
-            `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(
-                "block",
-                blocks.length,
-                true,
-            )} from height ${reqBlockHeight.toLocaleString()}`,
-        );
+    app.get<Contracts.Kernel.Log.Logger>("log").info(
+        `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(
+            "block",
+            blocks.length,
+            true,
+        )} from height ${reqBlockHeight.toLocaleString()}`,
+    );
 
     return blocks || [];
 };

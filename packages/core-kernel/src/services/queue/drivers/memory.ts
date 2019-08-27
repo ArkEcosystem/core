@@ -1,10 +1,10 @@
-import { IQueue } from "../../../contracts/kernel/queue";
+import { Queue } from "../../../contracts/kernel/queue";
 
 /**
  * @export
  * @class Memory
- * @implements {IQueue}
+ * @implements {Queue}
  */
-export class Memory implements IQueue {
+export class Memory implements Queue {
     //
 }

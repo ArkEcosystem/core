@@ -1,13 +1,13 @@
-import { INetworkMonitor } from "./network-monitor";
-import { IPeerCommunicator } from "./peer-communicator";
-import { IPeerConnector } from "./peer-connector";
-import { IPeerProcessor } from "./peer-processor";
-import { IPeerStorage } from "./peer-storage";
+import { NetworkMonitor } from "./network-monitor";
+import { PeerCommunicator } from "./peer-communicator";
+import { PeerConnector } from "./peer-connector";
+import { PeerProcessor } from "./peer-processor";
+import { PeerStorage } from "./peer-storage";
 
-export interface IPeerService {
-    getStorage(): IPeerStorage;
-    getProcessor(): IPeerProcessor;
-    getConnector(): IPeerConnector;
-    getCommunicator(): IPeerCommunicator;
-    getMonitor(): INetworkMonitor;
+export interface PeerService {
+    getStorage(): PeerStorage;
+    getProcessor(): PeerProcessor;
+    getConnector(): PeerConnector;
+    getCommunicator(): PeerCommunicator;
+    getMonitor(): NetworkMonitor;
 }

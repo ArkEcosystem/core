@@ -3,10 +3,10 @@ import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
 import { sortEntries } from "./utils/sort-entries";
 
-export class WalletsBusinessRepository implements Contracts.Database.IWalletsBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Contracts.Database.IDatabaseService) {}
+export class WalletsBusinessRepository implements Contracts.Database.WalletsBusinessRepository {
+    public constructor(private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) {}
 
-    public search(params: Contracts.Database.IParameters = {}): Contracts.Database.IWalletsPaginated {
+    public search(params: Contracts.Database.Parameters = {}): Contracts.Database.WalletsPaginated {
         const query: Record<string, string[]> = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
             between: ["balance", "voteBalance"],
@@ -26,7 +26,7 @@ export class WalletsBusinessRepository implements Contracts.Database.IWalletsBus
 
         this.applyOrder(params);
 
-        const wallets: Contracts.State.IWallet[] = sortEntries(
+        const wallets: Contracts.State.Wallet[] = sortEntries(
             params,
             filterRows(this.databaseServiceProvider().walletManager.allByAddress(), params, query),
             ["balance", "desc"],
@@ -40,12 +40,12 @@ export class WalletsBusinessRepository implements Contracts.Database.IWalletsBus
 
     public findAllByVote(
         publicKey: string,
-        params: Contracts.Database.IParameters = {},
-    ): Contracts.Database.IWalletsPaginated {
+        params: Contracts.Database.Parameters = {},
+    ): Contracts.Database.WalletsPaginated {
         return this.search({ ...params, ...{ vote: publicKey } });
     }
 
-    public findById(id: string): Contracts.State.IWallet {
+    public findById(id: string): Contracts.State.Wallet {
         return this.databaseServiceProvider().walletManager.findById(id);
     }
 
@@ -53,12 +53,12 @@ export class WalletsBusinessRepository implements Contracts.Database.IWalletsBus
         return this.search().count;
     }
 
-    public top(params: Contracts.Database.IParameters = {}): Contracts.Database.IWalletsPaginated {
+    public top(params: Contracts.Database.Parameters = {}): Contracts.Database.WalletsPaginated {
         return this.search({ ...params, ...{ orderBy: "balance:desc" } });
     }
 
     // TODO: check if order still works
-    private applyOrder(params: Contracts.Database.IParameters): void {
+    private applyOrder(params: Contracts.Database.Parameters): void {
         const assignOrder = (params, value) => (params.orderBy = value);
 
         if (!params.orderBy) {

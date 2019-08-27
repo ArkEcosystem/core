@@ -10,26 +10,26 @@ import {
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
 import { AbstractServiceProvider, ServiceProviderRepository, PackageConfiguration } from "../../providers";
-import { IApplication } from "../../contracts/kernel";
-import { IBootstrapper } from "../interfaces";
+import { Application } from "../../contracts/kernel";
+import { Bootstrapper } from "../interfaces";
 import { injectable, inject } from "../../container";
 
 /**
  * @export
  * @class RegisterServiceProviders
- * @implements {IBootstrapper}
+ * @implements {Bootstrapper}
  */
 @injectable()
-export class RegisterServiceProviders implements IBootstrapper {
+export class RegisterServiceProviders implements Bootstrapper {
     /**
      * The application instance.
      *
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof Local
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
      * @returns {Promise<void>}
@@ -91,7 +91,7 @@ export class RegisterServiceProviders implements IBootstrapper {
         if (Object.keys(configSchema).length > 0) {
             const config: PackageConfiguration = serviceProvider.config();
 
-            const validator: Kernel.Validation.IValidator = this.app
+            const validator: Kernel.Validation.Validator = this.app
                 .get<ValidationManager>("validationManager")
                 .driver();
 
@@ -112,7 +112,7 @@ export class RegisterServiceProviders implements IBootstrapper {
      * @memberof RegisterProviders
      */
     private async satisfiesDependencies(serviceProvider: AbstractServiceProvider): Promise<boolean> {
-        const dependencies: Kernel.IPackageDependency[] = serviceProvider.dependencies();
+        const dependencies: Kernel.PackageDependency[] = serviceProvider.dependencies();
 
         if (!dependencies) {
             return true;

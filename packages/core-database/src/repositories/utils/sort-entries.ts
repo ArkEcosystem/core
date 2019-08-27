@@ -3,15 +3,11 @@ import { Utils } from "@arkecosystem/crypto";
 import { orderBy } from "@arkecosystem/utils";
 import { getProperty } from "./get-property";
 
-export const sortEntries = (
-    params: Contracts.Database.IParameters,
-    entries: Contracts.State.IWallet[],
-    defaultValue,
-) => {
+export const sortEntries = (params: Contracts.Database.Parameters, entries: Contracts.State.Wallet[], defaultValue) => {
     const [iteratee, order] = params.orderBy ? params.orderBy : defaultValue;
 
     if (["balance", "voteBalance"].includes(iteratee)) {
-        return Object.values(entries).sort((a: Contracts.State.IWallet, b: Contracts.State.IWallet) => {
+        return Object.values(entries).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) => {
             const iterateeA: Utils.BigNumber = getProperty(a, iteratee) || Utils.BigNumber.ZERO;
             const iterateeB: Utils.BigNumber = getProperty(b, iteratee) || Utils.BigNumber.ZERO;
 

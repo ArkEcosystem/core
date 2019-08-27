@@ -4,26 +4,26 @@ import expandHomeDir from "expand-home-dir";
 import { ensureDirSync } from "fs-extra";
 import camelCase from "lodash/camelCase";
 import { resolve } from "path";
-import { IApplication } from "../../contracts/kernel";
-import { IBootstrapper } from "../interfaces";
+import { Application } from "../../contracts/kernel";
+import { Bootstrapper } from "../interfaces";
 import { injectable, inject } from "../../container";
 
 /**
  * @export
  * @class RegisterBasePaths
- * @implements {IBootstrapper}
+ * @implements {Bootstrapper}
  */
 @injectable()
-export class RegisterBasePaths implements IBootstrapper {
+export class RegisterBasePaths implements Bootstrapper {
     /**
      * The application instance.
      *
      * @private
-     * @type {IApplication}
+     * @type {Application}
      * @memberof Local
      */
     @inject("app")
-    private readonly app: IApplication;
+    private readonly app: Application;
 
     /**
      * @returns {Promise<void>}

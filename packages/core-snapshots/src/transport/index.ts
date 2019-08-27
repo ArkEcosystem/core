@@ -12,8 +12,8 @@ import * as utils from "../utils";
 import { Codec } from "./codec";
 import { canImportRecord, verifyData } from "./verification";
 
-const logger = app.get<Contracts.Kernel.Log.ILogger>("log");
-const emitter = app.get<Contracts.Kernel.Events.IEventDispatcher>("events");
+const logger = app.get<Contracts.Kernel.Log.Logger>("log");
+const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>("events");
 
 const fixData = (table, data) => {
     if (table === "blocks" && data.height === 1) {

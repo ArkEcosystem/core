@@ -3,29 +3,29 @@ import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
-import { IDynamicFeeMatch, ITransactionsCached, ITransactionsProcessed } from "./interfaces";
+import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./interfaces";
 import { WalletManager } from "./wallet-manager";
 
 /**
  * @todo: this class has too many responsibilities at the moment.
  * Its sole responsibility should be to validate transactions and return them.
  */
-export class Processor implements Contracts.TransactionPool.IProcessor {
+export class Processor implements Contracts.TransactionPool.Processor {
     private transactions: Interfaces.ITransactionData[] = [];
     private readonly excess: string[] = [];
     private readonly accept: Map<string, Interfaces.ITransaction> = new Map();
     private readonly broadcast: Map<string, Interfaces.ITransaction> = new Map();
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
-    private readonly errors: { [key: string]: Contracts.TransactionPool.ITransactionErrorResponse[] } = {};
+    private readonly errors: { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } = {};
 
     constructor(
-        private readonly pool: Contracts.TransactionPool.IConnection,
+        private readonly pool: Contracts.TransactionPool.Connection,
         private readonly walletManager: WalletManager,
     ) {}
 
     public async validate(
         transactions: Interfaces.ITransactionData[],
-    ): Promise<Contracts.TransactionPool.IProcessorResult> {
+    ): Promise<Contracts.TransactionPool.ProcessorResult> {
         this.cacheTransactions(transactions);
 
         if (this.transactions.length > 0) {
@@ -55,7 +55,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
         return Array.from(this.broadcast.values());
     }
 
-    public getErrors(): { [key: string]: Contracts.TransactionPool.ITransactionErrorResponse[] } {
+    public getErrors(): { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } {
         return this.errors;
     }
 
@@ -70,8 +70,8 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
     }
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
-        const { added, notAdded }: ITransactionsCached = app
-            .get<Contracts.State.IStateService>("state")
+        const { added, notAdded }: TransactionsCached = app
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .cacheTransactions(transactions);
 
@@ -86,11 +86,10 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
 
     private async removeForgedTransactions(): Promise<void> {
         const forgedIdsSet: string[] = await app
-            .get<Contracts.Database.IDatabaseService>("database")
+            .get<Contracts.Database.DatabaseService>("database")
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app
-            .get<Contracts.State.IStateService>("state")
+        app.get<Contracts.State.StateService>("state")
             .getStore()
             .removeCachedTransactionIds(forgedIdsSet);
 
@@ -131,7 +130,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
                     if (await handler.verify(transactionInstance, this.pool.walletManager)) {
                         try {
                             await this.walletManager.throwIfCannotBeApplied(transactionInstance);
-                            const dynamicFee: IDynamicFeeMatch = dynamicFeeMatcher(transactionInstance);
+                            const dynamicFee: DynamicFeeMatch = dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,
@@ -173,7 +172,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
         const lastHeight: number = app
-            .get<Contracts.State.IStateService>("state")
+            .get<Contracts.State.StateService>("state")
             .getStore()
             .getLastHeight();
 
@@ -232,7 +231,7 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
     }
 
     private async addTransactionsToPool(): Promise<void> {
-        const { notAdded }: ITransactionsProcessed = await this.pool.addTransactions(Array.from(this.accept.values()));
+        const { notAdded }: TransactionsProcessed = await this.pool.addTransactions(Array.from(this.accept.values()));
 
         for (const item of notAdded) {
             this.accept.delete(item.transaction.id);
@@ -250,8 +249,8 @@ export class Processor implements Contracts.TransactionPool.IProcessor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app
-            .get<Contracts.Kernel.Log.ILogger>("log")
-            .info(`Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`);
+        app.get<Contracts.Kernel.Log.Logger>("log").info(
+            `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
+        );
     }
 }

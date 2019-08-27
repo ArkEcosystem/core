@@ -1,15 +1,15 @@
 import { JsonObject } from "../../types";
 import { Exception } from "../../exceptions/base";
-import { IBlockchain } from "../blockchain";
-import { IDatabaseService } from "../database";
-import { IPeerService } from "../p2p";
-import { IConnection } from "../transaction-pool";
-import { IEventDispatcher } from "./events";
-import { IFilesystem } from "./filesystem";
-import { ILogger } from "./log";
+import { Blockchain } from "../blockchain";
+import { DatabaseService } from "../database";
+import { PeerService } from "../p2p";
+import { Connection } from "../transaction-pool";
+import { EventDispatcher } from "./events";
+import { Filesystem } from "./filesystem";
+import { Logger } from "./log";
 import { Container } from "./container";
 
-export interface IApplication {
+export interface Application {
     /**
      * Get an instance of the application container.
      */
@@ -18,37 +18,37 @@ export interface IApplication {
     /**
      * Get an instance of the application logger.
      */
-    readonly log: ILogger;
+    readonly log: Logger;
 
     /**
      * Get an instance of the application event dispatcher.
      */
-    readonly events: IEventDispatcher;
+    readonly events: EventDispatcher;
 
     /**
      * Get an instance of the application filesystem.
      */
-    readonly filesystem: IFilesystem;
+    readonly filesystem: Filesystem;
 
     /**
      * Get an instance of the application database.
      */
-    readonly database: IDatabaseService;
+    readonly database: DatabaseService;
 
     /**
      * Get an instance of the application blockchain.
      */
-    readonly blockchain: IBlockchain;
+    readonly blockchain: Blockchain;
 
     /**
      * Get an instance of the application p2p layer.
      */
-    readonly p2p: IPeerService;
+    readonly p2p: PeerService;
 
     /**
      * Get an instance of the application transaction pool.
      */
-    readonly transactionPool: IConnection;
+    readonly transactionPool: Connection;
 
     /**
      * Bootstrap the application with the given configuration.
@@ -213,28 +213,28 @@ export interface IApplication {
 
 /**
  * @export
- * @interface IPackageDependency
+ * @interface PackageDependency
  */
-export interface IPackageDependency {
+export interface PackageDependency {
     /**
      * @type {string}
-     * @memberof IPackageDependency
+     * @memberof PackageDependency
      */
     name: string;
 
     /**
      * @type {string}
-     * @memberof IPackageDependency
+     * @memberof PackageDependency
      */
     version?: string;
 
     /**
-     * @memberof IPackageDependency
+     * @memberof PackageDependency
      */
     required?: boolean | (() => Promise<boolean>);
 }
 
-export interface IExceptionHandler {
+export interface ExceptionHandler {
     /**
      * Report or log an exception.
      */

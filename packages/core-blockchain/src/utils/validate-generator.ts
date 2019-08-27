@@ -3,13 +3,13 @@ import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
-    const database: Contracts.Database.IDatabaseService = app.get<Contracts.Database.IDatabaseService>("database");
-    const logger: Contracts.Kernel.Log.ILogger = app.get<Contracts.Kernel.Log.ILogger>("log");
+    const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>("database");
+    const logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
 
-    const roundInfo: Contracts.Shared.IRoundInfo = roundCalculator.calculateRound(block.data.height);
-    const delegates: Contracts.State.IWallet[] = await database.getActiveDelegates(roundInfo);
+    const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(block.data.height);
+    const delegates: Contracts.State.Wallet[] = await database.getActiveDelegates(roundInfo);
     const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
-    const forgingDelegate: Contracts.State.IWallet = delegates[slot % delegates.length];
+    const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 
     const generatorUsername: string = database.walletManager
         .findByPublicKey(block.data.generatorPublicKey)

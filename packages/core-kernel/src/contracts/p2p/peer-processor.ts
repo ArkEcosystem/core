@@ -1,9 +1,9 @@
-export interface IAcceptNewPeerOptions {
+export interface AcceptNewPeerOptions {
     seed?: boolean;
     lessVerbose?: boolean;
 }
 
-export interface IPeerProcessor {
-    validateAndAcceptPeer(peer, options?: IAcceptNewPeerOptions): Promise<void>;
-    validatePeerIp(peer, options?: IAcceptNewPeerOptions): boolean;
+export interface PeerProcessor {
+    validateAndAcceptPeer(peer, options?: AcceptNewPeerOptions): Promise<void>;
+    validatePeerIp(peer, options?: AcceptNewPeerOptions): boolean;
 }

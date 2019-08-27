@@ -1,11 +1,11 @@
 import { SearchOperator } from "../search";
 
-export interface ISearchableField {
+export interface SearchableField {
     fieldName: string;
     supportedOperators: SearchOperator[];
 }
 
-export interface IModel {
+export interface Model {
     getName(): string;
 
     getTable(): string;
@@ -15,5 +15,5 @@ export interface IModel {
     getColumnSet(): any;
 
     /* A list of fields on this model that can be queried, and each search-operator they support */
-    getSearchableFields(): ISearchableField[];
+    getSearchableFields(): SearchableField[];
 }
