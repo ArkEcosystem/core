@@ -1,7 +1,7 @@
 import { Managers, Interfaces } from "@arkecosystem/crypto";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -17,7 +17,7 @@ export class LoadCryptography implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**
@@ -27,9 +27,6 @@ export class LoadCryptography implements Bootstrapper {
     public async bootstrap(): Promise<void> {
         Managers.configManager.setFromPreset(this.app.network() as any);
 
-        this.app.bind<Interfaces.NetworkConfig>("crypto.network").toConstantValue(Managers.configManager.all());
-        this.app.bind<string>("crypto.exceptions").toConstantValue(Managers.configManager.get("exceptions"));
-        this.app.bind<string>("crypto.milestones").toConstantValue(Managers.configManager.get("milestones"));
-        this.app.bind<string>("crypto.genesisBlock").toConstantValue(Managers.configManager.get("genesisBlock"));
+        this.app.bind<Interfaces.NetworkConfig>(Identifiers.Crypto).toConstantValue(Managers.configManager.all());
     }
 }

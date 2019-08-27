@@ -5,15 +5,15 @@ import QueryStream from "pg-query-stream";
 import pluralize from "pluralize";
 import zlib from "zlib";
 
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 
 import * as utils from "../utils";
 import { Codec } from "./codec";
 import { canImportRecord, verifyData } from "./verification";
 
-const logger = app.get<Contracts.Kernel.Log.Logger>("log");
-const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>("events");
+const logger = app.log;
+const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
 const fixData = (table, data) => {
     if (table === "blocks" && data.height === 1) {

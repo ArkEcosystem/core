@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import cliProgress from "cli-progress";
@@ -30,7 +30,7 @@ export class RestoreCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.isBound("snapshots")) {
+        if (!app.isBound(Container.Identifiers.SnapshotService)) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
@@ -42,7 +42,7 @@ export class RestoreCommand extends BaseCommand {
             }
         }
 
-        const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>("events");
+        const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
         const progressBar = new cliProgress.Bar(
             {
@@ -61,6 +61,6 @@ export class RestoreCommand extends BaseCommand {
 
         emitter.listen("complete", () => progressBar.stop());
 
-        await app.get<SnapshotManager>("snapshots").import(flags);
+        await app.get<SnapshotManager>(Container.Identifiers.SnapshotService).import(flags);
     }
 }

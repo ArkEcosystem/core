@@ -1,4 +1,4 @@
-import { Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Providers } from "@arkecosystem/core-kernel";
 import { database } from "./database";
 import { startListeners } from "./listener";
 import { startServer } from "./server";
@@ -6,7 +6,7 @@ import { startServer } from "./server";
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         if (!this.config().get("enabled")) {
-            this.app.get<Contracts.Kernel.Log.Logger>("log").info("Webhooks are disabled");
+            this.app.log.info("Webhooks are disabled");
             return;
         }
 
@@ -20,7 +20,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
 
     public async dispose(): Promise<void> {
         if (this.config().get("enabled")) {
-            this.app.get<Contracts.Kernel.Log.Logger>("log").info("Stopping Webhook API");
+            this.app.log.info("Stopping Webhook API");
 
             await this.app.get<any>("webhooks").stop();
         }

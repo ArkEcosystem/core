@@ -2,7 +2,7 @@ import { JsonObject } from "../types";
 import { Kernel } from "../contracts";
 import { PackageConfiguration } from "./package-configuration";
 import { PackageManifest } from "./package-manifest";
-import { inject, injectable } from "../container";
+import { injectable, inject, Identifiers } from "../container";
 
 /**
  * @export
@@ -18,7 +18,7 @@ export abstract class AbstractServiceProvider {
      * @type {Kernel.Application}
      * @memberof Manager
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     protected readonly app: Kernel.Application;
 
     /**

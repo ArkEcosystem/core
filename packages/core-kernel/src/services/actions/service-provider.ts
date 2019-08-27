@@ -1,5 +1,6 @@
 import { AbstractServiceProvider } from "../../providers";
 import { Actions } from "./actions";
+import { Identifiers } from "../../container";
 
 export class ServiceProvider extends AbstractServiceProvider {
     /**
@@ -10,7 +11,7 @@ export class ServiceProvider extends AbstractServiceProvider {
      */
     public async register(): Promise<void> {
         this.app
-            .bind<Actions>("actions")
+            .bind<Actions>(Identifiers.ActionService)
             .to(Actions)
             .inSingletonScope();
     }

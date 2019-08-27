@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
@@ -19,7 +19,7 @@ export class BlocksController extends Controller {
         try {
             return super.respondWithResource(
                 app
-                    .get<Contracts.State.StateService>("state")
+                    .get<Contracts.State.StateService>(Container.Identifiers.StateService)
                     .getStore()
                     .getGenesisBlock().data,
                 "block",
@@ -33,7 +33,7 @@ export class BlocksController extends Controller {
     public async last(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWithResource(
-                app.get<Contracts.Blockchain.Blockchain>("blockchain").getLastBlock().data,
+                app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).getLastBlock().data,
                 "block",
                 (request.query.transform as unknown) as boolean,
             );

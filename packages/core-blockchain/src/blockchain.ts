@@ -1,5 +1,5 @@
 /* tslint:disable:max-line-length */
-import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
@@ -17,7 +17,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {StateStore}
      */
     get state(): Contracts.State.StateStore {
-        return app.get<Contracts.State.StateService>("state").getStore();
+        return app.get<Contracts.State.StateService>(Container.Identifiers.StateService).getStore();
     }
 
     /**

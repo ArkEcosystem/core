@@ -1,5 +1,6 @@
 import { AbstractServiceProvider } from "../../providers";
 import { ValidationManager } from "./manager";
+import { Identifiers } from "../../container";
 
 export class ServiceProvider extends AbstractServiceProvider {
     /**
@@ -10,10 +11,10 @@ export class ServiceProvider extends AbstractServiceProvider {
      */
     public async register(): Promise<void> {
         this.app
-            .bind<ValidationManager>("validationManager")
+            .bind<ValidationManager>(Identifiers.ValidationManager)
             .to(ValidationManager)
             .inSingletonScope();
 
-        await this.app.get<ValidationManager>("validationManager").boot();
+        await this.app.get<ValidationManager>(Identifiers.ValidationManager).boot();
     }
 }

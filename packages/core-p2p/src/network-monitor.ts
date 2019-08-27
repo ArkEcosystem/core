@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
 
-import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import groupBy from "lodash.groupby";
@@ -20,10 +20,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing = true;
 
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
         Contracts.Kernel.Events.EventDispatcher
-    >("events");
+    >(Container.Identifiers.EventDispatcherService);
 
     private readonly communicator: Contracts.P2P.PeerCommunicator;
     private readonly processor: Contracts.P2P.PeerProcessor;
@@ -233,7 +233,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         await this.cleansePeers({ forcePing: true });
 
         const lastBlock = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .getLastBlock();
 
@@ -328,7 +328,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     }
 
     public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
-        const blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
+        const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
 
         if (!blockchain) {
             this.logger.info(

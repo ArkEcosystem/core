@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
@@ -71,7 +71,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
         const { added, notAdded }: TransactionsCached = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .cacheTransactions(transactions);
 
@@ -86,10 +86,10 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     private async removeForgedTransactions(): Promise<void> {
         const forgedIdsSet: string[] = await app
-            .get<Contracts.Database.DatabaseService>("database")
+            .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.get<Contracts.State.StateService>("state")
+        app.get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .removeCachedTransactionIds(forgedIdsSet);
 
@@ -172,7 +172,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
         const lastHeight: number = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .getLastHeight();
 
@@ -249,8 +249,6 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.get<Contracts.Kernel.Log.Logger>("log").info(
-            `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
-        );
+        app.log.info(`Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`);
     }
 }

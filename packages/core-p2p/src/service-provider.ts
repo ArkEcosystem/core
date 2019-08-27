@@ -1,4 +1,4 @@
-import { Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
 import { PeerCommunicator } from "./peer-communicator";
@@ -12,7 +12,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         this.app.bind("p2p.options").toConstantValue(this.config().all());
 
-        this.app.get<Contracts.Kernel.Log.Logger>("log").info("Starting P2P Interface");
+        this.app.log.info("Starting P2P Interface");
 
         const service: Contracts.P2P.PeerService = this.makePeerService(this.config().all());
 
@@ -23,14 +23,14 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
             service.getMonitor().setServer(await startSocketServer(service, this.config().all()));
         }
 
-        this.app.bind("p2p").toConstantValue(service);
+        this.app.bind(Container.Identifiers.PeerService).toConstantValue(service);
     }
 
     public async dispose(): Promise<void> {
-        this.app.get<Contracts.Kernel.Log.Logger>("log").info("Stopping P2P Interface");
+        this.app.log.info("Stopping P2P Interface");
 
         this.app
-            .get<Contracts.P2P.PeerService>("p2p")
+            .get<Contracts.P2P.PeerService>(Container.Identifiers.PeerService)
             .getMonitor()
             .stopServer();
     }

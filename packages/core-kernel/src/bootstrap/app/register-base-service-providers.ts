@@ -1,7 +1,7 @@
 import { Actions, Cache, Filesystem, Log, Queue, Schedule, Validation } from "../../services";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -17,7 +17,7 @@ export class RegisterBaseServiceProviders implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**

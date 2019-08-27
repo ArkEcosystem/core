@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
@@ -31,10 +31,10 @@ export class PostgresConnection implements Contracts.Database.Connection {
     public walletsRepository: Contracts.Database.WalletsRepository;
     // @todo: make this private
     public pgp: IMain;
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
         Contracts.Kernel.Events.EventDispatcher
-    >("events");
+    >(Container.Identifiers.EventDispatcherService);
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
 

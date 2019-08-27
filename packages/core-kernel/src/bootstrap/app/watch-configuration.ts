@@ -1,6 +1,6 @@
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 import { Watcher } from "../../services/config/watcher";
 
 /**
@@ -17,7 +17,7 @@ export class WatchConfiguration implements Bootstrapper {
      * @type {Application}
      * @memberof WatchConfiguration
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**

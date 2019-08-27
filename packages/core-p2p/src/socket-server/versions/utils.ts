@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container } from "@arkecosystem/core-kernel";
 import { isWhitelisted } from "../../utils/is-whitelisted";
 import * as internalHandlers from "./internal";
 import * as peerHandlers from "./peer";
@@ -9,9 +9,9 @@ export const isAppReady = (): {
     p2p: boolean;
 } => {
     return {
-        transactionPool: !!app.isBound("transactionPool"),
-        blockchain: !!app.isBound("blockchain"),
-        p2p: !!app.isBound("p2p"),
+        transactionPool: !!app.isBound(Container.Identifiers.TransactionPoolService),
+        blockchain: !!app.isBound(Container.Identifiers.BlockchainService),
+        p2p: !!app.isBound(Container.Identifiers.PeerService),
     };
 };
 

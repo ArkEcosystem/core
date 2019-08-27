@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -81,7 +81,9 @@ export class NodeController extends Controller {
     }
 
     public async fees(request: Hapi.Request) {
-        const { transactionsBusinessRepository } = app.get<Contracts.Database.DatabaseService>("database");
+        const { transactionsBusinessRepository } = app.get<Contracts.Database.DatabaseService>(
+            Container.Identifiers.DatabaseService,
+        );
 
         // @ts-ignore
         const results = await transactionsBusinessRepository.getFeeStatistics(request.query.days);

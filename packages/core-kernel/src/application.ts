@@ -11,6 +11,7 @@ import { EventListener } from "./types/events";
 // import { ShutdownSignal } from "./enums/process";
 import { ConfigRepository } from "./services/config";
 import { Bootstrapper } from "./bootstrap/interfaces";
+import { Identifiers } from "./container";
 
 /**
  * @export
@@ -37,7 +38,7 @@ export class Application implements Contracts.Kernel.Application {
 
         // this.container.bind<Application>(Application).toSelf();
 
-        this.container.bind<Contracts.Kernel.Application>("app").toConstantValue(this);
+        this.container.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
     }
 
     /**
@@ -51,7 +52,7 @@ export class Application implements Contracts.Kernel.Application {
         this.container.bind<JsonObject>("config").toConstantValue(config);
 
         this.container
-            .bind<ServiceProviderRepository>("serviceProviderRepository")
+            .bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
             .to(ServiceProviderRepository)
             .inSingletonScope();
 
@@ -88,7 +89,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public config<T = any>(key: string, value?: T): T {
-        const config: ConfigRepository = this.container.get<ConfigRepository>("config");
+        const config: ConfigRepository = this.container.get<ConfigRepository>(Identifiers.ConfigRepository);
 
         if (value) {
             config.set(key, value);
@@ -102,7 +103,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public dirPrefix(): string {
-        return this.container.get("app.dirPrefix");
+        return this.container.get(Identifiers.ApplicationDirPrefix);
     }
 
     /**
@@ -110,7 +111,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public namespace(): string {
-        return this.container.get("app.namespace");
+        return this.container.get(Identifiers.ApplicationNamespace);
     }
 
     /**
@@ -118,7 +119,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public version(): string {
-        return this.container.get("app.version");
+        return this.container.get(Identifiers.ApplicationVersion);
     }
 
     /**
@@ -126,7 +127,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public token(): string {
-        return this.container.get("app.token");
+        return this.container.get(Identifiers.ApplicationToken);
     }
 
     /**
@@ -134,7 +135,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public network(): string {
-        return this.container.get("app.network");
+        return this.container.get(Identifiers.ApplicationNetwork);
     }
 
     /**
@@ -142,7 +143,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public useNetwork(value: string): void {
-        this.container.bind<string>("app.network").toConstantValue(value);
+        this.container.bind<string>(Identifiers.ApplicationNetwork).toConstantValue(value);
     }
 
     /**
@@ -243,7 +244,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public environment(): string {
-        return this.container.get("app.env");
+        return this.container.get(Identifiers.ApplicationEnvironment);
     }
 
     /**
@@ -251,7 +252,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public useEnvironment(value: string): void {
-        this.container.bind<string>("app.env").toConstantValue(value);
+        this.container.bind<string>(Identifiers.ApplicationEnvironment).toConstantValue(value);
     }
 
     /**
@@ -355,7 +356,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get log(): Contracts.Kernel.Log.Logger {
-        return this.container.get<Contracts.Kernel.Log.Logger>("log");
+        return this.container.get<Contracts.Kernel.Log.Logger>(Identifiers.LogService);
     }
 
     /**
@@ -366,7 +367,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get events(): Contracts.Kernel.Events.EventDispatcher {
-        return this.container.get<Contracts.Kernel.Events.EventDispatcher>("events");
+        return this.container.get<Contracts.Kernel.Events.EventDispatcher>(Identifiers.EventDispatcherService);
     }
 
     /**
@@ -377,7 +378,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get filesystem(): Contracts.Kernel.Filesystem.Filesystem {
-        return this.container.get<Contracts.Kernel.Filesystem.Filesystem>("filesystem");
+        return this.container.get<Contracts.Kernel.Filesystem.Filesystem>(Identifiers.FilesystemService);
     }
 
     /**
@@ -388,7 +389,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get database(): Contracts.Database.DatabaseService {
-        return this.container.get<Contracts.Database.DatabaseService>("database");
+        return this.container.get<Contracts.Database.DatabaseService>(Identifiers.DatabaseService);
     }
 
     /**
@@ -399,7 +400,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get blockchain(): Contracts.Blockchain.Blockchain {
-        return this.container.get<Contracts.Blockchain.Blockchain>("blockchain");
+        return this.container.get<Contracts.Blockchain.Blockchain>(Identifiers.BlockchainService);
     }
 
     /**
@@ -410,7 +411,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get p2p(): Contracts.P2P.PeerService {
-        return this.container.get<Contracts.P2P.PeerService>("p2p");
+        return this.container.get<Contracts.P2P.PeerService>(Identifiers.PeerService);
     }
 
     /**
@@ -421,7 +422,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get transactionPool(): Contracts.TransactionPool.Connection {
-        return this.container.get<Contracts.TransactionPool.Connection>("transactionPool");
+        return this.container.get<Contracts.TransactionPool.Connection>(Identifiers.TransactionPoolService);
     }
 
     /**
@@ -524,7 +525,7 @@ export class Application implements Contracts.Kernel.Application {
      */
     private async registerEventDispatcher(): Promise<void> {
         this.container
-            .bind<EventDispatcher>("events")
+            .bind<EventDispatcher>(Identifiers.EventDispatcherService)
             .to(EventDispatcher)
             .inSingletonScope();
     }
@@ -536,7 +537,7 @@ export class Application implements Contracts.Kernel.Application {
      */
     private async disposeServiceProviders(): Promise<void> {
         const serviceProviders: AbstractServiceProvider[] = this.container
-            .get<ServiceProviderRepository>("serviceProviderRepository")
+            .get<ServiceProviderRepository>(Identifiers.Repository.ServiceProviderRepository)
             .allLoadedProviders();
 
         for (const serviceProvider of serviceProviders.reverse()) {

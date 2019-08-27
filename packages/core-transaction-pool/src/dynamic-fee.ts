@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { DynamicFeeMatch } from "./interfaces";
@@ -25,7 +25,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
         if (fee.isGreaterThanOrEqualTo(minFeeBroadcast)) {
             broadcast = true;
 
-            app.get<Contracts.Kernel.Log.Logger>("log").debug(
+            app.log.debug(
                 `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
                     fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
@@ -33,7 +33,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
         } else {
             broadcast = false;
 
-            app.get<Contracts.Kernel.Log.Logger>("log").debug(
+            app.log.debug(
                 `Transaction ${id} not eligible for broadcast - fee of ${Utils.formatSatoshi(
                     fee,
                 )} is smaller than minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
@@ -45,7 +45,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
         if (fee.isGreaterThanOrEqualTo(minFeePool)) {
             enterPool = true;
 
-            app.get<Contracts.Kernel.Log.Logger>("log").debug(
+            app.log.debug(
                 `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
                     fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
@@ -53,7 +53,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
         } else {
             enterPool = false;
 
-            app.get<Contracts.Kernel.Log.Logger>("log").debug(
+            app.log.debug(
                 `Transaction ${id} not eligible to enter pool - fee of ${Utils.formatSatoshi(
                     fee,
                 )} is smaller than minimum fee (${Utils.formatSatoshi(minFeePool)})`,
@@ -65,7 +65,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
             broadcast = true;
             enterPool = true;
 
-            app.get<Contracts.Kernel.Log.Logger>("log").debug(
+            app.log.debug(
                 `Transaction ${id} eligible for broadcast and to enter pool - fee of ${Utils.formatSatoshi(
                     fee,
                 )} is equal to static fee (${Utils.formatSatoshi(staticFee)})`,
@@ -74,7 +74,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
             broadcast = false;
             enterPool = false;
 
-            app.get<Contracts.Kernel.Log.Logger>("log").debug(
+            app.log.debug(
                 `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${Utils.formatSatoshi(
                     fee,
                 )} does not match static fee (${Utils.formatSatoshi(staticFee)})`,

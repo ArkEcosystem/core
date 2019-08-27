@@ -10,7 +10,7 @@ import { Delegate } from "./delegate";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
 export class ForgerManager {
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
 
     private secrets: string[];
     private network: Types.NetworkType;

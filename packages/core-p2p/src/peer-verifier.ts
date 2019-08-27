@@ -1,5 +1,5 @@
 // tslint:disable:max-classes-per-file
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -21,9 +21,9 @@ export class PeerVerifier {
      */
     private static readonly verifiedBlocks = new CappedSet();
     private readonly database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        "database",
+        Container.Identifiers.DatabaseService,
     );
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private logPrefix: string;
 
     public constructor(
@@ -119,7 +119,7 @@ export class PeerVerifier {
 
         try {
             const ownBlock: Interfaces.IBlock = app
-                .get<Contracts.State.StateService>("state")
+                .get<Contracts.State.StateService>(Container.Identifiers.StateService)
                 .getStore()
                 .getLastBlocks()
                 .find(block => block.data.height === blockHeader.height);
@@ -150,7 +150,7 @@ export class PeerVerifier {
 
     private ourHeight(): number {
         const height: number = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .getLastHeight();
 

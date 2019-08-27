@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container } from "@arkecosystem/core-kernel";
 
 export const requestSchemas = {
     peer: {
@@ -7,7 +7,13 @@ export const requestSchemas = {
             required: ["ids"],
             additionalProperties: false,
             properties: {
-                ids: { type: "array", additionalItems: false, minItems: 1, maxItems: 10, items: { blockId: {} } },
+                ids: {
+                    type: "array",
+                    additionalItems: false,
+                    minItems: 1,
+                    maxItems: 10,
+                    items: { blockId: {} },
+                },
             },
         },
         getBlocks: {
@@ -37,7 +43,7 @@ export const requestSchemas = {
                 transactions: {
                     $ref: "transactions",
                     minItems: 1,
-                    maxItems: app.isBound("transactionPool")
+                    maxItems: app.isBound(Container.Identifiers.TransactionPoolService)
                         ? app.get<any>("transactionPool.options").maxTransactionsPerRequest || 40
                         : 40,
                 },

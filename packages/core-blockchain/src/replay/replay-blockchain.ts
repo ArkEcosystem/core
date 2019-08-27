@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
@@ -25,8 +25,8 @@ export class ReplayBlockchain extends Blockchain {
         this.walletManager = new Wallets.WalletManager();
         this.memoryDatabase = new MemoryDatabaseService(this.walletManager);
 
-        this.logger = app.get<Contracts.Kernel.Log.Logger>("log");
-        this.localDatabase = app.get<Contracts.Database.DatabaseService>("database");
+        this.logger = app.log;
+        this.localDatabase = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
         this.localDatabase.walletManager = this.walletManager;
 
         this.queue.kill();

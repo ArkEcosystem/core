@@ -1,6 +1,6 @@
 /* tslint:disable:no-shadowed-variable member-ordering max-classes-per-file */
 
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import { NetworkStateStatus } from "./enums";
 
@@ -42,7 +42,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         monitor: Contracts.P2P.NetworkMonitor,
         storage: Contracts.P2P.PeerStorage,
     ): Contracts.P2P.NetworkState {
-        const lastBlock: Interfaces.IBlock = app.get<any>("blockchain").getLastBlock();
+        const lastBlock: Interfaces.IBlock = app.get<any>(Container.Identifiers.BlockchainService).getLastBlock();
 
         const peers: Contracts.P2P.Peer[] = storage.getPeers();
         const minimumNetworkReach: number = app.get<any>("p2p.options").minimumNetworkReach || 20;

@@ -1,4 +1,4 @@
-import { Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Providers } from "@arkecosystem/core-kernel";
 import history from "connect-history-api-fallback";
 import express, { Handler } from "express";
 import { existsSync } from "fs";
@@ -8,9 +8,9 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
         const distPath: string = this.config().get("path");
 
         if (!existsSync(distPath)) {
-            this.app
-                .get<Contracts.Kernel.Log.Logger>("log")
-                .error(`The ${distPath} directory does not exist. Please build the explorer before using this plugin.`);
+            this.app.log.error(
+                `The ${distPath} directory does not exist. Please build the explorer before using this plugin.`,
+            );
             return;
         }
 
@@ -24,8 +24,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
 
         // @ts-ignore
         const server = app.listen(this.config().get("server.port"), this.config().get("server.host"), () => {
-            this.app
-                .get<Contracts.Kernel.Log.Logger>("log")
+            this.app.log
                 // @ts-ignore
                 .info(`Explorer is listening on http://${server.address().address}:${server.address().port}.`);
         });
@@ -35,7 +34,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
 
     public async dispose(): Promise<void> {
         try {
-            this.app.get<Contracts.Kernel.Log.Logger>("log").info("Stopping Explorer");
+            this.app.log.info("Stopping Explorer");
 
             await this.app.get<any>("explorer").close();
         } catch (error) {

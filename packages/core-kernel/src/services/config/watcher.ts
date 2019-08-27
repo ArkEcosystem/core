@@ -1,6 +1,6 @@
 import nsfw from "nsfw";
 import { Application } from "../../contracts/kernel";
-import { inject, injectable } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @interface FileEvent
@@ -38,7 +38,7 @@ export class Watcher {
      * @type {Application}
      * @memberof AbstractManager
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**

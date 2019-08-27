@@ -6,7 +6,7 @@ import camelCase from "lodash/camelCase";
 import { resolve } from "path";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -22,7 +22,7 @@ export class RegisterBasePaths implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**

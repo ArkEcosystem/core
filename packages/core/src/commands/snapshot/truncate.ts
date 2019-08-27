@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { setUpLite } from "../../helpers/snapshot";
 import { BaseCommand } from "../command";
@@ -11,10 +11,10 @@ export class TruncateCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.isBound("snapshots")) {
+        if (!app.isBound(Container.Identifiers.SnapshotService)) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
-        await app.get<SnapshotManager>("snapshots").truncate();
+        await app.get<SnapshotManager>(Container.Identifiers.SnapshotService).truncate();
     }
 }

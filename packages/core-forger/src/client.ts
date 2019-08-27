@@ -8,7 +8,7 @@ import { RelayHost } from "./interfaces";
 
 export class Client {
     public hosts: RelayHost[];
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private host: RelayHost;
 
     constructor(hosts: RelayHost[]) {

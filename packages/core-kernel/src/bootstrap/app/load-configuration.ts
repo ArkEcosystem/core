@@ -1,7 +1,7 @@
 import { ConfigManager, ConfigRepository } from "../../services/config";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -17,7 +17,7 @@ export class LoadConfiguration implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**
@@ -26,8 +26,8 @@ export class LoadConfiguration implements Bootstrapper {
      */
     public async bootstrap(): Promise<void> {
         await this.app
-            .get<ConfigManager>("configManager")
-            .driver(this.app.get<ConfigRepository>("config").get<string>("configLoader", "local"))
+            .get<ConfigManager>(Identifiers.ConfigManager)
+            .driver(this.app.get<ConfigRepository>(Identifiers.ConfigRepository).get<string>("configLoader", "local"))
             .loadConfiguration();
     }
 }

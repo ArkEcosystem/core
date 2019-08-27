@@ -2,7 +2,7 @@ import { JsonObject } from "../../types";
 import { ConfigManager, ConfigRepository } from "../../services/config";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -18,7 +18,7 @@ export class RegisterBaseConfiguration implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**
@@ -28,17 +28,17 @@ export class RegisterBaseConfiguration implements Bootstrapper {
      */
     public async bootstrap(): Promise<void> {
         this.app
-            .bind<ConfigManager>("configManager")
+            .bind<ConfigManager>(Identifiers.ConfigManager)
             .to(ConfigManager)
             .inSingletonScope();
 
-        await this.app.get<ConfigManager>("configManager").boot();
+        await this.app.get<ConfigManager>(Identifiers.ConfigManager).boot();
 
         const config: JsonObject = this.app.get<JsonObject>("config");
         const configRepository: ConfigRepository = new ConfigRepository(config);
         configRepository.set("options", config.options || {});
 
         this.app.unbind("config");
-        this.app.bind<ConfigRepository>("config").toConstantValue(configRepository);
+        this.app.bind<ConfigRepository>(Identifiers.ConfigRepository).toConstantValue(configRepository);
     }
 }

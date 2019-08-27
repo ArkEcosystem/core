@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import partition from "lodash.partition";
@@ -56,7 +56,7 @@ export class TransactionsRepository extends Repository implements Contracts.Data
                 ) {
                     // Workaround to include transactions (e.g. type 2) where the recipient_id is missing in the database
                     const walletManager: Contracts.State.WalletManager = app.get<Contracts.Database.DatabaseService>(
-                        "database",
+                        Container.Identifiers.DatabaseService,
                     ).walletManager;
                     const recipientWallet: Contracts.State.Wallet = walletManager.findByAddress(first.value);
 

@@ -1,7 +1,7 @@
 import { strictEqual } from "assert";
 import clonedeep from "lodash.clonedeep";
 
-import { app, Contracts, Enums as AppEnums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums as AppEnums, Container } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
@@ -20,12 +20,12 @@ export class Connection implements Contracts.TransactionPool.Connection {
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
     private readonly databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        "database",
+        Container.Identifiers.DatabaseService,
     );
     private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
         Contracts.Kernel.Events.EventDispatcher
-    >("events");
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    >(Container.Identifiers.EventDispatcherService);
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
 
     constructor({
         options,
@@ -268,7 +268,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
-        app.get<Contracts.State.StateService>("state")
+        app.get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .removeCachedTransactionIds(block.transactions.map(tx => tx.id));
     }
@@ -278,7 +278,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
-        app.get<Contracts.State.StateService>("state")
+        app.get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .removeCachedTransactionIds(transactionIds);
 

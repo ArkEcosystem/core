@@ -1,6 +1,6 @@
 /* tslint:disable:max-line-length */
 
-import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
 import { Peer } from "./peer";
 import { isValidPeer, isValidVersion, isWhitelisted } from "./utils";
 
@@ -8,10 +8,10 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean;
 
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
         Contracts.Kernel.Events.EventDispatcher
-    >("events");
+    >(Container.Identifiers.EventDispatcherService);
 
     private readonly communicator: Contracts.P2P.PeerCommunicator;
     private readonly connector: Contracts.P2P.PeerConnector;

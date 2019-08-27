@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { isBlockChained } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
@@ -23,7 +23,9 @@ export const getCommonBlocks = async ({
     common: Interfaces.IBlockData;
     lastBlockHeight: number;
 }> => {
-    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
+    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>(
+        Container.Identifiers.BlockchainService,
+    );
     const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids);
 
     if (!commonBlocks.length) {
@@ -37,7 +39,9 @@ export const getCommonBlocks = async ({
 };
 
 export const getStatus = async (): Promise<PeerPingResponse> => {
-    const lastBlock: Interfaces.IBlock = app.get<Contracts.Blockchain.Blockchain>("blockchain").getLastBlock();
+    const lastBlock: Interfaces.IBlock = app
+        .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
+        .getLastBlock();
 
     return {
         state: {
@@ -51,7 +55,9 @@ export const getStatus = async (): Promise<PeerPingResponse> => {
 };
 
 export const postBlock = async ({ req }): Promise<void> => {
-    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
+    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>(
+        Container.Identifiers.BlockchainService,
+    );
 
     const block: Interfaces.IBlockData = req.data.block;
     const fromForger: boolean = isWhitelisted(app.get<any>("p2p.options").remoteAccess, req.headers.remoteAddress);
@@ -68,7 +74,7 @@ export const postBlock = async ({ req }): Promise<void> => {
         }
     }
 
-    app.get<Contracts.Kernel.Log.Logger>("log").info(
+    app.log.info(
         `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
             "transaction",
             block.numberOfTransactions,
@@ -87,7 +93,7 @@ export const postTransactions = async ({
     req;
 }): Promise<string[]> => {
     const processor: Contracts.TransactionPool.Processor = app
-        .get<Contracts.TransactionPool.Connection>("transactionPool")
+        .get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService)
         .makeProcessor();
 
     const result: Contracts.TransactionPool.ProcessorResult = await processor.validate(req.data.transactions);
@@ -104,7 +110,9 @@ export const postTransactions = async ({
 };
 
 export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Contracts.Database.DownloadBlock[]> => {
-    const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>("database");
+    const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+        Container.Identifiers.DatabaseService,
+    );
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
     const reqBlockLimit: number = +req.data.blockLimit || 400;
@@ -118,7 +126,7 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Cont
         blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
     }
 
-    app.get<Contracts.Kernel.Log.Logger>("log").info(
+    app.log.info(
         `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(
             "block",
             blocks.length,

@@ -1,9 +1,9 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 
 export class EventListener {
     private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
         Contracts.Kernel.Events.EventDispatcher
-    >("events");
+    >(Container.Identifiers.EventDispatcherService);
 
     public constructor(service: Contracts.P2P.PeerService) {
         const connector: Contracts.P2P.PeerConnector = service.getConnector();

@@ -1,4 +1,4 @@
-import { Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Providers } from "@arkecosystem/core-kernel";
 import { ForgerManager } from "./manager";
 
 export class ServiceProvider extends Providers.AbstractServiceProvider {
@@ -15,7 +15,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        this.app.get<Contracts.Kernel.Log.Logger>("log").info("Stopping Forger Manager");
+        this.app.log.info("Stopping Forger Manager");
 
         return this.app.get<ForgerManager>("forger").stopForging();
     }

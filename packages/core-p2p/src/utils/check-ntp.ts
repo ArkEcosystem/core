@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app } from "@arkecosystem/core-kernel";
 import Sntp from "@hapi/sntp";
 import shuffle from "lodash.shuffle";
 
@@ -10,7 +10,7 @@ export const checkNTP = (hosts, timeout = 1000): any => {
 
                 return resolve({ time, host });
             } catch (err) {
-                app.get<Contracts.Kernel.Log.Logger>("log").error(`Host ${host} responsed with: ${err.message}`);
+                app.log.error(`Host ${host} responsed with: ${err.message}`);
             }
         }
 

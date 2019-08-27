@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import prettyMs from "pretty-ms";
 
 let tracker;
@@ -8,7 +8,7 @@ export const tickSyncTracker = (blockCount, count): void => {
         tracker = {
             start: new Date().getTime(),
             networkHeight: app
-                .get<Contracts.P2P.PeerService>("p2p")
+                .get<Contracts.P2P.PeerService>(Container.Identifiers.PeerService)
                 .getMonitor()
                 .getNetworkHeight(),
             blocksInitial: +count,
@@ -44,9 +44,7 @@ export const tickSyncTracker = (blockCount, count): void => {
             secondsDecimalDigits: 0,
         });
 
-        app
-            .get<Contracts.Kernel.Log.Logger>("log")
-            .info(`Synchronising In Progress (${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`);
+        app.log.info(`Synchronising In Progress (${blocksDownloaded} of ${networkHeight} blocks - Est. ${timeLeft})`);
     }
 
     if (tracker.percent === 100) {

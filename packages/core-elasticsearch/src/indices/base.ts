@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import { client } from "../client";
 import { storage } from "../storage";
@@ -6,10 +6,10 @@ import { storage } from "../storage";
 export abstract class Index {
     protected readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
         Contracts.Kernel.Events.EventDispatcher
-    >("events");
-    protected readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    >(Container.Identifiers.EventDispatcherService);
+    protected readonly logger: Contracts.Kernel.Log.Logger = app.log;
     protected readonly database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        "database",
+        Container.Identifiers.DatabaseService,
     );
 
     public constructor(protected readonly chunkSize: number) {}

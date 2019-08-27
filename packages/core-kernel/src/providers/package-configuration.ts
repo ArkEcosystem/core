@@ -1,7 +1,7 @@
 import { get, set } from "dottie";
 import { Kernel } from "../contracts";
 import { JsonObject } from "../types";
-import { inject, injectable } from "../container";
+import { injectable, inject, Identifiers } from "../container";
 
 /**
  * @export
@@ -16,6 +16,7 @@ export class PackageConfiguration {
      * @type {Kernel.Application}
      * @memberof Manager
      */
+    @inject(Identifiers.Application)
     private readonly app: Kernel.Application;
 
     /**
@@ -26,16 +27,6 @@ export class PackageConfiguration {
      * @memberof PackageConfiguration
      */
     private items: JsonObject;
-
-    /**
-     * Create a new package configuration.
-     *
-     * @param {{ app:Kernel.Application }} { app }
-     * @memberof Manager
-     */
-    public constructor(@inject("app") app: Kernel.Application) {
-        this.app = app;
-    }
 
     /**
      * @param {string} name

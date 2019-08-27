@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app } from "@arkecosystem/core-kernel";
 import { copyFileSync, ensureFileSync, existsSync, readJSONSync, writeFileSync } from "fs-extra";
 
 export const writeMetaFile = snapshotInfo =>
@@ -11,7 +11,7 @@ export const writeMetaFile = snapshotInfo =>
 export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;
 
 export const copySnapshot = (sourceFolder, destFolder) => {
-    const logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    const logger = app.log;
     logger.info(`Copying snapshot ${sourceFolder} to ${destFolder} for appending of data`);
 
     const paths = {

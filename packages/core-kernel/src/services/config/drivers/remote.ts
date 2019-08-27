@@ -1,6 +1,6 @@
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
-import { inject } from "../../../container";
+import { inject, Identifiers } from "../../../container";
 
 /**
  * @export
@@ -15,17 +15,8 @@ export class Remote implements ConfigLoader {
      * @type {Application}
      * @memberof Manager
      */
+    @inject(Identifiers.Application)
     protected readonly app: Application;
-
-    /**
-     * Create a new manager instance.
-     *
-     * @param {{ app:Application }} { app }
-     * @memberof Manager
-     */
-    public constructor(@inject("app") app: Application) {
-        this.app = app;
-    }
 
     /**
      * @returns {Promise<void>}

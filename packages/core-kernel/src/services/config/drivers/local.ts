@@ -8,7 +8,7 @@ import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
-import { injectable, inject } from "../../../container";
+import { injectable, inject, Identifiers } from "../../../container";
 
 /**
  * @export
@@ -24,17 +24,8 @@ export class Local implements ConfigLoader {
      * @type {Application}
      * @memberof Local
      */
+    @inject(Identifiers.Application)
     protected readonly app: Application;
-
-    /**
-     * Create a new manager instance.
-     *
-     * @param {{ app:Application }} { app }
-     * @memberof Local
-     */
-    public constructor(@inject("app") app: Application) {
-        this.app = app;
-    }
 
     /**
      * @returns {Promise<void>}

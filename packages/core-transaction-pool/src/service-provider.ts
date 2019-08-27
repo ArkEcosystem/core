@@ -1,4 +1,4 @@
-import { Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
 import { Connection } from "./connection";
 import { ConnectionManager } from "./manager";
 import { Memory } from "./memory";
@@ -7,7 +7,7 @@ import { WalletManager } from "./wallet-manager";
 
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
-        this.app.get<Contracts.Kernel.Log.Logger>("log").info("Connecting to transaction pool");
+        this.app.log.info("Connecting to transaction pool");
 
         const connection = await new ConnectionManager().createConnection(
             new Connection({
@@ -18,15 +18,15 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
             }),
         );
 
-        this.app.bind("transactionPool").toConstantValue(connection);
+        this.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(connection);
         this.app.bind("transactionPool.options").toConstantValue(this.config().all());
     }
 
     public async dispose(): Promise<void> {
         try {
-            this.app.get<Contracts.Kernel.Log.Logger>("log").info("Disconnecting from transaction pool");
+            this.app.log.info("Disconnecting from transaction pool");
 
-            this.app.get<Contracts.TransactionPool.Connection>("transactionPool").disconnect();
+            this.app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService).disconnect();
         } catch (error) {
             // @todo: handle
         }

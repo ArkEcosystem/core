@@ -1,6 +1,6 @@
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -16,7 +16,7 @@ export class RegisterBaseBindings implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**
@@ -25,10 +25,10 @@ export class RegisterBaseBindings implements Bootstrapper {
      * @memberof RegisterBaseBindings
      */
     public async bootstrap(): Promise<void> {
-        this.app.bind<string>("app.env").toConstantValue(this.app.config("env"));
-        this.app.bind<string>("app.token").toConstantValue(this.app.config("token"));
-        this.app.bind<string>("app.network").toConstantValue(this.app.config("network"));
-        this.app.bind<string>("app.version").toConstantValue(this.app.config("version"));
+        this.app.bind<string>(Identifiers.ApplicationEnvironment).toConstantValue(this.app.config("env"));
+        this.app.bind<string>(Identifiers.ApplicationToken).toConstantValue(this.app.config("token"));
+        this.app.bind<string>(Identifiers.ApplicationNetwork).toConstantValue(this.app.config("network"));
+        this.app.bind<string>(Identifiers.ApplicationVersion).toConstantValue(this.app.config("version"));
 
         // @todo: implement a getter/setter that sets vars locally and in the process.env variables
         process.env.CORE_ENV = this.app.config("env");

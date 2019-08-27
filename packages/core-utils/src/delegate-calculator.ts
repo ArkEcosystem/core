@@ -1,11 +1,12 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Managers, Utils } from "@arkecosystem/crypto";
 
 const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
 
 export const calculateApproval = (delegate: Contracts.State.Wallet, height?: number): number => {
     if (!height) {
-        height = app.get<Contracts.Blockchain.Blockchain>("blockchain").getLastBlock().data.height;
+        height = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).getLastBlock().data
+            .height;
     }
 
     const constants = Managers.configManager.getMilestone(height);

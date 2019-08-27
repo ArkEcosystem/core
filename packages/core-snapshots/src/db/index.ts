@@ -1,11 +1,11 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
-const logger = app.get<Contracts.Kernel.Log.Logger>("log");
+const logger = app.log;
 
 export class Database {
     public db: any;
@@ -23,7 +23,7 @@ export class Database {
     }
 
     public close() {
-        if (!app.isBound("blockchain")) {
+        if (!app.isBound(Container.Identifiers.BlockchainService)) {
             this.db.$pool.end();
             this.pgp.end();
         }

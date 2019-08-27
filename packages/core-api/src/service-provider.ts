@@ -1,10 +1,10 @@
-import { Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Providers } from "@arkecosystem/core-kernel";
 import { Server } from "./server";
 
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         if (!this.config().get("enabled")) {
-            this.app.get<Contracts.Kernel.Log.Logger>("log").info("Public API is disabled");
+            this.app.log.info("Public API is disabled");
             return;
         }
 
@@ -22,7 +22,7 @@ export class ServiceProvider extends Providers.AbstractServiceProvider {
 
     public async dispose(): Promise<void> {
         if (this.config().get("enabled")) {
-            this.app.get<Contracts.Kernel.Log.Logger>("log").info(`Stopping Public API`);
+            this.app.log.info(`Stopping Public API`);
 
             await this.app.get<Server>("api").stop();
         }

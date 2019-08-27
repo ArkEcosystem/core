@@ -9,7 +9,7 @@ import { WalletIndex } from "./wallet-index";
 
 export class WalletManager implements Contracts.State.WalletManager {
     // @todo: make this private and read-only
-    public logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    public logger: Contracts.Kernel.Log.Logger = app.log;
 
     private readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
     private currentBlock: Interfaces.IBlock;

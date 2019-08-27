@@ -7,7 +7,7 @@ import {
 } from "../../providers";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -23,7 +23,7 @@ export class LoadServiceProviders implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**
@@ -36,7 +36,7 @@ export class LoadServiceProviders implements Bootstrapper {
             serviceProvider.setManifest(this.app.resolve(PackageManifest).discover(name));
             serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, opts as JsonObject));
 
-            this.app.get<ServiceProviderRepository>("serviceProviderRepository").set(name, serviceProvider);
+            this.app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository).set(name, serviceProvider);
         }
     }
 

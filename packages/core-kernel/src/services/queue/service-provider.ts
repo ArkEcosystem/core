@@ -1,5 +1,6 @@
 import { AbstractServiceProvider } from "../../providers";
 import { QueueManager } from "./manager";
+import { Identifiers } from "../../container";
 
 export class ServiceProvider extends AbstractServiceProvider {
     /**
@@ -8,10 +9,10 @@ export class ServiceProvider extends AbstractServiceProvider {
      */
     public async register(): Promise<void> {
         this.app
-            .bind<QueueManager>("queueManager")
+            .bind<QueueManager>(Identifiers.QueueManager)
             .to(QueueManager)
             .inSingletonScope();
 
-        // await this.app.get<QueueManager>("queueManager").boot();
+        // await this.app.get<QueueManager>(Identifiers.QueueManager).boot();
     }
 }

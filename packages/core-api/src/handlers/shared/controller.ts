@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 import {
@@ -13,8 +13,10 @@ import {
 
 export class Controller {
     protected readonly config = Managers.configManager;
-    protected readonly blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
-    protected readonly databaseService = app.get<Contracts.Database.DatabaseService>("database");
+    protected readonly blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
+    protected readonly databaseService = app.get<Contracts.Database.DatabaseService>(
+        Container.Identifiers.DatabaseService,
+    );
 
     protected paginate(request: Hapi.Request): any {
         // @ts-ignore

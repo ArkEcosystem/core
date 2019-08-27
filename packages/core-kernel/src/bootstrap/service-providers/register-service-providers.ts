@@ -12,7 +12,7 @@ import { ValidationManager } from "../../services/validation";
 import { AbstractServiceProvider, ServiceProviderRepository, PackageConfiguration } from "../../providers";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -28,7 +28,7 @@ export class RegisterServiceProviders implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**
@@ -37,7 +37,7 @@ export class RegisterServiceProviders implements Bootstrapper {
      */
     public async bootstrap(): Promise<void> {
         const serviceProviders: ServiceProviderRepository = this.app.get<ServiceProviderRepository>(
-            "serviceProviderRepository",
+            Identifiers.ServiceProviderRepository,
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
@@ -92,7 +92,7 @@ export class RegisterServiceProviders implements Bootstrapper {
             const config: PackageConfiguration = serviceProvider.config();
 
             const validator: Kernel.Validation.Validator = this.app
-                .get<ValidationManager>("validationManager")
+                .get<ValidationManager>(Identifiers.ValidationManager)
                 .driver();
 
             validator.validate(config.all(), configSchema);
@@ -119,7 +119,7 @@ export class RegisterServiceProviders implements Bootstrapper {
         }
 
         const serviceProviders: ServiceProviderRepository = this.app.get<ServiceProviderRepository>(
-            "serviceProviderRepository",
+            Identifiers.ServiceProviderRepository,
         );
 
         for (const dependency of dependencies) {
@@ -172,7 +172,9 @@ export class RegisterServiceProviders implements Bootstrapper {
      * @memberof RegisterServiceProviders
      */
     private shouldBeIncluded(name: string): boolean {
-        const includes: string[] = this.app.get<ConfigRepository>("config").get<string[]>("include", []);
+        const includes: string[] = this.app
+            .get<ConfigRepository>(Identifiers.ConfigRepository)
+            .get<string[]>("include", []);
 
         return includes.length > 0 ? includes.includes(name) : true;
     }
@@ -184,7 +186,9 @@ export class RegisterServiceProviders implements Bootstrapper {
      * @memberof RegisterServiceProviders
      */
     private shouldBeExcluded(name: string): boolean {
-        const excludes: string[] = this.app.get<ConfigRepository>("config").get<string[]>("exclude", []);
+        const excludes: string[] = this.app
+            .get<ConfigRepository>(Identifiers.ConfigRepository)
+            .get<string[]>("exclude", []);
 
         return excludes.length > 0 ? excludes.includes(name) : false;
     }

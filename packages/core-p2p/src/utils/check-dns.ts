@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app } from "@arkecosystem/core-kernel";
 import dns from "dns";
 import shuffle from "lodash.shuffle";
 import util from "util";
@@ -14,7 +14,7 @@ export const checkDNS = async hosts => {
 
             return Promise.resolve(hosts[i]);
         } catch (err) {
-            app.get<Contracts.Kernel.Log.Logger>("log").error(err.message);
+            app.log.error(err.message);
         }
     }
 

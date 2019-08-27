@@ -23,7 +23,7 @@ export enum BlockProcessorResult {
 }
 
 export class BlockProcessor {
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
 
     public constructor(private readonly blockchain: Blockchain) {}
 

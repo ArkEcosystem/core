@@ -1,4 +1,4 @@
-import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
 import { httpie } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
@@ -11,10 +11,10 @@ import { replySchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
 export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
-    private readonly logger: Contracts.Kernel.Log.Logger = app.get<Contracts.Kernel.Log.Logger>("log");
+    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
         Contracts.Kernel.Events.EventDispatcher
-    >("events");
+    >(Container.Identifiers.EventDispatcherService);
 
     constructor(private readonly connector: Contracts.P2P.PeerConnector) {}
 
@@ -38,10 +38,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
     }
 
-    public async postTransactions(
-        peer: Contracts.P2P.Peer,
-        transactions: Interfaces.ITransactionJson[],
-    ): Promise<any> {
+    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
         return this.emit(peer, "p2p.peer.postTransactions", { transactions });
     }
 

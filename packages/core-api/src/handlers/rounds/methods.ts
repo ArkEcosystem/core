@@ -1,11 +1,11 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { respondWithCollection } from "../utils";
 
 const delegates = async request => {
-    const databaseService = app.get<Contracts.Database.DatabaseService>("database");
+    const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
     const roundsRepository = databaseService.connection.roundsRepository;
 
     const delegates = await roundsRepository.findById(request.params.id);

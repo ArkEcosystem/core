@@ -1,6 +1,6 @@
 // tslint:disable:max-classes-per-file
 
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Interfaces } from "@arkecosystem/crypto";
 import { Blockchain } from "../../blockchain";
@@ -71,7 +71,7 @@ export class UnchainedHandler extends BlockHandler {
             case UnchainedBlockStatus.DoubleForging: {
                 const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(this.block.data.height);
                 const delegates: Contracts.State.Wallet[] = await app
-                    .get<any>("database")
+                    .get<any>(Container.Identifiers.DatabaseService)
                     .getActiveDelegates(roundInfo);
 
                 if (delegates.some(delegate => delegate.publicKey === this.block.data.generatorPublicKey)) {

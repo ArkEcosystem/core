@@ -1,9 +1,10 @@
 import { Migration } from "../models";
+import { Migration as MigrationContract } from "../interfaces";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
 export class MigrationsRepository extends Repository {
-    public async findByName(name: string): Promise<Migration> {
+    public async findByName(name: string): Promise<MigrationContract> {
         return this.db.oneOrNone(queries.migrations.find, { name });
     }
 

@@ -75,21 +75,23 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         }
 
         const stringFlags = ["network", "premine", "token", "symbol", "explorer"];
-        const response = await prompts(Object.keys(GenerateCommand.flags)
-            .map(
-                flagName =>
-                    ({
-                        type: stringFlags.includes(flagName) ? "text" : "number",
-                        name: flagName,
-                        message: GenerateCommand.flags[flagName].description,
-                        initial: `${flags[flagName]}`,
-                    } as prompts.PromptObject<string>),
-            )
-            .concat({
-                type: "confirm",
-                name: "confirm",
-                message: "Can you confirm?",
-            } as prompts.PromptObject<string>));
+        const response = await prompts(
+            Object.keys(GenerateCommand.flags)
+                .map(
+                    flagName =>
+                        ({
+                            type: stringFlags.includes(flagName) ? "text" : "number",
+                            name: flagName,
+                            message: GenerateCommand.flags[flagName].description,
+                            initial: `${flags[flagName]}`,
+                        } as prompts.PromptObject<string>),
+                )
+                .concat({
+                    type: "confirm",
+                    name: "confirm",
+                    message: "Can you confirm?",
+                } as prompts.PromptObject<string>),
+        );
 
         if (Object.keys(GenerateCommand.flags).find(flagName => !response[flagName])) {
             // one of the flags was not filled, we can't continue

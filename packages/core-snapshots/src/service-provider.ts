@@ -1,12 +1,12 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "./manager";
 
 export class ServiceProvider extends Providers.AbstractServiceProvider {
     public async register(): Promise<void> {
         const manager = new SnapshotManager(this.config().all());
 
-        const databaseService = this.app.get<Contracts.Database.DatabaseService>("database");
+        const databaseService = this.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
 
         // Why is a builder pattern with a manager used?
         this.app.bind("snapshots").toConstantValue(manager.make(databaseService.connection as PostgresConnection));

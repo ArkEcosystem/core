@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
@@ -13,7 +13,7 @@ const formatDelegates = (
     voterCount: string;
 }> => {
     const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        "database",
+        Container.Identifiers.DatabaseService,
     );
 
     return delegates.map((delegate: Contracts.State.Wallet) => {
@@ -56,9 +56,11 @@ const formatDelegates = (
 };
 
 export const handler = (request, h) => {
-    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
+    const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>(
+        Container.Identifiers.BlockchainService,
+    );
     const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        "database",
+        Container.Identifiers.DatabaseService,
     );
 
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
@@ -82,7 +84,7 @@ export const handler = (request, h) => {
 
     const voters: Contracts.State.Wallet[] = databaseService.walletManager
         .allByPublicKey()
-        .filter(wallet => wallet.hasVoted() && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
+        .filter(wallet => wallet.hasVoted() && wallet.balance.gt(0.1 * 1e8));
 
     const totalVotes: Utils.BigNumber = voters
         .map(wallet => wallet.balance)

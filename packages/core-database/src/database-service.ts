@@ -1,4 +1,4 @@
-import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
@@ -9,8 +9,8 @@ import cloneDeep from "lodash.clonedeep";
 export class DatabaseService implements Contracts.Database.DatabaseService {
     public connection: Contracts.Database.Connection;
     public walletManager: Contracts.State.WalletManager;
-    public logger = app.get<Contracts.Kernel.Log.Logger>("log");
-    public emitter = app.get<Contracts.Kernel.Events.EventDispatcher>("events");
+    public logger = app.log;
+    public emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
     public options: any;
     public wallets: Contracts.Database.WalletsBusinessRepository;
     public delegates: Contracts.Database.DelegatesBusinessRepository;
@@ -43,7 +43,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async init(): Promise<void> {
-        app.get<Contracts.State.StateService>("state")
+        app.get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
 
@@ -219,7 +219,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         const end: number = offset + limit - 1;
 
         let blocks: Interfaces.IBlockData[] = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .getLastBlocksByHeight(start, end, headersOnly);
 
@@ -283,7 +283,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         for (const [i, height] of heights.entries()) {
             const stateBlocks = app
-                .get<Contracts.State.StateService>("state")
+                .get<Contracts.State.StateService>(Container.Identifiers.StateService)
                 .getStore()
                 .getLastBlocksByHeight(height, height, true);
 
@@ -311,7 +311,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     public async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
         let lastBlock: Interfaces.IBlock = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .getLastBlock();
 
@@ -363,7 +363,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
         let commonBlocks: Interfaces.IBlockData[] = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .getCommonBlocks(ids);
 
@@ -376,7 +376,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     public async getRecentBlockIds(): Promise<string[]> {
         let blocks: any[] = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .getLastBlockIds()
             .reverse()
@@ -645,7 +645,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     private async createGenesisBlock(): Promise<Interfaces.IBlock> {
         const genesisBlock: Interfaces.IBlock = app
-            .get<Contracts.State.StateService>("state")
+            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
             .getStore()
             .getGenesisBlock();
 
@@ -655,7 +655,9 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     private configureState(lastBlock: Interfaces.IBlock): void {
-        const state: Contracts.State.StateService = app.get<Contracts.State.StateService>("state");
+        const state: Contracts.State.StateService = app.get<Contracts.State.StateService>(
+            Container.Identifiers.StateService,
+        );
 
         state.getStore().setLastBlock(lastBlock);
 

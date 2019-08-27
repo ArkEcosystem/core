@@ -1,6 +1,6 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
@@ -11,7 +11,7 @@ import { blockchainMachine } from "./machines/blockchain";
 import { Blockchain } from "./blockchain";
 
 const { BlockFactory } = Blocks;
-const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>("events");
+const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
 // defer initialisation to "init" due to this being resolved before the container kicks in
 let logger;
@@ -117,8 +117,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async init() {
-        logger = app.get<Contracts.Kernel.Log.Logger>("log");
-        stateStorage = app.get<Contracts.State.StateService>("state").getStore();
+        logger = app.log;
+        stateStorage = app.get<Contracts.State.StateService>(Container.Identifiers.StateService).getStore();
         blockchainMachine.state = stateStorage;
 
         try {

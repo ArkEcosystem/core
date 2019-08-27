@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
@@ -7,15 +7,18 @@ export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.P
 };
 
 export const emitEvent = ({ req }): void => {
-    app.get<Contracts.Kernel.Events.EventDispatcher>("events").dispatch(req.data.event, req.data.body);
+    app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService).dispatch(
+        req.data.event,
+        req.data.body,
+    );
 };
 
 export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.UnconfirmedTransactions> => {
-    const blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
+    const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
     const { maxTransactions } = Managers.configManager.getMilestone(blockchain.getLastBlock().data.height).block;
 
     const transactionPool: Contracts.TransactionPool.Connection = app.get<Contracts.TransactionPool.Connection>(
-        "transactionPool",
+        Container.Identifiers.TransactionPoolService,
     );
 
     return {
@@ -25,8 +28,8 @@ export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.Unconf
 };
 
 export const getCurrentRound = async (): Promise<Contracts.P2P.CurrentRound> => {
-    const databaseService = app.get<Contracts.Database.DatabaseService>("database");
-    const blockchain = app.get<Contracts.Blockchain.Blockchain>("blockchain");
+    const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+    const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
 
     const lastBlock = blockchain.getLastBlock();
 
@@ -63,7 +66,7 @@ export const getNetworkState = async ({
 };
 
 export const syncBlockchain = (): void => {
-    app.get<Contracts.Kernel.Log.Logger>("log").debug("Blockchain sync check WAKEUP requested by forger");
+    app.log.debug("Blockchain sync check WAKEUP requested by forger");
 
-    app.get<Contracts.Blockchain.Blockchain>("blockchain").forceWakeup();
+    app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).forceWakeup();
 };

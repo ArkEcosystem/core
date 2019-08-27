@@ -1,8 +1,7 @@
 import { toStudlyCaps } from "strman";
 import { Kernel } from "../contracts";
 import { DriverCannotBeResolved } from "../exceptions/container";
-import { injectable, inject } from "../container";
-import { Application } from "../contracts/kernel";
+import { injectable, inject, Identifiers } from "../container";
 
 /**
  * @export
@@ -19,6 +18,7 @@ export abstract class AbstractManager<T> {
      * @type {Kernel.Application}
      * @memberof AbstractManager
      */
+    @inject(Identifiers.Application)
     protected readonly app: Kernel.Application;
 
     /**
@@ -40,11 +40,9 @@ export abstract class AbstractManager<T> {
     /**
      * Create a new manager instance.
      *
-     * @param {{ app:Kernel.Application }} { app }
      * @memberof AbstractManager
      */
-    public constructor(@inject("app") app: Application) {
-        this.app = app;
+    public constructor() {
         this.defaultDriver = this.getDefaultDriver();
     }
 

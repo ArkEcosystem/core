@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app } from "@arkecosystem/core-kernel";
 import path from "path";
 import { QueryFile } from "pg-promise";
 
@@ -15,7 +15,7 @@ export const loadQueryFile = (directory, file) => {
     const query = new QueryFile(fullPath, options);
 
     if (query.error) {
-        app.get<Contracts.Kernel.Log.Logger>("log").error(query.error.toString());
+        app.log.error(query.error.toString());
     }
 
     return query;

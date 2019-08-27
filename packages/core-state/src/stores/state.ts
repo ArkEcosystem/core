@@ -1,6 +1,6 @@
 // tslint:disable:variable-name
 
-import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
@@ -98,9 +98,9 @@ export class StateStore implements Contracts.State.StateStore {
         Managers.configManager.setHeight(block.data.height);
 
         if (Managers.configManager.isNewMilestone()) {
-            app
-                .get<Contracts.Kernel.Events.EventDispatcher>("events")
-                .dispatch(Enums.Events.Internal.MilestoneChanged);
+            app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService).dispatch(
+                Enums.Events.Internal.MilestoneChanged,
+            );
         }
 
         // Delete oldest block if size exceeds the maximum
@@ -234,13 +234,9 @@ export class StateStore implements Contracts.State.StateStore {
      */
     public pushPingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         if (this.blockPing) {
-            app
-                .get<Contracts.Kernel.Log.Logger>("log")
-                .info(
-                    `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
-                        this.blockPing.count
-                    } times`,
-                );
+            app.log.info(
+                `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${this.blockPing.count} times`,
+            );
         }
 
         this.blockPing = {

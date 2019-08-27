@@ -1,7 +1,7 @@
 import { NetworkCannotBeDetermined } from "../../exceptions/config";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -17,7 +17,7 @@ export class RegisterBaseNamespace implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**
@@ -32,7 +32,7 @@ export class RegisterBaseNamespace implements Bootstrapper {
             throw new NetworkCannotBeDetermined();
         }
 
-        this.app.bind<string>("app.namespace").toConstantValue(`${token}-${network}`);
-        this.app.bind<string>("app.dirPrefix").toConstantValue(`${token}/${network}`);
+        this.app.bind<string>(Identifiers.ApplicationNamespace).toConstantValue(`${token}-${network}`);
+        this.app.bind<string>(Identifiers.ApplicationDirPrefix).toConstantValue(`${token}/${network}`);
     }
 }

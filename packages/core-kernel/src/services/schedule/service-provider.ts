@@ -1,5 +1,6 @@
 import { AbstractServiceProvider } from "../../providers";
 import { Schedule } from "./schedule";
+import { Identifiers } from "../../container";
 
 /**
  * @export
@@ -13,7 +14,7 @@ export class ServiceProvider extends AbstractServiceProvider {
      */
     public async register(): Promise<void> {
         this.app
-            .bind<Schedule>("schedule")
+            .bind<Schedule>(Identifiers.ScheduleService)
             .to(Schedule)
             .inSingletonScope();
     }

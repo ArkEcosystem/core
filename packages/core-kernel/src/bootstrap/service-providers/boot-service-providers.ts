@@ -3,7 +3,7 @@ import { ServiceProviderCannotBeBooted } from "../../exceptions/packages";
 import { ServiceProviderRepository } from "../../providers";
 import { Bootstrapper } from "../interfaces";
 import { Application } from "../../contracts/kernel";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export
@@ -19,7 +19,7 @@ export class BootServiceProviders implements Bootstrapper {
      * @type {Application}
      * @memberof Local
      */
-    @inject("app")
+    @inject(Identifiers.Application)
     private readonly app: Application;
 
     /**
@@ -28,7 +28,7 @@ export class BootServiceProviders implements Bootstrapper {
      */
     public async bootstrap(): Promise<void> {
         const serviceProviders: ServiceProviderRepository = this.app.get<ServiceProviderRepository>(
-            "serviceProviderRepository",
+            Identifiers.ServiceProviderRepository,
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {

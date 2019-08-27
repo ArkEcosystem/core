@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import { chooseSnapshot, setUpLite } from "../../helpers/snapshot";
@@ -23,7 +23,7 @@ export class VerifyCommand extends BaseCommand {
 
         await setUpLite(flags);
 
-        if (!app.isBound("snapshots")) {
+        if (!app.isBound(Container.Identifiers.SnapshotService)) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");
         }
 
@@ -35,6 +35,6 @@ export class VerifyCommand extends BaseCommand {
             }
         }
 
-        await app.get<SnapshotManager>("snapshots").verify(flags);
+        await app.get<SnapshotManager>(Container.Identifiers.SnapshotService).verify(flags);
     }
 }

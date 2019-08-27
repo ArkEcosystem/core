@@ -1,9 +1,9 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const databaseService = app.get<Contracts.Database.DatabaseService>("database");
+const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
 const blocksRepository = databaseService.blocksBusinessRepository;
 const transactionsRepository = databaseService.transactionsBusinessRepository;
 
