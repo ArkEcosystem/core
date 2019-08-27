@@ -20,7 +20,7 @@ describe("Transaction Forging - Business resignation", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Registering a business
-        const businessRegistration = TransactionFactory.businessRegistration({
+        let businessRegistration = TransactionFactory.businessRegistration({
             name: "ark",
             website: "ark.io",
         })
@@ -32,37 +32,33 @@ describe("Transaction Forging - Business resignation", () => {
         await expect(businessRegistration.id).toBeForged();
 
         // Resigning a business
-        const businessResignation = TransactionFactory.businessResignation()
+        let businessResignation = TransactionFactory.businessResignation()
             .withPassphrase(secrets[0])
             .createOne();
 
         await expect(businessResignation).toBeAccepted();
         await support.snoozeForBlock(1);
         await expect(businessResignation.id).toBeForged();
-    });
 
-    it("should be rejected, becuase wallet is already resigned", async () => {
-        // Resigning a business again
-        const businessResignation = TransactionFactory.businessResignation()
+        // Reject a second resignation
+        businessResignation = TransactionFactory.businessResignation()
             .withPassphrase(secrets[0])
             .createOne();
 
         await expect(businessResignation).toBeRejected();
         await support.snoozeForBlock(1);
         await expect(businessResignation.id).not.toBeForged();
-    });
 
-    it("should broadcast, accept and forge it, because wallet is resigned and can register again", async () => {
-        // Registering a business again
-        const businessRegistration = TransactionFactory.businessRegistration({
+        // Reject a new registration
+        businessRegistration = TransactionFactory.businessRegistration({
             name: "ark",
             website: "ark.io",
         })
             .withPassphrase(secrets[0])
             .createOne();
 
-        await expect(businessRegistration).toBeAccepted();
+        await expect(businessRegistration).toBeRejected();
         await support.snoozeForBlock(1);
-        await expect(businessRegistration.id).toBeForged();
+        await expect(businessRegistration.id).not.toBeForged();
     });
 });
