@@ -7,10 +7,10 @@ import { injectable, inject, Identifiers } from "../container";
 /**
  * @export
  * @abstract
- * @class AbstractServiceProvider
+ * @class ServiceProvider
  */
 @injectable()
-export abstract class AbstractServiceProvider {
+export abstract class ServiceProvider {
     /**
      * The application instance.
      *
@@ -26,7 +26,7 @@ export abstract class AbstractServiceProvider {
      *
      * @private
      * @type {PackageConfiguration}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     private packageConfiguration: PackageConfiguration;
 
@@ -44,7 +44,7 @@ export abstract class AbstractServiceProvider {
      *
      * @abstract
      * @returns {Promise<void>}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public abstract async register(): Promise<void>;
 
@@ -52,7 +52,7 @@ export abstract class AbstractServiceProvider {
      * Boot the service provider.
      *
      * @returns {Promise<void>}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public async boot(): Promise<void> {
         //
@@ -62,7 +62,7 @@ export abstract class AbstractServiceProvider {
      * Dispose the service provider.
      *
      * @returns {Promise<void>}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public async dispose(): Promise<void> {
         //
@@ -72,7 +72,7 @@ export abstract class AbstractServiceProvider {
      * Get the manifest of the service provider.
      *
      * @returns {PackageManifest}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public manifest(): PackageManifest {
         return this.packageManifest;
@@ -82,7 +82,7 @@ export abstract class AbstractServiceProvider {
      * Set the manifest of the service provider.
      *
      * @param {PackageManifest} manifest
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public setManifest(manifest: PackageManifest): void {
         this.packageManifest = manifest;
@@ -92,7 +92,7 @@ export abstract class AbstractServiceProvider {
      * Get the name of the service provider.
      *
      * @returns {string}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public name(): string {
         return this.packageManifest ? this.packageManifest.get("name") : undefined;
@@ -102,7 +102,7 @@ export abstract class AbstractServiceProvider {
      * Get the version of the service provider.
      *
      * @returns {string}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public version(): string {
         return this.packageManifest ? this.packageManifest.get("version") : undefined;
@@ -112,7 +112,7 @@ export abstract class AbstractServiceProvider {
      * Get the configuration of the service provider.
      *
      * @returns {PackageConfiguration}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public config(): PackageConfiguration {
         return this.packageConfiguration;
@@ -122,7 +122,7 @@ export abstract class AbstractServiceProvider {
      * Set the configuration of the service provider.
      *
      * @param {PackageConfiguration} config
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public setConfig(config: PackageConfiguration): void {
         this.packageConfiguration = config;
@@ -132,7 +132,7 @@ export abstract class AbstractServiceProvider {
      * Get the configuration defaults of the service provider.
      *
      * @returns {JsonObject}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public configDefaults(): JsonObject {
         return {};
@@ -142,7 +142,7 @@ export abstract class AbstractServiceProvider {
      * Get the configuration schema of the service provider.
      *
      * @returns {object}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public configSchema(): object {
         return {};
@@ -152,7 +152,7 @@ export abstract class AbstractServiceProvider {
      * Get the dependencies of the service provider.
      *
      * @returns {Kernel.PackageDependency[]}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public dependencies(): Kernel.PackageDependency[] {
         return [];
@@ -162,7 +162,7 @@ export abstract class AbstractServiceProvider {
      * Enable the service provider when the given conditions are met.
      *
      * @returns {Promise<boolean>}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public async enableWhen(): Promise<boolean> {
         return true;
@@ -172,7 +172,7 @@ export abstract class AbstractServiceProvider {
      * Disable the service provider when the given conditions are met.
      *
      * @returns {Promise<boolean>}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public async disableWhen(): Promise<boolean> {
         return false;
@@ -182,7 +182,7 @@ export abstract class AbstractServiceProvider {
      * Determine if the package is required, which influences how bootstrapping errors are handled.
      *
      * @returns {Promise<boolean>}
-     * @memberof AbstractServiceProvider
+     * @memberof ServiceProvider
      */
     public async required(): Promise<boolean> {
         return false;

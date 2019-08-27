@@ -8,7 +8,7 @@ import rfs from "rotating-file-stream";
 import split from "split2";
 import { PassThrough } from "stream";
 
-export class PinoLogger extends Services.Log.AbstractLogger {
+export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.Log.Logger {
     protected logger: pino.Logger;
     private fileStream: WriteStream;
 

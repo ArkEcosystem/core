@@ -9,7 +9,7 @@ import {
 } from "../../exceptions/packages";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
-import { AbstractServiceProvider, ServiceProviderRepository, PackageConfiguration } from "../../providers";
+import { ServiceProvider, ServiceProviderRepository, PackageConfiguration } from "../../providers";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
 import { injectable, inject, Identifiers } from "../../container";
@@ -81,11 +81,11 @@ export class RegisterServiceProviders implements Bootstrapper {
 
     /**
      * @private
-     * @param {AbstractServiceProvider} serviceProvider
+     * @param {ServiceProvider} serviceProvider
      * @returns {Promise<void>}
      * @memberof RegisterServiceProviders
      */
-    private async validateConfiguration(serviceProvider: AbstractServiceProvider): Promise<void> {
+    private async validateConfiguration(serviceProvider: ServiceProvider): Promise<void> {
         const configSchema: object = serviceProvider.configSchema();
 
         if (Object.keys(configSchema).length > 0) {
@@ -107,11 +107,11 @@ export class RegisterServiceProviders implements Bootstrapper {
 
     /**
      * @private
-     * @param {AbstractServiceProvider} serviceProvider
+     * @param {ServiceProvider} serviceProvider
      * @returns {Promise<boolean>}
      * @memberof RegisterProviders
      */
-    private async satisfiesDependencies(serviceProvider: AbstractServiceProvider): Promise<boolean> {
+    private async satisfiesDependencies(serviceProvider: ServiceProvider): Promise<boolean> {
         const dependencies: Kernel.PackageDependency[] = serviceProvider.dependencies();
 
         if (!dependencies) {

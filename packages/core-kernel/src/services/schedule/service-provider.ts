@@ -1,13 +1,13 @@
-import { AbstractServiceProvider } from "../../providers";
+import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { Schedule } from "./schedule";
 import { Identifiers } from "../../container";
 
 /**
  * @export
  * @class ServiceProvider
- * @extends {AbstractServiceProvider}
+ * @extends {ServiceProvider}
  */
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends BaseServiceProvider {
     /**
      * @returns {Promise<void>}
      * @memberof ServiceProvider

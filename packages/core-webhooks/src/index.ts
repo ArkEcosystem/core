@@ -3,7 +3,7 @@ import { database } from "./database";
 import { startListeners } from "./listener";
 import { startServer } from "./server";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         if (!this.config().get("enabled")) {
             this.app.log.info("Webhooks are disabled");

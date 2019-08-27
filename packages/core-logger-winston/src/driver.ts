@@ -3,7 +3,7 @@ import "colors";
 import * as winston from "winston";
 import { Transport, TransportStream } from "./interfaces";
 
-export class WinstonLogger extends Services.Log.AbstractLogger implements Contracts.Kernel.Log.Logger {
+export class WinstonLogger extends Services.Log.Logger implements Contracts.Kernel.Log.Logger {
     protected logger: winston.Logger;
 
     public constructor(private readonly opts: any) {

@@ -1,13 +1,13 @@
 import { Queue } from "../../contracts/kernel/queue";
-import { AbstractManager } from "../../support/manager";
+import { Manager } from "../../support/manager";
 import { Memory } from "./drivers/memory";
 
 /**
  * @export
  * @class QueueManager
- * @extends {AbstractManager<Queue>}
+ * @extends {Manager<Queue>}
  */
-export class QueueManager extends AbstractManager<Queue> {
+export class QueueManager extends Manager<Queue> {
     /**
      * Create an instance of the Memory driver.
      *

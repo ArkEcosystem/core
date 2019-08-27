@@ -5,7 +5,7 @@ import { Memory } from "./memory";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.log.info("Connecting to transaction pool");
 

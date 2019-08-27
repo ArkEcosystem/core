@@ -1,7 +1,7 @@
 import { Providers } from "@arkecosystem/core-kernel";
 import { Server } from "./server";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         if (!this.config().get("enabled")) {
             this.app.log.info("Public API is disabled");

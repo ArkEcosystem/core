@@ -1,7 +1,7 @@
 import { Providers, Container } from "@arkecosystem/core-kernel";
 import { ConnectionManager } from "./manager";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.log.info("Starting Database Manager");
 

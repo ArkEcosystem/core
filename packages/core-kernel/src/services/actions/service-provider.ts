@@ -1,8 +1,8 @@
-import { AbstractServiceProvider } from "../../providers";
+import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { Actions } from "./actions";
 import { Identifiers } from "../../container";
 
-export class ServiceProvider extends AbstractServiceProvider {
+export class ServiceProvider extends BaseServiceProvider {
     /**
      * Register the service provider.
      *

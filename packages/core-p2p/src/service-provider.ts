@@ -8,7 +8,7 @@ import { PeerService } from "./peer-service";
 import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind("p2p.options").toConstantValue(this.config().all());
 

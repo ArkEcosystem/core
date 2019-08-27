@@ -1,6 +1,6 @@
 import { JsonObject } from "../../types";
 import {
-    AbstractServiceProvider,
+    ServiceProvider,
     ServiceProviderRepository,
     PackageConfiguration,
     PackageManifest,
@@ -32,7 +32,7 @@ export class LoadServiceProviders implements Bootstrapper {
      */
     public async bootstrap(): Promise<void> {
         for (const [name, opts] of Object.entries(this.app.config<JsonObject>("packages"))) {
-            const serviceProvider: AbstractServiceProvider = this.app.resolve(require(name).ServiceProvider);
+            const serviceProvider: ServiceProvider = this.app.resolve(require(name).ServiceProvider);
             serviceProvider.setManifest(this.app.resolve(PackageManifest).discover(name));
             serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, opts as JsonObject));
 
@@ -44,12 +44,12 @@ export class LoadServiceProviders implements Bootstrapper {
      * Discover the configuration for the package of the given service provider.
      *
      * @private
-     * @param {AbstractServiceProvider} serviceProvider
+     * @param {ServiceProvider} serviceProvider
      * @param {JsonObject} opts
      * @returns {PackageConfiguration}
      * @memberof LoadServiceProviders
      */
-    private discoverConfiguration(serviceProvider: AbstractServiceProvider, opts: JsonObject): PackageConfiguration {
+    private discoverConfiguration(serviceProvider: ServiceProvider, opts: JsonObject): PackageConfiguration {
         const hasDefaults: boolean = Object.keys(serviceProvider.configDefaults()).length > 0;
 
         if (hasDefaults) {

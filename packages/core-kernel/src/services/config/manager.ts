@@ -1,15 +1,15 @@
 import { ConfigLoader } from "../../contracts/kernel/config";
-import { AbstractManager } from "../../support/manager";
+import { Manager } from "../../support/manager";
 import { Local, Remote } from "./drivers";
 import { injectable } from "../../container";
 
 /**
  * @export
  * @class ConfigManager
- * @extends {AbstractManager<ConfigLoader>}
+ * @extends {Manager<ConfigLoader>}
  */
 @injectable()
-export class ConfigManager extends AbstractManager<ConfigLoader> {
+export class ConfigManager extends Manager<ConfigLoader> {
     /**
      * Create an instance of the Local driver.
      *

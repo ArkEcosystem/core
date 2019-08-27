@@ -3,7 +3,7 @@ import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { PostgresConnection } from "./postgres-connection";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.log.info("Establishing Database Connection");
 

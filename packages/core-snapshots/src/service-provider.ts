@@ -2,7 +2,7 @@ import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "./manager";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         const manager = new SnapshotManager(this.config().all());
 

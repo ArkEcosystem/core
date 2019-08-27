@@ -1,13 +1,13 @@
 import { Logger } from "../../contracts/kernel/log";
-import { AbstractManager } from "../../support/manager";
+import { Manager } from "../../support/manager";
 import { Console } from "./drivers";
 
 /**
  * @export
  * @class LogManager
- * @extends {AbstractManager<Logger>}
+ * @extends {Manager<Logger>}
  */
-export class LogManager extends AbstractManager<Logger> {
+export class LogManager extends Manager<Logger> {
     /**
      * Create an instance of the Console driver.
      *

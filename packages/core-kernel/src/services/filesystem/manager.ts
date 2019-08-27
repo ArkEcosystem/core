@@ -1,13 +1,13 @@
 import { Filesystem } from "../../contracts/kernel/filesystem";
-import { AbstractManager } from "../../support/manager";
+import { Manager } from "../../support/manager";
 import { Local } from "./drivers/local";
 
 /**
  * @export
  * @class FilesystemManager
- * @extends {AbstractManager<Filesystem>}
+ * @extends {Manager<Filesystem>}
  */
-export class FilesystemManager extends AbstractManager<Filesystem> {
+export class FilesystemManager extends Manager<Filesystem> {
     /**
      * Create an instance of the Local driver.
      *

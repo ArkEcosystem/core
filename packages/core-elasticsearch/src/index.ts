@@ -3,7 +3,7 @@ import { client } from "./client";
 import { watchIndices } from "./indices";
 import { startServer } from "./server";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         if (
             typeof this.config().get("client") !== "object" ||

@@ -6,17 +6,17 @@ import { injectable, inject, Identifiers } from "../container";
 /**
  * @export
  * @abstract
- * @class AbstractManager
+ * @class Manager
  * @template T
  */
 @injectable()
-export abstract class AbstractManager<T> {
+export abstract class Manager<T> {
     /**
      * The application instance.
      *
      * @protected
      * @type {Kernel.Application}
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     @inject(Identifiers.Application)
     protected readonly app: Kernel.Application;
@@ -24,7 +24,7 @@ export abstract class AbstractManager<T> {
     /**
      * @private
      * @type {string}
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     private defaultDriver: string | undefined;
 
@@ -33,14 +33,14 @@ export abstract class AbstractManager<T> {
      *
      * @private
      * @type {Map<string, T>}
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     private drivers: Map<string, T> = new Map<string, T>();
 
     /**
      * Create a new manager instance.
      *
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     public constructor() {
         this.defaultDriver = this.getDefaultDriver();
@@ -49,7 +49,7 @@ export abstract class AbstractManager<T> {
     /**
      * Boot the default driver.
      *
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     public async boot(): Promise<void> {
         await this.createDriver(this.defaultDriver);
@@ -60,7 +60,7 @@ export abstract class AbstractManager<T> {
      *
      * @param {string} [name]
      * @returns {T}
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     public driver(name?: string): T {
         name = name || this.defaultDriver;
@@ -77,7 +77,7 @@ export abstract class AbstractManager<T> {
      *
      * @param {string} name
      * @param {(app: Kernel.Application) => T} callback
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     public async extend(name: string, callback: (app: Kernel.Application) => Promise<T>): Promise<void> {
         this.drivers.set(name, await callback(this.app));
@@ -87,7 +87,7 @@ export abstract class AbstractManager<T> {
      * Set the default driver name.
      *
      * @param {string} name
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     public setDefaultDriver(name: string): void {
         this.defaultDriver = name;
@@ -97,7 +97,7 @@ export abstract class AbstractManager<T> {
      * Get all of the created drivers.
      *
      * @returns {T[]}
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     public getDrivers(): T[] {
         return Object.values(this.drivers);
@@ -109,7 +109,7 @@ export abstract class AbstractManager<T> {
      * @protected
      * @abstract
      * @returns {string}
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     protected abstract getDefaultDriver(): string;
 
@@ -118,7 +118,7 @@ export abstract class AbstractManager<T> {
      *
      * @private
      * @param {string} name
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     private async createDriver(name: string): Promise<void> {
         const creatorFunction = `create${toStudlyCaps(name)}Driver`;

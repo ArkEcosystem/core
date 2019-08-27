@@ -1,22 +1,22 @@
-import { Logger } from "../../../contracts/kernel/log";
-import { AbstractLogger } from "../logger";
+import { Logger as LoggerContract } from "../../../contracts/kernel/log";
+import { Logger } from "../logger";
 import { injectable } from "../../../container";
 
 /**
  * @export
  * @class Console
- * @extends {AbstractLogger}
+ * @extends {Logger}
  * @implements {Logger}
  */
 @injectable()
-export class Console extends AbstractLogger implements Logger {
+export class Console extends Logger implements LoggerContract {
     /**
      * Create a new instance of the Console driver.
      *
-     * @returns {Promise<Logger>}
+     * @returns {Promise<LoggerContract>}
      * @memberof Console
      */
-    public async make(): Promise<Logger> {
+    public async make(): Promise<LoggerContract> {
         this.logger = console;
 
         return this;
@@ -25,7 +25,7 @@ export class Console extends AbstractLogger implements Logger {
     /**
      * @protected
      * @returns {Record<string, string>}
-     * @memberof AbstractLogger
+     * @memberof Console
      */
     protected getLevels(): Record<string, string> {
         return {

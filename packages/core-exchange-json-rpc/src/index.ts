@@ -2,7 +2,7 @@ import { Providers } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import { start } from "@arkecosystem/exchange-json-rpc";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         if (!this.config().get("enabled")) {
             this.app.log.info("Exchange JSON-RPC Server is disabled");

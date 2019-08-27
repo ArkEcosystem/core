@@ -1,7 +1,7 @@
 import { Providers } from "@arkecosystem/core-kernel";
 import raygun from "raygun";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app
             .bind("errorTracker")

@@ -1,5 +1,5 @@
 import { CacheStore } from "../../contracts/kernel/cache";
-import { AbstractManager } from "../../support/manager";
+import { Manager } from "../../support/manager";
 import { Memory } from "./drivers";
 
 /**
@@ -7,9 +7,9 @@ import { Memory } from "./drivers";
  *
  * @export
  * @class CacheManager
- * @extends {AbstractManager<CacheStore>}
+ * @extends {Manager<CacheStore>}
  */
-export class CacheManager extends AbstractManager<CacheStore> {
+export class CacheManager extends Manager<CacheStore> {
     /**
      * Create an instance of the Memory driver.
      *

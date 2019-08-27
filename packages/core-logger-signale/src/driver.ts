@@ -1,7 +1,7 @@
 import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Signale } from "signale";
 
-export class SignaleLogger extends Services.Log.AbstractLogger implements Contracts.Kernel.Log.Logger {
+export class SignaleLogger extends Services.Log.Logger implements Contracts.Kernel.Log.Logger {
     public constructor(private readonly opts: any) {
         super();
     }

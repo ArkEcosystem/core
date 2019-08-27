@@ -3,7 +3,7 @@ import { isWhitelisted } from "@arkecosystem/core-utils";
 import ip from "ip";
 import { startServer } from "./server";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         if (!isWhitelisted(this.app.get<any>("api.options").whitelist, ip.address())) {
             this.app.log.info("Wallet API is disabled");

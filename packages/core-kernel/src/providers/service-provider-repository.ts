@@ -1,4 +1,4 @@
-import { AbstractServiceProvider } from "./service-provider";
+import { ServiceProvider } from "./service-provider";
 import { injectable } from "../container";
 
 /**
@@ -11,12 +11,12 @@ export class ServiceProviderRepository {
      * All of the registered service providers.
      *
      * @private
-     * @type {Map<string, AbstractServiceProvider>}
+     * @type {Map<string, ServiceProvider>}
      * @memberof ServiceProviderRepository
      */
-    private readonly serviceProviders: Map<string, AbstractServiceProvider> = new Map<
+    private readonly serviceProviders: Map<string, ServiceProvider> = new Map<
         string,
-        AbstractServiceProvider
+        ServiceProvider
     >();
 
     /**
@@ -32,7 +32,7 @@ export class ServiceProviderRepository {
      * The names of the failed service providers.
      *
      * @private
-     * @type {Map<string, AbstractServiceProvider>}
+     * @type {Map<string, ServiceProvider>}
      * @memberof ServiceProviderRepository
      */
     private readonly failedProviders: Set<string> = new Set<string>();
@@ -41,42 +41,42 @@ export class ServiceProviderRepository {
      * The names of the deferred service providers.
      *
      * @private
-     * @type {Map<string, AbstractServiceProvider>}
+     * @type {Map<string, ServiceProvider>}
      * @memberof ServiceProviderRepository
      */
     private readonly deferredProviders: Set<string> = new Set<string>();
 
     /**
-     * @returns {Array<[string, AbstractServiceProvider]>}
+     * @returns {Array<[string, ServiceProvider]>}
      * @memberof ServiceProviderRepository
      */
-    public all(): Array<[string, AbstractServiceProvider]> {
+    public all(): Array<[string, ServiceProvider]> {
         return Array.from(this.serviceProviders.entries());
     }
 
     /**
-     * @returns {AbstractServiceProvider[]}
+     * @returns {ServiceProvider[]}
      * @memberof ServiceProviderRepository
      */
-    public allLoadedProviders(): AbstractServiceProvider[] {
+    public allLoadedProviders(): ServiceProvider[] {
         return Array.from(this.loadedProviders.values()).map((name: string) => this.get(name));
     }
 
     /**
      * @param {string} name
-     * @returns {AbstractServiceProvider}
+     * @returns {ServiceProvider}
      * @memberof ServiceProviderRepository
      */
-    public get(name: string): AbstractServiceProvider {
+    public get(name: string): ServiceProvider {
         return this.serviceProviders.get(name);
     }
 
     /**
      * @param {string} name
-     * @param {AbstractServiceProvider} provider
+     * @param {ServiceProvider} provider
      * @memberof ServiceProviderRepository
      */
-    public set(name: string, provider: AbstractServiceProvider): void {
+    public set(name: string, provider: ServiceProvider): void {
         this.serviceProviders.set(name, provider);
     }
 
@@ -135,7 +135,7 @@ export class ServiceProviderRepository {
     /**
      * Register the given provider.
      *
-     * @param {AbstractServiceProvider} provider
+     * @param {ServiceProvider} provider
      * @returns {Promise<void>}
      * @memberof ServiceProviderRepository
      */
@@ -146,7 +146,7 @@ export class ServiceProviderRepository {
     /**
      * Boot the given provider.
      *
-     * @param {AbstractServiceProvider} provider
+     * @param {ServiceProvider} provider
      * @returns {Promise<void>}
      * @memberof ServiceProviderRepository
      */
@@ -161,7 +161,7 @@ export class ServiceProviderRepository {
     /**
      * Dispose the given provider.
      *
-     * @param {AbstractServiceProvider} provider
+     * @param {ServiceProvider} provider
      * @returns {Promise<void>}
      * @memberof ServiceProviderRepository
      */

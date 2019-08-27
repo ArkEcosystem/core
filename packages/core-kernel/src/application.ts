@@ -6,7 +6,7 @@ import * as Bootstrappers from "./bootstrap";
 import * as Contracts from "./contracts";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { EventDispatcher } from "./services/events";
-import { AbstractServiceProvider, ServiceProviderRepository } from "./providers";
+import { ServiceProvider, ServiceProviderRepository } from "./providers";
 import { EventListener } from "./types/events";
 // import { ShutdownSignal } from "./enums/process";
 import { ConfigRepository } from "./services/config";
@@ -536,8 +536,8 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     private async disposeServiceProviders(): Promise<void> {
-        const serviceProviders: AbstractServiceProvider[] = this.container
-            .get<ServiceProviderRepository>(Identifiers.Repository.ServiceProviderRepository)
+        const serviceProviders: ServiceProvider[] = this.container
+            .get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
             .allLoadedProviders();
 
         for (const serviceProvider of serviceProviders.reverse()) {

@@ -3,7 +3,7 @@ import history from "connect-history-api-fallback";
 import express, { Handler } from "express";
 import { existsSync } from "fs";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         const distPath: string = this.config().get("path");
 

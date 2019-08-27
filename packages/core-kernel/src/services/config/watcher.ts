@@ -36,7 +36,7 @@ export class Watcher {
      *
      * @private
      * @type {Application}
-     * @memberof AbstractManager
+     * @memberof Manager
      */
     @inject(Identifiers.Application)
     private readonly app: Application;

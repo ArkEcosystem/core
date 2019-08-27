@@ -3,7 +3,7 @@ import { Blockchain } from "./blockchain";
 import { blockchainMachine } from "./machines/blockchain";
 import { ReplayBlockchain } from "./replay";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         const blockchain: Blockchain = this.config().get("replay")
             ? new ReplayBlockchain()

@@ -1,7 +1,7 @@
 import { Providers } from "@arkecosystem/core-kernel";
 import bugsnag, { Bugsnag } from "@bugsnag/js";
 
-export class ServiceProvider extends Providers.AbstractServiceProvider {
+export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         const apiKey: string = this.config().get("this.config().all()");
 
