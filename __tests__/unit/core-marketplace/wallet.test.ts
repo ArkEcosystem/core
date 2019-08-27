@@ -2,9 +2,9 @@ import "jest-extended";
 
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { IBusinessWalletAttributes } from "../../../packages/core-marketplace/src/interfaces";
 import { Utils } from "@arkecosystem/crypto";
 import { BusinessRegistrationTransactionHandler } from "../../../packages/core-marketplace/src/handlers";
+import { IBusinessWalletAttributes } from "../../../packages/core-marketplace/src/interfaces";
 
 describe("should test wallet", () => {
     it("should return the same data as added", () => {
