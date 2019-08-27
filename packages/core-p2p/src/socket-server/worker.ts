@@ -11,6 +11,8 @@ export class Worker extends SCWorker {
 
         await this.loadConfiguration();
 
+        // @ts-ignore
+        this.scServer.wsServer.on("connection", (ws, req) => this.handlePayload(ws, req));
         this.scServer.on("connection", socket => this.handleConnection(socket));
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
             this.handleHandshake(req, next),
@@ -52,6 +54,36 @@ export class Worker extends SCWorker {
                     },
                 ],
             },
+        });
+    }
+
+    private handlePayload(ws, req) {
+        ws.on("message", message => {
+            try {
+                const InvalidMessagePayloadError: Error = this.createError(
+                    SocketErrors.InvalidMessagePayload,
+                    "The message contained an invalid payload",
+                );
+                if (message === "#2") {
+                    const timeNow: number = new Date().getTime() / 1000;
+                    if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
+                        throw InvalidMessagePayloadError;
+                    }
+                    ws._lastPingTime = timeNow;
+                } else {
+                    const parsed = JSON.parse(message);
+                    if (
+                        typeof parsed.event !== "string" ||
+                        typeof parsed.data !== "object" ||
+                        (typeof parsed.cid !== "number" &&
+                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
+                    ) {
+                        throw InvalidMessagePayloadError;
+                    }
+                }
+            } catch (error) {
+                ws.terminate();
+            }
         });
     }
 
