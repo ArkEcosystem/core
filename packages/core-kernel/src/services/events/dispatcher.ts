@@ -35,7 +35,7 @@ export class EventDispatcher implements EventDispatcherContract {
      * @memberof EventDispatcher
      */
     public listenMany(events: Array<[EventName, EventListener]>): Map<EventName, () => void> {
-        const listeners: Map<EventName, () => void> = new Map();
+        const listeners: Map<EventName, () => void> = new Map<EventName, () => void>();
 
         for (const [event, listener] of events) {
             listeners.set(event, this.listen(event, listener));
@@ -50,29 +50,29 @@ export class EventDispatcher implements EventDispatcherContract {
      * @memberof EventDispatcher
      */
     public listenOnce(name: EventName, listener: EventListener): void {
-        const off: () => void = this.listen(name, (event, data) => {
+        const off: () => void = this.listen(name, data => {
             off();
 
-            listener(event, data);
+            listener(data);
         });
     }
 
     /**
      * @param {EventName} event
-     * @param {EventListener} listener
+     * @param {EventListener} [listener]
      * @memberof EventDispatcher
      */
-    public forget(event: EventName, listener: EventListener): void {
-        this.getListenersByEvent(event).delete(listener);
+    public forget(event: EventName, listener?: EventListener): void {
+        listener ? this.getListenersByEvent(event).delete(listener) : this.listeners.delete(event);
     }
 
     /**
      * @param {Array<[EventName, EventListener]>} events
      * @memberof EventDispatcher
      */
-    public forgetMany(events: Array<[EventName, EventListener]>): void {
-        for (const [event, listener] of events) {
-            this.forget(event, listener);
+    public forgetMany(events: EventName[] | Array<[EventName, EventListener]>): void {
+        for (const event of events) {
+            Array.isArray(event) ? this.forget(event[0], event[1]) : this.forget(event);
         }
     }
 
@@ -89,7 +89,7 @@ export class EventDispatcher implements EventDispatcherContract {
      * @memberof EventDispatcher
      */
     public getListeners(event?: EventName): EventListener[] {
-        return Array.from(this.getListenersByEvent(event));
+        return [...this.getListenersByPattern(event).values()];
     }
 
     /**
@@ -98,7 +98,25 @@ export class EventDispatcher implements EventDispatcherContract {
      * @memberof EventDispatcher
      */
     public hasListeners(event: EventName): boolean {
-        return this.getListenersByEvent(event).size > 0;
+        return this.getListenersByPattern(event).length > 0;
+    }
+
+    /**
+     * @param {EventName} event
+     * @returns {number}
+     * @memberof EventDispatcher
+     */
+    public countListeners(event?: EventName): number {
+        if (event) {
+            return this.getListenersByPattern(event).length;
+        }
+
+        let totalCount = 0;
+        for (const values of this.listeners.values()) {
+            totalCount += values.size;
+        }
+
+        return totalCount;
     }
 
     /**
@@ -113,10 +131,8 @@ export class EventDispatcher implements EventDispatcherContract {
 
         const resolvers: Array<Promise<void>> = [];
 
-        for (const [e, eventListeners] of this.getListenersByPattern(event).entries()) {
-            for (const listener of eventListeners) {
-                resolvers.push(new Promise(resolve => resolve(listener(e, data))));
-            }
+        for (const listener of this.getListenersByPattern(event)) {
+            resolvers.push(new Promise(resolve => resolve(listener({ name: event, data }))));
         }
 
         await Promise.all(resolvers);
@@ -132,11 +148,11 @@ export class EventDispatcher implements EventDispatcherContract {
     public async dispatchSeq<T = any>(event: EventName, data?: T): Promise<void> {
         await Promise.resolve();
 
-        for (const [e, eventListeners] of this.getListenersByPattern(event).entries()) {
-            for (const listener of eventListeners) {
-                // tslint:disable-next-line: await-promise
-                await listener(e, data);
-            }
+        for (const listener of this.getListenersByPattern(event)) {
+            await listener({
+                name: event,
+                data,
+            });
         }
     }
 
@@ -147,10 +163,11 @@ export class EventDispatcher implements EventDispatcherContract {
      * @memberof EventDispatcher
      */
     public dispatchSync<T = any>(event: EventName, data?: T): void {
-        for (const [e, eventListeners] of this.getListenersByPattern(event).entries()) {
-            for (const listener of eventListeners) {
-                listener(e, data);
-            }
+        for (const listener of this.getListenersByPattern(event)) {
+            listener({
+                name: event,
+                data,
+            });
         }
     }
 
@@ -195,7 +212,7 @@ export class EventDispatcher implements EventDispatcherContract {
      */
     private getListenersByEvent(name: EventName): Set<EventListener> {
         if (!this.listeners.has(name)) {
-            this.listeners.set(name, new Set());
+            this.listeners.set(name, new Set<EventListener>());
         }
 
         return this.listeners.get(name);
@@ -204,22 +221,26 @@ export class EventDispatcher implements EventDispatcherContract {
     /**
      * @private
      * @param {EventName} event
-     * @returns {Map<EventName, EventListener[]>}
+     * @returns {EventListener[]}
      * @memberof EventDispatcher
      */
-    private getListenersByPattern(event: EventName): Map<EventName, EventListener[]> {
+    private getListenersByPattern(event: EventName): EventListener[] {
         // @ts-ignore
         const matches: EventName[] = mm([...this.listeners.keys()], event);
 
-        const listeners: Map<EventName, EventListener[]> = new Map<EventName, EventListener[]>();
-        for (const match of matches) {
-            const eventListeners: Set<EventListener> = this.getListenersByEvent(match);
+        let eventListeners: EventListener[] = [];
+        if (this.listeners.has("*")) {
+            eventListeners = eventListeners.concat(Array.from(this.getListenersByEvent("*")));
+        }
 
-            if (eventListeners.size > 0) {
-                listeners.set(match, Array.from(eventListeners));
+        for (const match of matches) {
+            const matchListeners: Set<EventListener> = this.getListenersByEvent(match);
+
+            if (matchListeners.size > 0) {
+                eventListeners = eventListeners.concat(Array.from(matchListeners));
             }
         }
 
-        return listeners;
+        return eventListeners;
     }
 }

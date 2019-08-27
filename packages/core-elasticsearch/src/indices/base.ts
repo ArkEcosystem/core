@@ -18,7 +18,7 @@ export abstract class Index {
     public abstract listen(): void;
 
     protected registerListener(method: "create" | "delete", event: string): void {
-        this.emitter.listen(event, async (name, doc) => {
+        this.emitter.listen(event, async ({ name, data: doc }) => {
             try {
                 const exists: boolean = await this.exists(doc);
                 const shouldTakeAction: boolean = method === "create" ? !exists : exists;

@@ -51,11 +51,11 @@ export class RestoreCommand extends BaseCommand {
             cliProgress.Presets.shades_classic,
         );
 
-        emitter.listen("start", (_, data) => {
+        emitter.listen("start", ({ data }) => {
             progressBar.start(data.count, 1);
         });
 
-        emitter.listen("progress", (_, data) => {
+        emitter.listen("progress", ({ data }) => {
             progressBar.update(data.value);
         });
 

@@ -724,7 +724,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             this.stateStarted = true;
         });
 
-        this.emitter.listen(Enums.Events.State.WalletColdCreated, async (name, coldWallet) => {
+        this.emitter.listen(Enums.Events.State.WalletColdCreated, async ({ name, data: coldWallet }) => {
             try {
                 const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
 

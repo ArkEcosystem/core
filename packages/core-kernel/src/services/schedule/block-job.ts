@@ -31,7 +31,7 @@ export class BlockJob implements Job {
      * @memberof BlockJob
      */
     public execute(callback: () => void): void {
-        this.events.listen(State.BlockReceived, async (_, data: Interfaces.IBlockData) => {
+        this.events.listen(State.BlockReceived, async ({ data }: { data: Interfaces.IBlockData }) => {
             if (data.height % this.blockCount === 0) {
                 await callback();
             }

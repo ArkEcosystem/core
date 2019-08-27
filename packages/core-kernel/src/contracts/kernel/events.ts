@@ -37,10 +37,10 @@ export interface EventDispatcher {
      * Remove a listener from the dispatcher.
      *
      * @param {EventName} event
-     * @param {EventListener} listener
+     * @param {EventListener} [listener]
      * @memberof EventDispatcher
      */
-    forget(event: EventName, listener: EventListener): void;
+    forget(event: EventName, listener?: EventListener): void;
 
     /**
      * Remove many listeners from the dispatcher.
