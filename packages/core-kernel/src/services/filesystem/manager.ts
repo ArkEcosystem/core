@@ -1,6 +1,6 @@
 import { Filesystem } from "../../contracts/kernel/filesystem";
 import { Manager } from "../../support/manager";
-import { Local } from "./drivers/local";
+import { LocalFilesystem } from "./drivers/local";
 
 /**
  * @export
@@ -11,11 +11,12 @@ export class FilesystemManager extends Manager<Filesystem> {
     /**
      * Create an instance of the Local driver.
      *
+     * @protected
      * @returns {Promise<Filesystem>}
      * @memberof FilesystemManager
      */
-    public async createLocalDriver(): Promise<Filesystem> {
-        return this.app.resolve(Local).make();
+    protected async createLocalDriver(): Promise<Filesystem> {
+        return this.app.resolve(LocalFilesystem).make();
     }
 
     /**

@@ -123,6 +123,9 @@
         "coverageDirectory": "<rootDir>/.coverage",
         "collectCoverageFrom": [
             "packages/**/src/**/{!(index|service-provider),}.ts",
+            "!packages/**/src/**/contracts/**",
+            "!packages/**/src/**/enums/**",
+            "!packages/**/src/**/exceptions/**",
             "!**/node_modules/**"
         ],
         "coverageReporters": [

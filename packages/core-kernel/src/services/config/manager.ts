@@ -1,6 +1,6 @@
 import { ConfigLoader } from "../../contracts/kernel/config";
 import { Manager } from "../../support/manager";
-import { Local, Remote } from "./drivers";
+import { LocalConfigLoader, RemoteConfigLoader } from "./drivers";
 import { injectable } from "../../container";
 
 /**
@@ -13,21 +13,23 @@ export class ConfigManager extends Manager<ConfigLoader> {
     /**
      * Create an instance of the Local driver.
      *
+     * @protected
      * @returns {Promise<ConfigLoader>}
      * @memberof ConfigManager
      */
-    public async createLocalDriver(): Promise<ConfigLoader> {
-        return this.app.resolve(Local);
+    protected async createLocalDriver(): Promise<ConfigLoader> {
+        return this.app.resolve(LocalConfigLoader);
     }
 
     /**
      * Create an instance of the Remote driver.
      *
+     * @protected
      * @returns {Promise<ConfigLoader>}
      * @memberof ConfigManager
      */
-    public async createRemoteDriver(): Promise<ConfigLoader> {
-        return this.app.resolve(Remote);
+    protected async createRemoteDriver(): Promise<ConfigLoader> {
+        return this.app.resolve(RemoteConfigLoader);
     }
 
     /**

@@ -11,10 +11,11 @@ export class QueueManager extends Manager<Queue> {
     /**
      * Create an instance of the Memory driver.
      *
+     * @protected
      * @returns {Promise<Queue>}
      * @memberof QueueManager
      */
-    public async createMemoryDriver(): Promise<Queue> {
+    protected async createMemoryDriver(): Promise<Queue> {
         return this.app.resolve<Queue>(MemoryQueue);
     }
 

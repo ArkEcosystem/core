@@ -4,10 +4,10 @@ import { inject, Identifiers } from "../../../container";
 
 /**
  * @export
- * @class Remote
+ * @class RemoteConfigLoader
  * @implements {ConfigLoader}
  */
-export class Remote implements ConfigLoader {
+export class RemoteConfigLoader implements ConfigLoader {
     /**
      * The application instance.
      *
@@ -20,7 +20,7 @@ export class Remote implements ConfigLoader {
 
     /**
      * @returns {Promise<void>}
-     * @memberof Remote
+     * @memberof RemoteConfigLoader
      */
     public async loadConfiguration(): Promise<void> {
         // @todo
@@ -28,7 +28,7 @@ export class Remote implements ConfigLoader {
 
     /**
      * @returns {Promise<void>}
-     * @memberof Remote
+     * @memberof RemoteConfigLoader
      */
     public async loadEnvironmentVariables(): Promise<void> {
         // @todo

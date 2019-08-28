@@ -12,24 +12,24 @@ import { injectable, inject, Identifiers } from "../../../container";
 
 /**
  * @export
- * @class Local
+ * @class LocalConfigLoader
  * @implements {ConfigLoader}
  */
 @injectable()
-export class Local implements ConfigLoader {
+export class LocalConfigLoader implements ConfigLoader {
     /**
      * The application instance.
      *
      * @protected
      * @type {Application}
-     * @memberof Local
+     * @memberof LocalConfigLoader
      */
     @inject(Identifiers.Application)
     protected readonly app: Application;
 
     /**
      * @returns {Promise<void>}
-     * @memberof Local
+     * @memberof LocalConfigLoader
      */
     public async loadConfiguration(): Promise<void> {
         try {
@@ -45,7 +45,7 @@ export class Local implements ConfigLoader {
 
     /**
      * @returns {Promise<void>}
-     * @memberof Local
+     * @memberof LocalConfigLoader
      */
     public async loadEnvironmentVariables(): Promise<void> {
         // @todo: enable this after initial migration
@@ -67,7 +67,7 @@ export class Local implements ConfigLoader {
     /**
      * @private
      * @returns {Promise<void>}
-     * @memberof Local
+     * @memberof LocalConfigLoader
      */
     private async loadServiceProviders(): Promise<void> {
         this.app.config(
@@ -79,7 +79,7 @@ export class Local implements ConfigLoader {
     /**
      * @private
      * @returns {Promise<void>}
-     * @memberof Local
+     * @memberof LocalConfigLoader
      */
     private async loadPeers(): Promise<void> {
         this.app.config("peers", this.loadFromLocation([this.app.configPath("peers.json")]));
@@ -88,7 +88,7 @@ export class Local implements ConfigLoader {
     /**
      * @private
      * @returns {Promise<void>}
-     * @memberof Local
+     * @memberof LocalConfigLoader
      */
     private async loadDelegates(): Promise<void> {
         this.app.config("delegates", this.loadFromLocation([this.app.configPath("delegates.json")]));
@@ -98,7 +98,7 @@ export class Local implements ConfigLoader {
      * @private
      * @param {string[]} searchPlaces
      * @returns {JsonObject}
-     * @memberof Local
+     * @memberof LocalConfigLoader
      */
     private loadFromLocation(searchPlaces: string[]): JsonObject {
         return cosmiconfig(this.app.namespace(), {

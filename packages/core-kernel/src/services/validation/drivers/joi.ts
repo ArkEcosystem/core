@@ -6,17 +6,17 @@ import { injectable } from "../../../container";
 
 /**
  * @export
- * @class Joi
+ * @class JoiValidator
  * @implements {Validator}
  */
 @injectable()
-export class Joi implements Validator {
+export class JoiValidator implements Validator {
     /**
      * The data under validation.
      *
      * @private
      * @type {JsonObject}
-     * @memberof Joi
+     * @memberof JoiValidator
      */
     private data: JsonObject;
 
@@ -25,7 +25,7 @@ export class Joi implements Validator {
      *
      * @private
      * @type {(JsonObject | undefined)}
-     * @memberof Joi
+     * @memberof JoiValidator
      */
     private resultValue: JsonObject | undefined;
 
@@ -34,7 +34,7 @@ export class Joi implements Validator {
      *
      * @private
      * @type {(ValidationErrorItem[] | undefined)}
-     * @memberof Joi
+     * @memberof JoiValidator
      */
     private resultError: ValidationErrorItem[] | undefined;
 
@@ -43,7 +43,7 @@ export class Joi implements Validator {
      *
      * @param {JsonObject} data
      * @param {object} schema
-     * @memberof Joi
+     * @memberof JoiValidator
      */
     public validate(data: JsonObject, schema: object): void {
         this.data = data;
@@ -137,7 +137,7 @@ export class Joi implements Validator {
      * @private
      * @param {string} attribute
      * @returns {Record<string, string[]>}
-     * @memberof Joi
+     * @memberof JoiValidator
      */
     private groupErrors(attribute: string): Record<string, string[]> {
         const errors: Record<string, string[]> = {};

@@ -17,16 +17,16 @@ import { injectable } from "../../../container";
 
 /**
  * @export
- * @class Local
+ * @class LocalFilesystem
  * @implements {Filesystem}
  */
 @injectable()
-export class Local implements Filesystem {
+export class LocalFilesystem implements Filesystem {
     /**
      * Create a new instance of the filesystem.
      *
      * @returns {Promise<Filesystem>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async make(): Promise<Filesystem> {
         return this;
@@ -37,7 +37,7 @@ export class Local implements Filesystem {
      *
      * @param {string} path
      * @returns {Promise<boolean>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async exists(path: string): Promise<boolean> {
         return pathExists(path);
@@ -48,7 +48,7 @@ export class Local implements Filesystem {
      *
      * @param {string} path
      * @returns {Promise<Buffer>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async get(path: string): Promise<Buffer> {
         return readFile(path);
@@ -60,7 +60,7 @@ export class Local implements Filesystem {
      * @param {string} path
      * @param {string} contents
      * @returns {Promise<boolean>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async put(path: string, contents: string): Promise<boolean> {
         try {
@@ -77,7 +77,7 @@ export class Local implements Filesystem {
      *
      * @param {string} path
      * @returns {Promise<boolean>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async delete(path: string): Promise<boolean> {
         try {
@@ -95,7 +95,7 @@ export class Local implements Filesystem {
      * @param {string} from
      * @param {string} to
      * @returns {Promise<boolean>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async copy(from: string, to: string): Promise<boolean> {
         try {
@@ -113,7 +113,7 @@ export class Local implements Filesystem {
      * @param {string} from
      * @param {string} to
      * @returns {Promise<boolean>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async move(from: string, to: string): Promise<boolean> {
         try {
@@ -130,7 +130,7 @@ export class Local implements Filesystem {
      *
      * @param {string} path
      * @returns {Promise<number>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async size(path: string): Promise<number> {
         return (await stat(path)).size;
@@ -141,7 +141,7 @@ export class Local implements Filesystem {
      *
      * @param {string} path
      * @returns {Promise<number>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async lastModified(path: string): Promise<number> {
         return +(await stat(path)).mtime;
@@ -152,7 +152,7 @@ export class Local implements Filesystem {
      *
      * @param {string} directory
      * @returns {Promise<string[]>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async files(directory: string): Promise<string[]> {
         directory = resolve(directory);
@@ -167,7 +167,7 @@ export class Local implements Filesystem {
      *
      * @param {string} directory
      * @returns {Promise<string>[]}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async directories(directory: string): Promise<string[]> {
         directory = resolve(directory);
@@ -182,7 +182,7 @@ export class Local implements Filesystem {
      *
      * @param {*} path
      * @returns {Promise<boolean>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async makeDirectory(path): Promise<boolean> {
         try {
@@ -199,7 +199,7 @@ export class Local implements Filesystem {
      *
      * @param {string} directory
      * @returns {Promise<boolean>}
-     * @memberof Local
+     * @memberof LocalFilesystem
      */
     public async deleteDirectory(directory: string): Promise<boolean> {
         try {

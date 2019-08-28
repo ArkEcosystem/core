@@ -4,17 +4,17 @@ import { injectable } from "../../../container";
 
 /**
  * @export
- * @class Console
+ * @class ConsoleLogger
  * @extends {Logger}
  * @implements {Logger}
  */
 @injectable()
-export class Console extends Logger implements LoggerContract {
+export class ConsoleLogger extends Logger implements LoggerContract {
     /**
-     * Create a new instance of the Console driver.
+     * Create a new instance of the console driver.
      *
      * @returns {Promise<LoggerContract>}
-     * @memberof Console
+     * @memberof ConsoleLogger
      */
     public async make(): Promise<LoggerContract> {
         this.logger = console;
@@ -25,7 +25,7 @@ export class Console extends Logger implements LoggerContract {
     /**
      * @protected
      * @returns {Record<string, string>}
-     * @memberof Console
+     * @memberof ConsoleLogger
      */
     protected getLevels(): Record<string, string> {
         return {
