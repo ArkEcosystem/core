@@ -21,8 +21,8 @@ export class InternalTransactionType {
     public toString(): string {
         if (this.typeGroup === TransactionTypeGroup.Core) {
             return `Core/${this.type}`;
-        } else {
-            return `${this.typeGroup}/${this.type}`;
         }
+
+        return `${this.typeGroup}/${this.type}`;
     }
 }
