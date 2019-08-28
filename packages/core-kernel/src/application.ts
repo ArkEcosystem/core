@@ -1,4 +1,3 @@
-import { Constructor } from "awilix";
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import { join } from "path";
 import { JsonObject } from "./types";
@@ -12,6 +11,7 @@ import { ServiceProvider as EventServiceProvider } from "./services/events/servi
 import { ConfigRepository } from "./services/config";
 import { Bootstrapper } from "./bootstrap/interfaces";
 import { Identifiers } from "./container";
+import { Constructor } from "./types/container";
 
 /**
  * @export

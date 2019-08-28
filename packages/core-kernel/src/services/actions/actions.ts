@@ -1,4 +1,3 @@
-import { FunctionReturning } from "awilix";
 import { Action } from "./action";
 import { InvalidArgumentException } from "../../exceptions/logic";
 
@@ -10,18 +9,17 @@ export class Actions {
      * @type {Map<string, Action>}
      * @memberof Actions
      */
-    private readonly actions: Map<string, Action<unknown>> = new Map<string, Action<unknown>>();
+    private readonly actions: Map<string, Action> = new Map<string, Action>();
 
     /**
      * Register a new action.
      *
-     * @template T
      * @param {string} name
-     * @param {FunctionReturning<T>} fn
+     * @param {Function} fn
      * @returns {Action}
      * @memberof Actions
      */
-    public bind<T>(name: string, fn: FunctionReturning<T>): Action<T> {
+    public bind(name: string, fn: Function): Action {
         if (this.actions.has(name)) {
             throw new InvalidArgumentException(`The given action [${name}] is already registered.`);
         }
@@ -30,7 +28,7 @@ export class Actions {
             throw new InvalidArgumentException(`The given action [${name}] is reserved.`);
         }
 
-        const action: Action<T> = new Action<T>(fn);
+        const action: Action = new Action(fn);
         this.actions.set(name, action);
 
         return action;
@@ -43,10 +41,10 @@ export class Actions {
      * @returns {Action}
      * @memberof Actions
      */
-    public get<T>(name: string): Action<T> {
+    public get(name: string): Action {
         this.throwIfActionIsMissing(name);
 
-        return this.actions.get(name) as Action<T>;
+        return this.actions.get(name);
     }
 
     /**
@@ -65,7 +63,7 @@ export class Actions {
 
         let result: T | undefined;
         try {
-            result = (await this.actions.get(name).execute(args)) as T;
+            result = await this.actions.get(name).execute<T>(args);
         } catch {
             await this.callHooks("error", name);
         }
@@ -85,7 +83,7 @@ export class Actions {
      * @memberof Actions
      */
     private async callHooks(type: string, action: string): Promise<void> {
-        const hooks: Set<FunctionReturning<void>> = this.actions.get(action).hooks(type);
+        const hooks: Set<Function> = this.actions.get(action).hooks(type);
 
         if (!hooks.size) {
             return;

@@ -1,66 +1,64 @@
-import { FunctionReturning } from "awilix";
-
-export class Action<T> {
+export class Action {
     /**
      * @private
-     * @type {Set<FunctionReturning<void>>}
+     * @type {Set<Function>}
      * @memberof Action
      */
-    private readonly beforeHooks: Set<FunctionReturning<void>> = new Set<FunctionReturning<void>>();
+    private readonly beforeHooks: Set<Function> = new Set<Function>();
 
     /**
      * @private
-     * @type {Set<FunctionReturning<void>>}
+     * @type {Set<Function>}
      * @memberof Action
      */
-    private readonly errorHooks: Set<FunctionReturning<void>> = new Set<FunctionReturning<void>>();
+    private readonly errorHooks: Set<Function> = new Set<Function>();
 
     /**
      * @private
-     * @type {Set<FunctionReturning<void>>}
+     * @type {Set<Function>}
      * @memberof Action
      */
-    private readonly afterHooks: Set<FunctionReturning<void>> = new Set<FunctionReturning<void>>();
+    private readonly afterHooks: Set<Function> = new Set<Function>();
 
     /**
-     * @param {FunctionReturning<void>} fn
+     * @param {Function} fn
      * @memberof Action
      */
-    public constructor(private readonly fn: FunctionReturning<T>) {}
+    public constructor(private readonly fn: Function) {}
 
     /**
-     * @returns {FunctionReturning<void>}
+     * @returns {Function}
      * @memberof Action
      */
-    public execute(...args: any[]): T {
+    public execute<T>(...args: any[]): T {
         return this.fn(args);
     }
 
     /**
-     * @param {FunctionReturning<void>} fn
+     * @param {Function} fn
      * @memberof Action
      */
-    public before(fn: FunctionReturning<void>): this {
+    public before(fn: Function): this {
         this.beforeHooks.add(fn);
 
         return this;
     }
 
     /**
-     * @param {FunctionReturning<void>} fn
+     * @param {Function} fn
      * @memberof Action
      */
-    public error(fn: FunctionReturning<void>): this {
+    public error(fn: Function): this {
         this.errorHooks.add(fn);
 
         return this;
     }
 
     /**
-     * @param {FunctionReturning<void>} fn
+     * @param {Function} fn
      * @memberof Action
      */
-    public after(fn: FunctionReturning<void>): this {
+    public after(fn: Function): this {
         this.afterHooks.add(fn);
 
         return this;
@@ -68,10 +66,10 @@ export class Action<T> {
 
     /**
      * @param {string} type
-     * @returns {Set<FunctionReturning<void>>}
+     * @returns {Set<Function>}
      * @memberof Action
      */
-    public hooks(type: string): Set<FunctionReturning<void>> {
+    public hooks(type: string): Set<Function> {
         return this[`${type}Hooks`];
     }
 }
