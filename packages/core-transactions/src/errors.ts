@@ -49,6 +49,12 @@ export class UnexpectedNonceError extends TransactionError {
     }
 }
 
+export class ZeroDatabaseBalanceError extends TransactionError {
+    constructor() {
+        super(`Insufficient balance in database wallet. Wallet is not allowed to spend before funding is confirmed.`);
+    }
+}
+
 export class InsufficientBalanceError extends TransactionError {
     constructor() {
         super(`Insufficient balance in the wallet.`);
