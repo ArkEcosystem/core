@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
-import { Crypto, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export class Memory {
@@ -15,7 +15,8 @@ export class Memory {
     private allIsSorted: boolean = true;
     private byId: { [key: string]: Interfaces.ITransaction } = {};
     private bySender: { [key: string]: Set<Interfaces.ITransaction> } = {};
-    private byType: { [key: number]: Set<Interfaces.ITransaction> } = {};
+    private byType: Map<Transactions.InternalTransactionType, Set<Interfaces.ITransaction>> = new Map();
+
     /**
      * Contains only transactions that expire, possibly sorted by height (lower first).
      */
@@ -117,9 +118,14 @@ export class Memory {
         return this.byId[id];
     }
 
-    public getByType(type: number): Set<Interfaces.ITransaction> {
-        if (this.byType[type] !== undefined) {
-            return this.byType[type];
+    public getByType(type: number, typeGroup: number): Set<Interfaces.ITransaction> {
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+
+        if (this.byType.has(internalType)) {
+            return this.byType.get(internalType);
         }
 
         return new Set();
@@ -142,7 +148,7 @@ export class Memory {
         this.byId[transaction.id] = transaction;
 
         const sender: string = transaction.data.senderPublicKey;
-        const type: number = transaction.type;
+        const { type, typeGroup } = transaction;
 
         if (this.bySender[sender] === undefined) {
             // First transaction from this sender, create a new Set.
@@ -152,12 +158,16 @@ export class Memory {
             this.bySender[sender].add(transaction);
         }
 
-        if (this.byType[type] === undefined) {
-            // First transaction of this type, create a new Set.
-            this.byType[type] = new Set([transaction]);
-        } else {
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+        if (this.byType.has(internalType)) {
             // Append to existing transaction ids for this type.
-            this.byType[type].add(transaction);
+            this.byType.get(internalType).add(transaction);
+        } else {
+            // First transaction of this type, create a new Set.
+            this.byType.set(internalType, new Set([transaction]));
         }
 
         const currentHeight: number = this.currentHeight();
@@ -194,7 +204,7 @@ export class Memory {
         }
 
         const transaction: Interfaces.ITransaction = this.byId[id];
-        const type: number = this.byId[id].type;
+        const { type, typeGroup } = this.byId[id];
 
         // XXX worst case: O(n)
         let i: number = this.byExpiration.findIndex(e => e.id === id);
@@ -207,9 +217,13 @@ export class Memory {
             delete this.bySender[senderPublicKey];
         }
 
-        this.byType[type].delete(transaction);
-        if (this.byType[type].size === 0) {
-            delete this.byType[type];
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+        this.byType.get(internalType).delete(transaction);
+        if (this.byType.get(internalType).size === 0) {
+            this.byType.delete(internalType);
         }
 
         delete this.byId[id];
@@ -238,7 +252,7 @@ export class Memory {
         this.allIsSorted = true;
         this.byId = {};
         this.bySender = {};
-        this.byType = {};
+        this.byType.clear();
         this.byExpiration = [];
         this.byExpirationIsSorted = true;
         this.dirty.added.clear();

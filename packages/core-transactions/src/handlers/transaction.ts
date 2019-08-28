@@ -119,7 +119,11 @@ export abstract class TransactionHandler implements ITransactionHandler {
             if (!dbSender.verifySignatures(data, dbSender.getAttribute("multiSignature"))) {
                 throw new InvalidMultiSignatureError();
             }
-        } else if (transaction.type !== Enums.TransactionType.MultiSignature && transaction.data.signatures) {
+        } else if (
+            transaction.data.signatures &&
+            (transaction.type !== Enums.TransactionType.MultiSignature ||
+                transaction.typeGroup !== Enums.TransactionTypeGroup.Core)
+        ) {
             throw new UnexpectedMultiSignatureError();
         }
     }

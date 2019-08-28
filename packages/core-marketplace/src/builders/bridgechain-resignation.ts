@@ -1,22 +1,20 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../enums";
 import { BridgechainResignationTransaction } from "../transactions";
-
-const bridgechainResignationType: number = MarketplaceTransactionTypes.BridgechainResignation;
 
 export class BridgechainResignationBuilder extends Transactions.TransactionBuilder<BridgechainResignationBuilder> {
     constructor() {
         super();
         this.data.version = 2;
-        this.data.typeGroup = MarketplaceTransactionsGroup;
-        this.data.type = bridgechainResignationType;
+        this.data.typeGroup = MarketplaceTransactionGroup;
+        this.data.type = MarketplaceTransactionType.BridgechainResignation;
         this.data.fee = BridgechainResignationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
         this.data.asset = { bridgechainResignation: {} };
     }
 
-    public businessResignationAsset(registeredBridgechainId: string): BridgechainResignationBuilder {
-        this.data.asset.bridgechainResignation.registeredBridgechainId = registeredBridgechainId;
+    public businessResignationAsset(bridgechainId: string | Utils.BigNumber): BridgechainResignationBuilder {
+        this.data.asset.bridgechainResignation.bridgechainId = bridgechainId;
         return this;
     }
 

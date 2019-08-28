@@ -9,7 +9,7 @@ import {
 } from "../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
-const { TransactionType } = Enums;
+const { TransactionType, TransactionTypeGroup } = Enums;
 
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
@@ -122,7 +122,12 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         const { username }: { username: string } = data.asset.delegate;
         const delegateRegistrationsSameNameInPayload = processor
             .getTransactions()
-            .filter(tx => tx.type === TransactionType.DelegateRegistration && tx.asset.delegate.username === username);
+            .filter(
+                transaction =>
+                    transaction.type === TransactionType.DelegateRegistration &&
+                    (transaction.typeGroup === undefined || transaction.typeGroup === TransactionTypeGroup.Core) &&
+                    transaction.asset.delegate.username === username,
+            );
 
         if (delegateRegistrationsSameNameInPayload.length > 1) {
             processor.pushError(

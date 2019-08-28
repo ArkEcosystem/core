@@ -11,6 +11,7 @@ module.exports = {
             password: process.env.CORE_DB_PASSWORD || "password",
         },
     },
+    "@arkecosystem/core-marketplace":{},
     "@arkecosystem/core-transaction-pool": {
         enabled: true,
         maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 300,
@@ -64,5 +65,4 @@ module.exports = {
         whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     },
     "@arkecosystem/core-snapshots": {},
-    "@arkecosystem/core-marketplace":{}
 };

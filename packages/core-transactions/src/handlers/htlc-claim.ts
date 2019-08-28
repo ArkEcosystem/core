@@ -111,7 +111,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             if (!sender.verifySignatures(data, sender.getAttribute("multiSignature"))) {
                 throw new InvalidMultiSignatureError();
             }
-        } else if (transaction.type !== Enums.TransactionType.MultiSignature && transaction.data.signatures) {
+        } else if (
+            transaction.data.signatures &&
+            (transaction.type !== Enums.TransactionType.MultiSignature ||
+                transaction.typeGroup !== Enums.TransactionTypeGroup.Core)
+        ) {
             throw new UnexpectedMultiSignatureError();
         }
 

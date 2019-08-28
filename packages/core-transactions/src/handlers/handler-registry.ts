@@ -86,7 +86,7 @@ export class TransactionHandlerRegistry {
             return;
         }
 
-        if (!(type in Enums.TransactionType)) {
+        if (typeGroup !== Enums.TransactionTypeGroup.Core) {
             Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
         }
 

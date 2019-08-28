@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
+import { Builders as MarketplaceBuilders, Interfaces as MarketplaceInterfaces } from "@arkecosystem/core-marketplace";
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
 import { secrets } from "../utils/config/testnet/delegates.json";
 
@@ -111,6 +112,46 @@ export class TransactionFactory {
             builder.addPayment(payment.recipientId, payment.amount);
         }
         return new TransactionFactory(builder);
+    }
+
+    public static businessRegistration(
+        businessRegistrationAsset: MarketplaceInterfaces.IBusinessRegistrationAsset,
+    ): TransactionFactory {
+        const businessRegistrationBuilder = new MarketplaceBuilders.BusinessRegistrationBuilder();
+        businessRegistrationBuilder.businessRegistrationAsset(businessRegistrationAsset);
+        return new TransactionFactory(businessRegistrationBuilder);
+    }
+
+    public static businessResignation(): TransactionFactory {
+        return new TransactionFactory(new MarketplaceBuilders.BusinessResignationBuilder());
+    }
+
+    public static businessUpdate(businessUpdateAsset: MarketplaceInterfaces.IBusinessUpdateAsset): TransactionFactory {
+        const businessUpdateBuilder = new MarketplaceBuilders.BusinessUpdateBuilder();
+        businessUpdateBuilder.businessUpdateAsset(businessUpdateAsset);
+        return new TransactionFactory(businessUpdateBuilder);
+    }
+
+    public static bridgechainRegistration(
+        bridgechainRegistrationAsset: MarketplaceInterfaces.IBridgechainRegistrationAsset,
+    ): TransactionFactory {
+        const bridgechainRegistrationBuilder = new MarketplaceBuilders.BridgechainRegistrationBuilder();
+        bridgechainRegistrationBuilder.bridgechainRegistrationAsset(bridgechainRegistrationAsset);
+        return new TransactionFactory(bridgechainRegistrationBuilder);
+    }
+
+    public static bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
+        const bridgechainResignationBuilder = new MarketplaceBuilders.BridgechainResignationBuilder();
+        bridgechainResignationBuilder.businessResignationAsset(registeredBridgechainId);
+        return new TransactionFactory(bridgechainResignationBuilder);
+    }
+
+    public static bridgechainUpdate(
+        bridgechainUpdateAsset: MarketplaceInterfaces.IBridgechainUpdateAsset,
+    ): TransactionFactory {
+        const bridgechainUpdateBuilder = new MarketplaceBuilders.BridgechainUpdateBuilder();
+        bridgechainUpdateBuilder.bridgechainUpdateAsset(bridgechainUpdateAsset);
+        return new TransactionFactory(bridgechainUpdateBuilder);
     }
 
     public static getNonce(publicKey: string): Utils.BigNumber {

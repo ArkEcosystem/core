@@ -2,10 +2,10 @@ import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../enums";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessWalletProperty } from "../interfaces";
-import { MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { IBusinessRegistrationAsset, IBusinessUpdateAsset, IBusinessWalletAttributes } from "../interfaces";
 import { BusinessUpdateTransaction } from "../transactions";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -27,24 +27,22 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
+            this.getConstructor().type,
+            this.getConstructor().typeGroup,
+        );
         for (const transaction of transactions) {
-            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const businessWalletAsset = wallet.getAttribute<IBusinessWalletProperty>("business").businessAsset;
-            const { name, website, vat, organizationRepository } = transaction.asset.businessUpdate;
-            if (name) {
-                businessWalletAsset.name = name;
-            }
-            if (website) {
-                businessWalletAsset.website = website;
-            }
-            if (vat) {
-                businessWalletAsset.vat = vat;
-            }
-            if (organizationRepository) {
-                businessWalletAsset.organizationRepository = organizationRepository;
-            }
-            wallet.setAttribute("business.businessAsset", businessWalletAsset);
+            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+
+            const businessWalletAsset: IBusinessRegistrationAsset = wallet.getAttribute<IBusinessWalletAttributes>(
+                "business",
+            ).businessAsset;
+            const businessUpdate: IBusinessUpdateAsset = transaction.asset.businessUpdate as IBusinessUpdateAsset;
+
+            wallet.setAttribute("business.businessAsset", {
+                ...businessWalletAsset,
+                ...businessUpdate,
+            });
         }
     }
 
@@ -57,7 +55,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             throw new BusinessIsNotRegisteredError();
         }
 
-        if (wallet.getAttribute("business.resigned") === true) {
+        if (wallet.getAttribute<IBusinessWalletAttributes>("business").resigned) {
             throw new BusinessIsResignedError();
         }
 
@@ -82,22 +80,16 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
 
-        const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessWalletAsset = sender.getAttribute<IBusinessWalletProperty>("business").businessAsset;
-        const { name, website, vat, github } = transaction.data.asset.businessUpdate;
-        if (name) {
-            businessWalletAsset.name = name;
-        }
-        if (website) {
-            businessWalletAsset.website = website;
-        }
-        if (vat) {
-            businessWalletAsset.vat = vat;
-        }
-        if (github) {
-            businessWalletAsset.organizationRepository = github;
-        }
-        sender.setAttribute("business.businessAsset", businessWalletAsset);
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const businessWalletAsset: IBusinessRegistrationAsset = sender.getAttribute<IBusinessWalletAttributes>(
+            "business",
+        ).businessAsset;
+        const businessUpdate: IBusinessUpdateAsset = transaction.data.asset.businessUpdate;
+
+        sender.setAttribute("business.businessAsset", {
+            ...businessWalletAsset,
+            ...businessUpdate,
+        });
     }
 
     public async revertForSender(
@@ -105,44 +97,38 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         walletManager: State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
-        const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessWalletAsset = sender.getAttribute<IBusinessWalletProperty>("business").businessAsset;
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        let businessWalletAsset: IBusinessRegistrationAsset = sender.getAttribute<IBusinessWalletAttributes>("business")
+            .businessAsset;
 
-        const transactionsRepository = app.resolvePlugin<Database.IConnection>("database").transactionsRepository;
-        const updateTransactions = await transactionsRepository.getAssetsByType(
-            MarketplaceTransactionTypes.BusinessUpdate,
+        const transactionsRepository: Database.ITransactionsRepository = app.resolvePlugin<Database.IConnection>(
+            "database",
+        ).transactionsRepository;
+        const updateTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
+            MarketplaceTransactionType.BusinessUpdate,
+            MarketplaceTransactionGroup,
         );
 
-        if (Array.isArray(updateTransactions) && updateTransactions.length > 1) {
-            const updateTransaction = updateTransactions.pop();
-            const { name, website, vat, organizationRepository } = updateTransaction.asset.businessUpdate;
-            if (name) {
-                businessWalletAsset.name = name;
-            }
-            if (website) {
-                businessWalletAsset.website = website;
-            }
-            if (vat) {
-                businessWalletAsset.vat = vat;
-            }
-            if (organizationRepository) {
-                businessWalletAsset.organizationRepository = organizationRepository;
-            }
-        } else {
-            const registerTransactions = await transactionsRepository.getAssetsByType(
-                MarketplaceTransactionTypes.BusinessRegistration,
-            );
-            const registerTransaction = registerTransactions.pop();
+        if (updateTransactions.length > 0) {
+            const updateTransaction: Database.IBootstrapTransaction = updateTransactions.pop();
+            const previousUpdate: IBusinessUpdateAsset = updateTransaction.asset.businessUpdate;
 
-            const { name, website, vat, organizationRepository } = registerTransaction.asset.businessRegistration;
-            businessWalletAsset.name = name;
-            businessWalletAsset.website = website;
-            if (vat) {
-                businessWalletAsset.vat = vat;
-            }
-            if (organizationRepository) {
-                businessWalletAsset.organizationRepository = organizationRepository;
-            }
+            businessWalletAsset = {
+                ...businessWalletAsset,
+                ...previousUpdate,
+            };
+        } else {
+            const registerTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
+                MarketplaceTransactionType.BusinessRegistration,
+                MarketplaceTransactionGroup,
+            );
+
+            const registerTransaction: Database.IBootstrapTransaction = registerTransactions.pop();
+            const previousRegistration: IBusinessRegistrationAsset = registerTransaction.asset.businessRegistration;
+            businessWalletAsset = {
+                ...businessWalletAsset,
+                ...previousRegistration,
+            };
         }
 
         sender.setAttribute("business.businessAsset", businessWalletAsset);
@@ -152,11 +138,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

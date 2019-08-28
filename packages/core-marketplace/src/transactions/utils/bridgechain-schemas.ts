@@ -1,11 +1,4 @@
-export const registeredBridgechainIdProperty = {
-    type: "string",
-    minLength: 64,
-    maxLength: 64,
-    $ref: "transactionId",
-};
-
-export const seedNodesProperties = {
+export const seedNodesSchema = {
     type: "array",
     minItems: 1,
     maxItems: 10,

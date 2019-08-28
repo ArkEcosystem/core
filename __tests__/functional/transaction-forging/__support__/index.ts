@@ -22,12 +22,12 @@ export const setUp = async (): Promise<void> => {
                 "@arkecosystem/core-logger-pino",
                 "@arkecosystem/core-state",
                 "@arkecosystem/core-database-postgres",
+                "@arkecosystem/core-marketplace",
                 "@arkecosystem/core-transaction-pool",
                 "@arkecosystem/core-p2p",
                 "@arkecosystem/core-blockchain",
                 "@arkecosystem/core-api",
                 "@arkecosystem/core-forger",
-                "@arkecosystem/core-marketplace",
             ],
         });
 

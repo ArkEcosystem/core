@@ -1,10 +1,11 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MarketplaceAplicationEvents } from "../events";
-import { IBusinessWalletProperty } from "../interfaces";
+import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransaction } from "../transactions";
+import { MarketplaceIndex } from "../wallet-manager";
 
 export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
@@ -30,14 +31,18 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
-
+        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
+            this.getConstructor().type,
+            this.getConstructor().typeGroup,
+        );
         for (const transaction of transactions) {
-            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const businessProperty: IBusinessWalletProperty = {
+            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const asset: IBusinessWalletAttributes = {
                 businessAsset: transaction.asset.businessRegistration,
+                businessId: this.getBusinessId(walletManager),
             };
-            wallet.setAttribute<IBusinessWalletProperty>("business", businessProperty);
+
+            wallet.setAttribute<IBusinessWalletAttributes>("business", asset);
             walletManager.reindex(wallet);
         }
     }
@@ -47,7 +52,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        if (wallet.hasAttribute("business") && wallet.getAttribute("business.resigned") !== true) {
+        if (wallet.hasAttribute("business")) {
             throw new BusinessAlreadyRegisteredError();
         }
 
@@ -82,11 +87,12 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessProperty: IBusinessWalletProperty = {
+        const businessAsset: IBusinessWalletAttributes = {
             businessAsset: transaction.data.asset.businessRegistration,
+            businessId: this.getBusinessId(walletManager),
         };
-        sender.setAttribute<IBusinessWalletProperty>("business", businessProperty);
 
+        sender.setAttribute<IBusinessWalletAttributes>("business", businessAsset);
         walletManager.reindex(sender);
     }
 
@@ -99,7 +105,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         sender.forgetAttribute("business");
 
-        walletManager.forgetByIndex("byBusiness", sender.publicKey);
+        walletManager.forgetByIndex(MarketplaceIndex.Businesses, sender.publicKey);
     }
 
     public async applyToRecipient(
@@ -113,4 +119,8 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         walletManager: State.IWalletManager,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
+
+    private getBusinessId(walletManager: State.IWalletManager): Utils.BigNumber {
+        return Utils.BigNumber.make(walletManager.getIndex(MarketplaceIndex.Businesses).all().length).plus(1);
+    }
 }

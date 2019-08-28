@@ -1,15 +1,13 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { MarketplaceTransactionsGroup, MarketplaceTransactionTypes } from "../marketplace-transactions";
+import { MarketplaceTransactionGroup, MarketplaceTransactionType } from "../enums";
 import { BusinessResignationTransaction } from "../transactions";
-
-const businessResignationType: number = MarketplaceTransactionTypes.BusinessResignation;
 
 export class BusinessResignationBuilder extends Transactions.TransactionBuilder<BusinessResignationBuilder> {
     constructor() {
         super();
         this.data.version = 2;
-        this.data.typeGroup = MarketplaceTransactionsGroup;
-        this.data.type = businessResignationType;
+        this.data.typeGroup = MarketplaceTransactionGroup;
+        this.data.type = MarketplaceTransactionType.BusinessResignation;
         this.data.fee = BusinessResignationTransaction.staticFee();
         this.data.amount = Utils.BigNumber.ZERO;
         this.data.asset = { businessResignation: {} };

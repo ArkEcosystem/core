@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import "./mocks/core-container";
+import { container } from "./mocks/core-container";
 
 import ByteBuffer from "bytebuffer";
 
@@ -25,6 +25,9 @@ beforeAll(async () => {
 
     const maxTransactionAge = 2700;
     memory = new Memory(maxTransactionAge);
+
+    container.app.resolvePlugin("database").walletManager = new Wallets.WalletManager();
+
     poolWalletManager = new WalletManager();
     connection = new Connection({
         options: defaults,
