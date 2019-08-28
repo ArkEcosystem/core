@@ -4,6 +4,7 @@ import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { Transactions } from "@arkecosystem/crypto";
+import { getPeerConfig } from "../../../packages/core-p2p/src/socket-server/utils/get-peer-config";
 import { BlockFactory } from "../../helpers";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -17,6 +18,20 @@ let socketManager: MockSocketManager;
 
 let storage: P2P.IPeerStorage;
 let communicator: P2P.IPeerCommunicator;
+
+const blockHeader = {
+    height: 1,
+    id: "123456",
+    timestamp: 0,
+    totalAmount: "0",
+    totalFee: "0",
+    reward: "0",
+    // tslint:disable-next-line: no-null-keyword
+    previousBlock: null,
+    generatorPublicKey: "03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068",
+    blockSignature:
+        "304402202fe5de5697fa25d3d3c0cb24617ac02ddfb1c915ee9194a89f8392f948c6076402200d07c5244642fe36afa53fb2d048735f1adfa623e8fa4760487e5f72e17d253b",
+};
 
 beforeAll(async () => {
     socketManager = new MockSocketManager();
@@ -102,12 +117,9 @@ describe("PeerCommunicator", () => {
                     height: 1,
                     forgingAllowed: true,
                     currentSlot: 1,
-                    header: {
-                        height: 1,
-                        id: "123456",
-                    },
+                    header: Object.assign({}, blockHeader),
                 },
-                config: { plugins: {} },
+                config: getPeerConfig(),
             };
 
             await socketManager.addMock("getStatus", mockStatus);
@@ -115,6 +127,9 @@ describe("PeerCommunicator", () => {
             process.env.CORE_SKIP_PEER_STATE_VERIFICATION = "true";
 
             const status = await communicator.ping(stubPeer, 1000);
+            status.header.totalAmount = status.header.totalAmount.toFixed();
+            status.header.totalFee = status.header.totalFee.toFixed();
+            status.header.reward = status.header.reward.toFixed();
 
             expect(status).toEqual(mockStatus.state);
         });
@@ -135,12 +150,9 @@ describe("PeerCommunicator", () => {
                     height: 1,
                     forgingAllowed: true,
                     currentSlot: 1,
-                    header: {
-                        height: 1,
-                        id: "123456",
-                    },
+                    header: Object.assign({}, blockHeader),
                 },
-                config: { plugins: {} },
+                config: getPeerConfig(),
             });
 
             stubPeer.lastPinged = undefined;
