@@ -1,1 +1,2 @@
-export * from "./dispatcher";
+export * from "./service-provider";
+export * from "./manager";

@@ -1,5 +1,5 @@
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
-import { LogManager } from "./manager";
+import { EventDispatcherManager } from "./manager";
 import { Identifiers, interfaces } from "../../container";
 
 export class ServiceProvider extends BaseServiceProvider {
@@ -11,16 +11,16 @@ export class ServiceProvider extends BaseServiceProvider {
      */
     public async register(): Promise<void> {
         this.app
-            .bind<LogManager>(Identifiers.LogManager)
-            .to(LogManager)
+            .bind<EventDispatcherManager>(Identifiers.EventDispatcherManager)
+            .to(EventDispatcherManager)
             .inSingletonScope();
 
-        await this.app.get<LogManager>(Identifiers.LogManager).boot();
+        await this.app.get<EventDispatcherManager>(Identifiers.EventDispatcherManager).boot();
 
         this.app
-            .bind(Identifiers.LogService)
+            .bind(Identifiers.EventDispatcherService)
             .toDynamicValue((context: interfaces.Context) =>
-                context.container.get<LogManager>(Identifiers.LogManager).driver(),
+                context.container.get<EventDispatcherManager>(Identifiers.EventDispatcherManager).driver(),
             );
     }
 }

@@ -5,9 +5,9 @@ import { JsonObject } from "./types";
 import * as Bootstrappers from "./bootstrap";
 import * as Contracts from "./contracts";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
-import { EventDispatcher } from "./services/events";
 import { ServiceProvider, ServiceProviderRepository } from "./providers";
 import { EventListener } from "./types/events";
+import { ServiceProvider as EventServiceProvider } from "./services/events/service-provider";
 // import { ShutdownSignal } from "./enums/process";
 import { ConfigRepository } from "./services/config";
 import { Bootstrapper } from "./bootstrap/interfaces";
@@ -524,10 +524,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     private async registerEventDispatcher(): Promise<void> {
-        this.container
-            .bind<EventDispatcher>(Identifiers.EventDispatcherService)
-            .to(EventDispatcher)
-            .inSingletonScope();
+        await this.resolve(EventServiceProvider).register();
     }
 
     /**

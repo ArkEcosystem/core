@@ -1,6 +1,6 @@
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { ValidationManager } from "./manager";
-import { Identifiers } from "../../container";
+import { Identifiers, interfaces } from "../../container";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**
@@ -16,5 +16,11 @@ export class ServiceProvider extends BaseServiceProvider {
             .inSingletonScope();
 
         await this.app.get<ValidationManager>(Identifiers.ValidationManager).boot();
+
+        this.app
+            .bind(Identifiers.ValidationService)
+            .toDynamicValue((context: interfaces.Context) =>
+                context.container.get<ValidationManager>(Identifiers.ValidationManager).driver(),
+            );
     }
 }

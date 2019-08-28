@@ -1,6 +1,6 @@
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { CacheManager } from "./manager";
-import { Identifiers } from "../../container";
+import { Identifiers, interfaces } from "../../container";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**
@@ -16,5 +16,11 @@ export class ServiceProvider extends BaseServiceProvider {
             .inSingletonScope();
 
         await this.app.get<CacheManager>(Identifiers.CacheManager).boot();
+
+        this.app
+            .bind(Identifiers.CacheService)
+            .toDynamicValue((context: interfaces.Context) =>
+                context.container.get<CacheManager>(Identifiers.CacheManager).driver(),
+            );
     }
 }

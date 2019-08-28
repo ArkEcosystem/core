@@ -38,7 +38,7 @@ export class RegisterBaseConfiguration implements Bootstrapper {
         const configRepository: ConfigRepository = new ConfigRepository(config);
         configRepository.set("options", config.options || {});
 
-        this.app.unbind("config");
+        this.app.unbind("config"); // @todo avoid binding and unbinding elements, use unique and descriptive names
         this.app.bind<ConfigRepository>(Identifiers.ConfigRepository).toConstantValue(configRepository);
     }
 }
