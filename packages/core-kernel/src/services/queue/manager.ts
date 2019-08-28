@@ -1,6 +1,6 @@
 import { Queue } from "../../contracts/kernel/queue";
 import { Manager } from "../../support/manager";
-import { Memory } from "./drivers/memory";
+import { MemoryQueue } from "./drivers/memory";
 
 /**
  * @export
@@ -15,7 +15,7 @@ export class QueueManager extends Manager<Queue> {
      * @memberof QueueManager
      */
     public async createMemoryDriver(): Promise<Queue> {
-        return this.app.resolve<Queue>(Memory);
+        return this.app.resolve<Queue>(MemoryQueue);
     }
 
     /**

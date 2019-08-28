@@ -1,6 +1,6 @@
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { QueueManager } from "./manager";
-import { Identifiers } from "../../container";
+import { Identifiers, interfaces } from "../../container";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**
@@ -13,6 +13,12 @@ export class ServiceProvider extends BaseServiceProvider {
             .to(QueueManager)
             .inSingletonScope();
 
-        // await this.app.get<QueueManager>(Identifiers.QueueManager).boot();
+        await this.app.get<QueueManager>(Identifiers.QueueManager).boot();
+
+        this.app
+            .bind(Identifiers.QueueService)
+            .toDynamicValue((context: interfaces.Context) =>
+                context.container.get<QueueManager>(Identifiers.QueueManager).driver(),
+            );
     }
 }
