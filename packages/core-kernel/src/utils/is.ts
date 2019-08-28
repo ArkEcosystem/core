@@ -1,21 +1,74 @@
-export const isUndefined = (obj: any): obj is undefined => typeof obj === "undefined";
+/**
+ * @param {unknown} obj
+ * @returns {value is undefined}
+ */
+export const isUndefined = (value: unknown): value is undefined => typeof value === "undefined";
 
-export const isNil = (obj: any): obj is null | undefined => isUndefined(obj) || obj === null;
+/**
+ * @param {unknown} obj
+ * @returns {(value is null | undefined)}
+ */
+export const isNil = (value: unknown): value is null | undefined => isUndefined(value) || value === null;
 
-export const isEmpty = (array: any): boolean => !(array && array.length > 0);
+/**
+ * @param {*} value
+ * @returns {boolean}
+ */
+export const isEmpty = (value: any): boolean => !(value && value.length > 0);
 
-export const isObject = (fn: any): fn is object => !isNil(fn) && typeof fn === "object";
+/**
+ * @param {unknown} value
+ * @returns {value is object}
+ */
+export const isObject = (value: unknown): value is object => !isNil(value) && typeof value === "object";
 
-export const isFunction = (fn: any): boolean => typeof fn === "function";
+/**
+ * @param {unknown} value
+ * @returns {boolean}
+ */
+export const isFunction = (value: unknown): boolean => typeof value === "function";
 
-export const isString = (fn: any): fn is string => typeof fn === "string";
+/**
+ * @param {unknown} value
+ * @returns {value is string}
+ */
+export const isString = (value: unknown): value is string => typeof value === "string";
 
-export const isConstructor = (fn: any): boolean => fn === "constructor";
+/**
+ * @param {*} value
+ * @returns {boolean}
+ */
+export const isConstructor = (value: any): boolean => !!value.prototype && !!value.prototype.constructor.name;
 
-export const isSymbol = (fn: any): fn is symbol => typeof fn === "symbol";
+/**
+ * @param {unknown} value
+ * @returns {value is symbol}
+ */
+export const isSymbol = (value: unknown): value is symbol => typeof value === "symbol";
 
-export const isNumberArray = (value: unknown): value is number[] =>
-    Array.isArray(value) && value.every(element => typeof element === "number");
+/**
+ * @template T
+ * @param {unknown} value
+ * @param {string} type
+ * @returns {value is T[]}
+ */
+export const isArrayOfType = <T>(value: unknown, type: string): value is T[] =>
+    Array.isArray(value) && value.every(element => typeof element === type);
 
-export const isStringArray = (value: unknown): value is string[] =>
-    Array.isArray(value) && value.every(element => typeof element === "string");
+/**
+ * @param {unknown} value
+ * @returns {value is number[]}
+ */
+export const isNumberArray = (value: unknown): value is number[] => isArrayOfType<number>(value, "number");
+
+/**
+ * @param {unknown} value
+ * @returns {value is string[]}
+ */
+export const isStringArray = (value: unknown): value is string[] => isArrayOfType<string>(value, "string");
+
+/**
+ * @param {unknown} value
+ * @returns {value is boolean[]}
+ */
+export const isBooleanArray = (value: unknown): value is boolean[] => isArrayOfType<boolean>(value, "boolean");

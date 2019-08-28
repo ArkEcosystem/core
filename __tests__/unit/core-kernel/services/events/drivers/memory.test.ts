@@ -1,8 +1,8 @@
 import "jest-extended";
-import { EventDispatcher } from "../../../../../packages/core-kernel/src/services/events";
+import { MemoryEventDispatcher } from "../../../../../../packages/core-kernel/src/services/events/drivers/memory";
 
-let emitter: EventDispatcher;
-beforeEach(() => (emitter = new EventDispatcher()));
+let emitter: MemoryEventDispatcher;
+beforeEach(() => (emitter = new MemoryEventDispatcher()));
 
 describe(".listen", () => {
     it("should add an event listener", async () => {
