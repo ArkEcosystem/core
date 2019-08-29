@@ -101,8 +101,6 @@ export interface IDatabaseService {
 
     loadBlocksFromCurrentRound(): Promise<void>;
 
-    updateDelegateStats(delegates: IWallet[]): void;
-
     applyRound(height: number): Promise<void>;
 
     revertRound(height: number): Promise<void>;
