@@ -8,6 +8,7 @@ module.exports = {
         "insufficient-balance",
         //'pool-restart',
         "transactions-valid",
-        "htlc-claim"
+        "htlc-claim",
+        "htlc-refund"
     ],
 };
