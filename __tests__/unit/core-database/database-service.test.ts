@@ -44,16 +44,6 @@ const createService = () => {
 };
 
 describe("Database Service", () => {
-    it("should listen for emitter events during constructor", () => {
-        jest.spyOn(emitter, "on");
-        jest.spyOn(emitter, "once");
-
-        databaseService = createService();
-
-        expect(emitter.on).toHaveBeenCalledWith(ApplicationEvents.StateStarted, expect.toBeFunction());
-        expect(emitter.on).toHaveBeenCalledWith(ApplicationEvents.WalletColdCreated, expect.toBeFunction());
-    });
-
     describe("applyBlock", () => {
         it("should applyBlock", async () => {
             jest.spyOn(walletManager, "applyBlock").mockImplementation(async block => undefined);
@@ -69,6 +59,28 @@ describe("Database Service", () => {
             expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.BlockApplied, genesisBlock.data);
             for (const tx of genesisBlock.transactions) {
                 expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.TransactionApplied, tx.data);
+            }
+        });
+    });
+
+    describe("revertBlock", () => {
+        it("should revertBlock", async () => {
+            jest.spyOn(walletManager, "revertBlock").mockImplementation(async block => undefined);
+            jest.spyOn(emitter, "emit");
+
+            databaseService = createService();
+            jest.spyOn(databaseService, "revertRound").mockImplementation(() => undefined);
+
+            databaseService.blocksInCurrentRound = [genesisBlock];
+            await databaseService.revertBlock(genesisBlock);
+
+            expect(walletManager.revertBlock).toHaveBeenCalledWith(genesisBlock);
+            expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.BlockReverted, genesisBlock.data);
+            for (let i = genesisBlock.transactions.length - 1; i >= 0; i--) {
+                expect(emitter.emit).toHaveBeenCalledWith(
+                    ApplicationEvents.TransactionApplied,
+                    genesisBlock.transactions[i].data,
+                );
             }
         });
     });

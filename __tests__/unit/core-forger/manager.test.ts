@@ -4,7 +4,7 @@ import "./mocks/core-container";
 
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
@@ -142,6 +142,21 @@ describe("Forger Manager", () => {
 
             expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerFailed, {
                 error: "oh bollocks",
+            });
+        });
+    });
+
+    describe("forger.started", () => {
+        it("should emit forger.started event", async () => {
+            const passphrase = "secret";
+            const manager = new ForgerManager(defaults);
+            (manager as any).client.getRound.mockResolvedValueOnce({ delegates: [] });
+            (manager as any).secrets = [passphrase];
+
+            const publicKey = Identities.PublicKey.fromPassphrase(passphrase);
+            await manager.startForging("", "");
+            expect((manager as any).client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerStarted, {
+                activeDelegates: [publicKey],
             });
         });
     });

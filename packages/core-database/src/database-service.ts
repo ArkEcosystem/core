@@ -20,7 +20,6 @@ export class DatabaseService implements Database.IDatabaseService {
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
     public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
-    public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: State.IWallet[] = undefined;
     public cache: Map<any, any> = new Map();
@@ -41,8 +40,6 @@ export class DatabaseService implements Database.IDatabaseService {
         this.delegates = delegatesBusinessRepository;
         this.blocksBusinessRepository = blocksBusinessRepository;
         this.transactionsBusinessRepository = transactionsBusinessRepository;
-
-        this.registerListeners();
     }
 
     public async init(): Promise<void> {
@@ -433,6 +430,10 @@ export class DatabaseService implements Database.IDatabaseService {
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
+        for (let i = block.transactions.length - 1; i >= 0; i--) {
+            this.emitter.emit(ApplicationEvents.TransactionReverted, block.transactions[i].data);
+        }
+
         this.emitter.emit(ApplicationEvents.BlockReverted, block.data);
     }
 
@@ -735,29 +736,5 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit(ApplicationEvents.TransactionApplied, transaction.data);
 
         (await Handlers.Registry.get(transaction.type, transaction.typeGroup)).emitEvents(transaction, this.emitter);
-    }
-
-    private registerListeners(): void {
-        this.emitter.on(ApplicationEvents.StateStarted, () => {
-            this.stateStarted = true;
-        });
-
-        this.emitter.on(ApplicationEvents.WalletColdCreated, async coldWallet => {
-            try {
-                const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
-
-                if (wallet) {
-                    for (const key of Object.keys(wallet)) {
-                        if (["balance"].indexOf(key) !== -1) {
-                            return;
-                        }
-
-                        coldWallet[key] = key !== "voteBalance" ? wallet[key] : Utils.BigNumber.make(wallet[key]);
-                    }
-                }
-            } catch (err) {
-                this.logger.error(err);
-            }
-        });
     }
 }
