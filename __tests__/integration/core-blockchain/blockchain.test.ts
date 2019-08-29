@@ -71,6 +71,7 @@ describe("Blockchain", () => {
         });
 
         blockchain = container.resolvePlugin("blockchain");
+        await blockchain.database.restoreCurrentRound(1);
 
         genesisBlock = container
             .resolvePlugin("state")

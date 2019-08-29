@@ -158,7 +158,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             if (stateStorage.networkStart) {
                 await blockchain.database.buildWallets();
-                await blockchain.database.applyRound(block.data.height);
+                await blockchain.database.restoreCurrentRound(block.data.height);
                 await blockchain.transactionPool.buildWallets();
                 await blockchain.p2p.getMonitor().start();
 

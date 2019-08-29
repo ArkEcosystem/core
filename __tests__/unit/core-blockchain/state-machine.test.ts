@@ -239,7 +239,7 @@ describe("State Machine", () => {
                 // tslint:disable-next-line: await-promise
                 await expect(() => actionMap.init()).toDispatch(blockchain, "STARTED");
                 expect(databaseMocks.buildWallets).toHaveBeenCalled();
-                expect(databaseMocks.applyRound).toHaveBeenCalledWith(1);
+                expect(databaseMocks.restoreCurrentRound).toHaveBeenCalledWith(1);
 
                 stateStorage.networkStart = false; // reset to default value
             });
