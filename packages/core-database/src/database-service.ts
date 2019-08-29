@@ -435,6 +435,10 @@ export class DatabaseService implements Database.IDatabaseService {
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
+        for (let i = block.transactions.length - 1; i >= 0; i--) {
+            this.emitter.emit(ApplicationEvents.TransactionReverted, block.transactions[i].data);
+        }
+
         this.emitter.emit(ApplicationEvents.BlockReverted, block.data);
     }
 

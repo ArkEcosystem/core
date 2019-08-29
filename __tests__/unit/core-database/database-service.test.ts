@@ -72,6 +72,28 @@ describe("Database Service", () => {
         });
     });
 
+    describe("revertBlock", () => {
+        it("should revertBlock", async () => {
+            jest.spyOn(walletManager, "revertBlock").mockImplementation(async block => undefined);
+            jest.spyOn(emitter, "emit");
+
+            databaseService = createService();
+            jest.spyOn(databaseService, "revertRound").mockImplementation(() => undefined);
+
+            databaseService.blocksInCurrentRound = [genesisBlock];
+            await databaseService.revertBlock(genesisBlock);
+
+            expect(walletManager.revertBlock).toHaveBeenCalledWith(genesisBlock);
+            expect(emitter.emit).toHaveBeenCalledWith(ApplicationEvents.BlockReverted, genesisBlock.data);
+            for (let i = genesisBlock.transactions.length - 1; i >= 0; i--) {
+                expect(emitter.emit).toHaveBeenCalledWith(
+                    ApplicationEvents.TransactionApplied,
+                    genesisBlock.transactions[i].data,
+                );
+            }
+        });
+    });
+
     describe("getBlocksByHeight", () => {
         it("should deliver blocks for the given heights", async () => {
             const requestHeightsLow = [1, 5, 20];
