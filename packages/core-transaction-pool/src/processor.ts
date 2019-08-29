@@ -246,9 +246,7 @@ export class Processor implements TransactionPool.IProcessor {
             .join(" ");
 
         app.resolvePlugin<Logger.ILogger>("logger").info(
-            `Received ${pluralize("transaction", this.transactions.length, true)} (${stats} ; errors: ${JSON.stringify(
-                this.errors,
-            )}).`,
+            `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
         );
     }
 }
