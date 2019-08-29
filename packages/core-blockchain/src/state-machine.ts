@@ -1,8 +1,8 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
-
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -30,7 +30,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;
-            emitter.emit("state:started", true);
+            emitter.emit(ApplicationEvents.StateStarted, true);
         }
     },
 
