@@ -61,6 +61,7 @@ describe("Database Service", () => {
 
             databaseService = createService();
             jest.spyOn(databaseService, "applyRound").mockImplementation(() => undefined); // test applyRound logic separately
+            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValueOnce(genesisBlock);
 
             await databaseService.applyBlock(genesisBlock);
 

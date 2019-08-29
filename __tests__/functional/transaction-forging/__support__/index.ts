@@ -47,6 +47,7 @@ export const setUp = async (): Promise<void> => {
                 }),
             ),
         );
+        await (databaseService as any).initializeActiveDelegates(1);
     } catch (error) {
         console.error(error.stack);
     }
