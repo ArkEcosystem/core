@@ -25,7 +25,7 @@ describe("Check confirmed and unconfirmed transactions", () => {
 
         // recipients 2 and 4 sent invalid htlc claim transactions
         for (const senderName of ["htlcRecipient2", "htlcRecipient4"]) {
-            expect(transactions.filter(transaction => transaction.sender === utils[senderName].address).length).toBe(1);
+            expect(transactions.filter(transaction => transaction.sender === utils[senderName].address).length).toBe(0);
         }
     });
 });

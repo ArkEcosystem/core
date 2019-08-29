@@ -92,7 +92,8 @@ describe("Transaction Guard", () => {
                 await processor.validate([transfer.data]);
 
                 const expectedError = {
-                    message: "Wallet not allowed to spend before funding is confirmed.",
+                    message:
+                        "Insufficient balance in database wallet. Wallet is not allowed to spend before funding is confirmed.",
                     type: "ERR_APPLY",
                 };
                 expect(processor.getErrors()[transfer.id]).toContainEqual(expectedError);
