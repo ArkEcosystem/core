@@ -44,16 +44,6 @@ const createService = () => {
 };
 
 describe("Database Service", () => {
-    it("should listen for emitter events during constructor", () => {
-        jest.spyOn(emitter, "on");
-        jest.spyOn(emitter, "once");
-
-        databaseService = createService();
-
-        expect(emitter.on).toHaveBeenCalledWith(ApplicationEvents.StateStarted, expect.toBeFunction());
-        expect(emitter.on).toHaveBeenCalledWith(ApplicationEvents.WalletColdCreated, expect.toBeFunction());
-    });
-
     describe("applyBlock", () => {
         it("should applyBlock", async () => {
             jest.spyOn(walletManager, "applyBlock").mockImplementation(async block => undefined);

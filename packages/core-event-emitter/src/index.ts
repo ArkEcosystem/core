@@ -24,7 +24,6 @@ export enum ApplicationEvents {
     PeerRemoved = "peer.removed",
     RoundApplied = "round.applied",
     RoundCreated = "round.created",
-    StateStarted = "state.started",
     TransactionApplied = "transaction.applied",
     TransactionExpired = "transaction.expired",
     TransactionForged = "transaction.forged",
@@ -32,6 +31,4 @@ export enum ApplicationEvents {
     TransactionPoolRejected = "transaction.pool.rejected",
     TransactionPoolRemoved = "transaction.pool.removed",
     TransactionReverted = "transaction.reverted",
-    WalletColdCreated = "wallet.created.cold",
-    WalletSaved = "wallet.saved",
 }
