@@ -1,9 +1,7 @@
 /**
  * A class constructor.
  */
-export type Constructor<T> = {
-    new (...args: any[]): T;
-};
+export type Constructor<T = {}> = new (...args: any[]) => T;
 
 /**
  * Function that returns T.

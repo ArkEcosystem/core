@@ -27,6 +27,7 @@ export const Identifiers: Record<string, symbol> = {
     EventDispatcherService: Symbol.for("Service<EventDispatcher>"),
     FilesystemService: Symbol.for("Service<Filesystem>"),
     LogService: Symbol.for("Service<Log>"),
+    MixinService: Symbol.for("Service<Mixin>"),
     PeerService: Symbol.for("Service<P2P>"),
     QueueService: Symbol.for("Service<Queue>"),
     ScheduleService: Symbol.for("Service<Schedule>"),
