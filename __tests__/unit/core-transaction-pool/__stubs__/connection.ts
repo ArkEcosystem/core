@@ -85,7 +85,7 @@ export class Connection implements TransactionPool.IConnection {
         return undefined;
     }
 
-    public getTransactionsByType(type: any): any {
+    public getTransactionsByType(type: number, typeGroup?: number): any {
         return;
     }
 

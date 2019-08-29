@@ -1,4 +1,4 @@
-export const businessProperties = {
+export const businessSchema = {
     name: {
         type: "string",
         minLength: 1,
@@ -15,7 +15,7 @@ export const businessProperties = {
         maxLength: 15,
         $ref: "alphanumeric",
     },
-    organizationRepository: {
+    repository: {
         type: "string",
         minLength: 11,
         maxLength: 50,

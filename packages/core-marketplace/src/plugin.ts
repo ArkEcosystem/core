@@ -10,7 +10,7 @@ import {
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
 } from "./handlers";
-import { bridgechainIndexer, businessIndexer } from "./wallet-manager";
+import { bridgechainIndexer, businessIndexer, MarketplaceIndex } from "./wallet-manager";
 
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
@@ -18,13 +18,12 @@ export const plugin: Container.IPluginDescriptor = {
     alias: "core-marketplace",
     async register(container: Container.IContainer, options) {
         const logger = container.resolvePlugin<Logger.ILogger>("logger");
+        logger.info("Setting up core-marketplace.");
 
-        logger.info("Setting up wallet manager for business transaction types");
         const walletManager = app.resolvePlugin("database").walletManager;
-        walletManager.registerIndex("byBusiness", businessIndexer);
-        walletManager.registerIndex("byBridgechain", bridgechainIndexer);
+        walletManager.registerIndex(MarketplaceIndex.Businesses, businessIndexer);
+        walletManager.registerIndex(MarketplaceIndex.Bridgechains, bridgechainIndexer);
 
-        logger.info("Registering marketplace transaction handlers");
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BusinessResignationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BusinessUpdateTransactionHandler);
@@ -32,7 +31,7 @@ export const plugin: Container.IPluginDescriptor = {
         Handlers.Registry.registerTransactionHandler(BridgechainResignationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BridgechainUpdateTransactionHandler);
     },
-    async deregister(container: Container.IContainer, options) {
-        container.resolvePlugin<Logger.ILogger>("logger").info("Deregister core-marketplace");
-    },
+
+    // tslint:disable-next-line: no-empty
+    async deregister(container: Container.IContainer, options) {},
 };

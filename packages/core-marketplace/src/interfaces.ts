@@ -1,21 +1,24 @@
+import { Utils } from "@arkecosystem/crypto";
+
 export interface IBusinessRegistrationAsset {
     name: string;
     website: string;
     vat?: string;
-    organizationRepository?: string;
+    repository?: string;
 }
 
 export interface IBusinessUpdateAsset {
     name?: string;
     website?: string;
     vat?: string;
-    organizationRepository?: string;
+    repository?: string;
 }
 
-export interface IBusinessWalletProperty {
+export interface IBusinessWalletAttributes {
     businessAsset: IBusinessRegistrationAsset;
+    businessId: Utils.BigNumber;
     resigned?: boolean;
-    bridgechains?: IBridgechainWalletProperty[];
+    bridgechains?: Record<string, IBridgechainWalletAttributes>;
 }
 
 export interface IBridgechainRegistrationAsset {
@@ -26,17 +29,16 @@ export interface IBridgechainRegistrationAsset {
 }
 
 export interface IBridgechainUpdateAsset {
-    registeredBridgechainId: string;
+    bridgechainId: Utils.BigNumber;
     seedNodes: string[];
 }
 
 export interface IBridgechainResignationAsset {
-    registeredBridgechainId: string;
+    bridgechainId: string;
 }
 
-export interface IBridgechainWalletProperty {
-    bridgechain: IBridgechainRegistrationAsset;
-    registrationTransactionId: string;
-    bridgechainNonce?: number;
+export interface IBridgechainWalletAttributes {
+    bridgechainAsset: IBridgechainRegistrationAsset;
+    bridgechainId: Utils.BigNumber;
     resigned?: boolean;
 }

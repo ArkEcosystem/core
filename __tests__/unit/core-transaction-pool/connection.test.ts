@@ -49,15 +49,14 @@ const updateSenderNonce = (transaction: Interfaces.ITransaction) => {
 beforeAll(async () => {
     memory = new Memory(maxTransactionAge);
 
+    container.app.resolvePlugin("database").walletManager = new Wallets.WalletManager();
+
     connection = new Connection({
         options: defaults,
         walletManager: new WalletManager(),
         memory,
         storage: new Storage(),
     });
-
-    // @ts-ignore
-    connection.databaseService.walletManager = new Wallets.WalletManager();
 
     for (const transaction of Object.values(mockData)) {
         indexWalletWithSufficientBalance(transaction);

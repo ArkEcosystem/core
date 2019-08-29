@@ -84,6 +84,8 @@ export interface IWalletManager {
 
     hasByIndex(indexName: string, key: string): boolean;
 
+    getIndexNames(): string[];
+
     findByPublicKey(publicKey: string): IWallet;
 
     findByUsername(username: string): IWallet;
@@ -132,6 +134,7 @@ export interface IWalletManager {
 }
 
 export interface IWalletIndex {
+    readonly indexer: WalletIndexer;
     index(wallet: IWallet): void;
     has(key: string): boolean;
     get(key: string): IWallet | undefined;

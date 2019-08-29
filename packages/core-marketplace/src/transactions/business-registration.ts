@@ -1,28 +1,23 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import { MarketplaceTransactionGroup, MarketplaceTransactionStaticFees, MarketplaceTransactionType } from "../enums";
 import { IBusinessRegistrationAsset } from "../interfaces";
-import {
-    MarketplaceTransactionsGroup,
-    MarketplaceTransactionStaticFees,
-    MarketplaceTransactionTypes,
-} from "../marketplace-transactions";
-import { businessProperties } from "./utils/business-schema";
+import { businessSchema } from "./utils/business-schema";
 
 const { schemas } = Transactions;
 
-const businessRegistrationType: number = MarketplaceTransactionTypes.BusinessRegistration;
-
 export class BusinessRegistrationTransaction extends Transactions.Transaction {
-    public static typeGroup: number = MarketplaceTransactionsGroup;
-    public static type = businessRegistrationType;
+    public static typeGroup: number = MarketplaceTransactionGroup;
+    public static type: number = MarketplaceTransactionType.BusinessRegistration;
     public static key: string = "businessRegistration";
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "businessRegistration",
-            required: ["asset"],
+            required: ["asset", "typeGroup"],
             properties: {
-                type: { transactionType: businessRegistrationType },
+                type: { transactionType: MarketplaceTransactionType.BusinessRegistration },
+                typeGroup: { const: MarketplaceTransactionGroup },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",
@@ -31,41 +26,41 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
                         businessRegistration: {
                             type: "object",
                             required: ["name", "website"],
-                            properties: businessProperties,
+                            properties: businessSchema,
                         },
                     },
                 },
             },
         });
     }
-    protected static defaultStaticFee = Utils.BigNumber.make(MarketplaceTransactionStaticFees.BusinessRegistration);
+
+    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
+        MarketplaceTransactionStaticFees.BusinessRegistration,
+    );
 
     public serialize(): ByteBuffer {
         const { data } = this;
 
         const businessRegistrationAsset = data.asset.businessRegistration as IBusinessRegistrationAsset;
-
-        let businessVat: Buffer;
-        let businessVatLength = 0;
-
-        let businessGithub: Buffer;
-        let businessGithubLength = 0;
-
         const businessName: Buffer = Buffer.from(businessRegistrationAsset.name, "utf8");
         const businessWebsite: Buffer = Buffer.from(businessRegistrationAsset.website, "utf8");
 
+        let businessVat: Buffer;
+        let businessVatLength: number = 0;
         if (businessRegistrationAsset.vat) {
             businessVat = Buffer.from(businessRegistrationAsset.vat, "utf8");
             businessVatLength = businessVat.length;
         }
 
-        if (businessRegistrationAsset.organizationRepository) {
-            businessGithub = Buffer.from(businessRegistrationAsset.organizationRepository, "utf8");
-            businessGithubLength = businessGithub.length;
+        let businessRepo: Buffer;
+        let businessRepoLength: number = 0;
+        if (businessRegistrationAsset.repository) {
+            businessRepo = Buffer.from(businessRegistrationAsset.repository, "utf8");
+            businessRepoLength = businessRepo.length;
         }
 
         const buffer: ByteBuffer = new ByteBuffer(
-            businessName.length + businessWebsite.length + businessVatLength + businessGithubLength + 4,
+            businessName.length + businessWebsite.length + businessVatLength + businessRepoLength + 4,
             true,
         );
 
@@ -82,9 +77,9 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
             buffer.writeByte(0);
         }
 
-        if (businessGithub) {
-            buffer.writeByte(businessGithub.length);
-            buffer.append(businessGithub, "hex");
+        if (businessRepo) {
+            buffer.writeByte(businessRepo.length);
+            buffer.append(businessRepo, "hex");
         } else {
             buffer.writeByte(0);
         }
@@ -95,14 +90,11 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        let vat: string;
-        let github: string;
+        const nameLength: number = buf.readUint8();
+        const name: string = buf.readString(nameLength);
 
-        const nameLength = buf.readUint8();
-        const name = buf.readString(nameLength);
-
-        const websiteLength = buf.readUint8();
-        const website = buf.readString(websiteLength);
+        const websiteLength: number = buf.readUint8();
+        const website: string = buf.readString(websiteLength);
 
         const businessRegistration: IBusinessRegistrationAsset = {
             name,
@@ -110,15 +102,13 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
         };
 
         const vatLength = buf.readUint8();
-        if (vatLength !== 0) {
-            vat = buf.readString(vatLength);
-            businessRegistration.vat = vat;
+        if (vatLength > 0) {
+            businessRegistration.vat = buf.readString(vatLength);
         }
 
-        const gitHubLength = buf.readUint8();
-        if (gitHubLength !== 0) {
-            github = buf.readString(gitHubLength);
-            businessRegistration.organizationRepository = github;
+        const repositoryLength: number = buf.readUint8();
+        if (repositoryLength > 0) {
+            businessRegistration.repository = buf.readString(repositoryLength);
         }
 
         data.asset = {

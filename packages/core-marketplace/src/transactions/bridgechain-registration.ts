@@ -1,42 +1,40 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import { MarketplaceTransactionGroup, MarketplaceTransactionStaticFees, MarketplaceTransactionType } from "../enums";
 import { IBridgechainRegistrationAsset } from "../interfaces";
-import {
-    MarketplaceTransactionsGroup,
-    MarketplaceTransactionStaticFees,
-    MarketplaceTransactionTypes,
-} from "../marketplace-transactions";
-import { seedNodesProperties } from "./utils/bridgechain-schemas";
+import { seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
-const bridgechainRegistrationType: number = MarketplaceTransactionTypes.BridgechainRegistration;
-
 export class BridgechainRegistrationTransaction extends Transactions.Transaction {
-    public static typeGroup: number = MarketplaceTransactionsGroup;
-    public static type = bridgechainRegistrationType;
+    public static typeGroup: number = MarketplaceTransactionGroup;
+    public static type: number = MarketplaceTransactionType.BridgechainRegistration;
     public static key: string = "bridgechainRegistration";
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "bridgechainRegistration",
+            required: ["asset", "typeGroup"],
             properties: {
-                type: { transactionType: bridgechainRegistrationType },
+                type: { transactionType: MarketplaceTransactionType.BridgechainRegistration },
+                typeGroup: { const: MarketplaceTransactionGroup },
                 amount: { bignumber: { minimum: 0, maximum: 0 } },
                 asset: {
                     type: "object",
                     required: ["bridgechainRegistration"],
+                    additionalProperties: false,
                     properties: {
                         bridgechainRegistration: {
                             type: "object",
                             required: ["name", "seedNodes", "genesisHash", "bridgechainRepository"],
+                            additionalProperties: false,
                             properties: {
                                 name: {
                                     type: "string",
                                     minLength: 1,
                                     maxLength: 40,
                                 },
-                                seedNodes: seedNodesProperties,
+                                seedNodes: seedNodesSchema,
                                 genesisHash: {
                                     type: "string",
                                     minLength: 64,
@@ -60,47 +58,45 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const bridgechainRegistrationAsset = data.asset.bridgechainRegistration as IBridgechainRegistrationAsset;
+        const bridgechainRegistrationAsset: IBridgechainRegistrationAsset = data.asset.bridgechainRegistration;
         const seedNodes: string[] = bridgechainRegistrationAsset.seedNodes;
         const seedNodesBuffers: Buffer[] = [];
-        let seedNodesBuffersLength = 0;
-
         const bridgechainName: Buffer = Buffer.from(bridgechainRegistrationAsset.name, "utf8");
 
+        let seedNodesBuffersLength: number = 0;
         for (const seed of seedNodes) {
-            const seedBuf = Buffer.from(seed, "utf8");
-            seedNodesBuffersLength = seedNodesBuffersLength + seedBuf.length;
-            seedNodesBuffers.push(seedBuf);
+            const seedBuffer: Buffer = Buffer.from(seed, "utf8");
+            seedNodesBuffersLength += seedBuffer.length;
+            seedNodesBuffers.push(seedBuffer);
         }
-        seedNodesBuffersLength = seedNodesBuffersLength + seedNodesBuffers.length;
+
+        seedNodesBuffersLength += seedNodesBuffers.length;
 
         const bridgechainGenesisHash: Buffer = Buffer.from(bridgechainRegistrationAsset.genesisHash, "utf8");
-
-        const bridgechainGithubRepo: Buffer = Buffer.from(bridgechainRegistrationAsset.bridgechainRepository, "utf8");
+        const bridgechainRepository: Buffer = Buffer.from(bridgechainRegistrationAsset.bridgechainRepository, "utf8");
 
         const buffer: ByteBuffer = new ByteBuffer(
             bridgechainName.length +
                 seedNodesBuffersLength +
                 bridgechainGenesisHash.length +
-                bridgechainGithubRepo.length +
+                bridgechainRepository.length +
                 4,
             true,
         );
 
-        buffer.writeByte(bridgechainName.length);
+        buffer.writeUint8(bridgechainName.length);
         buffer.append(bridgechainName);
 
-        buffer.writeByte(seedNodesBuffers.length);
-        for (const seedBuf of seedNodesBuffers) {
-            buffer.writeByte(seedBuf.length);
-            buffer.append(seedBuf);
+        buffer.writeUint8(seedNodesBuffers.length);
+        for (const seedBuffer of seedNodesBuffers) {
+            buffer.writeUint8(seedBuffer.length);
+            buffer.append(seedBuffer);
         }
 
-        buffer.writeByte(bridgechainGenesisHash.length);
         buffer.append(bridgechainGenesisHash);
 
-        buffer.writeByte(bridgechainGithubRepo.length);
-        buffer.append(bridgechainGithubRepo);
+        buffer.writeUint8(bridgechainRepository.length);
+        buffer.append(bridgechainRepository);
 
         return buffer;
     }
@@ -109,21 +105,19 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const { data } = this;
         const seedNodes: string[] = [];
 
-        const nameLength = buf.readUint8();
-        const name = buf.readString(nameLength);
+        const nameLength: number = buf.readUint8();
+        const name: string = buf.readString(nameLength);
 
-        const seedNodesLength = buf.readUint8();
+        const seedNodesLength: number = buf.readUint8();
         for (let i = 0; i < seedNodesLength; i++) {
-            const ipLength = buf.readUint8();
-            const ip = buf.readString(ipLength);
+            const ipLength: number = buf.readUint8();
+            const ip: string = buf.readString(ipLength);
             seedNodes.push(ip);
         }
 
-        const genesisHashLength = buf.readUint8();
-        const genesisHash = buf.readString(genesisHashLength);
-
-        const githubRepositoryLength = buf.readUint8();
-        const bridgechainRepository = buf.readString(githubRepositoryLength);
+        const genesisHash: string = buf.readString(64);
+        const repositoryLength: number = buf.readUint8();
+        const bridgechainRepository: string = buf.readString(repositoryLength);
 
         data.asset = {
             bridgechainRegistration: {
