@@ -31,6 +31,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             if (transaction.version === 1) {
                 multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
                 wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                multiSignature.legacy = true;
             } else {
                 multiSignature = transaction.asset.multiSignature;
                 wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));

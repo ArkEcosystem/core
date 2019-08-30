@@ -103,13 +103,13 @@ class TestTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }
 
 beforeAll(() => {

@@ -53,7 +53,7 @@ export interface IWalletDelegateAttributes {
     resigned?: boolean;
 }
 
-export type IWalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset;
+export type IWalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset & { legacy?: boolean };
 
 export interface IWalletIpfsAttributes {
     [hash: string]: boolean;

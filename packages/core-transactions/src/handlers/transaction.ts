@@ -8,6 +8,7 @@ import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
+    LegacyMultiSignatureError,
     SenderWalletMismatchError,
     UnexpectedMultiSignatureError,
     UnexpectedNonceError,
@@ -119,6 +120,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
             const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+            if (dbSender.getAttribute("multiSignature").legacy) {
+                throw new LegacyMultiSignatureError();
+            }
 
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
