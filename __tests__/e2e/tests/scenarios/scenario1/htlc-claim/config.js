@@ -17,9 +17,9 @@ module.exports = {
         newBlock: {
             35: ["0.transfer-new-wallet.action"],
             37: ["1.create-lock-txs.action"],
-            39: ["2.check-lock.test"],
-            41: ["3.create-claim-txs.action"],
-            44: ["4.check-claim.test"],
+            41: ["2.check-lock.test"],
+            43: ["3.create-claim-txs.action"],
+            47: ["4.check-claim.test"],
         },
     },
 };

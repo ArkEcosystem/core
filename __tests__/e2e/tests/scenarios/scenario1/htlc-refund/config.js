@@ -15,11 +15,11 @@ Workflow :
 module.exports = {
     events: {
         newBlock: {
-            45: ["0.transfer-new-wallet.action"],
-            47: ["1.create-lock-txs.action"],
-            49: ["2.check-lock.test"],
-            51: ["3.create-refund-txs.action"],
-            54: ["4.check-refund.test"],
+            48: ["0.transfer-new-wallet.action"],
+            50: ["1.create-lock-txs.action"],
+            55: ["2.check-lock.test"],
+            56: ["3.create-refund-txs.action"],
+            61: ["4.check-refund.test"],
         },
     },
 };
