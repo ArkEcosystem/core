@@ -220,7 +220,7 @@ describe("Registry", () => {
         Managers.configManager.getMilestone().aip11 = false;
 
         let handlers = await Registry.getActivatedTransactionHandlers();
-        expect(handlers).toHaveLength(4);
+        expect(handlers).toHaveLength(5);
 
         Managers.configManager.getMilestone().aip11 = true;
 
@@ -241,12 +241,12 @@ describe("Registry", () => {
     it("should throw when trying to use a deactivated transaction type", async () => {
         Managers.configManager.getMilestone().aip11 = false;
 
-        await expect(Registry.get(TransactionType.MultiSignature)).rejects.toThrowError(
+        await expect(Registry.get(TransactionType.Ipfs)).rejects.toThrowError(
             DeactivatedTransactionHandlerError,
         );
 
         Managers.configManager.getMilestone().aip11 = true;
 
-        await expect(Registry.get(TransactionType.MultiSignature)).toResolve();
+        await expect(Registry.get(TransactionType.Ipfs)).toResolve();
     });
 });
