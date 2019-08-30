@@ -1,5 +1,5 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
@@ -31,6 +31,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             if (transaction.version === 1) {
                 multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
                 wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                multiSignature.legacy = true;
             } else {
                 multiSignature = transaction.asset.multiSignature;
                 wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
@@ -43,8 +44,11 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         }
     }
 
+    // Technically, we only enable `MultiSignatureRegistration` when the `aip11` milestone is active,
+    // but since there are no versioned transaction types yet we have to do it differently, to not break
+    // existing legacy multi signatures. TODO: becomes obsolete with 3.0
     public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
+        return true;
     }
 
     public async throwIfCannotBeApplied(

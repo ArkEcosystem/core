@@ -8,6 +8,7 @@ import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
+    LegacyMultiSignatureError,
     SenderWalletMismatchError,
     UnexpectedMultiSignatureError,
     UnexpectedNonceError,
@@ -116,9 +117,21 @@ export abstract class TransactionHandler implements ITransactionHandler {
             }
         }
 
+        // Prevent legacy multi signatures from being used
+        const isMultiSignatureRegistration: boolean =
+            transaction.type === Enums.TransactionType.MultiSignature &&
+            transaction.typeGroup === Enums.TransactionTypeGroup.Core;
+        if (isMultiSignatureRegistration && !Managers.configManager.getMilestone().aip11) {
+            throw new UnexpectedMultiSignatureError();
+        }
+
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
             const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+            if (dbSender.getAttribute("multiSignature").legacy) {
+                throw new LegacyMultiSignatureError();
+            }
 
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
@@ -127,11 +140,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             if (!dbSender.verifySignatures(data, dbSender.getAttribute("multiSignature"))) {
                 throw new InvalidMultiSignatureError();
             }
-        } else if (
-            transaction.data.signatures &&
-            (transaction.type !== Enums.TransactionType.MultiSignature ||
-                transaction.typeGroup !== Enums.TransactionTypeGroup.Core)
-        ) {
+        } else if (transaction.data.signatures && !isMultiSignatureRegistration) {
             throw new UnexpectedMultiSignatureError();
         }
     }
