@@ -20,7 +20,6 @@ export class DatabaseService implements Database.IDatabaseService {
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
     public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
-    public stateStarted: boolean = false;
     public restoredDatabaseIntegrity: boolean = false;
     public forgingDelegates: State.IWallet[] = undefined;
     public cache: Map<any, any> = new Map();
@@ -41,8 +40,6 @@ export class DatabaseService implements Database.IDatabaseService {
         this.delegates = delegatesBusinessRepository;
         this.blocksBusinessRepository = blocksBusinessRepository;
         this.transactionsBusinessRepository = transactionsBusinessRepository;
-
-        this.registerListeners();
     }
 
     public async init(): Promise<void> {
@@ -90,6 +87,8 @@ export class DatabaseService implements Database.IDatabaseService {
             await this.emitTransactionEvents(transaction);
         }
 
+        this.detectMissedBlocks(block);
+
         this.emitter.emit(ApplicationEvents.BlockApplied, block.data);
     }
 
@@ -109,10 +108,6 @@ export class DatabaseService implements Database.IDatabaseService {
                 this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
                 try {
-                    if (nextHeight > 1) {
-                        this.updateDelegateStats(this.forgingDelegates);
-                    }
-
                     const delegates: State.IWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
@@ -435,6 +430,10 @@ export class DatabaseService implements Database.IDatabaseService {
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
+        for (let i = block.transactions.length - 1; i >= 0; i--) {
+            this.emitter.emit(ApplicationEvents.TransactionReverted, block.transactions[i].data);
+        }
+
         this.emitter.emit(ApplicationEvents.BlockReverted, block.data);
     }
 
@@ -470,42 +469,6 @@ export class DatabaseService implements Database.IDatabaseService {
         await this.connection.roundsRepository.insert(activeDelegates);
 
         this.emitter.emit(ApplicationEvents.RoundCreated, activeDelegates);
-    }
-
-    public updateDelegateStats(delegates: State.IWallet[]): void {
-        if (!delegates || !this.blocksInCurrentRound) {
-            return;
-        }
-
-        if (this.blocksInCurrentRound.length === 1 && this.blocksInCurrentRound[0].data.height === 1) {
-            return;
-        }
-
-        this.logger.debug("Updating delegate statistics");
-
-        try {
-            for (const delegate of delegates) {
-                const producedBlocks: Interfaces.IBlock[] = this.blocksInCurrentRound.filter(
-                    blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey,
-                );
-
-                if (producedBlocks.length === 0) {
-                    const wallet: State.IWallet = this.walletManager.findByPublicKey(delegate.publicKey);
-
-                    this.logger.debug(
-                        `Delegate ${wallet.getAttribute("delegate.username")} (${
-                            wallet.publicKey
-                        }) just missed a block.`,
-                    );
-
-                    this.emitter.emit(ApplicationEvents.ForgerMissing, {
-                        delegate: wallet,
-                    });
-                }
-            }
-        } catch (error) {
-            this.logger.error(error.stack);
-        }
     }
 
     public async verifyBlockchain(): Promise<boolean> {
@@ -596,6 +559,34 @@ export class DatabaseService implements Database.IDatabaseService {
             return !dbTransaction;
         } catch {
             return false;
+        }
+    }
+
+    private detectMissedBlocks(block: Interfaces.IBlock) {
+        const lastBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlock();
+
+        if (lastBlock.data.height === 1) {
+            return;
+        }
+
+        const lastSlot: number = Crypto.Slots.getSlotNumber(lastBlock.data.timestamp);
+        const currentSlot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
+
+        const missedSlots: number = Math.min(currentSlot - lastSlot - 1, this.forgingDelegates.length);
+        for (let i = 0; i < missedSlots; i++) {
+            const missedSlot: number = lastSlot + i + 1;
+            const delegate: State.IWallet = this.forgingDelegates[missedSlot % this.forgingDelegates.length];
+
+            this.logger.debug(
+                `Delegate ${delegate.getAttribute("delegate.username")} (${delegate.publicKey}) just missed a block.`,
+            );
+
+            this.emitter.emit(ApplicationEvents.ForgerMissing, {
+                delegate,
+            });
         }
     }
 
@@ -745,29 +736,5 @@ export class DatabaseService implements Database.IDatabaseService {
         this.emitter.emit(ApplicationEvents.TransactionApplied, transaction.data);
 
         (await Handlers.Registry.get(transaction.type, transaction.typeGroup)).emitEvents(transaction, this.emitter);
-    }
-
-    private registerListeners(): void {
-        this.emitter.on(ApplicationEvents.StateStarted, () => {
-            this.stateStarted = true;
-        });
-
-        this.emitter.on(ApplicationEvents.WalletColdCreated, async coldWallet => {
-            try {
-                const wallet = await this.connection.walletsRepository.findByAddress(coldWallet.address);
-
-                if (wallet) {
-                    for (const key of Object.keys(wallet)) {
-                        if (["balance"].indexOf(key) !== -1) {
-                            return;
-                        }
-
-                        coldWallet[key] = key !== "voteBalance" ? wallet[key] : Utils.BigNumber.make(wallet[key]);
-                    }
-                }
-            } catch (err) {
-                this.logger.error(err);
-            }
-        });
     }
 }

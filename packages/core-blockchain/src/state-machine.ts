@@ -1,8 +1,8 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
-
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -30,7 +30,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;
-            emitter.emit("state:started", true);
+            emitter.emit(ApplicationEvents.StateStarted, true);
         }
     },
 
@@ -158,7 +158,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             if (stateStorage.networkStart) {
                 await blockchain.database.buildWallets();
-                await blockchain.database.applyRound(block.data.height);
+                await blockchain.database.restoreCurrentRound(block.data.height);
                 await blockchain.transactionPool.buildWallets();
                 await blockchain.p2p.getMonitor().start();
 

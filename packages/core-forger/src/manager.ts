@@ -261,6 +261,12 @@ export class ForgerManager {
 
         if (!this.initialized) {
             this.printLoadedDelegates();
+
+            this.client.emitEvent(ApplicationEvents.ForgerStarted, {
+                activeDelegates: this.delegates.map(delegate => delegate.publicKey),
+            });
+
+            this.logger.info(`Forger Manager started.`);
         }
 
         this.initialized = true;
@@ -294,7 +300,5 @@ export class ForgerManager {
                 )}`,
             );
         }
-
-        this.logger.info(`Forger Manager started.`);
     }
 }
