@@ -9,6 +9,7 @@ module.exports = {
         //'pool-restart',
         "transactions-valid",
         "htlc-claim",
-        "htlc-refund"
+        "htlc-refund",
+        "multisignature"
     ],
 };
