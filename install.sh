@@ -105,6 +105,10 @@ heading "Installing node.js & npm..."
 sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
 sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm,.fnm}
 
+if [[ ! -z $RPM ]]; then
+    sudo yum install gcc-c++ make -y
+fi
+
 curl -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh | bash
 
 fnm install 11
