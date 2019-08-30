@@ -13,6 +13,7 @@ import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
+    LegacyMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
@@ -152,6 +153,21 @@ describe("General Tests", () => {
             instance = Transactions.TransactionFactory.fromData(transaction);
             await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
         });
+
+        it("should throw if legacy multisig wallet", async () => {
+            senderWallet.setAttribute("multiSignature", {
+                keysgroup: [
+                    "+039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
+                    "+028d3611c4f32feca3e6713992ae9387e18a0e01954046511878fe078703324dc0",
+                    "+021d3932ab673230486d0f956d05b9e88791ee298d9af2d6df7d9ed5bb861c92dd",
+                ],
+                min: 3,
+                lifetime: 0,
+                legacy: true,
+            });
+
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrowError(LegacyMultiSignatureError)
+        })
     });
 
     describe("apply", () => {

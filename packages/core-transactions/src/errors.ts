@@ -162,6 +162,12 @@ export class InvalidMultiSignatureError extends TransactionError {
     }
 }
 
+export class LegacyMultiSignatureError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because legacy multi signature is no longer supported.`);
+    }
+}
+
 export class MultiSignatureMinimumKeysError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because too few keys were provided.`);

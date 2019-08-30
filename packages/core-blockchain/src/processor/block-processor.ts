@@ -71,15 +71,20 @@ export class BlockProcessor {
 
     private async verifyBlock(block: Interfaces.IBlock): Promise<boolean> {
         if (block.verification.containsMultiSignatures) {
-            for (const transaction of block.transactions) {
-                const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
-                    transaction.type,
-                    transaction.typeGroup,
-                );
-                await handler.verify(transaction, this.blockchain.database.walletManager);
-            }
+            try {
+                for (const transaction of block.transactions) {
+                    const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                        transaction.type,
+                        transaction.typeGroup,
+                    );
+                    await handler.verify(transaction, this.blockchain.database.walletManager);
+                }
 
-            block.verification = block.verify();
+                block.verification = block.verify();
+            } catch (error) {
+                this.logger.warn(`Failed to verify block, because: ${error.message}`);
+                block.verification.verified = false;
+            }
         }
 
         const { verified } = block.verification;
