@@ -37,22 +37,7 @@ export class WalletManager extends Wallets.WalletManager {
     }
 
     public async throwIfCannotBeApplied(transaction: Interfaces.ITransaction): Promise<void> {
-        // Edge case if sender is unknown and has no balance.
-        // NOTE: Check is performed against the database wallet manager.
-        const senderPublicKey: string = transaction.data.senderPublicKey;
-        if (!this.databaseService.walletManager.hasByPublicKey(senderPublicKey)) {
-            const senderAddress: string = Identities.Address.fromPublicKey(senderPublicKey);
-
-            if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
-                const message: string = "Wallet not allowed to spend before funding is confirmed.";
-
-                this.logger.error(message);
-
-                throw new Error(message);
-            }
-        }
-
-        const sender: State.IWallet = this.findByPublicKey(senderPublicKey);
+        const sender: State.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
         const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
             transaction.type,
             transaction.typeGroup,
