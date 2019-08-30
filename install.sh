@@ -103,17 +103,11 @@ success "Installed system dependencies!"
 heading "Installing node.js & npm..."
 
 sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
-sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
+sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm,.fnm}
 
-if [[ ! -z $DEB ]]; then
-    sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    (echo "deb https://deb.nodesource.com/node_11.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-    sudo apt-get update
-    sudo apt-get install nodejs -y
-elif [[ ! -z $RPM ]]; then
-    sudo yum install gcc-c++ make -y
-    curl -sL https://rpm.nodesource.com/setup_11.x | sudo -E bash - > /dev/null 2>&1
-fi
+curl -fsSL https://github.com/Schniz/fnm/raw/master/.ci/install.sh | bash
+
+fnm install 11
 
 success "Installed node.js & npm!"
 
