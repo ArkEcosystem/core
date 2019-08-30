@@ -1,9 +1,9 @@
 version: 2
 jobs:
-    node10-unit:
+    node11-unit:
         working_directory: ~/core
         docker:
-            - image: "circleci/node:10"
+            - image: "circleci/node:11"
         steps: &stepsUnit
             - checkout
             - run:
@@ -43,23 +43,18 @@ jobs:
             - run:
                   name: Codecov
                   command: ./node_modules/.bin/codecov
-    node11-unit:
-        working_directory: ~/core
-        docker:
-            - image: "circleci/node:11"
-        steps: *stepsUnit
     node12-unit:
         working_directory: ~/core
         docker:
             - image: "circleci/node:12"
         steps: *stepsUnit
-    node10-functional:
+    node11-functional:
         working_directory: ~/core
         environment:
             CORE_DB_DATABASE: ark_unitnet
             CORE_DB_USERNAME: ark
         docker:
-            - image: "circleci/node:10"
+            - image: "circleci/node:11"
             - image: "postgres:alpine"
               environment:
                   POSTGRES_PASSWORD: password
@@ -104,19 +99,6 @@ jobs:
             - run:
                   name: Codecov
                   command: ./node_modules/.bin/codecov
-    node11-functional:
-        working_directory: ~/core
-        environment:
-            CORE_DB_DATABASE: ark_unitnet
-            CORE_DB_USERNAME: ark
-        docker:
-            - image: "circleci/node:11"
-            - image: "postgres:alpine"
-              environment:
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
-                  POSTGRES_USER: ark
-        steps: *stepsFunctional
     node12-functional:
         working_directory: ~/core
         environment:
@@ -130,13 +112,13 @@ jobs:
                   POSTGRES_DB: ark_unitnet
                   POSTGRES_USER: ark
         steps: *stepsFunctional
-    node10-integration:
+    node11-integration:
         working_directory: ~/core
         environment:
             CORE_DB_DATABASE: ark_unitnet
             CORE_DB_USERNAME: ark
         docker:
-            - image: "circleci/node:10"
+            - image: "circleci/node:11"
             - image: "postgres:alpine"
               environment:
                   POSTGRES_PASSWORD: password
@@ -179,19 +161,6 @@ jobs:
             - run:
                   name: Codecov
                   command: ./node_modules/.bin/codecov
-    node11-integration:
-        working_directory: ~/core
-        environment:
-            CORE_DB_DATABASE: ark_unitnet
-            CORE_DB_USERNAME: ark
-        docker:
-            - image: "circleci/node:11"
-            - image: "postgres:alpine"
-              environment:
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
-                  POSTGRES_USER: ark
-        steps: *stepsIntegration
     node12-integration:
         working_directory: ~/core
         environment:
@@ -205,10 +174,10 @@ jobs:
                   POSTGRES_DB: ark_unitnet
                   POSTGRES_USER: ark
         steps: *stepsIntegration
-    node10-benchmark:
+    node11-benchmark:
         working_directory: ~/core
         docker:
-            - image: "circleci/node:10"
+            - image: "circleci/node:11"
         steps: &stepsBenchmark
             - checkout
             - run:
@@ -230,11 +199,6 @@ jobs:
             - run:
                   name: Benchmark
                   command: cd ~/core && yarn bench
-    node11-benchmark:
-        working_directory: ~/core
-        docker:
-            - image: "circleci/node:11"
-        steps: *stepsBenchmark
     node12-benchmark:
         working_directory: ~/core
         docker:
@@ -326,17 +290,13 @@ workflows:
     version: 2
     test:
         jobs:
-            - node10-unit
             - node11-unit
             - node12-unit
-            - node10-functional
             - node11-functional
             - node12-functional
-            - node10-benchmark
             - node11-benchmark
             - node12-benchmark
             - node11-e2e
             - node12-e2e
-            - node10-integration
             - node11-integration
             - node12-integration
