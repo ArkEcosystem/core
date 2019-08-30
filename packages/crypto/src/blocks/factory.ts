@@ -41,11 +41,11 @@ export class BlockFactory {
         return this.fromData(data);
     }
 
-    public static fromData(data: IBlockData): IBlock {
+    public static fromData(data: IBlockData, options: { deserializeTransactionsUnchecked?: boolean } = {}): IBlock {
         data = Block.applySchema(data);
 
         const serialized: string = Block.serializeWithTransactions(data).toString("hex");
-        const block: IBlock = new Block({ ...deserializer.deserialize(serialized), id: data.id });
+        const block: IBlock = new Block({ ...deserializer.deserialize(serialized, false, options), id: data.id });
         block.serialized = serialized;
 
         return block;

@@ -25,11 +25,15 @@ export class Processor implements TransactionPool.IProcessor {
         this.cacheTransactions(transactions);
 
         if (this.transactions.length > 0) {
-            this.filterAndTransformTransactions(this.transactions);
+            await this.filterAndTransformTransactions(this.transactions);
 
             await this.removeForgedTransactions();
 
-            this.addTransactionsToPool();
+            await this.addTransactionsToPool();
+
+            app.resolvePlugin<State.IStateService>("state")
+                .getStore()
+                .removeCachedTransactionIds([...new Set([...this.accept.keys(), ...Object.keys(this.errors)])]);
 
             this.printStats();
         }
@@ -85,10 +89,6 @@ export class Processor implements TransactionPool.IProcessor {
             .resolvePlugin<Database.IDatabaseService>("database")
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .removeCachedTransactionIds(forgedIdsSet);
-
         for (const id of forgedIdsSet) {
             this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
 
@@ -97,11 +97,11 @@ export class Processor implements TransactionPool.IProcessor {
         }
     }
 
-    private filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): void {
+    private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
         const { maxTransactionBytes } = app.resolveOptions("transaction-pool");
 
         for (const transaction of transactions) {
-            const exists: boolean = this.pool.has(transaction.id);
+            const exists: boolean = await this.pool.has(transaction.id);
 
             if (exists) {
                 this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
@@ -111,17 +111,22 @@ export class Processor implements TransactionPool.IProcessor {
                     "ERR_TOO_LARGE",
                     `Transaction ${transaction.id} is larger than ${maxTransactionBytes} bytes.`,
                 );
-            } else if (this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
+            } else if (await this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
                 this.excess.push(transaction.id);
-            } else if (this.validateTransaction(transaction)) {
+            } else if (await this.validateTransaction(transaction)) {
                 try {
                     const receivedId: string = transaction.id;
-                    const trx: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(transaction);
-                    const handler = Handlers.Registry.get(trx.type);
-                    if (handler.verify(trx, this.pool.walletManager)) {
+                    const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
+                        transaction,
+                    );
+                    const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                        transactionInstance.type,
+                        transactionInstance.typeGroup,
+                    );
+                    if (await handler.verify(transactionInstance, this.pool.walletManager)) {
                         try {
-                            this.walletManager.throwIfApplyingFails(trx);
-                            const dynamicFee: IDynamicFeeMatch = dynamicFeeMatcher(trx);
+                            await this.walletManager.throwIfCannotBeApplied(transactionInstance);
+                            const dynamicFee: IDynamicFeeMatch = await dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,
@@ -130,11 +135,11 @@ export class Processor implements TransactionPool.IProcessor {
                                 );
                             } else {
                                 if (dynamicFee.enterPool) {
-                                    this.accept.set(trx.data.id, trx);
+                                    this.accept.set(transactionInstance.data.id, transactionInstance);
                                 }
 
                                 if (dynamicFee.broadcast) {
-                                    this.broadcast.set(trx.data.id, trx);
+                                    this.broadcast.set(transactionInstance.data.id, transactionInstance);
                                 }
                             }
                         } catch (error) {
@@ -160,7 +165,7 @@ export class Processor implements TransactionPool.IProcessor {
         }
     }
 
-    private validateTransaction(transaction: Interfaces.ITransactionData): boolean {
+    private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
         const lastHeight: number = app
             .resolvePlugin<State.IStateService>("state")
@@ -201,13 +206,17 @@ export class Processor implements TransactionPool.IProcessor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            return Handlers.Registry.get(transaction.type).canEnterTransactionPool(transaction, this.pool, this);
+            const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                transaction.type,
+                transaction.typeGroup,
+            );
+            return handler.canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(
                     transaction,
                     "ERR_UNSUPPORTED",
-                    `Invalidating transaction of unsupported type '${Enums.TransactionTypes[transaction.type]}'`,
+                    `Invalidating transaction of unsupported type '${Enums.TransactionType[transaction.type]}'`,
                 );
             } else {
                 this.pushError(transaction, "ERR_UNKNOWN", error.message);
@@ -217,8 +226,8 @@ export class Processor implements TransactionPool.IProcessor {
         return false;
     }
 
-    private addTransactionsToPool(): void {
-        const { notAdded }: ITransactionsProcessed = this.pool.addTransactions(Array.from(this.accept.values()));
+    private async addTransactionsToPool(): Promise<void> {
+        const { notAdded }: ITransactionsProcessed = await this.pool.addTransactions(Array.from(this.accept.values()));
 
         for (const item of notAdded) {
             this.accept.delete(item.transaction.id);

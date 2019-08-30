@@ -126,7 +126,7 @@ export class Blockchain implements blockchain.IBlockchain {
             const action = this.actions[actionKey];
 
             if (action) {
-                setTimeout(() => action.call(this, event), 0);
+                setImmediate(() => action(event));
             } else {
                 logger.error(`No action '${actionKey}' found`);
             }
@@ -220,15 +220,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Hand the given transactions to the transaction handler.
-     */
-    public async postTransactions(transactions: Interfaces.ITransaction[]): Promise<void> {
-        logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
-
-        this.transactionPool.addTransactions(transactions);
-    }
-
-    /**
      * Push a block to the process queue.
      */
     public handleIncomingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
@@ -314,10 +305,18 @@ export class Blockchain implements blockchain.IBlockchain {
             removedBlocks.push(lastBlock.data);
 
             if (this.transactionPool) {
-                this.transactionPool.addTransactions(lastBlock.transactions);
+                await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());
+            let newLastBlock: Interfaces.IBlock;
+            if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
+                newLastBlock = app
+                    .resolvePlugin<State.IStateService>("state")
+                    .getStore()
+                    .getGenesisBlock();
+            } else {
+                newLastBlock = BlockFactory.fromData(blocksToRemove.pop(), { deserializeTransactionsUnchecked: true });
+            }
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock.data;
@@ -386,6 +385,7 @@ export class Blockchain implements blockchain.IBlockchain {
         let lastProcessResult: BlockProcessorResult;
 
         if (blocks[0] && !isBlockChained(this.getLastBlock().data, blocks[0].data)) {
+            this.clearQueue(); // Discard remaining blocks as it won't go anywhere anyway.
             return callback();
         }
 
@@ -419,7 +419,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 );
 
                 for (const block of acceptedBlocks.reverse()) {
-                    this.database.walletManager.revertBlock(block);
+                    await this.database.walletManager.revertBlock(block);
                 }
 
                 this.state.setLastBlock(lastBlock);

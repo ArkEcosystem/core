@@ -9,6 +9,7 @@ class Deserializer {
     public deserialize(
         serializedHex: string,
         headerOnly: boolean = false,
+        options: { deserializeTransactionsUnchecked?: boolean } = {},
     ): { data: IBlockData; transactions: ITransaction[] } {
         const block = {} as IBlockData;
         let transactions: ITransaction[] = [];
@@ -22,7 +23,7 @@ class Deserializer {
 
         headerOnly = headerOnly || buf.remaining() === 0;
         if (!headerOnly) {
-            transactions = this.deserializeTransactions(block, buf);
+            transactions = this.deserializeTransactions(block, buf, options.deserializeTransactionsUnchecked);
         }
 
         block.idHex = Block.getIdHex(block);
@@ -84,7 +85,11 @@ class Deserializer {
         block.blockSignature = buf.readBytes(signatureLength()).toString("hex");
     }
 
-    private deserializeTransactions(block: IBlockData, buf: ByteBuffer): ITransaction[] {
+    private deserializeTransactions(
+        block: IBlockData,
+        buf: ByteBuffer,
+        deserializeTransactionsUnchecked: boolean = false,
+    ): ITransaction[] {
         const transactionLengths = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
@@ -95,7 +100,9 @@ class Deserializer {
         block.transactions = [];
         for (const length of transactionLengths) {
             const transactionBytes = buf.readBytes(length).toBuffer();
-            const transaction = TransactionFactory.fromBytes(transactionBytes);
+            const transaction = deserializeTransactionsUnchecked
+                ? TransactionFactory.fromBytesUnsafe(transactionBytes)
+                : TransactionFactory.fromBytes(transactionBytes);
             transactions.push(transaction);
             block.transactions.push(transaction.data);
         }

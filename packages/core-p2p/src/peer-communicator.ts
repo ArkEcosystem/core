@@ -140,9 +140,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         {
             fromBlockHeight,
             blockLimit,
-            timeoutMsec,
             headersOnly,
-        }: { fromBlockHeight: number; blockLimit?: number; timeoutMsec?: number; headersOnly?: boolean },
+        }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
         const peerBlocks = await this.emit(
             peer,
@@ -156,7 +155,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                     "Content-Type": "application/json",
                 },
             },
-            timeoutMsec || 10000,
+            app.resolveOptions("p2p").getBlocksTimeout,
         );
 
         if (!peerBlocks) {
@@ -166,26 +165,16 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return [];
         }
 
-        // To stay backward compatible, don't assume peers respond with serialized transactions just yet.
-        // TODO: remove with 2.6
         for (const block of peerBlocks) {
             if (!block.transactions) {
                 continue;
             }
 
-            let transactions: Interfaces.ITransactionData[] = [];
-
-            try {
-                transactions = block.transactions.map(transaction => {
-                    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
-                    data.blockId = block.id;
-                    return data;
-                });
-            } catch {
-                transactions = block.transactions;
-            }
-
-            block.transactions = transactions;
+            block.transactions = block.transactions.map(transaction => {
+                const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                data.blockId = block.id;
+                return data;
+            });
         }
 
         return peerBlocks;

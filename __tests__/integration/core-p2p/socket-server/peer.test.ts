@@ -3,14 +3,14 @@ import "jest-extended";
 import "../mocks/core-container";
 import { defaults } from "../mocks/p2p-options";
 
-import { Blocks, Managers } from "@arkecosystem/crypto/src";
+import { Managers } from "@arkecosystem/crypto/src";
 import delay from "delay";
 import SocketCluster from "socketcluster";
 import socketCluster from "socketcluster-client";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
+import { BlockFactory } from "../../../helpers";
 import { createPeerService } from "../../../helpers/peers";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
-import { genesisBlock } from "../../../utils/config/unitnet/genesisBlock";
 import { wallets } from "../../../utils/fixtures/unitnet/wallets";
 
 Managers.configManager.setFromPreset("unitnet");
@@ -74,19 +74,19 @@ describe("Peer socket endpoint", () => {
             expect(data.state.height).toBe(1);
         });
 
-        describe("postBlock", async () => {
+        describe("postBlock", () => {
             it("should postBlock successfully", async () => {
+                await delay(1000);
                 const { data } = await emit("p2p.peer.postBlock", {
-                    data: { block: Blocks.BlockFactory.fromData(genesisBlock).toJson() },
+                    data: { block: BlockFactory.createDummy().toJson() },
                     headers,
                 });
 
                 expect(data).toEqual({});
             });
 
-            await delay(1000);
-
             it("should throw validation error when sending wrong data", async () => {
+                await delay(1000);
                 await expect(
                     emit("p2p.peer.postBlock", {
                         data: {},
@@ -167,7 +167,7 @@ describe("Peer socket endpoint", () => {
         it("should cancel the request when exceeding rate limit on a certain endpoint", async () => {
             await delay(1000);
 
-            const block = Blocks.BlockFactory.fromData(genesisBlock).toJson();
+            const block = BlockFactory.createDummy().toJson();
 
             await emit("p2p.peer.postBlock", {
                 headers,

@@ -7,11 +7,20 @@ import {
     VotedForNonDelegateError,
     VotedForResignedDelegateError,
 } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class VoteTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.VoteTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [DelegateRegistrationTransactionHandler];
+    }
+
+    public walletAttributes(): ReadonlyArray<string> {
+        return ["vote"];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -19,55 +28,64 @@ export class VoteTransactionHandler extends TransactionHandler {
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const vote = transaction.asset.votes[0];
+            const walletVote: string = wallet.getAttribute("vote");
 
-            if (!wallet.voted) {
-                const vote = transaction.asset.votes[0];
-
-                if (vote.startsWith("+")) {
-                    wallet.vote = vote.slice(1);
+            if (vote.startsWith("+")) {
+                if (walletVote) {
+                    throw new AlreadyVotedError();
                 }
-
-                // NOTE: The "voted" property is only used within this loop to avoid an issue
-                // that results in not properly applying "unvote" transactions as the "vote" property
-                // would be empty in that case and return a false result.
-                wallet.voted = true;
+                wallet.setAttribute("vote", vote.slice(1));
+            } else {
+                if (!walletVote) {
+                    throw new NoVoteError();
+                } else if (walletVote !== vote.slice(1)) {
+                    throw new UnvoteMismatchError();
+                }
+                wallet.forgetAttribute("vote");
             }
         }
 
         walletManager.buildVoteBalances();
     }
 
-    public canBeApplied(
+    public async isActivated(): Promise<boolean> {
+        return true;
+    }
+
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): boolean {
+    ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
         const vote: string = data.asset.votes[0];
+        const walletVote: string = wallet.getAttribute("vote");
 
         if (vote.startsWith("+")) {
-            if (wallet.vote) {
+            if (walletVote) {
                 throw new AlreadyVotedError();
             }
         } else {
-            if (!wallet.vote) {
+            if (!walletVote) {
                 throw new NoVoteError();
-            } else if (wallet.vote !== vote.slice(1)) {
+            } else if (walletVote !== vote.slice(1)) {
                 throw new UnvoteMismatchError();
             }
         }
 
         const delegatePublicKey: string = vote.slice(1);
+        const delegateWallet: State.IWallet = databaseWalletManager.findByPublicKey(delegatePublicKey);
 
-        if (!databaseWalletManager.isDelegate(delegatePublicKey)) {
+        if (!delegateWallet.isDelegate()) {
             throw new VotedForNonDelegateError(vote);
         }
 
-        if (databaseWalletManager.findByPublicKey(delegatePublicKey).resigned) {
+        if (delegateWallet.hasAttribute("delegate.resigned")) {
             throw new VotedForResignedDelegateError(vote);
         }
 
-        return super.canBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
@@ -79,49 +97,59 @@ export class VoteTransactionHandler extends TransactionHandler {
         });
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
-        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+    ): Promise<boolean> {
+        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
 
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.applyToSender(transaction, walletManager);
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
-            sender.vote = vote.slice(1);
+            sender.setAttribute("vote", vote.slice(1));
         } else {
-            sender.vote = undefined;
+            sender.forgetAttribute("vote");
         }
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.revertForSender(transaction, walletManager);
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.revertForSender(transaction, walletManager);
 
-        const sender = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
-            sender.vote = undefined;
+            sender.forgetAttribute("vote");
         } else {
-            sender.vote = vote.slice(1);
+            sender.setAttribute("vote", vote.slice(1));
         }
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 }

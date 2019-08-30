@@ -1,5 +1,5 @@
 import deepmerge = require("deepmerge");
-import { TransactionTypes } from "../../enums";
+import { TransactionType } from "../../enums";
 
 const signedTransaction = {
     anyOf: [
@@ -16,12 +16,16 @@ const strictTransaction = {
 export const transactionBaseSchema = {
     $id: undefined,
     type: "object",
-    required: ["type", "senderPublicKey", "fee", "amount", "timestamp"],
+    if: { properties: { version: { anyOf: [{ type: "null" }, { const: 1 }] } } },
+    then: { required: ["type", "senderPublicKey", "fee", "amount", "timestamp"] },
+    else: { required: ["type", "senderPublicKey", "fee", "amount", "nonce"] },
     properties: {
         id: { anyOf: [{ $ref: "transactionId" }, { type: "null" }] },
         version: { enum: [1, 2] },
         network: { $ref: "networkByte" },
         timestamp: { type: "integer", minimum: 0 },
+        nonce: { bignumber: { minimum: 0 } },
+        typeGroup: { type: "integer", minimum: 0 },
         amount: { bignumber: { minimum: 1, bypassGenesis: true } },
         fee: { bignumber: { minimum: 1, bypassGenesis: true } },
         senderPublicKey: { $ref: "publicKey" },
@@ -60,7 +64,7 @@ export const transfer = extend(transactionBaseSchema, {
     $id: "transfer",
     required: ["recipientId"],
     properties: {
-        type: { transactionType: TransactionTypes.Transfer },
+        type: { transactionType: TransactionType.Transfer },
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
         vendorFieldHex: { anyOf: [{ type: "null" }, { type: "string", format: "vendorFieldHex" }] },
         recipientId: { $ref: "address" },
@@ -72,7 +76,7 @@ export const secondSignature = extend(transactionBaseSchema, {
     $id: "secondSignature",
     required: ["asset"],
     properties: {
-        type: { transactionType: TransactionTypes.SecondSignature },
+        type: { transactionType: TransactionType.SecondSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         secondSignature: { type: "null" },
         asset: {
@@ -97,7 +101,7 @@ export const delegateRegistration = extend(transactionBaseSchema, {
     $id: "delegateRegistration",
     required: ["asset"],
     properties: {
-        type: { transactionType: TransactionTypes.DelegateRegistration },
+        type: { transactionType: TransactionType.DelegateRegistration },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
             type: "object",
@@ -119,7 +123,7 @@ export const vote = extend(transactionBaseSchema, {
     $id: "vote",
     required: ["asset"],
     properties: {
-        type: { transactionType: TransactionTypes.Vote },
+        type: { transactionType: TransactionType.Vote },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         recipientId: { $ref: "address" },
         asset: {
@@ -142,7 +146,7 @@ export const multiSignature = extend(transactionBaseSchema, {
     $id: "multiSignature",
     required: ["asset", "signatures"],
     properties: {
-        type: { transactionType: TransactionTypes.MultiSignature },
+        type: { transactionType: TransactionType.MultiSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
             type: "object",
@@ -162,6 +166,7 @@ export const multiSignature = extend(transactionBaseSchema, {
                             minItems: 1,
                             maxItems: 16,
                             additionalItems: false,
+                            uniqueItems: true,
                             items: { $ref: "publicKey" },
                         },
                     },
@@ -182,7 +187,7 @@ export const multiSignature = extend(transactionBaseSchema, {
 export const ipfs = extend(transactionBaseSchema, {
     $id: "ipfs",
     properties: {
-        type: { transactionType: TransactionTypes.Ipfs },
+        type: { transactionType: TransactionType.Ipfs },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
             type: "object",
@@ -197,26 +202,114 @@ export const ipfs = extend(transactionBaseSchema, {
     },
 });
 
-export const timelockTransfer = extend(transactionBaseSchema, {
-    $id: "timelockTransfer",
+export const htlcLock = extend(transactionBaseSchema, {
+    $id: "htlcLock",
     properties: {
-        type: { transactionType: TransactionTypes.TimelockTransfer },
+        type: { transactionType: TransactionType.HtlcLock },
+        amount: { bignumber: { minimum: 1 } },
+        recipientId: { $ref: "address" },
+        asset: {
+            type: "object",
+            required: ["lock"],
+            properties: {
+                lock: {
+                    type: "object",
+                    required: ["secretHash", "expiration"],
+                    properties: {
+                        secretHash: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
+                        expiration: {
+                            type: "object",
+                            required: ["type", "value"],
+                            properties: {
+                                type: { type: "integer", minimum: 1, maximum: 2 },
+                                value: { type: "integer", minimum: 0 },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+});
+
+export const htlcClaim = extend(transactionBaseSchema, {
+    $id: "htlcClaim",
+    properties: {
+        type: { transactionType: TransactionType.HtlcClaim },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        fee: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["claim"],
+            properties: {
+                claim: {
+                    type: "object",
+                    required: ["lockTransactionId", "unlockSecret"],
+                    properties: {
+                        lockTransactionId: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
+                        unlockSecret: { type: "string", minLength: 32, maxLength: 32 },
+                    },
+                },
+            },
+        },
+    },
+});
+
+export const htlcRefund = extend(transactionBaseSchema, {
+    $id: "htlcRefund",
+    properties: {
+        type: { transactionType: TransactionType.HtlcRefund },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+        fee: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["refund"],
+            properties: {
+                refund: {
+                    type: "object",
+                    required: ["lockTransactionId"],
+                    properties: {
+                        lockTransactionId: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
+                    },
+                },
+            },
+        },
     },
 });
 
 export const multiPayment = extend(transactionBaseSchema, {
     $id: "multiPayment",
     properties: {
-        type: { transactionType: TransactionTypes.MultiPayment },
+        type: { transactionType: TransactionType.MultiPayment },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        asset: {
+            type: "object",
+            required: ["payments"],
+            properties: {
+                payments: {
+                    type: "array",
+                    minItems: 2,
+                    maxItems: 500,
+                    additionalItems: false,
+                    uniqueItems: false,
+                    items: {
+                        type: "object",
+                        required: ["amount", "recipientId"],
+                        properties: {
+                            amount: { bignumber: { minimum: 1 } },
+                            recipientId: { $ref: "address" },
+                        },
+                    },
+                },
+            },
+        },
     },
 });
 
 export const delegateResignation = extend(transactionBaseSchema, {
     $id: "delegateResignation",
     properties: {
-        type: { transactionType: TransactionTypes.DelegateResignation },
+        type: { transactionType: TransactionType.DelegateResignation },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
     },
 });

@@ -30,18 +30,19 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         this.applyOrder(params);
 
         // Execute...
-        let delegates: State.IWallet[] = this.databaseServiceProvider().walletManager.allByUsername();
+        let delegates: ReadonlyArray<State.IWallet> = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
             approval: delegateCalculator.calculateApproval,
             forgedTotal: delegateCalculator.calculateForgedTotal,
         };
 
+        // TODO: fix attributes lookup
         if (hasSomeProperty(params, Object.keys(manipulators))) {
             delegates = delegates.map(delegate => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
-                        delegate[prop] = method(delegate);
+                        delegate.setAttribute(`delegate.${prop}`, method(delegate));
                     }
                 }
 
@@ -49,7 +50,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             });
         }
 
-        delegates = sortEntries(params, filterRows(delegates, params, query), ["rate", "asc"]);
+        delegates = sortEntries(params, filterRows(delegates, params, query), ["rank", "asc"]);
 
         return {
             rows: limitRows(delegates, params),
@@ -58,20 +59,26 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
     }
 
     public findById(id): State.IWallet {
-        return this.databaseServiceProvider().walletManager.findDelegateById(id);
+        const wallet: State.IWallet = this.databaseServiceProvider().walletManager.findById(id);
+
+        if (wallet && wallet.isDelegate()) {
+            return wallet;
+        }
+
+        return undefined;
     }
 
     private applyOrder(params): [CallbackFunctionVariadicVoidReturn | string, string] {
         const assignOrder = (params, value) => (params.orderBy = value);
 
         if (!params.orderBy) {
-            return assignOrder(params, ["rate", "asc"]);
+            return assignOrder(params, ["rank", "asc"]);
         }
 
         const orderByMapped: string[] = params.orderBy.split(":").map(p => p.toLowerCase());
 
         if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
-            return assignOrder(params, ["rate", "asc"]);
+            return assignOrder(params, ["rank", "asc"]);
         }
 
         return assignOrder(params, [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]]);
@@ -84,7 +91,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             case "forgedTotal":
                 return delegateCalculator.calculateForgedTotal;
             case "rank":
-                return "rate";
+                return "rate"; // TODO: is this still necessary?
             case "votes":
                 return "voteBalance";
             default:

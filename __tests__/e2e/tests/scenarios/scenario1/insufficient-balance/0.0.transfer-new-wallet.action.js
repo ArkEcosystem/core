@@ -1,9 +1,10 @@
 "use strict";
 
-const { Managers, Transactions } = require("@arkecosystem/crypto");
+const { Managers, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const { delegates } = require("../../../../lib/utils/testnet");
 const testUtils = require("../../../../lib/utils/test-utils");
+const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
 
 /**
  * Creates a transaction to a new wallet
@@ -13,42 +14,39 @@ const testUtils = require("../../../../lib/utils/test-utils");
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
+    const senderWallet = delegates[4]; // better use a different delegate for each scenario initial transfer
+    const nonce = Utils.BigNumber.make(1);
+
     const transactions = [
-        Transactions.BuilderFactory.transfer()
-            .amount(1000 * Math.pow(10, 8))
-            .recipientId(utils.transferSender.address)
-            .vendorField("init for transfer")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(delegates[0].passphrase)
-            .getStruct(),
-        Transactions.BuilderFactory.transfer()
-            .amount(1000 * Math.pow(10, 8))
-            .recipientId(utils.transfer2ndsigSender.address)
-            .vendorField("init for transfer with 2nd sig")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(delegates[0].passphrase)
-            .getStruct(),
-        Transactions.BuilderFactory.transfer()
-            .amount(0.5 * Math.pow(10, 8))
-            .recipientId(utils.voteSender.address)
-            .vendorField("init for vote")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(delegates[0].passphrase)
-            .getStruct(),
-        Transactions.BuilderFactory.transfer()
-            .amount(15 * Math.pow(10, 8))
-            .recipientId(utils.delRegSender.address)
-            .vendorField("init for delegate registration")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(delegates[0].passphrase)
-            .getStruct(),
-        Transactions.BuilderFactory.transfer()
-            .amount(3 * Math.pow(10, 8))
-            .recipientId(utils.secondsigRegSender.address)
-            .vendorField("init for 2nd signature registration")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(delegates[0].passphrase)
-            .getStruct(),
+        TransactionFactory.transfer(utils.transferSender.address, 1000 * Math.pow(10, 8), "init for transfer")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withPassphrase(senderWallet.passphrase)
+            .withNonce(nonce.plus(1))
+            .createOne(),
+
+        TransactionFactory.transfer(utils.transfer2ndsigSender.address, 1000 * Math.pow(10, 8), "init for transfer with 2nd sig")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withPassphrase(senderWallet.passphrase)
+            .withNonce(nonce.plus(2))
+            .createOne(),
+
+        TransactionFactory.transfer(utils.voteSender.address, 0.5 * Math.pow(10, 8), "init for vote")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withPassphrase(senderWallet.passphrase)
+            .withNonce(nonce.plus(3))
+            .createOne(),
+
+        TransactionFactory.transfer(utils.delRegSender.address, 15 * Math.pow(10, 8), "init for delegate registration")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withPassphrase(senderWallet.passphrase)
+            .withNonce(nonce.plus(4))
+            .createOne(),
+
+        TransactionFactory.transfer(utils.secondsigRegSender.address, 3 * Math.pow(10, 8), "init for 2nd signature registration")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withPassphrase(senderWallet.passphrase)
+            .withNonce(nonce.plus(5))
+            .createOne(),
     ];
 
     await testUtils.POST("transactions", { transactions });

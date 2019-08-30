@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-api",
-    "version": "2.5.19",
+    "version": "2.5.0-next.10",
     "description": "Public API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,17 +21,17 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.19",
-        "@arkecosystem/core-http-utils": "^2.5.19",
-        "@arkecosystem/core-interfaces": "^2.5.19",
-        "@arkecosystem/core-transaction-pool": "^2.5.19",
-        "@arkecosystem/core-utils": "^2.5.19",
-        "@arkecosystem/crypto": "^2.5.19",
+        "@arkecosystem/core-container": "^2.5.0-next.10",
+        "@arkecosystem/core-http-utils": "^2.5.0-next.10",
+        "@arkecosystem/core-interfaces": "^2.5.0-next.10",
+        "@arkecosystem/core-transaction-pool": "^2.5.0-next.10",
+        "@arkecosystem/core-transactions": "^2.5.0-next.10",
+        "@arkecosystem/core-utils": "^2.5.0-next.10",
+        "@arkecosystem/crypto": "^2.5.0-next.10",
         "@arkecosystem/utils": "^0.3.0",
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.1.0",
         "ajv": "^6.10.2",
-        "bs58check": "^2.1.2",
         "dayjs": "^1.8.15",
         "hapi-pagination": "https://github.com/faustbrian/hapi-pagination#f4991348ca779b68b8e7139cfcbc601e6d496612",
         "hapi-rate-limit": "^4.0.0",

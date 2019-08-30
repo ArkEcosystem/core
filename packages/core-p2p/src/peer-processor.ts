@@ -4,7 +4,7 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { Peer } from "./peer";
-import { isValidPeer, isWhitelisted } from "./utils";
+import { isValidPeer, isValidVersion, isWhitelisted } from "./utils";
 
 export class PeerProcessor implements P2P.IPeerProcessor {
     public server: any;
@@ -29,6 +29,10 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.communicator = communicator;
         this.connector = connector;
         this.storage = storage;
+
+        this.emitter.on("internal.milestone.changed", () => {
+            this.updatePeersAfterMilestoneChange();
+        });
     }
 
     public async validateAndAcceptPeer(peer: P2P.IPeer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
@@ -69,6 +73,16 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         return true;
     }
 
+    private updatePeersAfterMilestoneChange(): void {
+        const peers: P2P.IPeer[] = this.storage.getPeers();
+        for (const peer of peers) {
+            if (!isValidVersion(peer)) {
+                this.connector.disconnect(peer);
+                this.storage.forgetPeer(peer);
+            }
+        }
+    }
+
     private async acceptNewPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
         if (this.storage.getPeer(peer.ip)) {
             return;
@@ -79,7 +93,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            await this.communicator.ping(newPeer, 3000);
+            await this.communicator.ping(newPeer, app.resolveOptions("p2p").verifyTimeout);
 
             this.storage.setPeer(newPeer);
 

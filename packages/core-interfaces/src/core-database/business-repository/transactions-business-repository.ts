@@ -1,4 +1,4 @@
-import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { IWallet } from "../../core-state/wallets";
 import { IParameters } from "./parameters";
 
@@ -26,7 +26,7 @@ export interface ITransactionsBusinessRepository {
 
     findByTypeAndId(type: number, id: string): Promise<Interfaces.ITransactionData>;
 
-    getAssetsByType(type: Enums.TransactionTypes | number): Promise<any>;
+    getAssetsByType(type: number, typeGroup?: number): Promise<any>;
 
     getReceivedTransactions(): Promise<any>;
 

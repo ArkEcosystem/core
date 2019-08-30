@@ -123,14 +123,14 @@ export const replySchemas = {
                 properties: {
                     height: {
                         type: "integer",
-                        minimum: 1
+                        minimum: 1,
                     },
                     forgingAllowed: {
-                        type: "boolean"
+                        type: "boolean",
                     },
                     currentSlot: {
                         type: "integer",
-                        minimum: 1
+                        minimum: 1,
                     },
                     header: {
                         anyOf: [
@@ -141,9 +141,9 @@ export const replySchemas = {
                                 type: "object",
                                 minProperties: 0,
                                 maxProperties: 0,
-                            }
+                            },
                         ],
-                    }
+                    },
                 },
             },
             config: {
@@ -174,12 +174,12 @@ export const replySchemas = {
                             nethash: {
                                 allOf: [
                                     {
-                                        $ref: "hex"
+                                        $ref: "hex",
                                     },
                                     {
                                         minLength: 64,
-                                        maxLength: 64
-                                    }
+                                        maxLength: 64,
+                                    },
                                 ],
                             },
                             explorer: {
@@ -224,10 +224,10 @@ export const replySchemas = {
                                     },
                                     enabled: {
                                         type: "boolean",
-                                    }
-                                }
+                                    },
+                                },
                             },
-                        }
+                        },
                     },
                 },
             },

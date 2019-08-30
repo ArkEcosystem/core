@@ -32,6 +32,4 @@ export enum ApplicationEvents {
     TransactionPoolRejected = "transaction.pool.rejected",
     TransactionPoolRemoved = "transaction.pool.removed",
     TransactionReverted = "transaction.reverted",
-    WalletColdCreated = "wallet.created.cold",
-    WalletSaved = "wallet.saved",
 }

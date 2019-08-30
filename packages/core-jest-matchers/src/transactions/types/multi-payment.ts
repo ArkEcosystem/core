@@ -1,6 +1,6 @@
 import { Enums } from "@arkecosystem/crypto";
 
-const { MultiPayment } = Enums.TransactionTypes;
+const { MultiPayment } = Enums.TransactionType;
 
 export {};
 

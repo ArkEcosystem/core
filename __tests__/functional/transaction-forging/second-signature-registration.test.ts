@@ -62,7 +62,7 @@ describe("Transaction Forging - Second Signature Registration", () => {
             .withPassphraseList(passphrases)
             .createOne();
 
-        await expect(secondSignature.id).toBeRejected();
+        await expect(secondSignature).toBeRejected();
         await support.snoozeForBlock(1);
         await expect(secondSignature.id).not.toBeForged();
 

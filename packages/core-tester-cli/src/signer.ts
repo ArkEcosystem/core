@@ -100,6 +100,68 @@ export class Signer {
         return transaction.getStruct();
     }
 
+    public makeMultipayment(opts: Record<string, any>): any {
+        const transaction = Transactions.BuilderFactory.multiPayment()
+            .fee(this.toSatoshi(opts.multipaymentFee))
+            .network(this.network);
+
+        for (const payment of opts.payments) {
+            transaction.addPayment(payment.recipientId, payment.amount);
+        }
+
+        transaction.sign(opts.passphrase);
+
+        if (opts.secondPassphrase) {
+            transaction.secondSign(opts.secondPassphrase);
+        }
+
+        return transaction.getStruct();
+    }
+
+    public makeHtlcLock(opts: Record<string, any>): any {
+        const transaction = Transactions.BuilderFactory.htlcLock()
+            .fee(this.toSatoshi(opts.htlcLockFee))
+            .htlcLockAsset(opts.lock)
+            .amount(opts.amount)
+            .recipientId(opts.recipient)
+            .network(this.network)
+            .sign(opts.passphrase);
+
+        if (opts.secondPassphrase) {
+            transaction.secondSign(opts.secondPassphrase);
+        }
+
+        return transaction.getStruct();
+    }
+
+    public makeHtlcClaim(opts: Record<string, any>): any {
+        const transaction = Transactions.BuilderFactory.htlcClaim()
+            .fee(this.toSatoshi(opts.htlcClaimFee))
+            .htlcClaimAsset(opts.claim)
+            .network(this.network)
+            .sign(opts.passphrase);
+
+        if (opts.secondPassphrase) {
+            transaction.secondSign(opts.secondPassphrase);
+        }
+
+        return transaction.getStruct();
+    }
+
+    public makeHtlcRefund(opts: Record<string, any>): any {
+        const transaction = Transactions.BuilderFactory.htlcRefund()
+            .fee(this.toSatoshi(opts.htlcRefundFee))
+            .htlcRefundAsset(opts.refund)
+            .network(this.network)
+            .sign(opts.passphrase);
+
+        if (opts.secondPassphrase) {
+            transaction.secondSign(opts.secondPassphrase);
+        }
+
+        return transaction.getStruct();
+    }
+
     private toSatoshi(value): string {
         return Utils.BigNumber.make(value)
             .times(1e8)

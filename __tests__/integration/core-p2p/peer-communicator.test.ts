@@ -4,7 +4,8 @@ import "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { Transactions } from "@arkecosystem/crypto";
-import { getPeerConfig } from '../../../packages/core-p2p/src/socket-server/utils/get-peer-config';
+import { getPeerConfig } from "../../../packages/core-p2p/src/socket-server/utils/get-peer-config";
+import { BlockFactory } from "../../helpers";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
@@ -28,8 +29,9 @@ const blockHeader = {
     // tslint:disable-next-line: no-null-keyword
     previousBlock: null,
     generatorPublicKey: "03b47f6b6719c76bad46a302d9cff7be9b1c2b2a20602a0d880f139b5b8901f068",
-    blockSignature: "304402202fe5de5697fa25d3d3c0cb24617ac02ddfb1c915ee9194a89f8392f948c6076402200d07c5244642fe36afa53fb2d048735f1adfa623e8fa4760487e5f72e17d253b"
-}
+    blockSignature:
+        "304402202fe5de5697fa25d3d3c0cb24617ac02ddfb1c915ee9194a89f8392f948c6076402200d07c5244642fe36afa53fb2d048735f1adfa623e8fa4760487e5f72e17d253b",
+};
 
 beforeAll(async () => {
     socketManager = new MockSocketManager();
@@ -78,7 +80,10 @@ describe("PeerCommunicator", () => {
 
     describe("downloadBlocks", () => {
         it("should be ok", async () => {
-            await socketManager.addMock("getBlocks", [genesisBlockJSON, genesisBlockJSON]);
+            await socketManager.addMock("getBlocks", [
+                BlockFactory.createDummy().toJson(),
+                BlockFactory.createDummy().toJson(),
+            ]);
 
             const blocks = await communicator.downloadBlocks(stubPeer, 1);
 
@@ -87,11 +92,12 @@ describe("PeerCommunicator", () => {
         });
 
         it("should return the blocks with status 200", async () => {
-            await socketManager.addMock("getBlocks", [genesisBlock]);
+            const block = BlockFactory.createDummy();
+            await socketManager.addMock("getBlocks", [block.toJson()]);
             const response = await communicator.downloadBlocks(stubPeer, 1);
 
             expect(response).toBeArrayOfSize(1);
-            expect(response[0].id).toBe(genesisBlock.id);
+            expect(response[0].id).toBe(block.data.id);
         });
 
         it("should update the height after download", async () => {

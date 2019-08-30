@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { Block, BlockFactory } from "../../../../packages/crypto/src/blocks";
@@ -182,10 +182,10 @@ describe("Block", () => {
             };
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 10)
                 .withNetwork("testnet")
+                .withVersion(2)
+                .withExpiration(52)
                 .withPassphrase("super cool passphrase")
                 .create();
-
-            transactions[0].expiration = 52;
 
             const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
@@ -203,6 +203,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
+
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
@@ -210,9 +211,11 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
+            Managers.configManager.getMilestone().aip11 = false;
             const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered expired transaction: ${transactions[0].id}`);
+            Managers.configManager.getMilestone().aip11 = true;
         });
 
         it("should verify a block with future transaction timestamp if within blocktime", () => {
@@ -226,6 +229,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
+
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
@@ -237,8 +241,10 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
+            Managers.configManager.getMilestone().aip11 = false;
             const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeTrue();
+            Managers.configManager.getMilestone().aip11 = true;
         });
 
         it("should fail to verify a block with future transaction timestamp", () => {
@@ -252,6 +258,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
+
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
@@ -263,9 +270,11 @@ describe("Block", () => {
                 .withPassphrase("super cool passphrase")
                 .create();
 
+            Managers.configManager.getMilestone().aip11 = false;
             const block: IBlock = delegate.forge(transactions, optionsDefault);
             expect(block.verification.verified).toBeFalse();
             expect(block.verification.errors).toContain(`Encountered future transaction: ${transactions[0].id}`);
+            Managers.configManager.getMilestone().aip11 = true;
         });
 
         it("should accept block with future transaction timestamp if milestone is active", () => {
@@ -279,6 +288,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
+
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("mainnet")
                 .withVersion(1)
@@ -305,6 +315,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
+
             const transactions = TransactionFactory.transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("mainnet")
                 .withVersion(1)
@@ -527,11 +538,13 @@ describe("Block", () => {
                 "%s",
                 (network: NetworkName, length: number) => {
                     configManager.setFromPreset(network);
+                    configManager.getMilestone().aip11 = false;
 
                     const block: Interfaces.IBlock = BlockFactory.fromJson(networks[network].genesisBlock);
 
                     expect(block.serialized).toHaveLength(length);
                     expect(block.verifySignature()).toBeTrue();
+                    configManager.getMilestone().aip11 = network === "testnet";
                 },
             );
         });

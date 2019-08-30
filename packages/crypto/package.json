@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/crypto",
-    "version": "2.5.19",
+    "version": "2.5.0-next.10",
     "description": "Crypto utilities for the ARK Blockchain",
     "license": "MIT",
     "contributors": [
@@ -16,10 +16,11 @@
     ],
     "main": "dist/index",
     "module": "dist/index",
-    "browser": "dist/index",
+    "browser": "dist/index-browser",
     "types": "dist/index",
     "scripts": {
         "build": "yarn clean && tsc",
+        "build:rollup": "yarn clean && tsc && rollup -c",
         "build:watch": "yarn clean && yarn compile -w",
         "clean": "del dist",
         "compile": "../../node_modules/typescript/bin/tsc",
@@ -34,13 +35,11 @@
         "bip32": "^2.0.3",
         "bip39": "^3.0.2",
         "browserify-aes": "^1.2.0",
-        "bs58": "^4.0.1",
-        "bs58check": "^2.1.2",
+        "bstring": "^0.3.9",
         "buffer-xor": "^2.0.2",
         "bytebuffer": "^5.0.1",
         "dayjs": "^1.8.15",
         "deepmerge": "^4.0.0",
-        "lodash.camelcase": "^4.3.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "lodash.sumby": "^4.6.0",
@@ -53,18 +52,21 @@
     "devDependencies": {
         "@types/bip32": "^1.0.2",
         "@types/bip39": "^2.4.2",
-        "@types/bs58": "^4.0.0",
         "@types/buffer-xor": "^2.0.0",
         "@types/bytebuffer": "^5.0.40",
         "@types/hapi__joi": "^15.0.2",
-        "@types/lodash.camelcase": "^4.3.6",
         "@types/lodash.get": "^4.4.6",
         "@types/lodash.set": "^4.3.6",
         "@types/lodash.sumby": "^4.6.6",
         "@types/node-forge": "^0.8.4",
         "@types/otplib": "^7.0.0",
         "@types/pluralize": "^0.0.29",
-        "@types/wif": "^2.0.1"
+        "@types/wif": "^2.0.1",
+        "rollup": "^1.17.0",
+        "rollup-plugin-terser": "^5.1.1",
+        "rollup-plugin-commonjs": "^10.0.1",
+        "rollup-plugin-json": "^4.0.0",
+        "rollup-plugin-node-resolve": "^5.2.0"
     },
     "publishConfig": {
         "access": "public"

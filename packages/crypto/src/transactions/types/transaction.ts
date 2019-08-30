@@ -1,6 +1,8 @@
-import { TransactionTypes } from "../../enums";
+import { TransactionTypeGroup } from "../../enums";
 import { NotImplementedError } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
+import { configManager } from "../../managers/config";
+import { BigNumber } from "../../utils/bignum";
 import { Verifier } from "../verifier";
 import { TransactionSchema } from "./schemas";
 
@@ -9,17 +11,47 @@ export abstract class Transaction implements ITransaction {
         return this.data.id;
     }
 
-    public get type(): TransactionTypes {
+    public get type(): number {
         return this.data.type;
     }
+
+    public get typeGroup(): number {
+        return this.data.typeGroup;
+    }
+
     public get verified(): boolean {
         return this.isVerified;
     }
-    public static type: TransactionTypes = undefined;
+
+    public get key(): string {
+        return (this as any).__proto__.constructor.key;
+    }
+
+    public get staticFee(): BigNumber {
+        return (this as any).__proto__.constructor.staticFee({ data: this.data });
+    }
+
+    public static type: number = undefined;
+    public static typeGroup: number = undefined;
+    public static key: string = undefined;
 
     public static getSchema(): TransactionSchema {
         throw new NotImplementedError();
     }
+
+    public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {
+        const milestones = configManager.getMilestone(feeContext.height);
+        if (milestones.fees && milestones.fees.staticFees) {
+            const fee: any = milestones.fees.staticFees[this.key];
+            if (fee !== undefined) {
+                return BigNumber.make(fee);
+            }
+        }
+
+        return this.defaultStaticFee;
+    }
+
+    protected static defaultStaticFee: BigNumber = BigNumber.ZERO;
 
     public isVerified: boolean;
 
@@ -44,8 +76,16 @@ export abstract class Transaction implements ITransaction {
 
     public toJson(): ITransactionJson {
         const data: ITransactionJson = JSON.parse(JSON.stringify(this.data));
-        data.amount = this.data.amount.toFixed();
-        data.fee = this.data.fee.toFixed();
+
+        if (data.typeGroup === TransactionTypeGroup.Core) {
+            delete data.typeGroup;
+        }
+
+        if (data.version === 1) {
+            delete data.nonce;
+        } else {
+            delete data.timestamp;
+        }
 
         if (!data.vendorFieldHex) {
             delete data.vendorFieldHex;

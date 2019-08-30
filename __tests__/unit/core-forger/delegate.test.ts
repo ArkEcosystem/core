@@ -1,10 +1,7 @@
 import "jest-extended";
 
-import { Types, Utils } from "@arkecosystem/crypto";
+import { Managers, Networks, Types, Utils } from "@arkecosystem/crypto";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
-import { ITransactionData } from "../../../packages/crypto/src/interfaces";
-import { testnet } from "../../../packages/crypto/src/networks";
-import { sortTransactions } from "../../../packages/crypto/src/utils";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 
 const dummy = {
@@ -15,9 +12,11 @@ const dummy = {
 };
 
 describe("Delegate", () => {
+    beforeAll(() => Managers.configManager.setFromPreset("testnet"));
+
     describe("constructor", () => {
         it("should be ok with a plain text passphrase", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
 
             expect(delegate.publicKey).toBe(dummy.publicKey);
             expect(delegate.address).toBe(dummy.address);
@@ -26,7 +25,7 @@ describe("Delegate", () => {
 
         describe("bip38", () => {
             it("should pass with a valid passphrase", () => {
-                const delegate = new Delegate(dummy.bip38Passphrase, testnet.network, "bip38-password");
+                const delegate = new Delegate(dummy.bip38Passphrase, Networks.testnet.network, "bip38-password");
 
                 expect(delegate.publicKey).toBe(dummy.publicKey);
                 expect(delegate.address).toBe(dummy.address);
@@ -34,7 +33,7 @@ describe("Delegate", () => {
             });
 
             it("should fail with an invalid passphrase", () => {
-                const delegate = new Delegate(dummy.bip38Passphrase, testnet.network, "invalid-password");
+                const delegate = new Delegate(dummy.bip38Passphrase, Networks.testnet.network, "invalid-password");
 
                 expect(delegate.publicKey).toBeUndefined();
                 expect(delegate.address).toBeUndefined();
@@ -45,7 +44,7 @@ describe("Delegate", () => {
 
     describe("encryptPassphrase", () => {
         it("should pass with valid data", () => {
-            const passphrase = Delegate.encryptPassphrase(dummy.plainPassphrase, testnet.network, "bip38-password");
+            const passphrase = Delegate.encryptPassphrase(dummy.plainPassphrase, Networks.testnet.network, "bip38-password");
 
             expect(passphrase).toBe(dummy.bip38Passphrase);
         });
@@ -59,21 +58,21 @@ describe("Delegate", () => {
 
     describe("decryptPassphrase", () => {
         it("should pass with a valid password", () => {
-            const { publicKey } = Delegate.decryptPassphrase(dummy.bip38Passphrase, testnet.network, "bip38-password");
+            const { publicKey } = Delegate.decryptPassphrase(dummy.bip38Passphrase, Networks.testnet.network, "bip38-password");
 
             expect(publicKey).toBe(dummy.publicKey);
         });
 
         it("should fail with an invalid password", () => {
             expect(() => {
-                Delegate.decryptPassphrase(dummy.bip38Passphrase, testnet.network, "invalid-password");
+                Delegate.decryptPassphrase(dummy.bip38Passphrase, Networks.testnet.network, "invalid-password");
             }).toThrow();
         });
     });
 
     describe("encryptKeysWithOtp", () => {
         it("should pass with a valid OTP secret", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
             delegate.otpSecret = "one-time-password";
 
             delegate.encryptKeysWithOtp();
@@ -84,7 +83,7 @@ describe("Delegate", () => {
         });
 
         it("should fail without an OTP secret", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
             delegate.otpSecret = undefined;
 
             expect(() => {
@@ -95,7 +94,7 @@ describe("Delegate", () => {
 
     describe("decryptKeysWithOtp", () => {
         it("should pass with valid data", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
             delegate.otpSecret = "one-time-password";
 
             delegate.encryptKeysWithOtp();
@@ -112,7 +111,7 @@ describe("Delegate", () => {
         });
 
         it("should fail with missing encrypted data", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
 
             expect(() => {
                 delegate.decryptKeysWithOtp();
@@ -120,7 +119,7 @@ describe("Delegate", () => {
         });
 
         it("should fail with invalid encrypted data", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
             delegate.otpSecret = "one-time-password";
 
             delegate.encryptKeysWithOtp();
@@ -137,15 +136,6 @@ describe("Delegate", () => {
         });
     });
 
-    describe("sortTransactions", () => {
-        it("returns the transactions ordered by type and id", () => {
-            const ordered = [{ type: 1, id: "2" }, { type: 1, id: "8" }, { type: 2, id: "5" }, { type: 2, id: "9" }];
-            const unordered = [ordered[3], ordered[2], ordered[1], ordered[0]] as ITransactionData[];
-
-            expect(sortTransactions(unordered)).toEqual(ordered);
-        });
-    });
-
     describe("forge", () => {
         const optionsDefault = {
             timestamp: 12345689,
@@ -156,9 +146,10 @@ describe("Delegate", () => {
             },
             reward: Utils.BigNumber.ZERO,
         };
+
+        Managers.configManager.getMilestone().aip11 = true;
         const transactions = TransactionFactory.secondSignature(dummy.plainPassphrase)
             .withPassphrase(dummy.plainPassphrase)
-            .withTimestamp(optionsDefault.timestamp)
             .create();
         const expectedBlockData = {
             generatorPublicKey: dummy.publicKey,
@@ -172,14 +163,13 @@ describe("Delegate", () => {
         };
 
         it("should forge a block", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
 
             const block = delegate.forge(transactions, optionsDefault);
 
             for (const key of Object.keys(expectedBlockData)) {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
             }
-
             expect(block.verification).toEqual({
                 containsMultiSignatures: false,
                 errors: [],
@@ -190,7 +180,7 @@ describe("Delegate", () => {
         });
 
         it("should forge a block - bip38", () => {
-            const delegate = new Delegate(dummy.bip38Passphrase, testnet.network, "bip38-password");
+            const delegate = new Delegate(dummy.bip38Passphrase, Networks.testnet.network, "bip38-password");
 
             const spyDecryptKeys = jest.spyOn(delegate, "decryptKeysWithOtp");
             const spyEncryptKeys = jest.spyOn(delegate, "encryptKeysWithOtp");
@@ -203,7 +193,6 @@ describe("Delegate", () => {
             for (const key of Object.keys(expectedBlockData)) {
                 expect(block.data[key]).toEqual(expectedBlockData[key]);
             }
-
             expect(block.verification).toEqual({
                 containsMultiSignatures: false,
                 errors: [],
@@ -214,7 +203,7 @@ describe("Delegate", () => {
         });
 
         it("should not forge a block if options.version is defined", () => {
-            const delegate = new Delegate(dummy.plainPassphrase, testnet.network);
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
 
             const options = {
                 version: "2.0.0",
@@ -225,11 +214,30 @@ describe("Delegate", () => {
         });
 
         it("should not forge a block if bip38 is on but encryptedKeys is not set", () => {
-            const delegate = new Delegate(dummy.bip38Passphrase, testnet.network, "bip38-password");
+            const delegate = new Delegate(dummy.bip38Passphrase, Networks.testnet.network, "bip38-password");
             delegate.encryptedKeys = undefined;
 
             const block = delegate.forge(transactions, optionsDefault);
             expect(block).toBeUndefined();
+        });
+
+        it("should forge a block with transactions ordered by nonce", () => {
+            const transfers = TransactionFactory.transfer()
+                .withPassphrase(dummy.plainPassphrase)
+                .create(10);
+
+            const delegate = new Delegate(dummy.plainPassphrase, Networks.testnet.network);
+
+            const block = delegate.forge(transfers, optionsDefault);
+
+            expect(block.verification).toEqual({
+                containsMultiSignatures: false,
+                errors: [],
+                verified: true,
+            });
+            expect(block.transactions.map(tx => tx.data.nonce)).toEqual(
+                [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(n => new Utils.BigNumber(n)),
+            );
         });
     });
 });

@@ -4,6 +4,9 @@ export const database = {
     walletManager: {
         findByPublicKey: pubKey => "username",
     },
+    transactionsBusinessRepository: {
+        findById: id => undefined,
+    },
 
     buildWallets: () => undefined,
     saveWallets: () => undefined,

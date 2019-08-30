@@ -38,6 +38,7 @@ export const transformTransaction = (model, transform) => {
         vendorField: data.vendorField,
         asset: data.asset,
         confirmations: model.block ? lastBlock.data.height - model.block.height + 1 : 0,
-        timestamp: formatTimestamp(data.timestamp),
+        timestamp: data.version === 1 ? formatTimestamp(data.timestamp) : undefined,
+        nonce: data.version > 1 ? data.nonce.toFixed() : undefined,
     };
 };
