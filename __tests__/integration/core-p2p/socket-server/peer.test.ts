@@ -34,7 +34,7 @@ beforeAll(async () => {
 
     const { service, processor } = createPeerService();
 
-    server = await startSocketServer(service, { server: { port: 4007 } });
+    server = await startSocketServer(service, { server: { port: 4007, workers: 1 } });
     await delay(1000);
 
     socket = socketCluster.create({
@@ -269,6 +269,31 @@ describe("Peer socket endpoint", () => {
                     headers,
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
+        });
+
+        it("should close the connection and prevent reconnection if blocked", async () => {
+            await delay(1000);
+
+            await emit("p2p.peer.getPeers", {
+                headers,
+            });
+
+            expect(socket.state).toBe("open");
+
+            for (let i = 0; i < 100; i++) {
+                await expect(
+                    emit("p2p.peer.getPeers", {
+                        headers,
+                    }),
+                ).rejects.toContainAnyEntries([["name", "CoreRateLimitExceededError"], ["name", "BadConnectionError"]]);
+            }
+
+            expect(socket.state).not.toBe("open");
+
+            socket.connect();
+            await delay(1000);
+
+            expect(socket.state).not.toBe("open");
         });
     });
 });

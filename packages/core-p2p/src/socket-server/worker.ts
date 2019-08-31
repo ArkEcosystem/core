@@ -118,7 +118,7 @@ export class Worker extends SCWorker {
     private async handleEmit(req, next): Promise<void> {
         if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
             if (await this.rateLimiter.isBlocked(req.socket.remoteAddress)) {
-                req.socket.disconnect(4403, "Forbidden");
+                req.socket.terminate();
                 return;
             }
 
