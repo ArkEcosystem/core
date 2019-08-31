@@ -3,6 +3,7 @@ import { NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
+
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
 

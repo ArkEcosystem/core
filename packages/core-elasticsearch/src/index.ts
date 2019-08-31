@@ -1,4 +1,5 @@
 import { Providers } from "@arkecosystem/core-kernel";
+
 import { client } from "./client";
 import { watchIndices } from "./indices";
 import { startServer } from "./server";

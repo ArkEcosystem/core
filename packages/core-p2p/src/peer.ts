@@ -1,5 +1,6 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 import dayjs, { Dayjs } from "dayjs";
+
 import { PeerVerificationResult } from "./peer-verifier";
 
 export class Peer implements Contracts.P2P.Peer {

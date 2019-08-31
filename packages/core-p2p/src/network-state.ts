@@ -1,7 +1,6 @@
-/* tslint:disable:no-shadowed-variable member-ordering max-classes-per-file */
-
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
+
 import { NetworkStateStatus } from "./enums";
 
 class QuorumDetails implements Contracts.P2P.QuorumDetails {

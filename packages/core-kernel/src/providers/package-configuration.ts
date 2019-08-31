@@ -1,10 +1,11 @@
 import get from "get-value";
+import has from "has-value";
 import set from "set-value";
 import unset from "unset-value";
-import has from "has-value";
-import { JsonObject } from "../types";
-import { injectable, inject, Identifiers } from "../container";
+
+import { Identifiers, inject, injectable } from "../container";
 import { ConfigRepository } from "../services/config";
+import { JsonObject } from "../types";
 
 /**
  * @export

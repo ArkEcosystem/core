@@ -2,6 +2,7 @@ import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Handlers, Interfaces as TransactionInterfaces } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
 import { TempWalletManager } from "./temp-wallet-manager";
 import { Wallet } from "./wallet";

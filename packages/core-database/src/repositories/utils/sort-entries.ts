@@ -1,6 +1,7 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 import { orderBy } from "@arkecosystem/utils";
+
 import { getProperty } from "./get-property";
 
 export const sortEntries = (params: Contracts.Database.Parameters, entries: Contracts.State.Wallet[], defaultValue) => {

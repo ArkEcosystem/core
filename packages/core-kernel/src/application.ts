@@ -1,17 +1,18 @@
 import { existsSync, removeSync, writeFileSync } from "fs-extra";
 import { join } from "path";
-import { JsonObject } from "./types";
+
 import * as Bootstrappers from "./bootstrap";
+import { Bootstrapper } from "./bootstrap/interfaces";
+import { Identifiers } from "./container";
 import * as Contracts from "./contracts";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { ServiceProvider, ServiceProviderRepository } from "./providers";
-import { EventListener } from "./types/events";
-import { ServiceProvider as EventServiceProvider } from "./services/events/service-provider";
 // import { ShutdownSignal } from "./enums/process";
 import { ConfigRepository } from "./services/config";
-import { Bootstrapper } from "./bootstrap/interfaces";
-import { Identifiers } from "./container";
+import { ServiceProvider as EventServiceProvider } from "./services/events/service-provider";
+import { JsonObject } from "./types";
 import { Constructor } from "./types/container";
+import { EventListener } from "./types/events";
 
 /**
  * @export

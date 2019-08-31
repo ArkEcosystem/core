@@ -2,6 +2,7 @@ import Table from "cli-table3";
 import envfile from "envfile";
 import { writeFileSync } from "fs-extra";
 import { existsSync } from "fs-extra";
+
 import { EnvironmentVars } from "./types";
 
 export const renderTable = (head: string[], callback: any): void => {

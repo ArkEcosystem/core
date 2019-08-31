@@ -1,4 +1,4 @@
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 

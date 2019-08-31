@@ -1,9 +1,9 @@
-// tslint:disable:max-classes-per-file
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import { inspect } from "util";
+
 import { Severity } from "./enums";
 
 export class PeerVerificationResult implements Contracts.P2P.PeerVerificationResult {

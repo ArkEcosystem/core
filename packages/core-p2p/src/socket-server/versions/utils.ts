@@ -1,4 +1,5 @@
 import { app, Container } from "@arkecosystem/core-kernel";
+
 import { isWhitelisted } from "../../utils/is-whitelisted";
 import * as internalHandlers from "./internal";
 import * as peerHandlers from "./peer";

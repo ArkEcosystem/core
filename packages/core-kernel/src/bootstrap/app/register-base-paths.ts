@@ -1,13 +1,14 @@
-import set from "set-value";
 import envPaths from "env-paths";
 import expandHomeDir from "expand-home-dir";
 import { ensureDirSync } from "fs-extra";
 import camelCase from "lodash/camelCase";
 import { resolve } from "path";
+import set from "set-value";
+
+import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
-import { Bootstrapper } from "../interfaces";
-import { injectable, inject, Identifiers } from "../../container";
 import { ConfigRepository } from "../../services/config";
+import { Bootstrapper } from "../interfaces";
 
 /**
  * @export

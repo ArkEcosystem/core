@@ -1,5 +1,6 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
+
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class TransactionsBusinessRepository implements Contracts.Database.TransactionsBusinessRepository {

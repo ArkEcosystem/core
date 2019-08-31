@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+
 import { PreviousBlockIdFormatError } from "../errors";
 import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";

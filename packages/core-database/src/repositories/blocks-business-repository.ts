@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
+
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
 export class BlocksBusinessRepository implements Contracts.Database.BlocksBusinessRepository {

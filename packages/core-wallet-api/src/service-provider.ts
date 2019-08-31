@@ -1,6 +1,7 @@
 import { Providers } from "@arkecosystem/core-kernel";
 import { isWhitelisted } from "@arkecosystem/core-utils";
 import ip from "ip";
+
 import { startServer } from "./server";
 
 export class ServiceProvider extends Providers.ServiceProvider {

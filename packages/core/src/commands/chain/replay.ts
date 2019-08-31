@@ -1,5 +1,6 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { flags } from "@oclif/command";
+
 import { setUpLite } from "../../helpers/replay";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
@@ -28,6 +29,8 @@ export class ReplayCommand extends BaseCommand {
             this.error("The @arkecosystem/core-blockchain plugin is not installed.");
         }
 
-        await app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).replay(flags.targetHeight);
+        await app
+            .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
+            .replay(flags.targetHeight);
     }
 }

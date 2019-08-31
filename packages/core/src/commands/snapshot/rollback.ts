@@ -1,6 +1,7 @@
 import { app, Container } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
+
 import { setUpLite } from "../../helpers/snapshot";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";

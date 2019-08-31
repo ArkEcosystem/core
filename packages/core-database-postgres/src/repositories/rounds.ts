@@ -1,4 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { Round } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";

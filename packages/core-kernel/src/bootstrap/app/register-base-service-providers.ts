@@ -1,7 +1,7 @@
-import { Actions, Cache, Filesystem, Log, Queue, Schedule, Validation } from "../../services";
+import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
+import { Actions, Cache, Filesystem, Log, Queue, Schedule, Validation } from "../../services";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export

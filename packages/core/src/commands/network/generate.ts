@@ -5,6 +5,7 @@ import ByteBuffer from "bytebuffer";
 import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
+
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 
@@ -350,7 +351,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
             timestamp,
             numberOfTransactions: transactions.length,
             payloadLength,
-            previousBlock: null, // tslint:disable-line
+            previousBlock: null,
             generatorPublicKey: keys.publicKey.toString("hex"),
             transactions,
             height: 1,

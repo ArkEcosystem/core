@@ -1,6 +1,4 @@
-/* tslint:disable:max-line-length */
-
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import groupBy from "lodash.groupby";
@@ -10,6 +8,7 @@ import take from "lodash.take";
 import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
+
 import { PeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { checkDNS, checkNTP } from "./utils";

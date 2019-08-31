@@ -1,4 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { BlockStore } from "./stores/blocks";
 import { TransactionStore } from "./stores/transactions";
 

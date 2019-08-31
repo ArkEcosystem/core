@@ -1,5 +1,3 @@
-// tslint:disable: max-classes-per-file
-
 import { InvalidArgumentException, OutOfRangeException } from "./logic";
 import { RuntimeException } from "./runtime";
 

@@ -1,5 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 import SocketCluster from "socketcluster";
+
 import { NetworkState } from "./network-state";
 
 export interface NetworkStatus {

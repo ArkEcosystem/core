@@ -1,4 +1,5 @@
-import { Contracts, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+
 import { ConnectionFactory } from "./factory";
 
 @Container.injectable()

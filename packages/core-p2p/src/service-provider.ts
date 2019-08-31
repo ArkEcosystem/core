@@ -1,4 +1,5 @@
-import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
 import { PeerCommunicator } from "./peer-communicator";
@@ -16,7 +17,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const service: Contracts.P2P.PeerService = this.makePeerService(this.config().all());
 
-        // tslint:disable-next-line: no-unused-expression
         new EventListener(service);
 
         if (!process.env.DISABLE_P2P_SERVER) {

@@ -1,4 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { getProperty } from "./get-property";
 
 /**

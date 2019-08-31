@@ -1,7 +1,8 @@
-import { ValidationErrorItem, AnySchema } from "@hapi/joi";
-import { JsonObject } from "../../../types";
-import { Validator } from "../../../contracts/kernel/validation";
+import { AnySchema, ValidationErrorItem } from "@hapi/joi";
+
 import { injectable } from "../../../container";
+import { Validator } from "../../../contracts/kernel/validation";
+import { JsonObject } from "../../../types";
 
 /**
  * @export

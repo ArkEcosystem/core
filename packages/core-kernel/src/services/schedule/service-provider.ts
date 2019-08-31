@@ -1,6 +1,6 @@
+import { Identifiers } from "../../container";
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { Schedule } from "./schedule";
-import { Identifiers } from "../../container";
 
 /**
  * @export

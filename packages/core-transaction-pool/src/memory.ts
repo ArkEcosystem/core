@@ -1,4 +1,4 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -299,7 +299,6 @@ export class Memory {
         // by the transaction creator.
         // TODO: check if ok
         if (transaction.data.version >= 2) {
-            // tslint:disable-next-line:no-null-keyword
             return transaction.data.expiration || null;
         }
 

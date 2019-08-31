@@ -1,5 +1,6 @@
 import fs from "fs-extra";
 import prompts from "prompts";
+
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";
 import { PublishCommand } from "./publish";

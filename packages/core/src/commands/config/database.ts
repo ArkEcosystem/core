@@ -1,6 +1,7 @@
 import { hasSomeProperty } from "@arkecosystem/core-utils";
 import { flags } from "@oclif/command";
 import prompts from "prompts";
+
 import { CommandFlags, EnvironmentVars } from "../../types";
 import { updateEnvironmentVariables } from "../../utils";
 import { BaseCommand } from "../command";

@@ -1,4 +1,4 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 
 export const getHeaders = () => {
     const headers = {
@@ -8,7 +8,9 @@ export const getHeaders = () => {
     };
 
     if (app.isBound(Container.Identifiers.BlockchainService)) {
-        const lastBlock = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).getLastBlock();
+        const lastBlock = app
+            .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
+            .getLastBlock();
 
         if (lastBlock) {
             headers.height = lastBlock.data.height;

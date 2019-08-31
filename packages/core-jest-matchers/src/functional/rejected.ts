@@ -4,7 +4,6 @@ export {};
 
 declare global {
     namespace jest {
-        // tslint:disable-next-line:interface-name
         interface Matchers<R> {
             toBeRejected(): R;
         }
@@ -23,7 +22,7 @@ expect.extend({
             const parsedBody = JSON.parse(body);
 
             pass = parsedBody.errors === undefined && parsedBody.data.invalid.includes(id);
-        } catch (e) {} // tslint:disable-line
+        } catch {}
 
         return {
             pass,

@@ -1,7 +1,8 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import { flags } from "@oclif/command";
 import cliProgress from "cli-progress";
+
 import { chooseSnapshot, setUpLite } from "../../helpers/snapshot";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";

@@ -4,6 +4,7 @@ import { Hook } from "@oclif/config";
 import Chalk from "chalk";
 import * as Levenshtein from "fast-levenshtein";
 import minBy from "lodash.minby";
+
 import { confirm } from "../../helpers/prompts";
 
 const closest = (commandIDs: string[], cmd: string) => {

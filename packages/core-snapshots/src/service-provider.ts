@@ -1,5 +1,6 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+
 import { SnapshotManager } from "./manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {

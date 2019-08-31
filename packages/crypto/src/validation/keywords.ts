@@ -1,5 +1,6 @@
 import { Ajv } from "ajv";
 import ajvKeywords from "ajv-keywords";
+
 import { Address } from "../identities/address";
 import { configManager } from "../managers";
 import { BigNumber, isGenesisTransaction } from "../utils";

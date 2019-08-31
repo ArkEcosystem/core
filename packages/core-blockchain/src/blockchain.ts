@@ -1,11 +1,10 @@
-/* tslint:disable:max-line-length */
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
-
+import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
+import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
+
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
 
@@ -283,7 +282,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         const removedBlocks: Interfaces.IBlockData[] = [];
         const revertLastBlock = async () => {
-            // tslint:disable-next-line:no-shadowed-variable
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
             await this.database.revertBlock(lastBlock);
@@ -299,7 +297,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.state.lastDownloadedBlock = newLastBlock.data;
         };
 
-        // tslint:disable-next-line:variable-name
         const __removeBlocks = async numberOfBlocks => {
             if (numberOfBlocks < 1) {
                 return;

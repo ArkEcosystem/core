@@ -1,18 +1,19 @@
 import semver from "semver";
+
+import { Identifiers, inject, injectable } from "../../container";
 import { Kernel } from "../../contracts";
+import { Application } from "../../contracts/kernel";
 import {
-    RequiredDependencyCannotBeFound,
     DependencyVersionOutOfRange,
     InvalidPackageConfiguration,
-    ServiceProviderCannotBeRegistered,
     OptionalDependencyCannotBeFound,
+    RequiredDependencyCannotBeFound,
+    ServiceProviderCannotBeRegistered,
 } from "../../exceptions/packages";
+import { PackageConfiguration, ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
-import { ServiceProvider, ServiceProviderRepository, PackageConfiguration } from "../../providers";
-import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export

@@ -1,6 +1,7 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { IMain } from "pg-promise";
 import { Executable, Query } from "sql";
+
 import { Model } from "../models";
 
 export abstract class Repository implements Contracts.Database.Repository {
@@ -64,7 +65,6 @@ export abstract class Repository implements Contracts.Database.Repository {
         }
 
         if (!paginate || (!paginate.limit && !paginate.offset)) {
-            // tslint:disable-next-line:no-shadowed-variable
             const rows = await this.findMany(selectQuery);
 
             return { rows, count: rows.length, countIsEstimate: false };

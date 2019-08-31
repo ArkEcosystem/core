@@ -1,7 +1,8 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
+
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
@@ -112,7 +113,6 @@ export class TransactionsController extends Controller {
             const { TransactionType } = Enums;
             const data = Object.assign({}, TransactionType);
 
-            // tslint:disable-next-line: ban
             Object.values(TransactionType)
                 .filter(value => typeof value === "string")
                 .map((type: string) => data[type])

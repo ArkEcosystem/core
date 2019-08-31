@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { ISerializeOptions } from "../../interfaces";
 import { Base58 } from "../../utils/base58";

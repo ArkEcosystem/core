@@ -1,7 +1,8 @@
 import mm from "micromatch";
+
+import { injectable } from "../../../container";
 import { EventDispatcher as EventDispatcherContract } from "../../../contracts/kernel/events";
 import { EventListener, EventName } from "../../../types/events";
-import { injectable } from "../../../container";
 
 /**
  * @export

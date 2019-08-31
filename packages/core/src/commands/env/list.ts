@@ -1,6 +1,7 @@
 import Table from "cli-table3";
 import envfile from "envfile";
 import { existsSync } from "fs-extra";
+
 import { CommandFlags } from "../../types";
 import { renderTable } from "../../utils";
 import { BaseCommand } from "../command";

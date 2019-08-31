@@ -1,5 +1,6 @@
 import { secp256k1 } from "bcrypto";
 import wif from "wif";
+
 import { HashAlgorithms } from "../crypto";
 import { NetworkVersionError } from "../errors";
 import { IKeyPair } from "../interfaces";

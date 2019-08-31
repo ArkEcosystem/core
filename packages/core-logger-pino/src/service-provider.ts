@@ -1,4 +1,5 @@
-import { Services, Providers, Container } from "@arkecosystem/core-kernel";
+import { Container, Providers, Services } from "@arkecosystem/core-kernel";
+
 import { PinoLogger } from "./driver";
 
 export class ServiceProvider extends Providers.ServiceProvider {

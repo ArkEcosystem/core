@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+
 import { BlocksRepository } from "./database-repository";
 import { RoundsRepository } from "./database-repository";
 import { TransactionsRepository } from "./database-repository";

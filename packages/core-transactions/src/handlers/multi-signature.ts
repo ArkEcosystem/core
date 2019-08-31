@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+
 import {
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,

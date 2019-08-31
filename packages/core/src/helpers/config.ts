@@ -1,4 +1,5 @@
 import { ensureFileSync, readJsonSync, removeSync, writeJsonSync } from "fs-extra";
+
 import { getRegistryChannel } from "./update";
 
 class ConfigManager {

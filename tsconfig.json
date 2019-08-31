@@ -12,12 +12,8 @@
         "noUnusedLocals": true,
         "noUnusedParameters": false,
         "paths": {
-            "@packages/*": [
-                "packages/*"
-            ],
-            "@tests/*": [
-                "__tests__/*"
-            ]
+            "@packages/*": ["packages/*"],
+            "@tests/*": ["__tests__/*"]
         },
         "resolveJsonModule": true,
         "sourceMap": true,

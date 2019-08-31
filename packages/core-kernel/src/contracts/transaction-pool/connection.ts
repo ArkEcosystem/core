@@ -1,4 +1,5 @@
 import { Enums, Interfaces } from "@arkecosystem/crypto";
+
 import { Processor } from "./processor";
 
 export interface AddTransactionResponse {

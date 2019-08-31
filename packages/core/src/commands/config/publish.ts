@@ -1,6 +1,7 @@
 import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
+
 import { configManager } from "../../helpers/config";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";

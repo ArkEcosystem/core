@@ -1,6 +1,7 @@
+import "@arkecosystem/core-jest-matchers";
+
 import { app } from "@arkecosystem/core-container";
 import { Container } from "@arkecosystem/core-interfaces";
-import "@arkecosystem/core-jest-matchers";
 import isString from "lodash.isstring";
 import * as path from "path";
 

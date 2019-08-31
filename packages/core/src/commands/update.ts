@@ -3,6 +3,7 @@ import { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
 import { removeSync } from "fs-extra";
+
 import { confirm } from "../helpers/prompts";
 import { checkForUpdates, installFromChannel } from "../helpers/update";
 import { CommandFlags } from "../types";

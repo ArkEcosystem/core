@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { cidr } from "ip";
+
 import { PeerRepository } from "./peer-repository";
 
 export class PeerStorage implements Contracts.P2P.PeerStorage {

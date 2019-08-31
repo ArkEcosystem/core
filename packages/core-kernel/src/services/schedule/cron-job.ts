@@ -1,6 +1,7 @@
 import { CronJob as Cron } from "cron";
-import { Job } from "./interfaces";
+
 import { injectable } from "../../container";
+import { Job } from "./interfaces";
 
 /**
  * @remarks

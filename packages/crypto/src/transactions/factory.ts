@@ -1,4 +1,3 @@
-// tslint:disable:member-ordering
 import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../errors";
 import { ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
 import { BigNumber, isException } from "../utils";

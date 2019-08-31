@@ -1,4 +1,5 @@
-import { Providers, Container } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
+
 import { StateService } from "./service";
 import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";

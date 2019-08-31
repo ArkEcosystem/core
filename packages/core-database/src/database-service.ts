@@ -1,4 +1,4 @@
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { roundCalculator } from "@arkecosystem/core-utils";
@@ -122,7 +122,6 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
                 }
             } else {
                 this.logger.warning(
-                    // tslint:disable-next-line:max-line-length
                     `Round ${round.toLocaleString()} has already been applied. This should happen only if you are a forger.`,
                 );
             }

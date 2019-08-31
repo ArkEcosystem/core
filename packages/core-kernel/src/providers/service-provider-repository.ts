@@ -1,5 +1,5 @@
-import { ServiceProvider } from "./service-provider";
 import { injectable } from "../container";
+import { ServiceProvider } from "./service-provider";
 
 /**
  * @export

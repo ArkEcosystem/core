@@ -1,6 +1,6 @@
 import { Enums, Errors, Transactions } from "@arkecosystem/crypto";
-
 import assert from "assert";
+
 import { InvalidTransactionTypeError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { DelegateResignationTransactionHandler } from "./delegate-resignation";

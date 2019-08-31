@@ -1,9 +1,9 @@
+import { Identifiers, inject, injectable } from "../../container";
+import { Application } from "../../contracts/kernel";
 import { Events } from "../../enums";
 import { ServiceProviderCannotBeBooted } from "../../exceptions/packages";
 import { ServiceProviderRepository } from "../../providers";
 import { Bootstrapper } from "../interfaces";
-import { Application } from "../../contracts/kernel";
-import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export

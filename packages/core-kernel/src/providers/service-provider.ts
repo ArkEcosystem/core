@@ -1,8 +1,8 @@
-import { JsonObject } from "../types";
+import { Identifiers, inject, injectable } from "../container";
 import { Kernel } from "../contracts";
+import { JsonObject } from "../types";
 import { PackageConfiguration } from "./package-configuration";
 import { PackageManifest } from "./package-manifest";
-import { injectable, inject, Identifiers } from "../container";
 
 /**
  * @export

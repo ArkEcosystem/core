@@ -1,12 +1,12 @@
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 import fs from "fs-extra";
-import JSONStream from "JSONStream";
 import msgpack from "msgpack-lite";
 import QueryStream from "pg-query-stream";
 import pluralize from "pluralize";
 import zlib from "zlib";
 
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
-import { Managers } from "@arkecosystem/crypto";
+import JSONStream from "JSONStream";
 
 import * as utils from "../utils";
 import { Codec } from "./codec";
@@ -90,7 +90,6 @@ export const importTable = async (table, options) => {
 
     emitter.dispatch("start", { count: options.meta[table].count });
 
-    // tslint:disable-next-line: await-promise
     for await (const record of readStream) {
         counter++;
 

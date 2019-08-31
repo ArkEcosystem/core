@@ -1,5 +1,6 @@
 import { flags } from "@oclif/command";
 import prompts from "prompts";
+
 import { CommandFlags } from "../../../types";
 import { BaseCommand } from "../../command";
 import { BIP38Command } from "./bip38";

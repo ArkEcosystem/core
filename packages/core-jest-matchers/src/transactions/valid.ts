@@ -4,7 +4,6 @@ export {};
 
 declare global {
     namespace jest {
-        // tslint:disable-next-line:interface-name
         interface Matchers<R> {
             toBeValidTransaction(): R;
         }
@@ -17,7 +16,7 @@ expect.extend({
 
         try {
             verified = Transactions.Verifier.verifyHash(actual);
-        } catch (e) {} // tslint:disable-line
+        } catch {}
 
         return {
             message: () => "Expected value to be a valid transaction",

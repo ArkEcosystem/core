@@ -1,8 +1,9 @@
+import { Interfaces, Managers } from "@arkecosystem/crypto";
+
+import { Identifiers, inject, injectable } from "../../container";
 import { EventDispatcher } from "../../contracts/kernel/events";
-import { injectable, inject, Identifiers } from "../../container";
 import { State } from "../../enums/events";
 import { Job } from "./interfaces";
-import { Interfaces, Managers } from "@arkecosystem/crypto";
 
 /**
  * @export

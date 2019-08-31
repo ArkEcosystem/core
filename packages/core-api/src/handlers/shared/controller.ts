@@ -1,6 +1,7 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
+
 import {
     paginate,
     respondWithCache,

@@ -1,6 +1,7 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { ColumnSet, IMain } from "pg-promise";
 import sql, { Query } from "sql";
+
 import { ColumnDescriptor } from "../interfaces";
 
 export abstract class Model implements Contracts.Database.Model {

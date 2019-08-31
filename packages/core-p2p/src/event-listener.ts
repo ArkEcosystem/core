@@ -1,4 +1,4 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 
 export class EventListener {
     private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<

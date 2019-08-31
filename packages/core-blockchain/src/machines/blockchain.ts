@@ -1,4 +1,5 @@
 import { Machine } from "xstate";
+
 import { fork } from "./actions/fork";
 import { syncWithNetwork } from "./actions/sync-with-network";
 

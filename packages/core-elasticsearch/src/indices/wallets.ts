@@ -1,5 +1,6 @@
 import { Enums } from "@arkecosystem/core-kernel";
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { Index } from "./base";
 
 export class Wallets extends Index {

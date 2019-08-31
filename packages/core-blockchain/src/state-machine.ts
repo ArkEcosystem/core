@@ -1,14 +1,10 @@
-/* tslint:disable:jsdoc-format max-line-length */
-
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
-
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
-
 import pluralize from "pluralize";
-import { blockchainMachine } from "./machines/blockchain";
 
 import { Blockchain } from "./blockchain";
+import { blockchainMachine } from "./machines/blockchain";
 
 const { BlockFactory } = Blocks;
 const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);

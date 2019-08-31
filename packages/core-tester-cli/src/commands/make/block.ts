@@ -2,6 +2,7 @@ import { Delegate } from "@arkecosystem/core-forger";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { writeFileSync } from "fs";
+
 import { satoshiFlag } from "../../flags";
 import { copyToClipboard } from "../../utils";
 import { BaseCommand } from "../command";

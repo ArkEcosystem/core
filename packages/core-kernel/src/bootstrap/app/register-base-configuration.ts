@@ -1,8 +1,8 @@
-import { JsonObject } from "../../types";
-import { ConfigManager, ConfigRepository } from "../../services/config";
+import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
+import { ConfigManager, ConfigRepository } from "../../services/config";
+import { JsonObject } from "../../types";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export

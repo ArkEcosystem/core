@@ -4,7 +4,6 @@ export {};
 
 declare global {
     namespace jest {
-        // tslint:disable-next-line:interface-name
         interface Matchers<R> {
             toBeForged(): Promise<R>;
         }
@@ -21,7 +20,7 @@ expect.extend({
             const parsedBody = JSON.parse(body);
 
             pass = parsedBody.data.id === id;
-        } catch (e) {} // tslint:disable-line
+        } catch {}
 
         return {
             pass,

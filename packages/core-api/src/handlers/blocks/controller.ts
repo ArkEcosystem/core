@@ -1,6 +1,7 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
+
 import { Controller } from "../shared/controller";
 
 export class BlocksController extends Controller {

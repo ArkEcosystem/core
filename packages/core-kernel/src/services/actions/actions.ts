@@ -1,6 +1,6 @@
-import { Action } from "./action";
-import { InvalidArgumentException } from "../../exceptions/logic";
 import { injectable } from "../../container";
+import { InvalidArgumentException } from "../../exceptions/logic";
+import { Action } from "./action";
 
 /**
  * @export

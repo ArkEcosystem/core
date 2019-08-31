@@ -1,6 +1,7 @@
 import clear from "clear";
 import Tail from "nodejs-tail";
 import readLastLines from "read-last-lines";
+
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../process-manager";
 

@@ -1,4 +1,5 @@
 import Hapi from "@hapi/hapi";
+
 import { BlockchainController } from "./controller";
 
 export const registerRoutes = (server: Hapi.Server): void => {

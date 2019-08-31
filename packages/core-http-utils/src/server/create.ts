@@ -3,6 +3,7 @@ import Hapi from "@hapi/hapi";
 import deepmerge from "deepmerge";
 import expandHomeDir from "expand-home-dir";
 import { readFileSync } from "fs";
+
 import { monitorServer } from "./monitor";
 
 export const createServer = async (options, callback?: any, plugins?: any[]) => {

@@ -1,4 +1,5 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
+
 import { BlocksPaginated } from "../business-repository";
 import { DownloadBlock } from "../database-service";
 import { SearchParameters } from "../search";

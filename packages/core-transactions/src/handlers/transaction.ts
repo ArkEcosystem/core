@@ -1,9 +1,7 @@
-// tslint:disable:max-classes-per-file
-// tslint:disable:member-ordering
-
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
+
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
@@ -13,7 +11,6 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
-
 import { TransactionHandler as TransactionHandlerContract } from "../interfaces";
 
 export type TransactionHandlerConstructor = new () => TransactionHandler;
@@ -209,7 +206,6 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
     /**
      * Database Service
      */
-    // tslint:disable-next-line:no-empty
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {}
 
     /**

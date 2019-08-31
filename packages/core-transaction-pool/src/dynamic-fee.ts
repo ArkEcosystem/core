@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
+
 import { DynamicFeeMatch } from "./interfaces";
 
 // @todo: better name

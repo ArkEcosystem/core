@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { InsufficientBalanceError } from "../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -94,7 +95,6 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         sender.balance = sender.balance.plus(totalPaymentsAmount);
     }
 
-    // tslint:disable-next-line:no-empty
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
@@ -105,7 +105,6 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         }
     }
 
-    // tslint:disable-next-line:no-empty
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,

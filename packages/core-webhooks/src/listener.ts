@@ -1,5 +1,6 @@
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { httpie } from "@arkecosystem/core-utils";
+
 import * as conditions from "./conditions";
 import { database } from "./database";
 import { Webhook } from "./interfaces";

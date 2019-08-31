@@ -1,4 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { DatabaseService } from "./database-service";
 import { BlocksBusinessRepository } from "./repositories/blocks-business-repository";
 import { DelegatesBusinessRepository } from "./repositories/delegates-business-repository";

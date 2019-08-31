@@ -1,5 +1,6 @@
 import { Contracts, Enums as AppEnums } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import {
     NotSupportedForMultiSignatureWalletError,
     WalletIsAlreadyDelegateError,
@@ -185,12 +186,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
-        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
-        // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 }

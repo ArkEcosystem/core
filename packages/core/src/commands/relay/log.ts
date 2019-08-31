@@ -1,4 +1,5 @@
 import { flags } from "@oclif/command";
+
 import { AbstractLogCommand } from "../../shared/log";
 import { CommandFlags } from "../../types";
 import { BaseCommand } from "../command";

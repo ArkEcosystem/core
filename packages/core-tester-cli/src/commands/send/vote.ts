@@ -1,5 +1,6 @@
 import { Identities } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
+
 import { satoshiFlag } from "../../flags";
 import { logger } from "../../logger";
 import { SendCommand } from "../../shared/send";

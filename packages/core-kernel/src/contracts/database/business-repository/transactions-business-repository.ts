@@ -1,4 +1,5 @@
 import { Enums, Interfaces } from "@arkecosystem/crypto";
+
 import { Wallet } from "../../state/wallets";
 import { Parameters } from "./parameters";
 

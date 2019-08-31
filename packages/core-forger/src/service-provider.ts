@@ -1,4 +1,5 @@
 import { Providers } from "@arkecosystem/core-kernel";
+
 import { ForgerManager } from "./manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {

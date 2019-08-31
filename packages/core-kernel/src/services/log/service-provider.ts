@@ -1,6 +1,6 @@
+import { Identifiers, interfaces } from "../../container";
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { LogManager } from "./manager";
-import { Identifiers, interfaces } from "../../container";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**

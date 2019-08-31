@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-kernel";
+
 import { Blocks } from "./blocks";
 import { Rounds } from "./rounds";
 import { Transactions } from "./transactions";

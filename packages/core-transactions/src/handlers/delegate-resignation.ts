@@ -1,5 +1,6 @@
 import { Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+
 import { WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
@@ -91,12 +92,10 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
-        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
-        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

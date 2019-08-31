@@ -1,4 +1,5 @@
-import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+
 import { Connection } from "./connection";
 import { ConnectionManager } from "./manager";
 import { Memory } from "./memory";
@@ -26,7 +27,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
         try {
             this.app.log.info("Disconnecting from transaction pool");
 
-            this.app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService).disconnect();
+            this.app
+                .get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService)
+                .disconnect();
         } catch (error) {
             // @todo: handle
         }

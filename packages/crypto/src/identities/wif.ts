@@ -1,4 +1,5 @@
 import wif from "wif";
+
 import { IKeyPair } from "../interfaces";
 import { Network } from "../interfaces/networks";
 import { configManager } from "../managers";

@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+
 import { IBlockData, ITransaction } from "../interfaces";
 import { configManager } from "../managers";
 import { TransactionFactory } from "../transactions";

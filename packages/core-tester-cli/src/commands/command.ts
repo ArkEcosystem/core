@@ -1,6 +1,7 @@
 import { Identities, Managers, Types, Utils } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import delay from "delay";
+
 import { satoshiFlag } from "../flags";
 import { HttpClient } from "../http-client";
 import { logger } from "../logger";

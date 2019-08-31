@@ -1,8 +1,8 @@
-import { JsonObject } from "../../types";
 import { Exception } from "../../exceptions/base";
+import { JsonObject } from "../../types";
+import { Container } from "./container";
 import { EventDispatcher } from "./events";
 import { Logger } from "./log";
-import { Container } from "./container";
 
 export interface Application {
     /**

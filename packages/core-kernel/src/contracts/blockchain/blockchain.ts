@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+
 import { DatabaseService } from "../database";
 import { PeerService } from "../p2p";
 import { StateStore } from "../state";

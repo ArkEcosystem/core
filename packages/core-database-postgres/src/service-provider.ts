@@ -1,6 +1,7 @@
 import { ConnectionManager, databaseServiceFactory } from "@arkecosystem/core-database";
-import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
+
 import { PostgresConnection } from "./postgres-connection";
 
 export class ServiceProvider extends Providers.ServiceProvider {

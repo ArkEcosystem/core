@@ -1,4 +1,4 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 

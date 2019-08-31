@@ -1,4 +1,5 @@
-import { Contracts, Providers, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+
 import { Blockchain } from "./blockchain";
 import { blockchainMachine } from "./machines/blockchain";
 import { ReplayBlockchain } from "./replay";

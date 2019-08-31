@@ -1,4 +1,5 @@
 import SCWorker from "socketcluster/scworker";
+
 import { SocketErrors } from "../enums";
 import { RateLimiter } from "./rate-limiter";
 
@@ -181,5 +182,4 @@ export class Worker extends SCWorker {
     }
 }
 
-// tslint:disable-next-line
 new Worker();

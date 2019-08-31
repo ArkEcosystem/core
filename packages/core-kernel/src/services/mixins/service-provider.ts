@@ -1,6 +1,6 @@
+import { Identifiers } from "../../container";
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { MixinService } from "./mixins";
-import { Identifiers } from "../../container";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**

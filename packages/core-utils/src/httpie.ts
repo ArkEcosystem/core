@@ -1,5 +1,3 @@
-// tslint:disable: max-classes-per-file
-
 import parseJSON from "fast-json-parse";
 import got from "got";
 

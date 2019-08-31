@@ -1,6 +1,7 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 import { lstatSync, readdirSync } from "fs";
 import prompts from "prompts";
+
 import { CommandFlags } from "../types";
 
 export const setUpLite = async (options): Promise<Contracts.Kernel.Application> => {

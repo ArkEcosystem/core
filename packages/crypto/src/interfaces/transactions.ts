@@ -1,4 +1,5 @@
 import { ErrorObject } from "ajv";
+
 import { HtlcLockExpirationType } from "../transactions/types/enums";
 import { BigNumber } from "../utils";
 

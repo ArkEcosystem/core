@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+
 import { Wallet } from "../state";
 
 export interface Response<T> {

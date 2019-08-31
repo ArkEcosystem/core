@@ -51,7 +51,7 @@ export class SearchParameterConverter implements Contracts.Database.SearchParame
             if (fieldDirection.length === 2 && (fieldDirection[1] === "asc" || fieldDirection[1] === "desc")) {
                 searchParameters.orderBy.push({
                     field: snakeCase(fieldDirection[0]),
-                    direction: fieldDirection[1] as "asc" | "desc",
+                    direction: fieldDirection[1],
                 });
             }
         }

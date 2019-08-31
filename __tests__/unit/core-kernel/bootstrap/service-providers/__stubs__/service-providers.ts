@@ -1,7 +1,6 @@
 import Joi from "@hapi/joi";
-
-import { ServiceProvider } from "@packages/core-kernel/src/providers";
 import { PackageDependency } from "@packages/core-kernel/src/contracts/kernel";
+import { ServiceProvider } from "@packages/core-kernel/src/providers";
 
 export class StubServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}

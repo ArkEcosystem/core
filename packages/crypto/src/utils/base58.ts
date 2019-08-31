@@ -1,4 +1,5 @@
 import { base58 } from "bstring";
+
 import { HashAlgorithms } from "../crypto";
 
 export class Base58 {

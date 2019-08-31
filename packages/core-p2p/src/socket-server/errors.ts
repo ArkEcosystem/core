@@ -1,5 +1,3 @@
-// tslint:disable:max-classes-per-file
-
 import { Interfaces } from "@arkecosystem/crypto";
 
 export class ServerError extends Error {

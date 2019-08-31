@@ -2,6 +2,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import semver from "semver";
+
 import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {

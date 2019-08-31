@@ -1,5 +1,6 @@
 import { createServer, mountServer } from "@arkecosystem/core-http-utils";
 import * as Handlebars from "handlebars";
+
 import { handler } from "./handler";
 
 export const startServer = async config => {

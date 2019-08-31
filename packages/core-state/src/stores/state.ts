@@ -1,6 +1,4 @@
-// tslint:disable:variable-name
-
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";

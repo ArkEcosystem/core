@@ -1,43 +1,52 @@
 {
     "parser": "@typescript-eslint/parser",
-    "plugins": ["@typescript-eslint"],
+    "plugins": [
+        "@typescript-eslint",
+        "jest",
+        "prettier",
+        "simple-import-sort"
+    ],
     "extends": [
         "eslint:recommended",
         "plugin:@typescript-eslint/eslint-recommended",
-        "plugin:@typescript-eslint/recommended",
         "plugin:@typescript-eslint/recommended-requiring-type-checking",
-        "prettier",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:jest/recommended",
+        "plugin:prettier/recommended",
         "prettier/@typescript-eslint"
     ],
     "parserOptions": {
         "project": "./tsconfig.json"
     },
     "rules": {
-        "@typescript-eslint/await-thenable": 0,
-        "@typescript-eslint/ban-ts-ignore": 0,
-        "@typescript-eslint/camelcase": 0,
-        "@typescript-eslint/explicit-function-return-type": 0,
-        "@typescript-eslint/interface-name-prefix": 0,
-        "@typescript-eslint/no-empty-function": 0,
-        "@typescript-eslint/no-empty-interface": 0,
-        "@typescript-eslint/no-explicit-any": 0,
-        "@typescript-eslint/no-misused-promises": 0,
-        "@typescript-eslint/no-namespace": 0,
-        "@typescript-eslint/no-non-null-assertion": 0,
-        "@typescript-eslint/no-unused-vars": 0,
-        "@typescript-eslint/no-var-requires": 0,
-        "@typescript-eslint/prefer-regexp-exec": 0,
-        "@typescript-eslint/require-await": 0,
-        "@typescript-eslint/unbound-method": 0,
-        "no-async-promise-executor": 0,
-        "no-empty": 0,
-        "no-prototype-builtins": 0,
+        "@typescript-eslint/await-thenable": "off",
+        "@typescript-eslint/ban-ts-ignore": "off",
+        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-misused-promises": "off",
+        "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/prefer-regexp-exec": "off",
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/unbound-method": "off",
+        "no-async-promise-executor": "off",
+        "no-empty": "off",
+        "no-inferrable-types": "off",
+        "no-prototype-builtins": "off",
         "prefer-const": [
             "error",
             {
                 "destructuring": "all"
             }
         ],
-        "require-atomic-updates": 0
+        "prettier/prettier": "error",
+        "require-atomic-updates": "off",
+        "simple-import-sort/sort": "error"
     }
 }

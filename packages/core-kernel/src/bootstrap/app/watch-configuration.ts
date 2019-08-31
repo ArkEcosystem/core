@@ -1,7 +1,7 @@
+import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
-import { Bootstrapper } from "../interfaces";
-import { injectable, inject, Identifiers } from "../../container";
 import { Watcher } from "../../services/config/watcher";
+import { Bootstrapper } from "../interfaces";
 
 /**
  * @export

@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-kernel";
 import Joi from "@hapi/joi";
+
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
 

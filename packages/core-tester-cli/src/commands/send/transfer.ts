@@ -1,4 +1,5 @@
 import { flags } from "@oclif/command";
+
 import { logger } from "../../logger";
 import { SendCommand } from "../../shared/send";
 import { WalletCommand } from "../make/wallets";

@@ -1,5 +1,6 @@
 import { Enums } from "@arkecosystem/core-kernel";
 import { Transactions as CryptoTransactions } from "@arkecosystem/crypto";
+
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";

@@ -1,4 +1,5 @@
 import Table from "cli-table3";
+
 import { CommandFlags } from "../../types";
 import { renderTable } from "../../utils";
 import { BaseCommand } from "../command";

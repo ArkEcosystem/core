@@ -1,8 +1,9 @@
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { httpie } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
+
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerConfig, PeerPingResponse } from "./interfaces";

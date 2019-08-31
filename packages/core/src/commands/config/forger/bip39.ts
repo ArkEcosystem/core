@@ -2,6 +2,7 @@ import { flags } from "@oclif/command";
 import { validateMnemonic } from "bip39";
 import fs from "fs-extra";
 import prompts from "prompts";
+
 import { CommandFlags } from "../../../types";
 import { BaseCommand } from "../../command";
 

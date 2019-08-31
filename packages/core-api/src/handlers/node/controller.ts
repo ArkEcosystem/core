@@ -1,7 +1,8 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
+
 import { Controller } from "../shared/controller";
 
 export class NodeController extends Controller {

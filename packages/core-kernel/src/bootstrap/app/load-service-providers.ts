@@ -1,9 +1,9 @@
-import { JsonObject } from "../../types";
-import { ServiceProvider, ServiceProviderRepository, PackageConfiguration, PackageManifest } from "../../providers";
+import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
-import { Bootstrapper } from "../interfaces";
-import { injectable, inject, Identifiers } from "../../container";
+import { PackageConfiguration, PackageManifest, ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { ConfigRepository } from "../../services/config";
+import { JsonObject } from "../../types";
+import { Bootstrapper } from "../interfaces";
 
 /**
  * @export

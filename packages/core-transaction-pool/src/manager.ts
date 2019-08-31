@@ -1,4 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { ConnectionFactory } from "./factory";
 
 export class ConnectionManager {

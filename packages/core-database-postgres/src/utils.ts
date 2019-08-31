@@ -1,5 +1,3 @@
-/* tslint:disable:forin prefer-for-of*/
-
 import { app } from "@arkecosystem/core-kernel";
 import path from "path";
 import { QueryFile } from "pg-promise";

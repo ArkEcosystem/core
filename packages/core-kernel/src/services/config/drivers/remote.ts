@@ -1,6 +1,6 @@
+import { Identifiers, inject, injectable } from "../../../container";
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
-import { inject, Identifiers, injectable } from "../../../container";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,

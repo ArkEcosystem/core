@@ -1,7 +1,7 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
-
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
+
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 

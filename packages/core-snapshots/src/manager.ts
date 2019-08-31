@@ -1,16 +1,12 @@
-/* tslint:disable:max-line-length */
-
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { app } from "@arkecosystem/core-kernel";
 import { roundCalculator } from "@arkecosystem/core-utils";
-
 import pick from "lodash.pick";
 
 const logger = app.log;
-import { database, Database } from "./db";
-import * as utils from "./utils";
-
+import { Database, database } from "./db";
 import { backupTransactionsToJSON, exportTable, importTable, verifyTable } from "./transport";
+import * as utils from "./utils";
 
 export class SnapshotManager {
     public database: Database;

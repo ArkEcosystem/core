@@ -5,6 +5,7 @@ import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arke
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
 import pluralize from "pluralize";
+
 import { Client } from "./client";
 import { Delegate } from "./delegate";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";

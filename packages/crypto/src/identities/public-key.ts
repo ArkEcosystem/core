@@ -1,4 +1,5 @@
 import { secp256k1 } from "bcrypto";
+
 import { Utils } from "..";
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";

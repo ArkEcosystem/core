@@ -1,5 +1,5 @@
-/* tslint:disable:no-shadowed-variable */
 import ByteBuffer from "bytebuffer";
+
 import { Utils } from "..";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";

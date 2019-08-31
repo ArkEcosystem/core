@@ -1,5 +1,3 @@
-// tslint:disable:max-classes-per-file
-
 export class ForgerError extends Error {
     constructor(message: string) {
         super(message);

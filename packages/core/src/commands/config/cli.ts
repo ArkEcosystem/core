@@ -1,5 +1,6 @@
 import { flags } from "@oclif/command";
 import cli from "cli-ux";
+
 import { configManager } from "../../helpers/config";
 import { installFromChannel } from "../../helpers/update";
 import { CommandFlags } from "../../types";

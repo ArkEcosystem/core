@@ -1,7 +1,8 @@
 import get from "get-value";
 import has from "has-value";
-import { PackageJson } from "../types";
+
 import { injectable } from "../container";
+import { PackageJson } from "../types";
 
 /**
  * @export

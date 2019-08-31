@@ -1,4 +1,5 @@
 import { httpie } from "@arkecosystem/core-utils";
+
 import { logger } from "./logger";
 
 export class HttpClient {

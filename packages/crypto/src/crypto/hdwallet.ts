@@ -1,5 +1,6 @@
 import { BIP32Interface, fromPrivateKey, fromSeed } from "bip32";
 import { mnemonicToSeedSync } from "bip39";
+
 import { IKeyPair } from "../interfaces";
 import { configManager } from "../managers";
 

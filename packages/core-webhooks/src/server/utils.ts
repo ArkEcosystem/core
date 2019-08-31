@@ -1,4 +1,5 @@
 import Boom from "@hapi/boom";
+
 import { Webhook } from "../interfaces";
 
 export const transformResource = (model): Webhook => {

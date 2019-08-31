@@ -1,7 +1,8 @@
-import { Managers, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Managers } from "@arkecosystem/crypto";
+
+import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
-import { injectable, inject, Identifiers } from "../../container";
 
 /**
  * @export

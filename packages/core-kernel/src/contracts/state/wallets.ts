@@ -1,4 +1,5 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
+
 import { Logger } from "../kernel/log";
 import { RoundInfo } from "../shared";
 

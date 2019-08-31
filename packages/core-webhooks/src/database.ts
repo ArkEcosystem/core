@@ -2,6 +2,7 @@ import { ensureFileSync, existsSync, removeSync } from "fs-extra";
 import lowdb from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import uuidv4 from "uuid/v4";
+
 import { Webhook } from "./interfaces";
 
 class Database {

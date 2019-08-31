@@ -1,7 +1,8 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+
 import { Blockchain } from "../blockchain";
 import { FailedToReplayBlocksError } from "./errors";
 import { MemoryDatabaseService } from "./memory-database-service";

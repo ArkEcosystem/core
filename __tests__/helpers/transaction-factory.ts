@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
+
 import { secrets } from "../utils/config/testnet/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
@@ -217,7 +218,7 @@ export class TransactionFactory {
         return this;
     }
 
-    public create(quantity: number = 1): Interfaces.ITransactionData[] {
+    public create(quantity = 1): Interfaces.ITransactionData[] {
         return this.make<Interfaces.ITransactionData>(quantity, "getStruct");
     }
 
@@ -225,7 +226,7 @@ export class TransactionFactory {
         return this.create(1)[0];
     }
 
-    public build(quantity: number = 1): Interfaces.ITransaction[] {
+    public build(quantity = 1): Interfaces.ITransaction[] {
         return this.make<Interfaces.ITransaction>(quantity, "build");
     }
 
@@ -237,7 +238,7 @@ export class TransactionFactory {
         return TransactionFactory.getNonce(this.senderPublicKey);
     }
 
-    private make<T>(quantity: number = 1, method: string): T[] {
+    private make<T>(quantity = 1, method: string): T[] {
         if (this.passphrasePairs && this.passphrasePairs.length) {
             return this.passphrasePairs.map(
                 (passphrasePair: IPassphrasePair) =>
@@ -308,7 +309,7 @@ export class TransactionFactory {
 
             this.builder.senderPublicKey(this.senderPublicKey);
 
-            let sign: boolean = true;
+            let sign = true;
             if (this.passphraseList && this.passphraseList.length) {
                 sign = this.builder.constructor.name === "MultiSignatureBuilder";
 

@@ -1,5 +1,6 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
+
 import { Blockchain } from "../../blockchain";
 import { BlockProcessorResult } from "../block-processor";
 

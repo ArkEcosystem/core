@@ -1,4 +1,5 @@
 import Hapi from "@hapi/hapi";
+
 import * as Blockchain from "./blockchain";
 import * as Blocks from "./blocks";
 import * as Delegates from "./delegates";

@@ -1,5 +1,6 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 import { create, SCClientSocket } from "socketcluster-client";
+
 import { PeerRepository } from "./peer-repository";
 
 export class PeerConnector implements Contracts.P2P.PeerConnector {

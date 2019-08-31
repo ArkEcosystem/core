@@ -1,6 +1,8 @@
-import { Contracts, Services } from "@arkecosystem/core-kernel";
 import "colors";
+
+import { Contracts, Services } from "@arkecosystem/core-kernel";
 import * as winston from "winston";
+
 import { Transport, TransportStream } from "./interfaces";
 
 export class WinstonLogger extends Services.Log.Logger implements Contracts.Kernel.Log.Logger {

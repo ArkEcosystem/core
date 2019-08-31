@@ -1,10 +1,10 @@
-import { strictEqual } from "assert";
-import clonedeep from "lodash.clonedeep";
-
-import { app, Contracts, Enums as AppEnums, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums as AppEnums } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { strictEqual } from "assert";
+import clonedeep from "lodash.clonedeep";
+
 import { TransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";

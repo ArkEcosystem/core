@@ -1,4 +1,5 @@
-import { Providers, Container } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
+
 import { ConnectionManager } from "./manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {

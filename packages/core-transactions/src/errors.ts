@@ -1,7 +1,5 @@
 import { Utils } from "@arkecosystem/crypto";
 
-// tslint:disable:max-classes-per-file
-
 export class TransactionError extends Error {
     constructor(message: string) {
         super(message);

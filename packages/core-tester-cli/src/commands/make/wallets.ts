@@ -2,6 +2,7 @@ import { Identities, Interfaces } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { generateMnemonic } from "bip39";
 import { writeFileSync } from "fs";
+
 import { copyToClipboard } from "../../utils";
 import { BaseCommand } from "../command";
 

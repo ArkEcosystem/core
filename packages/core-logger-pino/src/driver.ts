@@ -31,7 +31,6 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {
-                // tslint:disable-next-line: no-null-keyword
                 base: null,
                 safe: true,
                 level: "trace",

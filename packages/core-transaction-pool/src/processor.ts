@@ -1,7 +1,8 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./interfaces";
 import { WalletManager } from "./wallet-manager";

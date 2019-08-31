@@ -1,4 +1,5 @@
 import { Ajv } from "ajv";
+
 import { maxVendorFieldLength } from "../utils";
 
 const vendorField = (ajv: Ajv) => {

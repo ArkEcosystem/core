@@ -1,5 +1,6 @@
 import { app, Container } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
+
 import { setUpLite } from "../../helpers/snapshot";
 import { BaseCommand } from "../command";
 

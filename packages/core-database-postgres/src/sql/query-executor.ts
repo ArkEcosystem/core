@@ -1,4 +1,5 @@
 import { TQuery } from "pg-promise";
+
 import { PostgresConnection } from "../postgres-connection";
 
 export class QueryExecutor {

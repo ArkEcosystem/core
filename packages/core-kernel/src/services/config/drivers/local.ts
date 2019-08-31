@@ -1,14 +1,15 @@
 import cosmiconfig from "cosmiconfig";
-import set from "set-value";
 import { parseFileSync } from "envfile";
-import { JsonObject } from "../../../types";
+import set from "set-value";
+
+import { Identifiers, inject, injectable } from "../../../container";
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
-import { injectable, inject, Identifiers } from "../../../container";
+import { JsonObject } from "../../../types";
 
 /**
  * @export

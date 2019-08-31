@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+
 import { Peer } from "./peer";
 
 export interface PeerCommunicator {

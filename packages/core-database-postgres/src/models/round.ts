@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
+
 import { ColumnDescriptor } from "../interfaces";
 import { Model } from "./model";
 

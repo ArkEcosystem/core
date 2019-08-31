@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { MalformedTransactionBytesError, TransactionVersionError } from "../errors";
 import { Address } from "../identities";
@@ -151,7 +152,6 @@ class Deserializer {
         }
     }
 
-    // tslint:disable-next-line:member-ordering
     public applyV1Compatibility(transaction: ITransactionData): void {
         transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
         transaction.typeGroup = TransactionTypeGroup.Core;

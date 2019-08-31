@@ -1,5 +1,5 @@
-import { Migration } from "../models";
 import { Migration as MigrationContract } from "../interfaces";
+import { Migration } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 

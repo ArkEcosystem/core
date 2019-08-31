@@ -1,4 +1,5 @@
 import { Enums } from "@arkecosystem/core-kernel";
+
 import { storage } from "../storage";
 import { first, last } from "../utils";
 import { Index } from "./base";

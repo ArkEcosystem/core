@@ -4,6 +4,7 @@ import delay from "delay";
 import { ensureFileSync, existsSync, unlinkSync } from "fs-extra";
 import pluralize from "pluralize";
 import SocketCluster from "socketcluster";
+
 import { getHeaders } from "./utils/get-headers";
 
 class PayloadProcessor {

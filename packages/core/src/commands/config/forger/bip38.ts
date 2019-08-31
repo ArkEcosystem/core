@@ -4,6 +4,7 @@ import { validateMnemonic } from "bip39";
 import fs from "fs-extra";
 import prompts from "prompts";
 import wif from "wif";
+
 import { CommandFlags } from "../../../types";
 import { BaseCommand } from "../../command";
 

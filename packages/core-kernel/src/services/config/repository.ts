@@ -1,7 +1,8 @@
 import get from "get-value";
-import set from "set-value";
 import has from "has-value";
+import set from "set-value";
 import unset from "unset-value";
+
 import { JsonObject } from "../../types";
 
 /**

@@ -1,4 +1,5 @@
 import { Identities } from "@arkecosystem/crypto";
+
 import { satoshiFlag } from "../../flags";
 import { SendCommand } from "../../shared/send";
 import { HtlcLockCommand } from "./htlc-lock";

@@ -3,7 +3,9 @@ import { Contracts } from "@arkecosystem/core-kernel";
 export const transformPlugins = (plugins): Contracts.P2P.PeerPlugins => {
     const result: Contracts.P2P.PeerPlugins = {};
 
-    for (let [name, options] of Object.entries(plugins) as Array<[string, any]>) {
+    const pluginEntries: Array<[string, any]> = Object.entries(plugins);
+
+    for (let [name, options] of pluginEntries) {
         if (options.server) {
             options = {
                 enabled: options.enabled,

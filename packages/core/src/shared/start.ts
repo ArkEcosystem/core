@@ -1,6 +1,6 @@
 import cli from "cli-ux";
-
 import { freemem, totalmem } from "os";
+
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../process-manager";
 import { CommandFlags, ProcessOptions } from "../types";

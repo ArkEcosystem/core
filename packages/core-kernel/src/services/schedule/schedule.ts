@@ -1,7 +1,7 @@
-import { CronJob } from "./cron-job";
-import { BlockJob } from "./block-job";
-import { injectable, inject, Identifiers } from "../../container";
+import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
+import { BlockJob } from "./block-job";
+import { CronJob } from "./cron-job";
 
 /**
  * @export

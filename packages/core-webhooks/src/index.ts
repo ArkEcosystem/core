@@ -1,4 +1,5 @@
 import { Providers } from "@arkecosystem/core-kernel";
+
 import { database } from "./database";
 import { startListeners } from "./listener";
 import { startServer } from "./server";

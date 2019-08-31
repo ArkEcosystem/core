@@ -1,6 +1,5 @@
-/* tslint:disable:max-line-length */
+import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
 import { Peer } from "./peer";
 import { isValidPeer, isValidVersion, isWhitelisted } from "./utils";
 

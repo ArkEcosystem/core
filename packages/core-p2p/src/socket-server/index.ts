@@ -1,5 +1,6 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 import SocketCluster from "socketcluster";
+
 import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
 import { ServerError } from "./errors";

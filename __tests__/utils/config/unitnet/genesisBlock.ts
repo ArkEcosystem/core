@@ -9,7 +9,6 @@ export const genesisBlock = {
     timestamp: 0,
     numberOfTransactions: 255,
     payloadLength: 55608,
-    // tslint:disable-next-line: no-null-keyword
     previousBlock: null,
     generatorPublicKey: "03d04acca0ad922998d258438cc453ce50222b0e761ae9a499ead6a11f3a44b70b",
     transactions: [

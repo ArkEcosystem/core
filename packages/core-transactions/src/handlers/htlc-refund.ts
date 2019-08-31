@@ -1,4 +1,4 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { formatTimestamp } from "@arkecosystem/core-utils";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
@@ -239,12 +239,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
-        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
-        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

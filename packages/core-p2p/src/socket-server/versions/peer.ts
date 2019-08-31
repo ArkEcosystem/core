@@ -1,7 +1,8 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { isBlockChained } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
+
 import { MissingCommonBlockError } from "../../errors";
 import { PeerPingResponse } from "../../interfaces";
 import { isWhitelisted } from "../../utils";

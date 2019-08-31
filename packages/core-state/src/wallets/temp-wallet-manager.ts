@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import cloneDeep from "lodash.clonedeep";
+
 import { WalletManager } from "./wallet-manager";
 
 export class TempWalletManager extends WalletManager {

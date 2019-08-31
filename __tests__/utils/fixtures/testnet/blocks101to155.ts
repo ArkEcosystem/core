@@ -1,4 +1,3 @@
-/* tslint:disable */
 import { Utils } from "@arkecosystem/crypto";
 
 export const blocks101to155 = [

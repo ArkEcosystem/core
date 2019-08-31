@@ -1,4 +1,5 @@
 import { Providers } from "@arkecosystem/core-kernel";
+
 import { Server } from "./server";
 
 export class ServiceProvider extends Providers.ServiceProvider {

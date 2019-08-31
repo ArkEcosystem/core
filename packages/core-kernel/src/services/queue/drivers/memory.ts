@@ -1,6 +1,7 @@
-import { Queue } from "../../../contracts/kernel/queue";
 import PQueue from "p-queue";
+
 import { injectable } from "../../../container";
+import { Queue } from "../../../contracts/kernel/queue";
 
 /**
  * @export
@@ -21,7 +22,7 @@ export class MemoryQueue implements Queue {
      * @type {string}
      * @memberof MemoryQueue
      */
-    private defaultQueue: string = "default";
+    private defaultQueue = "default";
 
     /**
      * Start the queue.

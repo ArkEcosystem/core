@@ -1,4 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
+
 import { EventDispatcher } from "../kernel/events";
 import { Logger } from "../kernel/log";
 import { RoundInfo } from "../shared";

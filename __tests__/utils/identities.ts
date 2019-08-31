@@ -13,8 +13,8 @@ interface IIdentity {
     wif: string;
 }
 
-const bip39: string = "this is a top secret passphrase";
-const bip39Second: string = "this is a top secret second passphrase";
+const bip39 = "this is a top secret passphrase";
+const bip39Second = "this is a top secret second passphrase";
 
 export const identity: IIdentity = {
     bip39,

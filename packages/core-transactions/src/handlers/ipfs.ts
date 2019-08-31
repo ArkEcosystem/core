@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class IpfsTransactionHandler extends TransactionHandler {
@@ -90,12 +91,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
-        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: Contracts.State.WalletManager,
-        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }
