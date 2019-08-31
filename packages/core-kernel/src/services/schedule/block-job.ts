@@ -1,5 +1,5 @@
 import { EventDispatcher } from "../../contracts/kernel/events";
-import { injectable, inject } from "../../container";
+import { injectable, inject, Identifiers } from "../../container";
 import { State } from "../../enums/events";
 import { Job } from "./interfaces";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
@@ -16,7 +16,7 @@ export class BlockJob implements Job {
      * @type {EventDispatcher}
      * @memberof BlockJob
      */
-    @inject("events")
+    @inject(Identifiers.EventDispatcherService)
     private readonly events: EventDispatcher;
 
     /**
@@ -27,10 +27,10 @@ export class BlockJob implements Job {
     protected blockCount = 1;
 
     /**
-     * @param {() => void} callback
+     * @param {Function} callback
      * @memberof BlockJob
      */
-    public execute(callback: () => void): void {
+    public execute(callback: Function): void {
         this.events.listen(State.BlockReceived, async ({ data }: { data: Interfaces.IBlockData }) => {
             if (data.height % this.blockCount === 0) {
                 await callback();

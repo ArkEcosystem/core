@@ -14,10 +14,7 @@ export class ServiceProviderRepository {
      * @type {Map<string, ServiceProvider>}
      * @memberof ServiceProviderRepository
      */
-    private readonly serviceProviders: Map<string, ServiceProvider> = new Map<
-        string,
-        ServiceProvider
-    >();
+    private readonly serviceProviders: Map<string, ServiceProvider> = new Map<string, ServiceProvider>();
 
     /**
      * The names of the loaded service providers.
@@ -114,6 +111,14 @@ export class ServiceProviderRepository {
      */
     public deferred(name: string): boolean {
         return this.deferredProviders.has(name);
+    }
+
+    /**
+     * @param {string} name
+     * @memberof ServiceProviderRepository
+     */
+    public load(name: string): void {
+        this.loadedProviders.add(name);
     }
 
     /**

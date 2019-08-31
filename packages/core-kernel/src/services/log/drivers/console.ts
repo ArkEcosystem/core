@@ -17,18 +17,7 @@ export class ConsoleLogger extends Logger implements LoggerContract {
      * @memberof ConsoleLogger
      */
     public async make(): Promise<LoggerContract> {
-        this.logger = console;
-
-        return this;
-    }
-
-    /**
-     * @protected
-     * @returns {Record<string, string>}
-     * @memberof ConsoleLogger
-     */
-    protected getLevels(): Record<string, string> {
-        return {
+        this.setLevels({
             emergency: "error",
             alert: "error",
             critical: "error",
@@ -37,6 +26,10 @@ export class ConsoleLogger extends Logger implements LoggerContract {
             notice: "info",
             info: "info",
             debug: "debug",
-        };
+        });
+
+        this.logger = console;
+
+        return this;
     }
 }

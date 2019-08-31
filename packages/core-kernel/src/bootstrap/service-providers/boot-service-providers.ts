@@ -34,11 +34,8 @@ export class BootServiceProviders implements Bootstrapper {
         for (const [name, serviceProvider] of serviceProviders.all()) {
             if (await serviceProvider.enableWhen()) {
                 try {
-                    this.app.log.debug(`Booting ${serviceProvider.name()}...`);
-
                     await serviceProviders.boot(name);
                 } catch (error) {
-                    // Determine if the plugin is required to decide how to handle errors.
                     const isRequired: boolean = await serviceProvider.required();
 
                     if (isRequired) {
@@ -48,8 +45,6 @@ export class BootServiceProviders implements Bootstrapper {
                     serviceProviders.fail(serviceProvider.name());
                 }
             } else {
-                this.app.log.debug(`Deferring ${serviceProvider.name()}...`);
-
                 serviceProviders.defer(name);
             }
 
@@ -63,6 +58,7 @@ export class BootServiceProviders implements Bootstrapper {
                     await serviceProviders.dispose(name);
                 }
 
+                /* istanbul ignore else */
                 if (serviceProviders.deferred(name) && (await serviceProvider.enableWhen())) {
                     await serviceProviders.boot(name);
                 }

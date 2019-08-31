@@ -12,7 +12,7 @@ import {
     isNumberArray,
     isStringArray,
     isBooleanArray,
-} from "../../../../packages/core-kernel/src/utils/is";
+} from "@packages/core-kernel/src/utils/is";
 
 describe(".isUndefined", () => {
     it("should pass", () => {

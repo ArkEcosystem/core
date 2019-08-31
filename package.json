@@ -72,6 +72,7 @@
         "@typescript-eslint/eslint-plugin": "^2.0.0",
         "@typescript-eslint/parser": "^2.0.0",
         "babel-loader": "^8.0.6",
+        "capture-console": "^1.0.1",
         "codecov": "^3.5.0",
         "create-hash": "^1.2.0",
         "cross-env": "^5.2.0",
@@ -85,12 +86,16 @@
         "js-yaml": "^3.13.1",
         "lerna": "^3.15.0",
         "lint-staged": "^9.2.0",
+        "moment": "^2.24.0",
+        "moment-timezone": "^0.5.26",
         "nock": "^11.0.0-beta.17",
         "npm-check-updates": "^3.1.20",
         "prettier": "^1.18.2",
         "prompts": "^2.1.0",
         "rimraf": "^2.6.3",
+        "sinon": "^7.4.1",
         "snyk": "^1.193.1",
+        "tmp": "^0.1.0",
         "ts-jest": "^24.0.2",
         "typedoc": "^0.15.0",
         "typescript": "^3.5.3",
@@ -100,44 +105,5 @@
     "workspaces": [
         "packages/*",
         "plugins/*"
-    ],
-    "jest": {
-        "testEnvironment": "node",
-        "bail": true,
-        "verbose": true,
-        "transform": {
-            "^.+\\.tsx?$": "ts-jest"
-        },
-        "testMatch": [
-            "**/*.test.ts"
-        ],
-        "moduleFileExtensions": [
-            "ts",
-            "tsx",
-            "js",
-            "jsx",
-            "json",
-            "node"
-        ],
-        "collectCoverage": false,
-        "coverageDirectory": "<rootDir>/.coverage",
-        "collectCoverageFrom": [
-            "packages/**/src/**/{!(index|service-provider),}.ts",
-            "!packages/**/src/**/contracts/**",
-            "!packages/**/src/**/enums/**",
-            "!packages/**/src/**/exceptions/**",
-            "!**/node_modules/**"
-        ],
-        "coverageReporters": [
-            "json",
-            "lcov",
-            "text",
-            "clover",
-            "html"
-        ],
-        "watchman": false,
-        "setupFilesAfterEnv": [
-            "jest-extended"
-        ]
-    }
+    ]
 }

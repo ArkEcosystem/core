@@ -1,5 +1,5 @@
 import "jest-extended";
-import { MemoryEventDispatcher } from "../../../../../../packages/core-kernel/src/services/events/drivers/memory";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 let emitter: MemoryEventDispatcher;
 beforeEach(() => (emitter = new MemoryEventDispatcher()));

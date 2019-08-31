@@ -25,6 +25,6 @@ export class WatchConfiguration implements Bootstrapper {
      * @memberof WatchConfiguration
      */
     public async bootstrap(): Promise<void> {
-        this.app.resolve<Watcher>(Watcher).watch();
+        await this.app.resolve<Watcher>(Watcher).start();
     }
 }

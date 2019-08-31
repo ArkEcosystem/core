@@ -1,5 +1,5 @@
 // Foundation
-// export * from "./register-error-handler";
+export * from "./register-error-handler";
 export * from "./register-base-configuration";
 export * from "./register-base-service-providers";
 export * from "./register-base-bindings";

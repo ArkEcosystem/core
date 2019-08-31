@@ -99,6 +99,8 @@ export abstract class BaseCommand extends Command {
 
         await app.bootstrap({ ...config, ...flags, ...{ skipPlugins: flags.skipPlugins } });
 
+        await app.boot();
+
         return app;
     }
 

@@ -1,4 +1,4 @@
-import { set } from "dottie";
+import set from "set-value";
 import envPaths from "env-paths";
 import expandHomeDir from "expand-home-dir";
 import { ensureDirSync } from "fs-extra";
@@ -7,6 +7,7 @@ import { resolve } from "path";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
 import { injectable, inject, Identifiers } from "../../container";
+import { ConfigRepository } from "../../services/config";
 
 /**
  * @export
@@ -26,6 +27,14 @@ export class RegisterBasePaths implements Bootstrapper {
     private readonly app: Application;
 
     /**
+     * @private
+     * @type {ConfigRepository}
+     * @memberof RegisterBasePaths
+     */
+    @inject(Identifiers.ConfigRepository)
+    private readonly configRepository: ConfigRepository;
+
+    /**
      * @returns {Promise<void>}
      * @memberof RegisterBasePaths
      */
@@ -36,8 +45,14 @@ export class RegisterBasePaths implements Bootstrapper {
             const processPath: string | null = process.env[`CORE_PATH_${type.toUpperCase()}`];
 
             if (processPath) {
-                path = resolve(expandHomeDir(processPath));
+                path = processPath;
             }
+
+            if (this.configRepository.has(`paths.${type}`)) {
+                path = this.configRepository.get(`paths.${type}`);
+            }
+
+            path = resolve(expandHomeDir(path));
 
             ensureDirSync(path);
 
@@ -45,13 +60,7 @@ export class RegisterBasePaths implements Bootstrapper {
 
             this.app[camelCase(`use_${type}_path`)](path);
 
-            const binding = `path.${type}`;
-
-            if (this.app.isBound(binding)) {
-                this.app.unbind(binding);
-            }
-
-            this.app.bind<string>(binding).toConstantValue(path);
+            this.app.rebind<string>(`path.${type}`).toConstantValue(path);
         }
     }
 }

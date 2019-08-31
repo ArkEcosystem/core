@@ -1,6 +1,12 @@
 import { Action } from "./action";
 import { InvalidArgumentException } from "../../exceptions/logic";
+import { injectable } from "../../container";
 
+/**
+ * @export
+ * @class Actions
+ */
+@injectable()
 export class Actions {
     /**
      * All of the registered actions.

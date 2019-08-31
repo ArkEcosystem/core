@@ -1,11 +1,9 @@
-import { Actions } from "../../../../../packages/core-kernel/src/services/actions/actions";
-import { InvalidArgumentException } from "../../../../../packages/core-kernel/src/exceptions/logic";
-import { Action } from "../../../../../packages/core-kernel/src/services/actions/action";
+import { Actions } from "@packages/core-kernel/src/services/actions/actions";
+import { InvalidArgumentException } from "@packages/core-kernel/src/exceptions/logic";
+import { Action } from "@packages/core-kernel/src/services/actions/action";
 
 let actions: Actions;
-beforeEach(() => {
-    actions = new Actions();
-});
+beforeEach(() => (actions = new Actions()));
 
 test("binds an action with a <before> hook and executes them", async () => {
     let fnValue = 0;

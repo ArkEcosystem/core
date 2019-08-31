@@ -21,10 +21,10 @@ export class CronJob implements Job {
     protected expression = "* * * * *";
 
     /**
-     * @param {() => void} callback
+     * @param {Function} callback
      * @memberof CronJob
      */
-    public execute(callback: () => void): void {
+    public execute(callback: Function): void {
         new Cron(this.expression, callback).start();
     }
 
@@ -258,12 +258,12 @@ export class CronJob implements Job {
      * Schedule the job to run weekly on a given day and time.
      *
      * @param {string} day
-     * @param {string} [hour="0"]
-     * @param {string} [minute="0"]
+     * @param {string} hour
+     * @param {string} minute
      * @returns {this}
      * @memberof CronJob
      */
-    public weeklyOn(day: string, hour = "0", minute = "0"): this {
+    public weeklyOn(day: string, hour: string, minute: string): this {
         return this.setMinute(minute)
             .setHour(hour)
             .setDayWeek(day);
@@ -285,12 +285,12 @@ export class CronJob implements Job {
      * Schedule the job to run monthly on a given day and time.
      *
      * @param {string} day
-     * @param {string} [hour="0"]
-     * @param {string} [minute="0"]
+     * @param {string} hour
+     * @param {string} minute
      * @returns {this}
      * @memberof CronJob
      */
-    public monthlyOn(day: string, hour = "0", minute = "0"): this {
+    public monthlyOn(day: string, hour: string, minute: string): this {
         return this.setMinute(minute)
             .setHour(hour)
             .setDayMonth(day);

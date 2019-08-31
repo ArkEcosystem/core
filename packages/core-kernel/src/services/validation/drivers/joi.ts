@@ -1,5 +1,4 @@
-import { validate } from "@hapi/joi";
-import { ValidationErrorItem } from "@hapi/joi";
+import { ValidationErrorItem, AnySchema } from "@hapi/joi";
 import { JsonObject } from "../../../types";
 import { Validator } from "../../../contracts/kernel/validation";
 import { injectable } from "../../../container";
@@ -48,7 +47,7 @@ export class JoiValidator implements Validator {
     public validate(data: JsonObject, schema: object): void {
         this.data = data;
 
-        const { error, value } = validate(this.data, schema);
+        const { error, value } = (schema as AnySchema).validate(this.data);
 
         this.resultValue = error ? undefined : value;
 
@@ -145,6 +144,7 @@ export class JoiValidator implements Validator {
         for (const error of this.resultError) {
             const errorKey: string = error.path[0];
 
+            /* istanbul ignore else */
             if (!Array.isArray(errors[errorKey])) {
                 errors[errorKey] = [];
             }

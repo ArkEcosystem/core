@@ -47,11 +47,11 @@ export class OrderedCappedMap<K, V> {
     }
 
     public first(): V {
-        return this.store.first();
+        return this.store.first() as V;
     }
 
     public last(): V {
-        return this.store.last();
+        return this.store.last() as V;
     }
 
     public keys(): K[] {

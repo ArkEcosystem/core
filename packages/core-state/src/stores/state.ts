@@ -80,6 +80,7 @@ export class StateStore implements Contracts.State.StateStore {
      * Get the last block.
      */
     public getLastBlock(): Interfaces.IBlock | undefined {
+        // @ts-ignore
         return this.lastBlocks.last() || undefined;
     }
 

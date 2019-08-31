@@ -1,5 +1,5 @@
 import cosmiconfig from "cosmiconfig";
-import { set } from "dottie";
+import set from "set-value";
 import { parseFileSync } from "envfile";
 import { JsonObject } from "../../../types";
 import { Application } from "../../../contracts/kernel";
@@ -59,8 +59,8 @@ export class LocalConfigLoader implements ConfigLoader {
             for (const [key, value] of Object.entries(config)) {
                 set(process.env, key, value);
             }
-        } catch (error) {
-            throw new EnvironmentConfigurationCannotBeLoaded(error.stack);
+        } catch {
+            throw new EnvironmentConfigurationCannotBeLoaded();
         }
     }
 

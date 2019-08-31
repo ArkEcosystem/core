@@ -3,13 +3,13 @@ import { SignaleLogger } from "./driver";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        const logManager: Services.Log.LogManager = this.app.get<Services.Log.LogManager>(Container.Identifiers.LogManager);
-        await logManager.extend("signale", async () => new SignaleLogger(this.config()).make());
-        logManager.setDefaultDriver("signale");
+        const logManager: Services.Log.LogManager = this.app.get<Services.Log.LogManager>(
+            Container.Identifiers.LogManager,
+        );
 
-        // Note: Ensure that we rebind the logger that is bound to the container so IoC can do it's job.
-        this.app.unbind(Container.Identifiers.LogService);
-        this.app.bind(Container.Identifiers.LogService).toConstantValue(logManager.driver());
+        await logManager.extend("signale", async () => new SignaleLogger(this.config()).make());
+
+        logManager.setDefaultDriver("signale");
     }
 
     public async required(): Promise<boolean> {

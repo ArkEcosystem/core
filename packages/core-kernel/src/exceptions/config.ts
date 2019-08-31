@@ -53,8 +53,8 @@ export class EnvironmentConfigurationCannotBeLoaded extends ConfigurationExcepti
     /**
      * @memberof EnvironmentConfigurationCannotBeLoaded
      */
-    constructor(reason: string) {
-        super(`Unable to load the environment file: ${reason}`);
+    constructor() {
+        super(`Unable to load the environment file.`);
     }
 }
 

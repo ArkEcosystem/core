@@ -42,20 +42,36 @@ export class Watcher {
     private readonly app: Application;
 
     /**
+     * @private
+     * @type {nsfw}
+     * @memberof Watcher
+     */
+    private watcher: nsfw;
+
+    /**
      * @returns {Promise<void>}
      * @memberof Watcher
      */
-    public async watch(): Promise<void> {
-        const configFiles: string[] = [".env", "delegates.json", "packages.js", "peers.json"];
+    public async start(): Promise<void> {
+        const configFiles: string[] = [".env", "delegates.json", "peers.json", "packages.js", "packages.json"];
 
-        const watcher = await nsfw(this.app.configPath(), (events: FileEvent[]) => {
+        this.watcher = await nsfw(this.app.configPath(), (events: FileEvent[]) => {
             for (const event of events) {
+                /* istanbul ignore else */
                 if (configFiles.includes(event.file) && event.action === nsfw.actions.MODIFIED) {
                     this.app.reboot();
                 }
             }
         });
 
-        await watcher.start();
+        await this.watcher.start();
+    }
+
+    /**
+     * @returns {Promise<void>}
+     * @memberof Watcher
+     */
+    public async stop(): Promise<void> {
+        return this.watcher.stop();
     }
 }

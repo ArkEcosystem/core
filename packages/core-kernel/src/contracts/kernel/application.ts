@@ -1,20 +1,10 @@
 import { JsonObject } from "../../types";
 import { Exception } from "../../exceptions/base";
-import { Blockchain } from "../blockchain";
-import { DatabaseService } from "../database";
-import { PeerService } from "../p2p";
-import { Connection } from "../transaction-pool";
 import { EventDispatcher } from "./events";
-import { Filesystem } from "./filesystem";
 import { Logger } from "./log";
 import { Container } from "./container";
 
 export interface Application {
-    /**
-     * Get an instance of the application container.
-     */
-    readonly ioc: Container.Container;
-
     /**
      * Get an instance of the application logger.
      */
@@ -24,31 +14,6 @@ export interface Application {
      * Get an instance of the application event dispatcher.
      */
     readonly events: EventDispatcher;
-
-    /**
-     * Get an instance of the application filesystem.
-     */
-    readonly filesystem: Filesystem;
-
-    /**
-     * Get an instance of the application database.
-     */
-    readonly database: DatabaseService;
-
-    /**
-     * Get an instance of the application blockchain.
-     */
-    readonly blockchain: Blockchain;
-
-    /**
-     * Get an instance of the application p2p layer.
-     */
-    readonly p2p: PeerService;
-
-    /**
-     * Get an instance of the application transaction pool.
-     */
-    readonly transactionPool: Connection;
 
     /**
      * Bootstrap the application with the given configuration.
@@ -201,6 +166,8 @@ export interface Application {
     terminate(reason?: string, error?: Error): Promise<void>;
 
     bind<T>(serviceIdentifier: Container.ServiceIdentifier<T>): Container.BindingToSyntax<T>;
+
+    rebind<T>(serviceIdentifier: Container.ServiceIdentifier<T>): Container.BindingToSyntax<T>;
 
     unbind<T>(serviceIdentifier: Container.ServiceIdentifier<T>): void;
 

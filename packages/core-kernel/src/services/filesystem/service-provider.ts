@@ -1,6 +1,6 @@
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { FilesystemManager } from "./manager";
-import { Identifiers } from "../../container";
+import { Identifiers, interfaces } from "../../container";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**
@@ -15,9 +15,12 @@ export class ServiceProvider extends BaseServiceProvider {
             .to(FilesystemManager)
             .inSingletonScope();
 
-        const filesystemManager: FilesystemManager = this.app.get<FilesystemManager>(Identifiers.FilesystemManager);
-        await filesystemManager.boot();
+        await this.app.get<FilesystemManager>(Identifiers.FilesystemManager).boot();
 
-        this.app.bind("filesystem").toConstantValue(filesystemManager.driver());
+        this.app
+            .bind(Identifiers.FilesystemService)
+            .toDynamicValue((context: interfaces.Context) =>
+                context.container.get<FilesystemManager>(Identifiers.FilesystemManager).driver(),
+            );
     }
 }

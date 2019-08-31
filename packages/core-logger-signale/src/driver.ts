@@ -7,14 +7,12 @@ export class SignaleLogger extends Services.Log.Logger implements Contracts.Kern
     }
 
     public async make(): Promise<Contracts.Kernel.Log.Logger> {
+        this.setLevels({
+            verbose: "note",
+        });
+
         this.logger = new Signale(this.opts);
 
         return this;
-    }
-
-    protected getLevels(): Record<string, string> {
-        return {
-            verbose: "note",
-        };
     }
 }

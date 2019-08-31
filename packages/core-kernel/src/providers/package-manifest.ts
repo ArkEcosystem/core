@@ -1,4 +1,5 @@
-import { get } from "dottie";
+import get from "get-value";
+import has from "has-value";
 import { PackageJson } from "../types";
 import { injectable } from "../container";
 
@@ -25,9 +26,7 @@ export class PackageManifest {
      * @memberof PackageManifest
      */
     public discover(name: string): this {
-        if (!this.manifest) {
-            this.manifest = require(`${name}/package.json`);
-        }
+        this.manifest = require(`${name}/package.json`);
 
         return this;
     }
@@ -42,10 +41,6 @@ export class PackageManifest {
      * @memberof PackageManifest
      */
     public get<T>(key: string, defaultValue?: T): T {
-        if (!this.has(key)) {
-            return defaultValue;
-        }
-
         return get(this.manifest, key, defaultValue);
     }
 
@@ -57,6 +52,6 @@ export class PackageManifest {
      * @memberof PackageManifest
      */
     public has(key: string): boolean {
-        return !!get(this.manifest, key);
+        return has(this.manifest, key);
     }
 }

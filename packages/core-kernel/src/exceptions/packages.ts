@@ -75,13 +75,13 @@ export class DependencyVersionOutOfRange extends OutOfRangeException {
  */
 export class OptionalDependencyCannotBeFound extends RuntimeException {
     /**
-     * @param {string} name
-     * @param {string} reason
+     * @param {string} serviceProvider
+     * @param {string} dependency
      * @memberof OptionalDependencyCannotBeFound
      */
-    constructor(name: string, reason: string) {
+    constructor(serviceProvider: string, dependency: string) {
         super(
-            `The "${name}" package is missing. Please, make sure to install this library to take advantage of ${reason}.`,
+            `The "${serviceProvider}" package is missing. Please, make sure to install this library to take advantage of ${dependency}.`,
         );
     }
 }
@@ -93,13 +93,13 @@ export class OptionalDependencyCannotBeFound extends RuntimeException {
  */
 export class RequiredDependencyCannotBeFound extends RuntimeException {
     /**
-     * @param {string} name
-     * @param {string} reason
+     * @param {string} serviceProvider
+     * @param {string} dependency
      * @memberof RequiredDependencyCannotBeFound
      */
-    constructor(name: string, reason: string) {
+    constructor(serviceProvider: string, dependency: string) {
         super(
-            `The "${name}" package is required but missing. Please, make sure to install this library to take advantage of ${reason}.`,
+            `The "${serviceProvider}" package is required but missing. Please, make sure to install this library to take advantage of ${dependency}.`,
         );
     }
 }

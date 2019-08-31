@@ -1,11 +1,13 @@
 import logProcessErrors from "log-process-errors";
 import { Bootstrapper } from "../interfaces";
+import { injectable } from "../../container";
 
 /**
  * @export
  * @class RegisterErrorHandler
  * @implements {Bootstrapper}
  */
+@injectable()
 export class RegisterErrorHandler implements Bootstrapper {
     /**
      * @returns {Promise<void>}

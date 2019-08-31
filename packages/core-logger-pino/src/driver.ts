@@ -17,6 +17,17 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
     }
 
     public async make(): Promise<Contracts.Kernel.Log.Logger> {
+        this.setLevels({
+            emergency: "fatal",
+            alert: "fatal",
+            critical: "fatal",
+            error: "error",
+            warning: "warn",
+            notice: "info",
+            info: "info",
+            debug: "debug",
+        });
+
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {
@@ -37,24 +48,6 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
         pump(stream, split(), fileTransport, this.fileStream);
 
         return this;
-    }
-
-    /**
-     * @protected
-     * @returns {Record<string, string>}
-     * @memberof AbstractLogger
-     */
-    protected getLevels(): Record<string, string> {
-        return {
-            emergency: "fatal",
-            alert: "fatal",
-            critical: "fatal",
-            error: "error",
-            warning: "warn",
-            notice: "info",
-            info: "info",
-            debug: "debug",
-        };
     }
 
     private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {

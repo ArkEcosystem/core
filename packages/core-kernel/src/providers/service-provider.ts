@@ -94,8 +94,12 @@ export abstract class ServiceProvider {
      * @returns {string}
      * @memberof ServiceProvider
      */
-    public name(): string {
-        return this.packageManifest ? this.packageManifest.get("name") : undefined;
+    public name(): string | undefined {
+        if (this.packageManifest) {
+            return this.packageManifest.get("name");
+        }
+
+        return undefined;
     }
 
     /**
@@ -104,8 +108,12 @@ export abstract class ServiceProvider {
      * @returns {string}
      * @memberof ServiceProvider
      */
-    public version(): string {
-        return this.packageManifest ? this.packageManifest.get("version") : undefined;
+    public version(): string | undefined {
+        if (this.packageManifest) {
+            return this.packageManifest.get("version");
+        }
+
+        return undefined;
     }
 
     /**

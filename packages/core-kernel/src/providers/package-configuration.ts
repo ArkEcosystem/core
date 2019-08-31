@@ -1,7 +1,10 @@
-import { get, set } from "dottie";
-import { Kernel } from "../contracts";
+import get from "get-value";
+import set from "set-value";
+import unset from "unset-value";
+import has from "has-value";
 import { JsonObject } from "../types";
 import { injectable, inject, Identifiers } from "../container";
+import { ConfigRepository } from "../services/config";
 
 /**
  * @export
@@ -10,14 +13,12 @@ import { injectable, inject, Identifiers } from "../container";
 @injectable()
 export class PackageConfiguration {
     /**
-     * The application instance.
-     *
-     * @protected
-     * @type {Kernel.Application}
-     * @memberof Manager
+     * @private
+     * @type {ConfigRepository}
+     * @memberof RegisterBasePaths
      */
-    @inject(Identifiers.Application)
-    private readonly app: Kernel.Application;
+    @inject(Identifiers.ConfigRepository)
+    private readonly configRepository: ConfigRepository;
 
     /**
      * The loaded items.
@@ -26,7 +27,7 @@ export class PackageConfiguration {
      * @type {JsonObject}
      * @memberof PackageConfiguration
      */
-    private items: JsonObject;
+    private items: JsonObject = {};
 
     /**
      * @param {string} name
@@ -50,13 +51,9 @@ export class PackageConfiguration {
      * @memberof PackageConfiguration
      */
     public discover(name: string): this {
-        if (!this.items) {
-            try {
-                this.items = require(`${name}/dist/defaults.js`).defaults;
-            } catch {
-                this.items = {};
-            }
-        }
+        try {
+            this.items = require(`${name}/dist/defaults.js`).defaults;
+        } catch {}
 
         this.mergeWithGlobal(name);
 
@@ -119,6 +116,20 @@ export class PackageConfiguration {
     }
 
     /**
+     * Unset a given configuration value.
+     *
+     * @template T
+     * @param {string} key
+     * @returns {boolean}
+     * @memberof ConfigRepository
+     */
+    public unset<T>(key: string): boolean {
+        unset(this.items, key);
+
+        return this.has(key);
+    }
+
+    /**
      * Determine if the given value exists.
      *
      * @param {string} key
@@ -126,7 +137,7 @@ export class PackageConfiguration {
      * @memberof PackageConfiguration
      */
     public has(key: string): boolean {
-        return !!get(this.items, key);
+        return has(this.items, key);
     }
 
     /**
@@ -135,10 +146,10 @@ export class PackageConfiguration {
      * @memberof PackageConfiguration
      */
     private mergeWithGlobal(name: string): void {
-        const globalOptions: JsonObject | undefined = this.app.config("options")[name];
-
-        if (globalOptions) {
-            this.merge(globalOptions);
+        if (!this.configRepository.has(`options.${name}`)) {
+            return;
         }
+
+        this.merge(this.configRepository.get(`options.${name}`));
     }
 }

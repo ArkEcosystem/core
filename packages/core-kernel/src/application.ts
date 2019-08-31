@@ -33,10 +33,8 @@ export class Application implements Contracts.Kernel.Application {
      * @param {Contracts.Kernel.Container.Container} container
      * @memberof Contracts.Kernel.Application
      */
-    public constructor(private readonly container: Contracts.Kernel.Container.Container) {
+    public constructor(readonly container: Contracts.Kernel.Container.Container) {
         // this.listenToShutdownSignals();
-
-        // this.container.bind<Application>(Application).toSelf();
 
         this.container.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
     }
@@ -57,8 +55,6 @@ export class Application implements Contracts.Kernel.Application {
             .inSingletonScope();
 
         await this.bootstrapWith("app");
-
-        await this.boot();
     }
 
     /**
@@ -143,6 +139,10 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public useNetwork(value: string): void {
+        if (this.isBound(Identifiers.ApplicationNetwork)) {
+            this.container.unbind(Identifiers.ApplicationNetwork);
+        }
+
         this.container.bind<string>(Identifiers.ApplicationNetwork).toConstantValue(value);
     }
 
@@ -252,7 +252,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public useEnvironment(value: string): void {
-        this.container.bind<string>(Identifiers.ApplicationEnvironment).toConstantValue(value);
+        this.rebind<string>(Identifiers.ApplicationEnvironment).toConstantValue(value);
     }
 
     /**
@@ -331,21 +331,10 @@ export class Application implements Contracts.Kernel.Application {
         }
 
         if (error) {
-            this.log.notice(error.stack);
+            this.log.notice(error.message);
         }
 
         await this.disposeServiceProviders();
-    }
-
-    /**
-     * @todo remove after initial migration
-     *
-     * @readonly
-     * @type {Contracts.Kernel.Container.Container}
-     * @memberof Application
-     */
-    public get ioc(): Contracts.Kernel.Container.Container {
-        return this.container;
     }
 
     /**
@@ -371,61 +360,6 @@ export class Application implements Contracts.Kernel.Application {
     }
 
     /**
-     * @todo remove after initial migration
-     *
-     * @readonly
-     * @type {Contracts.Kernel.Filesystem.Filesystem}
-     * @memberof Application
-     */
-    public get filesystem(): Contracts.Kernel.Filesystem.Filesystem {
-        return this.container.get<Contracts.Kernel.Filesystem.Filesystem>(Identifiers.FilesystemService);
-    }
-
-    /**
-     * @todo remove after initial migration
-     *
-     * @readonly
-     * @type {Contracts.Database.DatabaseService}
-     * @memberof Application
-     */
-    public get database(): Contracts.Database.DatabaseService {
-        return this.container.get<Contracts.Database.DatabaseService>(Identifiers.DatabaseService);
-    }
-
-    /**
-     * @todo remove after initial migration
-     *
-     * @readonly
-     * @type {Contracts.Blockchain.Blockchain}
-     * @memberof Application
-     */
-    public get blockchain(): Contracts.Blockchain.Blockchain {
-        return this.container.get<Contracts.Blockchain.Blockchain>(Identifiers.BlockchainService);
-    }
-
-    /**
-     * @todo remove after initial migration
-     *
-     * @readonly
-     * @type {Contracts.P2P.PeerService}
-     * @memberof Application
-     */
-    public get p2p(): Contracts.P2P.PeerService {
-        return this.container.get<Contracts.P2P.PeerService>(Identifiers.PeerService);
-    }
-
-    /**
-     * @todo remove after initial migration
-     *
-     * @readonly
-     * @type {Contracts.TransactionPool.Connection}
-     * @memberof Application
-     */
-    public get transactionPool(): Contracts.TransactionPool.Connection {
-        return this.container.get<Contracts.TransactionPool.Connection>(Identifiers.TransactionPoolService);
-    }
-
-    /**
      * @template T
      * @param {Contracts.Kernel.Container.ServiceIdentifier<T>} serviceIdentifier
      * @returns {Contracts.Kernel.Container.BindingToSyntax<T>}
@@ -434,6 +368,23 @@ export class Application implements Contracts.Kernel.Application {
     public bind<T>(
         serviceIdentifier: Contracts.Kernel.Container.ServiceIdentifier<T>,
     ): Contracts.Kernel.Container.BindingToSyntax<T> {
+        return this.container.bind(serviceIdentifier);
+    }
+
+    /**
+     * @template T
+     * @param {Contracts.Kernel.Container.ServiceIdentifier<T>} serviceIdentifier
+     * @returns {Contracts.Kernel.Container.BindingToSyntax<T>}
+     * @memberof Application
+     */
+    public rebind<T>(
+        serviceIdentifier: Contracts.Kernel.Container.ServiceIdentifier<T>,
+    ): Contracts.Kernel.Container.BindingToSyntax<T> {
+        /* istanbul ignore else */
+        if (this.container.isBound(serviceIdentifier)) {
+            this.container.unbind(serviceIdentifier);
+        }
+
         return this.container.bind(serviceIdentifier);
     }
 
@@ -571,13 +522,7 @@ export class Application implements Contracts.Kernel.Application {
             throw new DirectoryCannotBeFound(path);
         }
 
-        const binding = `path.${type}`;
-
-        if (this.container.isBound(binding)) {
-            this.container.unbind(binding);
-        }
-
-        this.container.bind<string>(binding).toConstantValue(path);
+        this.rebind<string>(`path.${type}`).toConstantValue(path);
     }
 
     // /**

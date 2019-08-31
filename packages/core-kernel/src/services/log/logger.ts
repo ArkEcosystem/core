@@ -11,6 +11,22 @@ import { injectable } from "../../container";
 export abstract class Logger {
     /**
      * @protected
+     * @type {Record<string, string>}
+     * @memberof Logger
+     */
+    protected readonly defaultLevels: Record<string, string> = {
+        emergency: "emergency",
+        alert: "alert",
+        critical: "critical",
+        error: "error",
+        warning: "warning",
+        notice: "notice",
+        info: "info",
+        debug: "debug",
+    };
+
+    /**
+     * @protected
      * @type {*}
      * @memberof Logger
      */
@@ -28,16 +44,7 @@ export abstract class Logger {
      * @type {Record<string, string>}
      * @memberof Logger
      */
-    protected readonly defaultLevels: Record<string, string> = {
-        emergency: "emergency",
-        alert: "alert",
-        critical: "critical",
-        error: "error",
-        warning: "warning",
-        notice: "notice",
-        info: "info",
-        debug: "debug",
-    };
+    protected levels: Record<string, string>;
 
     /**
      * @param {string} level
@@ -68,7 +75,7 @@ export abstract class Logger {
      * @memberof Logger
      */
     public emergency(message: any): void {
-        this.log(this.getLevel("emergency"), message);
+        this.log(this.levels.emergency, message);
     }
 
     /**
@@ -76,7 +83,7 @@ export abstract class Logger {
      * @memberof Logger
      */
     public alert(message: any): void {
-        this.log(this.getLevel("alert"), message);
+        this.log(this.levels.alert, message);
     }
 
     /**
@@ -84,7 +91,7 @@ export abstract class Logger {
      * @memberof Logger
      */
     public critical(message: any): void {
-        this.log(this.getLevel("critical"), message);
+        this.log(this.levels.critical, message);
     }
 
     /**
@@ -92,7 +99,7 @@ export abstract class Logger {
      * @memberof Logger
      */
     public error(message: any): void {
-        this.log(this.getLevel("error"), message);
+        this.log(this.levels.error, message);
     }
 
     /**
@@ -100,7 +107,7 @@ export abstract class Logger {
      * @memberof Logger
      */
     public warning(message: any): void {
-        this.log(this.getLevel("warning"), message);
+        this.log(this.levels.warning, message);
     }
 
     /**
@@ -108,7 +115,7 @@ export abstract class Logger {
      * @memberof Logger
      */
     public notice(message: any): void {
-        this.log(this.getLevel("notice"), message);
+        this.log(this.levels.notice, message);
     }
 
     /**
@@ -116,7 +123,7 @@ export abstract class Logger {
      * @memberof Logger
      */
     public info(message: any): void {
-        this.log(this.getLevel("info"), message);
+        this.log(this.levels.info, message);
     }
 
     /**
@@ -124,33 +131,22 @@ export abstract class Logger {
      * @memberof Logger
      */
     public debug(message: any): void {
-        this.log(this.getLevel("debug"), message);
+        this.log(this.levels.debug, message);
     }
 
     /**
-     * @param {boolean} [suppress=true]
+     * @param {boolean} suppress
      * @memberof Logger
      */
-    public suppressConsoleOutput(suppress = true): void {
+    public suppressConsoleOutput(suppress: boolean): void {
         this.silentConsole = suppress;
     }
 
     /**
-     * @protected
-     * @param {string} level
-     * @returns {string}
+     * @param {Record<string,string>} levels
      * @memberof Logger
      */
-    protected getLevel(level: string): string {
-        return { ...this.defaultLevels, ...this.getLevels() }[level];
-    }
-
-    /**
-     * @protected
-     * @returns {Record<string, string>}
-     * @memberof Logger
-     */
-    protected getLevels(): Record<string, string> {
-        return this.defaultLevels;
+    public setLevels(levels: Record<string, string>): void {
+        this.levels = { ...this.defaultLevels, ...levels };
     }
 }

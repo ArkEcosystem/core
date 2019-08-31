@@ -1,4 +1,7 @@
-import { get, set } from "dottie";
+import get from "get-value";
+import set from "set-value";
+import has from "has-value";
+import unset from "unset-value";
 import { JsonObject } from "../../types";
 
 /**
@@ -27,6 +30,17 @@ export class ConfigRepository {
     }
 
     /**
+     * Get all configuration values.
+     *
+     * @template T
+     * @returns {JsonObject}
+     * @memberof ConfigRepository
+     */
+    public all<T>(): JsonObject {
+        return this.items;
+    }
+
+    /**
      * Get the specified configuration value.
      *
      * @template T
@@ -36,10 +50,6 @@ export class ConfigRepository {
      * @memberof ConfigRepository
      */
     public get<T>(key: string, defaultValue?: T): T {
-        if (!this.has(key)) {
-            return defaultValue;
-        }
-
         return get(this.items, key, defaultValue);
     }
 
@@ -59,6 +69,17 @@ export class ConfigRepository {
     }
 
     /**
+     * Unset a given configuration value.
+     *
+     * @param {string} key
+     * @returns {boolean}
+     * @memberof ConfigRepository
+     */
+    public unset(key: string): boolean {
+        return unset(this.items, key);
+    }
+
+    /**
      * Determine if the given configuration value exists.
      *
      * @param {string} key
@@ -66,6 +87,6 @@ export class ConfigRepository {
      * @memberof ConfigRepository
      */
     public has(key: string): boolean {
-        return !!get(this.items, key);
+        return has(this.items, key);
     }
 }

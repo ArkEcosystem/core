@@ -125,7 +125,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async hasMany(keys: K[]): Promise<boolean[]> {
-        return Promise.all(keys.map((key: K) => this.has(key)));
+        return Promise.all(keys.map(async (key: K) => this.has(key)));
     }
 
     /**
@@ -136,7 +136,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async missing(key: K): Promise<boolean> {
-        return !this.has(key);
+        return !this.store.has(key);
     }
 
     /**
@@ -147,7 +147,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async missingMany(keys: K[]): Promise<boolean[]> {
-        return Promise.all([...keys].map((key: K) => this.missing(key)));
+        return Promise.all([...keys].map(async (key: K) => this.missing(key)));
     }
 
     /**
@@ -166,11 +166,10 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * Store multiple items in the cache indefinitely.
      *
      * @param {Array<[K, T]>} values
-     * @param {T} value
      * @returns {boolean[]}
      * @memberof MemoryCacheStore
      */
-    public async foreverMany(values: Array<[K, T]>, value: T): Promise<boolean[]> {
+    public async foreverMany(values: Array<[K, T]>): Promise<boolean[]> {
         throw new NotImplemented(this.constructor.name, "foreverMany");
     }
 
@@ -195,7 +194,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async forgetMany(keys: K[]): Promise<boolean[]> {
-        return Promise.all(keys.map((key: K) => this.missing(key)));
+        return Promise.all(keys.map(async (key: K) => this.forget(key)));
     }
 
     /**

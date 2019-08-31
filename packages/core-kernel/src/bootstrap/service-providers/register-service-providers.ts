@@ -41,40 +41,28 @@ export class RegisterServiceProviders implements Bootstrapper {
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
-            // Shall we include the plugin?
-            if (!this.shouldBeIncluded(serviceProvider.name()) || this.shouldBeExcluded(serviceProvider.name())) {
-                continue;
-            }
-
-            // Determine if the plugin is required to decide how to handle errors.
-            const isRequired: boolean = await serviceProvider.required();
-
-            // Does the configuration conform to the given rules?
             try {
+                // Shall we include the plugin?
+                if (!this.shouldBeIncluded(serviceProvider.name()) || this.shouldBeExcluded(serviceProvider.name())) {
+                    continue;
+                }
+
+                // Does the configuration conform to the given rules?
                 await this.validateConfiguration(serviceProvider);
+
+                // Are all dependencies installed with the correct versions?
+                if (await this.satisfiesDependencies(serviceProvider)) {
+                    await serviceProviders.register(name);
+                }
             } catch (error) {
+                // Determine if the plugin is required to decide how to handle errors.
+                const isRequired: boolean = await serviceProvider.required();
+
                 if (isRequired) {
                     throw new ServiceProviderCannotBeRegistered(serviceProvider.name(), error.message);
                 }
 
                 serviceProviders.fail(serviceProvider.name());
-
-                continue;
-            }
-
-            // Are all dependencies installed with the correct versions?
-            if (await this.satisfiesDependencies(serviceProvider)) {
-                try {
-                    this.app.log.debug(`Registering ${serviceProvider.name()}...`);
-
-                    await serviceProviders.register(name);
-                } catch (error) {
-                    if (isRequired) {
-                        throw new ServiceProviderCannotBeRegistered(serviceProvider.name(), error.message);
-                    }
-
-                    serviceProviders.fail(serviceProvider.name());
-                }
             }
         }
     }
@@ -112,22 +100,16 @@ export class RegisterServiceProviders implements Bootstrapper {
      * @memberof RegisterProviders
      */
     private async satisfiesDependencies(serviceProvider: ServiceProvider): Promise<boolean> {
-        const dependencies: Kernel.PackageDependency[] = serviceProvider.dependencies();
-
-        if (!dependencies) {
-            return true;
-        }
-
         const serviceProviders: ServiceProviderRepository = this.app.get<ServiceProviderRepository>(
             Identifiers.ServiceProviderRepository,
         );
 
-        for (const dependency of dependencies) {
-            const { name, version, required } = dependency;
+        for (const dependency of serviceProvider.dependencies()) {
+            const { name, version: constraint, required } = dependency;
+
+            const isRequired: boolean = typeof required === "function" ? await required() : !!required;
 
             if (!serviceProviders.has(name)) {
-                const isRequired: boolean = typeof required === "function" ? await required() : !!required;
-
                 // The dependency is necessary for this package to function. We'll output an error and terminate the process.
                 if (isRequired) {
                     const error: RequiredDependencyCannotBeFound = new RequiredDependencyCannotBeFound(
@@ -146,18 +128,30 @@ export class RegisterServiceProviders implements Bootstrapper {
 
                 this.app.log.warning(error.message);
 
-                serviceProviders.fail(serviceProvider.version());
+                serviceProviders.fail(serviceProvider.name());
 
                 return false;
             }
 
-            if (version) {
-                const constraint: string = serviceProviders.get(name).name();
+            /* istanbul ignore else */
+            if (constraint) {
+                const version: string = serviceProviders.get(name).version();
 
-                if (!semver.satisfies(constraint, version)) {
+                /* istanbul ignore else */
+                if (!semver.satisfies(version, constraint)) {
+                    const error: DependencyVersionOutOfRange = new DependencyVersionOutOfRange(
+                        name,
+                        constraint,
+                        version,
+                    );
+
+                    if (isRequired) {
+                        await this.app.terminate(error.message, error);
+                    }
+
+                    this.app.log.warning(error.message);
+
                     serviceProviders.fail(serviceProvider.name());
-
-                    throw new DependencyVersionOutOfRange(name, constraint, version);
                 }
             }
         }

@@ -25,7 +25,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {PeerService}
      */
     get p2p(): Contracts.P2P.PeerService {
-        return app.p2p;
+        return app.get<Contracts.P2P.PeerService>(Container.Identifiers.PeerService);
     }
 
     /**
@@ -33,7 +33,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {TransactionPool}
      */
     get transactionPool(): Contracts.TransactionPool.Connection {
-        return app.transactionPool;
+        return app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService);
     }
 
     /**
@@ -41,7 +41,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {ConnectionInterface}
      */
     get database(): Contracts.Database.DatabaseService {
-        return app.database;
+        return app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
     }
 
     public isStopped: boolean;

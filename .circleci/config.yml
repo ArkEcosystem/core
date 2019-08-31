@@ -1,10 +1,10 @@
 version: 2
 jobs:
-    node10-unit:
+    node12-unit:
         working_directory: ~/core
         docker:
-            - image: "circleci/node:10"
-        steps: &stepsUnit
+            - image: "circleci/node:12"
+        steps:
             - checkout
             - run:
                   name: Apt update
@@ -17,7 +17,6 @@ jobs:
             - restore_cache:
                   keys:
                       - v1-dependencies-{{ checksum "yarn.lock" }}
-                      - v1-dependencies-
             - run:
                   name: Install and build packages
                   command: yarn setup
@@ -43,29 +42,19 @@ jobs:
             - run:
                   name: Codecov
                   command: ./node_modules/.bin/codecov
-    node11-unit:
-        working_directory: ~/core
-        docker:
-            - image: "circleci/node:11"
-        steps: *stepsUnit
-    node12-unit:
-        working_directory: ~/core
-        docker:
-            - image: "circleci/node:12"
-        steps: *stepsUnit
-    node10-functional:
+    node12-functional:
         working_directory: ~/core
         environment:
             CORE_DB_DATABASE: ark_unitnet
             CORE_DB_USERNAME: ark
         docker:
-            - image: "circleci/node:10"
+            - image: "circleci/node:12"
             - image: "postgres:alpine"
               environment:
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
                   POSTGRES_USER: ark
-        steps: &stepsFunctional
+        steps:
             - checkout
             - run:
                   name: Apt update
@@ -78,7 +67,6 @@ jobs:
             - restore_cache:
                   keys:
                       - v1-dependencies-{{ checksum "yarn.lock" }}
-                      - v1-dependencies-
             - run:
                   name: Install and build packages
                   command: yarn setup
@@ -104,20 +92,7 @@ jobs:
             - run:
                   name: Codecov
                   command: ./node_modules/.bin/codecov
-    node11-functional:
-        working_directory: ~/core
-        environment:
-            CORE_DB_DATABASE: ark_unitnet
-            CORE_DB_USERNAME: ark
-        docker:
-            - image: "circleci/node:11"
-            - image: "postgres:alpine"
-              environment:
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
-                  POSTGRES_USER: ark
-        steps: *stepsFunctional
-    node12-functional:
+    node12-integration:
         working_directory: ~/core
         environment:
             CORE_DB_DATABASE: ark_unitnet
@@ -129,20 +104,7 @@ jobs:
                   POSTGRES_PASSWORD: password
                   POSTGRES_DB: ark_unitnet
                   POSTGRES_USER: ark
-        steps: *stepsFunctional
-    node10-integration:
-        working_directory: ~/core
-        environment:
-            CORE_DB_DATABASE: ark_unitnet
-            CORE_DB_USERNAME: ark
-        docker:
-            - image: "circleci/node:10"
-            - image: "postgres:alpine"
-              environment:
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
-                  POSTGRES_USER: ark
-        steps: &stepsIntegration
+        steps:
             - checkout
             - run:
                   name: Apt update
@@ -155,7 +117,6 @@ jobs:
             - restore_cache:
                   keys:
                       - v1-dependencies-{{ checksum "yarn.lock" }}
-                      - v1-dependencies-
             - run:
                   name: Install and build packages
                   command: yarn setup
@@ -179,37 +140,11 @@ jobs:
             - run:
                   name: Codecov
                   command: ./node_modules/.bin/codecov
-    node11-integration:
+    node12-benchmark:
         working_directory: ~/core
-        environment:
-            CORE_DB_DATABASE: ark_unitnet
-            CORE_DB_USERNAME: ark
-        docker:
-            - image: "circleci/node:11"
-            - image: "postgres:alpine"
-              environment:
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
-                  POSTGRES_USER: ark
-        steps: *stepsIntegration
-    node12-integration:
-        working_directory: ~/core
-        environment:
-            CORE_DB_DATABASE: ark_unitnet
-            CORE_DB_USERNAME: ark
         docker:
             - image: "circleci/node:12"
-            - image: "postgres:alpine"
-              environment:
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
-                  POSTGRES_USER: ark
-        steps: *stepsIntegration
-    node10-benchmark:
-        working_directory: ~/core
-        docker:
-            - image: "circleci/node:10"
-        steps: &stepsBenchmark
+        steps:
             - checkout
             - run:
                   name: Apt update
@@ -219,7 +154,6 @@ jobs:
             - restore_cache:
                   keys:
                       - v1-dependencies-{{ checksum "yarn.lock" }}
-                      - v1-dependencies-
             - run:
                   name: Install and build packages
                   command: yarn setup
@@ -230,21 +164,11 @@ jobs:
             - run:
                   name: Benchmark
                   command: cd ~/core && yarn bench
-    node11-benchmark:
-        working_directory: ~/core
-        docker:
-            - image: "circleci/node:11"
-        steps: *stepsBenchmark
-    node12-benchmark:
-        working_directory: ~/core
-        docker:
-            - image: "circleci/node:12"
-        steps: *stepsBenchmark
-    node11-e2e:
+    node12-e2e:
         machine: true
         environment:
-            USE_NVM_VERSION: "11"
-        steps: &stepsE2E
+            USE_NVM_VERSION: "12"
+        steps:
             - checkout
             - run:
                   name: Install nvm $USE_NVM_VERSION
@@ -252,7 +176,6 @@ jobs:
             - restore_cache:
                   keys:
                       - v1-dependencies-{{ checksum "yarn.lock" }}
-                      - v1-dependencies-
             - run:
                   name: Install yarn
                   command: >-
@@ -317,26 +240,12 @@ jobs:
                   command: >-
                       cat __tests__/e2e/dist/node2/output.log && cat
                       __tests__/e2e/dist/node2/errors.log
-    node12-e2e:
-        machine: true
-        environment:
-            USE_NVM_VERSION: "12"
-        steps: *stepsE2E
 workflows:
     version: 2
     test:
         jobs:
-            - node10-unit
-            - node11-unit
             - node12-unit
-            - node10-functional
-            - node11-functional
-            - node12-functional
-            - node10-benchmark
-            - node11-benchmark
-            - node12-benchmark
-            - node11-e2e
-            - node12-e2e
-            - node10-integration
-            - node11-integration
-            - node12-integration
+            # - node12-functional
+            # - node12-benchmark
+            # - node12-e2e
+            # - node12-integration

@@ -1,12 +1,17 @@
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
-import { inject, Identifiers } from "../../../container";
+import { inject, Identifiers, injectable } from "../../../container";
+import {
+    ApplicationConfigurationCannotBeLoaded,
+    EnvironmentConfigurationCannotBeLoaded,
+} from "../../../exceptions/config";
 
 /**
  * @export
  * @class RemoteConfigLoader
  * @implements {ConfigLoader}
  */
+@injectable()
 export class RemoteConfigLoader implements ConfigLoader {
     /**
      * The application instance.
@@ -23,7 +28,7 @@ export class RemoteConfigLoader implements ConfigLoader {
      * @memberof RemoteConfigLoader
      */
     public async loadConfiguration(): Promise<void> {
-        // @todo
+        throw new ApplicationConfigurationCannotBeLoaded();
     }
 
     /**
@@ -31,6 +36,6 @@ export class RemoteConfigLoader implements ConfigLoader {
      * @memberof RemoteConfigLoader
      */
     public async loadEnvironmentVariables(): Promise<void> {
-        // @todo
+        throw new EnvironmentConfigurationCannotBeLoaded();
     }
 }

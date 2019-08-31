@@ -1,13 +1,9 @@
 import { JsonObject } from "../../types";
-import {
-    ServiceProvider,
-    ServiceProviderRepository,
-    PackageConfiguration,
-    PackageManifest,
-} from "../../providers";
+import { ServiceProvider, ServiceProviderRepository, PackageConfiguration, PackageManifest } from "../../providers";
 import { Application } from "../../contracts/kernel";
 import { Bootstrapper } from "../interfaces";
 import { injectable, inject, Identifiers } from "../../container";
+import { ConfigRepository } from "../../services/config";
 
 /**
  * @export
@@ -27,16 +23,32 @@ export class LoadServiceProviders implements Bootstrapper {
     private readonly app: Application;
 
     /**
+     * @private
+     * @type {ConfigRepository}
+     * @memberof RegisterBasePaths
+     */
+    @inject(Identifiers.ConfigRepository)
+    private readonly configRepository: ConfigRepository;
+
+    /**
+     * @private
+     * @type {ServiceProviderRepository}
+     * @memberof RegisterBasePaths
+     */
+    @inject(Identifiers.ServiceProviderRepository)
+    private readonly serviceProviderRepository: ServiceProviderRepository;
+
+    /**
      * @returns {Promise<void>}
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        for (const [name, opts] of Object.entries(this.app.config<JsonObject>("packages"))) {
+        for (const [name, opts] of Object.entries(this.configRepository.get<JsonObject>("packages"))) {
             const serviceProvider: ServiceProvider = this.app.resolve(require(name).ServiceProvider);
             serviceProvider.setManifest(this.app.resolve(PackageManifest).discover(name));
             serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, opts as JsonObject));
 
-            this.app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository).set(name, serviceProvider);
+            this.serviceProviderRepository.set(name, serviceProvider);
         }
     }
 

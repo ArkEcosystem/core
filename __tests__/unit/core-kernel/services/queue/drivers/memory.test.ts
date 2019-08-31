@@ -1,5 +1,5 @@
 import "jest-extended";
-import { MemoryQueue } from "../../../../../../packages/core-kernel/src/services/queue/drivers/memory";
+import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
 import delay from "delay";
 
 const dummyFunction = async () => {};
