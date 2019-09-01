@@ -12,7 +12,7 @@ export interface Logger {
      * @returns {Promise<Logger>}
      * @memberof Logger
      */
-    make(): Promise<Logger>;
+    make(opts: any): Promise<Logger>;
 
     /**
      * System is unusable.
@@ -97,4 +97,16 @@ export interface Logger {
      * @memberof Logger
      */
     log(level: string, message: any): void;
+
+    /**
+     * @param {boolean} suppress
+     * @memberof Logger
+     */
+    suppressConsoleOutput(suppress: boolean): void;
+
+    /**
+     * @param {Record<string,string>} levels
+     * @memberof Logger
+     */
+    setLevels(levels: Record<string, string>): void;
 }

@@ -1,4 +1,4 @@
-import { app, Contracts, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { WriteStream } from "fs";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
@@ -8,15 +8,16 @@ import rfs from "rotating-file-stream";
 import split from "split2";
 import { PassThrough } from "stream";
 
+@Container.injectable()
 export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.Log.Logger {
-    protected logger: pino.Logger;
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app: Contracts.Kernel.Application;
+
     private fileStream: WriteStream;
 
-    public constructor(private readonly opts: any) {
-        super();
-    }
+    protected logger: pino.Logger;
 
-    public async make(): Promise<Contracts.Kernel.Log.Logger> {
+    public async make(opts): Promise<Contracts.Kernel.Log.Logger> {
         this.setLevels({
             emergency: "fatal",
             alert: "fatal",
@@ -38,10 +39,10 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
             stream,
         );
 
-        this.fileStream = this.getFileStream();
+        this.fileStream = this.getFileStream(opts);
 
-        const consoleTransport = this.createPrettyTransport(this.opts.levels.console, { colorize: true });
-        const fileTransport = this.createPrettyTransport(this.opts.levels.file, { colorize: false });
+        const consoleTransport = this.createPrettyTransport(opts.levels.console, { colorize: true });
+        const fileTransport = this.createPrettyTransport(opts.levels.file, { colorize: false });
 
         pump(stream, split(), consoleTransport, process.stdout);
         pump(stream, split(), fileTransport, this.fileStream);
@@ -72,20 +73,18 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
                             return cb(undefined, line);
                         }
                     }
-                } catch (ex) {
-                    //
-                }
+                } catch {}
 
                 return cb();
             },
         });
     }
 
-    private getFileStream(): WriteStream {
+    private getFileStream(opts): WriteStream {
         return rfs(
             (time: Date, index: number) => {
                 if (!time) {
-                    return `${app.namespace()}-current.log`;
+                    return `${this.app.namespace()}-current.log`;
                 }
 
                 let filename: string = time.toISOString().slice(0, 10);
@@ -94,12 +93,12 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
                     filename += `.${index}`;
                 }
 
-                return `${app.namespace()}-${filename}.log.gz`;
+                return `${this.app.namespace()}-${filename}.log.gz`;
             },
             {
-                path: process.env.CORE_PATH_LOG,
+                path: this.app.logPath(),
                 initialRotation: true,
-                interval: this.opts.fileRotator ? this.opts.fileRotator.interval : "1d",
+                interval: opts.fileRotator ? opts.fileRotator.interval : "1d",
                 maxSize: "100M",
                 maxFiles: 10,
                 compress: "gzip",

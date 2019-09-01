@@ -1,19 +1,19 @@
 import "jest-extended";
 
+import { Application } from "@packages/core-kernel/src/application";
+import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/container";
+import { Logger } from "@packages/core-kernel/src/contracts/kernel/log";
 import capcon from "capture-console";
+import { dirSync, setGracefulCleanup } from "tmp";
 
-// import { tmpdir } from "os";
-import { Logger } from "../../../packages/core-kernel/src/services/log/logger";
-
-export function expectLogger(callback): void {
+export function expectLogger(callback, options): void {
     let logger: Logger;
     let message: string;
 
-    beforeAll(async () => {
-        // process.env.CORE_PATH_LOG = tmpdir();
+    let app: Application;
+    let container: interfaces.Container;
 
-        logger = await callback().make();
-
+    beforeAll(() => {
         capcon.startCapture(process.stdout, stdout => {
             message = stdout.toString();
         });
@@ -33,7 +33,24 @@ export function expectLogger(callback): void {
         });
     });
 
-    afterEach(() => (message = undefined));
+    afterAll(() => setGracefulCleanup());
+
+    beforeEach(async () => {
+        container = new Container();
+        container.snapshot();
+
+        app = new Application(container);
+        app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
+        app.bind("path.log").toConstantValue(dirSync().name);
+
+        logger = await app.resolve<Logger>(callback).make(options);
+    });
+
+    afterEach(() => {
+        message = undefined;
+
+        container.restore();
+    });
 
     describe("Logger", () => {
         it("should not be logged if empty", () => {
