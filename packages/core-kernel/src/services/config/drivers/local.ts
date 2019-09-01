@@ -49,11 +49,6 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LocalConfigLoader
      */
     public async loadEnvironmentVariables(): Promise<void> {
-        // @todo: enable this after initial migration
-        // if (this.app.runningTests()) {
-        //     return;
-        // }
-
         try {
             const config: Record<string, string> = parseFileSync(this.app.environmentFile());
 

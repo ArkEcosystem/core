@@ -33,11 +33,10 @@ export class ConfigRepository {
     /**
      * Get all configuration values.
      *
-     * @template T
      * @returns {JsonObject}
      * @memberof ConfigRepository
      */
-    public all<T>(): JsonObject {
+    public all(): JsonObject {
         return this.items;
     }
 

@@ -34,11 +34,8 @@ export class RegisterBaseConfiguration implements Bootstrapper {
 
         await this.app.get<ConfigManager>(Identifiers.ConfigManager).boot();
 
-        const config: JsonObject = this.app.get<JsonObject>("config");
-        const configRepository: ConfigRepository = new ConfigRepository(config);
-        configRepository.set("options", config.options || {});
-
-        this.app.unbind("config"); // @todo avoid binding and unbinding elements, use unique and descriptive names
-        this.app.bind<ConfigRepository>(Identifiers.ConfigRepository).toConstantValue(configRepository);
+        this.app
+            .bind<ConfigRepository>(Identifiers.ConfigRepository)
+            .toConstantValue(new ConfigRepository(this.app.get<JsonObject>(Identifiers.ConfigBootstrap)));
     }
 }

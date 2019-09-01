@@ -5,6 +5,11 @@ import { ConfigRepository } from "../../services/config";
 import { JsonObject } from "../../types";
 import { Bootstrapper } from "../interfaces";
 
+interface PackageEntry {
+    package: string;
+    options: JsonObject;
+}
+
 /**
  * @export
  * @class LoadServiceProviders
@@ -43,12 +48,12 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        for (const [name, opts] of Object.entries(this.configRepository.get<JsonObject>("packages"))) {
-            const serviceProvider: ServiceProvider = this.app.resolve(require(name).ServiceProvider);
-            serviceProvider.setManifest(this.app.resolve(PackageManifest).discover(name));
-            serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, opts as JsonObject));
+        for (const pkg of this.configRepository.get<Array<PackageEntry>>("packages")) {
+            const serviceProvider: ServiceProvider = this.app.resolve(require(pkg.package).ServiceProvider);
+            serviceProvider.setManifest(this.app.resolve(PackageManifest).discover(pkg.package));
+            serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, pkg.options));
 
-            this.serviceProviderRepository.set(name, serviceProvider);
+            this.serviceProviderRepository.set(pkg.package, serviceProvider);
         }
     }
 

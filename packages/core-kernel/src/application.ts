@@ -48,7 +48,7 @@ export class Application implements Contracts.Kernel.Application {
     public async bootstrap(config: JsonObject): Promise<void> {
         await this.registerEventDispatcher();
 
-        this.container.bind<JsonObject>("config").toConstantValue(config);
+        this.container.bind<JsonObject>(Identifiers.ConfigBootstrap).toConstantValue(config);
 
         this.container
             .bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
