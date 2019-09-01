@@ -61,6 +61,7 @@ packages/**/dist/
 
 # Random
 docker/development
+undefined
 
 #Webstorm/Intellij
 .idea
