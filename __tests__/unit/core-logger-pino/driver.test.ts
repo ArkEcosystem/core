@@ -9,8 +9,8 @@ import { Container, Identifiers } from "@packages/core-kernel/src/container";
 
 expectLogger(PinoLogger, {
     levels: {
-        console: "trace",
-        file: "trace",
+        console: "emergency",
+        file: "emergency",
     },
 });
 

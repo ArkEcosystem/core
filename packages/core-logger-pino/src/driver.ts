@@ -6,6 +6,7 @@ import pump from "pump";
 import { Transform } from "readable-stream";
 import rfs from "rotating-file-stream";
 import split from "split2";
+import chalk, { Chalk } from "chalk";
 import { PassThrough } from "stream";
 
 @Container.injectable()
@@ -17,32 +18,44 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
 
     protected logger: pino.Logger;
 
-    public async make(opts): Promise<Contracts.Kernel.Log.Logger> {
-        this.setLevels({
-            emergency: "fatal",
-            alert: "fatal",
-            critical: "fatal",
-            error: "error",
-            warning: "warn",
-            notice: "info",
-            info: "info",
-            debug: "debug",
-        });
+    private levelStyles: Record<string, Chalk> = {
+        emergency: chalk.bgRed,
+        alert: chalk.red,
+        critical: chalk.red,
+        error: chalk.red,
+        warning: chalk.yellow,
+        notice: chalk.green,
+        info: chalk.blue,
+        debug: chalk.magenta,
+    };
 
+    public async make(options): Promise<Contracts.Kernel.Log.Logger> {
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {
                 base: null,
+                customLevels: {
+                    emergency: 0,
+                    alert: 1,
+                    critical: 2,
+                    error: 3,
+                    warning: 4,
+                    notice: 5,
+                    info: 6,
+                    debug: 7,
+                },
+                level: "emergency",
+                useLevelLabels: true,
+                useOnlyCustomLevels: true,
                 safe: true,
-                level: "trace",
             },
             stream,
         );
 
-        this.fileStream = this.getFileStream(opts);
+        this.fileStream = this.getFileStream(options);
 
-        const consoleTransport = this.createPrettyTransport(opts.levels.console, { colorize: true });
-        const fileTransport = this.createPrettyTransport(opts.levels.file, { colorize: false });
+        const consoleTransport = this.createPrettyTransport(options.levels.console, { colorize: true });
+        const fileTransport = this.createPrettyTransport(options.levels.file, { colorize: false });
 
         pump(stream, split(), consoleTransport, process.stdout);
         pump(stream, split(), fileTransport, this.fileStream);
@@ -59,18 +72,19 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
             ...prettyOptions,
         });
 
-        const levelValue = this.logger.levels.values[level];
+        const getLevel = (level: string): number => this.logger.levels.values[level];
+        const formatLevel = (level: string): string => this.levelStyles[level](level.toUpperCase());
 
         return new Transform({
             transform(chunk, enc, cb) {
                 try {
                     const json = JSON.parse(chunk);
 
-                    if (json.level >= levelValue) {
-                        const line = pinoPretty(json);
+                    if (getLevel(json.level) >= getLevel(level)) {
+                        const line: string | undefined = pinoPretty(json);
 
                         if (line !== undefined) {
-                            return cb(undefined, line);
+                            return cb(undefined, line.replace("USERLVL", formatLevel(json.level)));
                         }
                     }
                 } catch {}
@@ -80,7 +94,7 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
         });
     }
 
-    private getFileStream(opts): WriteStream {
+    private getFileStream(options): WriteStream {
         return rfs(
             (time: Date, index: number) => {
                 if (!time) {
@@ -98,7 +112,7 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
             {
                 path: this.app.logPath(),
                 initialRotation: true,
-                interval: opts.fileRotator ? opts.fileRotator.interval : "1d",
+                interval: options.fileRotator ? options.fileRotator.interval : "1d",
                 maxSize: "100M",
                 maxFiles: 10,
                 compress: "gzip",

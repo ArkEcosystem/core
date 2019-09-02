@@ -11,11 +11,11 @@ import { injectable } from "../../container";
 @injectable()
 export abstract class Logger {
     /**
-     * @protected
+     * @private
      * @type {Record<string, string>}
      * @memberof Logger
      */
-    protected readonly defaultLevels: Record<string, string> = {
+    private levels: Record<string, string> = {
         emergency: "emergency",
         alert: "alert",
         critical: "critical",
@@ -28,13 +28,6 @@ export abstract class Logger {
 
     /**
      * @protected
-     * @type {*}
-     * @memberof Logger
-     */
-    protected logger: any;
-
-    /**
-     * @protected
      * @type {boolean}
      * @memberof Logger
      */
@@ -42,10 +35,10 @@ export abstract class Logger {
 
     /**
      * @protected
-     * @type {Record<string, string>}
+     * @type {*}
      * @memberof Logger
      */
-    protected levels: Record<string, string>;
+    protected logger: any;
 
     /**
      * @param {string} level
@@ -148,6 +141,6 @@ export abstract class Logger {
      * @memberof Logger
      */
     public setLevels(levels: Record<string, string>): void {
-        this.levels = { ...this.defaultLevels, ...levels };
+        this.levels = { ...this.levels, ...levels };
     }
 }

@@ -9,10 +9,11 @@ export interface Logger {
     /**
      * Create a new instance of the logger.
      *
+     * @param {*} options
      * @returns {Promise<Logger>}
      * @memberof Logger
      */
-    make(opts: any): Promise<Logger>;
+    make(options: any): Promise<Logger>;
 
     /**
      * System is unusable.

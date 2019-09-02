@@ -62,23 +62,23 @@ export class LoadServiceProviders implements Bootstrapper {
      *
      * @private
      * @param {ServiceProvider} serviceProvider
-     * @param {JsonObject} opts
+     * @param {JsonObject} options
      * @returns {PackageConfiguration}
      * @memberof LoadServiceProviders
      */
-    private discoverConfiguration(serviceProvider: ServiceProvider, opts: JsonObject): PackageConfiguration {
+    private discoverConfiguration(serviceProvider: ServiceProvider, options: JsonObject): PackageConfiguration {
         const hasDefaults: boolean = Object.keys(serviceProvider.configDefaults()).length > 0;
 
         if (hasDefaults) {
             return this.app
                 .resolve(PackageConfiguration)
                 .from(serviceProvider.name(), serviceProvider.configDefaults())
-                .merge(opts);
+                .merge(options);
         }
 
         return this.app
             .resolve(PackageConfiguration)
             .discover(serviceProvider.name())
-            .merge(opts);
+            .merge(options);
     }
 }
