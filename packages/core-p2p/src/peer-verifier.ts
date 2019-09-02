@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import { inspect } from "util";
@@ -19,7 +18,7 @@ export class PeerVerifier {
      * A cache of verified blocks' ids. A block is verified if it is connected to a chain
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
-    private static readonly verifiedBlocks = new CappedSet();
+    private static readonly verifiedBlocks = new Utils.CappedSet();
     private readonly database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         Container.Identifiers.DatabaseService,
     );
@@ -305,7 +304,7 @@ export class PeerVerifier {
             return highestCommon.height;
         };
 
-        const nSect = new NSect(nAry, probe);
+        const nSect = new Utils.NSect(nAry, probe);
 
         const highestCommonBlockHeight = await nSect.find(1, Math.min(claimedHeight, ourHeight));
 
@@ -327,7 +326,7 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     private async verifyPeerBlocks(startHeight: number, claimedHeight: number, deadline: number): Promise<boolean> {
-        const roundInfo = roundCalculator.calculateRound(startHeight);
+        const roundInfo = Utils.roundCalculator.calculateRound(startHeight);
         const { maxDelegates, roundHeight } = roundInfo;
         const lastBlockHeightInRound = roundHeight + maxDelegates;
 

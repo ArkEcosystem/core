@@ -60,8 +60,6 @@ export class Server {
      * @memberof Server
      */
     public async stop(): Promise<void> {
-        console.log(this.server);
-
         await this.server.stop();
 
         this.app.log.info(`Server stopped at ${this.server.info.uri}`);

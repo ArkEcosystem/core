@@ -1,5 +1,5 @@
-import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
+import { Identifiers, inject, injectable } from "../../ioc";
 import { Actions, Cache, Filesystem, Log, Queue, Schedule, Validation } from "../../services";
 import { Bootstrapper } from "../interfaces";
 

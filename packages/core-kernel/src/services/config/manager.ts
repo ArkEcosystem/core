@@ -1,5 +1,5 @@
-import { injectable } from "../../container";
 import { ConfigLoader } from "../../contracts/kernel/config";
+import { injectable } from "../../ioc";
 import { Manager } from "../../support/manager";
 import { LocalConfigLoader, RemoteConfigLoader } from "./drivers";
 

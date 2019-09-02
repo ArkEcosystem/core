@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import chunk from "lodash.chunk";
 import path from "path";
@@ -127,7 +126,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         try {
             await this.db.tx(t => {
-                const { nextRound } = roundCalculator.calculateRound(blocks[blocks.length - 1].height);
+                const { nextRound } = Utils.roundCalculator.calculateRound(blocks[blocks.length - 1].height);
                 const blockIds: string[] = blocks.map(block => block.id);
 
                 return t.batch([

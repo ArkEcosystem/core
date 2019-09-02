@@ -1,7 +1,7 @@
 import nsfw from "nsfw";
 
-import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
+import { Identifiers, inject, injectable } from "../../ioc";
 
 /**
  * @interface FileEvent

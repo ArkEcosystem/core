@@ -1,7 +1,7 @@
 import get from "get-value";
 import has from "has-value";
 
-import { injectable } from "../container";
+import { injectable } from "../ioc";
 import { PackageJson } from "../types";
 
 /**

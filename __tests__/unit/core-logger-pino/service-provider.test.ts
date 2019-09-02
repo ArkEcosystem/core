@@ -3,7 +3,7 @@ import "jest-extended";
 import { Application } from "@packages/core-kernel/src/application";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { ConsoleLogger } from "@packages/core-kernel/src/services/log/drivers/console";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/container";
+import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider as LogServiceProvider } from "@packages/core-kernel/src/services/log";
 import { ServiceProvider as PinoServiceProvider } from "@packages/core-logger-pino/src/service-provider";
 import { PinoLogger } from "@packages/core-logger-pino/src/driver";

@@ -2,7 +2,7 @@ import "jest-extended";
 import { resolve } from "path";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/container";
+import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/providers/service-provider";
 import { PackageManifest } from "@packages/core-kernel/src/providers/package-manifest";
 import { PackageConfiguration } from "@packages/core-kernel/src/providers/package-configuration";

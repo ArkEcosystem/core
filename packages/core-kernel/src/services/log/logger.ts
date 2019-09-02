@@ -1,7 +1,7 @@
 import isEmpty from "lodash.isempty";
 import { inspect } from "util";
 
-import { injectable } from "../../container";
+import { injectable } from "../../ioc";
 
 /**
  * @export

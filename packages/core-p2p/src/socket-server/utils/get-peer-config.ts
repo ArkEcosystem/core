@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-kernel";
-// import { Plugins } from "@arkecosystem/core-utils";
+// import { Plugins } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 
 import { PeerConfig } from "../../interfaces";

@@ -3,9 +3,9 @@ import { join } from "path";
 
 import * as Bootstrappers from "./bootstrap";
 import { Bootstrapper } from "./bootstrap/interfaces";
-import { Identifiers } from "./container";
 import * as Contracts from "./contracts";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
+import { Identifiers } from "./ioc";
 import { ServiceProvider, ServiceProviderRepository } from "./providers";
 // import { ShutdownSignal } from "./enums/process";
 import { ConfigRepository } from "./services/config";

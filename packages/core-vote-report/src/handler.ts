@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 const formatDelegates = (
@@ -23,13 +22,12 @@ const formatDelegates = (
                 wallet => wallet.getAttribute<string>("vote") === delegate.publicKey && wallet.balance.gt(0.1 * 1e8),
             );
 
-        const approval: string = Number(delegateCalculator.calculateApproval(delegate, lastHeight)).toLocaleString(
-            undefined,
-            {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            },
-        );
+        const approval: string = Number(
+            AppUtils.delegateCalculator.calculateApproval(delegate, lastHeight),
+        ).toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+        });
 
         const rank: string = delegate.getAttribute<number>("delegate.rank").toLocaleString(undefined, {
             minimumIntegerDigits: 2,
@@ -64,9 +62,9 @@ export const handler = (request, h) => {
     );
 
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
-    const { maxDelegates } = roundCalculator.calculateRound(lastBlock.data.height);
+    const { maxDelegates } = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
 
-    const supply: Utils.BigNumber = Utils.BigNumber.make(supplyCalculator.calculate(lastBlock.data.height));
+    const supply: Utils.BigNumber = Utils.BigNumber.make(AppUtils.supplyCalculator.calculate(lastBlock.data.height));
 
     const allByUsername: Contracts.State.Wallet[] = databaseService.walletManager
         .allByUsername()

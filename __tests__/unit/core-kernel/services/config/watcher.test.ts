@@ -5,7 +5,7 @@ import delay from "delay";
 
 import { Watcher } from "@packages/core-kernel/src/services/config/watcher";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/container";
+import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 

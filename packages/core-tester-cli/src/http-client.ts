@@ -1,4 +1,4 @@
-import { httpie } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/core-kernel";
 
 import { logger } from "./logger";
 
@@ -13,7 +13,7 @@ export class HttpClient {
         const fullURL = `${this.baseUrl}${path}`;
 
         try {
-            const { body } = await httpie.get(fullURL, { query, headers });
+            const { body } = await Utils.httpie.get(fullURL, { query, headers });
 
             return body;
         } catch (error) {
@@ -25,7 +25,7 @@ export class HttpClient {
         const fullURL = `${this.baseUrl}${path}`;
 
         try {
-            const { body } = await httpie.post(fullURL, { body: payload });
+            const { body } = await Utils.httpie.post(fullURL, { body: payload });
 
             return body;
         } catch (error) {

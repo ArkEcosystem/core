@@ -1,15 +1,15 @@
-import { OrderedCappedMap } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export class BlockStore {
-    private readonly byId: OrderedCappedMap<string, Interfaces.IBlockData>;
-    private readonly byHeight: OrderedCappedMap<number, Interfaces.IBlockData>;
+    private readonly byId: Utils.OrderedCappedMap<string, Interfaces.IBlockData>;
+    private readonly byHeight: Utils.OrderedCappedMap<number, Interfaces.IBlockData>;
     private lastBlock: Interfaces.IBlock;
 
     public constructor(maxSize: number) {
-        this.byId = new OrderedCappedMap<string, Interfaces.IBlockData>(maxSize);
-        this.byHeight = new OrderedCappedMap<number, Interfaces.IBlockData>(maxSize);
+        this.byId = new Utils.OrderedCappedMap<string, Interfaces.IBlockData>(maxSize);
+        this.byHeight = new Utils.OrderedCappedMap<number, Interfaces.IBlockData>(maxSize);
     }
 
     public get(key: string | number): Interfaces.IBlockData {

@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { formatTimestamp } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import {
@@ -136,7 +135,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
         const expiration = lockTransaction.asset.lock.expiration;
         if (
-            (expiration.type === UnixTimestamp && expiration.value <= formatTimestamp(lastBlockEpochTimestamp).unix) ||
+            (expiration.type === UnixTimestamp &&
+                expiration.value <= AppUtils.formatTimestamp(lastBlockEpochTimestamp).unix) ||
             (expiration.type === BlockHeight && expiration.value <= lastBlock.data.height)
         ) {
             throw new HtlcLockExpiredError();

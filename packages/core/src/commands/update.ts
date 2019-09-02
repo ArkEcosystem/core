@@ -1,4 +1,4 @@
-import { hasSomeProperty } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/core-kernel";
 import { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
@@ -105,6 +105,6 @@ export class UpdateCommand extends BaseCommand {
     }
 
     private hasRestartFlag(flags: CommandFlags): boolean {
-        return hasSomeProperty(flags, ["restart", "restartCore", "restartRelay", "restartForger"]);
+        return Utils.hasSomeProperty(flags, ["restart", "restartCore", "restartRelay", "restartForger"]);
     }
 }

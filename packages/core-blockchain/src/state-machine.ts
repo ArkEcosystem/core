@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
@@ -149,7 +148,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.setLastBlock(block);
 
             // Delete all rounds from the future due to shutdown before processBlocks finished writing the blocks.
-            const roundInfo = roundCalculator.calculateRound(block.data.height);
+            const roundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
             await blockchain.database.deleteRound(roundInfo.round + 1);
 
             if (stateStorage.networkStart) {
@@ -210,7 +209,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         const empty: boolean = !blocks || blocks.length === 0;
         const chained: boolean =
-            !empty && (isBlockChained(lastDownloadedBlock, blocks[0]) || Utils.isException(blocks[0]));
+            !empty && (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0]) || Utils.isException(blocks[0]));
 
         if (chained) {
             logger.info(

@@ -1,7 +1,7 @@
 import { AnySchema, ValidationErrorItem } from "@hapi/joi";
 
-import { injectable } from "../../../container";
 import { Validator } from "../../../contracts/kernel/validation";
+import { injectable } from "../../../ioc";
 import { JsonObject } from "../../../types";
 
 /**

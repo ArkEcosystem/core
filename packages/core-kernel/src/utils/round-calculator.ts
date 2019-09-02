@@ -1,6 +1,7 @@
-import { Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import assert from "assert";
+
+import { RoundInfo } from "../contracts/shared";
 
 export const isNewRound = (height: number): boolean => {
     const milestones = Managers.configManager.get("milestones");
@@ -23,7 +24,7 @@ export const isNewRound = (height: number): boolean => {
     return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
 };
 
-export const calculateRound = (height: number): Contracts.Shared.RoundInfo => {
+export const calculateRound = (height: number): RoundInfo => {
     const milestones = Managers.configManager.get("milestones");
 
     let round = 0;

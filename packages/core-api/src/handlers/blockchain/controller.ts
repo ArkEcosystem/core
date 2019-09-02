@@ -1,4 +1,4 @@
-import { supplyCalculator } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -15,7 +15,7 @@ export class BlockchainController extends Controller {
                         height: lastBlock.data.height,
                         id: lastBlock.data.id,
                     },
-                    supply: supplyCalculator.calculate(lastBlock.data.height),
+                    supply: Utils.supplyCalculator.calculate(lastBlock.data.height),
                 },
             };
         } catch (error) {

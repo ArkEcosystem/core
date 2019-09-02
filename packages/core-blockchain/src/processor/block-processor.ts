@@ -1,6 +1,5 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { isBlockChained } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import { Blockchain } from "../blockchain";
@@ -40,7 +39,7 @@ export class BlockProcessor {
         }
 
         const isValidGenerator: boolean = await validateGenerator(block);
-        const isChained: boolean = isBlockChained(this.blockchain.getLastBlock().data, block.data);
+        const isChained: boolean = AppUtils.isBlockChained(this.blockchain.getLastBlock().data, block.data);
         if (!isChained) {
             return new UnchainedHandler(this.blockchain, block, isValidGenerator);
         }

@@ -5,8 +5,8 @@ import camelCase from "lodash/camelCase";
 import { resolve } from "path";
 import set from "set-value";
 
-import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
+import { Identifiers, inject, injectable } from "../../ioc";
 import { ConfigRepository } from "../../services/config";
 import { Bootstrapper } from "../interfaces";
 

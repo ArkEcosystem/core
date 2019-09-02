@@ -1,4 +1,4 @@
-import { injectable } from "../container";
+import { injectable } from "../ioc";
 import { ServiceProvider } from "./service-provider";
 
 /**

@@ -1,12 +1,11 @@
-import { Providers } from "@arkecosystem/core-kernel";
-import { isWhitelisted } from "@arkecosystem/core-utils";
+import { Providers, Utils } from "@arkecosystem/core-kernel";
 import ip from "ip";
 
 import { startServer } from "./server";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        if (!isWhitelisted(this.app.get<any>("api.options").whitelist, ip.address())) {
+        if (!Utils.isWhitelisted(this.app.get<any>("api.options").whitelist, ip.address())) {
             this.app.log.info("Wallet API is disabled");
             return;
         }

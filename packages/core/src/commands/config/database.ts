@@ -1,4 +1,4 @@
-import { hasSomeProperty } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/core-kernel";
 import { flags } from "@oclif/command";
 import prompts from "prompts";
 
@@ -105,7 +105,7 @@ $ ark config:database --password=password
     }
 
     private hasValidFlag(flags: CommandFlags): boolean {
-        return hasSomeProperty(flags, DatabaseCommand.validFlags);
+        return Utils.hasSomeProperty(flags, DatabaseCommand.validFlags);
     }
 
     private conform(flags: CommandFlags): EnvironmentVars {

@@ -1,5 +1,5 @@
-import { Identifiers, inject, injectable } from "../container";
 import { Kernel } from "../contracts";
+import { Identifiers, inject, injectable } from "../ioc";
 import { JsonObject } from "../types";
 import { PackageConfiguration } from "./package-configuration";
 import { PackageManifest } from "./package-manifest";

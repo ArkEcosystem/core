@@ -1,5 +1,4 @@
-import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
-import { httpie } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
@@ -85,7 +84,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
-                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+                    const { status } = await Utils.httpie.get(`http://${peer.ip}:${plugin.port}/`);
 
                     if (status === 200) {
                         peer.ports[name] = plugin.port;

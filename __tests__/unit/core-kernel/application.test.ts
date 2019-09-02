@@ -2,7 +2,7 @@ import "jest-extended";
 import { dirSync } from "tmp";
 import { resolve } from "path";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, injectable, interfaces, Identifiers } from "@packages/core-kernel/src/container";
+import { Container, injectable, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { ServiceProviderRepository, ServiceProvider } from "@packages/core-kernel/src/providers";

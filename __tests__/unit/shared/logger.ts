@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/container";
+import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { Logger } from "@packages/core-kernel/src/contracts/kernel/log";
 import capcon from "capture-console";
 import { dirSync, setGracefulCleanup } from "tmp";

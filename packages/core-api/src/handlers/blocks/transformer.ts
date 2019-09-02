@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { formatTimestamp } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export const transformBlock = (model, transform) => {
@@ -44,6 +43,6 @@ export const transformBlock = (model, transform) => {
         signature: model.blockSignature,
         confirmations: lastBlock ? lastBlock.data.height - model.height : 0,
         transactions: model.numberOfTransactions,
-        timestamp: formatTimestamp(model.timestamp),
+        timestamp: AppUtils.formatTimestamp(model.timestamp),
     };
 };

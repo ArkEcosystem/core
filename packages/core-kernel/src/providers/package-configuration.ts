@@ -3,7 +3,7 @@ import has from "has-value";
 import set from "set-value";
 import unset from "unset-value";
 
-import { Identifiers, inject, injectable } from "../container";
+import { Identifiers, inject, injectable } from "../ioc";
 import { ConfigRepository } from "../services/config";
 import { JsonObject } from "../types";
 

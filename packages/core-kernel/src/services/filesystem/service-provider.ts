@@ -1,4 +1,4 @@
-import { Identifiers, interfaces } from "../../container";
+import { Identifiers, interfaces } from "../../ioc";
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { FilesystemManager } from "./manager";
 

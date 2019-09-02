@@ -1,4 +1,5 @@
 import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import chalk, { Chalk } from "chalk";
 import { WriteStream } from "fs";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
@@ -6,7 +7,6 @@ import pump from "pump";
 import { Transform } from "readable-stream";
 import rfs from "rotating-file-stream";
 import split from "split2";
-import chalk, { Chalk } from "chalk";
 import { PassThrough } from "stream";
 
 @Container.injectable()

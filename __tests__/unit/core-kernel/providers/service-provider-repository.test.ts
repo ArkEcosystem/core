@@ -1,6 +1,6 @@
 import "jest-extended";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces } from "@packages/core-kernel/src/container";
+import { Container, interfaces } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 
 class StubServiceProvider extends ServiceProvider {

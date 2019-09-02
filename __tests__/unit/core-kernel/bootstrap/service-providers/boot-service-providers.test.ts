@@ -2,7 +2,7 @@ import "jest-extended";
 import delay from "delay";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/container";
+import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { BootServiceProviders } from "@packages/core-kernel/src/bootstrap/service-providers";

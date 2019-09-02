@@ -5,7 +5,7 @@ import { PinoLogger } from "@packages/core-logger-pino/src";
 import { defaults } from "@packages/core-logger-pino/src/defaults";
 import { expectLogger } from "../shared/logger";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers } from "@packages/core-kernel/src/container";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 
 expectLogger(PinoLogger, {
     levels: {

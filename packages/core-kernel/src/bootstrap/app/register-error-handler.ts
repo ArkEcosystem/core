@@ -1,6 +1,6 @@
 import logProcessErrors from "log-process-errors";
 
-import { injectable } from "../../container";
+import { injectable } from "../../ioc";
 import { Bootstrapper } from "../interfaces";
 
 /**

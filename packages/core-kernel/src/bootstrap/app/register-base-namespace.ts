@@ -1,6 +1,6 @@
-import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
 import { NetworkCannotBeDetermined } from "../../exceptions/config";
+import { Identifiers, inject, injectable } from "../../ioc";
 import { Bootstrapper } from "../interfaces";
 
 /**

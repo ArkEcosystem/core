@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { isBlockChained } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 
@@ -70,7 +69,7 @@ export const postBlock = async ({ req }): Promise<void> => {
 
         const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
 
-        if (!isBlockChained(lastDownloadedBlock, block)) {
+        if (!Utils.isBlockChained(lastDownloadedBlock, block)) {
             throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
         }
     }

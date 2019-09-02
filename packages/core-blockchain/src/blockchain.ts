@@ -1,5 +1,4 @@
-import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
-import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import async from "async";
 import delay from "delay";
@@ -358,7 +357,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
 
-        if (blocks[0] && !isBlockChained(this.getLastBlock().data, blocks[0].data)) {
+        if (blocks[0] && !Utils.isBlockChained(this.getLastBlock().data, blocks[0].data)) {
             return callback();
         }
 
@@ -385,7 +384,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
                 const lastHeight: number = lastBlock.data.height;
-                const deleteRoundsAfter: number = roundCalculator.calculateRound(lastHeight).round;
+                const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
 
                 app.log.info(
                     `Reverting ${pluralize("block", acceptedBlocks.length, true)} back to last height: ${lastHeight}`,

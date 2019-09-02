@@ -1,5 +1,5 @@
-import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
+import { Identifiers, inject, injectable } from "../../ioc";
 import { Watcher } from "../../services/config/watcher";
 import { Bootstrapper } from "../interfaces";
 

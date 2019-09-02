@@ -1,6 +1,5 @@
 import semver from "semver";
 
-import { Identifiers, inject, injectable } from "../../container";
 import { Kernel } from "../../contracts";
 import { Application } from "../../contracts/kernel";
 import {
@@ -10,6 +9,7 @@ import {
     RequiredDependencyCannotBeFound,
     ServiceProviderCannotBeRegistered,
 } from "../../exceptions/packages";
+import { Identifiers, inject, injectable } from "../../ioc";
 import { PackageConfiguration, ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";

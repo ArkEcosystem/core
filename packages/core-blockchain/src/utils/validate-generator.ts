@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
@@ -8,7 +7,7 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
     );
     const logger: Contracts.Kernel.Log.Logger = app.log;
 
-    const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(block.data.height);
+    const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(block.data.height);
     const delegates: Contracts.State.Wallet[] = await database.getActiveDelegates(roundInfo);
     const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
     const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];

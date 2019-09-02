@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
 export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.PeerService; req }): Promise<void> => {
@@ -34,7 +33,7 @@ export const getCurrentRound = async (): Promise<Contracts.P2P.CurrentRound> => 
     const lastBlock = blockchain.getLastBlock();
 
     const height = lastBlock.data.height + 1;
-    const roundInfo = roundCalculator.calculateRound(height);
+    const roundInfo = Utils.roundCalculator.calculateRound(height);
     const { maxDelegates, round } = roundInfo;
 
     const blockTime = Managers.configManager.getMilestone(height).blocktime;

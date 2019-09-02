@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { formatTimestamp } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 export const transformTransaction = (model, transform) => {
@@ -37,7 +36,7 @@ export const transformTransaction = (model, transform) => {
         vendorField: data.vendorField,
         asset: data.asset,
         confirmations: model.block ? lastBlock.data.height - model.block.height + 1 : 0,
-        timestamp: data.version === 1 ? formatTimestamp(data.timestamp) : undefined,
+        timestamp: data.version === 1 ? Utils.formatTimestamp(data.timestamp) : undefined,
         nonce: data.version > 1 ? data.nonce.toFixed() : undefined,
     };
 };

@@ -1,5 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import { delegateCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import filterRows from "./utils/filter-rows";
 import limitRows from "./utils/limit-rows";
@@ -36,12 +35,12 @@ export class DelegatesBusinessRepository implements Contracts.Database.Delegates
         > = this.databaseServiceProvider().walletManager.allByUsername();
 
         const manipulators = {
-            approval: delegateCalculator.calculateApproval,
-            forgedTotal: delegateCalculator.calculateForgedTotal,
+            approval: Utils.delegateCalculator.calculateApproval,
+            forgedTotal: Utils.delegateCalculator.calculateForgedTotal,
         };
 
         // TODO: fix attributes lookup
-        if (hasSomeProperty(params, Object.keys(manipulators))) {
+        if (Utils.hasSomeProperty(params, Object.keys(manipulators))) {
             delegates = delegates.map(delegate => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
@@ -90,9 +89,9 @@ export class DelegatesBusinessRepository implements Contracts.Database.Delegates
     private manipulateIteratee(iteratee): any {
         switch (iteratee) {
             case "approval":
-                return delegateCalculator.calculateApproval;
+                return Utils.delegateCalculator.calculateApproval;
             case "forgedTotal":
-                return delegateCalculator.calculateForgedTotal;
+                return Utils.delegateCalculator.calculateForgedTotal;
             case "rank":
                 return "rate"; // TODO: is this still necessary?
             case "votes":

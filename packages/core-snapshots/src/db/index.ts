@@ -1,6 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
@@ -97,8 +96,8 @@ export class Database {
             );
         }
 
-        const roundInfoStart: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(meta.startHeight);
-        const roundInfoEnd: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(meta.endHeight);
+        const roundInfoStart: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(meta.startHeight);
+        const roundInfoEnd: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(meta.endHeight);
 
         return {
             blocks: rawQuery(this.pgp, queries.blocks.heightRange, {

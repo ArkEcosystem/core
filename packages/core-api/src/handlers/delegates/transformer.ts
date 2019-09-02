@@ -1,5 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import { delegateCalculator, formatTimestamp } from "@arkecosystem/core-utils";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 export const transformDelegate = (delegate: Contracts.State.Wallet) => {
@@ -15,12 +14,12 @@ export const transformDelegate = (delegate: Contracts.State.Wallet) => {
             produced: attributes.producedBlocks,
         },
         production: {
-            approval: delegateCalculator.calculateApproval(delegate),
+            approval: AppUtils.delegateCalculator.calculateApproval(delegate),
         },
         forged: {
             fees: attributes.forgedFees.toFixed(),
             rewards: attributes.forgedRewards.toFixed(),
-            total: delegateCalculator.calculateForgedTotal(delegate),
+            total: AppUtils.delegateCalculator.calculateForgedTotal(delegate),
         },
     };
 
@@ -31,7 +30,7 @@ export const transformDelegate = (delegate: Contracts.State.Wallet) => {
         data.blocks.last = {
             id: lastBlock.id,
             height: lastBlock.height,
-            timestamp: formatTimestamp(lastBlock.timestamp),
+            timestamp: AppUtils.formatTimestamp(lastBlock.timestamp),
         };
     }
 

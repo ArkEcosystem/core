@@ -1,5 +1,5 @@
-import { injectable } from "../../../container";
 import { Logger as LoggerContract } from "../../../contracts/kernel/log";
+import { injectable } from "../../../ioc";
 import { Logger } from "../logger";
 
 /**

@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/container";
+import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/services/events";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 

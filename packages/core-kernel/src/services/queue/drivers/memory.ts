@@ -1,7 +1,7 @@
 import PQueue from "p-queue";
 
-import { injectable } from "../../../container";
 import { Queue } from "../../../contracts/kernel/queue";
+import { injectable } from "../../../ioc";
 
 /**
  * @export

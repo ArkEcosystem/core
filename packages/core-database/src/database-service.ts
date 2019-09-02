@@ -1,7 +1,6 @@
-import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import cloneDeep from "lodash.clonedeep";
@@ -89,8 +88,8 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     public async applyRound(height: number): Promise<void> {
         const nextHeight: number = height === 1 ? 1 : height + 1;
 
-        if (roundCalculator.isNewRound(nextHeight)) {
-            const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(nextHeight);
+        if (AppUtils.roundCalculator.isNewRound(nextHeight)) {
+            const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(nextHeight);
             const { round } = roundInfo;
 
             if (
@@ -323,7 +322,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         }
 
         if (!roundInfo) {
-            roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
+            roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
         }
 
         return (await this.getBlocks(roundInfo.roundHeight, roundInfo.maxDelegates)).map((b: Interfaces.IBlockData) =>
@@ -414,7 +413,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async revertRound(height: number): Promise<void> {
-        const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(height);
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
         const { round, nextRound, maxDelegates } = roundInfo;
 
         if (nextRound === round + 1 && height >= maxDelegates) {
@@ -670,7 +669,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     private async initializeActiveDelegates(height: number): Promise<void> {
         this.forgingDelegates = undefined;
 
-        const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(height);
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(height);
 
         await this.setForgingDelegatesOfRound(roundInfo, await this.calcPreviousActiveDelegates(roundInfo));
     }

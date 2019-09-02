@@ -1,6 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { app } from "@arkecosystem/core-kernel";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { app, Utils } from "@arkecosystem/core-kernel";
 import pick from "lodash.pick";
 
 const logger = app.log;
@@ -59,7 +58,7 @@ export class SnapshotManager {
         );
 
         if (!params.skipRestartRound) {
-            const roundInfo = roundCalculator.calculateRound(height);
+            const roundInfo = Utils.roundCalculator.calculateRound(height);
             const newLastBlock = await this.database.rollbackChain(roundInfo);
             logger.info(
                 `Rolling back chain to last finished round with last block height ${newLastBlock.height.toLocaleString()}`,
@@ -87,7 +86,7 @@ export class SnapshotManager {
         }
 
         const currentHeight = (await this.database.getLastBlock()).height;
-        const roundInfo = roundCalculator.calculateRound(height);
+        const roundInfo = Utils.roundCalculator.calculateRound(height);
         const { round } = roundInfo;
 
         if (height >= currentHeight) {

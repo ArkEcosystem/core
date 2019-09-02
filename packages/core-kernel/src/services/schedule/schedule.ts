@@ -1,5 +1,5 @@
-import { Identifiers, inject, injectable } from "../../container";
 import { Application } from "../../contracts/kernel";
+import { Identifiers, inject, injectable } from "../../ioc";
 import { BlockJob } from "./block-job";
 import { CronJob } from "./cron-job";
 

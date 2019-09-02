@@ -1,6 +1,5 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
-import { roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 import { Blockchain } from "../blockchain";
@@ -138,7 +137,7 @@ export class ReplayBlockchain extends Blockchain {
 
         this.state.setLastBlock(genesisBlock);
 
-        const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(1);
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(1);
         const delegates: Contracts.State.Wallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
         (this.localDatabase as any).forgingDelegates = await this.localDatabase.getActiveDelegates(

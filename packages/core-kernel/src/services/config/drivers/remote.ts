@@ -1,10 +1,10 @@
-import { Identifiers, inject, injectable } from "../../../container";
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
+import { Identifiers, inject, injectable } from "../../../ioc";
 
 /**
  * @export

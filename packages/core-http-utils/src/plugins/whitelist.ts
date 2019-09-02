@@ -1,4 +1,4 @@
-import { isWhitelisted } from "@arkecosystem/core-utils";
+import { Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 
 export const whitelist = {
@@ -8,7 +8,7 @@ export const whitelist = {
         server.ext({
             type: "onRequest",
             async method(request, h) {
-                if (isWhitelisted(options.whitelist, request.info.remoteAddress)) {
+                if (Utils.isWhitelisted(options.whitelist, request.info.remoteAddress)) {
                     return h.continue;
                 }
 

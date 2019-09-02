@@ -1,5 +1,4 @@
-import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
-import { httpie } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 
 import * as conditions from "./conditions";
 import { database } from "./database";
@@ -36,7 +35,7 @@ export const startListeners = (): void => {
 
                 for (const webhook of webhooks) {
                     try {
-                        const { status } = await httpie.post(webhook.target, {
+                        const { status } = await Utils.httpie.post(webhook.target, {
                             body: {
                                 timestamp: +new Date(),
                                 data: payload,

@@ -1,4 +1,4 @@
-import { Identifiers } from "../../container";
+import { Identifiers } from "../../ioc";
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
 import { MixinService } from "./mixins";
 

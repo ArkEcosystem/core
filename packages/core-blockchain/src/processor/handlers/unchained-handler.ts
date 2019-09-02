@@ -1,5 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { Blockchain } from "../../blockchain";
@@ -68,7 +67,9 @@ export class UnchainedHandler extends BlockHandler {
 
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
-                const roundInfo: Contracts.Shared.RoundInfo = roundCalculator.calculateRound(this.block.data.height);
+                const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(
+                    this.block.data.height,
+                );
                 const delegates: Contracts.State.Wallet[] = await app
                     .get<any>(Container.Identifiers.DatabaseService)
                     .getActiveDelegates(roundInfo);

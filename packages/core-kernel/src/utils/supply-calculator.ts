@@ -1,13 +1,7 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Managers, Utils } from "@arkecosystem/crypto";
 
 export const calculate = (height: number): string => {
     const { genesisBlock, milestones } = Managers.configManager.all();
-
-    if (!height) {
-        const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-        height = blockchain ? blockchain.getLastBlock().data.height : 0;
-    }
 
     const totalAmount: Utils.BigNumber = Utils.BigNumber.make(genesisBlock.totalAmount);
 
