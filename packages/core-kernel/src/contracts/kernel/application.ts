@@ -6,6 +6,11 @@ import { Logger } from "./log";
 
 export interface Application {
     /**
+     * Get an instance of the application container.
+     */
+    readonly container: Container.Container;
+
+    /**
      * Get an instance of the application logger.
      */
     readonly log: Logger;

@@ -4,21 +4,21 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
-const blocksRepository = databaseService.blocksBusinessRepository;
-const transactionsRepository = databaseService.transactionsBusinessRepository;
-
 const index = async request => {
-    const blocks = await blocksRepository.search({
-        ...request.query,
-        ...paginate(request),
-    });
+    const blocks = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .blocksBusinessRepository.search({
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(blocks, "block", request.query.transform);
 };
 
 const show = async request => {
-    const block = await blocksRepository.findByIdOrHeight(request.params.id);
+    const block = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .blocksBusinessRepository.findByIdOrHeight(request.params.id);
 
     if (!block) {
         return Boom.notFound("Block not found");
@@ -28,26 +28,32 @@ const show = async request => {
 };
 
 const transactions = async request => {
-    const block = await blocksRepository.findByIdOrHeight(request.params.id);
+    const block = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .blocksBusinessRepository.findByIdOrHeight(request.params.id);
 
     if (!block) {
         return Boom.notFound("Block not found");
     }
 
-    const rows = await transactionsRepository.findAllByBlock(block.id, {
-        ...request.query,
-        ...paginate(request),
-    });
+    const rows = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .transactionsBusinessRepository.findAllByBlock(block.id, {
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(rows, "transaction", request.query.transform);
 };
 
 const search = async request => {
-    const blocks = await blocksRepository.search({
-        ...request.payload,
-        ...request.query,
-        ...paginate(request),
-    });
+    const blocks = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .blocksBusinessRepository.search({
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(blocks, "block", request.query.transform);
 };

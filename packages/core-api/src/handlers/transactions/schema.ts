@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+// import { app } from "@arkecosystem/core-kernel";
 import Joi from "@hapi/joi";
 
 import { blockId } from "../shared/schemas/block-id";
@@ -55,7 +55,9 @@ export const store: object = {
         transactions: {
             $ref: "transactions",
             minItems: 1,
-            maxItems: app.get<any>("transactionPool.options").maxTransactionsPerRequest,
+            maxItems: 40,
+            // @fixme: the container is not available at the time this file is loaded
+            // maxItems: app.get<any>("transactionPool.options").maxTransactionsPerRequest,
         },
     },
 };

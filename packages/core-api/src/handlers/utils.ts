@@ -32,7 +32,7 @@ export const respondWithCollection = (data, transformer, transform = true): obje
 };
 
 export const respondWithCache = (data, h): any => {
-    if (!app.get<any>("api.options").cache.enabled) {
+    if (!app.get<any>("api.options").get("plugins.cache.enabled")) {
         return data;
     }
 

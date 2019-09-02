@@ -7,20 +7,21 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 
 const { TransactionType } = Enums;
 
-const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
-const transactionsRepository = databaseService.transactionsBusinessRepository;
-
 const index = async request => {
-    const transactions = await transactionsRepository.findAllByType(TransactionType.Vote, {
-        ...request.query,
-        ...paginate(request),
-    });
+    const transactions = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .transactionsBusinessRepository.findAllByType(TransactionType.Vote, {
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(transactions, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const show = async request => {
-    const transaction = await transactionsRepository.findByTypeAndId(TransactionType.Vote, request.params.id);
+    const transaction = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .transactionsBusinessRepository.findByTypeAndId(TransactionType.Vote, request.params.id);
 
     if (!transaction) {
         return Boom.notFound("Vote not found");

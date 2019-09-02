@@ -65,30 +65,34 @@ module.exports = [{
             port: process.env.CORE_API_PORT || 4003,
         }
     },
-    {
-        package: "@arkecosystem/core-wallet-api",
-    }, {
-        package: "@arkecosystem/core-webhooks",
-        options: {
-            enabled: process.env.CORE_WEBHOOKS_ENABLED,
-            server: {
-                host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",
-                port: process.env.CORE_WEBHOOKS_PORT || 4004,
-                whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-            },
-        },
-    }, {
-        package: "@arkecosystem/core-forger",
-    }, {
-        package: "@arkecosystem/core-exchange-json-rpc",
-        options: {
-            enabled: process.env.CORE_EXCHANGE_JSON_RPC_ENABLED,
-            host: process.env.CORE_EXCHANGE_JSON_RPC_HOST || "0.0.0.0",
-            port: process.env.CORE_EXCHANGE_JSON_RPC_PORT || 8080,
-            allowRemote: false,
-            whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-        },
-    }, {
-        package: "@arkecosystem/core-snapshots",
-    }
+    // {
+    //     package: "@arkecosystem/core-wallet-api",
+    // },
+    // {
+    //     package: "@arkecosystem/core-webhooks",
+    //     options: {
+    //         enabled: process.env.CORE_WEBHOOKS_ENABLED,
+    //         server: {
+    //             host: process.env.CORE_WEBHOOKS_HOST || "0.0.0.0",
+    //             port: process.env.CORE_WEBHOOKS_PORT || 4004,
+    //             whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
+    //         },
+    //     },
+    // },
+    // {
+    //     package: "@arkecosystem/core-forger",
+    // },
+    // {
+    //     package: "@arkecosystem/core-exchange-json-rpc",
+    //     options: {
+    //         enabled: process.env.CORE_EXCHANGE_JSON_RPC_ENABLED,
+    //         host: process.env.CORE_EXCHANGE_JSON_RPC_HOST || "0.0.0.0",
+    //         port: process.env.CORE_EXCHANGE_JSON_RPC_PORT || 8080,
+    //         allowRemote: false,
+    //         whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
+    //     },
+    // },
+    // {
+    //     package: "@arkecosystem/core-snapshots",
+    // }
 ];

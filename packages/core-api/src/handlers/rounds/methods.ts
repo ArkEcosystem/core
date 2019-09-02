@@ -6,10 +6,9 @@ import { ServerCache } from "../../services";
 import { respondWithCollection } from "../utils";
 
 const delegates = async request => {
-    const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
-    const roundsRepository = databaseService.connection.roundsRepository;
-
-    const delegates = await roundsRepository.findById(request.params.id);
+    const delegates = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .connection.roundsRepository.findById(request.params.id);
 
     if (!delegates || !delegates.length) {
         return Boom.notFound("Round not found");

@@ -4,20 +4,21 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
-const blocksRepository = databaseService.blocksBusinessRepository;
-
 const index = async request => {
-    const delegates = databaseService.delegates.search({
-        ...request.query,
-        ...paginate(request),
-    });
+    const delegates = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .delegates.search({
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(delegates, "delegate");
 };
 
 const show = async request => {
-    const delegate = databaseService.delegates.findById(request.params.id);
+    const delegate = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
@@ -27,38 +28,48 @@ const show = async request => {
 };
 
 const search = async request => {
-    const delegates = databaseService.delegates.search({
-        ...request.payload,
-        ...request.query,
-        ...paginate(request),
-    });
+    const delegates = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .delegates.search({
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(delegates, "delegate");
 };
 
 const blocks = async request => {
-    const delegate = databaseService.delegates.findById(request.params.id);
+    const delegate = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
     }
 
-    const rows = await blocksRepository.findAllByGenerator(delegate.publicKey, paginate(request));
+    const rows = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .blocksBusinessRepository.findAllByGenerator(delegate.publicKey, paginate(request));
 
     return toPagination(rows, "block", request.query.transform);
 };
 
 const voters = async request => {
-    const delegate = databaseService.delegates.findById(request.params.id);
+    const delegate = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .delegates.findById(request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
     }
 
-    const wallets = databaseService.wallets.findAllByVote(delegate.publicKey, {
-        ...request.query,
-        ...paginate(request),
-    });
+    const wallets = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.findAllByVote(delegate.publicKey, {
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(wallets, "wallet");
 };

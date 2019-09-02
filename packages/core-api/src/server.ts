@@ -1,146 +1,37 @@
-import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
-import { Contracts } from "@arkecosystem/core-kernel";
-import Hapi from "@hapi/hapi";
+import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
+import { Server as HapiServer } from "@hapi/hapi";
 
+import Handlers from "./handlers";
+import { preparePlugins } from "./plugins";
+
+@Container.injectable()
 export class Server {
     /**
-     * The application instance.
-     *
-     * @protected
+     * @private
      * @type {Contracts.Kernel.Application}
-     * @memberof AbstractManager
+     * @memberof Server
      */
+    @Container.inject(Container.Identifiers.Application)
     private readonly app: Contracts.Kernel.Application;
 
-    private readonly config: any;
-
-    private http: any;
-    private https: any;
+    /**
+     * @private
+     * @type {HapiServer}
+     * @memberof Server
+     */
+    private server: HapiServer;
 
     /**
-     * Creates an instance of AbstractBootstrapper.
-     *
-     * @param {{ app: Contracts.Kernel.Application }} { app }
-     * @memberof AbstractBootstrapper
+     * @param {Options} options
+     * @returns {Promise<void>}
+     * @memberof Server
      */
-    public constructor({ app }: { app: Contracts.Kernel.Application }) {
-        this.app = app;
-        this.config = app.get<any>("api.options");
-    }
+    public async init(optionsServer: Types.JsonObject, optionsPlugins: Types.JsonObject): Promise<void> {
+        this.server = new HapiServer(optionsServer);
 
-    public async start(): Promise<void> {
-        const options = {
-            host: this.config.host,
-            port: this.config.port,
-        };
+        await this.server.register(preparePlugins(optionsPlugins));
 
-        if (this.config.enabled) {
-            this.http = await createServer(options);
-            this.http.app.config = this.config;
-
-            this.registerPlugins("HTTP", this.http);
-        }
-
-        if (this.config.ssl.enabled) {
-            this.https = await createServer({
-                ...options,
-                ...{ host: this.config.ssl.host, port: this.config.ssl.port },
-                ...{ tls: { key: this.config.ssl.key, cert: this.config.ssl.cert } },
-            });
-            this.https.app.config = this.config;
-
-            this.registerPlugins("HTTPS", this.https);
-        }
-    }
-
-    public async stop(): Promise<void> {
-        if (this.http) {
-            this.app.log.info(`Stopping Public HTTP API`);
-            await this.http.stop();
-        }
-
-        if (this.https) {
-            this.app.log.info(`Stopping Public HTTPS API`);
-            await this.https.stop();
-        }
-    }
-
-    public async restart(): Promise<void> {
-        if (this.http) {
-            await this.http.stop();
-            await this.http.start();
-        }
-
-        if (this.https) {
-            await this.https.stop();
-            await this.https.start();
-        }
-    }
-
-    public instance(type: string): Hapi.Server {
-        return this[type];
-    }
-
-    private async registerPlugins(name: string, server: Hapi.Server): Promise<void> {
-        await server.register({ plugin: plugins.contentType });
-
-        await server.register({
-            plugin: plugins.corsHeaders,
-        });
-
-        await server.register({
-            plugin: plugins.whitelist,
-            options: {
-                whitelist: this.config.whitelist,
-            },
-        });
-
-        await server.register({
-            plugin: require("./plugins/set-headers"),
-        });
-
-        await server.register(plugins.hapiAjv);
-
-        await server.register({
-            plugin: require("hapi-rate-limit"),
-            options: this.config.rateLimit,
-        });
-
-        await server.register({
-            plugin: require("hapi-pagination"),
-            options: {
-                meta: {
-                    baseUri: "",
-                },
-                query: {
-                    limit: {
-                        default: this.config.pagination.limit,
-                    },
-                },
-                results: {
-                    name: "data",
-                },
-                routes: {
-                    include: this.config.pagination.include,
-                    exclude: ["*"],
-                },
-            },
-        });
-
-        await server.register({
-            plugin: require("./handlers"),
-            routes: { prefix: "/api" },
-        });
-
-        for (const plugin of this.config.plugins) {
-            if (typeof plugin.plugin === "string") {
-                plugin.plugin = require(plugin.plugin);
-            }
-
-            await server.register(plugin);
-        }
-
-        server.route({
+        this.server.route({
             method: "GET",
             path: "/",
             handler() {
@@ -148,16 +39,31 @@ export class Server {
             },
         });
 
-        // @todo: remove this with the release of 3.0 - adds support for /api and /api/v2
-        server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-            if (request.url) {
-                const path: string = request.url.pathname.replace("/v2", "");
-                request.setUrl(request.url.search ? `${path}${request.url.search}` : path);
-            }
-
-            return h.continue;
+        await this.server.register({
+            plugin: Handlers,
+            routes: { prefix: "/api" },
         });
+    }
 
-        await mountServer(`Public ${name.toUpperCase()} API`, server);
+    /**
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async start(): Promise<void> {
+        await this.server.start();
+
+        this.app.log.info(`Server started at ${this.server.info.uri}`);
+    }
+
+    /**
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async stop(): Promise<void> {
+        console.log(this.server);
+
+        await this.server.stop();
+
+        this.app.log.info(`Server stopped at ${this.server.info.uri}`);
     }
 }

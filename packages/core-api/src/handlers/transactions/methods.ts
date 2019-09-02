@@ -4,20 +4,21 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const transactionsRepository = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-    .transactionsBusinessRepository;
-
 const index = async request => {
-    const transactions = await transactionsRepository.search({
-        ...request.query,
-        ...paginate(request),
-    });
+    const transactions = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .transactionsBusinessRepository.search({
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(transactions, "transaction", (request.query.transform as unknown) as boolean);
 };
 
 const show = async request => {
-    const transaction = await transactionsRepository.findById(request.params.id);
+    const transaction = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .transactionsBusinessRepository.findById(request.params.id);
 
     if (!transaction) {
         return Boom.notFound("Transaction not found");
@@ -27,11 +28,13 @@ const show = async request => {
 };
 
 const search = async request => {
-    const transactions = await transactionsRepository.search({
-        ...request.query,
-        ...request.payload,
-        ...paginate(request),
-    });
+    const transactions = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .transactionsBusinessRepository.search({
+            ...request.query,
+            ...request.payload,
+            ...paginate(request),
+        });
 
     return toPagination(transactions, "transaction", (request.query.transform as unknown) as boolean);
 };

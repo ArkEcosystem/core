@@ -12,8 +12,7 @@ export class ServerCache {
     public method(name: string, method: ServerMethod, expiresIn: number, argsCallback?: any): this {
         let options = {};
 
-        // @ts-ignore
-        if (this.server.app.config.cache.enabled) {
+        if (app.get<any>("api.options").get("plugins.cache.enabled")) {
             options = {
                 cache: {
                     expiresIn: expiresIn * 1000,
@@ -34,7 +33,7 @@ export class ServerCache {
     }
 
     private getCacheTimeout(): number | boolean {
-        const { generateTimeout } = app.get<any>("api.options").cache;
+        const { generateTimeout } = app.get<any>("api.options").get("plugins.cache");
 
         return JSON.parse(generateTimeout);
     }
