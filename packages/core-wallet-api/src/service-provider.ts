@@ -10,7 +10,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             return;
         }
 
-        return startServer(this.config().get("server"));
+        await startServer(this.config().get("server"));
     }
 
     public async dispose(): Promise<void> {

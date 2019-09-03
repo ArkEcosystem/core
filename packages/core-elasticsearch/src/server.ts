@@ -1,11 +1,14 @@
-import { createServer, mountServer } from "@arkecosystem/core-http-utils";
+import { HttpServer } from "@arkecosystem/core-http-utils";
+import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Joi from "@hapi/joi";
 
 import { client } from "./client";
 
-export const startServer = async config => {
-    const server = await createServer({
+export const startServer = async (app: Contracts.Kernel.Application, config) => {
+    const server = app.resolve<HttpServer>(HttpServer);
+
+    await server.init("Elasticsearch API", {
         host: config.host,
         port: config.port,
     });
@@ -76,5 +79,7 @@ export const startServer = async config => {
         },
     ]);
 
-    return mountServer("Elasticsearch API", server);
+    await server.start();
+
+    return server;
 };

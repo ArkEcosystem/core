@@ -1,4 +1,4 @@
-import { createServer, plugins } from "@arkecosystem/core-http-utils";
+import { HttpServer, plugins } from "@arkecosystem/core-http-utils";
 import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { randomBytes } from "crypto";
@@ -8,10 +8,10 @@ import { Webhook } from "../interfaces";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
-export const startServer = async (app: Contracts.Kernel.Application, config) => {
-    const database = app.get<Database>("webhooks.db");
+export const startServer = async (app: Contracts.Kernel.Application, config): Promise<HttpServer> => {
+    const server = app.resolve<HttpServer>(HttpServer);
 
-    const server = await createServer({
+    await server.init("Webhook API", {
         host: config.host,
         port: config.port,
         routes: {
@@ -31,11 +31,14 @@ export const startServer = async (app: Contracts.Kernel.Application, config) => 
         path: "/api/webhooks",
         handler: () => {
             return {
-                data: database.all().map(webhook => {
-                    webhook = { ...webhook };
-                    delete webhook.token;
-                    return webhook;
-                }),
+                data: app
+                    .get<Database>("webhooks.db")
+                    .all()
+                    .map(webhook => {
+                        webhook = { ...webhook };
+                        delete webhook.token;
+                        return webhook;
+                    }),
             };
         },
     });
@@ -49,7 +52,7 @@ export const startServer = async (app: Contracts.Kernel.Application, config) => 
             return h
                 .response(
                     utils.respondWithResource({
-                        ...database.create({
+                        ...app.get<Database>("webhooks.db").create({
                             ...request.payload,
                             ...{ token: token.substring(0, 32) },
                         }),
@@ -72,12 +75,12 @@ export const startServer = async (app: Contracts.Kernel.Application, config) => 
         method: "GET",
         path: "/api/webhooks/{id}",
         async handler(request) {
-            if (!database.hasById(request.params.id)) {
+            if (!app.get<Database>("webhooks.db").hasById(request.params.id)) {
                 return Boom.notFound();
             }
 
             const webhook: Webhook = {
-                ...database.findById(request.params.id),
+                ...app.get<Database>("webhooks.db").findById(request.params.id),
             };
             delete webhook.token;
 
@@ -92,11 +95,11 @@ export const startServer = async (app: Contracts.Kernel.Application, config) => 
         method: "PUT",
         path: "/api/webhooks/{id}",
         handler: (request, h) => {
-            if (!database.hasById(request.params.id)) {
+            if (!app.get<Database>("webhooks.db").hasById(request.params.id)) {
                 return Boom.notFound();
             }
 
-            database.update(request.params.id, request.payload as Webhook);
+            app.get<Database>("webhooks.db").update(request.params.id, request.payload as Webhook);
 
             return h.response(undefined).code(204);
         },
@@ -109,11 +112,11 @@ export const startServer = async (app: Contracts.Kernel.Application, config) => 
         method: "DELETE",
         path: "/api/webhooks/{id}",
         handler: (request, h) => {
-            if (!database.hasById(request.params.id)) {
+            if (!app.get<Database>("webhooks.db").hasById(request.params.id)) {
                 return Boom.notFound();
             }
 
-            database.destroy(request.params.id);
+            app.get<Database>("webhooks.db").destroy(request.params.id);
 
             return h.response(undefined).code(204);
         },
@@ -125,6 +128,4 @@ export const startServer = async (app: Contracts.Kernel.Application, config) => 
     await server.start();
 
     return server;
-
-    // return mountServer("Webhook API", server);
 };

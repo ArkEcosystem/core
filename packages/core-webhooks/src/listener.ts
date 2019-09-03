@@ -47,14 +47,12 @@ export const startListeners = (app: Contracts.Kernel.Application): void => {
                         },
                         timeout: app.get<any>("webhooks.options").timeout,
                     });
-                    console.log(status);
 
-                    // app.log.debug(
-                    //     `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
-                    // );
+                    app.log.debug(
+                        `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
+                    );
                 } catch (error) {
-                    console.log(error);
-                    // app.log.error(`Webhooks Job ${webhook.id} failed: ${error.message}`);
+                    app.log.error(`Webhooks Job ${webhook.id} failed: ${error.message}`);
                 }
             }
         });

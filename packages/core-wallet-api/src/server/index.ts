@@ -1,4 +1,4 @@
-import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
+import { createServer, plugins } from "@arkecosystem/core-http-utils";
 import { app } from "@arkecosystem/core-kernel";
 import h2o2 from "@hapi/h2o2";
 
@@ -54,5 +54,13 @@ export const startServer = async config => {
         });
     }
 
-    return mountServer("Wallet API", server);
+    try {
+        await server.start();
+
+        app.log.info(`Wallet API Server running at: ${server.info.uri}`);
+    } catch (error) {
+        await app.terminate(`Could not start Wallet API Server!`, error);
+    }
+
+    return server;
 };

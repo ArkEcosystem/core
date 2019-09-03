@@ -5,8 +5,11 @@ import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/io
 import { Enums } from "@packages/core-kernel/src";
 import { Database } from "@packages/core-webhooks/src/database";
 import { dirSync, setGracefulCleanup } from "tmp";
-import { Server } from "@hapi/hapi";
 import { startServer } from "@packages/core-webhooks/src/server";
+
+// FIX: Types have separate declarations of a private property 'configRepository'.
+//      This error shows up if we try to resolve "HttpServer" from the "core-http-utils/src" directory.
+import { HttpServer } from "../../../node_modules/@arkecosystem/core-http-utils/dist";
 
 const postData = {
     event: Enums.Events.State.BlockForged,
@@ -26,29 +29,29 @@ const postData = {
     ],
 };
 
-const request = async (server, method, path, payload = {}) => {
+const request = async (server: HttpServer, method, path, payload = {}) => {
     const response = await server.inject({ method, url: `http://localhost:4004/api/${path}`, payload });
 
-    return { body: response.result, status: response.statusCode };
+    return { body: response.result as any, status: response.statusCode };
 };
 
 const createWebhook = (server, data?: any) => request(server, "POST", "webhooks", data || postData);
 
-let server: Server;
-let app: Application;
+let server: HttpServer;
 let container: interfaces.Container;
 
 beforeEach(async () => {
     container = new Container();
-    container.snapshot();
 
-    app = new Application(container);
+    const app: Application = new Application(container);
     app.bind(Identifiers.LogService).toConstantValue({ info: jest.fn(), debug: jest.fn() });
     app.bind("path.cache").toConstantValue(dirSync().name);
 
     app.bind<Database>("webhooks.db")
         .to(Database)
         .inSingletonScope();
+
+    container.snapshot();
 
     server = await startServer(app, {
         host: "0.0.0.0",
