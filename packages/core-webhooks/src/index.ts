@@ -1,6 +1,6 @@
 import { Providers } from "@arkecosystem/core-kernel";
 
-import { database } from "./database";
+import { Database } from "./database";
 import { startListeners } from "./listener";
 import { startServer } from "./server";
 
@@ -11,11 +11,14 @@ export class ServiceProvider extends Providers.ServiceProvider {
             return;
         }
 
-        database.make();
+        this.app
+            .bind<Database>("webhooks.db")
+            .to(Database)
+            .inSingletonScope();
 
-        startListeners();
+        startListeners(this.app);
 
-        this.app.bind("webhooks").toConstantValue(await startServer(this.config().get("server")));
+        this.app.bind("webhooks").toConstantValue(await startServer(this.app, this.config().get("server")));
         this.app.bind("webhooks.options").toConstantValue(this.config().all());
     }
 

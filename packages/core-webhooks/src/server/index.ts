@@ -1,13 +1,16 @@
-import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
+import { createServer, plugins } from "@arkecosystem/core-http-utils";
+import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { randomBytes } from "crypto";
 
-import { database } from "../database";
+import { Database } from "../database";
 import { Webhook } from "../interfaces";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
-export const startServer = async config => {
+export const startServer = async (app: Contracts.Kernel.Application, config) => {
+    const database = app.get<Database>("webhooks.db");
+
     const server = await createServer({
         host: config.host,
         port: config.port,
@@ -73,7 +76,9 @@ export const startServer = async config => {
                 return Boom.notFound();
             }
 
-            const webhook: Webhook = { ...database.findById(request.params.id) };
+            const webhook: Webhook = {
+                ...database.findById(request.params.id),
+            };
             delete webhook.token;
 
             return utils.respondWithResource(webhook);
@@ -117,5 +122,9 @@ export const startServer = async config => {
         },
     });
 
-    return mountServer("Webhook API", server);
+    await server.start();
+
+    return server;
+
+    // return mountServer("Webhook API", server);
 };

@@ -1,15 +1,16 @@
-import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 
 import * as conditions from "./conditions";
-import { database } from "./database";
+import { Database } from "./database";
 import { Webhook } from "./interfaces";
 
-export const startListeners = (): void => {
+export const startListeners = (app: Contracts.Kernel.Application): void => {
     for (const event of Object.values(Enums.Events.State)) {
-        app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService).listen(
-            event,
-            async payload => {
-                const webhooks: Webhook[] = database.findByEvent(event).filter((webhook: Webhook) => {
+        app.events.listen(event, async payload => {
+            const webhooks: Webhook[] = app
+                .get<Database>("webhooks.db")
+                .findByEvent(event)
+                .filter((webhook: Webhook) => {
                     if (!webhook.enabled) {
                         return false;
                     }
@@ -33,28 +34,29 @@ export const startListeners = (): void => {
                     return false;
                 });
 
-                for (const webhook of webhooks) {
-                    try {
-                        const { status } = await Utils.httpie.post(webhook.target, {
-                            body: {
-                                timestamp: +new Date(),
-                                data: payload,
-                                event: webhook.event,
-                            },
-                            headers: {
-                                Authorization: webhook.token,
-                            },
-                            timeout: app.get<any>("webhooks.options").timeout,
-                        });
+            for (const webhook of webhooks) {
+                try {
+                    const { status } = await Utils.httpie.post(webhook.target, {
+                        body: {
+                            timestamp: +new Date(),
+                            data: payload,
+                            event: webhook.event,
+                        },
+                        headers: {
+                            Authorization: webhook.token,
+                        },
+                        timeout: app.get<any>("webhooks.options").timeout,
+                    });
+                    console.log(status);
 
-                        app.log.debug(
-                            `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
-                        );
-                    } catch (error) {
-                        app.log.error(`Webhooks Job ${webhook.id} failed: ${error.message}`);
-                    }
+                    // app.log.debug(
+                    //     `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
+                    // );
+                } catch (error) {
+                    console.log(error);
+                    // app.log.error(`Webhooks Job ${webhook.id} failed: ${error.message}`);
                 }
-            },
-        );
+            }
+        });
     }
 };

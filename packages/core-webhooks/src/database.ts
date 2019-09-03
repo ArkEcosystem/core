@@ -1,15 +1,19 @@
-import { ensureFileSync, existsSync, removeSync } from "fs-extra";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { ensureFileSync, existsSync } from "fs-extra";
 import lowdb from "lowdb";
 import FileSync from "lowdb/adapters/FileSync";
 import uuidv4 from "uuid/v4";
 
 import { Webhook } from "./interfaces";
 
-class Database {
-    private database: lowdb.LowdbSync<any>;
+@Container.injectable()
+export class Database {
+    private readonly database: lowdb.LowdbSync<any>;
 
-    public make(): void {
-        const adapterFile = `${process.env.CORE_PATH_CACHE}/webhooks.json`;
+    public constructor(
+        @Container.inject(Container.Identifiers.Application) private readonly app: Contracts.Kernel.Application,
+    ) {
+        const adapterFile = this.app.cachePath("webhooks.json");
 
         if (!existsSync(adapterFile)) {
             ensureFileSync(adapterFile);
@@ -70,12 +74,4 @@ class Database {
             .remove({ id })
             .write();
     }
-
-    public reset(): void {
-        removeSync(`${process.env.CORE_PATH_CACHE}/webhooks.json`);
-
-        this.make();
-    }
 }
-
-export const database = new Database();
