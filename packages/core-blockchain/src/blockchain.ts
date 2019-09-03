@@ -384,7 +384,7 @@ export class Blockchain implements blockchain.IBlockchain {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
 
-        if (blocks[0] && !isBlockChained(this.getLastBlock().data, blocks[0].data)) {
+        if (blocks[0] && !isBlockChained(this.getLastBlock().data, blocks[0].data, logger)) {
             this.clearQueue(); // Discard remaining blocks as it won't go anywhere anyway.
             return callback();
         }
