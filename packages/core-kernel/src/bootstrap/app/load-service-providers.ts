@@ -1,11 +1,11 @@
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
-import { PackageConfiguration, PackageManifest, ServiceProvider, ServiceProviderRepository } from "../../providers";
+import { PluginConfiguration, PluginManifest, ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { ConfigRepository } from "../../services/config";
 import { JsonObject } from "../../types";
 import { Bootstrapper } from "../interfaces";
 
-interface PackageEntry {
+interface PluginEntry {
     package: string;
     options: JsonObject;
 }
@@ -48,9 +48,9 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        for (const pkg of this.configRepository.get<Array<PackageEntry>>("packages")) {
+        for (const pkg of this.configRepository.get<Array<PluginEntry>>("plugins")) {
             const serviceProvider: ServiceProvider = this.app.resolve(require(pkg.package).ServiceProvider);
-            serviceProvider.setManifest(this.app.resolve(PackageManifest).discover(pkg.package));
+            serviceProvider.setManifest(this.app.resolve(PluginManifest).discover(pkg.package));
             serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, pkg.options));
 
             this.serviceProviderRepository.set(pkg.package, serviceProvider);
@@ -63,21 +63,21 @@ export class LoadServiceProviders implements Bootstrapper {
      * @private
      * @param {ServiceProvider} serviceProvider
      * @param {JsonObject} options
-     * @returns {PackageConfiguration}
+     * @returns {PluginConfiguration}
      * @memberof LoadServiceProviders
      */
-    private discoverConfiguration(serviceProvider: ServiceProvider, options: JsonObject): PackageConfiguration {
+    private discoverConfiguration(serviceProvider: ServiceProvider, options: JsonObject): PluginConfiguration {
         const hasDefaults: boolean = Object.keys(serviceProvider.configDefaults()).length > 0;
 
         if (hasDefaults) {
             return this.app
-                .resolve(PackageConfiguration)
+                .resolve(PluginConfiguration)
                 .from(serviceProvider.name(), serviceProvider.configDefaults())
                 .merge(options);
         }
 
         return this.app
-            .resolve(PackageConfiguration)
+            .resolve(PluginConfiguration)
             .discover(serviceProvider.name())
             .merge(options);
     }

@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-import { PackageDependency } from "@packages/core-kernel/src/contracts/kernel";
+import { PluginDependency } from "@packages/core-kernel/src/contracts/kernel";
 import { ServiceProvider } from "@packages/core-kernel/src/providers";
 
 export class StubServiceProvider extends ServiceProvider {
@@ -83,7 +83,7 @@ export class RequiredDependencyCannotBeFoundServiceProvider extends ServiceProvi
         return "stub";
     }
 
-    public dependencies(): PackageDependency[] {
+    public dependencies(): PluginDependency[] {
         return [{ name: "deps-required", required: true }];
     }
 }
@@ -95,7 +95,7 @@ export class RequiredDependencyCannotBeFoundAsyncServiceProvider extends Service
         return "stub";
     }
 
-    public dependencies(): PackageDependency[] {
+    public dependencies(): PluginDependency[] {
         return [{ name: "deps-required", required: async () => true }];
     }
 }
@@ -107,7 +107,7 @@ export class OptionalDependencyCannotBeFoundServiceProvider extends ServiceProvi
         return "stub";
     }
 
-    public dependencies(): PackageDependency[] {
+    public dependencies(): PluginDependency[] {
         return [{ name: "deps-optional" }];
     }
 }
@@ -119,7 +119,7 @@ export class RequiredDependencyVersionCannotBeSatisfiedServiceProvider extends S
         return "stub";
     }
 
-    public dependencies(): PackageDependency[] {
+    public dependencies(): PluginDependency[] {
         return [{ name: "dep", version: ">=2.0.0", required: true }];
     }
 }
@@ -131,7 +131,7 @@ export class OptionalDependencyVersionCannotBeSatisfiedServiceProvider extends S
         return "stub";
     }
 
-    public dependencies(): PackageDependency[] {
+    public dependencies(): PluginDependency[] {
         return [{ name: "dep", version: ">=2.0.0" }];
     }
 }

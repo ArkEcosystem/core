@@ -3,14 +3,14 @@ import { RuntimeException } from "./runtime";
 
 /**
  * @export
- * @class InvalidPackageConfiguration
+ * @class InvalidPluginConfiguration
  * @extends {InvalidArgumentException}
  */
-export class InvalidPackageConfiguration extends InvalidArgumentException {
+export class InvalidPluginConfiguration extends InvalidArgumentException {
     /**
      * @param {string} name
      * @param {Record<string, string[]>} errors
-     * @memberof InvalidPackageConfiguration
+     * @memberof InvalidPluginConfiguration
      */
     constructor(name: string, errors: Record<string, string[]>) {
         super(`[${name}] Failed to validate the configuration: "${JSON.stringify(errors, undefined, 4)}".`);

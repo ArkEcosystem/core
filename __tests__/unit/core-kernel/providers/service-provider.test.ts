@@ -4,8 +4,8 @@ import { resolve } from "path";
 import { Application } from "@packages/core-kernel/src/application";
 import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/providers/service-provider";
-import { PackageManifest } from "@packages/core-kernel/src/providers/package-manifest";
-import { PackageConfiguration } from "@packages/core-kernel/src/providers/package-configuration";
+import { PluginManifest } from "@packages/core-kernel/src/providers/plugin-manifest";
+import { PluginConfiguration } from "@packages/core-kernel/src/providers/plugin-configuration";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
 
 let app: Application;
@@ -58,20 +58,20 @@ describe("ServiceProvider", () => {
     it(".manifest", () => {
         const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
 
-        const packageManifest: PackageManifest = new PackageManifest().discover(
-            resolve(__dirname, "../__stubs__/stub-package"),
+        const pluginManifest: PluginManifest = new PluginManifest().discover(
+            resolve(__dirname, "../__stubs__/stub-plugin"),
         );
-        serviceProvider.setManifest(packageManifest);
+        serviceProvider.setManifest(pluginManifest);
 
-        expect(serviceProvider.manifest()).toEqual(packageManifest);
+        expect(serviceProvider.manifest()).toEqual(pluginManifest);
     });
 
     it(".name", () => {
         const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
 
-        serviceProvider.setManifest(new PackageManifest().discover(resolve(__dirname, "../__stubs__/stub-package")));
+        serviceProvider.setManifest(new PluginManifest().discover(resolve(__dirname, "../__stubs__/stub-plugin")));
 
-        expect(serviceProvider.name()).toBe("stub-package");
+        expect(serviceProvider.name()).toBe("stub-plugin");
     });
 
     it(".name (no manifest)", () => {
@@ -81,7 +81,7 @@ describe("ServiceProvider", () => {
     it(".version", () => {
         const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
 
-        serviceProvider.setManifest(new PackageManifest().discover(resolve(__dirname, "../__stubs__/stub-package")));
+        serviceProvider.setManifest(new PluginManifest().discover(resolve(__dirname, "../__stubs__/stub-plugin")));
 
         expect(serviceProvider.version()).toBe("1.0.0");
     });
@@ -95,12 +95,12 @@ describe("ServiceProvider", () => {
 
         const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
 
-        const packageConfiguration: PackageConfiguration = app
-            .resolve(PackageConfiguration)
-            .discover(resolve(__dirname, "../__stubs__/stub-package"));
-        serviceProvider.setConfig(packageConfiguration);
+        const pluginConfiguration: PluginConfiguration = app
+            .resolve(PluginConfiguration)
+            .discover(resolve(__dirname, "../__stubs__/stub-plugin"));
+        serviceProvider.setConfig(pluginConfiguration);
 
-        expect(serviceProvider.config()).toEqual(packageConfiguration);
+        expect(serviceProvider.config()).toEqual(pluginConfiguration);
     });
 
     it(".configDefaults", () => {

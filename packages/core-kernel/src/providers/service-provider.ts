@@ -1,8 +1,8 @@
 import { Kernel } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
 import { JsonObject } from "../types";
-import { PackageConfiguration } from "./package-configuration";
-import { PackageManifest } from "./package-manifest";
+import { PluginConfiguration } from "./plugin-configuration";
+import { PluginManifest } from "./plugin-manifest";
 
 /**
  * @export
@@ -25,19 +25,19 @@ export abstract class ServiceProvider {
      * The application instance.
      *
      * @private
-     * @type {PackageConfiguration}
+     * @type {PluginConfiguration}
      * @memberof ServiceProvider
      */
-    private packageConfiguration: PackageConfiguration;
+    private packageConfiguration: PluginConfiguration;
 
     /**
      * The loaded manifest.
      *
      * @private
-     * @type {PackageManifest}
-     * @memberof PackageManifest
+     * @type {PluginManifest}
+     * @memberof PluginManifest
      */
-    private packageManifest: PackageManifest;
+    private packageManifest: PluginManifest;
 
     /**
      * Register the service provider.
@@ -71,20 +71,20 @@ export abstract class ServiceProvider {
     /**
      * Get the manifest of the service provider.
      *
-     * @returns {PackageManifest}
+     * @returns {PluginManifest}
      * @memberof ServiceProvider
      */
-    public manifest(): PackageManifest {
+    public manifest(): PluginManifest {
         return this.packageManifest;
     }
 
     /**
      * Set the manifest of the service provider.
      *
-     * @param {PackageManifest} manifest
+     * @param {PluginManifest} manifest
      * @memberof ServiceProvider
      */
-    public setManifest(manifest: PackageManifest): void {
+    public setManifest(manifest: PluginManifest): void {
         this.packageManifest = manifest;
     }
 
@@ -119,20 +119,20 @@ export abstract class ServiceProvider {
     /**
      * Get the configuration of the service provider.
      *
-     * @returns {PackageConfiguration}
+     * @returns {PluginConfiguration}
      * @memberof ServiceProvider
      */
-    public config(): PackageConfiguration {
+    public config(): PluginConfiguration {
         return this.packageConfiguration;
     }
 
     /**
      * Set the configuration of the service provider.
      *
-     * @param {PackageConfiguration} config
+     * @param {PluginConfiguration} config
      * @memberof ServiceProvider
      */
-    public setConfig(config: PackageConfiguration): void {
+    public setConfig(config: PluginConfiguration): void {
         this.packageConfiguration = config;
     }
 
@@ -159,10 +159,10 @@ export abstract class ServiceProvider {
     /**
      * Get the dependencies of the service provider.
      *
-     * @returns {Kernel.PackageDependency[]}
+     * @returns {Kernel.PluginDependency[]}
      * @memberof ServiceProvider
      */
-    public dependencies(): Kernel.PackageDependency[] {
+    public dependencies(): Kernel.PluginDependency[] {
         return [];
     }
 

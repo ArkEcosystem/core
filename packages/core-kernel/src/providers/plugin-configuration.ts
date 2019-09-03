@@ -9,10 +9,10 @@ import { JsonObject } from "../types";
 
 /**
  * @export
- * @class PackageConfiguration
+ * @class PluginConfiguration
  */
 @injectable()
-export class PackageConfiguration {
+export class PluginConfiguration {
     /**
      * @private
      * @type {ConfigRepository}
@@ -26,7 +26,7 @@ export class PackageConfiguration {
      *
      * @private
      * @type {JsonObject}
-     * @memberof PackageConfiguration
+     * @memberof PluginConfiguration
      */
     private items: JsonObject = {};
 
@@ -34,7 +34,7 @@ export class PackageConfiguration {
      * @param {string} name
      * @param {JsonObject} config
      * @returns {this}
-     * @memberof PackageConfiguration
+     * @memberof PluginConfiguration
      */
     public from(name: string, config: JsonObject): this {
         this.items = config;
@@ -49,7 +49,7 @@ export class PackageConfiguration {
      *
      * @param {string} name
      * @returns {this}
-     * @memberof PackageConfiguration
+     * @memberof PluginConfiguration
      */
     public discover(name: string): this {
         try {
@@ -66,7 +66,7 @@ export class PackageConfiguration {
      *
      * @param {JsonObject} values
      * @returns {this}
-     * @memberof PackageConfiguration
+     * @memberof PluginConfiguration
      */
     public merge(values: JsonObject): this {
         this.items = { ...this.items, ...values };
@@ -78,7 +78,7 @@ export class PackageConfiguration {
      * Get all of the configuration values.
      *
      * @returns {JsonObject}
-     * @memberof PackageConfiguration
+     * @memberof PluginConfiguration
      */
     public all(): JsonObject {
         return this.items;
@@ -91,7 +91,7 @@ export class PackageConfiguration {
      * @param {string} key
      * @param {T} [defaultValue]
      * @returns {T}
-     * @memberof PackageConfiguration
+     * @memberof PluginConfiguration
      */
     public get<T>(key?: string, defaultValue?: T): T {
         if (!this.has(key)) {
@@ -135,7 +135,7 @@ export class PackageConfiguration {
      *
      * @param {string} key
      * @returns {boolean}
-     * @memberof PackageConfiguration
+     * @memberof PluginConfiguration
      */
     public has(key: string): boolean {
         return has(this.items, key);
@@ -144,7 +144,7 @@ export class PackageConfiguration {
     /**
      * @private
      * @param {string} name
-     * @memberof PackageConfiguration
+     * @memberof PluginConfiguration
      */
     private mergeWithGlobal(name: string): void {
         if (!this.configRepository.has(`options.${name}`)) {

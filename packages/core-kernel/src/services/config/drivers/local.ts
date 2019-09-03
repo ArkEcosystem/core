@@ -34,7 +34,7 @@ export class LocalConfigLoader implements ConfigLoader {
      */
     public async loadConfiguration(): Promise<void> {
         try {
-            await this.loadServiceProviders();
+            await this.loadPlugins();
 
             await this.loadPeers();
 
@@ -65,10 +65,10 @@ export class LocalConfigLoader implements ConfigLoader {
      * @returns {Promise<void>}
      * @memberof LocalConfigLoader
      */
-    private async loadServiceProviders(): Promise<void> {
+    private async loadPlugins(): Promise<void> {
         this.app.config(
-            "packages",
-            this.loadFromLocation([this.app.configPath("packages.json"), this.app.configPath("packages.js")]),
+            "plugins",
+            this.loadFromLocation([this.app.configPath("plugins.json"), this.app.configPath("plugins.js")]),
         );
     }
 

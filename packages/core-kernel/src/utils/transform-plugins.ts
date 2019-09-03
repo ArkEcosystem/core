@@ -1,9 +1,9 @@
 import { PeerPlugins } from "../contracts/p2p";
 
-export const transformPlugins = (packages): PeerPlugins => {
+export const transformPlugins = (plugins): PeerPlugins => {
     const result: PeerPlugins = {};
 
-    const pkgs: { package: string; options: any }[] = Object.values(packages);
+    const pkgs: { package: string; options: any }[] = Object.values(plugins);
 
     for (const pkg of pkgs) {
         const name = pkg.package;

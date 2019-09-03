@@ -38,10 +38,10 @@
     },
     "devDependencies": {
         "@arkecosystem/core-p2p": "^3.0.0-next.0",
-        "@types/async": "^3.0.0",
+        "@types/async": "^3.0.1",
         "@types/lodash.get": "^4.4.6",
         "@types/pluralize": "^0.0.29",
-        "@types/pretty-ms": "^4.0.0"
+        "@types/pretty-ms": "^5.0.1"
     },
     "engines": {
         "node": ">=10.x"

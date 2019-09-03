@@ -49,7 +49,6 @@ type TActivatable = Mixin<typeof Activatable>;
 type TTagged = Mixin<typeof Tagged>;
 
 type MixinUser = TTimestamped & TActivatable & TTagged & User;
-type TimestampedUser = TTimestamped & User;
 
 let mixins: MixinService;
 beforeEach(() => (mixins = new MixinService()));
@@ -79,7 +78,7 @@ it("should register all mixins", async () => {
 it("should apply a single macro", async () => {
     mixins.set("timestamped", Timestamped);
 
-    const user: TimestampedUser = new (mixins.apply<MixinUser>("timestamped", User))();
+    const user: MixinUser = new (mixins.apply<MixinUser>("timestamped", User))();
 
     expect(user.timestamp).toEqual(new Date("2019-08-29"));
 });

@@ -11,8 +11,8 @@ import { defaults } from "@packages/core-logger-pino/src/defaults";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 // FIX: Types have separate declarations of a private property 'configRepository'.
-//      This error shows up if we try to resolve "PackageConfiguration" from the "core-kernel/src" directory.
-import { PackageConfiguration } from "../../../node_modules/@arkecosystem/core-kernel/dist/providers/package-configuration";
+//      This error shows up if we try to resolve "PluginConfiguration" from the "core-kernel/src" directory.
+import { PluginConfiguration } from "../../../node_modules/@arkecosystem/core-kernel/dist/providers/plugin-configuration";
 
 let app: Application;
 let container: interfaces.Container;
@@ -38,7 +38,7 @@ describe("PinoServiceProvider", () => {
         expect(app.get(Identifiers.LogService)).toBeInstanceOf(ConsoleLogger);
 
         const serviceProvider = await app.resolve(PinoServiceProvider);
-        serviceProvider.setConfig(app.resolve(PackageConfiguration).merge(defaults));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration).merge(defaults));
 
         await serviceProvider.register();
 
@@ -49,7 +49,7 @@ describe("PinoServiceProvider", () => {
         await app.resolve<LogServiceProvider>(LogServiceProvider).register();
 
         const serviceProvider = await app.resolve(PinoServiceProvider);
-        serviceProvider.setConfig(app.resolve(PackageConfiguration).merge(defaults));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration).merge(defaults));
 
         expect(serviceProvider.required()).resolves.toBeTrue();
     });

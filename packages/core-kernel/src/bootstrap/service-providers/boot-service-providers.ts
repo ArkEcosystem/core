@@ -1,6 +1,6 @@
 import { Application } from "../../contracts/kernel";
 import { Events } from "../../enums";
-import { ServiceProviderCannotBeBooted } from "../../exceptions/packages";
+import { ServiceProviderCannotBeBooted } from "../../exceptions/plugins";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { ServiceProviderRepository } from "../../providers";
 import { Bootstrapper } from "../interfaces";

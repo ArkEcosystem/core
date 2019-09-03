@@ -6,8 +6,8 @@ import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import {
     ServiceProvider,
     ServiceProviderRepository,
-    PackageManifest,
-    PackageConfiguration,
+    PluginManifest,
+    PluginConfiguration,
 } from "@packages/core-kernel/src/providers";
 import { RegisterServiceProviders } from "@packages/core-kernel/src/bootstrap/service-providers";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
@@ -24,9 +24,9 @@ import {
 } from "./__stubs__/service-providers";
 import { ServiceProvider as ValidationServiceProvider } from "@packages/core-kernel/src/services/validation";
 import {
-    InvalidPackageConfiguration,
+    InvalidPluginConfiguration,
     ServiceProviderCannotBeRegistered,
-} from "@packages/core-kernel/src/exceptions/packages";
+} from "@packages/core-kernel/src/exceptions/plugins";
 
 let app: Application;
 let container: interfaces.Container;
@@ -99,9 +99,9 @@ describe("RegisterServiceProviders", () => {
         app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
 
         const serviceProvider: ServiceProvider = new ValidConfigurationServiceProvider();
-        serviceProvider.setManifest(app.resolve(PackageManifest));
+        serviceProvider.setManifest(app.resolve(PluginManifest));
 
-        const packageConfiguration: PackageConfiguration = app.resolve(PackageConfiguration);
+        const packageConfiguration: PluginConfiguration = app.resolve(PluginConfiguration);
         packageConfiguration.set("username", "johndoe");
         serviceProvider.setConfig(packageConfiguration);
 
@@ -120,8 +120,8 @@ describe("RegisterServiceProviders", () => {
         app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
 
         const serviceProvider: ServiceProvider = new InvalidConfigurationServiceProvider();
-        serviceProvider.setManifest(app.resolve(PackageManifest));
-        serviceProvider.setConfig(app.resolve(PackageConfiguration));
+        serviceProvider.setManifest(app.resolve(PluginManifest));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration));
 
         const spyRegister = jest.spyOn(serviceProvider, "register");
         serviceProviderRepository.set("stub", serviceProvider);
@@ -137,8 +137,8 @@ describe("RegisterServiceProviders", () => {
         app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
 
         const serviceProvider: ServiceProvider = new RequiredInvalidConfigurationServiceProvider();
-        serviceProvider.setManifest(app.resolve(PackageManifest));
-        serviceProvider.setConfig(app.resolve(PackageConfiguration));
+        serviceProvider.setManifest(app.resolve(PluginManifest));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration));
         serviceProviderRepository.set("stub", serviceProvider);
 
         await app.resolve<ValidationServiceProvider>(ValidationServiceProvider).register();
@@ -146,7 +146,7 @@ describe("RegisterServiceProviders", () => {
         await expect(app.resolve<RegisterServiceProviders>(RegisterServiceProviders).bootstrap()).rejects.toThrowError(
             new ServiceProviderCannotBeRegistered(
                 serviceProvider.name(),
-                new InvalidPackageConfiguration(serviceProvider.name(), {
+                new InvalidPluginConfiguration(serviceProvider.name(), {
                     username: ['"username" is required'],
                 }).message,
             ),
@@ -157,8 +157,8 @@ describe("RegisterServiceProviders", () => {
         app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
 
         const serviceProvider: ServiceProvider = new RequiredDependencyCannotBeFoundServiceProvider();
-        serviceProvider.setManifest(app.resolve(PackageManifest));
-        serviceProvider.setConfig(app.resolve(PackageConfiguration));
+        serviceProvider.setManifest(app.resolve(PluginManifest));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration));
         serviceProviderRepository.set("stub", serviceProvider);
 
         const spyNotice = jest.spyOn(logger, "notice");
@@ -173,8 +173,8 @@ describe("RegisterServiceProviders", () => {
         app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
 
         const serviceProvider: ServiceProvider = new RequiredDependencyCannotBeFoundAsyncServiceProvider();
-        serviceProvider.setManifest(app.resolve(PackageManifest));
-        serviceProvider.setConfig(app.resolve(PackageConfiguration));
+        serviceProvider.setManifest(app.resolve(PluginManifest));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration));
         serviceProviderRepository.set("stub", serviceProvider);
 
         const spyNotice = jest.spyOn(logger, "notice");
@@ -191,8 +191,8 @@ describe("RegisterServiceProviders", () => {
         app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
 
         const serviceProvider: ServiceProvider = new OptionalDependencyCannotBeFoundServiceProvider();
-        serviceProvider.setManifest(app.resolve(PackageManifest));
-        serviceProvider.setConfig(app.resolve(PackageConfiguration));
+        serviceProvider.setManifest(app.resolve(PluginManifest));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration));
         serviceProviderRepository.set("stub", serviceProvider);
 
         const spyWarning = jest.spyOn(logger, "warning");
@@ -208,8 +208,8 @@ describe("RegisterServiceProviders", () => {
         app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
 
         const serviceProvider: ServiceProvider = new RequiredDependencyVersionCannotBeSatisfiedServiceProvider();
-        serviceProvider.setManifest(app.resolve(PackageManifest));
-        serviceProvider.setConfig(app.resolve(PackageConfiguration));
+        serviceProvider.setManifest(app.resolve(PluginManifest));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration));
         serviceProviderRepository.set("stub", serviceProvider);
         serviceProviderRepository.set("dep", new StubServiceProvider());
 
@@ -225,8 +225,8 @@ describe("RegisterServiceProviders", () => {
         app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
 
         const serviceProvider: ServiceProvider = new OptionalDependencyVersionCannotBeSatisfiedServiceProvider();
-        serviceProvider.setManifest(app.resolve(PackageManifest));
-        serviceProvider.setConfig(app.resolve(PackageConfiguration));
+        serviceProvider.setManifest(app.resolve(PluginManifest));
+        serviceProvider.setConfig(app.resolve(PluginConfiguration));
         serviceProviderRepository.set("stub", serviceProvider);
         serviceProviderRepository.set("dep", new StubServiceProvider());
 

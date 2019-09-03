@@ -6,16 +6,16 @@ import { PackageJson } from "../types";
 
 /**
  * @export
- * @class PackageManifest
+ * @class PluginManifest
  */
 @injectable()
-export class PackageManifest {
+export class PluginManifest {
     /**
      * The loaded manifest.
      *
      * @private
      * @type {PackageJson}
-     * @memberof PackageManifest
+     * @memberof PluginManifest
      */
     private manifest: PackageJson;
 
@@ -24,7 +24,7 @@ export class PackageManifest {
      *
      * @param {string} name
      * @returns {this}
-     * @memberof PackageManifest
+     * @memberof PluginManifest
      */
     public discover(name: string): this {
         this.manifest = require(`${name}/package.json`);
@@ -39,7 +39,7 @@ export class PackageManifest {
      * @param {string} key
      * @param {T} [defaultValue]
      * @returns {T}
-     * @memberof PackageManifest
+     * @memberof PluginManifest
      */
     public get<T>(key: string, defaultValue?: T): T {
         return get(this.manifest, key, defaultValue);
@@ -50,7 +50,7 @@ export class PackageManifest {
      *
      * @param {string} key
      * @returns {boolean}
-     * @memberof PackageManifest
+     * @memberof PluginManifest
      */
     public has(key: string): boolean {
         return has(this.manifest, key);

@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Plugins } from "@packages/core-kernel/src/utils";
-import * as packages from "@packages/core/bin/config/testnet/packages.js"; // @todo: replace with unit/jestnet
+import * as packages from "@packages/core/bin/config/testnet/plugins.js"; // @todo: replace with unit/jestnet
 
 describe("transformPlugins", () => {
     it("should be ok", () => {

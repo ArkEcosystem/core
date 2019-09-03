@@ -12,7 +12,7 @@ import {
     RequiredFaultyBootServiceProvider,
     DeferredServiceProvider,
 } from "./__stubs__/service-providers";
-import { ServiceProviderCannotBeBooted } from "@packages/core-kernel/src/exceptions/packages";
+import { ServiceProviderCannotBeBooted } from "@packages/core-kernel/src/exceptions/plugins";
 import { State } from "@packages/core-kernel/src/enums/events";
 
 let app: Application;

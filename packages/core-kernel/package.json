@@ -25,7 +25,7 @@
         "@hapi/joi": "^16.0.0-preview",
         "cosmiconfig": "^5.2.1",
         "cron": "^1.7.1",
-        "dayjs": "^1.8.15",
+        "dayjs": "^1.8.16",
         "delay": "^4.3.0",
         "env-paths": "^2.2.0",
         "envfile": "^3.0.0",

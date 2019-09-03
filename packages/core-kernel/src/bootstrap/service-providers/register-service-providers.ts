@@ -4,13 +4,13 @@ import { Kernel } from "../../contracts";
 import { Application } from "../../contracts/kernel";
 import {
     DependencyVersionOutOfRange,
-    InvalidPackageConfiguration,
+    InvalidPluginConfiguration,
     OptionalDependencyCannotBeFound,
     RequiredDependencyCannotBeFound,
     ServiceProviderCannotBeRegistered,
-} from "../../exceptions/packages";
+} from "../../exceptions/plugins";
 import { Identifiers, inject, injectable } from "../../ioc";
-import { PackageConfiguration, ServiceProvider, ServiceProviderRepository } from "../../providers";
+import { PluginConfiguration, ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
 import { Bootstrapper } from "../interfaces";
@@ -78,7 +78,7 @@ export class RegisterServiceProviders implements Bootstrapper {
         const configSchema: object = serviceProvider.configSchema();
 
         if (Object.keys(configSchema).length > 0) {
-            const config: PackageConfiguration = serviceProvider.config();
+            const config: PluginConfiguration = serviceProvider.config();
 
             const validator: Kernel.Validation.Validator = this.app
                 .get<ValidationManager>(Identifiers.ValidationManager)
@@ -87,7 +87,7 @@ export class RegisterServiceProviders implements Bootstrapper {
             validator.validate(config.all(), configSchema);
 
             if (validator.fails()) {
-                throw new InvalidPackageConfiguration(serviceProvider.name(), validator.errors());
+                throw new InvalidPluginConfiguration(serviceProvider.name(), validator.errors());
             }
 
             serviceProvider.setConfig(config.merge(validator.valid()));

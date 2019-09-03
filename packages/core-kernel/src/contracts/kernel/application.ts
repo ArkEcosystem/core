@@ -185,23 +185,23 @@ export interface Application {
 
 /**
  * @export
- * @interface PackageDependency
+ * @interface PluginDependency
  */
-export interface PackageDependency {
+export interface PluginDependency {
     /**
      * @type {string}
-     * @memberof PackageDependency
+     * @memberof PluginDependency
      */
     name: string;
 
     /**
      * @type {string}
-     * @memberof PackageDependency
+     * @memberof PluginDependency
      */
     version?: string;
 
     /**
-     * @memberof PackageDependency
+     * @memberof PluginDependency
      */
     required?: boolean | (() => Promise<boolean>);
 }
