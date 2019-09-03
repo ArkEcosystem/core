@@ -12,7 +12,7 @@ import {
 } from "@arkecosystem/core-interfaces";
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
+import { roundCalculator } from "@arkecosystem/core-utils";
 import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
@@ -383,11 +383,6 @@ export class Blockchain implements blockchain.IBlockchain {
     public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
-
-        if (blocks[0] && !isBlockChained(this.getLastBlock().data, blocks[0].data)) {
-            this.clearQueue(); // Discard remaining blocks as it won't go anywhere anyway.
-            return callback();
-        }
 
         for (const block of blocks) {
             lastProcessResult = await this.blockProcessor.process(block);
