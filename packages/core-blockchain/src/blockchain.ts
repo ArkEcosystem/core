@@ -273,7 +273,9 @@ export class Blockchain implements blockchain.IBlockchain {
                 this.queue.push({ blocks: currentBlocksChunk });
                 currentBlocksChunk = [];
                 currentTransactionsCount = 0;
-                milestoneHeights.shift();
+                if (nextMilestone) {
+                    milestoneHeights.shift();
+                }
             }
         }
         this.queue.push({ blocks: currentBlocksChunk });
