@@ -66,9 +66,6 @@ module.exports = [{
         }
     },
     {
-        package: "@arkecosystem/core-wallet-api",
-    },
-    {
         package: "@arkecosystem/core-webhooks",
         options: {
             enabled: process.env.CORE_WEBHOOKS_ENABLED,
