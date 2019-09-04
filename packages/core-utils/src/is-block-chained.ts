@@ -4,7 +4,7 @@ import { Logger } from "@arkecosystem/core-interfaces";
 export const isBlockChained = (
     previousBlock: Interfaces.IBlockData,
     nextBlock: Interfaces.IBlockData,
-    logger: Logger.ILogger = undefined): boolean => {
+    logger?: Logger.ILogger): boolean => {
 
     const followsPrevious: boolean = nextBlock.previousBlock === previousBlock.id;
     const isPlusOne: boolean = nextBlock.height === previousBlock.height + 1;
