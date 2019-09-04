@@ -1,4 +1,4 @@
-import { CronJob as Cron } from "cron";
+import { CronCommand, CronJob as Cron } from "cron";
 
 import { injectable } from "../../ioc";
 import { Job } from "./interfaces";
@@ -25,7 +25,7 @@ export class CronJob implements Job {
      * @param {Function} callback
      * @memberof CronJob
      */
-    public execute(callback: Function): void {
+    public execute(callback: CronCommand): void {
         new Cron(this.expression, callback).start();
     }
 

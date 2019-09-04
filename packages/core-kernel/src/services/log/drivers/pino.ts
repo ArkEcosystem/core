@@ -1,4 +1,3 @@
-import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import chalk, { Chalk } from "chalk";
 import { WriteStream } from "fs";
 import pino, { PrettyOptions } from "pino";
@@ -9,10 +8,19 @@ import rfs from "rotating-file-stream";
 import split from "split2";
 import { PassThrough } from "stream";
 
-@Container.injectable()
-export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.Log.Logger {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app: Contracts.Kernel.Application;
+import { Application } from "../../../contracts/kernel";
+import { Logger as LoggerContract } from "../../../contracts/kernel/log";
+import { Identifiers, inject, injectable } from "../../../ioc";
+import { ConfigRepository } from "../../config";
+import { Logger } from "../logger";
+
+@injectable()
+export class PinoLogger extends Logger implements LoggerContract {
+    @inject(Identifiers.Application)
+    private readonly app: Application;
+
+    @inject(Identifiers.ConfigRepository)
+    private readonly configRepository: ConfigRepository;
 
     private fileStream: WriteStream;
 
@@ -29,11 +37,14 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
         debug: chalk.magenta,
     };
 
-    public async make(options): Promise<Contracts.Kernel.Log.Logger> {
+    public async make(): Promise<LoggerContract> {
+        const options: any = this.configRepository.get("app.services.log");
+
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {
                 base: null,
+                // @ts-ignore
                 customLevels: {
                     emergency: 0,
                     alert: 1,
@@ -54,7 +65,9 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
 
         this.fileStream = this.getFileStream(options);
 
+        // @ts-ignore
         const consoleTransport = this.createPrettyTransport(options.levels.console, { colorize: true });
+        // @ts-ignore
         const fileTransport = this.createPrettyTransport(options.levels.file, { colorize: false });
 
         pump(stream, split(), consoleTransport, process.stdout);
@@ -80,15 +93,18 @@ export class PinoLogger extends Services.Log.Logger implements Contracts.Kernel.
                 try {
                     const json = JSON.parse(chunk);
 
+                    /* istanbul ignore else */
                     if (getLevel(json.level) >= getLevel(level)) {
                         const line: string | undefined = pinoPretty(json);
 
+                        /* istanbul ignore else */
                         if (line !== undefined) {
                             return cb(undefined, line.replace("USERLVL", formatLevel(json.level)));
                         }
                     }
                 } catch {}
 
+                /* istanbul ignore next */
                 return cb();
             },
         });

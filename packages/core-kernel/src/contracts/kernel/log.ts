@@ -105,9 +105,9 @@ export interface Logger {
      */
     suppressConsoleOutput(suppress: boolean): void;
 
-    /**
-     * @param {Record<string,string>} levels
-     * @memberof Logger
-     */
-    setLevels(levels: Record<string, string>): void;
+    // /**
+    //  * @param {Record<string,string>} levels
+    //  * @memberof Logger
+    //  */
+    // setLevels(levels: Record<string, string>): void;
 }

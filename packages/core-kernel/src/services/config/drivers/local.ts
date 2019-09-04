@@ -1,5 +1,6 @@
 import cosmiconfig from "cosmiconfig";
 import { parseFileSync } from "envfile";
+import get from "get-value";
 import set from "set-value";
 
 import { Application } from "../../../contracts/kernel";
@@ -9,7 +10,8 @@ import {
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
 import { Identifiers, inject, injectable } from "../../../ioc";
-import { JsonObject } from "../../../types";
+import { JsonObject, KeyValuePair } from "../../../types";
+import { defaults } from "../../../defaults";
 
 /**
  * @export
@@ -34,11 +36,11 @@ export class LocalConfigLoader implements ConfigLoader {
      */
     public async loadConfiguration(): Promise<void> {
         try {
-            await this.loadPlugins();
+            this.loadApplication();
 
-            await this.loadPeers();
+            this.loadPeers();
 
-            await this.loadDelegates();
+            this.loadDelegates();
         } catch {
             throw new ApplicationConfigurationCannotBeLoaded();
         }
@@ -62,41 +64,48 @@ export class LocalConfigLoader implements ConfigLoader {
 
     /**
      * @private
-     * @returns {Promise<void>}
+     * @returns {void}
      * @memberof LocalConfigLoader
      */
-    private async loadPlugins(): Promise<void> {
-        this.app.config(
-            "plugins",
-            this.loadFromLocation([this.app.configPath("plugins.json"), this.app.configPath("plugins.js")]),
-        );
+    private loadApplication(): void {
+        const config = this.loadFromLocation([this.app.configPath("app.json"), this.app.configPath("app.js")]);
+
+        this.app.config("app.flags", {
+            ...this.app.get<JsonObject>(Identifiers.ConfigFlags),
+            ...defaults.flags,
+            ...get(config, "flags", {}),
+        });
+
+        this.app.config("app.services", { ...defaults.services, ...get(config, "services", {}) });
+
+        this.app.config("app.plugins", [...defaults.plugins, ...get(config, "plugins", [] as any)]);
     }
 
     /**
      * @private
-     * @returns {Promise<void>}
+     * @returns {void}
      * @memberof LocalConfigLoader
      */
-    private async loadPeers(): Promise<void> {
+    private loadPeers(): void {
         this.app.config("peers", this.loadFromLocation([this.app.configPath("peers.json")]));
     }
 
     /**
      * @private
-     * @returns {Promise<void>}
+     * @returns {void}
      * @memberof LocalConfigLoader
      */
-    private async loadDelegates(): Promise<void> {
+    private loadDelegates(): void {
         this.app.config("delegates", this.loadFromLocation([this.app.configPath("delegates.json")]));
     }
 
     /**
      * @private
      * @param {string[]} searchPlaces
-     * @returns {JsonObject}
+     * @returns {KeyValuePair}
      * @memberof LocalConfigLoader
      */
-    private loadFromLocation(searchPlaces: string[]): JsonObject {
+    private loadFromLocation(searchPlaces: string[]): KeyValuePair {
         return cosmiconfig(this.app.namespace(), {
             searchPlaces,
             stopDir: this.app.configPath(),

@@ -44,13 +44,16 @@ $ ark core:run --launchMode=seed
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(RunCommand);
 
-        await this.buildApplication(app, flags, {
-            options: {
-                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
-                "@arkecosystem/core-blockchain": {
-                    networkStart: flags.networkStart,
+        await this.buildApplication(app, {
+            flags,
+            plugins: {
+                options: {
+                    "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                    "@arkecosystem/core-blockchain": {
+                        networkStart: flags.networkStart,
+                    },
+                    "@arkecosystem/core-forger": await this.buildBIP38(flags),
                 },
-                "@arkecosystem/core-forger": await this.buildBIP38(flags),
             },
         });
     }

@@ -3,6 +3,12 @@ import "jest-extended";
 import { isWhitelisted } from "@packages/core-kernel/src/utils/is-whitelisted";
 
 describe("isWhitelisted", () => {
+    it("should allow everyone if there is whitelist", () => {
+        expect(isWhitelisted(null, "127.0.0.1")).toBeTrue();
+        expect(isWhitelisted(undefined, "192.168.1.1")).toBeTrue();
+        expect(isWhitelisted([], "168.1.1.1")).toBeTrue();
+    });
+
     it("should allow everyone", () => {
         expect(isWhitelisted(["*"], "127.0.0.1")).toBeTrue();
         expect(isWhitelisted(["*"], "192.168.1.1")).toBeTrue();

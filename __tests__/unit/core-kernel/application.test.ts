@@ -40,9 +40,11 @@ afterEach(() => container.restore());
 describe("Application", () => {
     it("should bootstrap the application", async () => {
         await app.bootstrap({
-            token: "ark",
-            network: "testnet",
-            paths: { config: resolve(__dirname, "./__stubs__/config") },
+            flags: {
+                token: "ark",
+                network: "testnet",
+                paths: { config: resolve(__dirname, "./__stubs__/config") },
+            },
         });
 
         expect(app.dirPrefix()).toBe("ark/testnet");
@@ -52,8 +54,7 @@ describe("Application", () => {
         process.env.CORE_PATH_CONFIG = resolve(__dirname, "./__stubs__/config");
 
         await app.bootstrap({
-            token: "ark",
-            network: "testnet",
+            flags: { token: "ark", network: "testnet" },
         });
 
         expect(app.configPath()).toBe(process.env.CORE_PATH_CONFIG);
@@ -62,8 +63,7 @@ describe("Application", () => {
     it("should fail to bootstrap the application if no token is provided", async () => {
         await expect(
             app.bootstrap({
-                network: "testnet",
-                paths: { config: resolve(__dirname, "./__stubs__/config") },
+                flags: { network: "testnet", paths: { config: resolve(__dirname, "./__stubs__/config") } },
             }),
         ).rejects.toThrowError(new NetworkCannotBeDetermined());
     });
@@ -71,8 +71,7 @@ describe("Application", () => {
     it("should fail to bootstrap the application if no network is provided", async () => {
         await expect(
             app.bootstrap({
-                token: "ark",
-                paths: { config: resolve(__dirname, "./__stubs__/config") },
+                flags: { token: "ark", paths: { config: resolve(__dirname, "./__stubs__/config") } },
             }),
         ).rejects.toThrowError(new NetworkCannotBeDetermined());
     });

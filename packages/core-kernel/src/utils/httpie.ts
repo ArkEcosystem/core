@@ -3,11 +3,11 @@ import got from "got";
 
 export class HttpieError extends Error {
     constructor(error) {
-        super(error.message);
+        super(error.message || error);
 
         Object.defineProperty(this, "message", {
             enumerable: false,
-            value: error.message,
+            value: error.message || error,
         });
 
         Object.defineProperty(this, "name", {
@@ -66,23 +66,18 @@ class Httpie {
             opts = {};
         }
 
-        if (!opts.headers) {
-            opts.headers = {};
-        }
-
+        opts.headers = opts.headers || {};
         opts.headers["content-type"] = "application/json";
+
+        opts.timeout = opts.timeout || 1500;
+
+        // Do not retry unless explicitly stated.
+        opts.retry = opts.retry || {
+            retries: 0,
+        };
 
         if (opts.body && typeof opts !== "string") {
             opts.body = JSON.stringify(opts.body);
-        }
-
-        // Do not retry unless explicitly stated.
-        if (!opts.retry) {
-            opts.retry = { retries: 0 };
-        }
-
-        if (!opts.timeout && process.env.NODE_ENV !== "test") {
-            opts.timeout = 1500;
         }
 
         try {

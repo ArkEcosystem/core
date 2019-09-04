@@ -27,9 +27,6 @@ lib-cov
 # node-waf configuration
 .lock-wscript
 
-# Build results
-app.js
-
 # Compiled binary addons (http://nodejs.org/api/addons.html)
 build/Release
 

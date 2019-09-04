@@ -1,1 +1,1 @@
-export * from "./console";
+export * from "./pino";

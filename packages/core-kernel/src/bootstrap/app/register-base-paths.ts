@@ -49,8 +49,8 @@ export class RegisterBasePaths implements Bootstrapper {
                 path = processPath;
             }
 
-            if (this.configRepository.has(`paths.${type}`)) {
-                path = this.configRepository.get(`paths.${type}`);
+            if (this.configRepository.has(`app.flags.paths.${type}`)) {
+                path = this.configRepository.get(`app.flags.paths.${type}`);
             }
 
             path = resolve(expandHomeDir(path));

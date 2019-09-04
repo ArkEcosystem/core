@@ -10,7 +10,7 @@ import { ServiceProvider, ServiceProviderRepository } from "./providers";
 // import { ShutdownSignal } from "./enums/process";
 import { ConfigRepository } from "./services/config";
 import { ServiceProvider as EventServiceProvider } from "./services/events/service-provider";
-import { JsonObject } from "./types";
+import { JsonObject, KeyValuePair } from "./types";
 import { Constructor } from "./types/container";
 import { EventListener } from "./types/events";
 
@@ -41,14 +41,15 @@ export class Application implements Contracts.Kernel.Application {
     }
 
     /**
-     * @param {JsonObject} config
+     * @param {{ flags: JsonObject; plugins?: JsonObject }} { flags, plugins }
      * @returns {Promise<void>}
      * @memberof Application
      */
-    public async bootstrap(config: JsonObject): Promise<void> {
+    public async bootstrap({ flags, plugins }: { flags: JsonObject; plugins?: JsonObject }): Promise<void> {
         await this.registerEventDispatcher();
 
-        this.container.bind<JsonObject>(Identifiers.ConfigBootstrap).toConstantValue(config);
+        this.container.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
+        this.container.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins);
 
         this.container
             .bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)

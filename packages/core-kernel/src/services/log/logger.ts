@@ -136,11 +136,11 @@ export abstract class Logger {
         this.silentConsole = suppress;
     }
 
-    /**
-     * @param {Record<string,string>} levels
-     * @memberof Logger
-     */
-    public setLevels(levels: Record<string, string>): void {
-        this.levels = { ...this.levels, ...levels };
-    }
+    // /**
+    //  * @param {Record<string,string>} levels
+    //  * @memberof Logger
+    //  */
+    // public setLevels(levels: Record<string, string>): void {
+    //     this.levels = { ...this.levels, ...levels };
+    // }
 }

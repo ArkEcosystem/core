@@ -1,5 +1,4 @@
 module.exports = {
-    "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-state": {},
     "@arkecosystem/core-database-postgres": {
         connection: {

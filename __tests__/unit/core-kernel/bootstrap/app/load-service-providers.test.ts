@@ -32,7 +32,7 @@ afterEach(() => container.restore());
 describe("LoadServiceProviders", () => {
     it("should bootstrap with defaults", async () => {
         configRepository = new ConfigRepository({
-            plugins: [{ package: resolve(__dirname, "../../__stubs__/stub-plugin-with-defaults") }],
+            app: { plugins: [{ package: resolve(__dirname, "../../__stubs__/stub-plugin-with-defaults") }] },
         });
 
         app.bind(Identifiers.ConfigRepository).toConstantValue(configRepository);
@@ -44,7 +44,7 @@ describe("LoadServiceProviders", () => {
 
     it("should bootstrap without defaults", async () => {
         configRepository = new ConfigRepository({
-            plugins: [{ package: resolve(__dirname, "../../__stubs__/stub-plugin") }],
+            app: { plugins: [{ package: resolve(__dirname, "../../__stubs__/stub-plugin") }] },
         });
 
         app.bind(Identifiers.ConfigRepository).toConstantValue(configRepository);

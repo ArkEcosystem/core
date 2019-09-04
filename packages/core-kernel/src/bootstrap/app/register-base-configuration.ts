@@ -1,7 +1,7 @@
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { ConfigManager, ConfigRepository } from "../../services/config";
-import { JsonObject } from "../../types";
+import { KeyValuePair } from "../../types";
 import { Bootstrapper } from "../interfaces";
 
 /**
@@ -34,8 +34,11 @@ export class RegisterBaseConfiguration implements Bootstrapper {
 
         await this.app.get<ConfigManager>(Identifiers.ConfigManager).boot();
 
-        this.app
-            .bind<ConfigRepository>(Identifiers.ConfigRepository)
-            .toConstantValue(new ConfigRepository(this.app.get<JsonObject>(Identifiers.ConfigBootstrap)));
+        const configRepository: ConfigRepository = new ConfigRepository({});
+        configRepository.set("app.flags", this.app.get<KeyValuePair>(Identifiers.ConfigFlags));
+        // @todo: better name for storing pluginOptions
+        configRepository.set("app.pluginOptions", this.app.get<KeyValuePair>(Identifiers.ConfigPlugins));
+
+        this.app.bind<ConfigRepository>(Identifiers.ConfigRepository).toConstantValue(configRepository);
     }
 }

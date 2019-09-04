@@ -9,7 +9,7 @@ import { startServer } from "@packages/core-webhooks/src/server";
 
 // FIX: Types have separate declarations of a private property 'configRepository'.
 //      This error shows up if we try to resolve "HttpServer" from the "core-http-utils/src" directory.
-import { HttpServer } from "../../../node_modules/@arkecosystem/core-http-utils/dist";
+import { HttpServer } from "@arkecosystem/core-http-utils";
 
 const postData = {
     event: Enums.Events.State.BlockForged,

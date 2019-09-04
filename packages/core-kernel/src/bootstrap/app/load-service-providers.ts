@@ -48,7 +48,7 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        for (const pkg of this.configRepository.get<Array<PluginEntry>>("plugins")) {
+        for (const pkg of this.configRepository.get<Array<PluginEntry>>("app.plugins")) {
             const serviceProvider: ServiceProvider = this.app.resolve(require(pkg.package).ServiceProvider);
             serviceProvider.setManifest(this.app.resolve(PluginManifest).discover(pkg.package));
             serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, pkg.options));

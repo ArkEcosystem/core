@@ -143,7 +143,7 @@ export class JoiValidator implements Validator {
         const errors: Record<string, string[]> = {};
 
         for (const error of this.resultError) {
-            const errorKey: string = error.path[0];
+            const errorKey: string | number = error.path[0];
 
             /* istanbul ignore else */
             if (!Array.isArray(errors[errorKey])) {

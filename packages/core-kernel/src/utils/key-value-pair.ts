@@ -63,10 +63,9 @@ export class KeyValuePair<TValue> {
     /**
      * @param {string} key
      * @param {TValue} value
-     * @returns {TValue}
      * @memberof KeyValuePair
      */
-    public set(key: string, value: TValue): TValue {
+    public set(key: string, value: TValue): void {
         return set(this.items, key, value);
     }
 

@@ -147,10 +147,11 @@ export class PluginConfiguration {
      * @memberof PluginConfiguration
      */
     private mergeWithGlobal(name: string): void {
-        if (!this.configRepository.has(`options.${name}`)) {
+        // @todo: better name for storing pluginOptions
+        if (!this.configRepository.has(`app.pluginOptions.${name}`)) {
             return;
         }
 
-        this.merge(this.configRepository.get(`options.${name}`));
+        this.merge(this.configRepository.get(`app.pluginOptions.${name}`));
     }
 }

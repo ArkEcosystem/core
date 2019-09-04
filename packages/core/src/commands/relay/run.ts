@@ -43,12 +43,15 @@ $ ark relay:run --launchMode=seed
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(RunCommand);
 
-        await super.buildApplication(app, flags, {
-            exclude: ["@arkecosystem/core-forger"],
-            options: {
-                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
-                "@arkecosystem/core-blockchain": {
-                    networkStart: flags.networkStart,
+        await super.buildApplication(app, {
+            flags,
+            plugins: {
+                exclude: ["@arkecosystem/core-forger"],
+                options: {
+                    "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                    "@arkecosystem/core-blockchain": {
+                        networkStart: flags.networkStart,
+                    },
                 },
             },
         });

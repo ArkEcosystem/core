@@ -1,8 +1,9 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { Logger } from "@packages/core-kernel/src/contracts/kernel/log";
+import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
+import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import capcon from "capture-console";
 import { dirSync, setGracefulCleanup } from "tmp";
 
@@ -37,11 +38,13 @@ export function expectLogger(callback, options): void {
 
     beforeEach(async () => {
         container = new Container();
-        container.snapshot();
 
         app = new Application(container);
         app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
+        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository(options));
         app.bind("path.log").toConstantValue(dirSync().name);
+
+        container.snapshot();
 
         logger = await app.resolve<Logger>(callback).make(options);
     });

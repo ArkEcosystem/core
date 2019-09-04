@@ -1,11 +1,11 @@
 import "jest-extended";
 
 import { Plugins } from "@packages/core-kernel/src/utils";
-import * as packages from "@packages/core/bin/config/testnet/plugins.js"; // @todo: replace with unit/jestnet
+import { plugins } from "@packages/core/bin/config/testnet/app.js"; // @todo: replace with unit/jestnet
 
 describe("transformPlugins", () => {
     it("should be ok", () => {
-        const transformed = Plugins.transformPlugins(packages);
+        const transformed = Plugins.transformPlugins(plugins);
 
         expect(transformed).toEqual({
             "@arkecosystem/core-api": {

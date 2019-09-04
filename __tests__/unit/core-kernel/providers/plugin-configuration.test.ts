@@ -23,7 +23,7 @@ afterEach(() => container.restore());
 
 describe("PluginConfiguration", () => {
     it("should create an instance from a name and defaults", () => {
-        app.get<ConfigRepository>(Identifiers.ConfigRepository).set("options", {
+        app.get<ConfigRepository>(Identifiers.ConfigRepository).set("pluginOptions", {
             dummy: { key: "value" },
         });
 

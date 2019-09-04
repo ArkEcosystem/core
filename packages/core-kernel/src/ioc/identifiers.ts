@@ -1,6 +1,7 @@
 export const Identifiers: Record<string, symbol> = {
     // Config
-    ConfigBootstrap: Symbol.for("Config<Bootstrap>"),
+    ConfigFlags: Symbol.for("Config<Flags>"),
+    ConfigPlugins: Symbol.for("Config<Plugins>"),
     // Application
     Application: Symbol.for("Application<Instance>"),
     ApplicationDirPrefix: Symbol.for("Application<DirPrefix>"),

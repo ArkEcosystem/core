@@ -51,7 +51,6 @@
         "@arkecosystem/core-exchange-json-rpc": "^3.0.0-next.0",
         "@arkecosystem/core-forger": "^3.0.0-next.0",
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
-        "@arkecosystem/core-logger-pino": "^3.0.0-next.0",
         "@arkecosystem/core-p2p": "^3.0.0-next.0",
         "@arkecosystem/core-snapshots": "^3.0.0-next.0",
         "@arkecosystem/core-state": "^3.0.0-next.0",

@@ -95,10 +95,13 @@ export abstract class BaseCommand extends Command {
         return config;
     }
 
-    protected async buildApplication(app: Contracts.Kernel.Application, flags: CommandFlags, config: Options) {
-        process.env.CORE_ENV = flags.env;
+    protected async buildApplication(
+        app: Contracts.Kernel.Application,
+        args: { flags: CommandFlags; plugins: Options },
+    ) {
+        process.env.CORE_ENV = args.flags.env;
 
-        await app.bootstrap({ ...config, ...flags, ...{ skipPlugins: flags.skipPlugins } });
+        await app.bootstrap(args);
 
         await app.boot();
 

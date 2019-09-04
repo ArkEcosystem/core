@@ -5,16 +5,12 @@ export const isWhitelisted = (whitelist: string[], remoteAddress: string): boole
         return true;
     }
 
-    if (Array.isArray(whitelist)) {
-        for (const ip of whitelist) {
-            try {
-                if (nm.isMatch(remoteAddress, ip)) {
-                    return true;
-                }
-            } catch {
-                return false;
+    for (const ip of whitelist) {
+        try {
+            if (nm.isMatch(remoteAddress, ip)) {
+                return true;
             }
-        }
+        } catch {}
     }
 
     return false;
