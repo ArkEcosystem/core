@@ -22,6 +22,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             workerController: __dirname + `${relativeSocketPath}/worker.js`,
             workers: 2,
             wsEngine: "ws",
+            perMessageDeflate: true,
         },
         ...config.server,
     });

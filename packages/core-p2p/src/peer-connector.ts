@@ -24,6 +24,7 @@ export class PeerConnector implements P2P.IPeerConnector {
         connection = create({
             port: peer.port,
             hostname: peer.ip,
+            perMessageDeflate: true,
         });
 
         this.connections.set(peer.ip, connection);
