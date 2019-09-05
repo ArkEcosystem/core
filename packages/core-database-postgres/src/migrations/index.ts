@@ -19,4 +19,5 @@ export const migrations = [
     loadQueryFile(__dirname, "./20190718000000-check_previous_block-add-schema.sql"),
     loadQueryFile(__dirname, "./20190803000000-add-type_group-column-to-transactions-table.sql"),
     loadQueryFile(__dirname, "./20190806000000-add-nonce-column-to-transactions-table.sql"),
+    loadQueryFile(__dirname, "./20190905000000-change-set_row_nonce-to-use-max-nonce.sql"),
 ];
