@@ -7,12 +7,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
-## [2.5.19] - 2019-08-14
+## [2.5.24] - 2019-09-04
 
 ### Fixed
 
--   Disconnect on invalid P2P requests ([#2875])
--   Stricter P2P reply schemas ([#2875])
+-   Cast params in webhook condition checks ([#2887])
+-   Drop connections with malformed messages ([#2907])
+-   Terminate blocked client connections ([#2907])
+-   Use `anyOf` for transactions schema ([#2894])
+-   Use compression on the p2p level ([#2886])
 
 ## [2.5.17] - 2019-08-06
 
@@ -621,6 +624,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.5.24]: https://github.com/ARKEcosystem/core/compare/2.5.19...2.5.24
 [2.5.19]: https://github.com/ARKEcosystem/core/compare/2.5.17...2.5.19
 [2.5.17]: https://github.com/ARKEcosystem/core/compare/2.5.14...2.5.17
 [2.5.14]: https://github.com/ARKEcosystem/core/compare/2.5.7...2.5.14
@@ -958,3 +962,7 @@ Closed security vulnerabilities:
 [#2863]: https://github.com/ARKEcosystem/core/pull/2863
 [#2864]: https://github.com/ARKEcosystem/core/pull/2864
 [#2875]: https://github.com/ARKEcosystem/core/pull/2875
+[#2886]: https://github.com/ARKEcosystem/core/pull/2886
+[#2887]: https://github.com/ARKEcosystem/core/pull/2887
+[#2894]: https://github.com/ARKEcosystem/core/pull/2894
+[#2907]: https://github.com/ARKEcosystem/core/pull/2907
