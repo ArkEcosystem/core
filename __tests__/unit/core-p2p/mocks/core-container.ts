@@ -1,15 +1,17 @@
 import { Managers } from "@arkecosystem/crypto";
+import { EventEmitter } from "../../../../packages/core-event-emitter/src/emitter";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import * as plugins from "../../../utils/config/testnet/plugins.js";
 import { blockchain } from "./blockchain";
 import { database } from "./database";
-import { eventEmitter } from "./event-emitter";
 import { logger } from "./logger";
 import { p2p } from "./p2p";
 import { state } from "./state";
 import { transactionPool } from "./transaction-pool";
 
 Managers.configManager.setFromPreset("unitnet");
+
+const eventEmitter: EventEmitter = new EventEmitter();
 
 jest.mock("@arkecosystem/core-container", () => {
     return {
