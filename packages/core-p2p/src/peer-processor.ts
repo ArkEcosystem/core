@@ -77,8 +77,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         const peers: P2P.IPeer[] = this.storage.getPeers();
         for (const peer of peers) {
             if (!isValidVersion(peer)) {
-                this.connector.disconnect(peer);
-                this.storage.forgetPeer(peer);
+                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
             }
         }
     }

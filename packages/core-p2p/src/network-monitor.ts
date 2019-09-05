@@ -153,9 +153,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                         peerErrors[error] = [peer];
                     }
 
+                    this.emitter.emit("internal.p2p.disconnectPeer", { peer });
                     this.emitter.emit(ApplicationEvents.PeerRemoved, peer);
-
-                    this.storage.forgetPeer(peer);
 
                     return undefined;
                 }
