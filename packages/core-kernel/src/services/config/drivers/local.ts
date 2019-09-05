@@ -5,13 +5,13 @@ import set from "set-value";
 
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
+import { defaults } from "../../../defaults";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
 import { Identifiers, inject, injectable } from "../../../ioc";
 import { JsonObject, KeyValuePair } from "../../../types";
-import { defaults } from "../../../defaults";
 
 /**
  * @export

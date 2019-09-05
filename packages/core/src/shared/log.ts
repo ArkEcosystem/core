@@ -1,17 +1,19 @@
+import Command from "@oclif/command";
 import clear from "clear";
 import Tail from "nodejs-tail";
 import readLastLines from "read-last-lines";
 
-import { BaseCommand } from "../commands/command";
-import { processManager } from "../process-manager";
+import { parseWithNetwork } from "../common/parser";
+import { abortMissingProcess } from "../common/process";
+import { processManager } from "../common/process-manager";
 
-export abstract class AbstractLogCommand extends BaseCommand {
+export abstract class AbstractLogCommand extends Command {
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(this.getClass());
+        const { flags } = await parseWithNetwork(this.parse(this.getClass()));
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        this.abortMissingProcess(processName);
+        abortMissingProcess(processName);
 
         const { pm2_env } = processManager.describe(processName);
 

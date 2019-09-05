@@ -1,8 +1,10 @@
 import { flags } from "@oclif/command";
 
+import { buildBIP38 } from "../../common/crypto";
+import { flagsForger, flagsNetwork, flagsToStrings } from "../../common/flags";
+import { abortRunningProcess, daemonizeProcess } from "../../common/process";
 import { AbstractStartCommand } from "../../shared/start";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
 export class StartCommand extends AbstractStartCommand {
     public static description = "Start the forger";
@@ -20,8 +22,8 @@ $ ark forger:start --no-daemon
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsForger,
+        ...flagsNetwork,
+        ...flagsForger,
         daemon: flags.boolean({
             description: "start the process as a daemon",
             default: true,
@@ -37,22 +39,18 @@ $ ark forger:start --no-daemon
     }
 
     protected async runProcess(flags: CommandFlags): Promise<void> {
-        this.abortRunningProcess(`${flags.token}-core`);
+        abortRunningProcess(`${flags.token}-core`);
 
-        try {
-            await this.buildBIP38(flags);
+        await buildBIP38(flags);
 
-            await this.runWithPm2(
-                {
-                    name: `${flags.token}-forger`,
-                    // @ts-ignore
-                    script: this.config.options.root,
-                    args: `forger:run ${this.flagsToStrings(flags, ["daemon"])}`,
-                },
-                flags,
-            );
-        } catch (error) {
-            this.error(error.message);
-        }
+        daemonizeProcess(
+            {
+                name: `${flags.token}-forger`,
+                // @ts-ignore
+                script: this.config.options.root,
+                args: `forger:run ${flagsToStrings(flags, ["daemon"])}`,
+            },
+            flags,
+        );
     }
 }

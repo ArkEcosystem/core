@@ -1,10 +1,9 @@
-import { flags } from "@oclif/command";
-import { connect } from "ngrok";
+import Command, { flags } from "@oclif/command";
+import ngrok from "ngrok";
 
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
-export class ShareCommand extends BaseCommand {
+export class ShareCommand extends Command {
     public static description = "Share the instance via ngrok";
 
     public static flags: CommandFlags = {
@@ -34,7 +33,7 @@ export class ShareCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags } = this.parse(ShareCommand);
 
-        const url: string = await connect(flags);
+        const url: string = await ngrok.connect(flags);
 
         this.log(`Public access to your API: ${url}`);
     }

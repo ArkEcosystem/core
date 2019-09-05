@@ -1,10 +1,13 @@
 import { app } from "@arkecosystem/core-kernel";
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 
+import { buildPeerOptions } from "../../common/builder";
+import { buildBIP38 } from "../../common/crypto";
+import { flagsBehaviour, flagsForger, flagsNetwork } from "../../common/flags";
+import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
-export class RunCommand extends BaseCommand {
+export class RunCommand extends Command {
     public static description = "Run the core (without pm2)";
 
     public static examples: string[] = [
@@ -29,9 +32,9 @@ $ ark core:run --launchMode=seed
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsBehaviour,
-        ...BaseCommand.flagsForger,
+        ...flagsNetwork,
+        ...flagsBehaviour,
+        ...flagsForger,
         suffix: flags.string({
             hidden: true,
             default: "core",
@@ -42,19 +45,21 @@ $ ark core:run --launchMode=seed
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RunCommand);
+        const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
-        await this.buildApplication(app, {
+        await app.bootstrap({
             flags,
             plugins: {
                 options: {
-                    "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                    "@arkecosystem/core-p2p": buildPeerOptions(flags),
                     "@arkecosystem/core-blockchain": {
                         networkStart: flags.networkStart,
                     },
-                    "@arkecosystem/core-forger": await this.buildBIP38(flags),
+                    "@arkecosystem/core-forger": await buildBIP38(flags),
                 },
             },
         });
+
+        await app.boot();
     }
 }

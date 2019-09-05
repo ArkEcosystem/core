@@ -1,10 +1,12 @@
 import { app } from "@arkecosystem/core-kernel";
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 
+import { buildPeerOptions } from "../../common/builder";
+import { flagsBehaviour, flagsNetwork } from "../../common/flags";
+import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
-export class RunCommand extends BaseCommand {
+export class RunCommand extends Command {
     public static description = "Run the relay (without pm2)";
 
     public static examples: string[] = [
@@ -29,8 +31,8 @@ $ ark relay:run --launchMode=seed
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsBehaviour,
+        ...flagsNetwork,
+        ...flagsBehaviour,
         suffix: flags.string({
             hidden: true,
             default: "relay",
@@ -41,19 +43,21 @@ $ ark relay:run --launchMode=seed
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RunCommand);
+        const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
-        await super.buildApplication(app, {
+        await app.bootstrap({
             flags,
             plugins: {
                 exclude: ["@arkecosystem/core-forger"],
                 options: {
-                    "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                    "@arkecosystem/core-p2p": buildPeerOptions(flags),
                     "@arkecosystem/core-blockchain": {
                         networkStart: flags.networkStart,
                     },
                 },
             },
         });
+
+        await app.boot();
     }
 }

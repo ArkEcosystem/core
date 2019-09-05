@@ -1,12 +1,13 @@
-import { Utils } from "@arkecosystem/core-kernel";
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 import prompts from "prompts";
 
+import { abort } from "../../common/cli";
+import { flagsNetwork } from "../../common/flags";
+import { parseWithNetwork } from "../../common/parser";
+import { updateEnvironmentVariables } from "../../common/utils";
 import { CommandFlags, EnvironmentVars } from "../../types";
-import { updateEnvironmentVariables } from "../../utils";
-import { BaseCommand } from "../command";
 
-export class DatabaseCommand extends BaseCommand {
+export class DatabaseCommand extends Command {
     public static description = "Update the Database configuration";
 
     public static examples: string[] = [
@@ -28,7 +29,7 @@ $ ark config:database --password=password
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
+        ...flagsNetwork,
         host: flags.string({
             description: "the host of the database",
         }),
@@ -49,7 +50,7 @@ $ ark config:database --password=password
     private static readonly validFlags: string[] = ["host", "port", "database", "username", "password"];
 
     public async run(): Promise<void> {
-        const { flags, paths } = await this.parseWithNetwork(DatabaseCommand);
+        const { flags, paths } = await parseWithNetwork(this.parse(DatabaseCommand));
 
         const envFile = `${paths.config}/.env`;
 
@@ -72,7 +73,10 @@ $ ark config:database --password=password
                 name: "port",
                 message: "What port do you want to use?",
                 initial: 5432,
-                validate: value => (value < 1 || value > 65535 ? `The port must be in the range of 1-65535.` : true),
+                validate: /* istanbul ignore next */ value =>
+                    /* istanbul ignore next */ value < 1 || value > 65535
+                        ? `The port must be in the range of 1-65535.`
+                        : true,
             },
             {
                 type: "text",
@@ -99,13 +103,15 @@ $ ark config:database --password=password
             },
         ]);
 
-        if (response.confirm) {
-            updateEnvironmentVariables(envFile, this.conform(response));
+        if (!response.confirm) {
+            abort("You'll need to confirm the input to continue.");
         }
+
+        updateEnvironmentVariables(envFile, this.conform(response));
     }
 
     private hasValidFlag(flags: CommandFlags): boolean {
-        return Utils.hasSomeProperty(flags, DatabaseCommand.validFlags);
+        return DatabaseCommand.validFlags.some(prop => flags.hasOwnProperty(prop));
     }
 
     private conform(flags: CommandFlags): EnvironmentVars {

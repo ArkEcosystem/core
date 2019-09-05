@@ -14,13 +14,21 @@ module.exports = {
     collectCoverage: false,
     coverageDirectory: "<rootDir>/.coverage",
     collectCoverageFrom: [
-        "packages/**/src/**/{!(index|manager),}.ts",
+        "packages/core/src/**/{!(index|manager),}.ts",
         "!packages/**/src/**/contracts/**",
         "!packages/**/src/**/enums/**",
         "!packages/**/src/**/exceptions/**",
         "!**/node_modules/**",
     ],
     coverageReporters: ["json", "lcov", "text", "clover", "html"],
+    // coverageThreshold: {
+    //     global: {
+    //         branches: 100,
+    //         functions: 100,
+    //         lines: 100,
+    //         statements: 100,
+    //     },
+    // },
     watchman: false,
     setupFilesAfterEnv: ["jest-extended"],
 };

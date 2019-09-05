@@ -1,12 +1,14 @@
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 import prompts from "prompts";
 
+import { abort } from "../../../common/cli";
+import { flagsForger, flagsNetwork, flagsToStrings } from "../../../common/flags";
+import { parseWithNetwork } from "../../../common/parser";
 import { CommandFlags } from "../../../types";
-import { BaseCommand } from "../../command";
 import { BIP38Command } from "./bip38";
 import { BIP39Command } from "./bip39";
 
-export class ForgerCommand extends BaseCommand {
+export class ForgerCommand extends Command {
     public static description = "Configure the forging delegate";
 
     public static examples: string[] = [
@@ -19,15 +21,15 @@ $ ark config:forger --method=bip39
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsForger,
+        ...flagsNetwork,
+        ...flagsForger,
         method: flags.string({
             description: "the configuration method to use (bip38 or bip39)",
         }),
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(ForgerCommand);
+        const { flags } = await parseWithNetwork(this.parse(ForgerCommand));
 
         delete flags.suffix;
 
@@ -53,7 +55,7 @@ $ ark config:forger --method=bip39
         ]);
 
         if (!response.method) {
-            this.abortWithInvalidInput();
+            abort("Please enter valid data and try again!");
         }
 
         response = { ...flags, ...response };
@@ -70,6 +72,6 @@ $ ark config:forger --method=bip39
     private formatFlags(flags): string[] {
         delete flags.method;
 
-        return this.flagsToStrings(flags).split(" ");
+        return flagsToStrings(flags).split(" ");
     }
 }

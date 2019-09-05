@@ -1,12 +1,16 @@
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 import { validateMnemonic } from "bip39";
-import fs from "fs-extra";
+import { writeJSONSync } from "fs-extra";
 import prompts from "prompts";
 
+import { abort } from "../../../common/cli";
+import { getPaths } from "../../../common/env";
+import { flagsNetwork } from "../../../common/flags";
+import { parseWithNetwork } from "../../../common/parser";
+import { TaskService } from "../../../common/task.service";
 import { CommandFlags } from "../../../types";
-import { BaseCommand } from "../../command";
 
-export class BIP39Command extends BaseCommand {
+export class BIP39Command extends Command {
     public static description = "Configure the forging delegate (BIP39)";
 
     public static examples: string[] = [
@@ -16,14 +20,14 @@ $ ark config:forger:bip39 --bip39="..."
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
+        ...flagsNetwork,
         bip39: flags.string({
             description: "the plain text bip39 passphrase",
         }),
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(BIP39Command);
+        const { flags } = await parseWithNetwork(this.parse(BIP39Command));
 
         if (flags.bip39) {
             return this.performConfiguration(flags);
@@ -35,8 +39,10 @@ $ ark config:forger:bip39 --bip39="..."
                 type: "password",
                 name: "bip39",
                 message: "Please enter your delegate passphrase",
-                validate: value =>
-                    !validateMnemonic(value) ? `Failed to verify the given passphrase as BIP39 compliant.` : true,
+                validate: /* istanbul ignore next */ value =>
+                    /* istanbul ignore next */ !validateMnemonic(value)
+                        ? `Failed to verify the given passphrase as BIP39 compliant.`
+                        : true,
             },
             {
                 type: "confirm",
@@ -46,7 +52,7 @@ $ ark config:forger:bip39 --bip39="..."
         ]);
 
         if (!response.bip39) {
-            this.abortWithInvalidInput();
+            abort("Failed to verify the given passphrase as BIP39 compliant.");
         }
 
         if (response.confirm) {
@@ -55,31 +61,26 @@ $ ark config:forger:bip39 --bip39="..."
     }
 
     private async performConfiguration(flags): Promise<void> {
-        const { config } = await this.getPaths(flags);
+        const { config } = getPaths(flags.token, flags.network);
 
-        // @todo: update to follow new config convention
-        const delegatesConfig = `${config}/delegates.json`;
+        const tasks: TaskService = new TaskService();
 
-        this.addTask("Prepare configuration", async () => {
-            if (!fs.existsSync(delegatesConfig)) {
-                this.error(`Couldn't find the delegates configuration at ${delegatesConfig}.`);
-            }
-        });
-
-        this.addTask("Validate passphrase", async () => {
+        tasks.add("Validate passphrase", () => {
             if (!validateMnemonic(flags.bip39)) {
-                this.error(`Failed to verify the given passphrase as BIP39 compliant.`);
+                abort(`Failed to verify the given passphrase as BIP39 compliant.`);
             }
         });
 
-        this.addTask("Write BIP39 to configuration", async () => {
-            const { delegates } = require(delegatesConfig);
+        tasks.add("Write BIP39 to configuration", () => {
+            const delegatesConfig = `${config}/delegates.json`;
+
+            const delegates: Record<string, string | string[]> = require(delegatesConfig);
             delegates.secrets = [flags.bip39];
             delete delegates.bip38;
 
-            fs.writeFileSync(delegatesConfig, JSON.stringify(delegates, undefined, 2));
+            writeJSONSync(delegatesConfig, delegates);
         });
 
-        await this.runTasks();
+        await tasks.run();
     }
 }

@@ -1,18 +1,21 @@
 import { Utils } from "@arkecosystem/core-kernel";
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
 import { removeSync } from "fs-extra";
+import prompts from "prompts";
 
-import { confirm } from "../helpers/prompts";
-import { checkForUpdates, installFromChannel } from "../helpers/update";
+import { abort } from "../common/cli";
+import { flagsNetwork } from "../common/flags";
+import { restartRunningProcess, restartRunningProcessWithPrompt } from "../common/process";
+import { checkForUpdates, installFromChannel } from "../common/update";
 import { CommandFlags } from "../types";
-import { BaseCommand } from "./command";
 
-export class UpdateCommand extends BaseCommand {
+export class UpdateCommand extends Command {
     public static description = "Update the core installation";
 
     public static flags: CommandFlags = {
+        ...flagsNetwork,
         force: flags.boolean({
             description: "force an update",
         }),
@@ -36,42 +39,40 @@ export class UpdateCommand extends BaseCommand {
         const state = await checkForUpdates(this);
 
         if (!state.ready) {
-            this.log(`You already have the latest version (${state.currentVersion})`);
-
-            return;
+            abort(`You already have the latest version (${state.currentVersion})`);
         }
 
-        const { flags } = await this.parseWithNetwork(UpdateCommand);
+        const { flags } = this.parse(UpdateCommand);
 
         if (flags.force) {
             return this.performUpdate(flags, state);
         }
 
-        try {
-            this.warn(
-                `${state.name} update available from ${Chalk.greenBright(state.currentVersion)} to ${Chalk.greenBright(
-                    state.updateVersion,
-                )}.`,
-            );
+        this.warn(
+            `${state.name} update available from ${Chalk.greenBright(state.currentVersion)} to ${Chalk.greenBright(
+                state.updateVersion,
+            )}.`,
+        );
 
-            await confirm("Would you like to update?", async () => {
-                try {
-                    await this.performUpdate(flags, state);
-                } catch (err) {
-                    this.error(err.message);
-                } finally {
-                    cli.action.stop();
-                }
-            });
-        } catch (err) {
-            this.error(err.message);
+        const { confirm } = await prompts([
+            {
+                type: "confirm",
+                name: "confirm",
+                message: "Would you like to update?",
+            },
+        ]);
+
+        if (!confirm) {
+            abort("You'll need to confirm the update to continue.");
         }
+
+        await this.performUpdate(flags, state);
     }
 
     private async performUpdate(flags: CommandFlags, state: Record<string, any>): Promise<void> {
         cli.action.start(`Updating from ${state.currentVersion} to ${state.updateVersion}`);
 
-        await installFromChannel(state.name, state.updateVersion);
+        installFromChannel(state.name, state.updateVersion);
 
         cli.action.stop();
 
@@ -81,26 +82,26 @@ export class UpdateCommand extends BaseCommand {
 
         if (this.hasRestartFlag(flags)) {
             if (flags.restart) {
-                this.restartRunningProcessPrompt(`${flags.token}-core`, false);
-                this.restartRunningProcessPrompt(`${flags.token}-relay`, false);
-                this.restartRunningProcessPrompt(`${flags.token}-forger`, false);
+                await restartRunningProcess(`${flags.token}-core`);
+                await restartRunningProcess(`${flags.token}-relay`);
+                await restartRunningProcess(`${flags.token}-forger`);
             } else {
                 if (flags.restartCore) {
-                    this.restartRunningProcessPrompt(`${flags.token}-core`, false);
+                    await restartRunningProcess(`${flags.token}-core`);
                 }
 
                 if (flags.restartRelay) {
-                    this.restartRunningProcessPrompt(`${flags.token}-relay`, false);
+                    await restartRunningProcess(`${flags.token}-relay`);
                 }
 
                 if (flags.restartForger) {
-                    this.restartRunningProcessPrompt(`${flags.token}-forger`, false);
+                    await restartRunningProcess(`${flags.token}-forger`);
                 }
             }
         } else {
-            await this.restartRunningProcessPrompt(`${flags.token}-core`);
-            await this.restartRunningProcessPrompt(`${flags.token}-relay`);
-            await this.restartRunningProcessPrompt(`${flags.token}-forger`);
+            await restartRunningProcessWithPrompt(`${flags.token}-core`);
+            await restartRunningProcessWithPrompt(`${flags.token}-relay`);
+            await restartRunningProcessWithPrompt(`${flags.token}-forger`);
         }
     }
 

@@ -2,42 +2,46 @@
 
 import { Hook } from "@oclif/config";
 import Chalk from "chalk";
-import * as Levenshtein from "fast-levenshtein";
+import Levenshtein from "fast-levenshtein";
 import minBy from "lodash.minby";
+import prompts from "prompts";
 
-import { confirm } from "../../helpers/prompts";
+import { abort } from "../../common/cli";
 
 const closest = (commandIDs: string[], cmd: string) => {
     return minBy(commandIDs, c => Levenshtein.get(cmd, c))!;
 };
 
-export const init: Hook<"init"> = async function(opts) {
-    const commandIDs = opts.config.commandIDs;
+export const init: Hook<"init"> = async function({ id, config }) {
+    const commandIDs: string[] = config.commandIDs;
 
-    if (!commandIDs.length) {
+    if (!commandIDs || !commandIDs.length) {
         return;
     }
 
-    let binHelp = `${opts.config.bin} help`;
-    const idSplit = opts.id.split(":");
-    if (opts.config.findTopic(idSplit[0])) {
+    let binHelp = `${config.bin} help`;
+    const idSplit = id.split(":");
+    if (config.findTopic(idSplit[0])) {
         // if valid topic, update binHelp with topic
         binHelp = `${binHelp} ${idSplit[0]}`;
     }
 
-    const suggestion: string = closest(commandIDs, opts.id);
-    this.warn(`${Chalk.redBright(opts.id)} is not a ${opts.config.bin} command.`);
+    const suggestion: string = closest(commandIDs, id);
+    this.warn(`${Chalk.redBright(id)} is not a ${config.bin} command.`);
 
-    await confirm(
-        `Did you mean ${Chalk.blueBright(suggestion)}?`,
-        async () => {
-            try {
-                const argv = process.argv;
-                await this.config.runCommand(suggestion, argv.slice(3, argv.length));
-            } catch (err) {
-                this.error(err.message);
-            }
+    const { confirm } = await prompts([
+        {
+            type: "confirm",
+            name: "confirm",
+            message: `Did you mean ${Chalk.blueBright(suggestion)}?`,
         },
-        this.error(`Run ${Chalk.blueBright(binHelp)} for a list of available commands.`, { exit: 127 }),
-    );
+    ]);
+
+    if (!confirm) {
+        abort(`Run ${Chalk.blueBright(binHelp)} for a list of available commands.`);
+    }
+
+    const argv: string[] = process.argv;
+
+    await config.runCommand(suggestion, argv.slice(3, argv.length));
 };

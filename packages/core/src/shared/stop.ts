@@ -1,27 +1,25 @@
+import Command from "@oclif/command";
 import cli from "cli-ux";
 
-import { BaseCommand } from "../commands/command";
-import { processManager } from "../process-manager";
+import { parseWithNetwork } from "../common/parser";
+import { abortMissingProcess, abortStoppedProcess, abortUnknownProcess } from "../common/process";
+import { processManager } from "../common/process-manager";
 
-export abstract class AbstractStopCommand extends BaseCommand {
+export abstract class AbstractStopCommand extends Command {
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(this.getClass());
+        const { flags } = await parseWithNetwork(this.parse(this.getClass()));
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        try {
-            this.abortMissingProcess(processName);
-            this.abortUnknownProcess(processName);
-            this.abortStoppedProcess(processName);
+        abortMissingProcess(processName);
+        abortUnknownProcess(processName);
+        abortStoppedProcess(processName);
 
-            cli.action.start(`Stopping ${processName}`);
+        cli.action.start(`Stopping ${processName}`);
 
-            processManager[flags.daemon ? "delete" : "stop"](processName);
-        } catch (error) {
-            this.error(error.message);
-        } finally {
-            cli.action.stop();
-        }
+        processManager[flags.daemon ? "delete" : "stop"](processName);
+
+        cli.action.stop();
     }
 
     public abstract getClass();

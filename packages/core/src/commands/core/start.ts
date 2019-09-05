@@ -1,8 +1,10 @@
 import { flags } from "@oclif/command";
 
+import { buildBIP38 } from "../../common/crypto";
+import { flagsBehaviour, flagsForger, flagsNetwork, flagsToStrings } from "../../common/flags";
+import { abortRunningProcess, daemonizeProcess } from "../../common/process";
 import { AbstractStartCommand } from "../../shared/start";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
 export class StartCommand extends AbstractStartCommand {
     public static description = "Start the core";
@@ -32,9 +34,9 @@ $ ark core:start --no-daemon
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsBehaviour,
-        ...BaseCommand.flagsForger,
+        ...flagsNetwork,
+        ...flagsBehaviour,
+        ...flagsForger,
         daemon: flags.boolean({
             description: "start the process as a daemon",
             default: true,
@@ -54,23 +56,19 @@ $ ark core:start --no-daemon
     }
 
     protected async runProcess(flags: CommandFlags): Promise<void> {
-        this.abortRunningProcess(`${flags.token}-forger`);
-        this.abortRunningProcess(`${flags.token}-relay`);
+        abortRunningProcess(`${flags.token}-forger`);
+        abortRunningProcess(`${flags.token}-relay`);
 
-        try {
-            await this.buildBIP38(flags);
+        await buildBIP38(flags);
 
-            await this.runWithPm2(
-                {
-                    name: `${flags.token}-core`,
-                    // @ts-ignore
-                    script: this.config.options.root,
-                    args: `core:run ${this.flagsToStrings(flags, ["daemon"])}`,
-                },
-                flags,
-            );
-        } catch (error) {
-            this.error(error.message);
-        }
+        daemonizeProcess(
+            {
+                name: `${flags.token}-core`,
+                // @ts-ignore
+                script: this.config.options.root,
+                args: `core:run ${flagsToStrings(flags, ["daemon"])}`,
+            },
+            flags,
+        );
     }
 }

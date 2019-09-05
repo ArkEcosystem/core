@@ -1,20 +1,22 @@
+import Command from "@oclif/command";
 import { ProcessDescription } from "@typeskrift/foreman";
 import Table from "cli-table3";
 import dayjs from "dayjs";
 import prettyBytes from "pretty-bytes";
 import prettyMs from "pretty-ms";
 
-import { BaseCommand } from "../commands/command";
-import { processManager } from "../process-manager";
-import { renderTable } from "../utils";
+import { parseWithNetwork } from "../common/parser";
+import { abortMissingProcess } from "../common/process";
+import { processManager } from "../common/process-manager";
+import { renderTable } from "../common/utils";
 
-export abstract class AbstractStatusCommand extends BaseCommand {
+export abstract class AbstractStatusCommand extends Command {
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(this.getClass());
+        const { flags } = await parseWithNetwork(this.parse(this.getClass()));
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        this.abortMissingProcess(processName);
+        abortMissingProcess(processName);
 
         renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {
             const app: ProcessDescription = processManager.describe(processName);

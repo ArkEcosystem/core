@@ -1,11 +1,12 @@
 module.exports = {
     flags: {},
     services: {},
-    plugins: [{
-            package: "@arkecosystem/core-state"
+    plugins: [
+        {
+            package: "@arkecosystem/core-state",
         },
         {
-            package: "@arkecosystem/core-database"
+            package: "@arkecosystem/core-database",
         },
         {
             package: "@arkecosystem/core-database-postgres",
@@ -13,11 +14,12 @@ module.exports = {
                 connection: {
                     host: process.env.CORE_DB_HOST || "localhost",
                     port: process.env.CORE_DB_PORT || 5432,
-                    database: process.env.CORE_DB_DATABASE || `${process.env.CORE_TOKEN}_${process.env.CORE_NETWORK_NAME}`,
+                    database:
+                        process.env.CORE_DB_DATABASE || `${process.env.CORE_TOKEN}_${process.env.CORE_NETWORK_NAME}`,
                     user: process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN,
                     password: process.env.CORE_DB_PASSWORD || "password",
                 },
-            }
+            },
         },
         {
             package: "@arkecosystem/core-transaction-pool",
@@ -43,7 +45,7 @@ module.exports = {
                         htlcRefund: 0,
                     },
                 },
-            }
+            },
         },
         {
             package: "@arkecosystem/core-p2p",
@@ -52,10 +54,10 @@ module.exports = {
                     port: process.env.CORE_P2P_PORT || 4000,
                 },
                 minimumNetworkReach: 5,
-            }
+            },
         },
         {
-            package: "@arkecosystem/core-blockchain"
+            package: "@arkecosystem/core-blockchain",
         },
         {
             package: "@arkecosystem/core-api",
@@ -63,7 +65,7 @@ module.exports = {
                 enabled: !process.env.CORE_API_DISABLED,
                 host: process.env.CORE_API_HOST || "0.0.0.0",
                 port: process.env.CORE_API_PORT || 4003,
-            }
+            },
         },
         {
             package: "@arkecosystem/core-webhooks",
@@ -91,6 +93,6 @@ module.exports = {
         },
         {
             package: "@arkecosystem/core-snapshots",
-        }
-    ]
+        },
+    ],
 };

@@ -1,8 +1,9 @@
 import { flags } from "@oclif/command";
 
+import { flagsBehaviour, flagsNetwork, flagsToStrings } from "../../common/flags";
+import { abortRunningProcess, daemonizeProcess } from "../../common/process";
 import { AbstractStartCommand } from "../../shared/start";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
 export class StartCommand extends AbstractStartCommand {
     public static description = "Start the relay";
@@ -32,8 +33,8 @@ $ ark relay:start --no-daemon
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsBehaviour,
+        ...flagsNetwork,
+        ...flagsBehaviour,
         daemon: flags.boolean({
             description: "start the process as a daemon",
             default: true,
@@ -53,14 +54,14 @@ $ ark relay:start --no-daemon
     }
 
     protected async runProcess(flags: CommandFlags): Promise<void> {
-        this.abortRunningProcess(`${flags.token}-core`);
+        abortRunningProcess(`${flags.token}-core`);
 
-        await this.runWithPm2(
+        daemonizeProcess(
             {
                 name: `${flags.token}-relay`,
                 // @ts-ignore
                 script: this.config.options.root,
-                args: `relay:run ${this.flagsToStrings(flags, ["daemon"])}`,
+                args: `relay:run ${flagsToStrings(flags, ["daemon"])}`,
             },
             flags,
         );

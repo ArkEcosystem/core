@@ -1,26 +1,24 @@
+import Command from "@oclif/command";
 import cli from "cli-ux";
 
-import { BaseCommand } from "../commands/command";
-import { processManager } from "../process-manager";
+import { parseWithNetwork } from "../common/parser";
+import { abortMissingProcess, abortStoppedProcess } from "../common/process";
+import { processManager } from "../common/process-manager";
 
-export abstract class AbstractRestartCommand extends BaseCommand {
+export abstract class AbstractRestartCommand extends Command {
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(this.getClass());
+        const { flags } = await parseWithNetwork(this.parse(this.getClass()));
 
         const processName = `${flags.token}-${this.getSuffix()}`;
 
-        try {
-            this.abortMissingProcess(processName);
-            this.abortStoppedProcess(processName);
+        abortMissingProcess(processName);
+        abortStoppedProcess(processName);
 
-            cli.action.start(`Restarting ${processName}`);
+        cli.action.start(`Restarting ${processName}`);
 
-            processManager.restart(processName);
-        } catch (error) {
-            error.stderr ? this.error(`${error.message}: ${error.stderr}`) : this.error(error.message);
-        } finally {
-            cli.action.stop();
-        }
+        processManager.restart(processName);
+
+        cli.action.stop();
     }
 
     public abstract getClass();

@@ -1,15 +1,16 @@
 import { Crypto, Identities, Transactions, Utils } from "@arkecosystem/crypto";
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 import { generateMnemonic } from "bip39";
 import ByteBuffer from "bytebuffer";
-import fs from "fs-extra";
+import { copyFileSync, ensureDirSync, existsSync, writeFileSync, writeJSONSync } from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
 
+import { abort } from "../../common/cli";
+import { TaskService } from "../../common/task.service";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
-export class GenerateCommand extends BaseCommand {
+export class GenerateCommand extends Command {
     public static description = "Generates a new network configuration";
 
     public static examples: string[] = [
@@ -71,7 +72,6 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         const { flags } = this.parse(GenerateCommand);
 
         if (!Object.keys(GenerateCommand.flags).find(flagName => !flags[flagName])) {
-            // all the flags are filled, we can generate network
             return this.generateNetwork(flags);
         }
 
@@ -95,13 +95,14 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         );
 
         if (Object.keys(GenerateCommand.flags).find(flagName => !response[flagName])) {
-            // one of the flags was not filled, we can't continue
-            return this.abortWithInvalidInput();
+            abort("Please provide all flags and try again!");
         }
 
-        if (response.confirm) {
-            return this.generateNetwork({ ...flags, ...response });
+        if (!response.confirm) {
+            abort("You'll need to confirm the input to continue.");
         }
+
+        await this.generateNetwork({ ...flags, ...response });
     }
 
     private async generateNetwork(flags: CommandFlags): Promise<void> {
@@ -110,19 +111,21 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
 
         const delegates = this.generateCoreDelegates(flags.delegates, flags.pubKeyHash);
 
-        this.addTask("Prepare directories", async () => {
-            if (fs.existsSync(coreConfigDest)) {
-                this.error(`${coreConfigDest} already exists.`);
-            }
-            if (fs.existsSync(cryptoConfigDest)) {
-                this.error(`${coreConfigDest} already exists.`);
+        const tasks: TaskService = new TaskService();
+        tasks.add("Prepare directories", async () => {
+            if (existsSync(coreConfigDest)) {
+                throw new Error(`${coreConfigDest} already exists.`);
             }
 
-            fs.ensureDirSync(coreConfigDest);
-            fs.ensureDirSync(cryptoConfigDest);
+            if (existsSync(cryptoConfigDest)) {
+                throw new Error(`${cryptoConfigDest} already exists.`);
+            }
+
+            ensureDirSync(coreConfigDest);
+            ensureDirSync(cryptoConfigDest);
         });
 
-        this.addTask("Generate crypto network configuration", async () => {
+        tasks.add("Generate crypto network configuration", async () => {
             const genesisWallet = this.createWallet(flags.pubKeyHash);
             const genesisBlock = this.generateCryptoGenesisBlock(
                 genesisWallet,
@@ -150,10 +153,10 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
                 flags.rewardAmount,
             );
 
-            fs.writeJsonSync(resolve(cryptoConfigDest, "network.json"), network, { spaces: 2 });
-            fs.writeJsonSync(resolve(cryptoConfigDest, "milestones.json"), milestones, { spaces: 2 });
-            fs.writeJsonSync(resolve(cryptoConfigDest, "genesisBlock.json"), genesisBlock, { spaces: 2 });
-            fs.writeJsonSync(resolve(cryptoConfigDest, "exceptions.json"), {});
+            writeJSONSync(resolve(cryptoConfigDest, "network.json"), network, { spaces: 2 });
+            writeJSONSync(resolve(cryptoConfigDest, "milestones.json"), milestones, { spaces: 2 });
+            writeJSONSync(resolve(cryptoConfigDest, "genesisBlock.json"), genesisBlock, { spaces: 2 });
+            writeJSONSync(resolve(cryptoConfigDest, "exceptions.json"), {});
 
             const indexFile = [
                 'import exceptions from "./exceptions.json";',
@@ -163,21 +166,21 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
                 "",
                 `export const ${flags.network} = { exceptions, genesisBlock, milestones, network };`,
             ];
-            fs.writeFileSync(resolve(cryptoConfigDest, "index.ts"), indexFile.join("\n"));
+            writeFileSync(resolve(cryptoConfigDest, "index.ts"), indexFile.join("\n"));
         });
 
-        this.addTask("Generate core network configuration", async () => {
-            fs.writeJsonSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 2 });
-            fs.writeJsonSync(
+        tasks.add("Generate core network configuration", async () => {
+            writeJSONSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 2 });
+            writeJSONSync(
                 resolve(coreConfigDest, "delegates.json"),
                 { secrets: delegates.map(d => d.passphrase) },
                 { spaces: 2 },
             );
-            fs.copyFileSync(resolve(coreConfigDest, "../testnet/.env"), resolve(coreConfigDest, ".env"));
-            fs.copyFileSync(resolve(coreConfigDest, "../testnet/plugins.js"), resolve(coreConfigDest, "plugins.js"));
+            copyFileSync(resolve(coreConfigDest, "../testnet/.env"), resolve(coreConfigDest, ".env"));
+            copyFileSync(resolve(coreConfigDest, "../testnet/app.js"), resolve(coreConfigDest, "app.js"));
         });
 
-        await this.runTasks();
+        await tasks.run();
     }
 
     private generateCryptoNetwork(
@@ -377,8 +380,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
     }
 
     private signBlock(block, keys) {
-        const hash = this.getHash(block);
-        return Crypto.Hash.signECDSA(hash, keys);
+        return Crypto.Hash.signECDSA(this.getHash(block), keys);
     }
 
     private getHash(block) {
@@ -415,16 +417,17 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
             byteBuffer.writeByte(generatorByte);
         }
 
+        /* istanbul ignore next */
         if (genesisBlock.blockSignature) {
             const blockSignatureBuffer = Buffer.from(genesisBlock.blockSignature, "hex");
+
             for (const blockSignatureByte of blockSignatureBuffer) {
                 byteBuffer.writeByte(blockSignatureByte);
             }
         }
 
         byteBuffer.flip();
-        const buffer = byteBuffer.toBuffer();
 
-        return buffer;
+        return byteBuffer.toBuffer();
     }
 }

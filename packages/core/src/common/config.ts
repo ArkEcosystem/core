@@ -2,7 +2,7 @@ import { ensureFileSync, readJsonSync, removeSync, writeJsonSync } from "fs-extr
 
 import { getRegistryChannel } from "./update";
 
-class ConfigManager {
+export class ConfigManager {
     private config;
     private file: string;
 
@@ -33,7 +33,7 @@ class ConfigManager {
 
             this.write({
                 token: this.config.bin,
-                channel: getRegistryChannel(this.config),
+                channel: getRegistryChannel(this.config.version),
             });
         }
     }

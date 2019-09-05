@@ -1,10 +1,13 @@
+import Command from "@oclif/command";
 import envfile from "envfile";
 import { existsSync } from "fs-extra";
 
+import { abort } from "../../common/cli";
+import { flagsNetwork } from "../../common/flags";
+import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
-export class GetCommand extends BaseCommand {
+export class GetCommand extends Command {
     public static description = "Get the value of an environment variable";
 
     public static examples: string[] = [
@@ -14,7 +17,7 @@ $ ark env:get CORE_LOG_LEVEL
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
+        ...flagsNetwork,
     };
 
     public static args: Array<{ name: string; required: boolean; hidden: boolean }> = [
@@ -22,18 +25,18 @@ $ ark env:get CORE_LOG_LEVEL
     ];
 
     public async run(): Promise<void> {
-        const { args, paths } = await this.parseWithNetwork(GetCommand);
+        const { args, paths } = await parseWithNetwork(this.parse(GetCommand));
 
         const envFile = `${paths.config}/.env`;
 
         if (!existsSync(envFile)) {
-            this.error(`No environment file found at ${envFile}`);
+            abort(`No environment file found at ${envFile}.`);
         }
 
         const env = envfile.parseFileSync(envFile);
 
         if (!env[args.key]) {
-            this.error(`The "${args.key}" doesn't exist.`);
+            abort(`The "${args.key}" doesn't exist.`);
         }
 
         console.log(env[args.key]);

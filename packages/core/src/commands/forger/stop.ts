@@ -1,8 +1,8 @@
 import { flags } from "@oclif/command";
 
+import { flagsNetwork } from "../../common/flags";
 import { AbstractStopCommand } from "../../shared/stop";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
 export class StopCommand extends AbstractStopCommand {
     public static description = "Stop the forger";
@@ -17,7 +17,7 @@ $ ark forger:stop --daemon
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
+        ...flagsNetwork,
         daemon: flags.boolean({
             description: "stop the process or daemon",
         }),

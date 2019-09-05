@@ -1,12 +1,13 @@
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 import cli from "cli-ux";
 
-import { configManager } from "../../helpers/config";
-import { installFromChannel } from "../../helpers/update";
+import { abort } from "../../common/cli";
+import { configManager } from "../../common/config";
+import { restartRunningProcessWithPrompt } from "../../common/process";
+import { installFromChannel } from "../../common/update";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
-export class CommandLineInterfaceCommand extends BaseCommand {
+export class CommandLineInterfaceCommand extends Command {
     public static description = "Update the CLI configuration";
 
     public static examples: string[] = [
@@ -31,12 +32,13 @@ $ ark config:cli --channel=next
     public async run(): Promise<void> {
         const { flags } = this.parse(CommandLineInterfaceCommand);
 
+        /* istanbul ignore else */
         if (flags.token) {
             configManager.set("token", flags.token as string);
         }
 
         if (flags.channel) {
-            this.changeChannel(flags.channel);
+            await this.changeChannel(flags.channel);
         }
     }
 
@@ -44,32 +46,27 @@ $ ark config:cli --channel=next
         const oldChannel = configManager.get("channel");
 
         if (oldChannel === newChannel) {
-            this.warn(`You are already on the "${newChannel}" channel.`);
-            return;
+            abort(`You are already on the "${newChannel}" channel.`);
         }
 
         configManager.set("channel", newChannel);
 
         const pkg = `${this.config.name}@${newChannel}`;
 
-        try {
-            cli.action.start(`Installing ${pkg}`);
+        cli.action.start(`Installing ${pkg}`);
 
-            await installFromChannel(this.config.name, newChannel);
+        installFromChannel(this.config.name, newChannel);
 
-            this.warn(`${pkg} has been installed.`);
+        this.warn(`${pkg} has been installed.`);
 
-            cli.action.stop();
+        cli.action.stop();
 
-            const { flags } = await this.parseWithNetwork(CommandLineInterfaceCommand);
+        const { flags } = await this.parse(CommandLineInterfaceCommand);
 
-            await this.restartRunningProcessPrompt(`${flags.token}-core`);
-            await this.restartRunningProcessPrompt(`${flags.token}-relay`);
-            await this.restartRunningProcessPrompt(`${flags.token}-forger`);
-        } catch (err) {
-            this.error(err.message);
-        } finally {
-            cli.action.stop();
-        }
+        await restartRunningProcessWithPrompt(`${flags.token}-core`);
+        await restartRunningProcessWithPrompt(`${flags.token}-relay`);
+        await restartRunningProcessWithPrompt(`${flags.token}-forger`);
+
+        cli.action.stop();
     }
 }

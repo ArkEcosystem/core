@@ -1,8 +1,8 @@
 import { flags } from "@oclif/command";
 
+import { flagsNetwork } from "../../common/flags";
 import { AbstractLogCommand } from "../../shared/log";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
 export class LogCommand extends AbstractLogCommand {
     public static description = "Show the relay log";
@@ -10,7 +10,7 @@ export class LogCommand extends AbstractLogCommand {
     public static examples: string[] = [`$ ark relay:log`];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
+        ...flagsNetwork,
         error: flags.boolean({
             description: "only show error output",
         }),

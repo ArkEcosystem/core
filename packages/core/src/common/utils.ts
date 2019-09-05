@@ -3,7 +3,7 @@ import envfile from "envfile";
 import { writeFileSync } from "fs-extra";
 import { existsSync } from "fs-extra";
 
-import { EnvironmentVars } from "./types";
+import { EnvironmentVars } from "../types";
 
 export const renderTable = (head: string[], callback: any): void => {
     const table = new Table({
@@ -18,7 +18,7 @@ export const renderTable = (head: string[], callback: any): void => {
 
 export const updateEnvironmentVariables = (envFile: string, variables: EnvironmentVars): void => {
     if (!existsSync(envFile)) {
-        this.error(`No environment file found at ${envFile}`);
+        throw new Error(`No environment file found at ${envFile}.`);
     }
 
     const env: Record<string, string | number> = envfile.parseFileSync(envFile);
@@ -27,5 +27,5 @@ export const updateEnvironmentVariables = (envFile: string, variables: Environme
         env[key] = value;
     }
 
-    writeFileSync(envFile, envfile.stringifySync(env));
+    writeFileSync(envFile, envfile.stringifySync(env).trim());
 };

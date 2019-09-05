@@ -1,10 +1,12 @@
 import { app } from "@arkecosystem/core-kernel";
-import { flags } from "@oclif/command";
+import Command, { flags } from "@oclif/command";
 
+import { buildBIP38 } from "../../common/crypto";
+import { flagsForger, flagsNetwork } from "../../common/flags";
+import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
-import { BaseCommand } from "../command";
 
-export class RunCommand extends BaseCommand {
+export class RunCommand extends Command {
     public static description = "Run the forger (without pm2)";
 
     public static examples: string[] = [
@@ -17,24 +19,26 @@ $ ark forger:run --bip38="..." --password="..."
     ];
 
     public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
-        ...BaseCommand.flagsForger,
+        ...flagsNetwork,
+        ...flagsForger,
         env: flags.string({
             default: "production",
         }),
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RunCommand);
+        const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
-        await this.buildApplication(app, {
+        await app.bootstrap({
             flags,
             plugins: {
                 include: ["@arkecosystem/core-forger"],
                 options: {
-                    "@arkecosystem/core-forger": await this.buildBIP38(flags),
+                    "@arkecosystem/core-forger": await buildBIP38(flags),
                 },
             },
         });
+
+        await app.boot();
     }
 }
