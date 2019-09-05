@@ -1,6 +1,7 @@
 import "../../../../mocks/core-container";
-import { eventEmitter } from "../../../../mocks/event-emitter";
 
+import { app } from "@arkecosystem/core-container";
+import { EventEmitter } from "@arkecosystem/core-interfaces";
 import { emitEvent } from "../../../../../../../packages/core-p2p/src/socket-server/versions/internal";
 
 describe("Internal handlers - utils", () => {
@@ -13,9 +14,13 @@ describe("Internal handlers - utils", () => {
                 },
             };
 
+            const emit = jest.spyOn(app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter"), "emit");
+
             emitEvent({ req });
 
-            expect(eventEmitter.emit).toHaveBeenCalledWith(req.data.event, req.data.body);
+            expect(emit).toHaveBeenCalledWith(req.data.event, req.data.body);
+
+            emit.mockRestore();
         });
     });
 });
