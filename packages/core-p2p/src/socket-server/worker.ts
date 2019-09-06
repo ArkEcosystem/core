@@ -72,12 +72,15 @@ export class Worker extends SCWorker {
     }
 
     private async handleHandshake(req, next): Promise<void> {
-        const { data } = await this.sendToMasterAsync("p2p.internal.isBlockedByRateLimit", {
-            data: { ip: req.socket.remoteAddress },
-        });
+        const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
+            "p2p.internal.isBlockedByRateLimit",
+            {
+                data: { ip: req.socket.remoteAddress },
+            },
+        );
 
         const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
-        if (data.isBlocked || isBlacklisted) {
+        if (data.blocked || isBlacklisted) {
             next(this.createError(SocketErrors.Forbidden, "Blocked due to rate limit or blacklisted."));
             return;
         }
