@@ -14,7 +14,9 @@ import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
+import { RateLimiter } from "./rate-limiter";
 import { checkDNS, checkNTP } from "./utils";
+import { buildRateLimiter } from "./utils/build-rate-limiter";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
     public server: SocketCluster;
@@ -29,6 +31,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     private readonly communicator: P2P.IPeerCommunicator;
     private readonly processor: P2P.IPeerProcessor;
     private readonly storage: P2P.IPeerStorage;
+    private readonly rateLimiter: RateLimiter;
 
     public constructor({
         communicator,
@@ -45,6 +48,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
+        this.rateLimiter = buildRateLimiter(options);
     }
 
     public getServer(): SocketCluster {
@@ -207,6 +211,17 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.pingPeerPorts();
 
         return false;
+    }
+
+    public async getRateLimitStatus(ip: string, endpoint?: string): Promise<P2P.IRateLimitStatus> {
+        return {
+            blocked: await this.rateLimiter.isBlocked(ip),
+            exceededLimitOnEndpoint: await this.rateLimiter.hasExceededRateLimit(ip, endpoint),
+        };
+    }
+
+    public async isBlockedByRateLimit(ip: string): Promise<boolean> {
+        return this.rateLimiter.isBlocked(ip);
     }
 
     public isColdStart(): boolean {

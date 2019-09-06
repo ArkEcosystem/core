@@ -7,6 +7,11 @@ export interface INetworkStatus {
     blocksToRollback?: number;
 }
 
+export interface IRateLimitStatus {
+    blocked: boolean;
+    exceededLimitOnEndpoint: boolean;
+}
+
 export interface INetworkMonitor {
     start(): Promise<void>;
     updateNetworkStatus(initialRun?: boolean): Promise<void>;
@@ -22,6 +27,8 @@ export interface INetworkMonitor {
     discoverPeers(initialRun?: boolean): Promise<boolean>;
     getNetworkHeight(): number;
     getNetworkState(): Promise<INetworkState>;
+    getRateLimitStatus(ip: string, endpoint?: string): Promise<IRateLimitStatus>;
+    isBlockedByRateLimit(ip: string): Promise<boolean>;
     refreshPeersAfterFork(): Promise<void>;
     checkNetworkHealth(): Promise<INetworkStatus>;
     syncWithNetwork(fromBlockHeight: number, maxParallelDownloads?: number): Promise<Interfaces.IBlockData[]>;
