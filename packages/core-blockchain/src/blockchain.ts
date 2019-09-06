@@ -10,7 +10,7 @@ import {
     State,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
-import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import async from "async";
@@ -386,8 +386,12 @@ export class Blockchain implements blockchain.IBlockchain {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
 
-        if (blocks[0] && !isBlockChained(this.getLastBlock().data, blocks[0].data)) {
-            this.clearQueue(); // Discard remaining blocks as it won't go anywhere anyway.
+        if (blocks[0] &&
+            !isBlockChained(this.getLastBlock().data, blocks[0].data, logger) &&
+            !Utils.isException(blocks[0].data)) {
+            // Discard remaining blocks as it won't go anywhere anyway.
+            this.clearQueue();
+            this.resetLastDownloadedBlock();
             return callback();
         }
 
