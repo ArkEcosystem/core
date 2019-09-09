@@ -19,7 +19,7 @@ export class Processor implements TransactionPool.IProcessor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) {}
+    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) { }
 
     public async validate(transactions: Interfaces.ITransactionData[]): Promise<TransactionPool.IProcessorResult> {
         this.cacheTransactions(transactions);
@@ -30,10 +30,6 @@ export class Processor implements TransactionPool.IProcessor {
             await this.removeForgedTransactions();
 
             await this.addTransactionsToPool();
-
-            app.resolvePlugin<State.IStateService>("state")
-                .getStore()
-                .removeCachedTransactionIds([...new Set([...this.accept.keys(), ...Object.keys(this.errors)])]);
 
             this.printStats();
         }
