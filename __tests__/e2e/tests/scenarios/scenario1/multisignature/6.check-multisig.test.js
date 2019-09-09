@@ -18,6 +18,10 @@ describe("Check confirmed and unconfirmed transactions", () => {
         testUtils.expectSuccessful(response);
         const transactions = response.data.data;
         
+        // valid transaction was accepted
         expect(transactions.filter(tx => tx.recipient === utils.randomWallet1.address).length).toBe(1);
+
+        // invalid transactions were not accepted
+        expect(transactions.filter(tx => tx.recipient === utils.randomWallet2.address).length).toBe(0);
     });
 });
