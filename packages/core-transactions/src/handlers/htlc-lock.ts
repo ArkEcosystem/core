@@ -16,13 +16,20 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const lockTransactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const lockTransactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
+            this.getConstructor().type,
+        );
         for (const transaction of lockTransactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const locks = wallet.getAttribute("htlc.locks", {});
-            locks[transaction.id] = transaction;
+            const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
+            locks[transaction.id] = {
+                amount: transaction.amount,
+                recipientId: transaction.recipientId,
+                asset: transaction.asset.lock,
+            };
             wallet.setAttribute("htlc.locks", locks);
-            const lockedBalance = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+
+            const lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
             wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
             walletManager.reindex(wallet);
         }
@@ -55,11 +62,15 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const locks = sender.getAttribute("htlc.locks", {});
-        locks[transaction.id] = transaction.data;
+        const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks", {});
+        locks[transaction.id] = {
+            amount: transaction.data.amount,
+            recipientId: transaction.data.recipientId,
+            asset: transaction.data.asset.lock,
+        };
         sender.setAttribute("htlc.locks", locks);
 
-        const lockedBalance = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        const lockedBalance: Utils.BigNumber = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         sender.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.data.amount));
 
         walletManager.reindex(sender);
@@ -72,12 +83,11 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const lockedBalance = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        const lockedBalance: Utils.BigNumber = sender.getAttribute("htlc.lockedBalance");
         sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
 
-        const locks = sender.getAttribute("htlc.locks", {});
+        const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks");
         delete locks[transaction.id];
-        sender.setAttribute("htlc.locks", locks);
 
         walletManager.reindex(sender);
     }

@@ -1,13 +1,12 @@
 import "jest-extended";
 
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
+import { HtlcLockExpirationType, TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
 import { HtlcLockBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-lock";
-import { HtlcLockExpirationType } from "../../../../../../packages/crypto/src/transactions/types/enums";
 import { HtlcLockTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-lock";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
-const { UnixTimestamp } = HtlcLockExpirationType;
+const { EpochTimestamp } = HtlcLockExpirationType;
 
 let builder: HtlcLockBuilder;
 
@@ -29,7 +28,7 @@ describe("Htlc lock Transaction", () => {
             const htlcLockAsset = {
                 secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
                 expiration: {
-                    type: UnixTimestamp,
+                    type: EpochTimestamp,
                     value: Math.floor(Date.now() / 1000),
                 },
             };
@@ -44,7 +43,7 @@ describe("Htlc lock Transaction", () => {
         const htlcLockAsset = {
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
             expiration: {
-                type: UnixTimestamp,
+                type: EpochTimestamp,
                 value: Math.floor(Date.now() / 1000),
             },
         };

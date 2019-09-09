@@ -18,10 +18,6 @@ import { deserializer } from "../../../../packages/crypto/src/transactions/deser
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
-import { HtlcLockExpirationType } from "../../../../packages/crypto/src/transactions/types/enums";
-
-const { UnixTimestamp } = HtlcLockExpirationType;
-
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
         const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount"];
@@ -338,7 +334,7 @@ describe("Transaction serializer / deserializer", () => {
         const htlcLockAsset = {
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
             expiration: {
-                type: UnixTimestamp,
+                type: Enums.HtlcLockExpirationType.EpochTimestamp,
                 value: Math.floor(Date.now() / 1000),
             },
         };
@@ -613,8 +609,8 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("getBytesV1", () => {
-        beforeAll(() => configManager.getMilestone().aip11 = false);
-        afterAll(() => configManager.getMilestone().aip11 = true);
+        beforeAll(() => (configManager.getMilestone().aip11 = false));
+        afterAll(() => (configManager.getMilestone().aip11 = true));
         let bytes;
 
         // it('should return Buffer of simply transaction and buffer must be 292 length', () => {

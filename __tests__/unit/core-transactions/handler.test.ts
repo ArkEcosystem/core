@@ -2,8 +2,7 @@ import "jest-extended";
 
 import { State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
-import { formatTimestamp } from "@arkecosystem/core-utils";
-import { Crypto, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     AlreadyVotedError,
     HtlcLockExpiredError,
@@ -30,16 +29,16 @@ import {
 import { Handlers, Interfaces as TransactionsInterfaces } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 
-const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
+const { EpochTimestamp, BlockHeight } = Enums.HtlcLockExpirationType;
 
 const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 
-const makeUnixTimestamp = (secondsRelativeToLastBlock = 9) =>
-    formatTimestamp(mockLastBlockData.timestamp).unix + secondsRelativeToLastBlock;
 const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
     mockLastBlockData.height + heightRelativeToLastBlock;
-const makeExpiredTimestamp = type => (type === UnixTimestamp ? makeUnixTimestamp(-9) : makeBlockHeightTimestamp(-2));
-const makeNotExpiredTimestamp = type => (type === UnixTimestamp ? makeUnixTimestamp(99) : makeBlockHeightTimestamp(9));
+const makeExpiredTimestamp = type =>
+    type === EpochTimestamp ? mockLastBlockData.timestamp - 9 : makeBlockHeightTimestamp(-2);
+const makeNotExpiredTimestamp = type =>
+    type === EpochTimestamp ? mockLastBlockData.timestamp + 99 : makeBlockHeightTimestamp(9);
 
 let mockTransaction;
 jest.mock("@arkecosystem/core-container", () => {
@@ -166,8 +165,10 @@ describe("General Tests", () => {
                 legacy: true,
             });
 
-            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrowError(LegacyMultiSignatureError)
-        })
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrowError(
+                LegacyMultiSignatureError,
+            );
+        });
     });
 
     describe("apply", () => {
@@ -1007,7 +1008,7 @@ describe("DelegateResignationTransaction", () => {
     });
 });
 
-describe.each([UnixTimestamp, BlockHeight])("Htlc lock - expiration type %i", expirationType => {
+describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", expirationType => {
     const htlcLockAsset = {
         secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
         expiration: {
@@ -1051,7 +1052,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc lock - expiration type %i", ex
 
             await handler.apply(instance, walletManager);
 
-            expect(senderWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeDefined();
+            expect(senderWallet.getAttribute("htlc.locks")[transaction.id]).toBeDefined();
             expect(senderWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(transaction.amount);
             expect(senderWallet.balance).toEqual(balanceBefore.minus(transaction.fee).minus(transaction.amount));
         });
@@ -1078,14 +1079,14 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc lock - expiration type %i", ex
     });
 });
 
-describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", expirationType => {
+describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", expirationType => {
     const lockPassphrase = "craft imitate step mixture patch forest volcano business charge around girl confirm";
     const lockKeys = Identities.Keys.fromPassphrase(lockPassphrase);
     const claimPassphrase = "fatal hat sail asset chase barrel pluck bag approve coral slab bright";
     const claimKeys = Identities.Keys.fromPassphrase(claimPassphrase);
 
-    let lockWallet;
-    let claimWallet;
+    let lockWallet: State.IWallet;
+    let claimWallet: State.IWallet;
 
     let htlcClaimAsset;
 
@@ -1099,7 +1100,10 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
     beforeEach(async () => {
         walletManager = new Wallets.WalletManager();
-        pool = { walletManager };
+        pool = {
+            walletManager,
+            getTransactionsByType: async (): Promise<Set<Interfaces.ITransaction>> => new Set(),
+        };
 
         lockWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(lockKeys.publicKey, 23));
         lockWallet.publicKey = lockKeys.publicKey;
@@ -1130,7 +1134,14 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
             unlockSecret: secret,
         };
 
-        lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
+        lockWallet.setAttribute("htlc.locks", {
+            [lockTransaction.id]: {
+                amount: lockTransaction.amount,
+                recipientId: lockTransaction.recipientId,
+                asset: lockTransaction.asset.lock,
+            },
+        });
+
         lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
         walletManager.reindex(lockWallet);
 
@@ -1177,6 +1188,8 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
             const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
             dummyWallet.publicKey = dummyKeys.publicKey;
 
+            walletManager.reindex(dummyWallet);
+
             const htlcClaimAsset = {
                 lockTransactionId: lockTransaction.id,
                 unlockSecret: "my secret that should be 32bytes",
@@ -1212,7 +1225,14 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
                 unlockSecret: secret,
             };
 
-            lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
+            lockWallet.setAttribute("htlc.locks", {
+                [lockTransaction.id]: {
+                    amount: lockTransaction.amount,
+                    recipientId: lockTransaction.recipientId,
+                    asset: lockTransaction.asset.lock,
+                },
+            });
+
             lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
             walletManager.reindex(lockWallet);
 
@@ -1278,6 +1298,8 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
             const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
             dummyWallet.publicKey = dummyKeys.publicKey;
 
+            walletManager.reindex(dummyWallet);
+
             transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
                 .withPassphrase(dummyPassphrase)
                 .createOne();
@@ -1308,7 +1330,7 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
             await handler.apply(instance, walletManager);
 
-            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.locks")[transaction.id]).toBeUndefined();
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
             expect(claimWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
 
@@ -1316,14 +1338,19 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc claim - expiration type %i", e
 
             lockWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockTransaction.id);
             expect(lockWallet).toBeDefined();
-            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toEqual(lockTransaction);
+            expect(lockWallet.getAttribute("htlc.locks")[lockTransaction.id]).toEqual({
+                amount: lockTransaction.amount,
+                recipientId: lockTransaction.recipientId,
+                asset: lockTransaction.asset.lock,
+            });
+
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
             expect(claimWallet.balance).toEqual(balanceBefore);
         });
     });
 });
 
-describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", expirationType => {
+describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i", expirationType => {
     const lockPassphrase = "craft imitate step mixture patch forest volcano business charge around girl confirm";
     const lockKeys = Identities.Keys.fromPassphrase(lockPassphrase);
 
@@ -1340,7 +1367,10 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
     beforeEach(async () => {
         walletManager = new Wallets.WalletManager();
 
-        pool = { walletManager };
+        pool = {
+            walletManager,
+            getTransactionsByType: async (): Promise<Set<Interfaces.ITransaction>> => new Set(),
+        };
 
         lockWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(lockKeys.publicKey, 23));
         lockWallet.publicKey = lockKeys.publicKey;
@@ -1366,7 +1396,14 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
             lockTransactionId: lockTransaction.id,
         };
 
-        lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
+        lockWallet.setAttribute("htlc.locks", {
+            [lockTransaction.id]: {
+                amount: lockTransaction.amount,
+                recipientId: lockTransaction.recipientId,
+                asset: lockTransaction.asset.lock,
+            },
+        });
+
         lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
         walletManager.reindex(lockWallet);
 
@@ -1397,6 +1434,8 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
             dummyWallet.publicKey = dummyKeys.publicKey;
+
+            walletManager.reindex(dummyWallet);
 
             const htlcRefundAsset = {
                 lockTransactionId: lockTransaction.id,
@@ -1430,7 +1469,14 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
                 lockTransactionId: lockTransaction.id,
             };
 
-            lockWallet.setAttribute("htlc.locks", { [lockTransaction.id]: lockTransaction });
+            lockWallet.setAttribute("htlc.locks", {
+                [lockTransaction.id]: {
+                    amount: lockTransaction.amount,
+                    recipientId: lockTransaction.recipientId,
+                    asset: lockTransaction.asset.lock,
+                },
+            });
+
             lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
             walletManager.reindex(lockWallet);
 
@@ -1480,13 +1526,13 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             const balanceBefore = lockWallet.balance;
 
-            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
-            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+            expect(lockWallet.getAttribute("htlc.locks")[lockTransaction.id]).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(lockTransaction.amount);
 
             await handler.apply(instance, walletManager);
 
-            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
-            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.getAttribute("htlc.locks")[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
             expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
         });
 
@@ -1495,6 +1541,8 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
             const dummyKeys = Identities.Keys.fromPassphrase(dummyPassphrase);
             const dummyWallet = new Wallets.Wallet(Identities.Address.fromPublicKey(dummyKeys.publicKey, 23));
             dummyWallet.publicKey = dummyKeys.publicKey;
+
+            walletManager.reindex(dummyWallet);
 
             transaction = TransactionFactory.htlcRefund(htlcRefundAsset)
                 .withPassphrase(dummyPassphrase)
@@ -1506,13 +1554,13 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             const balanceBefore = lockWallet.balance;
 
-            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeDefined();
-            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+            expect(lockWallet.getAttribute("htlc.locks")[lockTransaction.id]).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(lockTransaction.amount);
 
             await handler.apply(instance, walletManager);
 
-            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
-            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.getAttribute("htlc.locks")[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
             expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
         });
     });
@@ -1526,16 +1574,21 @@ describe.each([UnixTimestamp, BlockHeight])("Htlc refund - expiration type %i", 
 
             await handler.apply(instance, walletManager);
 
-            expect(lockWallet.getAttribute("htlc.locks", {})[transaction.id]).toBeUndefined();
-            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.getAttribute("htlc.locks")[transaction.id]).toBeUndefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
             expect(lockWallet.balance).toEqual(balanceBefore.plus(lockTransaction.amount).minus(transaction.fee));
 
             await handler.revert(instance, walletManager);
 
             lockWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockTransaction.id);
             expect(lockWallet).toBeDefined();
-            expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toEqual(lockTransaction);
-            expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
+            expect(lockWallet.getAttribute("htlc.locks")[lockTransaction.id]).toEqual({
+                amount: lockTransaction.amount,
+                recipientId: lockTransaction.recipientId,
+                asset: lockTransaction.asset.lock,
+            });
+
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(lockTransaction.amount);
             expect(lockWallet.balance).toEqual(balanceBefore);
         });
     });

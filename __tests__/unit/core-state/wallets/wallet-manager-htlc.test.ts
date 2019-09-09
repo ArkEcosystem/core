@@ -4,17 +4,15 @@ import { state } from "../mocks/state";
 
 import { State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 
 jest.mock("@arkecosystem/core-container", () => require("../mocks/container").container);
 
-const { UnixTimestamp } = Transactions.enums.HtlcLockExpirationType;
+const { EpochTimestamp } = Enums.HtlcLockExpirationType;
 
 let walletManager: State.IWalletManager;
-
-const makeTimestamp = (secondsRelativeToNow = 0) => Math.floor((Date.now() + secondsRelativeToNow * 1000) / 1000);
 
 beforeAll(() => {
     Managers.configManager.getMilestone().aip11 = true;
@@ -65,8 +63,8 @@ describe("Wallet Manager", () => {
                 const htlcLockAsset = {
                     secretHash,
                     expiration: {
-                        type: UnixTimestamp,
-                        value: makeTimestamp(99),
+                        type: EpochTimestamp,
+                        value: Crypto.Slots.getTime() + 99,
                     },
                 };
                 const lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
@@ -189,8 +187,8 @@ describe("Wallet Manager", () => {
                 const htlcLockAsset = {
                     secretHash,
                     expiration: {
-                        type: UnixTimestamp,
-                        value: makeTimestamp(99),
+                        type: EpochTimestamp,
+                        value: Crypto.Slots.getTime() + 99,
                     },
                 };
                 const lockTransaction = TransactionFactory.htlcLock(htlcLockAsset, claimWallet.address, amount)
@@ -328,8 +326,8 @@ describe("Wallet Manager", () => {
                 const htlcLockAsset = {
                     secretHash,
                     expiration: {
-                        type: UnixTimestamp,
-                        value: makeTimestamp(-9),
+                        type: EpochTimestamp,
+                        value: Crypto.Slots.getTime() - 9,
                     },
                 };
                 const lockTransaction = TransactionFactory.htlcLock(
