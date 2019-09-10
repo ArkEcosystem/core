@@ -53,7 +53,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        await this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
+        await super.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
 
         // Specific HTLC refund checks
         const refundAsset: Interfaces.IHtlcRefundAsset = transaction.data.asset.refund;
@@ -185,11 +185,11 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

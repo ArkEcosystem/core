@@ -66,13 +66,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        if (
-            !databaseWalletManager.hasByPublicKey(sender.publicKey) &&
-            databaseWalletManager.findByAddress(sender.address).balance.isZero()
-        ) {
-            throw new ColdWalletError();
-        }
-
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
@@ -150,6 +143,13 @@ export abstract class TransactionHandler implements ITransactionHandler {
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
+        if (
+            !databaseWalletManager.hasByPublicKey(sender.publicKey) &&
+            databaseWalletManager.findByAddress(sender.address).balance.isZero()
+        ) {
+            throw new ColdWalletError();
+        }
+
         return this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
     }
 
