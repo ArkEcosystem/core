@@ -10,6 +10,7 @@ module.exports = {
         "transactions-valid",
         "htlc-claim",
         "htlc-refund",
-        "multisignature"
+        "multisignature",
+        "multisig-htlc-claim"
     ],
 };
