@@ -15,7 +15,7 @@ const { TransactionFactory } = require('../../../../../helpers/transaction-facto
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
-    const senderWallet = delegates[10];
+    const senderWallet = delegates[11];
     const multisigAddress = Identities.Address.fromMultiSignatureAsset(shared.transactions.multisigRegistration.asset.multiSignature);
     let transaction1 = TransactionFactory.transfer(multisigAddress, 1000 * Math.pow(10, 8), "send coins to multisig wallet")
         .withFee(0.1 * Math.pow(10, 8))

@@ -19,6 +19,13 @@ describe("Check confirmed and unconfirmed transactions", () => {
         const transactions = response.data.data;
         
         // valid transaction was accepted
-        expect(transactions.filter(tx => tx.recipient === utils.randomWallet1.address).length).toBe(1);
+        const lockTransactions = transactions.filter(tx => tx.recipient === utils.randomWallet1.address);
+        expect(lockTransactions.length).toBe(1);
+
+        expect(
+            transactions.filter(tx =>
+                tx.type === Enums.TransactionType.HtlcClaim && tx.asset.claim.lockTransactionId === lockTransactions[0].id
+            ).length
+        ).toBe(1);
     });
 });
