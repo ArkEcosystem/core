@@ -16,11 +16,10 @@ module.exports = async options => {
     
     const multisigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(shared.transactions.multisigRegistration.asset.multiSignature);
     
-    // 1st transaction : "normal" htlc lock transaction that we claim without issue
-    shared.claimTransactions.normal = TransactionFactory.htlcClaim(
+    // 1st transaction : "normal" htlc lock transaction that we refund without issue
+    shared.refundTransactions.normal = TransactionFactory.htlcRefund(
             {
                 lockTransactionId: shared.lockTransactions.normal.id,
-                unlockSecret: shared.lockTransactions.normal.recipientId.slice(0, 32),
             }
         ) 
         .withSenderPublicKey(multisigPublicKey)
@@ -32,5 +31,5 @@ module.exports = async options => {
         ])
         .createOne();
 
-    await testUtils.POST("transactions", { transactions: [ shared.claimTransactions.normal ] }, 1); // to node 1
+    await testUtils.POST("transactions", { transactions: [ shared.refundTransactions.normal ] }, 1); // to node 1
 };
