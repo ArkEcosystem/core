@@ -7,8 +7,7 @@ const testUtils = require("../../../../lib/utils/test-utils");
 const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
 
 /**
- * Send multisig transactions, we need 3 transactions to test when :
- * - valid multisig transaction with 3 participants signing
+ * Send invalid multisig transactions :
  * - not enough signatures : only 2 participants signing
  * - wrong signature : signed with 3 participants but 1 is wrong
  * @param  {Object} options = { }
@@ -20,13 +19,23 @@ module.exports = async options => {
     const multisigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(shared.multisigRegistration.asset.multiSignature);
     
     const transactions = [
-        TransactionFactory.transfer(utils.randomWallet1.address, 1e8)
+        TransactionFactory.transfer(utils.randomWallet2.address, 1e8)
             .withFee(1e7)
+            .withNonce(Utils.BigNumber.make(1))
             .withSenderPublicKey(multisigPublicKey)
             .withPassphraseList([
                 utils.multiSender1.passphrase,
                 utils.multiSender2.passphrase,
-                utils.multiSender3.passphrase,
+            ])
+            .createOne(),
+        TransactionFactory.transfer(utils.randomWallet2.address, 1e8)
+            .withFee(1e7)
+            .withNonce(Utils.BigNumber.make(1))
+            .withSenderPublicKey(multisigPublicKey)
+            .withPassphraseList([
+                utils.multiSender1.passphrase,
+                utils.multiSender2.passphrase,
+                utils.multiSender2.passphrase,
             ])
             .createOne()
     ];
