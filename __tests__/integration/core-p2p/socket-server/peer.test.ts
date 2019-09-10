@@ -243,7 +243,7 @@ describe("Peer socket endpoint", () => {
 
             await expect(
                 emit(
-                    "p2p.internal.eventNameIsTooLongSoShouldCloseTheConnectionWithCode4413AsItTheEventNameExceedsTheMaximumPermittedLengthSizeOf128Characters",
+                    "p2p.peer.eventNameIsTooLongSoShouldCloseTheConnectionWithCode4413AsItTheEventNameExceedsTheMaximumPermittedLengthSizeOf128Characters",
                     {
                         headers,
                     },
@@ -266,6 +266,16 @@ describe("Peer socket endpoint", () => {
 
             await expect(
                 emit("p2p.invalid.getStatus", {
+                    headers,
+                }),
+            ).rejects.toHaveProperty("name", "BadConnectionError");
+        });
+
+        it("should close the connection if an external connection accesses an internal endpoint", async () => {
+            await delay(1000);
+
+            await expect(
+                emit("p2p.internal.acceptNewPeer", {
                     headers,
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
