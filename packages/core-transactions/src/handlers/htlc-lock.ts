@@ -1,5 +1,7 @@
+import { app } from "@arkecosystem/core-container";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { HtlcLockExpiredError } from "../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class HtlcLockTransactionHandler extends TransactionHandler {
@@ -44,6 +46,30 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
+        const lock: Interfaces.IHtlcLockAsset = transaction.data.asset.lock;
+        const lastBlock: Interfaces.IBlock = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastBlock();
+
+        let { blocktime, activeDelegates } = Managers.configManager.getMilestone();
+        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
+
+        // TODO: find a better way to alter minimum lock expiration
+        if (process.env.NODE_ENV === "test") {
+            blocktime = 0;
+            activeDelegates = 0;
+        }
+
+        if (
+            (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
+                expiration.value <= lastBlock.data.timestamp + blocktime * activeDelegates) ||
+            (expiration.type === Enums.HtlcLockExpirationType.BlockHeight &&
+                expiration.value <= lastBlock.data.height + activeDelegates)
+        ) {
+            throw new HtlcLockExpiredError();
+        }
+
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
@@ -96,11 +122,11 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

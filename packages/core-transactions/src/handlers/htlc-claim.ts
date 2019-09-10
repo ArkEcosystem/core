@@ -74,11 +74,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             .resolvePlugin<State.IStateService>("state")
             .getStore()
             .getLastBlock();
-        const lastBlockEpochTimestamp: number = lastBlock.data.timestamp;
+
         const expiration: Interfaces.IHtlcExpiration = lock.asset.expiration;
         if (
             (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
-                expiration.value <= lastBlockEpochTimestamp) ||
+                expiration.value <= lastBlock.data.timestamp) ||
             (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value <= lastBlock.data.height)
         ) {
             throw new HtlcLockExpiredError();

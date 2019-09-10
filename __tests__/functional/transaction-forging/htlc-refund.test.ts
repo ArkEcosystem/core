@@ -29,7 +29,7 @@ describe("Transaction Forging - HTLC Refund", () => {
                 secretHash,
                 expiration: {
                     type: EpochTimestamp,
-                    value: Math.floor((Date.now() + 1000) / 1000),
+                    value: Crypto.Slots.getTime() + 4,
                 },
             },
             Identities.Address.fromPassphrase(secrets[1]),
@@ -84,7 +84,7 @@ describe("Transaction Forging - HTLC Refund", () => {
                 secretHash,
                 expiration: {
                     type: EpochTimestamp,
-                    value: Math.floor((Date.now() + 1000) / 1000),
+                    value: Crypto.Slots.getTime() + 4,
                 },
             },
             Identities.Address.fromPassphrase(secrets[1]),
@@ -156,7 +156,7 @@ describe("Transaction Forging - HTLC Refund", () => {
                 secretHash,
                 expiration: {
                     type: EpochTimestamp,
-                    value: Math.floor((Date.now() + 1000) / 1000),
+                    value: Crypto.Slots.getTime() + 4,
                 },
             },
             Identities.Address.fromPassphrase(secrets[1]),

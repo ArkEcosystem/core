@@ -327,7 +327,7 @@ describe("Wallet Manager", () => {
                     secretHash,
                     expiration: {
                         type: EpochTimestamp,
-                        value: Crypto.Slots.getTime() - 9,
+                        value: Crypto.Slots.getTime(),
                     },
                 };
                 const lockTransaction = TransactionFactory.htlcLock(
@@ -386,6 +386,10 @@ describe("Wallet Manager", () => {
                 };
                 expectBeforeLockTx();
 
+                state.getStore = () => ({
+                    getLastBlock: () => ({ data: { timestamp: Crypto.Slots.getTime() - 8 } }),
+                });
+
                 await walletManager.applyTransaction(lockTransaction);
 
                 const expectAfterLockTx = () => {
@@ -406,6 +410,10 @@ describe("Wallet Manager", () => {
                     );
                 };
                 expectAfterLockTx();
+
+                state.getStore = () => ({
+                    getLastBlock: () => ({ data: { timestamp: Crypto.Slots.getTime() + 8 } }),
+                });
 
                 await walletManager.applyTransaction(refundTransaction);
 

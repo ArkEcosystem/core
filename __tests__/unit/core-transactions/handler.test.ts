@@ -1042,6 +1042,30 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
                 InsufficientBalanceError,
             );
         });
+
+        it("should throw if lock is already expired", async () => {
+            delete process.env.NODE_ENV;
+
+            if (expirationType === Enums.HtlcLockExpirationType.BlockHeight) {
+                instance.data.asset.lock.expiration.value = 4;
+            } else {
+                instance.data.asset.lock.expiration.value = Crypto.Slots.getTime();
+            }
+
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
+                HtlcLockExpiredError,
+            );
+
+            if (expirationType === Enums.HtlcLockExpirationType.BlockHeight) {
+                instance.data.asset.lock.expiration.value = 1000;
+            } else {
+                instance.data.asset.lock.expiration.value = Crypto.Slots.getTime() + 10000;
+            }
+
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
+
+            process.env.NODE_ENV = "test";
+        });
     });
 
     describe("apply", () => {

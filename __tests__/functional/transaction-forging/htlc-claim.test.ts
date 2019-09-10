@@ -29,7 +29,7 @@ describe("Transaction Forging - HTLC Claim", () => {
                 secretHash,
                 expiration: {
                     type: EpochTimestamp,
-                    value: Math.floor((Date.now() + 100000) / 1000),
+                    value: Crypto.Slots.getTime() + 1000,
                 },
             },
             Identities.Address.fromPassphrase(secrets[1], 23),
@@ -84,7 +84,7 @@ describe("Transaction Forging - HTLC Claim", () => {
                 secretHash,
                 expiration: {
                     type: EpochTimestamp,
-                    value: Math.floor((Date.now() + 100000) / 1000),
+                    value: Crypto.Slots.getTime() + 1000,
                 },
             },
             Identities.Address.fromPassphrase(passphrase),
@@ -156,7 +156,7 @@ describe("Transaction Forging - HTLC Claim", () => {
                 secretHash,
                 expiration: {
                     type: EpochTimestamp,
-                    value: Math.floor((Date.now() + 100000) / 1000),
+                    value: Crypto.Slots.getTime() + 1000,
                 },
             },
             multiSigAddress,
