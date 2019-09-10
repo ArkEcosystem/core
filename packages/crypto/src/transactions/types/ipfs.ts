@@ -40,7 +40,7 @@ export class IpfsTransaction extends Transaction {
         const ipfsHashLength: number = buf.readUint8();
         const ipfsHash: Buffer = buf.readBytes(ipfsHashLength).toBuffer();
 
-        const buffer: Buffer = new Buffer(ipfsHashLength + 2);
+        const buffer: Buffer = Buffer.alloc(ipfsHashLength + 2);
         buffer.writeUInt8(hashFunction, 0);
         buffer.writeUInt8(ipfsHashLength, 1);
         buffer.fill(ipfsHash, 2);
