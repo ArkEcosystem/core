@@ -19,8 +19,9 @@ module.exports = {
             65: ["1.create-multisig-registration.action"],
             69: ["2.check-registration.test"],
             70: ["3.transfer-multisig-wallet.action"],
-            74: ["4.create-multisig-txs.action"],
-            79: ["5.check-multisig.test"],
+            74: ["4.create-valid-multisig-txs.action"],
+            76: ["5.create-invalid-multisig-txs.action"],
+            79: ["6.check-multisig.test"],
         },
     },
 };
