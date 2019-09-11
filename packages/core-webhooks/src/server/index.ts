@@ -1,10 +1,11 @@
-import { plugins, Server } from "@arkecosystem/core-http-utils";
 import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { randomBytes } from "crypto";
 
 import { Database } from "../database";
 import { Webhook } from "../interfaces";
+import { Server } from "./hapi";
+import { whitelist } from "./plugins/whitelist";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
@@ -20,7 +21,7 @@ export const startServer = async (app: Contracts.Kernel.Application, config): Pr
     });
 
     await server.register({
-        plugin: plugins.whitelist,
+        plugin: whitelist,
         options: {
             whitelist: config.whitelist,
         },

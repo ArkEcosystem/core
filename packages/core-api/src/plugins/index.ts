@@ -1,8 +1,9 @@
-import { plugins } from "@arkecosystem/core-http-utils";
+import { hapiAjv } from "./hapi-ajv";
+import { whitelist } from "./whitelist";
 
 export const preparePlugins = config => [
     {
-        plugin: plugins.whitelist,
+        plugin: whitelist,
         options: {
             whitelist: config.whitelist,
         },
@@ -10,7 +11,7 @@ export const preparePlugins = config => [
     {
         plugin: require("./set-headers"),
     },
-    { plugin: plugins.hapiAjv },
+    { plugin: hapiAjv },
     {
         plugin: require("hapi-rate-limit"),
         options: config.rateLimit,

@@ -1,8 +1,8 @@
-import { Server } from "@arkecosystem/core-http-utils";
 import { Providers } from "@arkecosystem/core-kernel";
 
 import Handlers from "./handlers";
 import { preparePlugins } from "./plugins";
+import { Server } from "./server";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {

@@ -1,10 +1,7 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { badData } from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
-import deepmerge from "deepmerge";
-import expandHomeDir from "expand-home-dir";
 import { readFileSync } from "fs";
-import TrailingSlash from "hapi-trailing-slash";
 
 @Container.injectable()
 export class Server {
@@ -55,11 +52,6 @@ export class Server {
             handler() {
                 return { data: "Hello World!" };
             },
-        });
-
-        await this.server.register({
-            plugin: TrailingSlash,
-            options: { method: "remove" },
         });
     }
 
@@ -131,13 +123,14 @@ export class Server {
         delete options.enabled;
 
         if (options.tls) {
-            options.tls.key = readFileSync(expandHomeDir(options.tls.key)).toString();
-            options.tls.cert = readFileSync(expandHomeDir(options.tls.cert)).toString();
+            options.tls.key = readFileSync(options.tls.key).toString();
+            options.tls.cert = readFileSync(options.tls.cert).toString();
         }
 
-        return deepmerge(
-            {
+        return {
+            ...{
                 routes: {
+                    stripTrailingSlash: true,
                     payload: {
                         /* istanbul ignore next */
                         async failAction(request, h, err) {
@@ -152,7 +145,7 @@ export class Server {
                     },
                 },
             },
-            options,
-        );
+            ...options,
+        };
     }
 }

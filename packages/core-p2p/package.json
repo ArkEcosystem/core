@@ -25,7 +25,6 @@
     },
     "dependencies": {
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
-        "@arkecosystem/core-http-utils": "^3.0.0-next.0",
         "@arkecosystem/core-transaction-pool": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "@hapi/boom": "^7.4.3",

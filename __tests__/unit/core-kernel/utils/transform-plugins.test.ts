@@ -12,10 +12,6 @@ describe("transformPlugins", () => {
                 enabled: true,
                 port: 4003,
             },
-            "@arkecosystem/core-exchange-json-rpc": {
-                enabled: false,
-                port: 8080,
-            },
             "@arkecosystem/core-webhooks": {
                 enabled: false,
                 port: 4004,

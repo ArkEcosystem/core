@@ -48,7 +48,6 @@
         "@arkecosystem/core-api": "^3.0.0-next.0",
         "@arkecosystem/core-blockchain": "^3.0.0-next.0",
         "@arkecosystem/core-database-postgres": "^3.0.0-next.0",
-        "@arkecosystem/core-exchange-json-rpc": "^3.0.0-next.0",
         "@arkecosystem/core-forger": "^3.0.0-next.0",
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "@arkecosystem/core-p2p": "^3.0.0-next.0",

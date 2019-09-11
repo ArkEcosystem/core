@@ -6,10 +6,7 @@ import { Enums } from "@packages/core-kernel/src";
 import { Database } from "@packages/core-webhooks/src/database";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { startServer } from "@packages/core-webhooks/src/server";
-
-// FIX: Types have separate declarations of a private property 'configRepository'.
-//      This error shows up if we try to resolve "Server" from the "core-http-utils/src" directory.
-import { Server } from "@arkecosystem/core-http-utils";
+import { Server } from "@packages/core-webhooks/src/server/hapi";
 
 const postData = {
     event: Enums.Events.State.BlockForged,

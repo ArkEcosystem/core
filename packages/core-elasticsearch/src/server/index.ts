@@ -1,9 +1,9 @@
-import { Server } from "@arkecosystem/core-http-utils";
 import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Joi from "@hapi/joi";
 
-import { client } from "./client";
+import { client } from "../client";
+import { Server } from "./hapi";
 
 export const startServer = async (app: Contracts.Kernel.Application, config) => {
     const server = app.resolve<Server>(Server);
