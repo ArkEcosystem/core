@@ -17,6 +17,7 @@ import {
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
+    NotEnoughDelegatesError,
     NoVoteError,
     SecondSignatureAlreadyRegisteredError,
     SenderWalletMismatchError,
@@ -166,8 +167,10 @@ describe("General Tests", () => {
                 legacy: true,
             });
 
-            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrowError(LegacyMultiSignatureError)
-        })
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrowError(
+                LegacyMultiSignatureError,
+            );
+        });
     });
 
     describe("apply", () => {
@@ -912,6 +915,7 @@ describe("MultiPaymentTransaction", () => {
 
 describe("DelegateResignationTransaction", () => {
     let voteTransaction;
+    let allByUsername;
 
     beforeEach(async () => {
         transaction = TransactionFactory.delegateResignation()
@@ -926,9 +930,14 @@ describe("DelegateResignationTransaction", () => {
         senderWallet.forgetAttribute("delegate.resigned");
 
         walletManager.reindex(senderWallet);
+        allByUsername = jest.spyOn(walletManager, "allByUsername").mockReturnValue(new Array(52).fill(recipientWallet));
 
         handler = await Handlers.Registry.get(transaction.type);
         instance = Transactions.TransactionFactory.fromData(transaction);
+    });
+
+    afterEach(() => {
+        allByUsername.mockRestore();
     });
 
     describe("canApply", () => {
@@ -948,6 +957,31 @@ describe("DelegateResignationTransaction", () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
+            );
+        });
+
+        it("should throw if not enough delegates", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
+            senderWallet.forgetAttribute("delegate.resigned");
+            allByUsername = jest
+                .spyOn(walletManager, "allByUsername")
+                .mockReturnValueOnce(new Array(51).fill(senderWallet));
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
+                NotEnoughDelegatesError,
+            );
+        });
+
+        it("should throw if not enough delegates due to already resigned delegates", async () => {
+            allByUsername = jest
+                .spyOn(walletManager, "allByUsername")
+                .mockReturnValueOnce([...new Array(51).fill(senderWallet), recipientWallet]);
+
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
+
+            recipientWallet.setAttribute("delegate.resigned", true);
+
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
+                NotEnoughDelegatesError,
             );
         });
     });
