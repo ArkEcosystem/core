@@ -1,5 +1,6 @@
 import chalk, { Chalk } from "chalk";
 import { WriteStream } from "fs";
+import isEmpty from "lodash.isempty";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
 import pump from "pump";
@@ -7,26 +8,37 @@ import { Transform } from "readable-stream";
 import rfs from "rotating-file-stream";
 import split from "split2";
 import { PassThrough } from "stream";
+import { inspect } from "util";
 
 import { Application } from "../../../contracts/kernel";
-import { Logger as LoggerContract } from "../../../contracts/kernel/log";
+import { Logger } from "../../../contracts/kernel/log";
 import { Identifiers, inject, injectable } from "../../../ioc";
 import { ConfigRepository } from "../../config";
-import { Logger } from "../logger";
 
 @injectable()
-export class PinoLogger extends Logger implements LoggerContract {
+export class PinoLogger implements Logger {
+    /**
+     * @private
+     * @type {Application}
+     * @memberof PinoLogger
+     */
     @inject(Identifiers.Application)
     private readonly app: Application;
 
+    /**
+     * @private
+     * @type {ConfigRepository}
+     * @memberof PinoLogger
+     */
     @inject(Identifiers.ConfigRepository)
     private readonly configRepository: ConfigRepository;
 
-    private fileStream: WriteStream;
-
-    protected logger: pino.Logger;
-
-    private levelStyles: Record<string, Chalk> = {
+    /**
+     * @private
+     * @type {Record<string, Chalk>}
+     * @memberof PinoLogger
+     */
+    private readonly levelStyles: Record<string, Chalk> = {
         emergency: chalk.bgRed,
         alert: chalk.red,
         critical: chalk.red,
@@ -37,7 +49,32 @@ export class PinoLogger extends Logger implements LoggerContract {
         debug: chalk.magenta,
     };
 
-    public async make(): Promise<LoggerContract> {
+    /**
+     * @private
+     * @type {WriteStream}
+     * @memberof PinoLogger
+     */
+    private fileStream: WriteStream;
+
+    /**
+     * @private
+     * @type {pino.Logger}
+     * @memberof PinoLogger
+     */
+    private logger: pino.Logger;
+
+    /**
+     * @private
+     * @type {boolean}
+     * @memberof PinoLogger
+     */
+    private silentConsole: boolean = false;
+
+    /**
+     * @returns {Promise<Logger>}
+     * @memberof PinoLogger
+     */
+    public async make(): Promise<Logger> {
         const options: any = this.configRepository.get("app.services.log");
 
         const stream: PassThrough = new PassThrough();
@@ -63,7 +100,7 @@ export class PinoLogger extends Logger implements LoggerContract {
             stream,
         );
 
-        this.fileStream = this.getFileStream(options);
+        this.fileStream = this.getFileStream(options.fileRotator);
 
         // @ts-ignore
         const consoleTransport = this.createPrettyTransport(options.levels.console, { colorize: true });
@@ -76,6 +113,109 @@ export class PinoLogger extends Logger implements LoggerContract {
         return this;
     }
 
+    /**
+     * @param {string} level
+     * @param {*} message
+     * @returns {boolean}
+     * @memberof Logger
+     */
+    public log(level: string, message: any): boolean {
+        if (this.silentConsole) {
+            return false;
+        }
+
+        if (isEmpty(message)) {
+            return false;
+        }
+
+        if (typeof message !== "string") {
+            message = inspect(message, { depth: 1 });
+        }
+
+        this.logger[level](message);
+
+        return true;
+    }
+
+    /**
+     * @param {*} message
+     * @memberof PinoLogger
+     */
+    public emergency(message: any): void {
+        this.log("emergency", message);
+    }
+
+    /**
+     * @param {*} message
+     * @memberof PinoLogger
+     */
+    public alert(message: any): void {
+        this.log("alert", message);
+    }
+
+    /**
+     * @param {*} message
+     * @memberof PinoLogger
+     */
+    public critical(message: any): void {
+        this.log("critical", message);
+    }
+
+    /**
+     * @param {*} message
+     * @memberof PinoLogger
+     */
+    public error(message: any): void {
+        this.log("error", message);
+    }
+
+    /**
+     * @param {*} message
+     * @memberof PinoLogger
+     */
+    public warning(message: any): void {
+        this.log("warning", message);
+    }
+
+    /**
+     * @param {*} message
+     * @memberof PinoLogger
+     */
+    public notice(message: any): void {
+        this.log("notice", message);
+    }
+
+    /**
+     * @param {*} message
+     * @memberof PinoLogger
+     */
+    public info(message: any): void {
+        this.log("info", message);
+    }
+
+    /**
+     * @param {*} message
+     * @memberof PinoLogger
+     */
+    public debug(message: any): void {
+        this.log("debug", message);
+    }
+
+    /**
+     * @param {boolean} suppress
+     * @memberof PinoLogger
+     */
+    public suppressConsoleOutput(suppress: boolean): void {
+        this.silentConsole = suppress;
+    }
+
+    /**
+     * @private
+     * @param {string} level
+     * @param {PrettyOptions} [prettyOptions]
+     * @returns {Transform}
+     * @memberof PinoLogger
+     */
     private createPrettyTransport(level: string, prettyOptions?: PrettyOptions): Transform {
         const pinoPretty: PinoPretty = PinoPretty({
             ...{
@@ -110,7 +250,13 @@ export class PinoLogger extends Logger implements LoggerContract {
         });
     }
 
-    private getFileStream(options): WriteStream {
+    /**
+     * @private
+     * @param {{ interval: string }} options
+     * @returns {WriteStream}
+     * @memberof PinoLogger
+     */
+    private getFileStream(options: { interval: string }): WriteStream {
         return rfs(
             (time: Date, index: number) => {
                 if (!time) {
@@ -128,7 +274,7 @@ export class PinoLogger extends Logger implements LoggerContract {
             {
                 path: this.app.logPath(),
                 initialRotation: true,
-                interval: options.fileRotator ? options.fileRotator.interval : "1d",
+                interval: options.interval,
                 maxSize: "100M",
                 maxFiles: 10,
                 compress: "gzip",
