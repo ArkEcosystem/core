@@ -1,4 +1,4 @@
-import { HttpServer } from "@arkecosystem/core-http-utils";
+import { Server } from "@arkecosystem/core-http-utils";
 import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Joi from "@hapi/joi";
@@ -6,7 +6,7 @@ import Joi from "@hapi/joi";
 import { client } from "./client";
 
 export const startServer = async (app: Contracts.Kernel.Application, config) => {
-    const server = app.resolve<HttpServer>(HttpServer);
+    const server = app.resolve<Server>(Server);
 
     await server.init("Elasticsearch API", {
         host: config.host,

@@ -1,4 +1,4 @@
-import { HttpServer } from "./http-server";
 import * as plugins from "./plugins";
+import { Server } from "./server";
 
-export { HttpServer, plugins };
+export { Server, plugins };

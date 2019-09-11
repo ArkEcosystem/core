@@ -1,10 +1,6 @@
 import { plugins } from "@arkecosystem/core-http-utils";
 
 export const preparePlugins = config => [
-    { plugin: plugins.contentType },
-    {
-        plugin: plugins.corsHeaders,
-    },
     {
         plugin: plugins.whitelist,
         options: {

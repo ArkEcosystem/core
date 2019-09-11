@@ -1,4 +1,4 @@
-import { HttpServer, plugins } from "@arkecosystem/core-http-utils";
+import { plugins, Server } from "@arkecosystem/core-http-utils";
 import { Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { randomBytes } from "crypto";
@@ -8,8 +8,8 @@ import { Webhook } from "../interfaces";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
-export const startServer = async (app: Contracts.Kernel.Application, config): Promise<HttpServer> => {
-    const server = app.resolve<HttpServer>(HttpServer);
+export const startServer = async (app: Contracts.Kernel.Application, config): Promise<Server> => {
+    const server = app.resolve<Server>(Server);
 
     await server.init("Webhook API", {
         host: config.host,

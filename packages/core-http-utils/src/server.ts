@@ -1,13 +1,13 @@
 import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
 import { badData } from "@hapi/boom";
-import { Server, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
+import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import deepmerge from "deepmerge";
 import expandHomeDir from "expand-home-dir";
 import { readFileSync } from "fs";
 import TrailingSlash from "hapi-trailing-slash";
 
 @Container.injectable()
-export class HttpServer {
+export class Server {
     /**
      * @private
      * @type {Contracts.Kernel.Application}
@@ -18,10 +18,10 @@ export class HttpServer {
 
     /**
      * @private
-     * @type {Server}
+     * @type {HapiServer}
      * @memberof Server
      */
-    private server: Server;
+    private server: HapiServer;
 
     /**
      * @private
@@ -34,11 +34,20 @@ export class HttpServer {
      * @param {string} name
      * @param {Types.JsonObject} optionsServer
      * @returns {Promise<void>}
-     * @memberof HttpServer
+     * @memberof Server
      */
     public async init(name: string, optionsServer: Types.JsonObject): Promise<void> {
         this.name = name;
-        this.server = new Server(this.getServerOptions(optionsServer));
+        this.server = new HapiServer(this.getServerOptions(optionsServer));
+
+        this.server.ext({
+            type: "onPreHandler",
+            async method(request, h) {
+                request.headers["content-type"] = "application/json";
+
+                return h.continue;
+            },
+        });
 
         this.server.route({
             method: "GET",
@@ -63,8 +72,8 @@ export class HttpServer {
             await this.server.start();
 
             this.app.log.info(`${this.name} Server started at ${this.server.info.uri}`);
-        } catch (error) {
-            await this.app.terminate(`Failed to start ${this.name} Server!`, error);
+        } catch {
+            await this.app.terminate(`Failed to start ${this.name} Server!`);
         }
     }
 
@@ -77,15 +86,15 @@ export class HttpServer {
             await this.server.stop();
 
             this.app.log.info(`${this.name} Server stopped at ${this.server.info.uri}`);
-        } catch (error) {
-            await this.app.terminate(`Failed to stop ${this.name} Server!`, error);
+        } catch {
+            await this.app.terminate(`Failed to stop ${this.name} Server!`);
         }
     }
 
     /**
      * @param {(any|any[])} plugins
      * @returns {Promise<void>}
-     * @memberof HttpServer
+     * @memberof Server
      */
     // @todo: add proper types
     public async register(plugins: any | any[]): Promise<void> {
@@ -95,7 +104,7 @@ export class HttpServer {
     /**
      * @param {(ServerRoute | ServerRoute[])} routes
      * @returns {Promise<void>}
-     * @memberof HttpServer
+     * @memberof Server
      */
     public async route(routes: ServerRoute | ServerRoute[]): Promise<void> {
         return this.server.route(routes);
@@ -104,34 +113,24 @@ export class HttpServer {
     /**
      * @param {(string | ServerInjectOptions)} options
      * @returns {Promise<void>}
-     * @memberof HttpServer
+     * @memberof Server
      */
     public async inject(options: string | ServerInjectOptions): Promise<ServerInjectResponse> {
         return this.server.inject(options);
     }
 
     /**
-     * @param {(string | ServerInjectOptions)} options
-     * @returns {void}
-     * @memberof HttpServer
-     */
-    public views(options: any): void {
-        // @ts-ignore
-        this.server.views(options);
-    }
-
-    /**
      * @private
      * @param {Record<string, any>} options
      * @returns {object}
-     * @memberof HttpServer
+     * @memberof Server
      */
     private getServerOptions(options: Record<string, any>): object {
         options = { ...options };
 
         delete options.enabled;
 
-        if (options.tls && Object.keys(options.tls).length) {
+        if (options.tls) {
             options.tls.key = readFileSync(expandHomeDir(options.tls.key)).toString();
             options.tls.cert = readFileSync(expandHomeDir(options.tls.cert)).toString();
         }
@@ -140,11 +139,13 @@ export class HttpServer {
             {
                 routes: {
                     payload: {
+                        /* istanbul ignore next */
                         async failAction(request, h, err) {
                             return badData(err.message);
                         },
                     },
                     validate: {
+                        /* istanbul ignore next */
                         async failAction(request, h, err) {
                             return badData(err.message);
                         },

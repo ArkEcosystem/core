@@ -1,4 +1,4 @@
-import { HttpServer } from "@arkecosystem/core-http-utils";
+import { Server } from "@arkecosystem/core-http-utils";
 import { Providers } from "@arkecosystem/core-kernel";
 
 import Handlers from "./handlers";
@@ -19,32 +19,41 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async boot(): Promise<void> {
         if (this.config().get("server.http.enabled")) {
-            await this.app.get<HttpServer>("api.http").start();
+            await this.app.get<Server>("api.http").start();
         }
 
         if (this.config().get("server.https.enabled")) {
-            await this.app.get<HttpServer>("api.https").start();
+            await this.app.get<Server>("api.https").start();
         }
     }
 
     public async dispose(): Promise<void> {
         if (this.config().get("server.http.enabled")) {
-            await this.app.get<HttpServer>("api.http").stop();
+            await this.app.get<Server>("api.http").stop();
         }
 
         if (this.config().get("server.https.enabled")) {
-            await this.app.get<HttpServer>("api.https").stop();
+            await this.app.get<Server>("api.https").stop();
         }
     }
 
     private async buildServer(type: string): Promise<void> {
         this.app
-            .bind<HttpServer>(`api.${type}`)
-            .to(HttpServer)
+            .bind<Server>(`api.${type}`)
+            .to(Server)
             .inSingletonScope();
 
-        const server: HttpServer = this.app.get<HttpServer>(`api.${type}`);
-        await server.init(`Public API (${type.toUpperCase()})`, this.config().get(`server.${type}`));
+        const server: Server = this.app.get<Server>(`api.${type}`);
+
+        await server.init(`Public API (${type.toUpperCase()})`, {
+            ...this.config().get(`server.${type}`),
+            ...{
+                routes: {
+                    cors: true,
+                },
+            },
+        });
+
         await server.register(preparePlugins(this.config().get("plugins")));
 
         await server.register({

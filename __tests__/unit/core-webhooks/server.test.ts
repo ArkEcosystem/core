@@ -8,8 +8,8 @@ import { dirSync, setGracefulCleanup } from "tmp";
 import { startServer } from "@packages/core-webhooks/src/server";
 
 // FIX: Types have separate declarations of a private property 'configRepository'.
-//      This error shows up if we try to resolve "HttpServer" from the "core-http-utils/src" directory.
-import { HttpServer } from "@arkecosystem/core-http-utils";
+//      This error shows up if we try to resolve "Server" from the "core-http-utils/src" directory.
+import { Server } from "@arkecosystem/core-http-utils";
 
 const postData = {
     event: Enums.Events.State.BlockForged,
@@ -29,7 +29,7 @@ const postData = {
     ],
 };
 
-const request = async (server: HttpServer, method, path, payload = {}) => {
+const request = async (server: Server, method, path, payload = {}) => {
     const response = await server.inject({ method, url: `http://localhost:4004/api/${path}`, payload });
 
     return { body: response.result as any, status: response.statusCode };
@@ -37,7 +37,7 @@ const request = async (server: HttpServer, method, path, payload = {}) => {
 
 const createWebhook = (server, data?: any) => request(server, "POST", "webhooks", data || postData);
 
-let server: HttpServer;
+let server: Server;
 let container: interfaces.Container;
 
 beforeEach(async () => {

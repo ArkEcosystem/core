@@ -8,6 +8,10 @@ export const whitelist = {
         server.ext({
             type: "onRequest",
             async method(request, h) {
+                if (!options.whitelist) {
+                    return h.continue;
+                }
+
                 if (Utils.isWhitelisted(options.whitelist, request.info.remoteAddress)) {
                     return h.continue;
                 }
