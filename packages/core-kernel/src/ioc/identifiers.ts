@@ -23,6 +23,7 @@ export const Identifiers: Record<string, symbol> = {
     ValidationManager: Symbol.for("Manager<Validation>"),
     // Services
     ActionService: Symbol.for("Service<Actions>"),
+    AttributeService: Symbol.for("Service<Attribute>"),
     BlockchainService: Symbol.for("Service<Blockchain>"),
     CacheService: Symbol.for("Service<Cache>"),
     ConfigService: Symbol.for("Service<Config>"),
