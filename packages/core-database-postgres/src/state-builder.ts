@@ -14,7 +14,7 @@ export class StateBuilder {
 
     public async run(): Promise<void> {
         const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.getAll();
-        const steps = transactionHandlers.length + 2;
+        const steps = transactionHandlers.length + 3;
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
         await this.buildBlockRewards();
@@ -31,6 +31,9 @@ export class StateBuilder {
 
             await transactionHandler.bootstrap(this.connection, this.walletManager);
         }
+
+        this.logger.info(`State Generation - Step ${steps - 1} of ${steps}: Vote Balances`);
+        this.walletManager.buildVoteBalances();
 
         this.logger.info(
             `State Generation complete! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
