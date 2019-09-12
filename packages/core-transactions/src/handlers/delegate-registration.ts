@@ -70,8 +70,6 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
             wallet.setAttribute("delegate.lastBlock", block);
         }
-
-        walletManager.buildDelegateRanking();
     }
 
     public async isActivated(): Promise<boolean> {
