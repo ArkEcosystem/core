@@ -29,7 +29,7 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
 
         const wallets: Contracts.State.Wallet[] = sortEntries(
             params,
-            filterRows(this.databaseServiceProvider().walletManager.allByAddress(), params, query),
+            filterRows(this.databaseServiceProvider().walletRepository.allByAddress(), params, query),
             ["balance", "desc"],
         );
 
@@ -47,7 +47,7 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
     }
 
     public findById(id: string): Contracts.State.Wallet {
-        return this.databaseServiceProvider().walletManager.findById(id);
+        return this.databaseServiceProvider().walletRepository.findById(id);
     }
 
     public count(): number {

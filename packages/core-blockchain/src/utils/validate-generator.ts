@@ -12,7 +12,7 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
     const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
     const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 
-    const generatorUsername: string = database.walletManager
+    const generatorUsername: string = database.walletRepository
         .findByPublicKey(block.data.generatorPublicKey)
         .getAttribute("delegate.username");
 
@@ -23,7 +23,7 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
             }) is allowed to forge block ${block.data.height.toLocaleString()}`,
         );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-        const forgingUsername: string = database.walletManager
+        const forgingUsername: string = database.walletRepository
             .findByPublicKey(forgingDelegate.publicKey)
             .getAttribute("delegate.username");
 

@@ -5,7 +5,7 @@ import pluralize from "pluralize";
 
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./interfaces";
-import { WalletManager } from "./wallet-manager";
+import { WalletRepository } from "./wallet-repository";
 
 /**
  * @todo: this class has too many responsibilities at the moment.
@@ -21,7 +21,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     constructor(
         private readonly pool: Contracts.TransactionPool.Connection,
-        private readonly walletManager: WalletManager,
+        private readonly walletRepository: WalletRepository,
     ) {}
 
     public async validate(
@@ -128,9 +128,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
                         transactionInstance.type,
                         transactionInstance.typeGroup,
                     );
-                    if (await handler.verify(transactionInstance, this.pool.walletManager)) {
+                    if (await handler.verify(transactionInstance, this.pool.walletRepository)) {
                         try {
-                            await this.walletManager.throwIfCannotBeApplied(transactionInstance);
+                            await this.walletRepository.throwIfCannotBeApplied(transactionInstance);
                             const dynamicFee: DynamicFeeMatch = dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(

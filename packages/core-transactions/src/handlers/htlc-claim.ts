@@ -32,23 +32,23 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async bootstrap(
         connection: Contracts.Database.Connection,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const lockId = transaction.asset.claim.lockTransactionId;
-            const lockWallet: Contracts.State.Wallet = walletManager.findByIndex(
+            const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
                 Contracts.State.WalletIndexes.Locks,
                 lockId,
             );
             const locks = lockWallet.getAttribute("htlc.locks");
-            const claimWallet: Contracts.State.Wallet = walletManager.findByAddress(locks[lockId].recipientId);
+            const claimWallet: Contracts.State.Wallet = walletRepository.findByAddress(locks[lockId].recipientId);
             claimWallet.balance = claimWallet.balance.plus(locks[lockId].amount);
             const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
             lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
             delete locks[lockId];
             lockWallet.setAttribute("htlc.locks", locks);
-            walletManager.reindex(lockWallet);
+            walletRepository.reindex(lockWallet);
         }
     }
 
@@ -68,7 +68,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        databaseWalletManager: Contracts.State.WalletManager,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         // Common checks (copied from inherited transaction handler class)
         // Only common balance check was removed because we need a specific balance check here
@@ -88,7 +88,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(data.senderPublicKey);
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
             }
@@ -107,7 +107,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(data.senderPublicKey);
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
             }
@@ -122,7 +122,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         // Specific HTLC claim checks
         const claimAsset = transaction.data.asset.claim;
         const lockId = claimAsset.lockTransactionId;
-        const lockWallet = databaseWalletManager.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
+        const lockWallet = databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
@@ -154,7 +154,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         const lockId = data.asset.claim.lockTransactionId;
-        const lockWallet: Contracts.State.Wallet = pool.walletManager.findByIndex(
+        const lockWallet: Contracts.State.Wallet = pool.walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -172,16 +172,16 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
-            walletManager.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        await this.throwIfCannotBeApplied(transaction, sender, walletManager);
+        await this.throwIfCannotBeApplied(transaction, sender, walletRepository);
 
         if (data.version > 1) {
             if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
@@ -192,14 +192,14 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const lockId = data.asset.claim.lockTransactionId;
-        const lockWallet: Contracts.State.Wallet = walletManager.findByIndex(
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
         assert(lockWallet && lockWallet.getAttribute("htlc.locks", {})[lockId]);
 
         const locks = lockWallet.getAttribute("htlc.locks");
-        const recipientWallet = walletManager.findByAddress(locks[lockId].recipientId);
+        const recipientWallet = walletRepository.findByAddress(locks[lockId].recipientId);
 
         const newBalance = recipientWallet.balance.plus(locks[lockId].amount).minus(data.fee);
         assert(!newBalance.isNegative());
@@ -210,16 +210,16 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         delete locks[lockId];
         lockWallet.setAttribute("htlc.locks", locks);
 
-        walletManager.reindex(sender);
-        walletManager.reindex(lockWallet);
-        walletManager.reindex(recipientWallet);
+        walletRepository.reindex(sender);
+        walletRepository.reindex(lockWallet);
+        walletRepository.reindex(recipientWallet);
     }
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (data.version > 1) {
@@ -235,8 +235,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const lockId = data.asset.claim.lockTransactionId;
         const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);
-        const lockWallet = walletManager.findByPublicKey(lockTransaction.senderPublicKey);
-        const recipientWallet = walletManager.findByAddress(lockTransaction.recipientId);
+        const lockWallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
+        const recipientWallet = walletRepository.findByAddress(lockTransaction.recipientId);
 
         recipientWallet.balance = recipientWallet.balance.minus(lockTransaction.amount).plus(data.fee);
         const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
@@ -245,18 +245,18 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         locks[lockTransaction.id] = lockTransaction;
         lockWallet.setAttribute("htlc.locks", locks);
 
-        walletManager.reindex(sender);
-        walletManager.reindex(lockWallet);
-        walletManager.reindex(recipientWallet);
+        walletRepository.reindex(sender);
+        walletRepository.reindex(lockWallet);
+        walletRepository.reindex(recipientWallet);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }

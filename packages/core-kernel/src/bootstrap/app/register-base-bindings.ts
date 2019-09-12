@@ -32,7 +32,7 @@ export class RegisterBaseBindings implements Bootstrapper {
 
         // @todo: implement a getter/setter that sets vars locally and in the process.env variables
         process.env.CORE_ENV = this.app.config("app.flags.env");
-        process.env.NODE_ENV = process.env.CORE_ENV;
+        // process.env.NODE_ENV = process.env.CORE_ENV;
         process.env.CORE_TOKEN = this.app.config("app.flags.token");
         process.env.CORE_NETWORK_NAME = this.app.config("app.flags.network");
         process.env.CORE_VERSION = this.app.config("app.flags.version");

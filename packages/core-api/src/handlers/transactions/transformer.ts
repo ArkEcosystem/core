@@ -16,7 +16,7 @@ export const transformTransaction = (model, transform) => {
 
     const { data } = transaction;
 
-    const sender: string = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
+    const sender: string = databaseService.walletRepository.findByPublicKey(data.senderPublicKey).address;
 
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
 

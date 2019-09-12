@@ -19,12 +19,12 @@ export class TransferTransactionHandler extends TransactionHandler {
 
     public async bootstrap(
         connection: Contracts.Database.Connection,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const transactions = await connection.transactionsRepository.getReceivedTransactions();
 
         for (const transaction of transactions) {
-            const wallet = walletManager.findByAddress(transaction.recipientId);
+            const wallet = walletRepository.findByAddress(transaction.recipientId);
             wallet.balance = wallet.balance.plus(transaction.amount);
         }
     }
@@ -36,9 +36,9 @@ export class TransferTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        databaseWalletManager: Contracts.State.WalletManager,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        return super.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, sender, databaseWalletRepository);
     }
 
     public hasVendorField(): boolean {
@@ -66,17 +66,17 @@ export class TransferTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const recipient: Contracts.State.Wallet = walletManager.findByAddress(transaction.data.recipientId);
+        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
         recipient.balance = recipient.balance.plus(transaction.data.amount);
     }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const recipient: Contracts.State.Wallet = walletManager.findByAddress(transaction.data.recipientId);
+        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
         recipient.balance = recipient.balance.minus(transaction.data.amount);
     }
 }

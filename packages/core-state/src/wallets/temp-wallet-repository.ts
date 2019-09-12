@@ -1,13 +1,13 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import cloneDeep from "lodash.clonedeep";
 
-import { WalletManager } from "./wallet-manager";
+import { WalletRepository } from "./wallet-repository";
 
-export class TempWalletManager extends WalletManager {
-    public constructor(private walletManager: Contracts.State.WalletManager) {
+export class TempWalletRepository extends WalletRepository {
+    public constructor(private readonly walletRepository: Contracts.State.WalletRepository) {
         super();
 
-        this.index(this.walletManager.allByUsername());
+        this.index(this.walletRepository.allByUsername());
     }
 
     public reindex(wallet: Contracts.State.Wallet): void {
@@ -27,21 +27,23 @@ export class TempWalletManager extends WalletManager {
     }
 
     public hasByAddress(address: string): boolean {
-        return this.walletManager.hasByAddress(address);
+        return this.walletRepository.hasByAddress(address);
     }
 
     public hasByPublicKey(publicKey: string): boolean {
-        return this.walletManager.hasByPublicKey(publicKey);
+        return this.walletRepository.hasByPublicKey(publicKey);
     }
 
     public hasByUsername(username: string): boolean {
-        return this.walletManager.hasByUsername(username);
+        return this.walletRepository.hasByUsername(username);
     }
 
     private findClone(indexName: string, key: string): Contracts.State.Wallet {
         const index: Contracts.State.WalletIndex = this.getIndex(indexName);
+
         if (!index.has(key)) {
-            const parentIndex: Contracts.State.WalletIndex = this.walletManager.getIndex(indexName);
+            const parentIndex: Contracts.State.WalletIndex = this.walletRepository.getIndex(indexName);
+
             index.set(key, cloneDeep(parentIndex.get(key)));
         }
 

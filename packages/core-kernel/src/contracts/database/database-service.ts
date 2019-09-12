@@ -3,7 +3,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { EventDispatcher } from "../kernel/events";
 import { Logger } from "../kernel/log";
 import { RoundInfo } from "../shared";
-import { Wallet, WalletManager } from "../state/wallets";
+import { Wallet, WalletRepository } from "../state/wallets";
 import {
     BlocksBusinessRepository,
     DelegatesBusinessRepository,
@@ -17,8 +17,6 @@ export interface DownloadBlock extends Omit<Interfaces.IBlockData, "transactions
 }
 
 export interface DatabaseService {
-    walletManager: WalletManager;
-
     wallets: WalletsBusinessRepository;
 
     delegates: DelegatesBusinessRepository;
@@ -38,6 +36,11 @@ export interface DatabaseService {
     cache: Map<any, any>;
 
     restoredDatabaseIntegrity: boolean;
+
+    // @todo: remove or reorganise them up once core-db is rewritten
+    walletRepository: WalletRepository;
+    blockState: any;
+    walletState: any;
 
     verifyBlockchain(): Promise<boolean>;
 

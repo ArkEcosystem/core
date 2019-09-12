@@ -9,7 +9,8 @@ import { MemoryDatabaseService } from "./memory-database-service";
 export class ReplayBlockchain extends Blockchain {
     private logger: Contracts.Kernel.Log.Logger;
     private localDatabase: Contracts.Database.DatabaseService;
-    private walletManager: Wallets.WalletManager;
+    private walletRepository: Wallets.WalletRepository;
+    private walletState: Wallets.WalletState; // @todo: review and/or remove
     private targetHeight: number;
     private chunkSize = 20000;
 
@@ -22,12 +23,13 @@ export class ReplayBlockchain extends Blockchain {
     public constructor() {
         super({});
 
-        this.walletManager = new Wallets.WalletManager();
-        this.memoryDatabase = new MemoryDatabaseService(this.walletManager);
+        this.walletRepository = new Wallets.WalletRepository();
+        this.walletState = app.resolve<Wallets.WalletState>(Wallets.WalletState).init(this.walletRepository);
+        this.memoryDatabase = new MemoryDatabaseService(this.walletRepository);
 
         this.logger = app.log;
         this.localDatabase = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
-        this.localDatabase.walletManager = this.walletManager;
+        this.localDatabase.walletRepository = this.walletRepository;
 
         this.queue.kill();
         // @ts-ignore
@@ -106,7 +108,7 @@ export class ReplayBlockchain extends Blockchain {
         const { transactions }: Interfaces.IBlock = genesisBlock;
         for (const transaction of transactions) {
             if (transaction.type === Enums.TransactionType.Transfer) {
-                const recipient: Contracts.State.Wallet = this.walletManager.findByAddress(
+                const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(
                     transaction.data.recipientId,
                 );
                 recipient.balance = new Utils.BigNumber(transaction.data.amount);
@@ -114,7 +116,9 @@ export class ReplayBlockchain extends Blockchain {
         }
 
         for (const transaction of transactions) {
-            const sender: Contracts.State.Wallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
             sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
 
             if (transaction.type === Enums.TransactionType.DelegateRegistration) {
@@ -126,19 +130,19 @@ export class ReplayBlockchain extends Blockchain {
                     producedBlocks: 0,
                     round: 0,
                 });
-                this.walletManager.reindex(sender);
+                this.walletRepository.reindex(sender);
             } else if (transaction.type === Enums.TransactionType.Vote) {
                 const vote = transaction.data.asset.votes[0];
                 sender.setAttribute("vote", vote.slice(1));
             }
         }
 
-        this.walletManager.buildVoteBalances();
+        this.walletState.buildVoteBalances();
 
         this.state.setLastBlock(genesisBlock);
 
         const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(1);
-        const delegates: Contracts.State.Wallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+        const delegates: Contracts.State.Wallet[] = this.walletState.loadActiveDelegateList(roundInfo);
 
         (this.localDatabase as any).forgingDelegates = await this.localDatabase.getActiveDelegates(
             roundInfo,

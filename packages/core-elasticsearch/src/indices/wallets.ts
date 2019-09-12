@@ -10,7 +10,7 @@ export class Wallets extends Index {
         for (let i = 0; i < iterations; i++) {
             const offset: number = this.chunkSize * i;
 
-            const rows: Contracts.State.Wallet[] = this.database.walletManager
+            const rows: Contracts.State.Wallet[] = this.database.walletRepository
                 .allByAddress()
                 .slice(offset, offset + this.chunkSize);
 
@@ -36,6 +36,6 @@ export class Wallets extends Index {
     }
 
     protected async countWithDatabase(): Promise<number> {
-        return Object.keys(this.database.walletManager.allByAddress()).length;
+        return Object.keys(this.database.walletRepository.allByAddress()).length;
     }
 }

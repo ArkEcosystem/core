@@ -32,7 +32,7 @@ export class DelegatesBusinessRepository implements Contracts.Database.Delegates
         // Execute...
         let delegates: ReadonlyArray<
             Contracts.State.Wallet
-        > = this.databaseServiceProvider().walletManager.allByUsername();
+        > = this.databaseServiceProvider().walletRepository.allByUsername();
 
         const manipulators = {
             approval: Utils.delegateCalculator.calculateApproval,
@@ -61,7 +61,7 @@ export class DelegatesBusinessRepository implements Contracts.Database.Delegates
     }
 
     public findById(id): Contracts.State.Wallet {
-        const wallet: Contracts.State.Wallet = this.databaseServiceProvider().walletManager.findById(id);
+        const wallet: Contracts.State.Wallet = this.databaseServiceProvider().walletRepository.findById(id);
 
         if (wallet && wallet.isDelegate()) {
             return wallet;

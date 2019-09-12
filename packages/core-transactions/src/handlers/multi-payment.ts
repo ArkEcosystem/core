@@ -19,14 +19,14 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
     public async bootstrap(
         connection: Contracts.Database.Connection,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
-            const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             for (const payment of transaction.asset.payments) {
-                const recipient: Contracts.State.Wallet = walletManager.findByAddress(payment.recipientId);
+                const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
                 recipient.balance = recipient.balance.plus(payment.amount);
                 sender.balance = sender.balance.minus(payment.amount);
             }
@@ -40,7 +40,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletManager: Contracts.State.WalletManager,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
@@ -56,7 +56,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             throw new InsufficientBalanceError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
     }
 
     public async canEnterTransactionPool(
@@ -69,48 +69,48 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletRepository);
 
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
             Utils.BigNumber.ZERO,
         );
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.minus(totalPaymentsAmount);
     }
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletRepository);
 
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
             Utils.BigNumber.ZERO,
         );
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         sender.balance = sender.balance.plus(totalPaymentsAmount);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         for (const payment of transaction.data.asset.payments) {
-            const recipient: Contracts.State.Wallet = walletManager.findByAddress(payment.recipientId);
+            const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
             recipient.balance = recipient.balance.plus(payment.amount);
         }
     }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         for (const payment of transaction.data.asset.payments) {
-            const recipient: Contracts.State.Wallet = walletManager.findByAddress(payment.recipientId);
+            const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
             recipient.balance = recipient.balance.minus(payment.amount);
         }
     }

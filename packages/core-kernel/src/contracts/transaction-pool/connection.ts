@@ -9,7 +9,7 @@ export interface AddTransactionResponse {
 }
 
 export interface Connection {
-    walletManager: any;
+    walletRepository: any;
 
     makeProcessor(): Processor;
 

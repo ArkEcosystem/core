@@ -3,7 +3,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 export class MemoryDatabaseService extends DatabaseService {
-    public constructor(public walletManager: Contracts.State.WalletManager) {
+    public constructor(public walletRepository: Contracts.State.WalletRepository) {
         super(undefined, undefined, undefined, undefined, undefined, undefined, undefined);
         this.blocksInCurrentRound = [];
     }

@@ -118,9 +118,9 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
     }
 
     private getPublicKeyFromAddress(senderId: string): string {
-        const { walletManager }: Contracts.Database.DatabaseService = this.databaseServiceProvider();
+        const { walletRepository }: Contracts.Database.DatabaseService = this.databaseServiceProvider();
 
-        return walletManager.hasByAddress(senderId) ? walletManager.findByAddress(senderId).publicKey : undefined;
+        return walletRepository.hasByAddress(senderId) ? walletRepository.findByAddress(senderId).publicKey : undefined;
     }
 
     private async mapBlocksToTransactions(rows): Promise<Interfaces.ITransactionData[]> {

@@ -379,7 +379,7 @@ export class PeerVerifier {
             // only after it has completed). So fetch the list of delegates from the wallet
             // manager.
 
-            delegates = this.database.walletManager.loadActiveDelegateList(roundInfo);
+            delegates = this.database.walletState.loadActiveDelegateList(roundInfo);
             assert.strictEqual(
                 delegates.length,
                 maxDelegates,

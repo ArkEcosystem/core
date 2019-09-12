@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -27,14 +27,14 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
      */
     public abstract async bootstrap(
         connection: Contracts.Database.Connection,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void>;
 
     public async verify(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<boolean> {
-        const senderWallet: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.hasMultiSignature()) {
             transaction.isVerified = senderWallet.verifySignatures(transaction.data);
@@ -63,7 +63,7 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        databaseWalletManager: Contracts.State.WalletManager,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -90,7 +90,7 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(data.senderPublicKey);
 
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
@@ -111,7 +111,7 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(
+            const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
 
@@ -129,32 +129,32 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
 
     public async apply(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await this.applyToSender(transaction, walletManager);
-        await this.applyToRecipient(transaction, walletManager);
+        await this.applyToSender(transaction, walletRepository);
+        await this.applyToRecipient(transaction, walletRepository);
     }
 
     public async revert(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await this.revertForSender(transaction, walletManager);
-        await this.revertForRecipient(transaction, walletManager);
+        await this.revertForSender(transaction, walletRepository);
+        await this.revertForRecipient(transaction, walletRepository);
     }
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
-            walletManager.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        await this.throwIfCannotBeApplied(transaction, sender, walletManager);
+        await this.throwIfCannotBeApplied(transaction, sender, walletRepository);
 
         if (data.version > 1) {
             if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
@@ -177,9 +177,9 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         sender.balance = sender.balance.plus(data.amount).plus(data.fee);
@@ -195,12 +195,12 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
 
     public abstract async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void>;
 
     public abstract async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void>;
 
     /**

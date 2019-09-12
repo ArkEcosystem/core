@@ -40,7 +40,8 @@ export class PostgresConnection implements Contracts.Database.Connection {
 
     public constructor(
         readonly options: Record<string, any>,
-        private readonly walletManager: Contracts.State.WalletManager,
+        private readonly walletRepository: Contracts.State.WalletRepository,
+        private readonly walletState,
     ) {}
 
     public async make(): Promise<Contracts.Database.Connection> {
@@ -120,7 +121,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
     }
 
     public async buildWallets(): Promise<void> {
-        await new StateBuilder(this, this.walletManager).run();
+        await new StateBuilder(this, this.walletRepository, this.walletState).run();
     }
 
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {

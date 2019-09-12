@@ -31,12 +31,12 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
     public async bootstrap(
         connection: Contracts.Database.Connection,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         for (const transaction of transactions) {
             const lockId = transaction.asset.refund.lockTransactionId;
-            const lockWallet: Contracts.State.Wallet = walletManager.findByIndex(
+            const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
                 Contracts.State.WalletIndexes.Locks,
                 lockId,
             );
@@ -46,7 +46,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
             delete locks[lockId];
             lockWallet.setAttribute("htlc.locks", locks);
-            walletManager.reindex(lockWallet);
+            walletRepository.reindex(lockWallet);
         }
     }
 
@@ -66,7 +66,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        databaseWalletManager: Contracts.State.WalletManager,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         // Common checks (copied from inherited transaction handler class)
         // Only common balance check was removed because we need a specific balance check here
@@ -86,7 +86,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(data.senderPublicKey);
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
             }
@@ -105,7 +105,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(data.senderPublicKey);
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
             }
@@ -120,7 +120,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         // Specific HTLC refund checks
         const refundAsset = transaction.data.asset.refund;
         const lockId = refundAsset.lockTransactionId;
-        const lockWallet = databaseWalletManager.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
+        const lockWallet = databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
@@ -147,7 +147,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         const lockId: string = data.asset.refund.lockTransactionId;
-        const lockWallet: Contracts.State.Wallet = pool.walletManager.findByIndex(
+        const lockWallet: Contracts.State.Wallet = pool.walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -165,16 +165,16 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
-            walletManager.logger.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        await this.throwIfCannotBeApplied(transaction, sender, walletManager);
+        await this.throwIfCannotBeApplied(transaction, sender, walletRepository);
 
         if (data.version > 1) {
             if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
@@ -185,7 +185,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         const lockId: string = data.asset.refund.lockTransactionId;
-        const lockWallet: Contracts.State.Wallet = walletManager.findByIndex(
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -201,14 +201,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         delete locks[lockId];
         lockWallet.setAttribute("htlc.locks", locks);
 
-        walletManager.reindex(lockWallet);
+        walletRepository.reindex(lockWallet);
     }
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (data.version > 1) {
@@ -224,7 +224,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const lockId = transaction.data.asset.refund.lockTransactionId;
         const lockTransaction = await databaseService.transactionsBusinessRepository.findById(lockId);
-        const lockWallet = walletManager.findByPublicKey(lockTransaction.senderPublicKey);
+        const lockWallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
 
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
         const lockedBalance = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
@@ -233,16 +233,16 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         locks[lockTransaction.id] = lockTransaction;
         lockWallet.setAttribute("htlc.locks", locks);
 
-        walletManager.reindex(lockWallet);
+        walletRepository.reindex(lockWallet);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }

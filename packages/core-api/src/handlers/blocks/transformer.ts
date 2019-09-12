@@ -12,7 +12,9 @@ export const transformBlock = (model, transform) => {
     const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         Container.Identifiers.DatabaseService,
     );
-    const generator: Contracts.State.Wallet = databaseService.walletManager.findByPublicKey(model.generatorPublicKey);
+    const generator: Contracts.State.Wallet = databaseService.walletRepository.findByPublicKey(
+        model.generatorPublicKey,
+    );
     const lastBlock: Interfaces.IBlock = app
         .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
         .getLastBlock();

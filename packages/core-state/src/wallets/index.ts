@@ -1,3 +1,4 @@
-export * from "./temp-wallet-manager";
-export * from "./wallet-manager";
+export * from "./temp-wallet-repository";
+export * from "./wallet-repository";
+export * from "./wallet-state";
 export * from "./wallet";

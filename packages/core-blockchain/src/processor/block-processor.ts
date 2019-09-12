@@ -63,7 +63,7 @@ export class BlockProcessor {
                     transaction.type,
                     transaction.typeGroup,
                 );
-                await handler.verify(transaction, this.blockchain.database.walletManager);
+                await handler.verify(transaction, this.blockchain.database.walletRepository);
             }
 
             block.verification = block.verify();

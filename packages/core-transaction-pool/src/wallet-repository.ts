@@ -4,14 +4,14 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 import clonedeep from "lodash.clonedeep";
 
-export class WalletManager extends Wallets.WalletManager {
+export class WalletRepository extends Wallets.WalletRepository {
     private readonly databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         Container.Identifiers.DatabaseService,
     );
 
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
-            this.reindex(clonedeep(this.databaseService.walletManager.findByAddress(address)));
+            this.reindex(clonedeep(this.databaseService.walletRepository.findByAddress(address)));
         }
 
         return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address);
@@ -26,13 +26,13 @@ export class WalletManager extends Wallets.WalletManager {
         // Edge case if sender is unknown and has no balance.
         // NOTE: Check is performed against the database wallet manager.
         const senderPublicKey: string = transaction.data.senderPublicKey;
-        if (!this.databaseService.walletManager.hasByPublicKey(senderPublicKey)) {
+        if (!this.databaseService.walletRepository.hasByPublicKey(senderPublicKey)) {
             const senderAddress: string = Identities.Address.fromPublicKey(senderPublicKey);
 
-            if (this.databaseService.walletManager.findByAddress(senderAddress).balance.isZero()) {
+            if (this.databaseService.walletRepository.findByAddress(senderAddress).balance.isZero()) {
                 const message = "Wallet not allowed to spend before funding is confirmed.";
 
-                this.logger.error(message);
+                app.log.error(message);
 
                 throw new Error(message);
             }
@@ -43,7 +43,7 @@ export class WalletManager extends Wallets.WalletManager {
         return Handlers.Registry.get(transaction.type, transaction.typeGroup).throwIfCannotBeApplied(
             transaction,
             sender,
-            this.databaseService.walletManager,
+            this.databaseService.walletRepository,
         );
     }
 

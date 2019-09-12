@@ -10,21 +10,24 @@ export interface TransactionHandler {
 
     walletAttributes(): ReadonlyArray<string>;
 
-    bootstrap(connection: Contracts.Database.Connection, walletManager: Contracts.State.WalletManager): Promise<void>;
+    bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void>;
 
     isActivated(): Promise<boolean>;
 
-    verify(transaction: Interfaces.ITransaction, walletManager: Contracts.State.WalletManager): Promise<boolean>;
+    verify(transaction: Interfaces.ITransaction, walletRepository: Contracts.State.WalletRepository): Promise<boolean>;
 
     dynamicFee(transaction: Interfaces.ITransaction, addonBytes: number, satoshiPerByte: number): Utils.BigNumber;
 
     throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletManager: Contracts.State.WalletManager,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void>;
-    apply(transaction: Interfaces.ITransaction, walletManager: Contracts.State.WalletManager): Promise<void>;
-    revert(transaction: Interfaces.ITransaction, walletManager: Contracts.State.WalletManager): Promise<void>;
+    apply(transaction: Interfaces.ITransaction, walletRepository: Contracts.State.WalletRepository): Promise<void>;
+    revert(transaction: Interfaces.ITransaction, walletRepository: Contracts.State.WalletRepository): Promise<void>;
 
     canEnterTransactionPool(
         data: Interfaces.ITransactionData,

@@ -10,12 +10,13 @@ export class StateBuilder {
 
     constructor(
         private readonly connection: Contracts.Database.Connection,
-        private readonly walletManager: Contracts.State.WalletManager,
+        private readonly walletRepository: Contracts.State.WalletRepository,
+        private readonly walletState,
     ) {}
 
     public async run(): Promise<void> {
         const transactionHandlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactions();
-        const steps = transactionHandlers.length + 2;
+        const steps = transactionHandlers.length + 3;
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
         await this.buildBlockRewards();
@@ -30,13 +31,19 @@ export class StateBuilder {
                 `State Generation - Step ${3 + i} of ${steps}: ${capitalize(transactionHandler.getConstructor().key)}`,
             );
 
-            await transactionHandler.bootstrap(this.connection, this.walletManager);
+            await transactionHandler.bootstrap(this.connection, this.walletRepository);
         }
 
+        this.logger.info(`State Generation - Step ${steps} of ${steps}: Vote Balances & Delegate Ranking`);
+        this.walletState.buildVoteBalances();
+        this.walletState.buildDelegateRanking();
+
         this.logger.info(
-            `State Generation complete! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
+            `State Generation complete! Wallets in memory: ${Object.keys(this.walletRepository.allByAddress()).length}`,
         );
-        this.logger.info(`Number of registered delegates: ${Object.keys(this.walletManager.allByUsername()).length}`);
+        this.logger.info(
+            `Number of registered delegates: ${Object.keys(this.walletRepository.allByUsername()).length}`,
+        );
 
         this.verifyWalletsConsistency();
 
@@ -47,7 +54,7 @@ export class StateBuilder {
         const blocks = await this.connection.blocksRepository.getBlockRewards();
 
         for (const block of blocks) {
-            const wallet = this.walletManager.findByPublicKey(block.generatorPublicKey);
+            const wallet = this.walletRepository.findByPublicKey(block.generatorPublicKey);
             wallet.balance = wallet.balance.plus(block.reward);
         }
     }
@@ -56,7 +63,7 @@ export class StateBuilder {
         const transactions = await this.connection.transactionsRepository.getSentTransactions();
 
         for (const transaction of transactions) {
-            const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
+            const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             wallet.nonce = Utils.BigNumber.make(transaction.nonce);
             wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
         }
@@ -70,7 +77,7 @@ export class StateBuilder {
     }
 
     private verifyWalletsConsistency(): void {
-        for (const wallet of this.walletManager.allByAddress()) {
+        for (const wallet of this.walletRepository.allByAddress()) {
             if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
                 this.logger.warning(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
 

@@ -9,13 +9,13 @@ import { TransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
 import { Storage } from "./storage";
-import { WalletManager } from "./wallet-manager";
+import { WalletRepository } from "./wallet-repository";
 
 export class Connection implements Contracts.TransactionPool.Connection {
     // @todo: make this private, requires some bigger changes to tests
     public options: Record<string, any>;
     // @todo: make this private, requires some bigger changes to tests
-    public walletManager: WalletManager;
+    public walletRepository: WalletRepository;
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
@@ -29,17 +29,17 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
     constructor({
         options,
-        walletManager,
+        walletRepository,
         memory,
         storage,
     }: {
         options: Record<string, any>;
-        walletManager: WalletManager;
+        walletRepository: WalletRepository;
         memory: Memory;
         storage: Storage;
     }) {
         this.options = options;
-        this.walletManager = walletManager;
+        this.walletRepository = walletRepository;
         this.memory = memory;
         this.storage = storage;
     }
@@ -74,7 +74,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     public makeProcessor(): Contracts.TransactionPool.Processor {
-        return new Processor(this, this.walletManager);
+        return new Processor(this, this.walletRepository);
     }
 
     public async getTransactionsByType(type: number): Promise<Set<Interfaces.ITransaction>> {
@@ -210,16 +210,16 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 transaction.typeGroup,
             );
 
-            const senderWallet: Contracts.State.Wallet = this.walletManager.hasByPublicKey(senderPublicKey)
-                ? this.walletManager.findByPublicKey(senderPublicKey)
+            const senderWallet: Contracts.State.Wallet = this.walletRepository.hasByPublicKey(senderPublicKey)
+                ? this.walletRepository.findByPublicKey(senderPublicKey)
                 : undefined;
 
-            const recipientWallet: Contracts.State.Wallet = this.walletManager.hasByAddress(data.recipientId)
-                ? this.walletManager.findByAddress(data.recipientId)
+            const recipientWallet: Contracts.State.Wallet = this.walletRepository.hasByAddress(data.recipientId)
+                ? this.walletRepository.findByAddress(data.recipientId)
                 : undefined;
 
             if (recipientWallet) {
-                await transactionHandler.applyToRecipient(transaction, this.walletManager);
+                await transactionHandler.applyToRecipient(transaction, this.walletRepository);
             }
 
             if (exists) {
@@ -229,16 +229,16 @@ export class Connection implements Contracts.TransactionPool.Connection {
                     await transactionHandler.throwIfCannotBeApplied(
                         transaction,
                         senderWallet,
-                        this.databaseService.walletManager,
+                        this.databaseService.walletRepository,
                     );
-                    await transactionHandler.applyToSender(transaction, this.walletManager);
+                    await transactionHandler.applyToSender(transaction, this.walletRepository);
                 } catch (error) {
-                    this.walletManager.forget(data.senderPublicKey);
+                    this.walletRepository.forget(data.senderPublicKey);
 
                     if (recipientWallet) {
                         recipientWallet.publicKey
-                            ? this.walletManager.forget(recipientWallet.publicKey)
-                            : this.walletManager.forgetByAddress(recipientWallet.address);
+                            ? this.walletRepository.forget(recipientWallet.publicKey)
+                            : this.walletRepository.forgetByAddress(recipientWallet.address);
                     }
 
                     this.logger.error(
@@ -250,18 +250,14 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 }
             }
 
-            if (
-                senderWallet &&
-                this.walletManager.canBePurged(senderWallet) &&
-                (await this.getSenderSize(senderPublicKey)) === 0
-            ) {
-                this.walletManager.forget(senderPublicKey);
+            if (senderWallet && senderWallet.canBePurged() && (await this.getSenderSize(senderPublicKey)) === 0) {
+                this.walletRepository.forget(senderPublicKey);
             }
         }
 
         // if delegate in poll wallet manager - apply rewards and fees
-        if (this.walletManager.hasByPublicKey(block.data.generatorPublicKey)) {
-            const delegateWallet: Contracts.State.Wallet = this.walletManager.findByPublicKey(
+        if (this.walletRepository.hasByPublicKey(block.data.generatorPublicKey)) {
+            const delegateWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                 block.data.generatorPublicKey,
             );
 
@@ -274,7 +270,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     public async buildWallets(): Promise<void> {
-        this.walletManager.reset();
+        this.walletRepository.reset();
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
@@ -289,7 +285,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 return;
             }
 
-            const senderWallet: Contracts.State.Wallet = this.walletManager.findByPublicKey(
+            const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
 
@@ -302,9 +298,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 await transactionHandler.throwIfCannotBeApplied(
                     transaction,
                     senderWallet,
-                    this.databaseService.walletManager,
+                    this.databaseService.walletRepository,
                 );
-                await transactionHandler.applyToSender(transaction, this.walletManager);
+                await transactionHandler.applyToSender(transaction, this.walletRepository);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
 
@@ -320,7 +316,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         this.removeTransactionsForSender(senderPublicKey);
 
-        this.walletManager.forget(senderPublicKey);
+        this.walletRepository.forget(senderPublicKey);
     }
 
     public async purgeInvalidTransactions(): Promise<void> {
@@ -420,7 +416,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             const lowestFee: Utils.BigNumber = lowest.data.fee;
 
             if (lowestFee.isLessThan(fee)) {
-                await this.walletManager.revertTransactionForSender(lowest);
+                await this.walletRepository.revertTransactionForSender(lowest);
                 this.memory.forget(lowest.id, lowest.data.senderPublicKey);
             } else {
                 return {
@@ -437,10 +433,10 @@ export class Connection implements Contracts.TransactionPool.Connection {
         this.memory.remember(transaction);
 
         try {
-            await this.walletManager.throwIfCannotBeApplied(transaction);
+            await this.walletRepository.throwIfCannotBeApplied(transaction);
             await Handlers.Registry.get(transaction.type, transaction.typeGroup).applyToSender(
                 transaction,
-                this.walletManager,
+                this.walletRepository,
             );
         } catch (error) {
             this.logger.error(error.message);
@@ -474,8 +470,8 @@ export class Connection implements Contracts.TransactionPool.Connection {
             (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
         );
 
-        const databaseWalletManager: Contracts.State.WalletManager = this.databaseService.walletManager;
-        const localWalletManager: Wallets.WalletManager = new Wallets.WalletManager();
+        const databaseWalletRepository: Contracts.State.WalletRepository = this.databaseService.walletRepository;
+        const localWalletRepository: Wallets.WalletRepository = new Wallets.WalletRepository();
 
         for (const transaction of unforgedTransactions) {
             try {
@@ -485,18 +481,18 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
                 strictEqual(transaction.id, deserialized.id);
 
-                const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletManager);
+                const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletRepository);
 
                 const handler: Handlers.TransactionHandler = Handlers.Registry.get(
                     transaction.type,
                     transaction.typeGroup,
                 );
-                await handler.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
+                await handler.throwIfCannotBeApplied(transaction, sender, databaseWalletRepository);
 
-                await handler.applyToSender(transaction, localWalletManager);
+                await handler.applyToSender(transaction, localWalletRepository);
 
                 if (recipient && sender.address !== recipient.address) {
-                    await handler.applyToRecipient(transaction, localWalletManager);
+                    await handler.applyToRecipient(transaction, localWalletRepository);
                 }
 
                 validTransactions.push(deserialized.serialized.toString("hex"));
@@ -513,42 +509,42 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
     private getSenderAndRecipient(
         transaction: Interfaces.ITransaction,
-        localWalletManager: Contracts.State.WalletManager,
+        localWalletRepository: Contracts.State.WalletRepository,
     ): { sender: Contracts.State.Wallet; recipient: Contracts.State.Wallet } {
-        const databaseWalletManager: Contracts.State.WalletManager = this.databaseService.walletManager;
+        const databaseWalletRepository: Contracts.State.WalletRepository = this.databaseService.walletRepository;
         const { senderPublicKey, recipientId } = transaction.data;
 
         let sender: Contracts.State.Wallet;
         let recipient: Contracts.State.Wallet;
 
-        if (localWalletManager.hasByPublicKey(senderPublicKey)) {
-            sender = localWalletManager.findByPublicKey(senderPublicKey);
+        if (localWalletRepository.hasByPublicKey(senderPublicKey)) {
+            sender = localWalletRepository.findByPublicKey(senderPublicKey);
         } else {
-            sender = clonedeep(databaseWalletManager.findByPublicKey(senderPublicKey));
-            localWalletManager.reindex(sender);
+            sender = clonedeep(databaseWalletRepository.findByPublicKey(senderPublicKey));
+            localWalletRepository.reindex(sender);
         }
 
         // HACK: need tx agonistic way for wallets which are modified by transaction
         if (transaction.type === Enums.TransactionType.Vote) {
             const vote = transaction.data.asset.votes[0].slice(1);
-            if (!localWalletManager.hasByPublicKey(vote)) {
-                localWalletManager.reindex(clonedeep(databaseWalletManager.findByPublicKey(vote)));
+            if (!localWalletRepository.hasByPublicKey(vote)) {
+                localWalletRepository.reindex(clonedeep(databaseWalletRepository.findByPublicKey(vote)));
             }
         } else if (transaction.type === Enums.TransactionType.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
-            if (!localWalletManager.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
-                localWalletManager.reindex(
-                    clonedeep(databaseWalletManager.findByIndex(Contracts.State.WalletIndexes.Locks, lockId)),
+            if (!localWalletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
+                localWalletRepository.reindex(
+                    clonedeep(databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId)),
                 );
             }
         }
 
         if (recipientId) {
-            if (localWalletManager.hasByAddress(recipientId)) {
-                recipient = localWalletManager.findByAddress(recipientId);
+            if (localWalletRepository.hasByAddress(recipientId)) {
+                recipient = localWalletRepository.findByAddress(recipientId);
             } else {
-                recipient = clonedeep(databaseWalletManager.findByAddress(recipientId));
-                localWalletManager.reindex(recipient);
+                recipient = clonedeep(databaseWalletRepository.findByAddress(recipientId));
+                localWalletRepository.reindex(recipient);
             }
         }
 
@@ -574,7 +570,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     private async purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): Promise<void> {
         const purge = async (transaction: Interfaces.ITransaction) => {
             this.emitter.dispatch(event, transaction.data);
-            await this.walletManager.revertTransactionForSender(transaction);
+            await this.walletRepository.revertTransactionForSender(transaction);
             this.memory.forget(transaction.id, transaction.data.senderPublicKey);
             this.syncToPersistentStorageIfNecessary();
         };

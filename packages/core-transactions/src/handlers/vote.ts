@@ -26,12 +26,12 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async bootstrap(
         connection: Contracts.Database.Connection,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
-            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             const vote = transaction.asset.votes[0];
             const walletVote: string = wallet.getAttribute("vote");
 
@@ -49,8 +49,6 @@ export class VoteTransactionHandler extends TransactionHandler {
                 wallet.forgetAttribute("vote");
             }
         }
-
-        walletManager.buildVoteBalances();
     }
 
     public async isActivated(): Promise<boolean> {
@@ -60,7 +58,7 @@ export class VoteTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletManager: Contracts.State.WalletManager,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
         const vote: string = data.asset.votes[0];
@@ -79,7 +77,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         }
 
         const delegatePublicKey: string = vote.slice(1);
-        const delegateWallet: Contracts.State.Wallet = databaseWalletManager.findByPublicKey(delegatePublicKey);
+        const delegateWallet: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(delegatePublicKey);
 
         if (!delegateWallet.isDelegate()) {
             throw new VotedForNonDelegateError(vote);
@@ -89,7 +87,7 @@ export class VoteTransactionHandler extends TransactionHandler {
             throw new VotedForResignedDelegateError(vote);
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
@@ -115,11 +113,11 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
@@ -131,11 +129,11 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
@@ -147,11 +145,11 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }

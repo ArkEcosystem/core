@@ -20,21 +20,25 @@ export class Wallet implements Contracts.State.Wallet {
         this.attributes = {};
     }
 
+    // @todo: move this into an AttributesRegistry
     public hasAttribute(key: string): boolean {
         this.assertKnownAttribute(key);
         return dottie.exists(this.attributes, key);
     }
 
+    // @todo: move this into an AttributesRegistry
     public getAttribute<T>(key: string, defaultValue?: T): T {
         this.assertKnownAttribute(key);
         return dottie.get(this.attributes, key, defaultValue);
     }
 
+    // @todo: move this into an AttributesRegistry
     public setAttribute<T = any>(key: string, value: T): void {
         this.assertKnownAttribute(key);
         dottie.set(this.attributes, key, value);
     }
 
+    // @todo: move this into an AttributesRegistry
     public forgetAttribute(key: string): void {
         this.assertKnownAttribute(key);
         this.setAttribute(key, undefined);
@@ -59,6 +63,7 @@ export class Wallet implements Contracts.State.Wallet {
     public canBePurged(): boolean {
         const hasAttributes = Object.keys(this.attributes).length > 0;
         const lockedBalance = this.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+
         return this.balance.isZero() && lockedBalance.isZero() && !hasAttributes;
     }
 

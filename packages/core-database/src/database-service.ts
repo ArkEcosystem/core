@@ -5,9 +5,11 @@ import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils }
 import assert from "assert";
 import cloneDeep from "lodash.clonedeep";
 
+import { BlockState } from "./block-state";
+
 export class DatabaseService implements Contracts.Database.DatabaseService {
     public connection: Contracts.Database.Connection;
-    public walletManager: Contracts.State.WalletManager;
+    public walletRepository: Contracts.State.WalletRepository;
     public logger = app.log;
     public emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
     public options: any;
@@ -21,22 +23,29 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     public forgingDelegates: Contracts.State.Wallet[] = undefined;
     public cache: Map<any, any> = new Map();
 
+    public blockState; // @todo: private readonly
+    public walletState; // @todo: private readonly
+
     constructor(
         options: Record<string, any>,
         connection: Contracts.Database.Connection,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
         walletsBusinessRepository: Contracts.Database.WalletsBusinessRepository,
         delegatesBusinessRepository: Contracts.Database.DelegatesBusinessRepository,
         transactionsBusinessRepository: Contracts.Database.TransactionsBusinessRepository,
         blocksBusinessRepository: Contracts.Database.BlocksBusinessRepository,
     ) {
         this.connection = connection;
-        this.walletManager = walletManager;
+        this.walletRepository = walletRepository;
         this.options = options;
         this.wallets = walletsBusinessRepository;
         this.delegates = delegatesBusinessRepository;
         this.blocksBusinessRepository = blocksBusinessRepository;
         this.transactionsBusinessRepository = transactionsBusinessRepository;
+
+        // @todo: review and/or remove then after the core-db rewrite to loosen coupling
+        this.blockState = app.resolve<BlockState>(BlockState).init(this.walletRepository);
+        this.walletState = app.resolve<Wallets.WalletState>(Wallets.WalletState).init(this.walletRepository);
 
         this.registerListeners();
     }
@@ -70,7 +79,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
-        await this.walletManager.applyBlock(block);
+        await this.blockState.applyBlock(block);
 
         if (this.blocksInCurrentRound) {
             this.blocksInCurrentRound.push(block);
@@ -105,7 +114,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
                         this.updateDelegateStats(this.forgingDelegates);
                     }
 
-                    const delegates: Contracts.State.Wallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
+                    const delegates: Contracts.State.Wallet[] = this.walletState.loadActiveDelegateList(roundInfo);
 
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
                     await this.saveRound(delegates);
@@ -128,7 +137,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async buildWallets(): Promise<void> {
-        this.walletManager.reset();
+        this.walletRepository.reset();
 
         await this.connection.buildWallets();
     }
@@ -163,7 +172,9 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
                     attributes: {
                         delegate: {
                             voteBalance: Utils.BigNumber.make(balance),
-                            username: this.walletManager.findByPublicKey(publicKey).getAttribute("delegate.username"),
+                            username: this.walletRepository
+                                .findByPublicKey(publicKey)
+                                .getAttribute("delegate.username"),
                         },
                     },
                 }),
@@ -405,7 +416,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         await this.revertRound(block.data.height);
-        this.walletManager.revertBlock(block);
+        this.blockState.revertBlock(block);
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
@@ -464,7 +475,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
                 );
 
                 if (producedBlocks.length === 0) {
-                    const wallet: Contracts.State.Wallet = this.walletManager.findByPublicKey(delegate.publicKey);
+                    const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegate.publicKey);
 
                     this.logger.debug(
                         `Delegate ${wallet.getAttribute("delegate.username")} (${
@@ -548,7 +559,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = this.walletManager.findByAddress(senderId);
+        const sender: Contracts.State.Wallet = this.walletRepository.findByAddress(senderId);
         const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
             transaction.type,
             transaction.typeGroup,
@@ -557,13 +568,13 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
 
-            this.walletManager.reindex(sender);
+            this.walletRepository.reindex(sender);
         }
 
         const dbTransaction = await this.getTransaction(transaction.data.id);
 
         try {
-            await transactionHandler.throwIfCannotBeApplied(transaction, sender, this.walletManager);
+            await transactionHandler.throwIfCannotBeApplied(transaction, sender, this.walletRepository);
             return !dbTransaction;
         } catch {
             return false;
@@ -687,7 +698,10 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     ): Promise<Contracts.State.Wallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
-        const tempWalletManager = this.walletManager.clone();
+        const tempWalletRepository = this.walletRepository.clone();
+
+        const tempBlockState = app.resolve<BlockState>(BlockState).init(tempWalletRepository);
+        const tempWalletState = app.resolve<Wallets.WalletState>(Wallets.WalletState).init(tempWalletRepository);
 
         // Revert all blocks in reverse order
         const index: number = blocks.length - 1;
@@ -700,13 +714,13 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
                 break;
             }
 
-            await tempWalletManager.revertBlock(blocks[i]);
+            await tempBlockState.revertBlock(blocks[i]);
         }
 
-        const delegates: Contracts.State.Wallet[] = tempWalletManager.loadActiveDelegateList(roundInfo);
+        const delegates: Contracts.State.Wallet[] = tempWalletState.loadActiveDelegateList(roundInfo);
 
-        for (const delegate of tempWalletManager.allByUsername()) {
-            const delegateWallet = this.walletManager.findByUsername(delegate.getAttribute("delegate.username"));
+        for (const delegate of tempWalletRepository.allByUsername()) {
+            const delegateWallet = this.walletRepository.findByUsername(delegate.getAttribute("delegate.username"));
             delegateWallet.setAttribute("delegate.rank", delegate.getAttribute("delegate.rank"));
         }
 

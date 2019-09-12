@@ -24,7 +24,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
     public async bootstrap(
         connection: Contracts.Database.Connection,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
@@ -34,10 +34,10 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
             if (transaction.version === 1) {
                 multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
-                wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             } else {
                 multiSignature = transaction.asset.multiSignature;
-                wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
+                wallet = walletRepository.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
             }
             if (wallet.hasMultiSignature()) {
                 throw new MultiSignatureAlreadyRegisteredError();
@@ -54,7 +54,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletManager: Contracts.State.WalletManager,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
@@ -72,7 +72,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         }
 
         const multiSigAddress: string = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
-        const recipientWallet: Contracts.State.Wallet = databaseWalletManager.findByAddress(multiSigAddress);
+        const recipientWallet: Contracts.State.Wallet = databaseWalletRepository.findByAddress(multiSigAddress);
 
         if (recipientWallet.hasMultiSignature()) {
             throw new MultiSignatureAlreadyRegisteredError();
@@ -82,7 +82,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new InvalidMultiSignatureError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
     }
 
     public async canEnterTransactionPool(
@@ -99,13 +99,13 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletRepository);
 
         // Create the multi sig wallet
         if (transaction.data.version >= 2) {
-            walletManager
+            walletRepository
                 .findByAddress(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
                 .setAttribute("multiSignature", transaction.data.asset.multiSignature);
         }
@@ -113,21 +113,21 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletRepository);
         // Nothing else to do for the sender since the recipient wallet
         // is made into a multi sig wallet.
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version >= 2) {
-            const recipientWallet: Contracts.State.Wallet = walletManager.findByAddress(
+            const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
                 Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
             );
             recipientWallet.setAttribute("multiSignature", transaction.data.asset.multiSignature);
@@ -136,12 +136,12 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: Contracts.State.WalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version >= 2) {
-            const recipientWallet: Contracts.State.Wallet = walletManager.findByAddress(
+            const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
                 Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
             );
 

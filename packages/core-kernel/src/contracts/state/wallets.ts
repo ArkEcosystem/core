@@ -1,8 +1,5 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { Logger } from "../kernel/log";
-import { RoundInfo } from "../shared";
-
 export type WalletIndexer = (index: WalletIndex, wallet: Wallet) => void;
 
 export enum WalletIndexes {
@@ -60,9 +57,7 @@ export interface WalletIpfsAttributes {
     [hash: string]: boolean;
 }
 
-export interface WalletManager {
-    logger: Logger;
-
+export interface WalletRepository {
     reset(): void;
 
     registerIndex(name: string, indexer: WalletIndexer): void;
@@ -97,25 +92,7 @@ export interface WalletManager {
 
     reindex(wallet: Wallet): void;
 
-    getCurrentBlock(): Readonly<Interfaces.IBlock>;
-
-    clone(): WalletManager;
-
-    loadActiveDelegateList(roundInfo: RoundInfo): Wallet[];
-
-    buildVoteBalances(): void;
-
-    applyBlock(block: Interfaces.IBlock): Promise<void>;
-
-    buildDelegateRanking(roundInfo?: RoundInfo): Wallet[];
-
-    revertBlock(block: Interfaces.IBlock): Promise<void>;
-
-    applyTransaction(transaction: Interfaces.ITransaction): Promise<void>;
-
-    revertTransaction(transaction: Interfaces.ITransaction): Promise<void>;
-
-    canBePurged(wallet: Wallet): boolean;
+    clone(): WalletRepository;
 
     forgetByAddress(address: string): void;
 

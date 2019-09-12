@@ -116,7 +116,7 @@ export class TransactionFactory {
 
     public static getNonce(publicKey: string): Utils.BigNumber {
         try {
-            return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(publicKey);
+            return app.resolvePlugin<Database.IDatabaseService>("database").walletRepository.getNonce(publicKey);
         } catch {
             return Utils.BigNumber.ZERO;
         }
