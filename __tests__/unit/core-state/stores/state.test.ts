@@ -249,7 +249,7 @@ describe("State Storage", () => {
         });
     });
 
-    describe("removeCachedTransactionIds", () => {
+    describe("clearCachedTransactionIds", () => {
         it("should remove cached transaction ids", () => {
             const transactions = [];
             for (let i = 0; i < 10; i++) {
@@ -262,7 +262,7 @@ describe("State Storage", () => {
             });
 
             expect(stateStorage.getCachedTransactionIds()).toHaveLength(10);
-            stateStorage.removeCachedTransactionIds(transactions.map(tx => tx.id));
+            stateStorage.clearCachedTransactionIds();
             expect(stateStorage.getCachedTransactionIds()).toHaveLength(0);
         });
     });
