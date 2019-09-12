@@ -45,8 +45,6 @@ export class VoteTransactionHandler extends TransactionHandler {
                 wallet.forgetAttribute("vote");
             }
         }
-
-        walletManager.buildVoteBalances();
     }
 
     public async isActivated(): Promise<boolean> {
