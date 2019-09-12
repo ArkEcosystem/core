@@ -1,20 +1,16 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, State } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
+import { supplyCalculator } from './index';
 
 const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
 
 export const calculateApproval = (delegate: State.IWallet, height?: number): number => {
-    const config = app.getConfig();
-
     if (!height) {
         height = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock().data.height;
     }
 
-    const constants = config.getMilestone(height);
-    const totalSupply = new BignumMod(config.get("genesisBlock.totalAmount")).plus(
-        (height - constants.height) * constants.reward,
-    );
+    const totalSupply = supplyCalculator.calculate(height);
     const voteBalance = new BignumMod(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance"));
 
     return +voteBalance
