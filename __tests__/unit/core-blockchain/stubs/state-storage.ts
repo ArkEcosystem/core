@@ -21,9 +21,9 @@ export class StateStoreStub implements State.IStateStore {
         return undefined;
     }
 
-    public clear(): void {}
+    public clear(): void { }
 
-    public clearWakeUpTimeout(): void {}
+    public clearWakeUpTimeout(): void { }
 
     public getCachedTransactionIds(): string[] {
         return [];
@@ -76,9 +76,9 @@ export class StateStoreStub implements State.IStateStore {
         };
     }
 
-    public removeCachedTransactionIds(transactionIds: string[]): void {}
+    public clearCachedTransactionIds(): void { }
 
-    public reset(): void {}
+    public reset(): void { }
 
     public setLastBlock(block: Blocks.Block): void {
         this.lastDownloadedBlock = block.data;

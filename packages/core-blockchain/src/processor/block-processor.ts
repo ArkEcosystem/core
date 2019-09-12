@@ -28,7 +28,7 @@ export enum BlockProcessorResult {
 export class BlockProcessor {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    public constructor(private readonly blockchain: Blockchain) {}
+    public constructor(private readonly blockchain: Blockchain) { }
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         return (await this.getHandler(block)).execute();
@@ -91,7 +91,7 @@ export class BlockProcessor {
         if (!verified) {
             this.logger.warn(
                 `Block ${block.data.height.toLocaleString()} (${
-                    block.data.id
+                block.data.id
                 }) disregarded because verification failed`,
             );
 
@@ -142,10 +142,7 @@ export class BlockProcessor {
     }
 
     /**
-     * Check if a block's transactions violate nonce order.
-     * For a given sender, all v1 transactions must precede all v2 transactions.
-     * In addition, for a given sender, v2 transactions must have strictly
-     * increasing nonce without gaps.
+     * For a given sender, v2 transactions must have strictly increasing nonce without gaps.
      */
     private blockContainsOutOfOrderNonce(block: Interfaces.IBlock): boolean {
         const nonceBySender = {};
@@ -154,7 +151,7 @@ export class BlockProcessor {
             const data = transaction.data;
 
             if (data.version < 2) {
-                continue;
+                break;
             }
 
             const sender: string = data.senderPublicKey;
@@ -166,9 +163,9 @@ export class BlockProcessor {
             if (!nonceBySender[sender].plus(1).isEqualTo(data.nonce)) {
                 this.logger.warn(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
-                        `not accepted: invalid nonce order for sender ${sender}: ` +
-                        `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
-                        `transaction ${data.id} has nonce ${data.nonce.toFixed()}.`,
+                    `not accepted: invalid nonce order for sender ${sender}: ` +
+                    `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
+                    `transaction ${data.id} has nonce ${data.nonce.toFixed()}.`,
                 );
                 return true;
             }

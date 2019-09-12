@@ -197,10 +197,10 @@ export class StateStore implements State.IStateStore {
     }
 
     /**
-     * Remove the given transaction ids from the cache.
+     * Drop all cached transaction ids.
      */
-    public removeCachedTransactionIds(transactionIds: string[]): void {
-        this.cachedTransactionIds = this.cachedTransactionIds.subtract(transactionIds);
+    public clearCachedTransactionIds(): void {
+        this.cachedTransactionIds = this.cachedTransactionIds.clear();
     }
 
     /**
