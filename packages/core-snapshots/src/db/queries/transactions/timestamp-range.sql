@@ -1,6 +1,7 @@
 SELECT
   id,
   version,
+  nonce,
   block_id,
   sequence,
   timestamp,
@@ -17,4 +18,5 @@ FROM
 WHERE
   timestamp BETWEEN ${start} AND ${end}
 ORDER BY
-  timestamp
+  timestamp,
+  sequence

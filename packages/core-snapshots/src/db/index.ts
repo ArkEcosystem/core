@@ -163,6 +163,7 @@ export class Database {
             [
                 "id",
                 "version",
+                "nonce",
                 "block_id",
                 "sequence",
                 "timestamp",

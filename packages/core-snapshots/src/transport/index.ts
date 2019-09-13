@@ -20,6 +20,13 @@ const fixData = (table, data) => {
     if (table === "blocks" && data.height === 1) {
         data.id = Managers.configManager.get("genesisBlock").id;
     }
+
+    // For version=1 transactions the nonce is set automatically at database level (by a trigger
+    // on the transactions table). However, the database library we use is upset if we don't
+    // provide it, so supply a dummy value here.
+    if (table === "transactions" && data.version === 1) {
+        data.nonce = "0";
+    }
 };
 
 export const exportTable = async (table, options) => {
