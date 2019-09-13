@@ -454,23 +454,6 @@ describe("Transactions Business Repository", () => {
         });
     });
 
-    describe("findAllByWallet", () => {
-        it("should search by wallet", async () => {
-            databaseService.connection.transactionsRepository = {
-                findAllByWallet: async wallet => wallet,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "findAllByWallet").mockImplementation(
-                async () => ({ rows: [], count: 0 }),
-            );
-
-            await transactionsBusinessRepository.findAllByWallet({} as any);
-
-            expect(databaseService.connection.transactionsRepository.findAllByWallet).toHaveBeenCalled();
-        });
-    });
-
     describe("findById", () => {
         it("should invoke findById on db repository", async () => {
             const expectedBlockId = "id";

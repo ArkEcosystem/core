@@ -1,5 +1,4 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IWallet } from "../../core-state/wallets";
 import { IParameters } from "./parameters";
 
 export interface ITransactionsPaginated {
@@ -9,8 +8,6 @@ export interface ITransactionsPaginated {
 
 export interface ITransactionsBusinessRepository {
     search(params: IParameters, sequenceOrder?: "asc" | "desc"): Promise<ITransactionsPaginated>;
-
-    findAllByWallet(wallet: IWallet, parameters?: IParameters): Promise<ITransactionsPaginated>;
 
     findAllBySender(senderPublicKey: string, parameters?: IParameters): Promise<ITransactionsPaginated>;
 

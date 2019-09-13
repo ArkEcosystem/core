@@ -39,11 +39,20 @@ const transactions = async request => {
         return Boom.notFound("Wallet not found");
     }
 
-    const rows = await transactionsRepository.findAllByWallet(wallet, {
+    // Overwrite parameters for special wallet treatment inside transaction repository
+    const parameters = {
         ...request.query,
         ...request.params,
         ...paginate(request),
-    });
+        walletPublicKey: wallet.publicKey,
+        walletAddress: wallet.address,
+    };
+
+    delete parameters.publicKey;
+    delete parameters.recipientId;
+    delete parameters.id;
+
+    const rows = await transactionsRepository.search(parameters);
 
     return toPagination(rows, "transaction", (request.query.transform as unknown) as boolean);
 };

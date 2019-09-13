@@ -56,19 +56,16 @@ export const transactions: object = {
             type: Joi.number()
                 .integer()
                 .min(0),
+            typeGroup: Joi.number()
+                .integer()
+                .min(0),
             version: Joi.number()
                 .integer()
                 .positive(),
-            senderPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            senderId: Joi.string()
-                .alphanum()
-                .length(34),
-            recipientId: Joi.string()
-                .alphanum()
-                .length(34),
             timestamp: Joi.number()
+                .integer()
+                .min(0),
+            nonce: Joi.number()
                 .integer()
                 .min(0),
             amount: Joi.number()
@@ -98,6 +95,9 @@ export const transactionsSent: object = {
             type: Joi.number()
                 .integer()
                 .min(0),
+            typeGroup: Joi.number()
+                .integer()
+                .min(0),
             version: Joi.number()
                 .integer()
                 .positive(),
@@ -105,6 +105,9 @@ export const transactionsSent: object = {
                 .alphanum()
                 .length(34),
             timestamp: Joi.number()
+                .integer()
+                .min(0),
+            nonce: Joi.number()
                 .integer()
                 .min(0),
             amount: Joi.number()
@@ -134,6 +137,9 @@ export const transactionsReceived: object = {
             type: Joi.number()
                 .integer()
                 .min(0),
+            typeGroup: Joi.number()
+                .integer()
+                .min(0),
             version: Joi.number()
                 .integer()
                 .positive(),
@@ -144,6 +150,9 @@ export const transactionsReceived: object = {
                 .alphanum()
                 .length(34),
             timestamp: Joi.number()
+                .integer()
+                .min(0),
+            nonce: Joi.number()
                 .integer()
                 .min(0),
             amount: Joi.number()
