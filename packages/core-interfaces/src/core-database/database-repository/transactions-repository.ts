@@ -1,7 +1,6 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
-import { IWallet } from "../../core-state/wallets";
 import { ITransactionsPaginated } from "../business-repository";
-import { ISearchOrderBy, ISearchPaginate, ISearchParameters } from "../search";
+import { ISearchParameters } from "../search";
 import { IRepository } from "./repository";
 
 export interface IBootstrapTransaction {
@@ -66,12 +65,6 @@ export interface ITransactionsRepository extends IRepository {
     ): Promise<Array<{ type: number; fee: number; timestamp: number }>>;
 
     deleteByBlockId(blockIds: string[], db: any): Promise<void>;
-
-    findAllByWallet(
-        wallet: IWallet,
-        paginate?: ISearchPaginate,
-        orderBy?: ISearchOrderBy[],
-    ): Promise<ITransactionsPaginated>;
 
     search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
 }

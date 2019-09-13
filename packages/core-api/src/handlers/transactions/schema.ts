@@ -19,6 +19,9 @@ export const index: object = {
             type: Joi.number()
                 .integer()
                 .min(0),
+            typeGroup: Joi.number()
+                .integer()
+                .min(0),
             version: Joi.number()
                 .integer()
                 .positive(),
@@ -32,6 +35,9 @@ export const index: object = {
                 .alphanum()
                 .length(34),
             timestamp: Joi.number()
+                .integer()
+                .min(0),
+            nonce: Joi.number()
                 .integer()
                 .min(0),
             amount: Joi.number()
@@ -103,6 +109,9 @@ export const search: object = {
         type: Joi.number()
             .integer()
             .min(0),
+        typeGroup: Joi.number()
+            .integer()
+            .min(0),
         version: Joi.number()
             .integer()
             .positive(),
@@ -125,6 +134,9 @@ export const search: object = {
                 .integer()
                 .min(0),
         }),
+        nonce: Joi.number()
+            .integer()
+            .min(0),
         amount: Joi.object().keys({
             from: Joi.number()
                 .integer()
