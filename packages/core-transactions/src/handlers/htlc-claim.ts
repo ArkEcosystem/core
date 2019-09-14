@@ -75,7 +75,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             .getStore()
             .getLastBlock();
 
-        const expiration: Interfaces.IHtlcExpiration = lock.asset.expiration;
+        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
         if (
             (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
                 expiration.value <= lastBlock.data.timestamp) ||
@@ -85,7 +85,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const unlockSecretHash: string = Crypto.HashAlgorithms.sha256(claimAsset.unlockSecret).toString("hex");
-        if (lock.asset.secretHash !== unlockSecretHash) {
+        if (lock.secretHash !== unlockSecretHash) {
             throw new HtlcSecretHashMismatchError();
         }
     }
@@ -192,7 +192,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         locks[lockTransaction.id] = {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
-            asset: lockTransaction.asset.lock,
+            ...lockTransaction.asset.lock,
         };
 
         walletManager.reindex(sender);

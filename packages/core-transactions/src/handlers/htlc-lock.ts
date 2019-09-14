@@ -27,7 +27,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             locks[transaction.id] = {
                 amount: transaction.amount,
                 recipientId: transaction.recipientId,
-                asset: transaction.asset.lock,
+                ...transaction.asset.lock,
             };
             wallet.setAttribute("htlc.locks", locks);
 
@@ -92,7 +92,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         locks[transaction.id] = {
             amount: transaction.data.amount,
             recipientId: transaction.data.recipientId,
-            asset: transaction.data.asset.lock,
+            ...transaction.data.asset.lock,
         };
         sender.setAttribute("htlc.locks", locks);
 

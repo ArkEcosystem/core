@@ -147,10 +147,9 @@ export interface IHtlcRefundAsset {
     lockTransactionId: string;
 }
 
-export interface IHtlcLock {
+export interface IHtlcLock extends IHtlcLockAsset {
     amount: BigNumber;
     recipientId: string;
-    asset: IHtlcLockAsset;
 }
 
 export type IHtlcLocks = Record<string, IHtlcLock>;

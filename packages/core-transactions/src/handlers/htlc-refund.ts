@@ -69,7 +69,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             .getStore()
             .getLastBlock();
         const lastBlockEpochTimestamp: number = lastBlock.data.timestamp;
-        const expiration: Interfaces.IHtlcExpiration = lock.asset.expiration;
+        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
         if (
             (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
                 expiration.value > lastBlockEpochTimestamp) ||
@@ -175,7 +175,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         locks[lockTransaction.id] = {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
-            asset: lockTransaction.asset.lock,
+            ...lockTransaction.asset.lock,
         };
 
         walletManager.reindex(lockWallet);
@@ -185,11 +185,11 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }
