@@ -128,8 +128,19 @@ export class WalletManager implements State.IWalletManager {
         return this.findByIndex(State.WalletIndexes.Usernames, username);
     }
 
-    public findByIndex(indexName: string, key: string): State.IWallet | undefined {
-        return this.getIndex(indexName).get(key);
+    public findByIndex(index: string | string[], key: string): State.IWallet | undefined {
+        if (!Array.isArray(index)) {
+            index = [index];
+        }
+
+        for (const name of index) {
+            const index = this.getIndex(name);
+            if (index.has(key)) {
+                return index.get(key);
+            }
+        }
+
+        return undefined;
     }
 
     public has(key: string): boolean {

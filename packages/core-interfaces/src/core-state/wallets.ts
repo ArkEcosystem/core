@@ -91,7 +91,7 @@ export interface IWalletManager {
 
     findByUsername(username: string): IWallet;
 
-    findByIndex(indexName: string, key: string): IWallet | undefined;
+    findByIndex(index: string | string[], key: string): IWallet | undefined;
 
     getNonce(publicKey: string): Utils.BigNumber;
 
