@@ -36,6 +36,12 @@ export class WalletManager implements State.IWalletManager {
             }
         });
 
+        this.registerIndex(State.WalletIndexes.Resignations, (index: State.IWalletIndex, wallet: State.IWallet) => {
+            if (wallet.isDelegate() && wallet.getAttribute("delegate.resigned")) {
+                index.set(wallet.getAttribute("delegate.username"), wallet);
+            }
+        });
+
         this.registerIndex(State.WalletIndexes.Locks, (index: State.IWalletIndex, wallet: State.IWallet) => {
             const locks = wallet.getAttribute("htlc.locks");
             if (locks) {

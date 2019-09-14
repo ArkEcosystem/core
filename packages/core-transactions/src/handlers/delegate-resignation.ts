@@ -22,7 +22,9 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
 
         for (const transaction of transactions) {
-            walletManager.findByPublicKey(transaction.senderPublicKey).setAttribute("delegate.resigned", true);
+            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.setAttribute("delegate.resigned", true);
+            walletManager.reindex(wallet);
         }
     }
 

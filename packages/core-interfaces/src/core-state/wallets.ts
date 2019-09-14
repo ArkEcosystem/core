@@ -8,6 +8,7 @@ export enum WalletIndexes {
     Addresses = "addresses",
     PublicKeys = "publicKeys",
     Usernames = "usernames",
+    Resignations = "resignations",
     Locks = "locks",
 }
 

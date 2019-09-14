@@ -30,7 +30,27 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         this.applyOrder(params);
 
         // Execute...
-        let delegates: ReadonlyArray<State.IWallet> = this.databaseServiceProvider().walletManager.allByUsername();
+        let delegates: ReadonlyArray<State.IWallet>;
+        switch (params.type) {
+            case "resigned": {
+                delegates = this.databaseServiceProvider()
+                    .walletManager.getIndex(State.WalletIndexes.Resignations)
+                    .all();
+                break;
+            }
+            case "never-forged": {
+                delegates = this.databaseServiceProvider()
+                    .walletManager.allByUsername()
+                    .filter(delegate => {
+                        return delegate.getAttribute("delegate.producedBlocks") === 0;
+                    });
+                break;
+            }
+            default: {
+                delegates = this.databaseServiceProvider().walletManager.allByUsername();
+                break;
+            }
+        }
 
         const manipulators = {
             approval: delegateCalculator.calculateApproval,
@@ -94,8 +114,6 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
                 return delegateCalculator.calculateApproval;
             case "forgedTotal":
                 return delegateCalculator.calculateForgedTotal;
-            case "rank":
-                return "rate"; // TODO: is this still necessary?
             case "votes":
                 return "voteBalance";
             default:
