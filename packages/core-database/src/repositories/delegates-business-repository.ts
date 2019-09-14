@@ -59,7 +59,11 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
     }
 
     public findById(id): State.IWallet {
-        const wallet: State.IWallet = this.databaseServiceProvider().walletManager.findById(id);
+        const walletManager: State.IWalletManager = this.databaseServiceProvider().walletManager;
+        const wallet: State.IWallet =
+            walletManager.findByIndex(State.WalletIndexes.Usernames, id) ||
+            walletManager.findByIndex(State.WalletIndexes.Addresses, id) ||
+            walletManager.findByIndex(State.WalletIndexes.PublicKeys, id);
 
         if (wallet && wallet.isDelegate()) {
             return wallet;

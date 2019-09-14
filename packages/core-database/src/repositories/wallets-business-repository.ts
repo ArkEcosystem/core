@@ -43,7 +43,13 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
     }
 
     public findById(id: string): State.IWallet {
-        return this.databaseServiceProvider().walletManager.findById(id);
+        const walletManager: State.IWalletManager = this.databaseServiceProvider().walletManager;
+
+        return (
+            walletManager.findByIndex(State.WalletIndexes.Usernames, id) ||
+            walletManager.findByIndex(State.WalletIndexes.Addresses, id) ||
+            walletManager.findByIndex(State.WalletIndexes.PublicKeys, id)
+        );
     }
 
     public count(): number {
