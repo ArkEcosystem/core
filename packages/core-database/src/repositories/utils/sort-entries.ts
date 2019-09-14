@@ -19,6 +19,10 @@ export const sortEntries = (params: Database.IParameters, entries: State.IWallet
     return orderBy(
         entries,
         (wallet: State.IWallet) => {
+            if (typeof iteratee === "function") {
+                return iteratee(wallet);
+            }
+
             if (dottie.exists(wallet, iteratee)) {
                 return dottie.get(wallet, iteratee);
             }
