@@ -1044,7 +1044,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
         });
 
         it("should throw if lock is already expired", async () => {
-            delete process.env.NODE_ENV;
+            delete process.env.CORE_ENV;
 
             if (expirationType === Enums.HtlcLockExpirationType.BlockHeight) {
                 instance.data.asset.lock.expiration.value = 4;
@@ -1064,7 +1064,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
 
             await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
 
-            process.env.NODE_ENV = "test";
+            process.env.CORE_ENV = "test";
         });
     });
 
