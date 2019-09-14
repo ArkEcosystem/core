@@ -734,9 +734,11 @@ describe("Multi Payment Transaction", () => {
     });
 
     it("should be invalid with 501 payments", () => {
-        for (let i = 1; i <= 501; i++) {
+        for (let i = 0; i < 500; i++) {
             multiPayment.addPayment(address, `${i}`);
         }
+
+        multiPayment.data.asset.payments.push({ amount: Utils.BigNumber.ONE, recipientId: address });
         multiPayment.sign("passphrase");
 
         const { error } = Ajv.validate(transactionSchema.$id, "test");

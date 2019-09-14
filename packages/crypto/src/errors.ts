@@ -116,7 +116,7 @@ export class MissingMilestoneFeeError extends CryptoError {
 
 export class MaximumPaymentCountExceededError extends CryptoError {
     constructor(given: number) {
-        super(`Expected a maximum of 2258 payments, but got ${given}.`);
+        super(`Expected a maximum of 500 payments, but got ${given}.`);
     }
 }
 
@@ -136,8 +136,8 @@ export class PreviousBlockIdFormatError extends CryptoError {
     constructor(thisBlockHeight: number, previousBlockId: string) {
         super(
             `The config denotes that the block at height ${thisBlockHeight - 1} ` +
-                `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
-                `contains previous block id "${previousBlockId}"`,
+            `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
+            `contains previous block id "${previousBlockId}"`,
         );
     }
 }
