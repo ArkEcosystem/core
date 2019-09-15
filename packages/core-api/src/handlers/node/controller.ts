@@ -3,6 +3,8 @@ import { Database } from "@arkecosystem/core-interfaces";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
+import { spawnSync } from "child_process";
+import { existsSync } from "fs";
 import { Controller } from "../shared/controller";
 
 export class NodeController extends Controller {
@@ -88,5 +90,18 @@ export class NodeController extends Controller {
         const results = await transactionsBusinessRepository.getFeeStatistics(request.query.days);
 
         return { meta: { days: request.query.days }, data: results };
+    }
+
+    public async debug(request: Hapi.Request, h) {
+        const logPath: string = process.env.CORE_PATH_LOG;
+        const logFile: string = `${logPath}/${app.getName()}-current.log`;
+
+        if (!existsSync(logFile)) {
+            return Boom.notFound(logFile);
+        }
+
+        const log: string = spawnSync("tail", ["-n", `${request.query.lines}`, logFile]).output.toString();
+
+        return h.response(log).type("text/plain");
     }
 }

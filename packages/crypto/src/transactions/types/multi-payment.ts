@@ -24,9 +24,9 @@ export class MultiPaymentTransaction extends Transaction {
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
-        const buffer: ByteBuffer = new ByteBuffer(64, true);
 
-        buffer.writeUint32(data.asset.payments.length);
+        const buffer: ByteBuffer = new ByteBuffer(2 + data.asset.payments.length * 29, true);
+        buffer.writeUint16(data.asset.payments.length);
 
         for (const p of data.asset.payments) {
             buffer.writeUint64(+BigNumber.make(p.amount).toFixed());
@@ -39,7 +39,7 @@ export class MultiPaymentTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
         const payments: IMultiPaymentItem[] = [];
-        const total: number = buf.readUint32();
+        const total: number = buf.readUint16();
 
         for (let j = 0; j < total; j++) {
             payments.push({
