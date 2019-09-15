@@ -1,4 +1,4 @@
-import { Identities } from "@arkecosystem/crypto";
+import { Identities, Utils } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
@@ -86,21 +86,29 @@ describe("Transaction Forging - Multipayment", () => {
         await expect(initialFunds.id).toBeForged();
 
         const payments101 = [];
-        for (let i = 1; i <= 501; i++) {
+        for (let i = 1; i <= 500; i++) {
             payments101.push({
                 recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
                 amount: "" + i,
             });
         }
-        // Submit multipayment transaction
-        const transactions = TransactionFactory.multiPayment(payments101)
-            .withPassphrase(passphrase)
-            .withFee(2 * 1e8)
-            .createOne();
 
-        await expect(transactions).not.toBeAccepted();
+        // Submit multipayment transaction
+        const factory = TransactionFactory.multiPayment(payments101)
+            .withPassphrase(passphrase)
+            .withFee(2 * 1e8);
+
+        (factory as any).builder.data.asset.payments.push({
+            recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
+            amount: Utils.BigNumber.ONE,
+        });
+
+        const transaction = factory.createOne();
+        expect(transaction.asset.payments.length).toBe(501);
+
+        await expect(transaction).not.toBeAccepted();
         await support.snoozeForBlock(1);
-        await expect(transactions.id).not.toBeForged();
+        await expect(transaction.id).not.toBeForged();
     });
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
