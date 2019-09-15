@@ -81,14 +81,10 @@ describe("API 2.0 - Wallets", () => {
 
             utils.expectTransaction(response.data.data[0]);
         });
-
-        it("should fail to GET all the transactions for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/transactions"), 404);
-        });
     });
 
     describe("GET /wallets/:id/transactions/sent", () => {
-        it("should GET all the sent transactions for the given wallet by id", async () => {
+        it("should GET all the send transactions for the given wallet by id", async () => {
             const response = await utils.request("GET", `wallets/${address}/transactions/sent`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();

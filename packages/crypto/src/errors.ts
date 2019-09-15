@@ -91,8 +91,8 @@ export class TransactionVersionError extends CryptoError {
 }
 
 export class UnkownTransactionError extends CryptoError {
-    constructor(given: number) {
-        super(`Transaction type ${given} is not registered.`);
+    constructor(given: string) {
+        super(`Unknown transaction type: ${given}`);
     }
 }
 
@@ -102,9 +102,9 @@ export class TransactionAlreadyRegisteredError extends CryptoError {
     }
 }
 
-export class TransactionTypeInvalidRangeError extends CryptoError {
-    constructor(given: number) {
-        super(`Custom transaction type must be in the range 100-255 (${given}).`);
+export class CoreTransactionTypeGroupImmutableError extends CryptoError {
+    constructor() {
+        super(`The Core transaction type group is immutable.`);
     }
 }
 
@@ -151,5 +151,11 @@ export class InvalidMilestoneConfigurationError extends CryptoError {
 export class InvalidMultiSignatureAssetError extends CryptoError {
     constructor() {
         super(`The multi signature asset is invalid.`);
+    }
+}
+
+export class DuplicateParticipantInMultiSignatureError extends CryptoError {
+    constructor() {
+        super(`Invalid multi signature, because duplicate participant found.`);
     }
 }

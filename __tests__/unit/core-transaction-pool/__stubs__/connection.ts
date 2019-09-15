@@ -41,15 +41,15 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public getPoolSize(): number {
+    public async getPoolSize(): Promise<number> {
         return 0;
     }
 
-    public getSenderSize(senderPublicKey: string): number {
+    public async getSenderSize(senderPublicKey: string): Promise<number> {
         return 0;
     }
 
-    public addTransactions(transactions: Interfaces.ITransaction[]): ITransactionsProcessed {
+    public async addTransactions(transactions: Interfaces.ITransaction[]): Promise<ITransactionsProcessed> {
         return { added: [], notAdded: [] };
     }
 
@@ -73,7 +73,7 @@ export class Connection implements TransactionPool.IConnection {
         return [];
     }
 
-    public getTransaction(id: string): Interfaces.ITransaction {
+    public async getTransaction(id: string): Promise<Interfaces.ITransaction> {
         return undefined;
     }
 
@@ -85,7 +85,7 @@ export class Connection implements TransactionPool.IConnection {
         return undefined;
     }
 
-    public getTransactionsByType(type: any): any {
+    public getTransactionsByType(type: number, typeGroup?: number): any {
         return;
     }
 
@@ -93,7 +93,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public hasExceededMaxTransactions(senderPublicKey: string): boolean {
+    public async hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean> {
         return true;
     }
 
@@ -109,7 +109,7 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public acceptChainedBlock(block: Blocks.Block): void {
+    public async acceptChainedBlock(block: Blocks.Block): Promise<void> {
         return;
     }
 
@@ -121,7 +121,10 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
-    public senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionTypes): boolean {
+    public async senderHasTransactionsOfType(
+        senderPublicKey: string,
+        transactionType: Enums.TransactionType,
+    ): Promise<boolean> {
         return true;
     }
 }

@@ -14,13 +14,16 @@ import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
+import { RateLimiter } from "./rate-limiter";
 import { checkDNS, checkNTP } from "./utils";
+import { buildRateLimiter } from "./utils/build-rate-limiter";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
     public server: SocketCluster;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
+    private coldStart: boolean = false;
 
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -28,6 +31,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     private readonly communicator: P2P.IPeerCommunicator;
     private readonly processor: P2P.IPeerProcessor;
     private readonly storage: P2P.IPeerStorage;
+    private readonly rateLimiter: RateLimiter;
 
     public constructor({
         communicator,
@@ -44,6 +48,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
+        this.rateLimiter = buildRateLimiter(options);
     }
 
     public getServer(): SocketCluster {
@@ -85,12 +90,13 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     }
 
     public async updateNetworkStatus(initialRun?: boolean): Promise<void> {
-        if (process.env.CORE_ENV === "test" || process.env.NODE_ENV === "test") {
+        if (process.env.NODE_ENV === "test") {
             return;
         }
 
         if (this.config.networkStart) {
-            this.logger.warn("Skipped peer discovery because the relay is in genesis-start mode.");
+            this.coldStart = true;
+            this.logger.warn("Entering cold start because the relay is in genesis-start mode.");
             return;
         }
 
@@ -129,7 +135,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         let max = peers.length;
 
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
+        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").verifyTimeout;
 
         if (peerCount) {
             peers = shuffle(peers).slice(0, peerCount);
@@ -151,9 +157,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                         peerErrors[error] = [peer];
                     }
 
+                    this.emitter.emit("internal.p2p.disconnectPeer", { peer });
                     this.emitter.emit(ApplicationEvents.PeerRemoved, peer);
-
-                    this.storage.forgetPeer(peer);
 
                     return undefined;
                 }
@@ -206,6 +211,25 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.pingPeerPorts();
 
         return false;
+    }
+
+    public async getRateLimitStatus(ip: string, endpoint?: string): Promise<P2P.IRateLimitStatus> {
+        return {
+            blocked: await this.rateLimiter.isBlocked(ip),
+            exceededLimitOnEndpoint: await this.rateLimiter.hasExceededRateLimit(ip, endpoint),
+        };
+    }
+
+    public async isBlockedByRateLimit(ip: string): Promise<boolean> {
+        return this.rateLimiter.isBlocked(ip);
+    }
+
+    public isColdStart(): boolean {
+        return this.coldStart;
+    }
+
+    public completeColdStart(): void {
+        this.coldStart = false;
     }
 
     public getNetworkHeight(): number {

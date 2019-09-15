@@ -200,9 +200,6 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    /**
-     * Migrate transactions table to asset column.
-     */
     private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
         const row: IMigration = await this.migrationsRepository.findByName(name);
 
@@ -222,7 +219,7 @@ export class PostgresConnection implements Database.IConnection {
         if (!runMigration) {
             return;
         }
-        this.logger.warn(`Migrating transactions table. This may take a while.`);
+        this.logger.warn(`Migrating transactions table to assets. This may take a while.`);
 
         await this.query.none(migration);
 

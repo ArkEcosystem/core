@@ -100,7 +100,7 @@ describe("Transactions Business Repository", () => {
 
         it("should lookup senders address from senderId", async () => {
             databaseService.walletManager = {
-                has: addressOrPublicKey => true,
+                hasByAddress: addressOrPublicKey => true,
                 findByAddress: address => ({ publicKey: "pubKey" }),
             } as State.IWalletManager;
 
@@ -179,10 +179,12 @@ describe("Transactions Business Repository", () => {
             }));
 
             databaseService.walletManager = {
-                has: addressOrPublicKey => false,
+                hasByAddress: addressOrPublicKey => false,
+                hasByPublicKey: addressOrPublicKey => false,
             } as State.IWalletManager;
 
-            jest.spyOn(databaseService.walletManager, "has").mockReturnValue(false);
+            jest.spyOn(databaseService.walletManager, "hasByAddress").mockReturnValue(false);
+            jest.spyOn(databaseService.walletManager, "hasByPublicKey").mockReturnValue(false);
 
             await transactionsBusinessRepository.search({
                 addresses: ["addy1", "addy2"],
@@ -205,8 +207,8 @@ describe("Transactions Business Repository", () => {
                     ]),
                 }),
             );
-            expect(databaseService.walletManager.has).toHaveBeenNthCalledWith(1, "addy1");
-            expect(databaseService.walletManager.has).toHaveBeenNthCalledWith(2, "addy2");
+            expect(databaseService.walletManager.hasByAddress).toHaveBeenNthCalledWith(1, "addy1");
+            expect(databaseService.walletManager.hasByAddress).toHaveBeenNthCalledWith(2, "addy2");
         });
 
         it("should cache blocks if cache-miss ", async () => {
@@ -322,7 +324,7 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: Enums.TransactionTypes.Vote,
+                            value: Enums.TransactionType.Vote,
                         },
                     ]),
                 }),
@@ -436,7 +438,7 @@ describe("Transactions Business Repository", () => {
                 count: 0,
             }));
 
-            await transactionsBusinessRepository.findAllByType(Enums.TransactionTypes.Transfer);
+            await transactionsBusinessRepository.findAllByType(Enums.TransactionType.Transfer);
 
             expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -444,28 +446,11 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: Enums.TransactionTypes.Transfer,
+                            value: Enums.TransactionType.Transfer,
                         },
                     ],
                 }),
             );
-        });
-    });
-
-    describe("findAllByWallet", () => {
-        it("should search by wallet", async () => {
-            databaseService.connection.transactionsRepository = {
-                findAllByWallet: async wallet => wallet,
-                getModel: () => new MockDatabaseModel(),
-            } as any;
-
-            jest.spyOn(databaseService.connection.transactionsRepository, "findAllByWallet").mockImplementation(
-                async () => ({ rows: [], count: 0 }),
-            );
-
-            await transactionsBusinessRepository.findAllByWallet({} as any);
-
-            expect(databaseService.connection.transactionsRepository.findAllByWallet).toHaveBeenCalled();
         });
     });
 
@@ -505,7 +490,7 @@ describe("Transactions Business Repository", () => {
                 count: 0,
             }));
 
-            await transactionsBusinessRepository.findByTypeAndId(Enums.TransactionTypes.Transfer, "id");
+            await transactionsBusinessRepository.findByTypeAndId(Enums.TransactionType.Transfer, "id");
 
             expect(databaseService.connection.transactionsRepository.search).toHaveBeenCalledWith(
                 expect.objectContaining({
@@ -513,7 +498,7 @@ describe("Transactions Business Repository", () => {
                         {
                             field: "type",
                             operator: expect.anything(),
-                            value: Enums.TransactionTypes.Transfer,
+                            value: Enums.TransactionType.Transfer,
                         },
                         {
                             field: "id",

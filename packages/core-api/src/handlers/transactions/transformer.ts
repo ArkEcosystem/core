@@ -21,6 +21,7 @@ export const transformTransaction = (model, transform) => {
     const sender: string = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
 
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
+    const timestamp: number = data.version === 1 ? data.timestamp : model.timestamp;
 
     return {
         id: data.id,
@@ -38,6 +39,7 @@ export const transformTransaction = (model, transform) => {
         vendorField: data.vendorField,
         asset: data.asset,
         confirmations: model.block ? lastBlock.data.height - model.block.height + 1 : 0,
-        timestamp: formatTimestamp(data.timestamp),
+        timestamp: timestamp !== undefined ? formatTimestamp(timestamp) : undefined,
+        nonce: data.version > 1 ? data.nonce.toFixed() : undefined,
     };
 };

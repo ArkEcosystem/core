@@ -1,10 +1,9 @@
+import { P2P } from "@arkecosystem/core-interfaces";
 import SCWorker from "socketcluster/scworker";
 import { SocketErrors } from "../enums";
-import { RateLimiter } from "./rate-limiter";
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
-    private rateLimiter: RateLimiter;
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
@@ -22,39 +21,7 @@ export class Worker extends SCWorker {
 
     private async loadConfiguration(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
-
         this.config = data;
-        this.rateLimiter = new RateLimiter({
-            whitelist: [...this.config.whitelist, ...this.config.remoteAccess],
-            configurations: {
-                global: {
-                    rateLimit: this.config.rateLimit,
-                    blockDuration: 60 * 1, // 1 minute ban for now
-                },
-                endpoints: [
-                    {
-                        rateLimit: 1,
-                        endpoint: "p2p.peer.postBlock",
-                    },
-                    {
-                        rateLimit: 1,
-                        endpoint: "p2p.peer.getBlocks",
-                    },
-                    {
-                        rateLimit: 1,
-                        endpoint: "p2p.peer.getPeers",
-                    },
-                    {
-                        rateLimit: 2,
-                        endpoint: "p2p.peer.getStatus",
-                    },
-                    {
-                        rateLimit: 5,
-                        endpoint: "p2p.peer.getCommonBlocks",
-                    },
-                ],
-            },
-        });
     }
 
     private handlePayload(ws, req) {
@@ -105,9 +72,15 @@ export class Worker extends SCWorker {
     }
 
     private async handleHandshake(req, next): Promise<void> {
-        const isBlocked = await this.rateLimiter.isBlocked(req.socket.remoteAddress);
-        const isBlacklisted = (this.config.blacklist || []).includes(req.socket.remoteAddress);
-        if (isBlocked || isBlacklisted) {
+        const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
+            "p2p.internal.isBlockedByRateLimit",
+            {
+                data: { ip: req.socket.remoteAddress },
+            },
+        );
+
+        const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
+        if (data.blocked || isBlacklisted) {
             next(this.createError(SocketErrors.Forbidden, "Blocked due to rate limit or blacklisted."));
             return;
         }
@@ -116,8 +89,24 @@ export class Worker extends SCWorker {
     }
 
     private async handleEmit(req, next): Promise<void> {
-        if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
-            if (await this.rateLimiter.isBlocked(req.socket.remoteAddress)) {
+        if (req.event.length > 128) {
+            req.socket.terminate();
+            return;
+        }
+
+        const { data }: { data: P2P.IRateLimitStatus } = await this.sendToMasterAsync(
+            "p2p.internal.getRateLimitStatus",
+            {
+                data: {
+                    ip: req.socket.remoteAddress,
+                    endpoint: req.event,
+                },
+            },
+        );
+
+        if (data.exceededLimitOnEndpoint) {
+            if (data.blocked) {
+                // Global ban
                 req.socket.terminate();
                 return;
             }
@@ -131,11 +120,6 @@ export class Worker extends SCWorker {
         }
 
         try {
-            if (req.event.length > 128) {
-                req.socket.disconnect(4413, "Payload Too Large");
-                return;
-            }
-
             const [prefix, version] = req.event.split(".");
 
             if (prefix !== "p2p") {

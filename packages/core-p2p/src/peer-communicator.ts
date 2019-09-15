@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
-import { Interfaces, Transactions, Validation } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
@@ -83,9 +83,27 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
-                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+                    let valid: boolean = false;
 
-                    if (status === 200) {
+                    if (name.includes("core-api") || name.includes("core-wallet-api")) {
+                        const { body, status } = await httpie.get(
+                            `http://${peer.ip}:${plugin.port}/api/node/configuration`,
+                        );
+
+                        if (status === 200) {
+                            if (body.data.nethash === Managers.configManager.get("network.nethash")) {
+                                valid = true;
+                            } else {
+                                this.logger.debug("Disconnecting from peer, because api returned a different nethash.");
+                                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                            }
+                        }
+                    } else {
+                        const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+                        valid = status === 200;
+                    }
+
+                    if (valid) {
                         peer.ports[name] = plugin.port;
                     }
                 } catch (error) {
@@ -140,9 +158,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         {
             fromBlockHeight,
             blockLimit,
-            timeoutMsec,
             headersOnly,
-        }: { fromBlockHeight: number; blockLimit?: number; timeoutMsec?: number; headersOnly?: boolean },
+        }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
         const peerBlocks = await this.emit(
             peer,
@@ -156,7 +173,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                     "Content-Type": "application/json",
                 },
             },
-            timeoutMsec || 10000,
+            app.resolveOptions("p2p").getBlocksTimeout,
         );
 
         if (!peerBlocks) {
@@ -166,26 +183,16 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return [];
         }
 
-        // To stay backward compatible, don't assume peers respond with serialized transactions just yet.
-        // TODO: remove with 2.6
         for (const block of peerBlocks) {
             if (!block.transactions) {
                 continue;
             }
 
-            let transactions: Interfaces.ITransactionData[] = [];
-
-            try {
-                transactions = block.transactions.map(transaction => {
-                    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
-                    data.blockId = block.id;
-                    return data;
-                });
-            } catch {
-                transactions = block.transactions;
-            }
-
-            block.transactions = transactions;
+            block.transactions = block.transactions.map(transaction => {
+                const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                data.blockId = block.id;
+                return data;
+            });
         }
 
         return peerBlocks;

@@ -13,6 +13,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
     // when testing we also need to get socket files from dist folder
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
+    // https://socketcluster.io/#!/docs/api-socketcluster
     const server: SocketCluster = new SocketCluster({
         ...{
             appName: "core-p2p",
@@ -22,6 +23,9 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             workerController: __dirname + `${relativeSocketPath}/worker.js`,
             workers: 2,
             wsEngine: "ws",
+            // See https://github.com/SocketCluster/socketcluster/issues/506 about
+            // details on how pingTimeout works.
+            pingTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
             perMessageDeflate: true,
         },
         ...config.server,

@@ -5,6 +5,9 @@ import { Worker } from "../../../../packages/core-p2p/src/socket-server/worker";
 
 const worker = new Worker();
 
+// @ts-ignore
+worker.scServer.wsServer = { on: () => undefined };
+
 describe("Worker", () => {
     describe("run", () => {
         it("should init the worker", async () => {

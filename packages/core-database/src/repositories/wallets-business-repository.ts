@@ -54,6 +54,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return this.search({ ...params, ...{ orderBy: "balance:desc" } });
     }
 
+    // TODO: check if order still works
     private applyOrder(params: Database.IParameters): void {
         const assignOrder = (params, value) => (params.orderBy = value);
 

@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { Wallets } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
@@ -205,13 +206,12 @@ export class ForgerManager {
     public isForgingAllowed(networkState: P2P.INetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
-
             return false;
-        }
-
-        if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
+        } else if (networkState.status === NetworkStateStatus.ColdStart) {
+            this.logger.info("Skipping slot because of cold start. Will not forge.");
+            return false;
+        } else if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
             this.logger.info("Network reach is not sufficient to get quorum. Will not forge.");
-
             return false;
         }
 
@@ -251,13 +251,22 @@ export class ForgerManager {
     private async loadRound(): Promise<void> {
         this.round = await this.client.getRound();
 
-        this.usernames = this.round.delegates.reduce(
-            (acc, delegate) => Object.assign(acc, { [delegate.publicKey]: delegate.username }),
-            {},
-        );
+        this.usernames = this.round.delegates
+            .map(delegate => Object.assign(new Wallets.Wallet(delegate.address), delegate))
+            .reduce(
+                (acc, delegate) =>
+                    Object.assign(acc, { [delegate.publicKey]: delegate.getAttribute("delegate.username") }),
+                {},
+            );
 
         if (!this.initialized) {
             this.printLoadedDelegates();
+
+            this.client.emitEvent(ApplicationEvents.ForgerStarted, {
+                activeDelegates: this.delegates.map(delegate => delegate.publicKey),
+            });
+
+            this.logger.info(`Forger Manager started.`);
         }
 
         this.initialized = true;
@@ -291,7 +300,5 @@ export class ForgerManager {
                 )}`,
             );
         }
-
-        this.logger.info(`Forger Manager started.`);
     }
 }

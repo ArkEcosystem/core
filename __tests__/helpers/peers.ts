@@ -1,4 +1,5 @@
 import { P2P } from "@arkecosystem/core-interfaces";
+import { EventListener } from "../../packages/core-p2p/src/event-listener";
 import { Peer } from "../../packages/core-p2p/src/peer";
 import { makePeerService } from "../../packages/core-p2p/src/plugin";
 
@@ -13,6 +14,9 @@ export const createStubPeer = (stub): P2P.IPeer => {
 
 export const createPeerService = () => {
     const service = makePeerService({});
+
+    // tslint:disable-next-line: no-unused-expression
+    new EventListener(service);
 
     return {
         service,

@@ -24,30 +24,28 @@ afterAll(async () => {
     await tearDownFull();
 });
 
-describe("throwIfApplyingFails", () => {
-    it("should add an error for delegate registration when username is already taken", () => {
+describe("throwIfCannotBeApplied", () => {
+    it("should add an error for delegate registration when username is already taken", async () => {
         const delegateReg = TransactionFactory.delegateRegistration("genesis_11")
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
             .build()[0];
 
-        expect(() => poolWalletManager.throwIfApplyingFails(delegateReg)).toThrow(
-            JSON.stringify([
-                `Failed to apply transaction, because the username '${
-                    delegateReg.data.asset.delegate.username
-                }' is already registered.`,
-            ]),
+        const username: string = delegateReg.data.asset.delegate.username;
+
+        await expect(poolWalletManager.throwIfCannotBeApplied(delegateReg)).rejects.toThrow(
+            `Failed to apply transaction, because the username '${username}' is already registered.`,
         );
     });
 
-    it("should add an error when voting for a delegate that doesn't exist", () => {
+    it("should add an error when voting for a delegate that doesn't exist", async () => {
         const vote = TransactionFactory.vote(wallets[12].keys.publicKey)
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
             .build()[0];
 
-        expect(() => poolWalletManager.throwIfApplyingFails(vote)).toThrow(
-            JSON.stringify([`Failed to apply transaction, because only delegates can be voted.`]),
+        await expect(poolWalletManager.throwIfCannotBeApplied(vote)).rejects.toThrow(
+            `Failed to apply transaction, because only delegates can be voted.`,
         );
     });
 });
@@ -74,8 +72,8 @@ describe("applyPoolTransactionToSender", () => {
             poolWalletManager.reindex(delegateWallet);
             poolWalletManager.reindex(newWallet);
 
-            const transactionHandler = Handlers.Registry.get(transfer.type);
-            transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
+            const transactionHandler = await Handlers.Registry.get(transfer.type);
+            await transactionHandler.applyToSender(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - 0.1 * 10 ** 8);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -103,8 +101,8 @@ describe("applyPoolTransactionToSender", () => {
             poolWalletManager.reindex(delegateWallet);
             poolWalletManager.reindex(newWallet);
 
-            const transactionHandler = Handlers.Registry.get(transfer.type);
-            transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
+            const transactionHandler = await Handlers.Registry.get(transfer.type);
+            await transactionHandler.applyToSender(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -118,9 +116,9 @@ describe("applyPoolTransactionToSender", () => {
             const poolWallets = walletsGen.map(w => poolWalletManager.findByAddress(w.address));
 
             expect(+delegateWallet.balance).toBe(+delegate.balance);
-            poolWallets.forEach(w => {
+            for (const w of poolWallets) {
                 expect(+w.balance).toBe(0);
-            });
+            }
 
             const transfers = [
                 {
@@ -137,12 +135,12 @@ describe("applyPoolTransactionToSender", () => {
                 },
             ];
 
-            transfers.forEach(t => {
+            for (const t of transfers) {
                 const transfer = TransactionFactory.transfer(t.to.address, t.amount)
                     .withNetwork("unitnet")
                     .withPassphrase(t.from.passphrase)
                     .build()[0];
-                const transactionHandler = Handlers.Registry.get(transfer.type);
+                const transactionHandler = await Handlers.Registry.get(transfer.type);
 
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.
@@ -151,18 +149,18 @@ describe("applyPoolTransactionToSender", () => {
                     .walletManager.findByPublicKey(transfer.data.senderPublicKey);
 
                 try {
-                    poolWalletManager.throwIfApplyingFails(transfer);
-                    transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
+                    await poolWalletManager.throwIfCannotBeApplied(transfer);
+                    await transactionHandler.applyToSender(transfer, poolWalletManager);
                     expect(t.from).toBe(delegate);
                 } catch (error) {
                     expect(t.from).toBe(walletsGen[0]);
-                    expect(error.message).toEqual(JSON.stringify(["Insufficient balance in the wallet."]));
+                    expect(error.message).toEqual("Insufficient balance in the wallet.");
                 }
 
                 (container.resolvePlugin<Database.IDatabaseService>("database").walletManager as any).forgetByPublicKey(
                     transfer.data.senderPublicKey,
                 );
-            });
+            }
 
             expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * satoshi);
             expect(poolWallets[0].balance.isZero()).toBeTrue();

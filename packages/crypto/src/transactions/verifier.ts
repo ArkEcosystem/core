@@ -12,7 +12,7 @@ export class Verifier {
             return true;
         }
 
-        if (data.type >= 4 && data.type <= 99 && !configManager.getMilestone().aip11) {
+        if (configManager.getMilestone().aip11 && (!data.version || data.version === 1)) {
             return false;
         }
 
@@ -27,12 +27,7 @@ export class Verifier {
         }
 
         const hash: Buffer = Utils.toHash(transaction, { excludeSecondSignature: true });
-
-        if (transaction.version === 2) {
-            return Hash.verifySchnorr(hash, secondSignature, publicKey);
-        } else {
-            return Hash.verifyECDSA(hash, secondSignature, publicKey);
-        }
+        return this.internalVerifySignature(hash, secondSignature, publicKey);
     }
 
     public static verifyHash(data: ITransactionData): boolean {
@@ -47,15 +42,20 @@ export class Verifier {
             excludeSecondSignature: true,
         });
 
-        if (data.version === 2) {
-            return Hash.verifySchnorr(hash, signature, senderPublicKey);
-        } else {
-            return Hash.verifyECDSA(hash, signature, senderPublicKey);
-        }
+        return this.internalVerifySignature(hash, signature, senderPublicKey);
     }
 
     public static verifySchema(data: ITransactionData, strict: boolean = true): ISchemaValidationResult {
-        const { $id } = TransactionTypeFactory.get(data.type).getSchema();
+        const { $id } = TransactionTypeFactory.get(data.type, data.typeGroup).getSchema();
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
+    }
+
+    private static internalVerifySignature(hash: Buffer, signature: string, publicKey: string): boolean {
+        const isSchnorr = Buffer.from(signature, "hex").byteLength === 64;
+        if (isSchnorr) {
+            return Hash.verifySchnorr(hash, signature, publicKey);
+        }
+
+        return Hash.verifyECDSA(hash, signature, publicKey);
     }
 }

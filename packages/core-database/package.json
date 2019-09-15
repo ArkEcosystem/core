@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-database",
-    "version": "2.5.24",
+    "version": "2.5.0-next.10",
     "description": "Database Interface for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -22,12 +22,13 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.24",
-        "@arkecosystem/core-event-emitter": "^2.5.24",
-        "@arkecosystem/core-interfaces": "^2.5.24",
-        "@arkecosystem/core-transactions": "^2.5.24",
-        "@arkecosystem/core-utils": "^2.5.24",
-        "@arkecosystem/crypto": "^2.5.24",
+        "@arkecosystem/core-container": "^2.5.0-next.10",
+        "@arkecosystem/core-event-emitter": "^2.5.0-next.10",
+        "@arkecosystem/core-interfaces": "^2.5.0-next.10",
+        "@arkecosystem/core-state": "^2.5.0-next.10",
+        "@arkecosystem/core-transactions": "^2.5.0-next.10",
+        "@arkecosystem/core-utils": "^2.5.0-next.10",
+        "@arkecosystem/crypto": "^2.5.0-next.10",
         "@arkecosystem/utils": "^0.3.0",
         "lodash.clonedeep": "^4.5.0",
         "lodash.compact": "^3.0.1",

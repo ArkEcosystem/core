@@ -4,10 +4,12 @@ import { configManager } from "../../../../../../packages/crypto/src/managers";
 
 configManager.setFromPreset("testnet");
 
-import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { TransactionVersionError } from "../../../../../../packages/crypto/src/errors";
-import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
+import {
+    BuilderFactory,
+    MultiSignatureRegistrationTransaction,
+} from "../../../../../../packages/crypto/src/transactions";
 import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
 import * as Utils from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
@@ -61,7 +63,7 @@ describe("Multi Signature Transaction", () => {
     transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TransactionTypes.MultiSignature);
+        expect(builder).toHaveProperty("data.type", TransactionType.MultiSignature);
         expect(builder).toHaveProperty("data.version", 0x02);
         expect(builder).toHaveProperty("data.fee", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
@@ -72,7 +74,7 @@ describe("Multi Signature Transaction", () => {
     });
 
     describe("multiSignatureAsset", () => {
-        const multiSignatureFee = feeManager.get(TransactionTypes.MultiSignature);
+        const multiSignatureFee = MultiSignatureRegistrationTransaction.staticFee();
         const multiSignature = {
             publicKeys: ["key a", "key b", "key c"],
             min: 1,
@@ -100,9 +102,8 @@ describe("Multi Signature Transaction", () => {
                     ],
                     min: 2,
                 })
-                .senderPublicKey("039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22");
-
-            actual.data.timestamp = 0;
+                .senderPublicKey("039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22")
+                .nonce("1");
 
             actual
                 .multiSign("secret 1", 0)
@@ -110,9 +111,9 @@ describe("Multi Signature Transaction", () => {
                 .multiSign("secret 3", 2);
 
             expect(actual.data.signatures).toEqual([
-                "00bab66bbc4a6b9e350b641969c454fa3052ff6511e748aafbbb0511f8178e0039810a336149436d6d1ad407a65fc121e6246c3449086a5d295d868269eceaf62f",
-                "014f01534036346f7442d6f2b0b88f8325fd296cfa0b521f9a56ba53c4df4718586ed7358a12b4e8943b0e7936f5cbf457b356918dd70b3d644c7fd7820cdbd4fc",
-                "02c876f3697ffa8df485348c1b5d164e69ff182e98756c527f62711e4fbabc0d19913c0274c9550f07a3cc4ccb213143ee07bf0f8160d01c91301394eda0c458e7",
+                "009fe6ca3b83a9a5e693fecb2b184900c5135a8c07e704c473b2f19117630f840428416f583f1a24ff371ba7e6fbca9a7fb796226ef9ef6542f44ed911951ac88d",
+                "0116779a98b2009b35d4003dda7628e46365f1a52068489bfbd80594770967a3949f76bc09e204eddd7d460e1e519b826c53dc6e2c9573096326dbc495050cf292",
+                "02687bd0f4a91be39daf648a5b1e1af5ffa4a3d4319b2e38b1fc2dc206db03f542f3b26c4803e0b4c8a53ddfb6cf4533b512d71ae869d4e4ccba989c4a4222396b",
             ]);
             expect(actual.data.signatures.length).toBe(3);
         });

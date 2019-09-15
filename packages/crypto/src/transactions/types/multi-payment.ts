@@ -1,16 +1,25 @@
-import bs58check from "bs58check";
 import ByteBuffer from "bytebuffer";
-import { TransactionTypes } from "../../enums";
+import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
-import { BigNumber } from "../../utils";
+import { configManager } from "../../managers";
+import { Base58 } from "../../utils/base58";
+import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
 
 export class MultiPaymentTransaction extends Transaction {
-    public static type: TransactionTypes = TransactionTypes.MultiPayment;
+    public static typeGroup: number = TransactionTypeGroup.Core;
+    public static type: number = TransactionType.MultiPayment;
+    public static key: string = "multiPayment";
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.multiPayment;
+    }
+
+    protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
+
+    public verify(): boolean {
+        return configManager.getMilestone().aip11 && super.verify();
     }
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
@@ -21,7 +30,7 @@ export class MultiPaymentTransaction extends Transaction {
 
         for (const p of data.asset.payments) {
             buffer.writeUint64(+BigNumber.make(p.amount).toFixed());
-            buffer.append(bs58check.decode(p.recipientId));
+            buffer.append(Base58.decodeCheck(p.recipientId));
         }
 
         return buffer;
@@ -35,11 +44,11 @@ export class MultiPaymentTransaction extends Transaction {
         for (let j = 0; j < total; j++) {
             payments.push({
                 amount: BigNumber.make(buf.readUint64().toString()),
-                recipientId: bs58check.encode(buf.readBytes(21).toBuffer()),
+                recipientId: Base58.encodeCheck(buf.readBytes(21).toBuffer()),
             });
         }
 
-        data.amount = payments.reduce((a, p) => a.plus(p.amount), BigNumber.ZERO);
+        data.amount = BigNumber.ZERO;
         data.asset = { payments };
     }
 }

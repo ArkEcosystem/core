@@ -1,8 +1,11 @@
+import { Utils } from "@arkecosystem/crypto";
+
 export const database = {
     restoredDatabaseIntegrity: true,
 
     walletManager: {
-        findByPublicKey: pubKey => "username",
+        findByPublicKey: pubKey => ({ getAttribute: () => "username" }),
+        getNonce: (senderPublicKey: string) => Utils.BigNumber.ZERO,
         revertBlock: () => undefined,
     },
 

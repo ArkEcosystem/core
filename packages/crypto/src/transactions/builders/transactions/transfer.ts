@@ -1,15 +1,15 @@
-import { TransactionTypes } from "../../../enums";
 import { ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { TransferTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class TransferBuilder extends TransactionBuilder<TransferBuilder> {
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.Transfer;
-        this.data.fee = feeManager.get(TransactionTypes.Transfer);
+        this.data.type = TransferTransaction.type;
+        this.data.typeGroup = TransferTransaction.typeGroup;
+        this.data.fee = TransferTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;
         this.data.senderPublicKey = undefined;

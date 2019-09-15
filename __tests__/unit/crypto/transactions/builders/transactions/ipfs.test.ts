@@ -1,9 +1,8 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-import { TransactionTypes } from "../../../../../../packages/crypto/src/enums";
-import { feeManager } from "../../../../../../packages/crypto/src/managers/fee";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
+import { TransactionType } from "../../../../../../packages/crypto/src/enums";
+import { BuilderFactory, IpfsTransaction } from "../../../../../../packages/crypto/src/transactions";
 import { IPFSBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/ipfs";
 import { transactionBuilder } from "./__shared__/transaction-builder";
 
@@ -17,8 +16,8 @@ describe("IPFS Transaction", () => {
     transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
-        expect(builder).toHaveProperty("data.type", TransactionTypes.Ipfs);
-        expect(builder).toHaveProperty("data.fee", feeManager.get(TransactionTypes.Ipfs));
+        expect(builder).toHaveProperty("data.type", TransactionType.Ipfs);
+        expect(builder).toHaveProperty("data.fee", IpfsTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.asset", {});
     });

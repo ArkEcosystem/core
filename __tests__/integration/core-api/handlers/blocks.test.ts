@@ -153,13 +153,13 @@ describe("API 2.0 - Blocks", () => {
             utils.expectTransaction(transaction);
             expect(transaction.blockId).toBe(genesisBlock.id);
         });
-
-        it("should fail to GET all the transactions for the given block by id if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "blocks/27184958558311101492/transactions"), 404);
-        });
     });
 
     describe("GET /blocks/:height/transactions", () => {
+        it("should fail to GET all the transactions for the given block by id if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "blocks/27184958558311101492/transactions"), 404);
+        });
+
         it("should GET all the transactions for the given block by height", async () => {
             const response = await utils.request("GET", `blocks/${genesisBlock.height}/transactions`);
             expect(response).toBeSuccessfulResponse();

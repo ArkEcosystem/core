@@ -1,0 +1,33 @@
+{
+    "name": "@arkecosystem/core-marketplace",
+    "version": "2.5.0-next.10",
+    "description": "ARK transactions for businesses and bridgechains",
+    "license": "MIT",
+    "contributors": [
+        "Joshua Noack <joshua@ark.io>",
+        "Kristjan Košič <kristjan@ark.io>",
+        "Žan Kovač"
+    ],
+    "files": [
+        "dist"
+    ],
+    "main": "dist/index",
+    "types": "dist/index",
+    "scripts": {
+        "build": "yarn clean && tsc",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build"
+    },
+    "dependencies": {
+        "@arkecosystem/core-state": "^2.5.0-next.10",
+        "@arkecosystem/core-interfaces": "^2.5.0-next.10",
+        "@arkecosystem/core-transactions": "^2.5.0-next.10",
+        "@arkecosystem/core-utils": "^2.5.0-next.10",
+        "@arkecosystem/crypto": "^2.5.0-next.10"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

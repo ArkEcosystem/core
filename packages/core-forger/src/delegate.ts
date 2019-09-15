@@ -88,8 +88,7 @@ export class Delegate {
             };
 
             const payloadBuffers: Buffer[] = [];
-            const sortedTransactions = Utils.sortTransactions(transactions);
-            for (const transaction of sortedTransactions) {
+            for (const transaction of transactions) {
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
                 transactionData.fee = transactionData.fee.plus(transaction.fee);
                 payloadBuffers.push(Buffer.from(transaction.id, "hex"));
@@ -107,13 +106,13 @@ export class Delegate {
                     previousBlock: options.previousBlock.id,
                     previousBlockHex: options.previousBlock.idHex,
                     height: options.previousBlock.height + 1,
-                    numberOfTransactions: sortedTransactions.length,
+                    numberOfTransactions: transactions.length,
                     totalAmount: transactionData.amount,
                     totalFee: transactionData.fee,
                     reward: options.reward,
-                    payloadLength: 32 * sortedTransactions.length,
+                    payloadLength: 32 * transactions.length,
                     payloadHash: Crypto.HashAlgorithms.sha256(payloadBuffers).toString("hex"),
-                    transactions: sortedTransactions,
+                    transactions,
                 },
                 this.keys,
             );
