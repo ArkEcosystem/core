@@ -96,7 +96,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
         const lockId: string = data.asset.claim.lockTransactionId;
-        const lockWallet: State.IWallet = pool.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+
+        const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+        const lockWallet: State.IWallet = databaseService.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
             processor.pushError(
                 data,
