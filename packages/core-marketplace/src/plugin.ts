@@ -1,5 +1,5 @@
-import { app } from "@arkecosystem/core-container";
-import { Container, Logger } from "@arkecosystem/core-interfaces";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
+import { Container, Database, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { defaults } from "./defaults";
 import {
@@ -20,9 +20,13 @@ export const plugin: Container.IPluginDescriptor = {
         const logger = container.resolvePlugin<Logger.ILogger>("logger");
         logger.info("Setting up core-marketplace.");
 
-        const walletManager = app.resolvePlugin("database").walletManager;
-        walletManager.registerIndex(MarketplaceIndex.Businesses, businessIndexer);
-        walletManager.registerIndex(MarketplaceIndex.Bridgechains, bridgechainIndexer);
+        container
+            .resolvePlugin<EventEmitter.EventEmitter>("event-emitter")
+            .on(ApplicationEvents.StateStarting, (database: Database.IDatabaseService) => {
+                const walletManager = database.walletManager;
+                walletManager.registerIndex(MarketplaceIndex.Businesses, businessIndexer);
+                walletManager.registerIndex(MarketplaceIndex.Bridgechains, bridgechainIndexer);
+            });
 
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
         Handlers.Registry.registerTransactionHandler(BusinessResignationTransactionHandler);

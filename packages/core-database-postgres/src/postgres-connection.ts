@@ -208,7 +208,7 @@ export class PostgresConnection implements Database.IConnection {
         let runMigration = !row;
         if (!runMigration) {
             const { missingAsset } = await this.db.one(
-                `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
+                `SELECT EXISTS (SELECT id FROM transactions WHERE (type > 0 OR type_group != 1) AND asset IS NULL) as "missingAsset"`,
             );
             if (missingAsset) {
                 await this.db.none(`DELETE FROM migrations WHERE name = '${name}'`);
@@ -223,7 +223,9 @@ export class PostgresConnection implements Database.IConnection {
 
         await this.query.none(migration);
 
-        const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
+        const all = await this.db.manyOrNone(
+            "SELECT id, serialized FROM transactions WHERE (type > 0 OR type_group != 1)",
+        );
         const { transactionIdFixTable } = Managers.configManager.get("exceptions");
 
         const chunks: Array<

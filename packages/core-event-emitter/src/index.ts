@@ -24,6 +24,7 @@ export enum ApplicationEvents {
     PeerRemoved = "peer.removed",
     RoundApplied = "round.applied",
     RoundCreated = "round.created",
+    StateStarting = "state.starting",
     StateStarted = "state.started",
     TransactionApplied = "transaction.applied",
     TransactionExpired = "transaction.expired",
