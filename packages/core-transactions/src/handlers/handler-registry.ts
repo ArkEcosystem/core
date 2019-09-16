@@ -1,5 +1,5 @@
+import { app, Container, Services } from "@arkecosystem/core-kernel";
 import { Enums, Errors, Transactions } from "@arkecosystem/crypto";
-import assert from "assert";
 
 import { InvalidTransactionTypeError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
@@ -15,15 +15,18 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 import { TransferTransactionHandler } from "./transfer";
 import { VoteTransactionHandler } from "./vote";
 
+@Container.injectable()
 export class TransactionHandlerRegistry {
     private readonly registeredTransactionHandlers: Map<
         Transactions.InternalTransactionType,
         TransactionHandler
     > = new Map();
 
-    private readonly knownWalletAttributes: Map<string, boolean> = new Map();
+    private readonly attributes: Services.Attributes.AttributeIndex = app
+        .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+        .get("wallet");
 
-    constructor() {
+    public constructor() {
         this.registerTransactionHandler(TransferTransactionHandler);
         this.registerTransactionHandler(SecondSignatureTransactionHandler);
         this.registerTransactionHandler(DelegateRegistrationTransactionHandler);
@@ -82,10 +85,8 @@ export class TransactionHandlerRegistry {
             Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
         }
 
-        const walletAttributes: ReadonlyArray<string> = service.walletAttributes();
-        for (const attribute of walletAttributes) {
-            assert(!this.knownWalletAttributes.has(attribute), `Wallet attribute is already known: ${attribute}`);
-            this.knownWalletAttributes.set(attribute, true);
+        for (const attribute of service.walletAttributes()) {
+            this.attributes.bind(attribute);
         }
 
         this.registeredTransactionHandlers.set(internalType, service);
@@ -108,9 +109,8 @@ export class TransactionHandlerRegistry {
             throw new InvalidTransactionTypeError(internalType.toString());
         }
 
-        const walletAttributes: ReadonlyArray<string> = service.walletAttributes();
-        for (const attribute of walletAttributes) {
-            this.knownWalletAttributes.delete(attribute);
+        for (const attribute of service.walletAttributes()) {
+            this.attributes.unbind(attribute);
         }
 
         Transactions.TransactionRegistry.deregisterTransactionType(transactionConstructor);
@@ -118,8 +118,6 @@ export class TransactionHandlerRegistry {
     }
 
     public isKnownWalletAttribute(attribute: string): boolean {
-        return this.knownWalletAttributes.has(attribute);
+        return this.attributes.isBound(attribute);
     }
 }
-
-export const transactionHandlerRegistry = new TransactionHandlerRegistry();

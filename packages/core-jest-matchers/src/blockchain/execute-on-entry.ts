@@ -1,5 +1,4 @@
-import get from "lodash.get";
-import isEqual from "lodash.isequal";
+import { Utils } from "@arkecosystem/core-kernel";
 
 export {};
 
@@ -21,7 +20,7 @@ expect.extend({
             path = `${slugs[0]}.states.${slugs[1]}`;
         }
 
-        const state = get(machine.states, path);
+        const state: any = Utils.get(machine.states, path);
 
         const actions = transition.actions.map(action => `"${action}"`).join(", ");
 
@@ -32,7 +31,7 @@ expect.extend({
                 `Expected machine to ${this.isNot ? "not " : ""} call actions ${actions} on state "${
                     transition.state
                 }"`,
-            pass: isEqual(state.onEntry.map(action => action.type), transition.actions),
+            pass: Utils.isEqual(state.onEntry.map(action => action.type), transition.actions),
         };
     },
 });

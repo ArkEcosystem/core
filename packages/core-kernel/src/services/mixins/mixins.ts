@@ -1,5 +1,7 @@
+import { injectable } from "../../ioc";
 import { Constructor } from "../../types/container";
 
+@injectable()
 export class MixinService {
     /**
      * @private

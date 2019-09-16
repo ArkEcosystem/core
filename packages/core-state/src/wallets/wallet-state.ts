@@ -1,6 +1,5 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import pluralize from "pluralize";
 
 // @todo: ioc
 @Container.injectable()
@@ -24,7 +23,7 @@ export class WalletState {
             );
         }
 
-        app.log.debug(`Loaded ${delegates.length} active ${pluralize("delegate", delegates.length)}`);
+        app.log.debug(`Loaded ${delegates.length} active ${AppUtils.pluralize("delegate", delegates.length)}`);
 
         return delegates;
     }

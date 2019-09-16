@@ -1,20 +1,13 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/services/mixins";
+import { MixinService } from "@packages/core-kernel/src/services/mixins/mixins";
 
 let app: Application;
-let container: interfaces.Container;
 
-beforeEach(() => {
-    container = new Container();
-    container.snapshot();
-
-    app = new Application(container);
-});
-
-afterEach(() => container.restore());
+beforeEach(() => (app = new Application(new Container())));
 
 describe("MixinServiceProvider", () => {
     it(".register", async () => {
@@ -23,5 +16,6 @@ describe("MixinServiceProvider", () => {
         await app.resolve<ServiceProvider>(ServiceProvider).register();
 
         expect(app.isBound(Identifiers.MixinService)).toBeTrue();
+        expect(app.get(Identifiers.MixinService)).toBeInstanceOf(MixinService);
     });
 });

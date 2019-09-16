@@ -1,10 +1,9 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Utils } from "@arkecosystem/core-kernel";
 import dns from "dns";
-import shuffle from "lodash.shuffle";
 import util from "util";
 
 export const checkDNS = async hosts => {
-    hosts = shuffle(hosts);
+    hosts = Utils.shuffle(hosts);
 
     const lookupService = util.promisify(dns.lookupService);
 

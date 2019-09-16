@@ -1,7 +1,6 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
-import partition from "lodash.partition";
 
 import { Transaction } from "../models";
 import { queries } from "../queries";
@@ -26,7 +25,7 @@ export class TransactionsRepository extends Repository implements Contracts.Data
             // 'search' doesn't support custom-op 'ownerId' like 'findAll' can
             const ops = params.filter(value => value.operator !== Contracts.Database.SearchOperator.OP_CUSTOM);
 
-            const [participants, rest] = partition(ops, op =>
+            const [participants, rest] = AppUtils.partition(ops, op =>
                 ["sender_public_key", "recipient_id"].includes(this.propToColumnName(op.field)),
             );
 

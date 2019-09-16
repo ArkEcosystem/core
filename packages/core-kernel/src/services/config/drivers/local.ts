@@ -1,7 +1,6 @@
+import { get, set } from "@arkecosystem/utils";
 import cosmiconfig from "cosmiconfig";
 import { parseFileSync } from "envfile";
-import get from "get-value";
-import set from "set-value";
 
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";

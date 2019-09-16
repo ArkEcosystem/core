@@ -1,6 +1,5 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { app, Utils } from "@arkecosystem/core-kernel";
-import pick from "lodash.pick";
 
 const logger = app.log;
 import { Database, database } from "./db";
@@ -119,7 +118,7 @@ export class SnapshotManager {
     }
 
     private async init(options, exportAction = false) {
-        const params: any = pick(options, [
+        const params: any = Utils.pick(options, [
             "truncate",
             "blocks",
             "verifySignatures",

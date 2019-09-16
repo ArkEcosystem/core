@@ -1,7 +1,6 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-import pluralize from "pluralize";
 
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./interfaces";
@@ -124,10 +123,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
-                    const handler: Handlers.TransactionHandler = Handlers.Registry.get(
-                        transactionInstance.type,
-                        transactionInstance.typeGroup,
-                    );
+                    const handler: Handlers.TransactionHandler = app
+                        .get<any>("transactionHandlerRegistry")
+                        .get(transactionInstance.type, transactionInstance.typeGroup);
                     if (await handler.verify(transactionInstance, this.pool.walletRepository)) {
                         try {
                             await this.walletRepository.throwIfCannotBeApplied(transactionInstance);
@@ -211,11 +209,10 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
         try {
             // @todo: this leaks private members, refactor this
-            return Handlers.Registry.get(transaction.type, transaction.typeGroup).canEnterTransactionPool(
-                transaction,
-                this.pool,
-                this,
-            );
+            return app
+                .get<any>("transactionHandlerRegistry")
+                .get(transaction.type, transaction.typeGroup)
+                .canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(
@@ -250,6 +247,6 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.log.info(`Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`);
+        app.log.info(`Received ${Utils.pluralize("transaction", this.transactions.length, true)} (${stats}).`);
     }
 }

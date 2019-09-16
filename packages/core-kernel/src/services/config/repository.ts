@@ -1,7 +1,4 @@
-import get from "get-value";
-import has from "has-value";
-import set from "set-value";
-import unset from "unset-value";
+import { get, has, set, unset } from "@arkecosystem/utils";
 
 import { JsonObject } from "../../types";
 
@@ -76,7 +73,9 @@ export class ConfigRepository {
      * @memberof ConfigRepository
      */
     public unset(key: string): boolean {
-        return unset(this.items, key);
+        unset(this.items, key);
+
+        return this.has(key);
     }
 
     /**

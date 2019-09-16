@@ -1,5 +1,5 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import { sortBy } from "@arkecosystem/utils";
-import isEqual from "lodash.isequal";
 
 export {};
 
@@ -15,7 +15,7 @@ expect.extend({
     toBeDelegate: actual => {
         return {
             message: () => "Expected value to be a valid delegate",
-            pass: isEqual(sortBy(Object.keys(actual)), ["address", "publicKey", "username"]),
+            pass: Utils.isEqual(sortBy(Object.keys(actual)), ["address", "publicKey", "username"]),
         };
     },
 });

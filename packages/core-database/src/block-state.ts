@@ -1,4 +1,4 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers, Interfaces as TransactionInterfaces } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
@@ -107,10 +107,9 @@ export class BlockState {
     }
 
     public async applyTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
-            transaction.type,
-            transaction.typeGroup,
-        );
+        const transactionHandler: Handlers.TransactionHandler = app
+            .get<any>("transactionHandlerRegistry")
+            .get(transaction.type, transaction.typeGroup);
 
         let lockWallet: Contracts.State.Wallet;
         let lockTransaction: Interfaces.ITransactionData;
@@ -131,10 +130,9 @@ export class BlockState {
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler: TransactionInterfaces.TransactionHandler = Handlers.Registry.get(
-            transaction.type,
-            transaction.typeGroup,
-        );
+        const transactionHandler: TransactionInterfaces.TransactionHandler = app
+            .get<any>("transactionHandlerRegistry")
+            .get(transaction.type, transaction.typeGroup);
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(data.senderPublicKey);
         const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(data.recipientId);
 

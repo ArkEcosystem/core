@@ -1,5 +1,5 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import { sortBy } from "@arkecosystem/utils";
-import isEqual from "lodash.isequal";
 
 export {};
 
@@ -33,7 +33,7 @@ const isValidBlock = block => {
     ]);
     const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key));
 
-    return isEqual(sortBy(actualKeys), allowedKeys);
+    return Utils.isEqual(sortBy(actualKeys), allowedKeys);
 };
 
 expect.extend({

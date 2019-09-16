@@ -1,6 +1,5 @@
 import chalk, { Chalk } from "chalk";
 import { WriteStream } from "fs";
-import isEmpty from "lodash.isempty";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
 import pump from "pump";
@@ -13,6 +12,7 @@ import { inspect } from "util";
 import { Application } from "../../../contracts/kernel";
 import { Logger } from "../../../contracts/kernel/log";
 import { Identifiers, inject, injectable } from "../../../ioc";
+import { isEmpty } from "../../../utils";
 import { ConfigRepository } from "../../config";
 
 @injectable()

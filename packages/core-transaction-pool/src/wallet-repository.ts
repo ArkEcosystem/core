@@ -1,8 +1,7 @@
 import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
-import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
-import clonedeep from "lodash.clonedeep";
+import cloneDeep from "lodash.clonedeep";
 
 export class WalletRepository extends Wallets.WalletRepository {
     private readonly databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
@@ -11,7 +10,7 @@ export class WalletRepository extends Wallets.WalletRepository {
 
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
-            this.reindex(clonedeep(this.databaseService.walletRepository.findByAddress(address)));
+            this.reindex(cloneDeep(this.databaseService.walletRepository.findByAddress(address)));
         }
 
         return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address);
@@ -40,14 +39,16 @@ export class WalletRepository extends Wallets.WalletRepository {
 
         const sender: Contracts.State.Wallet = this.findByPublicKey(senderPublicKey);
 
-        return Handlers.Registry.get(transaction.type, transaction.typeGroup).throwIfCannotBeApplied(
-            transaction,
-            sender,
-            this.databaseService.walletRepository,
-        );
+        return app
+            .get<any>("transactionHandlerRegistry")
+            .get(transaction.type, transaction.typeGroup)
+            .throwIfCannotBeApplied(transaction, sender, this.databaseService.walletRepository);
     }
 
     public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
-        return Handlers.Registry.get(transaction.type, transaction.typeGroup).revertForSender(transaction, this);
+        return app
+            .get<any>("transactionHandlerRegistry")
+            .get(transaction.type, transaction.typeGroup)
+            .revertForSender(transaction, this);
     }
 }

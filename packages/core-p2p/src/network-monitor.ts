@@ -1,11 +1,6 @@
-import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
-import groupBy from "lodash.groupby";
-import sample from "lodash.sample";
-import shuffle from "lodash.shuffle";
-import take from "lodash.take";
-import pluralize from "pluralize";
 import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 
@@ -72,8 +67,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         } else {
             await this.updateNetworkStatus(true);
 
-            for (const [version, peers] of Object.entries(groupBy(this.storage.getPeers(), "version"))) {
-                this.logger.info(`Discovered ${pluralize("peer", peers.length, true)} with v${version}.`);
+            for (const [version, peers] of Object.entries(Utils.groupBy(this.storage.getPeers(), "version"))) {
+                this.logger.info(`Discovered ${Utils.pluralize("peer", peers.length, true)} with v${version}.`);
             }
         }
 
@@ -131,7 +126,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         const pingDelay = fast ? 1500 : app.get<any>("p2p.options").verifyTimeout;
 
         if (peerCount) {
-            peers = shuffle(peers).slice(0, peerCount);
+            peers = Utils.shuffle(peers).slice(0, peerCount);
             max = Math.min(peers.length, peerCount);
         }
 
@@ -161,7 +156,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         for (const key of Object.keys(peerErrors)) {
             const peerCount = peerErrors[key].length;
-            this.logger.debug(`Removed ${peerCount} ${pluralize("peers", peerCount)} because of "${key}"`);
+            this.logger.debug(`Removed ${peerCount} ${Utils.pluralize("peers", peerCount)} because of "${key}"`);
         }
 
         if (this.initializing) {
@@ -175,7 +170,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         const ownPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
         const theirPeers: Contracts.P2P.Peer[] = Object.values(
             (await Promise.all(
-                shuffle(this.storage.getPeers())
+                Utils.shuffle(this.storage.getPeers())
                     .slice(0, 8)
                     .map(async (peer: Contracts.P2P.Peer) => {
                         try {
@@ -188,9 +183,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                     }),
             ))
                 .map(peers =>
-                    shuffle(peers)
+                    Utils.shuffle(peers)
                         .slice(0, maxPeersPerPeer)
-                        .reduce((acc, curr) => ({ ...acc, ...{ [curr.ip]: curr } }), {}),
+                        .reduce((acc, curr: Contracts.P2P.Peer) => ({ ...acc, ...{ [curr.ip]: curr } }), {}),
                 )
                 .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
         );
@@ -252,9 +247,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return { forked: false };
         }
 
-        const groupedByCommonHeight = groupBy(allPeers, "verification.highestCommonHeight");
+        const groupedByCommonHeight = Utils.groupBy(allPeers, "verification.highestCommonHeight");
 
-        const groupedByLength = groupBy(Object.values(groupedByCommonHeight), "length");
+        const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), "length");
 
         // Sort by longest
         // @ts-ignore
@@ -293,7 +288,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
             if (!networkHeight || networkHeight <= fromBlockHeight) {
                 // networkHeight is what we believe network height is, so even if it is <= our height, we download blocks
-                return this.communicator.downloadBlocks(sample(peersFiltered), fromBlockHeight);
+                return this.communicator.downloadBlocks(Utils.sample(peersFiltered), fromBlockHeight);
             }
 
             const chunkSize = 400;
@@ -301,11 +296,15 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             const chunksToDownload: number = Math.min(chunksMissingToSync, peersFiltered.length, maxParallelDownloads);
 
             return (await Promise.all(
-                shuffle(peersFiltered)
+                Utils.shuffle(peersFiltered)
                     .slice(0, chunksToDownload)
                     .map(async (peer: Contracts.P2P.Peer, index) => {
                         const height: number = fromBlockHeight + chunkSize * index;
-                        const peersToTry: Contracts.P2P.Peer[] = [peer, sample(peersFiltered), sample(peersFiltered)]; // 2 "fallback" peers to download from if 1st one failed
+                        const peersToTry: Contracts.P2P.Peer[] = [
+                            peer,
+                            Utils.sample(peersFiltered),
+                            Utils.sample(peersFiltered),
+                        ]; // 2 "fallback" peers to download from if 1st one failed
 
                         let blocks: Interfaces.IBlockData[];
                         for (const peerToDownloadFrom of peersToTry) {
@@ -358,25 +357,29 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 broadcastQuota = (maxHop - blockPing.count) / maxHop;
             }
 
-            peers = broadcastQuota <= 0 ? [] : shuffle(peers).slice(0, Math.ceil(broadcastQuota * peers.length));
+            peers = broadcastQuota <= 0 ? [] : Utils.shuffle(peers).slice(0, Math.ceil(broadcastQuota * peers.length));
             // select a portion of our peers according to quota calculated before
         }
 
         this.logger.info(
-            `Broadcasting block ${block.data.height.toLocaleString()} to ${pluralize("peer", peers.length, true)}`,
+            `Broadcasting block ${block.data.height.toLocaleString()} to ${Utils.pluralize(
+                "peer",
+                peers.length,
+                true,
+            )}`,
         );
 
         await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block.toJson())));
     }
 
     public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {
-        const peers: Contracts.P2P.Peer[] = take(
-            shuffle(this.storage.getPeers()),
+        const peers: Contracts.P2P.Peer[] = Utils.take(
+            Utils.shuffle(this.storage.getPeers()),
             app.get<any>("p2p.options").maxPeersBroadcast,
         );
 
         this.logger.debug(
-            `Broadcasting ${pluralize("transaction", transactions.length, true)} to ${pluralize(
+            `Broadcasting ${Utils.pluralize("transaction", transactions.length, true)} to ${Utils.pluralize(
                 "peer",
                 peers.length,
                 true,
@@ -395,10 +398,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     private async pingPeerPorts(initialRun?: boolean): Promise<void> {
         let peers = this.storage.getPeers();
         if (!initialRun) {
-            peers = shuffle(peers).slice(0, Math.floor(peers.length / 2));
+            peers = Utils.shuffle(peers).slice(0, Math.floor(peers.length / 2));
         }
 
-        this.logger.debug(`Checking ports of ${pluralize("peer", peers.length, true)}.`);
+        this.logger.debug(`Checking ports of ${Utils.pluralize("peer", peers.length, true)}.`);
 
         Promise.all(
             peers.map(async peer => {

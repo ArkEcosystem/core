@@ -1,7 +1,4 @@
-import get from "get-value";
-import has from "has-value";
-import set from "set-value";
-import unset from "unset-value";
+import { get, has, set, unset } from "@arkecosystem/utils";
 
 import { Identifiers, inject, injectable } from "../ioc";
 import { ConfigRepository } from "../services/config";

@@ -1,8 +1,7 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Utils } from "@arkecosystem/core-kernel";
 import sqlite3 from "better-sqlite3";
 import delay from "delay";
 import { ensureFileSync, existsSync, unlinkSync } from "fs-extra";
-import pluralize from "pluralize";
 import SocketCluster from "socketcluster";
 
 import { getHeaders } from "./utils/get-headers";
@@ -70,7 +69,7 @@ class PayloadProcessor {
                     saveToDB(this.payloadOverflowQueue);
                 } catch (error) {
                     app.log.warning(
-                        `Discarding ${pluralize(
+                        `Discarding ${Utils.pluralize(
                             "transaction payload",
                             overflowQueueSize,
                             true,

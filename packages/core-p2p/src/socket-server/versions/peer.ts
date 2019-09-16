@@ -1,6 +1,5 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
-import pluralize from "pluralize";
 
 import { MissingCommonBlockError } from "../../errors";
 import { PeerPingResponse } from "../../interfaces";
@@ -75,7 +74,7 @@ export const postBlock = async ({ req }): Promise<void> => {
     }
 
     app.log.info(
-        `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
+        `Received new block at height ${block.height.toLocaleString()} with ${Utils.pluralize(
             "transaction",
             block.numberOfTransactions,
             true,
@@ -127,7 +126,7 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Cont
     }
 
     app.log.info(
-        `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(
+        `${mapAddr(req.headers.remoteAddress)} has downloaded ${Utils.pluralize(
             "block",
             blocks.length,
             true,

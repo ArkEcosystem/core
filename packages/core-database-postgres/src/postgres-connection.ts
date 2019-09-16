@@ -1,6 +1,5 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-import chunk from "lodash.chunk";
 import path from "path";
 import pgPromise, { IMain } from "pg-promise";
 
@@ -236,7 +235,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
                 serialized: Buffer;
                 id: string;
             }>
-        > = chunk(all, 20000);
+        > = Utils.chunk(all, 20000);
 
         for (const chunk of chunks) {
             await this.db.task(task => {

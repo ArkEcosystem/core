@@ -1,10 +1,7 @@
-import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Wallets } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
-import isEmpty from "lodash.isempty";
-import uniq from "lodash.uniq";
-import pluralize from "pluralize";
 
 import { Client } from "./client";
 import { Delegate } from "./delegate";
@@ -34,7 +31,7 @@ export class ForgerManager {
             return;
         }
 
-        this.secrets = uniq(this.secrets.map(secret => secret.trim()));
+        this.secrets = AppUtils.uniq(this.secrets.map(secret => secret.trim()));
         this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, password));
 
         if (bip38) {
@@ -117,7 +114,7 @@ export class ForgerManager {
             } else {
                 this.logger.error(error.stack);
 
-                if (!isEmpty(this.round)) {
+                if (!AppUtils.isEmpty(this.round)) {
                     this.logger.info(
                         `Round: ${this.round.current.toLocaleString()}, height: ${this.round.lastBlock.height.toLocaleString()}`,
                     );
@@ -184,7 +181,7 @@ export class ForgerManager {
     public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
         const response: Contracts.P2P.ForgingTransactions = await this.client.getTransactions();
 
-        if (isEmpty(response)) {
+        if (AppUtils.isEmpty(response)) {
             this.logger.error("Could not get unconfirmed transactions from transaction pool.");
 
             return [];
@@ -195,7 +192,7 @@ export class ForgerManager {
         );
 
         this.logger.debug(
-            `Received ${pluralize("transaction", transactions.length, true)} from the pool containing ${
+            `Received ${AppUtils.pluralize("transaction", transactions.length, true)} from the pool containing ${
                 response.poolSize
             }`,
         );
@@ -221,7 +218,11 @@ export class ForgerManager {
         }> = networkState.getOverHeightBlockHeaders();
         if (overHeightBlockHeaders.length > 0) {
             this.logger.info(
-                `Detected ${pluralize("distinct overheight block header", overHeightBlockHeaders.length, true)}.`,
+                `Detected ${AppUtils.pluralize(
+                    "distinct overheight block header",
+                    overHeightBlockHeaders.length,
+                    true,
+                )}.`,
             );
 
             for (const overHeightBlockHeader of overHeightBlockHeaders) {
@@ -278,7 +279,7 @@ export class ForgerManager {
 
         if (activeDelegates.length > 0) {
             this.logger.info(
-                `Loaded ${pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
+                `Loaded ${AppUtils.pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
                     .map(({ publicKey }) => `${this.usernames[publicKey]} (${publicKey})`)
                     .join(", ")}`,
             );
@@ -290,9 +291,11 @@ export class ForgerManager {
                 .map(delegate => delegate.publicKey);
 
             this.logger.info(
-                `Loaded ${pluralize("inactive delegate", inactiveDelegates.length, true)}: ${inactiveDelegates.join(
-                    ", ",
-                )}`,
+                `Loaded ${AppUtils.pluralize(
+                    "inactive delegate",
+                    inactiveDelegates.length,
+                    true,
+                )}: ${inactiveDelegates.join(", ")}`,
             );
         }
 

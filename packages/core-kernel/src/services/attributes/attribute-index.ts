@@ -1,8 +1,6 @@
+import { get, has, set, unset } from "@arkecosystem/utils";
 import { strict } from "assert";
-import get from "get-value";
-import has from "has-value";
-import set from "set-value";
-import unset from "unset-value";
+
 import { Primitive } from "../../types";
 
 export class AttributeIndex {

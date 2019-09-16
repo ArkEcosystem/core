@@ -1,5 +1,5 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import { sortBy } from "@arkecosystem/utils";
-import isEqual from "lodash.isequal";
 
 export {};
 
@@ -31,7 +31,7 @@ expect.extend({
 
         return {
             message: () => `Expected ${JSON.stringify(actual)} to be a valid transaction`,
-            pass: isEqual(sortBy(actualKeys), allowedKeys),
+            pass: Utils.isEqual(sortBy(actualKeys), allowedKeys),
         };
     },
 });

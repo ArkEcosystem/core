@@ -1,6 +1,6 @@
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
-import { Actions, Cache, Filesystem, Log, Queue, Schedule, Validation } from "../../services";
+import { Actions, Attributes, Cache, Filesystem, Log, Queue, Schedule, Validation } from "../../services";
 import { Bootstrapper } from "../interfaces";
 
 /**
@@ -27,6 +27,8 @@ export class RegisterBaseServiceProviders implements Bootstrapper {
      */
     public async bootstrap(): Promise<void> {
         await this.app.resolve(Actions.ServiceProvider).register();
+
+        await this.app.resolve(Attributes.ServiceProvider).register();
 
         await this.app.resolve(Log.ServiceProvider).register();
 

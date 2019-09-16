@@ -27,19 +27,13 @@
         "@arkecosystem/core-state": "^3.0.0-next.0",
         "@arkecosystem/core-transactions": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@arkecosystem/utils": "^0.3.0",
+        "@arkecosystem/utils": "^0.4.0",
         "lodash.clonedeep": "^4.5.0",
-        "lodash.compact": "^3.0.1",
-        "lodash.snakecase": "^4.1.1",
-        "lodash.uniq": "^4.5.0",
-        "pluralize": "^8.0.0"
+        "lodash.snakecase": "^4.1.1"
     },
     "devDependencies": {
         "@types/lodash.clonedeep": "^4.5.6",
-        "@types/lodash.compact": "^3.0.6",
-        "@types/lodash.snakecase": "^4.1.6",
-        "@types/lodash.uniq": "^4.5.6",
-        "@types/pluralize": "^0.0.29"
+        "@types/lodash.snakecase": "^4.1.6"
     },
     "engines": {
         "node": ">=10.x"

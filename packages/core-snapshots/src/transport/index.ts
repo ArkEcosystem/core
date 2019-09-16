@@ -1,9 +1,8 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import fs from "fs-extra";
 import msgpack from "msgpack-lite";
 import QueryStream from "pg-query-stream";
-import pluralize from "pluralize";
 import zlib from "zlib";
 
 import JSONStream from "JSONStream";
@@ -152,7 +151,7 @@ export const backupTransactionsToJSON = async (snapFileName, query, database) =>
     try {
         const data = await database.db.stream(qs, s => s.pipe(JSONStream.stringify()).pipe(snapshotWriteStream));
         logger.info(
-            `${pluralize(
+            `${Utils.pluralize(
                 "transaction",
                 data.processed,
                 true,

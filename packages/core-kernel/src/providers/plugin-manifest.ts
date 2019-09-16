@@ -1,5 +1,4 @@
-import get from "get-value";
-import has from "has-value";
+import { get, has } from "@arkecosystem/utils";
 
 import { injectable } from "../ioc";
 import { PackageJson } from "../types";

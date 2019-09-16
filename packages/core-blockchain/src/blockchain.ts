@@ -2,7 +2,6 @@ import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kern
 import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import async from "async";
 import delay from "delay";
-import pluralize from "pluralize";
 
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
@@ -314,7 +313,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         }
 
         const resetHeight: number = lastBlock.data.height - nblocks;
-        app.log.info(`Removing ${pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`);
+        app.log.info(
+            `Removing ${Utils.pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`,
+        );
 
         this.state.lastDownloadedBlock = lastBlock.data;
 
@@ -335,7 +336,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const blocks: Interfaces.IBlockData[] = await this.database.getTopBlocks(count);
 
         app.log.info(
-            `Removing ${pluralize(
+            `Removing ${Utils.pluralize(
                 "block",
                 blocks.length,
                 true,
@@ -387,7 +388,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
 
                 app.log.info(
-                    `Reverting ${pluralize("block", acceptedBlocks.length, true)} back to last height: ${lastHeight}`,
+                    `Reverting ${Utils.pluralize(
+                        "block",
+                        acceptedBlocks.length,
+                        true,
+                    )} back to last height: ${lastHeight}`,
                 );
 
                 for (const block of acceptedBlocks.reverse()) {

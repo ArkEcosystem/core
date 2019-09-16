@@ -1,8 +1,6 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Errors, Handlers } from "@arkecosystem/core-transactions";
+import { app, Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import { Errors } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import assert from "assert";
-import dottie from "dottie";
 
 export class Wallet implements Contracts.State.Wallet {
     public address: string;
@@ -10,38 +8,38 @@ export class Wallet implements Contracts.State.Wallet {
     public balance: Utils.BigNumber;
     public nonce: Utils.BigNumber;
 
-    private readonly attributes: Record<string, any>;
-
-    constructor(address: string) {
+    public constructor(address: string) {
         this.address = address;
         this.balance = Utils.BigNumber.ZERO;
         this.nonce = Utils.BigNumber.ZERO;
-
-        this.attributes = {};
     }
 
-    // @todo: move this into an AttributesRegistry
-    public hasAttribute(key: string): boolean {
-        this.assertKnownAttribute(key);
-        return dottie.exists(this.attributes, key);
-    }
-
-    // @todo: move this into an AttributesRegistry
     public getAttribute<T>(key: string, defaultValue?: T): T {
-        this.assertKnownAttribute(key);
-        return dottie.get(this.attributes, key, defaultValue);
+        return app
+            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+            .get("wallet")
+            .get<T>(this.address, key, defaultValue);
     }
 
-    // @todo: move this into an AttributesRegistry
-    public setAttribute<T = any>(key: string, value: T): void {
-        this.assertKnownAttribute(key);
-        dottie.set(this.attributes, key, value);
+    public setAttribute<T = any>(key: string, value: T): boolean {
+        return app
+            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+            .get("wallet")
+            .set<T>(this.address, key, value);
     }
 
-    // @todo: move this into an AttributesRegistry
-    public forgetAttribute(key: string): void {
-        this.assertKnownAttribute(key);
-        this.setAttribute(key, undefined);
+    public forgetAttribute(key: string): boolean {
+        return app
+            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+            .get("wallet")
+            .forget(this.address, key);
+    }
+
+    public hasAttribute(key: string): boolean {
+        return app
+            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+            .get("wallet")
+            .has(this.address, key);
     }
 
     public isDelegate(): boolean {
@@ -61,7 +59,10 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public canBePurged(): boolean {
-        const hasAttributes = Object.keys(this.attributes).length > 0;
+        const hasAttributes: boolean =
+            Object.keys(
+                app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService).get("wallet"),
+            ).length > 0;
         const lockedBalance = this.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
 
         return this.balance.isZero() && lockedBalance.isZero() && !hasAttributes;
@@ -241,9 +242,5 @@ export class Wallet implements Contracts.State.Wallet {
 
     public toString(): string {
         return `${this.address} (${Utils.formatSatoshi(this.balance)})`;
-    }
-
-    private assertKnownAttribute(key: string): void {
-        assert(Handlers.Registry.isKnownWalletAttribute(key), `Tried to access unknown attribute: ${key}`);
     }
 }

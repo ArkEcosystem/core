@@ -1,6 +1,5 @@
 import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
-import pluralize from "pluralize";
 
 import { Blockchain } from "./blockchain";
 import { blockchainMachine } from "./machines/blockchain";
@@ -213,10 +212,10 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         if (chained) {
             logger.info(
-                `Downloaded ${blocks.length} new ${pluralize(
+                `Downloaded ${blocks.length} new ${AppUtils.pluralize(
                     "block",
                     blocks.length,
-                )} accounting for a total of ${pluralize(
+                )} accounting for a total of ${AppUtils.pluralize(
                     "transaction",
                     blocks.reduce((sum, b) => sum + b.numberOfTransactions, 0),
                     true,
@@ -269,7 +268,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
         stateStorage.numberOfBlocksToRollback = undefined;
 
-        logger.info(`Removed ${pluralize("block", random, true)}`);
+        logger.info(`Removed ${AppUtils.pluralize("block", random, true)}`);
 
         await blockchain.transactionPool.buildWallets();
         await blockchain.p2p.getMonitor().refreshPeersAfterFork();

@@ -3,7 +3,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
-import clonedeep from "lodash.clonedeep";
+import cloneDeep from "lodash.clonedeep";
 
 import { TransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
@@ -205,10 +205,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
             const { data }: Interfaces.ITransaction = transaction;
             const exists: boolean = await this.has(data.id);
             const senderPublicKey: string = data.senderPublicKey;
-            const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
-                transaction.type,
-                transaction.typeGroup,
-            );
+            const transactionHandler: Handlers.TransactionHandler = app
+                .get<any>("transactionHandlerRegistry")
+                .get(transaction.type, transaction.typeGroup);
 
             const senderWallet: Contracts.State.Wallet = this.walletRepository.hasByPublicKey(senderPublicKey)
                 ? this.walletRepository.findByPublicKey(senderPublicKey)
@@ -291,10 +290,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
             // TODO: rework error handling
             try {
-                const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
-                    transaction.type,
-                    transaction.typeGroup,
-                );
+                const transactionHandler: Handlers.TransactionHandler = app
+                    .get<any>("transactionHandlerRegistry")
+                    .get(transaction.type, transaction.typeGroup);
                 await transactionHandler.throwIfCannotBeApplied(
                     transaction,
                     senderWallet,
@@ -434,10 +432,10 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         try {
             await this.walletRepository.throwIfCannotBeApplied(transaction);
-            await Handlers.Registry.get(transaction.type, transaction.typeGroup).applyToSender(
-                transaction,
-                this.walletRepository,
-            );
+            await app
+                .get<any>("transactionHandlerRegistry")
+                .get(transaction.type, transaction.typeGroup)
+                .applyToSender(transaction, this.walletRepository);
         } catch (error) {
             this.logger.error(error.message);
 
@@ -483,10 +481,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
                 const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletRepository);
 
-                const handler: Handlers.TransactionHandler = Handlers.Registry.get(
-                    transaction.type,
-                    transaction.typeGroup,
-                );
+                const handler: Handlers.TransactionHandler = app
+                    .get<any>("transactionHandlerRegistry")
+                    .get(transaction.type, transaction.typeGroup);
                 await handler.throwIfCannotBeApplied(transaction, sender, databaseWalletRepository);
 
                 await handler.applyToSender(transaction, localWalletRepository);
@@ -520,7 +517,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         if (localWalletRepository.hasByPublicKey(senderPublicKey)) {
             sender = localWalletRepository.findByPublicKey(senderPublicKey);
         } else {
-            sender = clonedeep(databaseWalletRepository.findByPublicKey(senderPublicKey));
+            sender = cloneDeep(databaseWalletRepository.findByPublicKey(senderPublicKey));
             localWalletRepository.reindex(sender);
         }
 
@@ -528,13 +525,13 @@ export class Connection implements Contracts.TransactionPool.Connection {
         if (transaction.type === Enums.TransactionType.Vote) {
             const vote = transaction.data.asset.votes[0].slice(1);
             if (!localWalletRepository.hasByPublicKey(vote)) {
-                localWalletRepository.reindex(clonedeep(databaseWalletRepository.findByPublicKey(vote)));
+                localWalletRepository.reindex(cloneDeep(databaseWalletRepository.findByPublicKey(vote)));
             }
         } else if (transaction.type === Enums.TransactionType.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             if (!localWalletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
                 localWalletRepository.reindex(
-                    clonedeep(databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId)),
+                    cloneDeep(databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId)),
                 );
             }
         }
@@ -543,7 +540,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             if (localWalletRepository.hasByAddress(recipientId)) {
                 recipient = localWalletRepository.findByAddress(recipientId);
             } else {
-                recipient = clonedeep(databaseWalletRepository.findByAddress(recipientId));
+                recipient = cloneDeep(databaseWalletRepository.findByAddress(recipientId));
                 localWalletRepository.reindex(recipient);
             }
         }

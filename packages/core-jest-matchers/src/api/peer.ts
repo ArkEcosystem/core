@@ -1,5 +1,5 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import { sortBy } from "@arkecosystem/utils";
-import isEqual from "lodash.isequal";
 
 export {};
 
@@ -16,7 +16,7 @@ const isValidPeer = peer => {
     const allowedKeys = sortBy(["ip", "port"]);
     const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key));
 
-    return isEqual(sortBy(actualKeys), allowedKeys);
+    return Utils.isEqual(sortBy(actualKeys), allowedKeys);
 };
 
 expect.extend({

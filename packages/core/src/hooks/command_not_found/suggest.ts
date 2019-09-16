@@ -1,15 +1,15 @@
 // Based on https://github.com/oclif/plugin-not-found/blob/master/src/index.ts
 
+import { Utils } from "@arkecosystem/core-kernel";
 import { Hook } from "@oclif/config";
 import Chalk from "chalk";
 import Levenshtein from "fast-levenshtein";
-import minBy from "lodash.minby";
 import prompts from "prompts";
 
 import { abort } from "../../common/cli";
 
 const closest = (commandIDs: string[], cmd: string) => {
-    return minBy(commandIDs, c => Levenshtein.get(cmd, c))!;
+    return Utils.minBy(commandIDs, c => Levenshtein.get(cmd, c))!;
 };
 
 export const init: Hook<"init"> = async function({ id, config }) {

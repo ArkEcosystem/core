@@ -1,5 +1,5 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import { sortBy } from "@arkecosystem/utils";
-import isEqual from "lodash.isequal";
 
 export {};
 
@@ -15,7 +15,7 @@ expect.extend({
     toBeWallet: actual => {
         return {
             message: () => "Expected value to be a valid wallet",
-            pass: isEqual(sortBy(Object.keys(actual)), ["address", "publicKey"]),
+            pass: Utils.isEqual(sortBy(Object.keys(actual)), ["address", "publicKey"]),
         };
     },
 });

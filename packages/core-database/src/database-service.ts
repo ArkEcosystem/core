@@ -560,10 +560,9 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByAddress(senderId);
-        const transactionHandler: Handlers.TransactionHandler = Handlers.Registry.get(
-            transaction.type,
-            transaction.typeGroup,
-        );
+        const transactionHandler: Handlers.TransactionHandler = app
+            .get<any>("transactionHandlerRegistry")
+            .get(transaction.type, transaction.typeGroup);
 
         if (!sender.publicKey) {
             sender.publicKey = transaction.data.senderPublicKey;
@@ -730,7 +729,9 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     private emitTransactionEvents(transaction: Interfaces.ITransaction): void {
         this.emitter.dispatch(Enums.Events.State.TransactionApplied, transaction.data);
 
-        Handlers.Registry.get(transaction.type, transaction.typeGroup).emitEvents(transaction, this.emitter);
+        app.get<any>("transactionHandlerRegistry")
+            .get(transaction.type, transaction.typeGroup)
+            .emitEvents(transaction, this.emitter);
     }
 
     private registerListeners(): void {
