@@ -28,6 +28,7 @@ export const transformTransaction = (model, transform) => {
         blockId: model.blockId,
         version: data.version,
         type: data.type,
+        typeGroup: data.typeGroup,
         amount: data.amount.toFixed(),
         fee: data.fee.toFixed(),
         sender,
@@ -40,6 +41,6 @@ export const transformTransaction = (model, transform) => {
         asset: data.asset,
         confirmations: model.block ? lastBlock.data.height - model.block.height + 1 : 0,
         timestamp: timestamp !== undefined ? formatTimestamp(timestamp) : undefined,
-        nonce: data.version > 1 ? data.nonce.toFixed() : undefined,
+        nonce: data.nonce ? data.nonce.toFixed() : undefined,
     };
 };
