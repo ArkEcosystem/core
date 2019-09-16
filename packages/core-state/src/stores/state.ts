@@ -7,6 +7,7 @@ import { OrderedMap, OrderedSet, Seq } from "immutable";
  * @todo
  * - extract block and transaction behaviours into their respective stores
  */
+@Container.injectable()
 export class StateStore implements Contracts.State.StateStore {
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};

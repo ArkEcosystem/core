@@ -127,8 +127,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         const lastBlock: Interfaces.IBlock = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
         const lastBlockEpochTimestamp = lastBlock.data.timestamp;
         const expiration = lockTransaction.asset.lock.expiration;

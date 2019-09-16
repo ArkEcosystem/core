@@ -32,14 +32,22 @@ export const Identifiers: Record<string, symbol> = {
     FilesystemService: Symbol.for("Service<Filesystem>"),
     LogService: Symbol.for("Service<Log>"),
     MixinService: Symbol.for("Service<Mixin>"),
-    PeerService: Symbol.for("Service<P2P>"),
     QueueService: Symbol.for("Service<Queue>"),
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
-    StateService: Symbol.for("Service<State>"),
     TransactionPoolService: Symbol.for("Service<TransactionPool>"),
     ValidationService: Symbol.for("Service<Validation>"),
     // Repositories
     ConfigRepository: Symbol.for("Repository<Config>"),
     ServiceProviderRepository: Symbol.for("Repository<ServiceProvider>"),
+    // State - @todo: better names that won't clash
+    StateBlockStore: Symbol.for("State<BlockStore>"),
+    StateTransactionStore: Symbol.for("State<TransactionStore>"),
+    StateStore: Symbol.for("State<StateStore>"),
+    // P2P - @todo: better names that won't clash
+    PeerCommunicator: Symbol.for("Peer<Communicator>"),
+    PeerConnector: Symbol.for("Peer<Connector>"),
+    PeerNetworkMonitor: Symbol.for("Peer<NetworkMonitor>"),
+    PeerProcessor: Symbol.for("Peer<Processor>"),
+    PeerStorage: Symbol.for("Peer<Storage>"),
 };

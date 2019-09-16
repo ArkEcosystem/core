@@ -3,35 +3,28 @@ import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Peer } from "./peer";
 import { isValidPeer, isValidVersion, isWhitelisted } from "./utils";
 
+@Container.injectable()
 export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean;
 
-    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
-        Contracts.Kernel.Events.EventDispatcher
-    >(Container.Identifiers.EventDispatcherService);
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger: Contracts.Kernel.Log.Logger;
 
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter: Contracts.Kernel.Events.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator: Contracts.P2P.PeerCommunicator;
+
+    @Container.inject(Container.Identifiers.PeerConnector)
     private readonly connector: Contracts.P2P.PeerConnector;
+
+    @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage: Contracts.P2P.PeerStorage;
 
-    public constructor({
-        communicator,
-        connector,
-        storage,
-    }: {
-        communicator: Contracts.P2P.PeerCommunicator;
-        connector: Contracts.P2P.PeerConnector;
-        storage: Contracts.P2P.PeerStorage;
-    }) {
-        this.communicator = communicator;
-        this.connector = connector;
-        this.storage = storage;
-
-        this.emitter.listen("internal.milestone.changed", () => {
-            this.updatePeersAfterMilestoneChange();
-        });
+    public init() {
+        this.emitter.listen("internal.milestone.changed", () => this.updatePeersAfterMilestoneChange());
     }
 
     public async validateAndAcceptPeer(

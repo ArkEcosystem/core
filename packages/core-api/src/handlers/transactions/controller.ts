@@ -27,9 +27,9 @@ export class TransactionsController extends Controller {
             const result = await processor.validate((request.payload as any).transactions);
 
             if (result.broadcast.length > 0) {
-                app.get<Contracts.P2P.PeerService>(Container.Identifiers.PeerService)
-                    .getMonitor()
-                    .broadcastTransactions(processor.getBroadcastTransactions());
+                app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastTransactions(
+                    processor.getBroadcastTransactions(),
+                );
             }
 
             return {

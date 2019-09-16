@@ -1,20 +1,27 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 
+@Container.injectable()
 export class EventListener {
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
-        Contracts.Kernel.Events.EventDispatcher
-    >(Container.Identifiers.EventDispatcherService);
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter: Contracts.Kernel.Events.EventDispatcher;
 
-    public constructor(service: Contracts.P2P.PeerService) {
-        const connector: Contracts.P2P.PeerConnector = service.getConnector();
-        const storage: Contracts.P2P.PeerStorage = service.getStorage();
+    @Container.inject(Container.Identifiers.PeerConnector)
+    private readonly connector: Contracts.P2P.PeerConnector;
 
+    @Container.inject(Container.Identifiers.PeerStorage)
+    private readonly storage: Contracts.P2P.PeerStorage;
+
+    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
+    private readonly networkMonitor: Contracts.P2P.NetworkMonitor;
+
+    public init() {
         this.emitter.listen("internal.p2p.disconnectPeer", ({ name, data: peer }) => {
-            connector.disconnect(peer);
-            storage.forgetPeer(peer);
+            this.connector.disconnect(peer);
+
+            this.storage.forgetPeer(peer);
         });
 
-        const exitHandler = () => service.getMonitor().stopServer();
+        const exitHandler = () => this.networkMonitor.stopServer();
 
         process.on("SIGINT", exitHandler);
         process.on("exit", exitHandler);

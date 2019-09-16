@@ -21,7 +21,7 @@ export class ReplayBlockchain extends Blockchain {
     }
 
     public constructor() {
-        super({});
+        super();
 
         this.walletRepository = new Wallets.WalletRepository();
         this.walletState = app.resolve<Wallets.WalletState>(Wallets.WalletState).init(this.walletRepository);
@@ -34,10 +34,6 @@ export class ReplayBlockchain extends Blockchain {
         this.queue.kill();
         // @ts-ignore
         this.queue.drain(() => undefined);
-    }
-
-    public get p2p(): Contracts.P2P.PeerService {
-        return undefined;
     }
 
     public get transactionPool(): Contracts.TransactionPool.Connection {

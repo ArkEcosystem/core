@@ -8,21 +8,14 @@ import { stateMachine } from "./state-machine";
 
 const { BlockFactory } = Blocks;
 
+@Container.injectable()
 export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Get the state of the blockchain.
      * @return {StateStore}
      */
     get state(): Contracts.State.StateStore {
-        return app.get<Contracts.State.StateService>(Container.Identifiers.StateService).getStore();
-    }
-
-    /**
-     * Get the network (p2p) interface.
-     * @return {PeerService}
-     */
-    get p2p(): Contracts.P2P.PeerService {
-        return app.get<Contracts.P2P.PeerService>(Container.Identifiers.PeerService);
+        return app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore);
     }
 
     /**
@@ -52,7 +45,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @param  {Object} options
      * @return {void}
      */
-    constructor(options: { networkStart?: boolean }) {
+    init(options: { networkStart?: boolean }): this {
         // flag to force a network start
         this.state.networkStart = !!options.networkStart;
 
@@ -60,6 +53,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             app.log.warning(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
+
             app.log.info("Starting ARK Core for a new world, welcome aboard");
         }
 
@@ -80,6 +74,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         // @ts-ignore
         this.queue.drain(() => this.dispatch("PROCESSFINISHED"));
+
+        return this;
     }
 
     /**
@@ -138,7 +134,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             await delay(1000);
         }
 
-        this.p2p.getMonitor().cleansePeers({ forcePing: true, peerCount: 10 });
+        app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
+            forcePing: true,
+            peerCount: 10,
+        });
 
         return true;
     }
@@ -179,7 +178,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async updateNetworkStatus(): Promise<void> {
-        await this.p2p.getMonitor().updateNetworkStatus();
+        await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).updateNetworkStatus();
     }
 
     /**
@@ -417,7 +416,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const blocktime: number = Managers.configManager.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
-                this.p2p.getMonitor().broadcastBlock(currentBlock);
+                app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastBlock(
+                    currentBlock,
+                );
             }
         }
 
@@ -458,7 +459,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Determine if the blockchain is synced.
      */
     public isSynced(block?: Interfaces.IBlockData): boolean {
-        if (!this.p2p.getStorage().hasPeers()) {
+        if (!app.get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage).hasPeers()) {
             return true;
         }
 

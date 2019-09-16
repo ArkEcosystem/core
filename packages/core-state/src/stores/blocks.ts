@@ -1,7 +1,8 @@
-import { Utils } from "@arkecosystem/core-kernel";
+import { Utils, Container } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 
+@Container.injectable()
 export class BlockStore {
     private readonly byId: Utils.OrderedCappedMap<string, Interfaces.IBlockData>;
     private readonly byHeight: Utils.OrderedCappedMap<number, Interfaces.IBlockData>;

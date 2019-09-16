@@ -1,8 +1,9 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { cidr } from "ip";
 
 import { PeerRepository } from "./peer-repository";
 
+@Container.injectable()
 export class PeerStorage implements Contracts.P2P.PeerStorage {
     private readonly peers: PeerRepository<Contracts.P2P.Peer> = new PeerRepository<Contracts.P2P.Peer>();
     private readonly peersPending: PeerRepository<Contracts.P2P.Peer> = new PeerRepository<Contracts.P2P.Peer>();

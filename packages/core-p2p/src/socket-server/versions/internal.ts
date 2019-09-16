@@ -1,9 +1,10 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
+import { PeerService } from "../../types";
+import { Peer } from "../../peer";
 
-export const acceptNewPeer = async ({ service, req }: { service: Contracts.P2P.PeerService; req }): Promise<void> => {
-    await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
-};
+export const acceptNewPeer = async ({ service, req }: { service: PeerService; req }): Promise<void> =>
+    service.processor.validateAndAcceptPeer({ ip: req.data.ip } as Peer);
 
 export const emitEvent = ({ req }): void => {
     app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService).dispatch(
@@ -56,13 +57,8 @@ export const getCurrentRound = async (): Promise<Contracts.P2P.CurrentRound> => 
     };
 };
 
-export const getNetworkState = async ({
-    service,
-}: {
-    service: Contracts.P2P.PeerService;
-}): Promise<Contracts.P2P.NetworkState> => {
-    return service.getMonitor().getNetworkState();
-};
+export const getNetworkState = async ({ service }: { service: PeerService }): Promise<Contracts.P2P.NetworkState> =>
+    service.networkMonitor.getNetworkState();
 
 export const syncBlockchain = (): void => {
     app.log.debug("Blockchain sync check WAKEUP requested by forger");

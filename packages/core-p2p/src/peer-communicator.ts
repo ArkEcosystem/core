@@ -10,13 +10,16 @@ import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
+@Container.injectable()
 export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
-    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
-        Contracts.Kernel.Events.EventDispatcher
-    >(Container.Identifiers.EventDispatcherService);
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger: Contracts.Kernel.Log.Logger;
 
-    constructor(private readonly connector: Contracts.P2P.PeerConnector) {}
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter: Contracts.Kernel.Events.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.PeerConnector)
+    private readonly connector: Contracts.P2P.PeerConnector;
 
     public async downloadBlocks(peer: Contracts.P2P.Peer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
         this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);

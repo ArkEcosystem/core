@@ -8,8 +8,7 @@ export const tickSyncTracker = (blockCount, count): void => {
         tracker = {
             start: new Date().getTime(),
             networkHeight: app
-                .get<Contracts.P2P.PeerService>(Container.Identifiers.PeerService)
-                .getMonitor()
+                .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                 .getNetworkHeight(),
             blocksInitial: +count,
             blocksDownloaded: +count,

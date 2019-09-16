@@ -52,7 +52,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (stateStorage.p2pUpdateCounter + 1 > 3) {
                 logger.info("Network keeps missing blocks.");
 
-                const networkStatus = await blockchain.p2p.getMonitor().checkNetworkHealth();
+                const networkStatus = await app
+                    .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+                    .checkNetworkHealth();
                 if (networkStatus.forked) {
                     stateStorage.numberOfBlocksToRollback = networkStatus.blocksToRollback;
                     event = "FORK";
@@ -112,7 +114,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async init() {
         logger = app.log;
-        stateStorage = app.get<Contracts.State.StateService>(Container.Identifiers.StateService).getStore();
+        stateStorage = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore);
         blockchainMachine.state = stateStorage;
 
         try {
@@ -154,7 +156,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 await blockchain.database.buildWallets();
                 await blockchain.database.applyRound(block.data.height);
                 await blockchain.transactionPool.buildWallets();
-                await blockchain.p2p.getMonitor().start();
+                await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
 
                 return blockchain.dispatch("STARTED");
             }
@@ -164,7 +166,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
                 stateStorage.setLastBlock(BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
                 await blockchain.database.buildWallets();
-                await blockchain.p2p.getMonitor().start();
+                await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
 
                 return blockchain.dispatch("STARTED");
             }
@@ -180,7 +182,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             await blockchain.database.restoreCurrentRound(block.data.height);
             await blockchain.transactionPool.buildWallets();
 
-            await blockchain.p2p.getMonitor().start();
+            await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
 
             return blockchain.dispatch("STARTED");
         } catch (error) {
@@ -193,8 +195,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     async downloadBlocks() {
         const lastDownloadedBlock: Interfaces.IBlockData =
             stateStorage.lastDownloadedBlock || stateStorage.getLastBlock().data;
-        const blocks: Interfaces.IBlockData[] = await blockchain.p2p
-            .getMonitor()
+        const blocks: Interfaces.IBlockData[] = await app
+            .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
             .syncWithNetwork(lastDownloadedBlock.height);
 
         if (blockchain.isStopped) {
@@ -271,7 +273,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         logger.info(`Removed ${AppUtils.pluralize("block", random, true)}`);
 
         await blockchain.transactionPool.buildWallets();
-        await blockchain.p2p.getMonitor().refreshPeersAfterFork();
+        await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).refreshPeersAfterFork();
 
         blockchain.dispatch("SUCCESS");
     },

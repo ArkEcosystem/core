@@ -272,10 +272,7 @@ export class Memory {
     }
 
     private currentHeight(): number {
-        return app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
-            .getLastHeight();
+        return app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
     }
 
     /**

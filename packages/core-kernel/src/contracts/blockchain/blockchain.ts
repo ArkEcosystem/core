@@ -1,8 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { DatabaseService } from "../database";
-import { PeerService } from "../p2p";
-import { StateStore } from "../state";
 import { Connection } from "../transaction-pool";
 
 export interface Blockchain {
@@ -10,12 +8,7 @@ export interface Blockchain {
      * Get the state of the blockchain.
      * @return {StateStore}
      */
-    readonly state: StateStore;
-
-    /**
-     * Get the network (p2p) interface.
-     */
-    readonly p2p: PeerService;
+    readonly state: any;
 
     /**
      * Get the transaction handler.

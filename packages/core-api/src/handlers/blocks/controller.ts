@@ -19,10 +19,7 @@ export class BlocksController extends Controller {
     public async first(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return super.respondWithResource(
-                app
-                    .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-                    .getStore()
-                    .getGenesisBlock().data,
+                app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getGenesisBlock().data,
                 "block",
                 (request.query.transform as unknown) as boolean,
             );

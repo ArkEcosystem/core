@@ -140,6 +140,7 @@ export class Worker extends SCWorker {
             // which is like this { endpoint, data, headers }
             req.data.headers.remoteAddress = req.socket.remoteAddress;
         } catch (e) {
+            console.log(e);
             this.log(e.message, "error");
 
             if (e.name === SocketErrors.Validation) {

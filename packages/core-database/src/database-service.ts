@@ -51,9 +51,9 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async init(): Promise<void> {
-        app.get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
-            .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
+        app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).setGenesisBlock(
+            Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")),
+        );
 
         if (process.env.CORE_RESET_DATABASE) {
             await this.reset();
@@ -228,8 +228,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         const end: number = offset + limit - 1;
 
         let blocks: Interfaces.IBlockData[] = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlocksByHeight(start, end, headersOnly);
 
         if (blocks.length !== limit) {
@@ -292,8 +291,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         for (const [i, height] of heights.entries()) {
             const stateBlocks = app
-                .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-                .getStore()
+                .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocksByHeight(height, height, true);
 
             if (Array.isArray(stateBlocks) && stateBlocks.length > 0) {
@@ -320,8 +318,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     public async getBlocksForRound(roundInfo?: Contracts.Shared.RoundInfo): Promise<Interfaces.IBlock[]> {
         let lastBlock: Interfaces.IBlock = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
         if (!lastBlock) {
@@ -372,8 +369,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
         let commonBlocks: Interfaces.IBlockData[] = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
@@ -385,8 +381,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     public async getRecentBlockIds(): Promise<string[]> {
         let blocks: any[] = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlockIds()
             .reverse()
             .slice(0, 10);
@@ -653,8 +648,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     private async createGenesisBlock(): Promise<Interfaces.IBlock> {
         const genesisBlock: Interfaces.IBlock = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getGenesisBlock();
 
         await this.saveBlock(genesisBlock);
@@ -663,17 +657,13 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     private configureState(lastBlock: Interfaces.IBlock): void {
-        const state: Contracts.State.StateService = app.get<Contracts.State.StateService>(
-            Container.Identifiers.StateService,
-        );
-
-        state.getStore().setLastBlock(lastBlock);
+        app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).setLastBlock(lastBlock);
 
         const { blocktime, block } = Managers.configManager.getMilestone();
 
         const blocksPerDay: number = Math.ceil(86400 / blocktime);
-        state.getBlocks().resize(blocksPerDay);
-        state.getTransactions().resize(blocksPerDay * block.maxTransactions);
+        app.get<any>(Container.Identifiers.StateBlockStore).resize(blocksPerDay);
+        app.get<any>(Container.Identifiers.StateTransactionStore).resize(blocksPerDay * block.maxTransactions);
     }
 
     private async initializeActiveDelegates(height: number): Promise<void> {

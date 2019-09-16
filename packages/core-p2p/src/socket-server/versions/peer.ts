@@ -7,10 +7,10 @@ import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
+import { PeerService } from "../../types";
 
-export const getPeers = ({ service }: { service: Contracts.P2P.PeerService }): Contracts.P2P.PeerBroadcast[] => {
-    return service
-        .getStorage()
+export const getPeers = ({ service }: { service: PeerService }): Contracts.P2P.PeerBroadcast[] => {
+    return service.storage
         .getPeers()
         .map(peer => peer.toBroadcast())
         .sort((a, b) => a.latency - b.latency);
@@ -84,13 +84,7 @@ export const postBlock = async ({ req }): Promise<void> => {
     blockchain.handleIncomingBlock(block, fromForger);
 };
 
-export const postTransactions = async ({
-    service,
-    req,
-}: {
-    service: Contracts.P2P.PeerService;
-    req;
-}): Promise<string[]> => {
+export const postTransactions = async ({ service, req }: { service: PeerService; req }): Promise<string[]> => {
     const processor: Contracts.TransactionPool.Processor = app
         .get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService)
         .makeProcessor();
@@ -102,7 +96,7 @@ export const postTransactions = async ({
     }
 
     if (result.broadcast.length > 0) {
-        service.getMonitor().broadcastTransactions(processor.getBroadcastTransactions());
+        service.networkMonitor.broadcastTransactions(processor.getBroadcastTransactions());
     }
 
     return result.accept;

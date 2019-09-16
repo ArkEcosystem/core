@@ -71,8 +71,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
         const { added, notAdded }: TransactionsCached = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .cacheTransactions(transactions);
 
         this.transactions = added;
@@ -89,9 +88,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
-            .removeCachedTransactionIds(forgedIdsSet);
+        app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).removeCachedTransactionIds(forgedIdsSet);
 
         for (const id of forgedIdsSet) {
             this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
@@ -171,8 +168,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
         const lastHeight: number = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastHeight();
 
         if (transaction.timestamp > now + 3600) {

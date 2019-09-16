@@ -8,36 +8,30 @@ import { PeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { checkDNS, checkNTP } from "./utils";
 
+@Container.injectable()
 export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public server: SocketCluster;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing = true;
 
-    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
-        Contracts.Kernel.Events.EventDispatcher
-    >(Container.Identifiers.EventDispatcherService);
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger: Contracts.Kernel.Log.Logger;
 
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter: Contracts.Kernel.Events.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator: Contracts.P2P.PeerCommunicator;
+
+    @Container.inject(Container.Identifiers.PeerProcessor)
     private readonly processor: Contracts.P2P.PeerProcessor;
+
+    @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage: Contracts.P2P.PeerStorage;
 
-    public constructor({
-        communicator,
-        processor,
-        storage,
-        options,
-    }: {
-        communicator: Contracts.P2P.PeerCommunicator;
-        processor: Contracts.P2P.PeerProcessor;
-        storage: Contracts.P2P.PeerStorage;
-        options;
-    }) {
-        this.config = options;
-        this.communicator = communicator;
-        this.processor = processor;
-        this.storage = storage;
+    public constructor() {
+        this.config = app.get("p2p.options");
     }
 
     public getServer(): SocketCluster {
@@ -226,10 +220,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public async checkNetworkHealth(): Promise<Contracts.P2P.NetworkStatus> {
         await this.cleansePeers({ forcePing: true });
 
-        const lastBlock = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
-            .getLastBlock();
+        const lastBlock = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock();
 
         const allPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
 

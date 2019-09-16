@@ -118,8 +118,7 @@ export class PeerVerifier {
 
         try {
             const ownBlock: Interfaces.IBlock = app
-                .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-                .getStore()
+                .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocks()
                 .find(block => block.data.height === blockHeader.height);
 
@@ -148,10 +147,7 @@ export class PeerVerifier {
     }
 
     private ourHeight(): number {
-        const height: number = app
-            .get<Contracts.State.StateService>(Container.Identifiers.StateService)
-            .getStore()
-            .getLastHeight();
+        const height: number = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
 
         assert(Number.isInteger(height), `Couldn't derive our chain height: ${height}`);
 
