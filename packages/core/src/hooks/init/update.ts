@@ -2,14 +2,10 @@ import { Hook } from "@oclif/config";
 import Chalk from "chalk";
 import cli from "cli-ux";
 
-import { checkForUpdates, needsRefresh } from "../../common/update";
+import { checkForUpdates } from "../../common/update";
 
 export const init: Hook<"init"> = async function({ id, config }): Promise<void> {
     if (id === "update") {
-        return;
-    }
-
-    if (!needsRefresh(config)) {
         return;
     }
 

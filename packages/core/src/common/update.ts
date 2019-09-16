@@ -1,9 +1,6 @@
-import { IConfig } from "@oclif/config";
 import cli from "cli-ux";
 import execa from "execa";
-import { ensureDirSync, ensureFileSync, statSync } from "fs-extra";
 import latestVersion from "latest-version";
-import { join } from "path";
 import semver from "semver";
 
 import { abort } from "./cli";
@@ -18,16 +15,6 @@ export const getLatestVersion = async (name: string, channel: string): Promise<s
     } catch {
         return undefined;
     }
-};
-
-export const ensureCacheFile = (config: IConfig): string => {
-    ensureDirSync(config.cacheDir);
-
-    const fileName = join(config.cacheDir, "update");
-
-    ensureFileSync(fileName);
-
-    return fileName;
 };
 
 export const installFromChannel = (pkg: string, channel: string): void => {
@@ -53,37 +40,13 @@ export const getRegistryChannel = (version: string): string => {
     return channel;
 };
 
-export const needsRefresh = (config: IConfig): boolean => {
-    const cacheFile = ensureCacheFile(config);
-
-    try {
-        const { mtime } = statSync(cacheFile);
-        const staleAt = new Date(mtime.valueOf() + 1000 * 60 * 60 * 24 * 1);
-
-        return Date.now() > staleAt.getTime();
-    } catch {
-        return true;
-    }
-};
-
 export const checkForUpdates = async ({ config, warn }): Promise<any> => {
     const state = {
         ready: false,
         name: config.name,
         currentVersion: config.version,
-        channel: getRegistryChannel(config.version), // @todo: use config or derive from version?
-        // channel: configManager.get("channel"),
+        channel: getRegistryChannel(config.version),
     };
-
-    // if (existsSync(join(__dirname, "../../../..", ".git"))) {
-    //     if (!process.env.CORE_DEVELOPER_MODE) {
-    //         warn(`You are using a git clone for developers. Please install core via yarn for auto-updates.`);
-    //     }
-
-    //     return state;
-    // }
-
-    const cacheFile = ensureCacheFile(config);
 
     cli.action.start(`Checking for updates`);
 
@@ -103,12 +66,9 @@ export const checkForUpdates = async ({ config, warn }): Promise<any> => {
             ...{
                 ready: true,
                 updateVersion: latestVersion,
-                cache: cacheFile,
             },
         };
     }
-
-    cli.action.stop();
 
     return state;
 };

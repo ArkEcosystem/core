@@ -1,14 +1,8 @@
 import "jest-extended";
 
 import nock from "nock";
-import { dirSync, setGracefulCleanup } from "tmp";
 
-import {
-    getLatestVersion,
-    getRegistryChannel,
-    needsRefresh,
-    installFromChannel,
-} from "@packages/core/src/common/update";
+import { getLatestVersion, getRegistryChannel, installFromChannel } from "@packages/core/src/common/update";
 import { versionLatest, versionNext } from "./__fixtures__/latest-version";
 
 import execa from "../../../../__mocks__/execa";
@@ -17,11 +11,7 @@ beforeEach(() => nock.cleanAll());
 
 beforeAll(() => nock.disableNetConnect());
 
-afterAll(() => {
-    nock.enableNetConnect();
-
-    setGracefulCleanup();
-});
+afterAll(() => nock.enableNetConnect());
 
 describe("getLatestVersion", () => {
     it("should fail to get the npm registry channel", async () => {
@@ -49,16 +39,6 @@ describe("getRegistryChannel", () => {
     it("should get the npm registry channel", async () => {
         expect(getRegistryChannel("3.0.0")).toBe("latest");
         expect(getRegistryChannel("3.0.0-next.0")).toBe("next");
-    });
-});
-
-describe("needsRefresh", () => {
-    it("should get the npm registry channel", async () => {
-        expect(needsRefresh({ cacheDir: dirSync().name } as any)).toBeFalse();
-
-        Date.now = jest.fn(() => Date.now() + 24 * 60 * 60);
-
-        expect(needsRefresh({ cacheDir: dirSync().name } as any)).toBeTrue();
     });
 });
 

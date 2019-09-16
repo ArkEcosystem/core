@@ -43,12 +43,10 @@ describe("checkForUpdates", () => {
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionLatest);
 
-        const cacheDir: string = dirSync().name;
-
         await expect(
             checkForUpdates({
                 config: {
-                    cacheDir,
+                    cacheDir: dirSync().name,
                     name: "@arkecosystem/core",
                     version: "2.5.19",
                 },
@@ -60,7 +58,6 @@ describe("checkForUpdates", () => {
             currentVersion: "2.5.19",
             updateVersion: "2.5.24",
             channel: "latest",
-            cache: `${cacheDir}/update`,
         });
     });
 });

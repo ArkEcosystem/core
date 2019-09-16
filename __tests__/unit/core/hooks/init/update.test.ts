@@ -1,9 +1,8 @@
 import "jest-extended";
 
 import nock from "nock";
-import fs from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
-// import cli from "cli-ux";
+import cli from "cli-ux";
 import Chalk from "chalk";
 
 import { init } from "@packages/core/src/hooks/init/update";
@@ -22,7 +21,7 @@ afterAll(() => {
 describe("Hooks > Init > Update", () => {
     it("should not check for updates if the update command is running", async () => {
         // Arrange
-        const ensureDirSync = jest.spyOn(fs, "ensureDirSync");
+        const start = jest.spyOn(cli.action, "start");
 
         // Act
         // @ts-ignore
@@ -32,33 +31,10 @@ describe("Hooks > Init > Update", () => {
         });
 
         // Assert
-        expect(ensureDirSync).not.toHaveBeenCalled();
+        expect(start).not.toHaveBeenCalled();
 
         // Reset
-        ensureDirSync.mockReset();
-    });
-
-    it("should not check for updates if already done recently", async () => {
-        // Arrange
-        const ensureDirSync = jest.spyOn(fs, "ensureDirSync");
-        const ensureFileSync = jest.spyOn(fs, "ensureFileSync");
-
-        const config = { cacheDir: dirSync().name, configDir: dirSync().name, version: "3.0.0", bin: "ark" };
-
-        // Act
-        // @ts-ignore
-        await init({
-            id: "non-update",
-            config,
-        });
-
-        // Assert
-        expect(ensureDirSync).toHaveBeenCalledWith(config.cacheDir);
-        expect(ensureFileSync).toHaveBeenCalledWith(`${config.cacheDir}/update`);
-
-        // Reset
-        ensureDirSync.mockReset();
-        ensureFileSync.mockReset();
+        start.mockReset();
     });
 
     it("should report the availability of an update", async () => {
@@ -67,12 +43,6 @@ describe("Hooks > Init > Update", () => {
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionLatest);
 
-        const ensureDirSync = jest.spyOn(fs, "ensureDirSync");
-        const ensureFileSync = jest.spyOn(fs, "ensureFileSync");
-        const statSync = jest
-            .spyOn(fs, "statSync")
-            // @ts-ignore
-            .mockReturnValue({ mtime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1) });
         // const url = jest.spyOn(cli, "url");
         const warn = jest.fn();
 
@@ -95,9 +65,6 @@ describe("Hooks > Init > Update", () => {
         );
 
         // Assert
-        expect(ensureDirSync).toHaveBeenCalledWith(config.cacheDir);
-        expect(ensureFileSync).toHaveBeenCalledWith(`${config.cacheDir}/update`);
-        expect(statSync).toHaveBeenCalledWith(`${config.cacheDir}/update`);
         expect(warn).toHaveBeenCalledWith(
             `${config.name} update available from ${Chalk.greenBright("2.0.0")} to ${Chalk.greenBright(
                 "2.5.24",
@@ -107,11 +74,6 @@ describe("Hooks > Init > Update", () => {
         //     "Click here to read the changelog for 2.5.24.",
         //     "https://github.com/ARKEcosystem/core/blob/master/CHANGELOG.md",
         // );
-
-        // Reset
-        ensureDirSync.mockReset();
-        ensureFileSync.mockReset();
-        statSync.mockReset();
     });
 
     it("should report the unavailability of an update", async () => {
@@ -120,12 +82,6 @@ describe("Hooks > Init > Update", () => {
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionLatest);
 
-        const ensureDirSync = jest.spyOn(fs, "ensureDirSync");
-        const ensureFileSync = jest.spyOn(fs, "ensureFileSync");
-        const statSync = jest
-            .spyOn(fs, "statSync")
-            // @ts-ignore
-            .mockReturnValue({ mtime: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1) });
         const warn = jest.fn();
 
         const config = {
@@ -147,14 +103,6 @@ describe("Hooks > Init > Update", () => {
         );
 
         // Assert
-        expect(ensureDirSync).toHaveBeenCalledWith(config.cacheDir);
-        expect(ensureFileSync).toHaveBeenCalledWith(`${config.cacheDir}/update`);
-        expect(statSync).toHaveBeenCalledWith(`${config.cacheDir}/update`);
         expect(warn).not.toHaveBeenCalled();
-
-        // Reset
-        ensureDirSync.mockReset();
-        ensureFileSync.mockReset();
-        statSync.mockReset();
     });
 });
