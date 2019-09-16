@@ -263,9 +263,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
-       app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).removeCachedTransactionIds(
-           block.transactions.map(tx => tx.id),
-       );
+        app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).removeCachedTransactionIds(
+            block.transactions.map(tx => tx.id),
+        );
     }
 
     public async buildWallets(): Promise<void> {
@@ -273,7 +273,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
-    app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).removeCachedTransactionIds(transactionIds);
+        app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).removeCachedTransactionIds(
+            transactionIds,
+        );
 
         for (const transactionId of transactionIds) {
             const transaction: Interfaces.ITransaction = await this.getTransaction(transactionId);

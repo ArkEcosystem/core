@@ -19,7 +19,7 @@ describe("getLatestVersion", () => {
     });
 
     it("should get the npm registry channel (latest)", async () => {
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionLatest);
 
@@ -27,7 +27,7 @@ describe("getLatestVersion", () => {
     });
 
     it("should get the npm registry channel (next)", async () => {
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionNext);
 

@@ -16,7 +16,7 @@ afterAll(() => nock.enableNetConnect());
 
 describe("UpdateCommand", () => {
     it("should throw if the latest version is already installed", async () => {
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionNext);
 
@@ -31,7 +31,7 @@ describe("UpdateCommand", () => {
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, response);
 
@@ -57,7 +57,7 @@ describe("UpdateCommand", () => {
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, response);
 
@@ -79,7 +79,7 @@ describe("UpdateCommand", () => {
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, response);
 
@@ -102,7 +102,7 @@ describe("UpdateCommand", () => {
         response["dist-tags"].next = "4.0.0-next.0";
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, response);
 
@@ -125,7 +125,7 @@ describe("UpdateCommand", () => {
         response["dist-tags"].next = "4.0.0-next.0";
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, response);
 
@@ -153,7 +153,7 @@ describe("UpdateCommand", () => {
         response["dist-tags"].next = "4.0.0-next.0";
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, response);
 
@@ -181,7 +181,7 @@ describe("UpdateCommand", () => {
         response["dist-tags"].next = "4.0.0-next.0";
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, response);
 
@@ -210,7 +210,7 @@ describe("UpdateCommand", () => {
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"] };
         response.versions["4.0.0-next.0"] = { ...response.versions["2.5.0-next.10"], ...{ version: "4.0.0-next.0" } };
 
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, response);
 

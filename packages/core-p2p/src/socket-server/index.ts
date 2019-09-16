@@ -3,12 +3,12 @@ import SocketCluster from "socketcluster";
 
 import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
+import { PeerService } from "../types";
 import { ServerError } from "./errors";
 import { payloadProcessor } from "./payload-processor";
 import { getHeaders } from "./utils/get-headers";
 import { validate } from "./utils/validate";
 import * as handlers from "./versions";
-import { PeerService } from "../types";
 
 export const startSocketServer = async (service: PeerService, config: Record<string, any>): Promise<any> => {
     // when testing we also need to get socket files from dist folder

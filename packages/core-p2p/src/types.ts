@@ -1,8 +1,8 @@
-import { PeerConnector } from "./peer-connector";
-import { PeerStorage } from "./peer-storage";
-import { PeerCommunicator } from "./peer-communicator";
-import { PeerProcessor } from "./peer-processor";
 import { NetworkMonitor } from "./network-monitor";
+import { PeerCommunicator } from "./peer-communicator";
+import { PeerConnector } from "./peer-connector";
+import { PeerProcessor } from "./peer-processor";
+import { PeerStorage } from "./peer-storage";
 
 export interface PeerService {
     connector: PeerConnector;

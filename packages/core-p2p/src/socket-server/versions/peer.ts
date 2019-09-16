@@ -3,11 +3,11 @@ import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import { MissingCommonBlockError } from "../../errors";
 import { PeerPingResponse } from "../../interfaces";
+import { PeerService } from "../../types";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
-import { PeerService } from "../../types";
 
 export const getPeers = ({ service }: { service: PeerService }): Contracts.P2P.PeerBroadcast[] => {
     return service.storage

@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import nock from "nock";
-import { dirSync, setGracefulCleanup } from "tmp";
 
 import { checkForUpdates } from "@packages/core/src/common/update";
 import { versionLatest } from "../__fixtures__/latest-version";
@@ -10,11 +9,7 @@ beforeEach(() => nock.cleanAll());
 
 beforeAll(() => nock.disableNetConnect());
 
-afterAll(() => {
-    nock.enableNetConnect();
-
-    setGracefulCleanup();
-});
+afterAll(() => nock.enableNetConnect());
 
 describe("checkForUpdates", () => {
     it("should fail to find a new version if the npm registry is down", async () => {
@@ -22,7 +17,6 @@ describe("checkForUpdates", () => {
         await expect(
             checkForUpdates({
                 config: {
-                    cacheDir: dirSync().name,
                     name: "@arkecosystem/core",
                     version: "2.5.24",
                 },
@@ -39,14 +33,13 @@ describe("checkForUpdates", () => {
     });
 
     it("should find a new version if the npm registry is up", async () => {
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionLatest);
 
         await expect(
             checkForUpdates({
                 config: {
-                    cacheDir: dirSync().name,
                     name: "@arkecosystem/core",
                     version: "2.5.19",
                 },

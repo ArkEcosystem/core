@@ -1,4 +1,4 @@
-import { Utils, Container } from "@arkecosystem/core-kernel";
+import { Container, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 

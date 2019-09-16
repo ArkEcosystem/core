@@ -39,7 +39,7 @@ describe("Hooks > Init > Update", () => {
 
     it("should report the availability of an update", async () => {
         // Arrange
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionLatest);
 
@@ -47,7 +47,6 @@ describe("Hooks > Init > Update", () => {
         const warn = jest.fn();
 
         const config = {
-            cacheDir: dirSync().name,
             configDir: dirSync().name,
             name: "@arkecosystem/core",
             version: "2.0.0",
@@ -78,14 +77,13 @@ describe("Hooks > Init > Update", () => {
 
     it("should report the unavailability of an update", async () => {
         // Arrange
-        nock("https://registry.npmjs.org")
+        nock(/.*/)
             .get("/@arkecosystem%2Fcore")
             .reply(200, versionLatest);
 
         const warn = jest.fn();
 
         const config = {
-            cacheDir: dirSync().name,
             configDir: dirSync().name,
             name: "@arkecosystem/core",
             version: "3.0.0",

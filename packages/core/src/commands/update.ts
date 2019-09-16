@@ -2,7 +2,6 @@ import { Utils } from "@arkecosystem/core-kernel";
 import Command, { flags } from "@oclif/command";
 import Chalk from "chalk";
 import cli from "cli-ux";
-import { removeSync } from "fs-extra";
 import prompts from "prompts";
 
 import { abort } from "../common/cli";
@@ -75,8 +74,6 @@ export class UpdateCommand extends Command {
         installFromChannel(state.name, state.updateVersion);
 
         cli.action.stop();
-
-        removeSync(state.cache);
 
         this.warn(`Version ${state.updateVersion} has been installed.`);
 

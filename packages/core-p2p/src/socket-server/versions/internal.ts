@@ -1,7 +1,8 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
-import { PeerService } from "../../types";
+
 import { Peer } from "../../peer";
+import { PeerService } from "../../types";
 
 export const acceptNewPeer = async ({ service, req }: { service: PeerService; req }): Promise<void> =>
     service.processor.validateAndAcceptPeer({ ip: req.data.ip } as Peer);
