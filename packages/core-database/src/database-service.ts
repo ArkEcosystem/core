@@ -47,6 +47,8 @@ export class DatabaseService implements Database.IDatabaseService {
             Managers.configManager.getMilestone().aip11 = false;
         }
 
+        this.emitter.emit(ApplicationEvents.StateStarting, this);
+
         app.resolvePlugin<State.IStateService>("state")
             .getStore()
             .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));

@@ -1,7 +1,7 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-import { WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
+import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -43,6 +43,24 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
         if (wallet.hasAttribute("delegate.resigned")) {
             throw new WalletAlreadyResignedError();
+        }
+
+        const delegates: ReadonlyArray<State.IWallet> = databaseWalletManager.allByUsername();
+        let requiredDelegates: number = Managers.configManager.getMilestone().activeDelegates + 1;
+        for (const delegate of delegates) {
+            if (requiredDelegates === 0) {
+                break;
+            }
+
+            if (delegate.getAttribute("delegate.resigned")) {
+                continue;
+            }
+
+            requiredDelegates--;
+        }
+
+        if (requiredDelegates > 0) {
+            throw new NotEnoughDelegatesError();
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
