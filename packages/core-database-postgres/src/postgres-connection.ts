@@ -187,7 +187,7 @@ export class PostgresConnection implements Database.IConnection {
 
             if (name === "20180304100000-create-migrations-table") {
                 await this.query.none(migration);
-            } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
+            } else if (name === "20190917000000-add-asset-column-to-transactions-table") {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
             } else {
                 if (!(await this.migrationsRepository.findByName(name))) {
