@@ -1,5 +1,5 @@
 SELECT recipient_id,
        SUM ("amount") AS "amount"
 FROM transactions
-WHERE TYPE = 0 AND TYPE_GROUP = 1
+WHERE type = 0 AND type_group = 1
 GROUP BY "recipient_id"
