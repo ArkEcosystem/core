@@ -4,6 +4,7 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
+// todo: rework to make use of injection rather then manual resolving
 const index = async request => {
     const delegates = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)

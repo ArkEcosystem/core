@@ -4,6 +4,7 @@ import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { isRecipientOnActiveNetwork } from "../utils";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
+// todo: revisit container usage and arguments after core-database rework
 export class TransferTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.TransferTransaction;

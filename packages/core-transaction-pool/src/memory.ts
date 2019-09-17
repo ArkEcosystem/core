@@ -11,21 +11,28 @@ export class Memory {
      * - lookup sorts if it is not sorted, complexity: O(n*log(n) + flag it as sorted
      */
     private all: Interfaces.ITransaction[] = [];
+
     private allIsSorted = true;
+
     private byId: { [key: string]: Interfaces.ITransaction } = {};
+
     private bySender: { [key: string]: Set<Interfaces.ITransaction> } = {};
+
     private byType: { [key: number]: Set<Interfaces.ITransaction> } = {};
+
     /**
      * Contains only transactions that expire, possibly sorted by height (lower first).
      */
     private byExpiration: Interfaces.ITransaction[] = [];
+
     private byExpirationIsSorted = true;
+
     private readonly dirty: { added: Set<string>; removed: Set<string> } = {
         added: new Set(),
         removed: new Set(),
     };
 
-    constructor(private readonly maxTransactionAge: number) {}
+    public constructor(private readonly maxTransactionAge: number) {}
 
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {

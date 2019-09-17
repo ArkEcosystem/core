@@ -11,6 +11,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 
 const { TransactionType } = Enums;
 
+// todo: revisit container usage and arguments after core-database rework
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.DelegateRegistrationTransaction;

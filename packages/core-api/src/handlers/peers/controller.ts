@@ -7,6 +7,7 @@ import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+        // todo: inject from container
         const allPeers: Contracts.P2P.Peer[] = app
             .get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage)
             .getPeers();
@@ -37,6 +38,7 @@ export class PeersController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
+            // todo: inject from container
             const peers: Contracts.P2P.Peer[] = app
                 .get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage)
                 .getPeers();

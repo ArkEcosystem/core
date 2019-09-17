@@ -9,7 +9,9 @@ export const isValidVersion = (peer: Contracts.P2P.Peer): boolean => {
 
     let minimumVersions: string[];
     const milestones: Record<string, any> = Managers.configManager.getMilestone();
+
     const { p2p } = milestones;
+
     if (p2p && Array.isArray(p2p.minimumVersions) && p2p.minimumVersions.length > 0) {
         minimumVersions = p2p.minimumVersions;
     } else {

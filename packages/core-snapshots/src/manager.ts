@@ -1,6 +1,7 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
 import { app, Utils } from "@arkecosystem/core-kernel";
 
+// todo: make use of ioc
 const logger = app.log;
 import { Database, database } from "./db";
 import { backupTransactionsToJSON, exportTable, importTable, verifyTable } from "./transport";
@@ -8,7 +9,8 @@ import * as utils from "./utils";
 
 export class SnapshotManager {
     public database: Database;
-    constructor(readonly options) {}
+
+    public constructor(readonly options) {}
 
     public async make(connection: PostgresConnection) {
         this.database = await database.make(connection);

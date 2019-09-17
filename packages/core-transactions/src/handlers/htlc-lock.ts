@@ -3,6 +3,7 @@ import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto"
 
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
+// todo: revisit container usage and arguments after core-database rework
 export class HtlcLockTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcLockTransaction;

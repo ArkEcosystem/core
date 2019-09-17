@@ -3,6 +3,7 @@ import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
+// todo: revisit container usage and arguments after core-database rework
 export class IpfsTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.IpfsTransaction;

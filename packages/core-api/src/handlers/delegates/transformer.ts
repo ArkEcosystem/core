@@ -1,6 +1,7 @@
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
+// todo: turn into class so that ioc can be used
 export const transformDelegate = (delegate: Contracts.State.Wallet) => {
     const attributes: Contracts.State.WalletDelegateAttributes = delegate.getAttribute("delegate");
 

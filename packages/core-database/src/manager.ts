@@ -5,6 +5,7 @@ import { ConnectionFactory } from "./factory";
 @Container.injectable()
 export class ConnectionManager {
     private readonly factory: ConnectionFactory = new ConnectionFactory();
+
     private readonly connections: Map<string, Contracts.Database.Connection> = new Map<
         string,
         Contracts.Database.Connection

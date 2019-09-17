@@ -19,12 +19,15 @@ export class PeerVerifier {
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
     private static readonly verifiedBlocks = new Utils.CappedSet();
+
+    // todo: make use of ioc
     private readonly database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         Container.Identifiers.DatabaseService,
     );
     private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private logPrefix: string;
 
+    // todo: make use of ioc
     public constructor(
         private readonly communicator: Contracts.P2P.PeerCommunicator,
         private readonly peer: Contracts.P2P.Peer,

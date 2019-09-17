@@ -1,23 +1,28 @@
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
 import { AcceptBlockHandler } from "./accept-block-handler";
 import { BlockHandler } from "./block-handler";
 
+@Container.injectable()
 export class ExceptionHandler extends BlockHandler {
-    public async execute(): Promise<BlockProcessorResult> {
-        // Ensure the block has not been forged yet, as an exceptional
-        // block bypasses all other checks.
-        const forgedBlock: Interfaces.IBlock = await this.blockchain.database.getBlock(this.block.data.id);
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger: Contracts.Kernel.Log.Logger;
+
+    @Container.inject(Container.Identifiers.DatabaseService)
+    private readonly database: Contracts.Database.DatabaseService;
+
+    public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
+        // Ensure the block has not been forged yet, as an exceptional block bypasses all other checks.
+        const forgedBlock: Interfaces.IBlock = await this.database.getBlock(block.data.id);
 
         if (forgedBlock) {
-            return super.execute();
+            return super.execute(block);
         }
 
-        this.logger.warning(
-            `Block ${this.block.data.height.toLocaleString()} (${this.block.data.id}) forcibly accepted.`,
-        );
+        this.logger.warning(`Block ${block.data.height.toLocaleString()} (${block.data.id}) forcibly accepted.`);
 
-        return new AcceptBlockHandler(this.blockchain, this.block).execute();
+        return app.resolve<AcceptBlockHandler>(AcceptBlockHandler).execute(block);
     }
 }

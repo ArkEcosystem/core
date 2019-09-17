@@ -10,35 +10,20 @@ const { BlockFactory } = Blocks;
 
 @Container.injectable()
 export class Blockchain implements Contracts.Blockchain.Blockchain {
-    /**
-     * Get the state of the blockchain.
-     * @return {StateStore}
-     */
-    get state(): Contracts.State.StateStore {
-        return app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore);
-    }
-
-    /**
-     * Get the transaction handler.
-     * @return {TransactionPool}
-     */
-    get transactionPool(): Contracts.TransactionPool.Connection {
-        return app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService);
-    }
-
-    /**
-     * Get the database connection.
-     * @return {ConnectionInterface}
-     */
-    get database(): Contracts.Database.DatabaseService {
-        return app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
-    }
-
     public isStopped: boolean;
     public options: any;
     public queue: async.AsyncQueue<any>;
     protected blockProcessor: BlockProcessor;
     private actions: any;
+
+    @Container.inject(Container.Identifiers.StateStore)
+    protected readonly state: Contracts.State.StateStore; // todo: make this private? only protected because of replay
+
+    @Container.inject(Container.Identifiers.DatabaseService)
+    protected readonly database: Contracts.Database.DatabaseService; // todo: make this private? only protected because of replay
+
+    @Container.inject(Container.Identifiers.TransactionPoolService)
+    protected readonly transactionPool: Contracts.TransactionPool.Connection; // todo: make this private? only protected because of replay
 
     /**
      * Create a new blockchain manager instance.
@@ -58,7 +43,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         }
 
         this.actions = stateMachine.actionMap(this);
-        this.blockProcessor = new BlockProcessor(this);
+        this.blockProcessor = app.resolve<BlockProcessor>(BlockProcessor);
 
         this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
@@ -498,7 +483,12 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Get the block ping.
      */
-    public getBlockPing(): number {
+    public getBlockPing(): {
+        count: number;
+        first: number;
+        last: number;
+        block: Interfaces.IBlockData;
+    } {
         return this.state.blockPing;
     }
 

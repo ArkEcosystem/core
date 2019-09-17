@@ -1,11 +1,9 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { create, SCClientSocket } from "socketcluster-client";
-
-import { PeerRepository } from "./peer-repository";
 
 @Container.injectable()
 export class PeerConnector implements Contracts.P2P.PeerConnector {
-    private readonly connections: PeerRepository<SCClientSocket> = new PeerRepository<SCClientSocket>();
+    private readonly connections: Utils.Collection<SCClientSocket> = new Utils.Collection<SCClientSocket>();
     private readonly errors: Map<string, string> = new Map<string, string>();
 
     public all(): SCClientSocket[] {

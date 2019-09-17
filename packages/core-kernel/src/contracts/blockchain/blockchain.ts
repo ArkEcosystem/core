@@ -1,42 +1,46 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { DatabaseService } from "../database";
-import { Connection } from "../transaction-pool";
-
 export interface Blockchain {
-    /**
-     * Get the state of the blockchain.
-     * @return {StateStore}
-     */
-    readonly state: any;
+    isStopped: boolean;
+    options: any;
+    queue: any;
 
     /**
-     * Get the transaction handler.
-     * @return {Connection}
+     * Create a new blockchain manager instance.
+     * @param  {Object} options
+     * @return {void}
      */
-    readonly transactionPool: Connection;
+    init(options: { networkStart?: boolean }): this;
 
     /**
-     * Get the database connection.
-     * @return {ConnectionInterface}
+     * Dispatch an event to transition the state machine.
+     * @param  {String} event
+     * @return {void}
      */
-    readonly database: DatabaseService;
-
-    dispatch(event: string): void;
+    dispatch(event): void;
 
     /**
      * Start the blockchain and wait for it to be ready.
      * @return {void}
      */
-    start(skipStartedCheck?: boolean): Promise<boolean>;
+    start(skipStartedCheck): Promise<boolean>;
 
     stop(): Promise<void>;
 
     /**
+     * Set wakeup timeout to check the network for new blocks.
+     */
+    setWakeUp(): void;
+
+    /**
+     * Reset the wakeup timeout.
+     */
+    resetWakeUp(): void;
+    /**
      * Update network status.
      * @return {void}
      */
-    updateNetworkStatus(): Promise<any>;
+    updateNetworkStatus(): Promise<void>;
 
     /**
      * Clear and stop the queue.
@@ -45,9 +49,14 @@ export interface Blockchain {
     clearAndStopQueue(): void;
 
     /**
+     * Clear the queue.
+     * @return {void}
+     */
+    clearQueue(): void;
+    /**
      * Push a block to the process queue.
      */
-    handleIncomingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
+    handleIncomingBlock(block: Interfaces.IBlockData, fromForger): void;
 
     /**
      * Remove N number of blocks.
@@ -62,75 +71,67 @@ export interface Blockchain {
      * @param  {Number} count
      * @return {void}
      */
-    removeTopBlocks(count: any): Promise<void>;
+    removeTopBlocks(count: number): Promise<void>;
 
     /**
-     * Process the given blocks.
-     * NOTE: We should be sure this is fail safe (ie callback() is being called only ONCE)
-     * @param  {Block[]} block
-     * @param  {Function} callback
-     * @return {(Function|void)}
+     * Process the given block.
      */
-    processBlocks(blocks: Interfaces.IBlock[], callback: any): Promise<any>;
+    processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]>;
+
+    /**
+     * Reset the last downloaded block to last chained block.
+     */
+    resetLastDownloadedBlock(): void;
 
     /**
      * Called by forger to wake up and sync with the network.
-     * It clears the checkLaterTimeout if set.
-     * @param  {Number}  blockSize
-     * @param  {Boolean} forForging
-     * @return {Object}
+     * It clears the wakeUpTimeout if set.
      */
     forceWakeup(): void;
-
     /**
      * Fork the chain at the given block.
-     * @param {Block} block
-     * @returns {void}
      */
-    forkBlock(block: Interfaces.IBlock): void;
+    forkBlock(block: Interfaces.IBlock, numberOfBlockToRollback?: number): void;
 
     /**
      * Determine if the blockchain is synced.
-     * @param  {Block} [block=getLastBlock()]  block
-     * @return {Boolean}
      */
     isSynced(block?: Interfaces.IBlockData): boolean;
 
+    replay(targetHeight?: number): Promise<void>;
+
     /**
      * Get the last block of the blockchain.
-     * @return {Object}
      */
     getLastBlock(): Interfaces.IBlock;
 
     /**
      * Get the last height of the blockchain.
-     * @return {Object}
      */
-    getLastHeight(): any;
+    getLastHeight(): number;
 
     /**
      * Get the last downloaded block of the blockchain.
-     * @return {Object}
      */
     getLastDownloadedBlock(): Interfaces.IBlockData;
 
     /**
      * Get the block ping.
-     * @return {Object}
      */
-    getBlockPing(): any;
+    getBlockPing(): {
+        count: number;
+        first: number;
+        last: number;
+        block: Interfaces.IBlockData;
+    };
 
     /**
      * Ping a block.
-     * @return {Object}
      */
-    pingBlock(incomingBlock: Interfaces.IBlockData): any;
+    pingBlock(incomingBlock: Interfaces.IBlockData): boolean;
 
     /**
      * Push ping block.
-     * @return {Object}
      */
-    pushPingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
-
-    replay(targetHeight?: number): Promise<void>;
+    pushPingBlock(block: Interfaces.IBlockData, fromForger): void;
 }

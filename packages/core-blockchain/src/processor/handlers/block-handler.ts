@@ -1,15 +1,14 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { Blockchain } from "../../blockchain";
 import { BlockProcessorResult } from "../block-processor";
 
+@Container.injectable()
 export abstract class BlockHandler {
-    protected readonly logger: Contracts.Kernel.Log.Logger = app.log;
+    @Container.inject(Container.Identifiers.BlockchainService)
+    protected readonly blockchain: Contracts.Blockchain.Blockchain;
 
-    public constructor(protected readonly blockchain: Blockchain, protected readonly block: Interfaces.IBlock) {}
-
-    public async execute(): Promise<BlockProcessorResult> {
+    public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         this.blockchain.resetLastDownloadedBlock();
 
         return BlockProcessorResult.Rejected;

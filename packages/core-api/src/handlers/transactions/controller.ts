@@ -6,6 +6,7 @@ import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 export class TransactionsController extends Controller {
+    // todo: inject from container
     private readonly transactionPool = app.get<Contracts.TransactionPool.Connection>(
         Container.Identifiers.TransactionPoolService,
     );
@@ -27,6 +28,7 @@ export class TransactionsController extends Controller {
             const result = await processor.validate((request.payload as any).transactions);
 
             if (result.broadcast.length > 0) {
+                // todo: inject from container
                 app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastTransactions(
                     processor.getBroadcastTransactions(),
                 );

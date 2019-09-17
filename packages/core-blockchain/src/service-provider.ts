@@ -8,17 +8,21 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind("blockchain.options").toConstantValue(this.config().all());
 
+        // blockchain
         const blockchain: Blockchain = this.config().get("replay")
             ? new ReplayBlockchain()
-            : this.app.resolve<Blockchain>(Blockchain).init(this.config().all());
+            : this.app.resolve<Blockchain>(Blockchain);
 
+        this.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
+
+        blockchain.init(this.config().all());
+
+        // state
         this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).reset(blockchainMachine);
 
         if (!process.env.CORE_SKIP_BLOCKCHAIN && !this.config().get("replay")) {
             await blockchain.start();
         }
-
-        this.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
     }
 
     public async dispose(): Promise<void> {

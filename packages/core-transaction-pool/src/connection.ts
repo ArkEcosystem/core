@@ -11,6 +11,7 @@ import { Processor } from "./processor";
 import { Storage } from "./storage";
 import { WalletRepository } from "./wallet-repository";
 
+// todo: migrate to make use of ioc
 export class Connection implements Contracts.TransactionPool.Connection {
     // @todo: make this private, requires some bigger changes to tests
     public options: Record<string, any>;

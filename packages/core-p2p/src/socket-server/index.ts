@@ -12,6 +12,7 @@ import * as handlers from "./versions";
 
 export const startSocketServer = async (service: PeerService, config: Record<string, any>): Promise<any> => {
     // when testing we also need to get socket files from dist folder
+    // todo: get rid of thise, no test vars in production code
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
     // https://socketcluster.io/#!/docs/api-socketcluster

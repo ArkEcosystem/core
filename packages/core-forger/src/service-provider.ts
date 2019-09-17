@@ -4,7 +4,9 @@ import { ForgerManager } from "./manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        const forgerManager: ForgerManager = new ForgerManager(this.config().all());
+        const forgerManager: ForgerManager = this.app.resolve<ForgerManager>(ForgerManager);
+
+        forgerManager.init(this.config().all());
 
         await forgerManager.startForging(this.config().get("bip38"), this.config().get("password"));
 

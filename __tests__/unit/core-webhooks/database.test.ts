@@ -37,6 +37,7 @@ beforeEach(() => {
         .inSingletonScope();
 
     database = app.get<Database>("webhooks.db");
+    database.init();
 });
 
 afterEach(() => container.restore());

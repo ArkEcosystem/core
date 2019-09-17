@@ -4,6 +4,7 @@ import * as conditions from "./conditions";
 import { Database } from "./database";
 import { Webhook } from "./interfaces";
 
+// todo: inject database via container instead of passing references around between methods
 export const startListeners = (app: Contracts.Kernel.Application): void => {
     for (const event of Object.values(Enums.Events.State)) {
         app.events.listen(event, async payload => {

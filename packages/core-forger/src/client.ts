@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
@@ -7,12 +7,15 @@ import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
 
+@Container.injectable()
 export class Client {
     public hosts: RelayHost[];
-    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private host: RelayHost;
 
-    constructor(hosts: RelayHost[]) {
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger: Contracts.Kernel.Log.Logger;
+
+    init(hosts: RelayHost[]) {
         this.hosts = hosts.map(host => {
             host.socket = socketCluster.create({
                 ...host,

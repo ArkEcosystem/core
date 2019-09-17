@@ -9,6 +9,7 @@ export class NodeController extends Controller {
     public async status(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
+            // todo: inject from container
             const networkHeight = app
                 .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                 .getNetworkHeight();
@@ -29,6 +30,7 @@ export class NodeController extends Controller {
     public async syncing(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const lastBlock = this.blockchain.getLastBlock();
+            // todo: inject from container
             const networkHeight = app
                 .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                 .getNetworkHeight();
@@ -86,6 +88,7 @@ export class NodeController extends Controller {
     }
 
     public async fees(request: Hapi.Request) {
+        // todo: inject from container
         const { transactionsBusinessRepository } = app.get<Contracts.Database.DatabaseService>(
             Container.Identifiers.DatabaseService,
         );

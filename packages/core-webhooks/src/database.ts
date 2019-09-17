@@ -8,11 +8,12 @@ import { Webhook } from "./interfaces";
 
 @Container.injectable()
 export class Database {
-    private readonly database: lowdb.LowdbSync<any>;
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app: Contracts.Kernel.Application;
 
-    public constructor(
-        @Container.inject(Container.Identifiers.Application) private readonly app: Contracts.Kernel.Application,
-    ) {
+    private database: lowdb.LowdbSync<any>;
+
+    public init() {
         const adapterFile = this.app.cachePath("webhooks.json");
 
         if (!existsSync(adapterFile)) {

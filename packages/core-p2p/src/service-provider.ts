@@ -14,6 +14,37 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.log.info("Starting P2P Interface");
 
+        this.registerServices();
+
+        if (process.env.DISABLE_P2P_SERVER) {
+            return;
+        }
+
+        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).setServer(
+            await startSocketServer(
+                {
+                    storage: this.app.get<PeerStorage>(Container.Identifiers.PeerStorage),
+                    connector: this.app.get<PeerConnector>(Container.Identifiers.PeerConnector),
+                    communicator: this.app.get<PeerCommunicator>(Container.Identifiers.PeerCommunicator),
+                    processor: this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor),
+                    networkMonitor: this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor),
+                },
+                this.config().all(),
+            ),
+        );
+    }
+
+    public async dispose(): Promise<void> {
+        this.app.log.info("Stopping P2P Interface");
+
+        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).stopServer();
+    }
+
+    public async required(): Promise<boolean> {
+        return true;
+    }
+
+    private registerServices(): void {
         this.app
             .bind(Container.Identifiers.PeerStorage)
             .to(PeerStorage)
@@ -45,34 +76,5 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind("p2p.event-listener")
             .to(EventListener)
             .inSingletonScope();
-
-        this.app.get<EventListener>("p2p.event-listener").init();
-
-        if (process.env.DISABLE_P2P_SERVER) {
-            return;
-        }
-
-        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).setServer(
-            await startSocketServer(
-                {
-                    storage: this.app.get<PeerStorage>(Container.Identifiers.PeerStorage),
-                    connector: this.app.get<PeerConnector>(Container.Identifiers.PeerConnector),
-                    communicator: this.app.get<PeerCommunicator>(Container.Identifiers.PeerCommunicator),
-                    processor: this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor),
-                    networkMonitor: this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor),
-                },
-                this.config().all(),
-            ),
-        );
-    }
-
-    public async dispose(): Promise<void> {
-        this.app.log.info("Stopping P2P Interface");
-
-        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).stopServer();
-    }
-
-    public async required(): Promise<boolean> {
-        return true;
     }
 }

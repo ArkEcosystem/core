@@ -48,6 +48,8 @@ beforeEach(async () => {
         .to(Database)
         .inSingletonScope();
 
+    app.get<Database>("webhooks.db").init();
+
     container.snapshot();
 
     server = await startServer(app, {

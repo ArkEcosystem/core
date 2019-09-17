@@ -17,27 +17,3 @@ export interface PeerStorage {
 
     getSameSubnetPeers(ip: string): Peer[];
 }
-
-export interface PeerRepository<T> {
-    all(): Map<string, T>;
-    entries(): Array<[string, T]>;
-    keys(): string[];
-    values(): T[];
-
-    pull(ip: string): T;
-    get(ip: string): T;
-    set(ip: string, peer: T): void;
-
-    forget(ip: string): void;
-    flush(): void;
-
-    has(ip: string): boolean;
-    missing(ip: string): boolean;
-    count(): number;
-    isEmpty(): boolean;
-    isNotEmpty(): boolean;
-
-    random(): T;
-
-    toJson(): string;
-}

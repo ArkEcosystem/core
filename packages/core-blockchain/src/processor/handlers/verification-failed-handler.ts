@@ -1,8 +1,6 @@
-import { BlockProcessorResult } from "../block-processor";
+import { Container } from "@arkecosystem/core-kernel";
+
 import { BlockHandler } from "./block-handler";
 
-export class VerificationFailedHandler extends BlockHandler {
-    public async execute(): Promise<BlockProcessorResult> {
-        return super.execute();
-    }
-}
+@Container.injectable()
+export class VerificationFailedHandler extends BlockHandler {}

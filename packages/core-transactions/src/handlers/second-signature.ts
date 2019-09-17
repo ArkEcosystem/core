@@ -4,6 +4,7 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { NotSupportedForMultiSignatureWalletError, SecondSignatureAlreadyRegisteredError } from "../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
+// todo: revisit container usage and arguments after core-database rework
 export class SecondSignatureTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.SecondSignatureRegistrationTransaction;

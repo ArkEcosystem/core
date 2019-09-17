@@ -16,6 +16,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 
 const { UnixTimestamp, BlockHeight } = Transactions.enums.HtlcLockExpirationType;
 
+// todo: revisit container usage and arguments after core-database rework
 export class HtlcRefundTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcRefundTransaction;

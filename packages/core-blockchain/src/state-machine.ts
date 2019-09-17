@@ -5,10 +5,12 @@ import { Blockchain } from "./blockchain";
 import { blockchainMachine } from "./machines/blockchain";
 
 const { BlockFactory } = Blocks;
-const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
 // defer initialisation to "init" due to this being resolved before the container kicks in
 let logger;
+let emitter;
+let database;
+let transactionPool;
 let stateStorage = {} as any;
 
 /**
@@ -113,17 +115,21 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     },
 
     async init() {
+        // todo: turn the state machine into a class so that injection can be used
         logger = app.log;
+        emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
+        database = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+        transactionPool = app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService);
         stateStorage = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore);
         blockchainMachine.state = stateStorage;
 
         try {
-            const block: Interfaces.IBlock = await blockchain.database.getLastBlock();
+            const block: Interfaces.IBlock = await database.getLastBlock();
 
-            if (!blockchain.database.restoredDatabaseIntegrity) {
+            if (!database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");
 
-                if (!(await blockchain.database.verifyBlockchain())) {
+                if (!(await database.verifyBlockchain())) {
                     return blockchain.dispatch("ROLLBACK");
                 }
 
@@ -140,7 +146,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                     return blockchain.dispatch("FAILURE");
                 }
 
-                await blockchain.database.deleteRound(1);
+                await database.deleteRound(1);
             }
 
             /** *******************************
@@ -150,12 +156,12 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             // Delete all rounds from the future due to shutdown before processBlocks finished writing the blocks.
             const roundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
-            await blockchain.database.deleteRound(roundInfo.round + 1);
+            await database.deleteRound(roundInfo.round + 1);
 
             if (stateStorage.networkStart) {
-                await blockchain.database.buildWallets();
-                await blockchain.database.applyRound(block.data.height);
-                await blockchain.transactionPool.buildWallets();
+                await database.buildWallets();
+                await database.applyRound(block.data.height);
+                await transactionPool.buildWallets();
                 await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
 
                 return blockchain.dispatch("STARTED");
@@ -165,7 +171,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
                 stateStorage.setLastBlock(BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
-                await blockchain.database.buildWallets();
+                await database.buildWallets();
                 await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
 
                 return blockchain.dispatch("STARTED");
@@ -177,10 +183,10 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
              * database init                 *
              ******************************* */
             // Integrity Verification
-            await blockchain.database.buildWallets();
+            await database.buildWallets();
 
-            await blockchain.database.restoreCurrentRound(block.data.height);
-            await blockchain.transactionPool.buildWallets();
+            await database.restoreCurrentRound(block.data.height);
+            await transactionPool.buildWallets();
 
             await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
 
@@ -272,7 +278,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         logger.info(`Removed ${AppUtils.pluralize("block", random, true)}`);
 
-        await blockchain.transactionPool.buildWallets();
+        await transactionPool.buildWallets();
         await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).refreshPeersAfterFork();
 
         blockchain.dispatch("SUCCESS");
@@ -286,19 +292,19 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await blockchain.removeTopBlocks(steps);
 
-            if (await blockchain.database.verifyBlockchain()) {
+            if (await database.verifyBlockchain()) {
                 break;
             }
         }
 
-        if (!(await blockchain.database.verifyBlockchain())) {
+        if (!(await database.verifyBlockchain())) {
             blockchain.dispatch("FAILURE");
             return;
         }
 
-        blockchain.database.restoredDatabaseIntegrity = true;
+        database.restoredDatabaseIntegrity = true;
 
-        const lastBlock: Interfaces.IBlock = await blockchain.database.getLastBlock();
+        const lastBlock: Interfaces.IBlock = await database.getLastBlock();
         logger.info(
             `Database integrity verified again after rollback to height ${lastBlock.data.height.toLocaleString()}`,
         );

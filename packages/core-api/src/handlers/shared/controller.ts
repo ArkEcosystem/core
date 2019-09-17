@@ -13,8 +13,11 @@ import {
 } from "../utils";
 
 export class Controller {
+    // todo: remove
     protected readonly config = Managers.configManager;
+    // todo: inject from container
     protected readonly blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
+    // todo: inject from container
     protected readonly databaseService = app.get<Contracts.Database.DatabaseService>(
         Container.Identifiers.DatabaseService,
     );

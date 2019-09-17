@@ -1,17 +1,20 @@
-import { app, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Wallets } from "@arkecosystem/core-state";
-import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { Client } from "./client";
 import { Delegate } from "./delegate";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
+@Container.injectable()
 export class ForgerManager {
-    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app: Contracts.Kernel.Application;
 
-    private secrets: string[];
-    private network: Types.NetworkType;
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger: Contracts.Kernel.Log.Logger;
+
     private client: Client;
     private delegates: Delegate[];
     private usernames: { [key: string]: string };
@@ -19,25 +22,27 @@ export class ForgerManager {
     private round: Contracts.P2P.CurrentRound;
     private initialized: boolean;
 
-    constructor(options) {
-        this.secrets = app.config("delegates").secrets;
-        this.network = Managers.configManager.get("network");
-        this.client = new Client(options.hosts);
+    init(options) {
+        this.client = this.app.resolve<Client>(Client);
+        this.client.init(options.hosts);
     }
 
     public async startForging(bip38: string, password: string): Promise<void> {
-        if (!bip38 && (!this.secrets || !this.secrets.length || !Array.isArray(this.secrets))) {
+        const secrets = app.config("delegates").secrets;
+
+        if (!bip38 && (!secrets || !secrets.length || !Array.isArray(secrets))) {
             this.logger.warning('No delegate found! Please check your "delegates.json" file and try again.');
             return;
         }
 
-        this.secrets = AppUtils.uniq(this.secrets.map(secret => secret.trim()));
-        this.delegates = this.secrets.map(passphrase => new Delegate(passphrase, this.network, password));
+        this.delegates = AppUtils.uniq<string>(secrets.map(secret => secret.trim())).map(
+            passphrase => new Delegate(passphrase, Managers.configManager.get("network"), password),
+        );
 
         if (bip38) {
             this.logger.info("BIP38 Delegate loaded");
 
-            this.delegates.push(new Delegate(bip38, this.network, password));
+            this.delegates.push(new Delegate(bip38, Managers.configManager.get("network"), password));
         }
 
         if (!this.delegates) {

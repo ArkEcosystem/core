@@ -132,4 +132,5 @@ class PayloadProcessor {
     }
 }
 
+// todo: bind this via ioc to avoid context issues
 export const payloadProcessor = new PayloadProcessor();

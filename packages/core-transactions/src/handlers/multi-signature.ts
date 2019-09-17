@@ -9,6 +9,7 @@ import {
 } from "../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
+// todo: revisit container usage and arguments after core-database rework
 export class MultiSignatureTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.MultiSignatureRegistrationTransaction;

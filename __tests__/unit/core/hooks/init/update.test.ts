@@ -18,7 +18,7 @@ afterAll(() => {
     setGracefulCleanup();
 });
 
-describe("Hooks > Init > Update", () => {
+describe.skip("Hooks > Init > Update", () => {
     it("should not check for updates if the update command is running", async () => {
         // Arrange
         const start = jest.spyOn(cli.action, "start");

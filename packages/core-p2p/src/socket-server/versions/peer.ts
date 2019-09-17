@@ -25,7 +25,12 @@ export const getCommonBlocks = async ({
     const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>(
         Container.Identifiers.BlockchainService,
     );
-    const commonBlocks: Interfaces.IBlockData[] = await blockchain.database.getCommonBlocks(req.data.ids);
+
+    const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+        Container.Identifiers.DatabaseService,
+    );
+
+    const commonBlocks: Interfaces.IBlockData[] = await database.getCommonBlocks(req.data.ids);
 
     if (!commonBlocks.length) {
         throw new MissingCommonBlockError();
