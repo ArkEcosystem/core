@@ -57,6 +57,7 @@ jest.mock("@arkecosystem/core-container", () => {
                             transactionsBusinessRepository: {
                                 findById: id => mockTransaction,
                             },
+                            walletManager,
                         };
                     case "state":
                         return {
@@ -1194,7 +1195,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
             [lockTransaction.id]: {
                 amount: lockTransaction.amount,
                 recipientId: lockTransaction.recipientId,
-                asset: lockTransaction.asset.lock,
+                ...lockTransaction.asset.lock,
             },
         });
 
@@ -1285,7 +1286,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
                 [lockTransaction.id]: {
                     amount: lockTransaction.amount,
                     recipientId: lockTransaction.recipientId,
-                    asset: lockTransaction.asset.lock,
+                    ...lockTransaction.asset.lock,
                 },
             });
 
@@ -1397,7 +1398,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
             expect(lockWallet.getAttribute("htlc.locks")[lockTransaction.id]).toEqual({
                 amount: lockTransaction.amount,
                 recipientId: lockTransaction.recipientId,
-                asset: lockTransaction.asset.lock,
+                ...lockTransaction.asset.lock,
             });
 
             expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(lockTransaction.amount);
@@ -1456,7 +1457,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
             [lockTransaction.id]: {
                 amount: lockTransaction.amount,
                 recipientId: lockTransaction.recipientId,
-                asset: lockTransaction.asset.lock,
+                ...lockTransaction.asset.lock,
             },
         });
 
@@ -1529,7 +1530,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
                 [lockTransaction.id]: {
                     amount: lockTransaction.amount,
                     recipientId: lockTransaction.recipientId,
-                    asset: lockTransaction.asset.lock,
+                    ...lockTransaction.asset.lock,
                 },
             });
 
@@ -1641,7 +1642,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
             expect(lockWallet.getAttribute("htlc.locks")[lockTransaction.id]).toEqual({
                 amount: lockTransaction.amount,
                 recipientId: lockTransaction.recipientId,
-                asset: lockTransaction.asset.lock,
+                ...lockTransaction.asset.lock,
             });
 
             expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(lockTransaction.amount);
