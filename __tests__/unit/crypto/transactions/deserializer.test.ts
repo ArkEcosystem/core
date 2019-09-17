@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
-import { Enums, Utils } from "../../../../packages/crypto/src";
+import { Enums, Errors, Utils } from "../../../../packages/crypto/src";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import {
     MalformedTransactionBytesError,
@@ -327,6 +327,24 @@ describe("Transaction serializer / deserializer", () => {
             expect(multiPayment.verify()).toBeFalse();
             configManager.getMilestone().aip11 = true;
             expect(multiPayment.verify()).toBeTrue();
+        });
+
+        it("should fail if more than hardcoded maximum of payments", () => {
+            const multiPayment = BuilderFactory.multiPayment()
+                .fee("50000000")
+                .network(23);
+
+            for (let i = 0; i < 500; i++) {
+                multiPayment.addPayment(Address.fromPassphrase(`recipient-${i}`), "1");
+            }
+
+            expect(() => multiPayment.addPayment(Address.fromPassphrase("recipient501"), "1")).toThrow(
+                Errors.MaximumPaymentCountExceededError,
+            );
+
+            const transaction = multiPayment.sign("dummy passphrase").build();
+            expect(transaction.verify()).toBeTrue();
+            expect(TransactionFactory.fromBytes(transaction.serialized, true).verify()).toBeTrue();
         });
     });
 

@@ -156,6 +156,12 @@ export class VotedForResignedDelegateError extends TransactionError {
     }
 }
 
+export class NotEnoughDelegatesError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because not enough delegates to allow resignation.`);
+    }
+}
+
 export class MultiSignatureAlreadyRegisteredError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because multi signature is already enabled.`);
