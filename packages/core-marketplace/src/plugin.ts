@@ -22,7 +22,7 @@ export const plugin: Container.IPluginDescriptor = {
 
         container
             .resolvePlugin<EventEmitter.EventEmitter>("event-emitter")
-            .on(ApplicationEvents.StateStarting, (database: Database.IDatabaseService) => {
+            .once(ApplicationEvents.StateStarting, (database: Database.IDatabaseService) => {
                 const walletManager = database.walletManager;
                 walletManager.registerIndex(MarketplaceIndex.Businesses, businessIndexer);
                 walletManager.registerIndex(MarketplaceIndex.Bridgechains, bridgechainIndexer);
