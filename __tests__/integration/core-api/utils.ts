@@ -65,6 +65,7 @@ class Helpers {
         expect(transaction).toHaveProperty("id");
         expect(transaction).toHaveProperty("blockId");
         expect(transaction).toHaveProperty("type");
+        expect(transaction).toHaveProperty("typeGroup");
         expect(transaction).toHaveProperty("amount");
         expect(transaction).toHaveProperty("fee");
         expect(transaction).toHaveProperty("sender");

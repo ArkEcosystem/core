@@ -8,6 +8,7 @@ export enum WalletIndexes {
     Addresses = "addresses",
     PublicKeys = "publicKeys",
     Usernames = "usernames",
+    Resignations = "resignations",
     Locks = "locks",
 }
 
@@ -90,7 +91,7 @@ export interface IWalletManager {
 
     findByUsername(username: string): IWallet;
 
-    findByIndex(indexName: string, key: string): IWallet | undefined;
+    findByIndex(index: string | string[], key: string): IWallet | undefined;
 
     getNonce(publicKey: string): Utils.BigNumber;
 
