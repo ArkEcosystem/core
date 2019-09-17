@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Database, State } from "@arkecosystem/core-interfaces";
+import { Database, EventEmitter, State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
@@ -13,14 +13,24 @@ export class WalletManager extends Wallets.WalletManager {
     public constructor() {
         super();
 
-        const indexes: string[] = this.databaseService.walletManager.getIndexNames();
+        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
+        const indexes: string[] = databaseWalletManager.getIndexNames();
         for (const index of indexes) {
             if (this.indexes[index]) {
                 continue;
             }
 
-            this.registerIndex(index, this.databaseService.walletManager.getIndex(index).indexer);
+            this.registerIndex(index, databaseWalletManager.getIndex(index).indexer);
         }
+
+        app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").once(
+            "internal.stateBuilder.finished",
+            async () => {
+                for (const username of databaseWalletManager.allByUsername()) {
+                    this.reindex(clonedeep(username));
+                }
+            },
+        );
     }
 
     public findByAddress(address: string): State.IWallet {
