@@ -1,6 +1,6 @@
 DROP TRIGGER transactions_set_nonce ON ${schema~}.transactions;
 
-DROP FUNCTION ${schema~}.set_row_nonce;
+DROP FUNCTION ${schema~}.set_row_nonce();
 
 CREATE FUNCTION ${schema~}.set_row_nonce() RETURNS TRIGGER
 AS
