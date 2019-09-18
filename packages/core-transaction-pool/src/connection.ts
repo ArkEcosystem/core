@@ -17,7 +17,7 @@ export class Connection implements TransactionPool.IConnection {
     public options: Record<string, any>;
     // @TODO: make this private, requires some bigger changes to tests
     public walletManager: WalletManager;
-    private readonly memory: Memory;
+    public readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
     private readonly databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>(

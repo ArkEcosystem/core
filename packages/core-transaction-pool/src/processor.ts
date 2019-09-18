@@ -163,10 +163,6 @@ export class Processor implements TransactionPool.IProcessor {
 
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
-        const lastHeight: number = app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastHeight();
 
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture: number = transaction.timestamp - now;
@@ -178,11 +174,26 @@ export class Processor implements TransactionPool.IProcessor {
             );
 
             return false;
-        } else if (transaction.expiration > 0 && transaction.expiration <= lastHeight + 1) {
+        }
+
+        const lastHeight: number = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
+
+        const expirationContext = {
+            blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
+            lastHeight,
+            now: Crypto.Slots.getTime(),
+        };
+
+        const expiration: number = (this.pool.memory as any).calculateTransactionExpiration(transaction, expirationContext);
+
+        if (expiration <= lastHeight + 1) {
             this.pushError(
                 transaction,
                 "ERR_EXPIRED",
-                `Transaction ${transaction.id} is expired since ${lastHeight - transaction.expiration} blocks.`,
+                `Transaction ${transaction.id} is expired since ${lastHeight - expiration} blocks.`,
             );
 
             return false;

@@ -9,6 +9,7 @@ export interface IAddTransactionResponse {
 
 export interface IConnection {
     walletManager: any;
+    readonly memory: any;
 
     makeProcessor(): IProcessor;
 

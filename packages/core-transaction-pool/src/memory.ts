@@ -50,8 +50,8 @@ export class Memory {
                     return 1;
                 }
 
-                const expirationA: number = this.calculateTransactionExpiration(a, expirationContext);
-                const expirationB: number = this.calculateTransactionExpiration(b, expirationContext);
+                const expirationA: number = this.calculateTransactionExpiration(a.data, expirationContext);
+                const expirationB: number = this.calculateTransactionExpiration(b.data, expirationContext);
 
                 if (expirationA !== null && expirationB !== null) {
                     return expirationA - expirationB;
@@ -77,8 +77,8 @@ export class Memory {
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort(
                 (a, b) =>
-                    this.calculateTransactionExpiration(a, expirationContext) -
-                    this.calculateTransactionExpiration(b, expirationContext),
+                    this.calculateTransactionExpiration(a.data, expirationContext) -
+                    this.calculateTransactionExpiration(b.data, expirationContext),
             );
             this.byExpirationIsSorted = true;
         }
@@ -86,7 +86,7 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (this.calculateTransactionExpiration(transaction, expirationContext) > currentHeight) {
+            if (this.calculateTransactionExpiration(transaction.data, expirationContext) > currentHeight) {
                 break;
             }
 
@@ -176,7 +176,7 @@ export class Memory {
             currentHeight,
             now: Crypto.Slots.getTime(),
         };
-        const expiration: number = this.calculateTransactionExpiration(transaction, expirationContext);
+        const expiration: number = this.calculateTransactionExpiration(transaction.data, expirationContext);
         if (expiration !== null) {
             this.byExpiration.push(transaction);
             this.byExpirationIsSorted = false;
@@ -286,13 +286,6 @@ export class Memory {
         return removed;
     }
 
-    private currentHeight(): number {
-        return app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastHeight();
-    }
-
     /**
      * Calculate the expiration height of a transaction.
      * An expiration height H means that the transaction cannot be included in block at height
@@ -302,33 +295,40 @@ export class Memory {
      * maximum transaction age.
      * @return number expiration height or null if the transaction does not expire
      */
-    private calculateTransactionExpiration(
-        transaction: Interfaces.ITransaction,
+    public calculateTransactionExpiration(
+        transaction: Interfaces.ITransactionData,
         context: {
             blockTime: number;
             currentHeight: number;
             now: number;
         },
     ): number {
-        // We ignore data.expiration in v1 transactions because it is not signed
+        // We ignore transaction.expiration in v1 transactions because it is not signed
         // by the transaction creator.
         // TODO: check if ok
-        if (transaction.data.version >= 2) {
+        if (transaction.version >= 2) {
             // tslint:disable-next-line:no-null-keyword
-            return transaction.data.expiration || null;
+            return transaction.expiration || null;
         }
 
         // Since the user did not specify an expiration we set one by calculating
         // approximately the height of the chain as of the time the transaction was
         // created and adding maxTransactionAge to that.
 
-        // Both now and transaction.data.timestamp use [number of seconds since the genesis block].
-        const createdSecondsAgo: number = context.now - transaction.data.timestamp;
+        // Both now and transaction.timestamp use [number of seconds since the genesis block].
+        const createdSecondsAgo: number = context.now - transaction.timestamp;
 
         const createdBlocksAgo: number = Math.floor(createdSecondsAgo / context.blockTime);
 
         const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
 
         return createdAtHeight + this.maxTransactionAge;
+    }
+
+    private currentHeight(): number {
+        return app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
     }
 }
