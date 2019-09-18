@@ -36,6 +36,12 @@ export class WalletManager implements State.IWalletManager {
             }
         });
 
+        this.registerIndex(State.WalletIndexes.Resignations, (index: State.IWalletIndex, wallet: State.IWallet) => {
+            if (wallet.isDelegate() && wallet.getAttribute("delegate.resigned")) {
+                index.set(wallet.getAttribute("delegate.username"), wallet);
+            }
+        });
+
         this.registerIndex(State.WalletIndexes.Locks, (index: State.IWalletIndex, wallet: State.IWallet) => {
             const locks = wallet.getAttribute("htlc.locks");
             if (locks) {
@@ -122,8 +128,19 @@ export class WalletManager implements State.IWalletManager {
         return this.findByIndex(State.WalletIndexes.Usernames, username);
     }
 
-    public findByIndex(indexName: string, key: string): State.IWallet | undefined {
-        return this.getIndex(indexName).get(key);
+    public findByIndex(index: string | string[], key: string): State.IWallet | undefined {
+        if (!Array.isArray(index)) {
+            index = [index];
+        }
+
+        for (const name of index) {
+            const index = this.getIndex(name);
+            if (index.has(key)) {
+                return index.get(key);
+            }
+        }
+
+        return undefined;
     }
 
     public has(key: string): boolean {

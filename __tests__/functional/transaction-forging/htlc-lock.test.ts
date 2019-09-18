@@ -1,11 +1,11 @@
-import { Identities, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Enums, Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
 const { passphrase, secondPassphrase } = support.passphrases;
 
-const { UnixTimestamp } = Transactions.enums.HtlcLockExpirationType;
+const { EpochTimestamp } = Enums.HtlcLockExpirationType;
 
 beforeAll(support.setUp);
 afterAll(support.tearDown);
@@ -25,8 +25,8 @@ describe("Transaction Forging - HTLC Lock", () => {
         const transaction = TransactionFactory.htlcLock({
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
             expiration: {
-                type: UnixTimestamp,
-                value: Math.floor((Date.now() + 100000) / 1000),
+                type: EpochTimestamp,
+                value: Crypto.Slots.getTime() + 1000,
             },
         })
             .withPassphrase(passphrase)
@@ -63,8 +63,8 @@ describe("Transaction Forging - HTLC Lock", () => {
         const transaction = TransactionFactory.htlcLock({
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
             expiration: {
-                type: UnixTimestamp,
-                value: Math.floor((Date.now() + 100000) / 1000),
+                type: EpochTimestamp,
+                value: Crypto.Slots.getTime() + 1000,
             },
         })
             .withPassphrasePair({ passphrase, secondPassphrase })
@@ -118,8 +118,8 @@ describe("Transaction Forging - HTLC Lock", () => {
         const transaction = TransactionFactory.htlcLock({
             secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
             expiration: {
-                type: UnixTimestamp,
-                value: Math.floor((Date.now() + 100000) / 1000),
+                type: EpochTimestamp,
+                value: Crypto.Slots.getTime() + 1000,
             },
         })
             .withSenderPublicKey(multiSigPublicKey)

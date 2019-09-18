@@ -49,7 +49,7 @@ export class UnexpectedNonceError extends TransactionError {
     }
 }
 
-export class ZeroDatabaseBalanceError extends TransactionError {
+export class ColdWalletError extends TransactionError {
     constructor() {
         super(`Insufficient balance in database wallet. Wallet is not allowed to spend before funding is confirmed.`);
     }
@@ -153,6 +153,12 @@ export class VotedForNonDelegateError extends TransactionError {
 export class VotedForResignedDelegateError extends TransactionError {
     constructor(vote: string) {
         super(`Failed to apply transaction, because it votes for a resigned delegate.`);
+    }
+}
+
+export class NotEnoughDelegatesError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because not enough delegates to allow resignation.`);
     }
 }
 

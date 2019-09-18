@@ -1,16 +1,13 @@
-import { Utils } from "@arkecosystem/crypto";
 import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
-import { TransactionType } from "../../../../packages/crypto/src/enums";
+import { HtlcLockExpirationType, TransactionType } from "../../../../packages/crypto/src/enums";
 import { PublicKey } from "../../../../packages/crypto/src/identities";
+import { Utils } from "../../../../packages/crypto/src/index";
 import { IMultiSignatureAsset } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
-import { HtlcLockExpirationType } from "../../../../packages/crypto/src/transactions/types/enums";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
-
-const { UnixTimestamp } = HtlcLockExpirationType;
 
 let transaction;
 let transactionSchema: TransactionSchema;
@@ -772,7 +769,7 @@ describe("HTLC Lock Transaction", () => {
     const htlcLockAsset = {
         secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
         expiration: {
-            type: UnixTimestamp,
+            type: HtlcLockExpirationType.EpochTimestamp,
             value: Math.floor(Date.now() / 1000),
         },
     };
@@ -801,7 +798,7 @@ describe("HTLC Lock Transaction", () => {
             .htlcLockAsset({
                 secretHash: "asdf123asdf123asdf123asdf123asd",
                 expiration: {
-                    type: UnixTimestamp,
+                    type: HtlcLockExpirationType.EpochTimestamp,
                     value: Math.floor(Date.now() / 1000),
                 },
             })

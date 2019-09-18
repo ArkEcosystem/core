@@ -30,7 +30,7 @@ export class HtlcLockTransaction extends Transaction {
         buffer.writeUint64(+data.amount);
         buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
         buffer.writeUint8(data.asset.lock.expiration.type);
-        buffer.writeUint64(data.asset.lock.expiration.value);
+        buffer.writeUint32(data.asset.lock.expiration.value);
         buffer.append(Base58.decodeCheck(data.recipientId));
 
         return buffer;
@@ -39,11 +39,11 @@ export class HtlcLockTransaction extends Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const amount = BigNumber.make(buf.readUint64().toString());
+        const amount: BigNumber = BigNumber.make(buf.readUint64().toString());
         const secretHash: string = buf.readBytes(32).toString("hex");
-        const expirationType = buf.readUint8();
-        const expirationValue = buf.readUint64().toNumber();
-        const recipientId = Base58.encodeCheck(buf.readBytes(21).toBuffer());
+        const expirationType: number = buf.readUint8();
+        const expirationValue: number = buf.readUint32();
+        const recipientId: string = Base58.encodeCheck(buf.readBytes(21).toBuffer());
 
         data.amount = amount;
         data.recipientId = recipientId;

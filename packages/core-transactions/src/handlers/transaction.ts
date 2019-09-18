@@ -5,6 +5,7 @@ import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/co
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import {
+    ColdWalletError,
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
@@ -13,7 +14,6 @@ import {
     UnexpectedMultiSignatureError,
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
-    ZeroDatabaseBalanceError,
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
 
@@ -61,18 +61,11 @@ export abstract class TransactionHandler implements ITransactionHandler {
         return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
     }
 
-    public async throwIfCannotBeApplied(
+    protected async performGenericWalletChecks(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        if (
-            !databaseWalletManager.hasByPublicKey(sender.publicKey) &&
-            databaseWalletManager.findByAddress(sender.address).balance.isZero()
-        ) {
-            throw new ZeroDatabaseBalanceError();
-        }
-
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data)) {
@@ -143,6 +136,21 @@ export abstract class TransactionHandler implements ITransactionHandler {
         } else if (transaction.data.signatures && !isMultiSignatureRegistration) {
             throw new UnexpectedMultiSignatureError();
         }
+    }
+
+    public async throwIfCannotBeApplied(
+        transaction: Interfaces.ITransaction,
+        sender: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
+    ): Promise<void> {
+        if (
+            !databaseWalletManager.hasByPublicKey(sender.publicKey) &&
+            databaseWalletManager.findByAddress(sender.address).balance.isZero()
+        ) {
+            throw new ColdWalletError();
+        }
+
+        return this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
     }
 
     public async apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
