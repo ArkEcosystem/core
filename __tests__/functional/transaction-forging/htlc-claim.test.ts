@@ -1,11 +1,11 @@
-import { Crypto, Identities, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Enums, Identities } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
 const { passphrase, secondPassphrase } = support.passphrases;
 
-const { UnixTimestamp } = Transactions.enums.HtlcLockExpirationType;
+const { EpochTimestamp } = Enums.HtlcLockExpirationType;
 
 beforeAll(support.setUp);
 afterAll(support.tearDown);
@@ -28,8 +28,8 @@ describe("Transaction Forging - HTLC Claim", () => {
             {
                 secretHash,
                 expiration: {
-                    type: UnixTimestamp,
-                    value: Math.floor((Date.now() + 100000) / 1000),
+                    type: EpochTimestamp,
+                    value: Crypto.Slots.getTime() + 1000,
                 },
             },
             Identities.Address.fromPassphrase(secrets[1], 23),
@@ -83,8 +83,8 @@ describe("Transaction Forging - HTLC Claim", () => {
             {
                 secretHash,
                 expiration: {
-                    type: UnixTimestamp,
-                    value: Math.floor((Date.now() + 100000) / 1000),
+                    type: EpochTimestamp,
+                    value: Crypto.Slots.getTime() + 1000,
                 },
             },
             Identities.Address.fromPassphrase(passphrase),
@@ -155,8 +155,8 @@ describe("Transaction Forging - HTLC Claim", () => {
             {
                 secretHash,
                 expiration: {
-                    type: UnixTimestamp,
-                    value: Math.floor((Date.now() + 100000) / 1000),
+                    type: EpochTimestamp,
+                    value: Crypto.Slots.getTime() + 1000,
                 },
             },
             multiSigAddress,

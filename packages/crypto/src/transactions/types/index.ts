@@ -16,7 +16,3 @@ export * from "./internal-transaction-type";
 import * as schemas from "./schemas";
 
 export { schemas };
-
-import * as enums from "./enums";
-
-export { enums };

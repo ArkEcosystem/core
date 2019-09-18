@@ -19,7 +19,7 @@ export class Processor implements TransactionPool.IProcessor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) { }
+    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) {}
 
     public async validate(transactions: Interfaces.ITransactionData[]): Promise<TransactionPool.IProcessorResult> {
         this.cacheTransactions(transactions);
@@ -240,6 +240,8 @@ export class Processor implements TransactionPool.IProcessor {
         const stats: string = ["accept", "broadcast", "excess", "invalid"]
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
+
+        app.resolvePlugin<Logger.ILogger>("logger").debug(JSON.stringify(this.errors));
 
         app.resolvePlugin<Logger.ILogger>("logger").info(
             `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
