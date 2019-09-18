@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
 import {
-    MalformedTransactionBytesError,
+    InvalidTransactionBytesError,
     TransactionSchemaError,
     TransactionTypeError,
     TransactionVersionError,
@@ -154,10 +154,10 @@ describe("Transaction", () => {
         });
 
         it("should throw when getting garbage", () => {
-            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(MalformedTransactionBytesError);
-            expect(() => TransactionFactory.fromBytes(Buffer.from("garbage"))).toThrow(MalformedTransactionBytesError);
-            expect(() => TransactionFactory.fromHex(undefined)).toThrow(MalformedTransactionBytesError);
-            expect(() => TransactionFactory.fromHex("affe")).toThrow(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(InvalidTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(Buffer.from("garbage"))).toThrow(InvalidTransactionBytesError);
+            expect(() => TransactionFactory.fromHex(undefined)).toThrow(InvalidTransactionBytesError);
+            expect(() => TransactionFactory.fromHex("affe")).toThrow(InvalidTransactionBytesError);
         });
 
         it("should throw when getting an unsupported version", () => {
