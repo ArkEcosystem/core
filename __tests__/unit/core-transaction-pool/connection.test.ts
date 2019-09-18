@@ -1044,8 +1044,7 @@ describe("Connection", () => {
             expect(topFeesReceived).toEqual(topFeesExpected);
         });
 
-        // TODO: @vd connection.getTransactions(...) doesn't return sorted by nonce
-        it.skip("sort by fee, nonce", async () => {
+        it("sort by fee, nonce", async () => {
             const nTransactions = 1000;
             const nDifferentSenders = 100;
 
