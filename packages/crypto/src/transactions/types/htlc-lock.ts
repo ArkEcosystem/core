@@ -25,7 +25,7 @@ export class HtlcLockTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
 
-        const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 1 + 8 + 21, true);
+        const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 1 + 4 + 21, true);
 
         buffer.writeUint64(+data.amount);
         buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
