@@ -11,6 +11,7 @@ import { Memory } from "./memory";
 import { Processor } from "./processor";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
+import differencewith from "lodash.differencewith";
 
 export class Connection implements TransactionPool.IConnection {
     // @TODO: make this private, requires some bigger changes to tests
@@ -476,9 +477,7 @@ export class Connection implements TransactionPool.IConnection {
         const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
-        const unforgedTransactions = transactions.filter(
-            (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
-        );
+        const unforgedTransactions = differencewith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
 
         const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
         const localWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(databaseWalletManager);
