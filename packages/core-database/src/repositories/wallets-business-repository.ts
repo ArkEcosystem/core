@@ -38,12 +38,12 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                 searchContext = this.searchLocks(params);
                 break;
             }
-            case Database.SearchScope.Businesses: {
-                //  this.searchWallets(params);
+            case Database.SearchScope.Bridgechains: {
+                searchContext = this.searchBridgechains(params);
                 break;
             }
-            case Database.SearchScope.Bridgechains: {
-                // this.searchWallets(params);
+            case Database.SearchScope.Businesses: {
+                searchContext = this.searchBusinesses(params);
                 break;
             }
         }
@@ -190,7 +190,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             .all()
             .map(wallet => {
                 const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
-                if (locks && Object.keys.length > 0) {
+                if (locks && Object.keys(locks).length > 0) {
                     return Object.entries(locks).map(([lockId, lock]) => {
                         return {
                             lockId,
@@ -211,6 +211,44 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return {
             query,
             entries: [].concat(...entries),
+            defaultOrder: ["expirationValue", "asc"],
+        };
+    }
+
+    // TODO
+    private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
+        const query: Record<string, string[]> = {};
+        const entries: any[] = this.databaseServiceProvider()
+            .walletManager.getIndex("businesses")
+            .all()
+            .map(wallet => {
+                const business: Interfaces.IHtlcLocks = wallet.getAttribute("business");
+                return business;
+            })
+            .filter(business => !!business);
+
+        return {
+            query,
+            entries,
+            defaultOrder: ["expirationValue", "asc"],
+        };
+    }
+
+    // TODO
+    private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
+        const query: Record<string, string[]> = {};
+
+        const entries: any[][] = this.databaseServiceProvider()
+            .walletManager.getIndex("bridgechains")
+            .all()
+            .map(wallet => {
+                return wallet.getAttribute("business.bridgechains");
+            })
+            .filter(bridgchain => !!bridgchain);
+
+        return {
+            query,
+            entries,
             defaultOrder: ["expirationValue", "asc"],
         };
     }
