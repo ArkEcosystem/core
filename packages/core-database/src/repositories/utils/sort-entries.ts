@@ -11,7 +11,7 @@ export const sortEntries = <T extends Record<string, any>>(
 ): T[] => {
     const [iteratee, order] = params.orderBy ? params.orderBy : defaultOrder;
 
-    if (["balance", "voteBalance", "amount"].includes(iteratee)) {
+    if (["balance", "voteBalance"].includes(iteratee)) {
         return Object.values(entries).sort((a: T, b: T) => {
             const iterateeA: Utils.BigNumber = getProperty(a, iteratee) || Utils.BigNumber.ZERO;
             const iterateeB: Utils.BigNumber = getProperty(b, iteratee) || Utils.BigNumber.ZERO;

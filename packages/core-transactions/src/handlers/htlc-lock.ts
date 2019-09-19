@@ -25,7 +25,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
             locks[transaction.id] = {
-                amount: transaction.amount,
+                amount: Utils.BigNumber.make(transaction.amount),
                 recipientId: transaction.recipientId,
                 ...transaction.asset.lock,
             };

@@ -9,6 +9,16 @@ interface ISearchContext<T = any> {
     defaultOrder: string[];
 }
 
+interface IUnwrappedHtlcLock {
+    lockId: string;
+    senderPublicKey: string;
+    amount: string;
+    recipientId: string;
+    secretHash: string;
+    expirationType: number;
+    expirationValue: number;
+}
+
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
     public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
@@ -28,12 +38,12 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                 searchContext = this.searchLocks(params);
                 break;
             }
-            case Database.SearchScope.Wallets: {
-                this.searchWallets(params);
+            case Database.SearchScope.Businesses: {
+                //  this.searchWallets(params);
                 break;
             }
-            case Database.SearchScope.Wallets: {
-                this.searchWallets(params);
+            case Database.SearchScope.Bridgechains: {
+                // this.searchWallets(params);
                 break;
             }
         }
@@ -165,22 +175,43 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    private searchLocks(params: Database.IParameters = {}): ISearchContext<Interfaces.IHtlcLock> {
+    private searchLocks(params: Database.IParameters = {}): ISearchContext<IUnwrappedHtlcLock> {
         const query: Record<string, string[]> = {
-            exact: ["publicKey", "lockId", "recipientId"],
-            between: ["expiration", "lockBalance"],
+            exact: ["senderPublicKey", "lockId", "recipientId", "secretHash", "expirationType"],
+            between: ["expirationValue", "amount"],
         };
 
-        const entries: Interfaces.IHtlcLock[] = this.databaseServiceProvider()
+        if (params.amount !== undefined) {
+            params.amount = "" + params.amount;
+        }
+
+        const entries: IUnwrappedHtlcLock[][] = this.databaseServiceProvider()
             .walletManager.getIndex(State.WalletIndexes.Locks)
             .all()
-            .map(wallet => wallet.getAttribute("htlc.locks"))
-            .filter(lock => lock && Object.keys(lock).length > 0);
+            .map(wallet => {
+                const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
+                if (locks && Object.keys.length > 0) {
+                    return Object.entries(locks).map(([lockId, lock]) => {
+                        return {
+                            lockId,
+                            amount: lock.amount.toFixed(),
+                            secretHash: lock.secretHash,
+                            senderPublicKey: wallet.publicKey,
+                            recipientId: lock.recipientId,
+                            expirationType: lock.expiration.type,
+                            expirationValue: lock.expiration.value,
+                        };
+                    });
+                }
+
+                return undefined;
+            })
+            .filter(lock => !!lock && lock.length > 0);
 
         return {
             query,
-            entries,
-            defaultOrder: ["expiration", "asc"],
+            entries: [].concat(...entries),
+            defaultOrder: ["expirationValue", "asc"],
         };
     }
 }
