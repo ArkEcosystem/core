@@ -1,5 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import cloneDeep from "lodash.clonedeep";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { WalletRepository } from "./wallet-repository";
 
@@ -11,7 +10,7 @@ export class TempWalletRepository extends WalletRepository {
     }
 
     public reindex(wallet: Contracts.State.Wallet): void {
-        super.reindex(cloneDeep(wallet));
+        super.reindex(Utils.cloneDeep(wallet));
     }
 
     public findByAddress(address: string): Contracts.State.Wallet {
@@ -44,7 +43,7 @@ export class TempWalletRepository extends WalletRepository {
         if (!index.has(key)) {
             const parentIndex: Contracts.State.WalletIndex = this.walletRepository.getIndex(indexName);
 
-            index.set(key, cloneDeep(parentIndex.get(key)));
+            index.set(key, Utils.cloneDeep(parentIndex.get(key)));
         }
 
         return index.get(key);

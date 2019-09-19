@@ -3,7 +3,6 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
-import cloneDeep from "lodash.clonedeep";
 
 import { BlockState } from "./block-state";
 
@@ -188,7 +187,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         const seedSource: string = round.toString();
         let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
 
-        delegates = cloneDeep(delegates);
+        delegates = AppUtils.cloneDeep(delegates);
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
             for (let x = 0; x < 4 && i < delCount; i++, x++) {
                 const newIndex = currentSeed[x] % delCount;

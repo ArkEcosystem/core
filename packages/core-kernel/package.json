@@ -22,8 +22,8 @@
     },
     "dependencies": {
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@arkecosystem/utils": "^0.4.0",
-        "@hapi/joi": "^16.0.1",
+        "@arkecosystem/utils": "^0.5.1",
+        "@hapi/joi": "^16.1.1",
         "chalk": "^2.4.2",
         "cosmiconfig": "^5.2.1",
         "cron": "^1.7.2",
@@ -53,7 +53,7 @@
         "semver": "^6.3.0",
         "split2": "^3.1.1",
         "strman": "^2.0.1",
-        "type-fest": "^0.7.1"
+        "type-fest": "^0.8.0"
     },
     "devDependencies": {
         "@types/cosmiconfig": "^5.0.3",

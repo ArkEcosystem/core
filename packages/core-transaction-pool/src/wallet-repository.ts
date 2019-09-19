@@ -1,7 +1,6 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
-import cloneDeep from "lodash.clonedeep";
 
 export class WalletRepository extends Wallets.WalletRepository {
     private readonly databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
@@ -10,7 +9,7 @@ export class WalletRepository extends Wallets.WalletRepository {
 
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
-            this.reindex(cloneDeep(this.databaseService.walletRepository.findByAddress(address)));
+            this.reindex(Utils.cloneDeep(this.databaseService.walletRepository.findByAddress(address)));
         }
 
         return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address);

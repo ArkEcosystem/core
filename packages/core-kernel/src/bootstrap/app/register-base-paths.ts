@@ -1,8 +1,7 @@
-import { set } from "@arkecosystem/utils";
+import { camelCase, set } from "@arkecosystem/utils";
 import envPaths from "env-paths";
 import expandHomeDir from "expand-home-dir";
 import { ensureDirSync } from "fs-extra";
-import camelCase from "lodash/camelCase";
 import { resolve } from "path";
 
 import { Application } from "../../contracts/kernel";

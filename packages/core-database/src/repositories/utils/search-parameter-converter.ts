@@ -1,5 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import snakeCase from "lodash.snakecase";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
 export class SearchParameterConverter implements Contracts.Database.SearchParameterConverter {
     constructor(private databaseModel: Contracts.Database.Model) {}
@@ -50,7 +49,7 @@ export class SearchParameterConverter implements Contracts.Database.SearchParame
             const fieldDirection = orderBy.split(":").map(o => o.toLowerCase());
             if (fieldDirection.length === 2 && (fieldDirection[1] === "asc" || fieldDirection[1] === "desc")) {
                 searchParameters.orderBy.push({
-                    field: snakeCase(fieldDirection[0]),
+                    field: Utils.snakeCase(fieldDirection[0]),
                     direction: fieldDirection[1],
                 });
             }

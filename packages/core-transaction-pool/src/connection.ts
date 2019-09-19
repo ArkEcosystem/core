@@ -1,9 +1,8 @@
-import { app, Container, Contracts, Enums as AppEnums } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
-import cloneDeep from "lodash.clonedeep";
 
 import { TransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
@@ -518,7 +517,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         if (localWalletRepository.hasByPublicKey(senderPublicKey)) {
             sender = localWalletRepository.findByPublicKey(senderPublicKey);
         } else {
-            sender = cloneDeep(databaseWalletRepository.findByPublicKey(senderPublicKey));
+            sender = AppUtils.cloneDeep(databaseWalletRepository.findByPublicKey(senderPublicKey));
             localWalletRepository.reindex(sender);
         }
 
@@ -526,13 +525,13 @@ export class Connection implements Contracts.TransactionPool.Connection {
         if (transaction.type === Enums.TransactionType.Vote) {
             const vote = transaction.data.asset.votes[0].slice(1);
             if (!localWalletRepository.hasByPublicKey(vote)) {
-                localWalletRepository.reindex(cloneDeep(databaseWalletRepository.findByPublicKey(vote)));
+                localWalletRepository.reindex(AppUtils.cloneDeep(databaseWalletRepository.findByPublicKey(vote)));
             }
         } else if (transaction.type === Enums.TransactionType.HtlcClaim) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             if (!localWalletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
                 localWalletRepository.reindex(
-                    cloneDeep(databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId)),
+                    AppUtils.cloneDeep(databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId)),
                 );
             }
         }
@@ -541,7 +540,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             if (localWalletRepository.hasByAddress(recipientId)) {
                 recipient = localWalletRepository.findByAddress(recipientId);
             } else {
-                recipient = cloneDeep(databaseWalletRepository.findByAddress(recipientId));
+                recipient = AppUtils.cloneDeep(databaseWalletRepository.findByAddress(recipientId));
                 localWalletRepository.reindex(recipient);
             }
         }
