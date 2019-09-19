@@ -13,7 +13,7 @@ import { Wallets } from "../../../../packages/core-state/src";
 import { Address } from "../../../../packages/crypto/src/identities";
 
 let genesisSenders;
-let repository;
+let repository: Database.IWalletsBusinessRepository;
 let walletManager: State.IWalletManager;
 let databaseService: Database.IDatabaseService;
 
@@ -26,15 +26,7 @@ beforeEach(async () => {
 
     repository = new WalletsBusinessRepository(() => databaseService);
 
-    databaseService = new DatabaseService(
-        undefined,
-        undefined,
-        walletManager,
-        repository,
-        undefined,
-        undefined,
-        undefined,
-    );
+    databaseService = new DatabaseService(undefined, undefined, walletManager, repository, undefined, undefined);
 });
 
 const generateWallets = (): State.IWallet[] => {
@@ -73,9 +65,13 @@ const generateFullWallets = (): State.IWallet[] => {
 };
 
 describe("Wallet Repository", () => {
+    const searchRepository = (params: Database.IParameters = {}): Database.IRowsPaginated<State.IWallet> => {
+        return repository.search(Database.SearchScope.Wallets, params);
+    };
+
     describe("search", () => {
         const expectSearch = (params, rows = 1, count = 1) => {
-            const wallets = repository.search(params);
+            const wallets = searchRepository(params);
             expect(wallets).toBeObject();
 
             expect(wallets).toHaveProperty("count");
@@ -92,7 +88,7 @@ describe("Wallet Repository", () => {
         it("should return the local wallets of the connection", () => {
             jest.spyOn(walletManager, "allByAddress").mockReturnValue([]);
 
-            repository.search();
+            searchRepository();
 
             expect(walletManager.allByAddress).toHaveBeenCalled();
         });
@@ -101,7 +97,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.search({});
+            const { count, rows } = searchRepository({});
             expect(count).toBe(52);
             expect(rows).toHaveLength(52);
         });
@@ -110,7 +106,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.search({ offset: 10, limit: 10 });
+            const { count, rows } = searchRepository({ offset: 10, limit: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
@@ -119,7 +115,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.search({ limit: 10 });
+            const { count, rows } = searchRepository({ limit: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
         });
@@ -128,7 +124,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.search({ offset: 0, limit: 12 });
+            const { count, rows } = searchRepository({ offset: 0, limit: 12 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(12);
         });
@@ -137,7 +133,7 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = repository.search({ offset: 10 });
+            const { count, rows } = searchRepository({ offset: 10 });
             expect(count).toBe(52);
             expect(rows).toHaveLength(42);
         });
@@ -248,6 +244,13 @@ describe("Wallet Repository", () => {
     describe("findAllByVote", () => {
         const vote = "dummy-sender-public-key";
 
+        const findAllByVote = (
+            vote: string,
+            params: Database.IParameters = {},
+        ): Database.IRowsPaginated<State.IWallet> => {
+            return searchRepository({ ...params, ...{ vote } });
+        };
+
         beforeEach(() => {
             const wallets = generateVotes();
             for (let i = 0; i < wallets.length; i++) {
@@ -262,13 +265,13 @@ describe("Wallet Repository", () => {
         });
 
         it("should be ok without params", () => {
-            const { count, rows } = repository.findAllByVote(vote);
+            const { count, rows } = findAllByVote(vote);
             expect(count).toBe(17);
             expect(rows).toHaveLength(17);
         });
 
         it("should be ok with params", () => {
-            const { count, rows } = repository.findAllByVote(vote, {
+            const { count, rows } = findAllByVote(vote, {
                 offset: 10,
                 limit: 10,
             });
@@ -277,13 +280,13 @@ describe("Wallet Repository", () => {
         });
 
         it("should be ok with params (no offset)", () => {
-            const { count, rows } = repository.findAllByVote(vote, { limit: 10 });
+            const { count, rows } = findAllByVote(vote, { limit: 10 });
             expect(count).toBe(17);
             expect(rows).toHaveLength(10);
         });
 
         it("should be ok with params (offset = 0)", () => {
-            const { count, rows } = repository.findAllByVote(vote, {
+            const { count, rows } = findAllByVote(vote, {
                 offset: 0,
                 limit: 1,
             });
@@ -292,7 +295,7 @@ describe("Wallet Repository", () => {
         });
 
         it("should be ok with params (no limit)", () => {
-            const { count, rows } = repository.findAllByVote(vote, { offset: 30 });
+            const { count, rows } = findAllByVote(vote, { offset: 30 });
             expect(count).toBe(17);
             expect(rows).toHaveLength(0);
         });
@@ -304,7 +307,7 @@ describe("Wallet Repository", () => {
             walletManager.index(wallets);
 
             const id: string = key === "username" ? wallets[0].getAttribute("delegate.username") : wallets[0][key];
-            const wallet: State.IWallet = repository.findById(id);
+            const wallet: State.IWallet = repository.findById(Database.SearchScope.Wallets, id);
             expect(wallet).toBeObject();
             expect(wallet.address).toBe(wallets[0].address);
             expect(wallet.publicKey).toBe(wallets[0].publicKey);
@@ -329,11 +332,15 @@ describe("Wallet Repository", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            expect(repository.count()).toBe(52);
+            expect(repository.count(Database.SearchScope.Wallets)).toBe(52);
         });
     });
 
     describe("top", () => {
+        const top = (params: Database.IParameters = {}): Database.IRowsPaginated<State.IWallet> => {
+            return repository.top(Database.SearchScope.Wallets, params);
+        };
+
         beforeEach(() => {
             for (const o of [
                 { address: "dummy-1", balance: Utils.BigNumber.make(1000) },
@@ -347,7 +354,7 @@ describe("Wallet Repository", () => {
         });
 
         it("should be ok without params", () => {
-            const { count, rows } = repository.top();
+            const { count, rows } = top();
 
             expect(count).toBe(3);
             expect(rows.length).toBe(3);
@@ -357,7 +364,7 @@ describe("Wallet Repository", () => {
         });
 
         it("should be ok with params", () => {
-            const { count, rows } = repository.top({ offset: 1, limit: 2 });
+            const { count, rows } = top({ offset: 1, limit: 2 });
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
@@ -366,7 +373,7 @@ describe("Wallet Repository", () => {
         });
 
         it("should be ok with params (offset = 0)", () => {
-            const { count, rows } = repository.top({ offset: 0, limit: 2 });
+            const { count, rows } = top({ offset: 0, limit: 2 });
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
@@ -375,7 +382,7 @@ describe("Wallet Repository", () => {
         });
 
         it("should be ok with params (no offset)", () => {
-            const { count, rows } = repository.top({ limit: 2 });
+            const { count, rows } = top({ limit: 2 });
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
@@ -384,22 +391,12 @@ describe("Wallet Repository", () => {
         });
 
         it("should be ok with params (no limit)", () => {
-            const { count, rows } = repository.top({ offset: 1 });
+            const { count, rows } = top({ offset: 1 });
 
             expect(count).toBe(3);
             expect(rows.length).toBe(2);
             expect(rows[0].balance).toEqual(Utils.BigNumber.make(2000));
             expect(rows[1].balance).toEqual(Utils.BigNumber.make(1000));
-        });
-
-        it("should be ok with legacy", () => {
-            const { count, rows } = repository.top({}, true);
-
-            expect(count).toBe(3);
-            expect(rows.length).toBe(3);
-            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
-            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
-            expect(rows[2].balance).toEqual(Utils.BigNumber.make(1000));
         });
     });
 });

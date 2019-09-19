@@ -17,7 +17,7 @@ const index = async request => {
 };
 
 const top = async request => {
-    const wallets = databaseService.wallets.top(paginate(request));
+    const wallets = databaseService.wallets.top(Database.SearchScope.Wallets, paginate(request));
 
     return toPagination(wallets, "wallet");
 };
