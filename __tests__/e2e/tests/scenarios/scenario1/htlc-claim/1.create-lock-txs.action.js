@@ -77,7 +77,7 @@ module.exports = async options => {
                 secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient4.address.slice(0, 32)).toString("hex"),
                 expiration: {
                     type: 2,
-                    value: lastHeight + 1,
+                    value: lastHeight + 4,
                 },
             },
             utils.htlcRecipient4.address,

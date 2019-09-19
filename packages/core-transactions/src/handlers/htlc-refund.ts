@@ -53,7 +53,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         sender: State.IWallet,
         databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        await super.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
+        await this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
 
         // Specific HTLC refund checks
         const refundAsset: Interfaces.IHtlcRefundAsset = transaction.data.asset.refund;
