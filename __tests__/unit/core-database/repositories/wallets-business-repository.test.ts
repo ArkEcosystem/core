@@ -64,6 +64,28 @@ const generateFullWallets = (): State.IWallet[] => {
     });
 };
 
+const generateHtlcLocks = (): State.IWallet[] => {
+    return genesisBlock.transactions.map((transaction, i) =>
+        Object.assign(new Wallets.Wallet(Address.fromPublicKey(transaction.data.senderPublicKey)), {
+            attributes: {
+                htlc: {
+                    locks: {
+                        [transaction.id]: {
+                            amount: Utils.BigNumber.make(10),
+                            recipientId: transaction.data.recipientId,
+                            secretHash: transaction.id,
+                            expiration: {
+                                type: 1,
+                                value: 100 * (i + 1),
+                            },
+                        },
+                    },
+                },
+            },
+        }),
+    );
+};
+
 describe("Wallet Repository", () => {
     const searchRepository = (params: Database.IParameters = {}): Database.IRowsPaginated<State.IWallet> => {
         return repository.search(Database.SearchScope.Wallets, params);
@@ -238,6 +260,14 @@ describe("Wallet Repository", () => {
                 29,
                 29,
             );
+        });
+
+        it("should return all locks", () => {
+            const wallets = generateHtlcLocks();
+            walletManager.index(wallets);
+
+            const locks = repository.search(Database.SearchScope.Locks, {});
+            expect(locks.rows).toHaveLength(genesisBlock.transactions.length);
         });
     });
 
