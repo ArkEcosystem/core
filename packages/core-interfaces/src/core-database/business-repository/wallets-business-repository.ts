@@ -1,19 +1,26 @@
-import { IWallet } from "../../core-state/wallets";
+import { IWallet } from "../../core-state";
 import { IParameters } from "./parameters";
 
-export interface IWalletsPaginated {
-    rows: ReadonlyArray<IWallet>;
+export interface IRowsPaginated<T> {
+    rows: ReadonlyArray<T>;
     count: number;
 }
 
-export interface IWalletsBusinessRepository {
-    search(params: IParameters): IWalletsPaginated;
+export enum SearchScope {
+    Wallets,
+    Locks,
+    Businesses,
+    Bridgechains,
+}
 
-    findAllByVote(publicKey: string, params?: IParameters): IWalletsPaginated;
+export interface IWalletsBusinessRepository {
+    search<T extends object>(scope: SearchScope, params: IParameters): IRowsPaginated<T>;
+
+    findAllByVote(publicKey: string, params?: IParameters): IRowsPaginated<IWallet>;
 
     findById(id: string): IWallet;
 
     count(): number;
 
-    top(params?: IParameters): IWalletsPaginated;
+    top(params?: IParameters): IRowsPaginated<IWallet>;
 }

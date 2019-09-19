@@ -1,12 +1,62 @@
 import { Database, State } from "@arkecosystem/core-interfaces";
-import filterRows from "./utils/filter-rows";
-import limitRows from "./utils/limit-rows";
-import { sortEntries } from "./utils/sort-entries";
+import { Interfaces } from "@arkecosystem/crypto";
+import { searchEntries } from "./utils/search-entries";
+
+interface ISearchContext<T = any> {
+    query: Record<string, string[]>;
+    entries: T[];
+    defaultOrder: string[];
+}
 
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
     public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
-    public search(params: Database.IParameters = {}): Database.IWalletsPaginated {
+    public search<T>(searchScope: Database.SearchScope, params: Database.IParameters = {}): Database.IRowsPaginated<T> {
+        let searchContext: ISearchContext;
+
+        switch (searchScope) {
+            case Database.SearchScope.Wallets: {
+                searchContext = this.searchWallets(params);
+                break;
+            }
+            case Database.SearchScope.Locks: {
+                searchContext = this.searchLocks(params);
+                break;
+            }
+            case Database.SearchScope.Wallets: {
+                this.searchWallets(params);
+                break;
+            }
+            case Database.SearchScope.Wallets: {
+                this.searchWallets(params);
+                break;
+            }
+        }
+
+        return searchEntries(params, searchContext.query, searchContext.entries, searchContext.defaultOrder);
+    }
+
+    public findAllByVote(publicKey: string, params: Database.IParameters = {}): Database.IRowsPaginated<State.IWallet> {
+        return this.search(Database.SearchScope.Wallets, { ...params, ...{ vote: publicKey } });
+    }
+
+    public findById(id: string): State.IWallet {
+        const walletManager: State.IWalletManager = this.databaseServiceProvider().walletManager;
+        return walletManager.findByIndex(
+            [State.WalletIndexes.Usernames, State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys],
+            id,
+        );
+    }
+
+    public count(): number {
+        return this.search(Database.SearchScope.Wallets, {}).count;
+    }
+
+    public top(params: Database.IParameters = {}): Database.IRowsPaginated<State.IWallet> {
+        return this.search(Database.SearchScope.Wallets, { ...params, ...{ orderBy: "balance:desc" } });
+    }
+
+    private searchWallets(params: Database.IParameters): ISearchContext<State.IWallet> {
         const query: Record<string, string[]> = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
             between: ["balance", "voteBalance"],
@@ -24,54 +74,28 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             delete params.addresses;
         }
 
-        this.applyOrder(params);
-
-        const wallets: State.IWallet[] = sortEntries(
-            params,
-            filterRows(this.databaseServiceProvider().walletManager.allByAddress(), params, query),
-            ["balance", "desc"],
-        );
-
         return {
-            rows: limitRows(wallets, params),
-            count: wallets.length,
+            query,
+            entries: this.databaseServiceProvider().walletManager.allByAddress() as any,
+            defaultOrder: ["balance", "desc"],
         };
     }
 
-    public findAllByVote(publicKey: string, params: Database.IParameters = {}): Database.IWalletsPaginated {
-        return this.search({ ...params, ...{ vote: publicKey } });
-    }
+    private searchLocks(params: Database.IParameters = {}): ISearchContext<Interfaces.IHtlcLock> {
+        const query: Record<string, string[]> = {
+            exact: ["publicKey", "lockId", "recipientId"],
+            between: ["expiration", "lockBalance"],
+        };
 
-    public findById(id: string): State.IWallet {
-        const walletManager: State.IWalletManager = this.databaseServiceProvider().walletManager;
-        return walletManager.findByIndex(
-            [State.WalletIndexes.Usernames, State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys],
-            id,
-        );
-    }
+        const entries: Interfaces.IHtlcLock[] = this.databaseServiceProvider()
+            .walletManager.getIndex(State.WalletIndexes.Locks)
+            .all()
+            .map(wallet => wallet.getAttribute("htlc.locks"));
 
-    public count(): number {
-        return this.search().count;
-    }
-
-    public top(params: Database.IParameters = {}): Database.IWalletsPaginated {
-        return this.search({ ...params, ...{ orderBy: "balance:desc" } });
-    }
-
-    // TODO: check if order still works
-    private applyOrder(params: Database.IParameters): void {
-        const assignOrder = (params, value) => (params.orderBy = value);
-
-        if (!params.orderBy) {
-            return assignOrder(params, ["balance", "desc"]);
-        }
-
-        const orderByMapped: string[] = params.orderBy.split(":").map(p => p.toLowerCase());
-
-        if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
-            return assignOrder(params, ["balance", "desc"]);
-        }
-
-        return assignOrder(params, orderByMapped);
+        return {
+            query,
+            entries,
+            defaultOrder: ["expiration", "asc"],
+        };
     }
 }

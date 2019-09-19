@@ -8,7 +8,7 @@ const databaseService = app.resolvePlugin<Database.IDatabaseService>("database")
 const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {
-    const wallets = databaseService.wallets.search({
+    const wallets = databaseService.wallets.search(Database.SearchScope.Wallets, {
         ...request.query,
         ...paginate(request),
     });
@@ -114,7 +114,7 @@ const votes = async request => {
 };
 
 const search = async request => {
-    const wallets = databaseService.wallets.search({
+    const wallets = databaseService.wallets.search(Database.SearchScope.Wallets, {
         ...request.payload,
         ...request.query,
         ...paginate(request),
