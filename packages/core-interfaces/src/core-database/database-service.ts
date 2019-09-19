@@ -4,7 +4,6 @@ import { EventEmitter, Logger } from "../index";
 import { IRoundInfo } from "../shared";
 import {
     IBlocksBusinessRepository,
-    IDelegatesBusinessRepository,
     ITransactionsBusinessRepository,
     IWalletsBusinessRepository,
 } from "./business-repository";
@@ -18,8 +17,6 @@ export interface IDatabaseService {
     walletManager: IWalletManager;
 
     wallets: IWalletsBusinessRepository;
-
-    delegates: IDelegatesBusinessRepository;
 
     blocksBusinessRepository: IBlocksBusinessRepository;
 

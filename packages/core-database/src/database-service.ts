@@ -16,7 +16,6 @@ export class DatabaseService implements Database.IDatabaseService {
     public config = app.getConfig();
     public options: any;
     public wallets: Database.IWalletsBusinessRepository;
-    public delegates: Database.IDelegatesBusinessRepository;
     public blocksBusinessRepository: Database.IBlocksBusinessRepository;
     public transactionsBusinessRepository: Database.ITransactionsBusinessRepository;
     public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
@@ -29,7 +28,6 @@ export class DatabaseService implements Database.IDatabaseService {
         connection: Database.IConnection,
         walletManager: State.IWalletManager,
         walletsBusinessRepository: Database.IWalletsBusinessRepository,
-        delegatesBusinessRepository: Database.IDelegatesBusinessRepository,
         transactionsBusinessRepository: Database.ITransactionsBusinessRepository,
         blocksBusinessRepository: Database.IBlocksBusinessRepository,
     ) {
@@ -37,7 +35,6 @@ export class DatabaseService implements Database.IDatabaseService {
         this.walletManager = walletManager;
         this.options = options;
         this.wallets = walletsBusinessRepository;
-        this.delegates = delegatesBusinessRepository;
         this.blocksBusinessRepository = blocksBusinessRepository;
         this.transactionsBusinessRepository = transactionsBusinessRepository;
     }

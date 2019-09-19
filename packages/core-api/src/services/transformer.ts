@@ -1,5 +1,6 @@
 import { transformBlock } from "../handlers/blocks/transformer";
 import { transformDelegate } from "../handlers/delegates/transformer";
+import { transformLock } from "../handlers/locks/transformer";
 import { transformPeer } from "../handlers/peers/transformer";
 import { transformRoundDelegate } from "../handlers/rounds/transformer";
 import { transformFeeStatistics } from "../handlers/shared/transformers/fee-statistics";
@@ -17,6 +18,7 @@ class Transformer {
         "round-delegate": transformRoundDelegate,
         transaction: transformTransaction,
         wallet: transformWallet,
+        lock: transformLock,
     };
 
     public toResource(data, transformer, transform: boolean = true): object {

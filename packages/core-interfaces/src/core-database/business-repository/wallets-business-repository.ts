@@ -8,19 +8,15 @@ export interface IRowsPaginated<T> {
 
 export enum SearchScope {
     Wallets,
+    Delegates,
     Locks,
     Businesses,
     Bridgechains,
 }
 
 export interface IWalletsBusinessRepository {
-    search<T extends object>(scope: SearchScope, params: IParameters): IRowsPaginated<T>;
-
-    findAllByVote(publicKey: string, params?: IParameters): IRowsPaginated<IWallet>;
-
-    findById(id: string): IWallet;
-
-    count(): number;
-
-    top(params?: IParameters): IRowsPaginated<IWallet>;
+    search<T>(scope: SearchScope, params: IParameters): IRowsPaginated<T>;
+    findById(searchScope: SearchScope, id: string): IWallet;
+    count(searchScope: SearchScope): number;
+    top(searchScope: SearchScope, params?: IParameters): IRowsPaginated<IWallet>;
 }

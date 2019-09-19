@@ -23,7 +23,7 @@ const top = async request => {
 };
 
 const show = async request => {
-    const wallet = databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -33,7 +33,7 @@ const show = async request => {
 };
 
 const transactions = async request => {
-    const wallet = databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -58,7 +58,7 @@ const transactions = async request => {
 };
 
 const transactionsSent = async request => {
-    const wallet = databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -77,7 +77,7 @@ const transactionsSent = async request => {
 };
 
 const transactionsReceived = async request => {
-    const wallet = databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -96,7 +96,7 @@ const transactionsReceived = async request => {
 };
 
 const votes = async request => {
-    const wallet = databaseService.wallets.findById(request.params.id);
+    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");

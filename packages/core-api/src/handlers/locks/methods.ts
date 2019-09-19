@@ -7,32 +7,32 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
 const index = async request => {
-    const delegates = databaseService.wallets.search(Database.SearchScope.Locks, {
+    const locks = databaseService.wallets.search(Database.SearchScope.Locks, {
         ...request.query,
         ...paginate(request),
     });
 
-    return toPagination(delegates, "lock");
+    return toPagination(locks, "lock");
 };
 
 const show = async request => {
-    const delegate = databaseService.delegates.findById(request.params.id);
+    const lock = databaseService.wallets.findById(Database.SearchScope.Locks, request.params.id);
 
-    if (!delegate) {
-        return Boom.notFound("Delegate not found");
+    if (!lock) {
+        return Boom.notFound("Lock not found");
     }
 
-    return respondWithResource(delegate, "lock");
+    return respondWithResource(lock, "lock");
 };
 
 const search = async request => {
-    const delegates = databaseService.delegates.search({
+    const locks = databaseService.wallets.search(Database.SearchScope.Locks, {
         ...request.payload,
         ...request.query,
         ...paginate(request),
     });
 
-    return toPagination(delegates, "lock");
+    return toPagination(locks, "lock");
 };
 
 export const registerMethods = server => {
