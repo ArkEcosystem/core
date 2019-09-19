@@ -1,7 +1,7 @@
 // tslint:disable:member-ordering
 import {
     DuplicateParticipantInMultiSignatureError,
-    MalformedTransactionBytesError,
+    InvalidTransactionBytesError,
     TransactionSchemaError,
     TransactionVersionError,
 } from "../errors";
@@ -44,7 +44,7 @@ export class TransactionFactory {
 
             return transaction;
         } catch (error) {
-            throw new MalformedTransactionBytesError();
+            throw new InvalidTransactionBytesError(error.message);
         }
     }
 
@@ -98,7 +98,7 @@ export class TransactionFactory {
                 throw error;
             }
 
-            throw new MalformedTransactionBytesError();
+            throw new InvalidTransactionBytesError(error.message);
         }
     }
 }
