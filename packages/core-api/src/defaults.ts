@@ -46,6 +46,8 @@ export const defaults = {
             "/api/delegates/{id}/blocks",
             "/api/delegates/{id}/voters",
             "/api/delegates/search",
+            "/api/locks",
+            "/api/locks/search",
             "/api/peers",
             "/api/transactions",
             "/api/transactions/search",

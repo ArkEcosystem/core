@@ -16,7 +16,9 @@ const index = async request => {
 };
 
 const show = async request => {
-    const lock = databaseService.wallets.findById(Database.SearchScope.Locks, request.params.id);
+    const lock = databaseService.wallets.search(Database.SearchScope.Locks, {
+        lockId: request.params.id,
+    }).rows[0];
 
     if (!lock) {
         return Boom.notFound("Lock not found");
