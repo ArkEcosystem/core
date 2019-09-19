@@ -158,12 +158,8 @@ export class Worker extends SCWorker {
                 });
 
                 if (!data.authorized) {
-                    return next(
-                        this.createError(
-                            SocketErrors.ForgerNotAuthorized,
-                            "Not authorized: internal endpoint is only available for whitelisted forger",
-                        ),
-                    );
+                    req.socket.terminate();
+                    return;
                 }
             } else if (version === "peer") {
                 this.sendToMasterAsync("p2p.internal.acceptNewPeer", {
