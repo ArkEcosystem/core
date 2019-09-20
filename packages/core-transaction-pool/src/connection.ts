@@ -360,41 +360,36 @@ export class Connection implements TransactionPool.IConnection {
         let transactionBytes: number = 0;
 
         let i = 0;
+        // Copy the returned array because validateTransactions() in the loop body we may remove entries.
         const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
         for (const transaction of allTransactions) {
             if (data.length === size) {
-                data = await this.validateTransactions(data);
-                if (data.length === size) {
+                return data;
+            }
+
+            const valid: Interfaces.ITransaction[] = await this.validateTransactions([transaction]);
+            if (valid.length === 0) {
+                continue;
+            }
+
+            if (i++ < start) {
+                continue;
+            }
+
+            if (maxBytes > 0) {
+                const transactionSize: number = JSON.stringify(transaction.data).length;
+
+                if (transactionBytes + transactionSize > maxBytes) {
                     return data;
-                } else {
-                    transactionBytes = 0; // TODO: get rid of `maxBytes`
                 }
+
+                transactionBytes += transactionSize;
             }
 
-            if (i >= start) {
-                let pushTransaction: boolean = false;
-
-                if (maxBytes > 0) {
-                    const transactionSize: number = JSON.stringify(transaction.data).length;
-
-                    if (transactionBytes + transactionSize <= maxBytes) {
-                        transactionBytes += transactionSize;
-                        pushTransaction = true;
-                    }
-                } else {
-                    pushTransaction = true;
-                }
-
-                if (pushTransaction) {
-                    data.push(transaction);
-                    i++;
-                }
-            } else {
-                i++;
-            }
+            data.push(transaction);
         }
 
-        return this.validateTransactions(data);
+        return data;
     }
 
     private async addTransaction(
