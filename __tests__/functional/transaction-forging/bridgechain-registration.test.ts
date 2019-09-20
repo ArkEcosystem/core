@@ -1,4 +1,5 @@
 import { Identities } from "@arkecosystem/crypto";
+import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
@@ -85,5 +86,31 @@ describe("Transaction Forging - Bridgechain registration", () => {
         expect(bridgechainRegistration).toBeRejected();
         await support.snoozeForBlock(1);
         await expect(bridgechainRegistration.id).not.toBeForged();
+    });
+
+    describe("Signed with 2 Passphases", () => {
+        it("should ", async () => {
+            // Prepare a fresh wallet for the tests
+            const passphrase = generateMnemonic();
+            const secondPassphrase = generateMnemonic();
+
+            // Initial Funds
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(initialFunds).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(initialFunds.id).toBeForged();
+
+            // Register a second passphrase
+            const secondSignature = TransactionFactory.secondSignature(secondPassphrase)
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(secondSignature).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(secondSignature.id).toBeForged();
+        });
     });
 });
