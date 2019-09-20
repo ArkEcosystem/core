@@ -73,7 +73,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         if (data.version > 1 && data.nonce.isLessThanOrEqualTo(sender.nonce)) {
-            throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
+            throw new UnexpectedNonceError(data.nonce, sender, false);
         }
 
         if (
@@ -178,7 +178,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (data.version > 1) {
             if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
-                throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
+                throw new UnexpectedNonceError(data.nonce, sender, false);
             }
 
             sender.nonce = data.nonce;
@@ -206,7 +206,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (data.version > 1) {
             if (!sender.nonce.isEqualTo(data.nonce)) {
-                throw new UnexpectedNonceError(data.nonce, sender.nonce, true);
+                throw new UnexpectedNonceError(data.nonce, sender, true);
             }
 
             sender.nonce = sender.nonce.minus(1);
