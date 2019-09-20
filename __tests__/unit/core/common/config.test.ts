@@ -1,47 +1,71 @@
 import { dirSync, setGracefulCleanup } from "tmp";
 
-import { ConfigManager } from "@packages/core/src/common/config";
+import { getConfigValue } from "@packages/core/src/common/config";
+import { writeJSONSync } from "fs-extra";
+import { resolve } from "path";
 
-let configManager: ConfigManager;
-
-beforeEach(() => (configManager = new ConfigManager()));
+beforeEach(() => (process.env.CORE_PATH_CONFIG = dirSync().name));
 
 afterAll(() => setGracefulCleanup());
 
-describe("config", () => {
-    it("should setup a new config with default values (latest channel)", () => {
-        configManager.setup({ configDir: dirSync().name, version: "3.0.0", bin: "ark" });
+describe("getConfigValue", () => {
+    it("should retrieve a value by path from a JavaScript file", () => {
+        const cli = {
+            forger: {
+                run: {
+                    plugins: {
+                        include: ["@arkecosystem/core-forger"],
+                    },
+                },
+            },
+            relay: {
+                run: {
+                    plugins: {
+                        exclude: ["@arkecosystem/core-forger"],
+                    },
+                },
+            },
+        };
 
-        expect(configManager.get("token")).toBe("ark");
-        expect(configManager.get("channel")).toBe("latest");
+        process.env.CORE_PATH_CONFIG = resolve(__dirname, "__fixtures__");
+
+        expect(getConfigValue({ token: "ark", network: "jestnet" }, "app", "cli")).toEqual(cli);
+        expect(getConfigValue({ token: "ark", network: "jestnet" }, "app", "cli.forger.run.plugins.include")).toEqual(
+            cli.forger.run.plugins.include,
+        );
     });
 
-    it("should setup a new config with default values (next channel)", () => {
-        configManager.setup({ configDir: dirSync().name, version: "3.0.0-next.0", bin: "ark" });
+    it("should retrieve a value by path from a JSON file", () => {
+        const cli = {
+            forger: {
+                run: {
+                    plugins: {
+                        include: ["@arkecosystem/core-forger"],
+                    },
+                },
+            },
+            relay: {
+                run: {
+                    plugins: {
+                        exclude: ["@arkecosystem/core-forger"],
+                    },
+                },
+            },
+        };
 
-        expect(configManager.get("token")).toBe("ark");
-        expect(configManager.get("channel")).toBe("next");
+        writeJSONSync(`${process.env.CORE_PATH_CONFIG}/app.json`, {
+            cli,
+        });
+
+        expect(getConfigValue({ token: "ark", network: "jestnet" }, "app", "cli")).toEqual(cli);
+        expect(getConfigValue({ token: "ark", network: "jestnet" }, "app", "cli.forger.run.plugins.include")).toEqual(
+            cli.forger.run.plugins.include,
+        );
     });
 
-    it("should set and get a value", () => {
-        configManager.setup({ configDir: dirSync().name, version: "3.0.0", bin: "ark" });
-
-        expect(configManager.get("token")).toBe("ark");
-
-        configManager.set("token", "btc");
-
-        expect(configManager.get("token")).toBe("btc");
-    });
-
-    it("should merge the given data", () => {
-        configManager.setup({ configDir: dirSync().name, version: "3.0.0", bin: "ark" });
-
-        expect(configManager.get("token")).toBe("ark");
-        expect(configManager.get("channel")).toBe("latest");
-
-        configManager.update({ token: "btc", channel: "next" });
-
-        expect(configManager.get("token")).toBe("btc");
-        expect(configManager.get("channel")).toBe("next");
-    });
+    // it("should throw if the file doesn't exist", () => {
+    //     expect(() => getConfigValue({ token: "ark", network: "jestnet" }, "app", "cli")).toThrowError(
+    //         `The app file does not exist.`,
+    //     );
+    // });
 });

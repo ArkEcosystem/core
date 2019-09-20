@@ -2,7 +2,7 @@ import Command, { flags } from "@oclif/command";
 import cli from "cli-ux";
 
 import { abort } from "../../common/cli";
-import { configManager } from "../../common/config";
+import { configManager } from "../../common/config-manager";
 import { restartRunningProcessWithPrompt } from "../../common/process";
 import { installFromChannel } from "../../common/update";
 import { CommandFlags } from "../../types";

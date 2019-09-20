@@ -1,6 +1,6 @@
 import { Hook } from "@oclif/config";
 
-import { configManager } from "../../common/config";
+import { configManager } from "../../common/config-manager";
 
 export const init: Hook<"init"> = async function({ config }) {
     configManager.setup(config);

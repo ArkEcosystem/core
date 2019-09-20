@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-kernel";
 import Command, { flags } from "@oclif/command";
 
 import { buildPeerOptions } from "../../common/builder";
+import { getConfigValue } from "../../common/config";
 import { flagsBehaviour, flagsNetwork } from "../../common/flags";
 import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
@@ -46,13 +47,17 @@ $ ark relay:run --launchMode=seed
         const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
         await app.bootstrap({
-            flags,
-            plugins: {
-                exclude: ["@arkecosystem/core-forger"],
-                options: {
-                    "@arkecosystem/core-p2p": buildPeerOptions(flags),
-                    "@arkecosystem/core-blockchain": {
-                        networkStart: flags.networkStart,
+            ...getConfigValue(flags, "app", "cli.relay.run"),
+            ...{
+                flags,
+                plugins: {
+                    exclude: ["@arkecosystem/core-forger"],
+                    // todo: this can actually be removed and done inside the service provider of the packages
+                    options: {
+                        "@arkecosystem/core-p2p": buildPeerOptions(flags),
+                        "@arkecosystem/core-blockchain": {
+                            networkStart: flags.networkStart,
+                        },
                     },
                 },
             },

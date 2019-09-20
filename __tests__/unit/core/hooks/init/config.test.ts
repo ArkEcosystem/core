@@ -1,6 +1,6 @@
 import { dirSync, setGracefulCleanup } from "tmp";
 
-import { configManager } from "@packages/core/src/common/config";
+import { configManager } from "@packages/core/src/common/config-manager";
 import { init } from "@packages/core/src/hooks/init/config";
 
 afterAll(() => setGracefulCleanup());

@@ -1,7 +1,7 @@
 import { dirSync, setGracefulCleanup } from "tmp";
 
 import { CommandLineInterfaceCommand } from "@packages/core/src/commands/config/cli";
-import { configManager } from "@packages/core/src/common/config";
+import { configManager } from "@packages/core/src/common/config-manager";
 import execa from "../../../../../__mocks__/execa";
 
 describe("CommandLineInterfaceCommand", () => {

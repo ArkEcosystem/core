@@ -531,7 +531,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             if (!localWalletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
                 localWalletRepository.reindex(
-                    AppUtils.cloneDeep(databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId)),
+                    AppUtils.cloneDeep(
+                        databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId),
+                    ),
                 );
             }
         }

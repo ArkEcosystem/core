@@ -2,7 +2,7 @@ import prompts from "prompts";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 import { BIP39Command } from "@packages/core/src/commands/config/forger/bip39";
-import { configManager } from "@packages/core/src/common/config";
+import { configManager } from "@packages/core/src/common/config-manager";
 import { writeJSONSync } from "fs-extra";
 
 const bip39: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";

@@ -2,7 +2,7 @@ import { existsSync, readdirSync } from "fs-extra";
 import prompts from "prompts";
 
 import { abort } from "./cli";
-import { configManager } from "./config";
+import { configManager } from "./config-manager";
 import { getEnvPaths, getPaths } from "./env";
 import { isValidNetwork } from "./networks";
 

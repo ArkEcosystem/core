@@ -4,13 +4,13 @@ import assert from "assert";
 
 @Container.injectable()
 export class BlockStore {
-    private readonly byId: Utils.OrderedCappedMap<string, Interfaces.IBlockData>;
-    private readonly byHeight: Utils.OrderedCappedMap<number, Interfaces.IBlockData>;
+    private readonly byId: Utils.CappedMap<string, Interfaces.IBlockData>;
+    private readonly byHeight: Utils.CappedMap<number, Interfaces.IBlockData>;
     private lastBlock: Interfaces.IBlock;
 
     public constructor(maxSize: number) {
-        this.byId = new Utils.OrderedCappedMap<string, Interfaces.IBlockData>(maxSize);
-        this.byHeight = new Utils.OrderedCappedMap<number, Interfaces.IBlockData>(maxSize);
+        this.byId = new Utils.CappedMap<string, Interfaces.IBlockData>(maxSize);
+        this.byHeight = new Utils.CappedMap<number, Interfaces.IBlockData>(maxSize);
     }
 
     public get(key: string | number): Interfaces.IBlockData {

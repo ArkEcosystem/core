@@ -1,54 +1,26 @@
-import { ensureFileSync, readJsonSync, removeSync, writeJsonSync } from "fs-extra";
+import { Utils } from "@arkecosystem/core-kernel";
+import { existsSync } from "fs-extra";
+import { join } from "path";
 
-import { getRegistryChannel } from "./update";
+import { CommandFlags } from "../types";
+// import { abort } from "./cli";
+import { getPaths } from "./env";
 
-export class ConfigManager {
-    private config;
-    private file: string;
+export const getConfigValue = <T>(flags: CommandFlags, file: string, path: string): T | void => {
+    const { config } = getPaths(flags.token, flags.network);
 
-    public setup(config: Record<string, any>) {
-        this.config = config;
-        this.file = `${config.configDir}/config.json`;
+    const js: string = join(config, `${file}.js`);
 
-        this.ensureDefaults();
+    if (existsSync(js)) {
+        return Utils.get(require(js), path);
     }
 
-    public get(key: string): string {
-        return this.read()[key];
+    const json: string = join(config, `${file}.json`);
+
+    if (existsSync(json)) {
+        return Utils.get(require(json), path);
     }
 
-    public set(key: string, value: string): void {
-        this.update({ [key]: value });
-    }
-
-    public update(data: Record<string, string>): void {
-        this.write({ ...this.read(), ...data });
-    }
-
-    private ensureDefaults(): void {
-        if (!this.read()) {
-            removeSync(this.file);
-
-            ensureFileSync(this.file);
-
-            this.write({
-                token: this.config.bin,
-                channel: getRegistryChannel(this.config.version),
-            });
-        }
-    }
-
-    private read(): any {
-        try {
-            return readJsonSync(this.file);
-        } catch (error) {
-            return false;
-        }
-    }
-
-    private write(data): void {
-        writeJsonSync(this.file, data);
-    }
-}
-
-export const configManager = new ConfigManager();
+    return {} as T;
+    // return abort(`The ${file} file does not exist.`);
+};

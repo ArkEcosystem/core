@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-kernel";
 import Command, { flags } from "@oclif/command";
 
+import { getConfigValue } from "../../common/config";
 import { buildBIP38 } from "../../common/crypto";
 import { flagsForger, flagsNetwork } from "../../common/flags";
 import { parseWithNetwork } from "../../common/parser";
@@ -30,11 +31,15 @@ $ ark forger:run --bip38="..." --password="..."
         const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
         await app.bootstrap({
-            flags,
-            plugins: {
-                include: ["@arkecosystem/core-forger"],
-                options: {
-                    "@arkecosystem/core-forger": await buildBIP38(flags),
+            ...getConfigValue(flags, "app", "cli.forger.run"),
+            ...{
+                flags,
+                plugins: {
+                    include: ["@arkecosystem/core-forger"],
+                    // todo: this can actually be removed and done inside the service provider of the packages
+                    options: {
+                        "@arkecosystem/core-forger": await buildBIP38(flags),
+                    },
                 },
             },
         });

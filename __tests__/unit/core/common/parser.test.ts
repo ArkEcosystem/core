@@ -1,7 +1,7 @@
 import { dirSync, setGracefulCleanup } from "tmp";
 
 import { parseWithNetwork } from "@packages/core/src/common/parser";
-import { configManager } from "@packages/core/src/common/config";
+import { configManager } from "@packages/core/src/common/config-manager";
 import { getPaths } from "@packages/core/src/common/env";
 import { ensureDirSync } from "fs-extra";
 import prompts from "prompts";
