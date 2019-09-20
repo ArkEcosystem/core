@@ -134,7 +134,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             case "resigned": {
                 entries = this.databaseServiceProvider()
                     .walletManager.getIndex(State.WalletIndexes.Resignations)
-                    .all();
+                    .values();
                 break;
             }
             case "never-forged": {
@@ -185,32 +185,31 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             params.amount = "" + params.amount;
         }
 
-        const entries: IUnwrappedHtlcLock[][] = this.databaseServiceProvider()
+        const entries: IUnwrappedHtlcLock[] = this.databaseServiceProvider()
             .walletManager.getIndex(State.WalletIndexes.Locks)
-            .all()
-            .map(wallet => {
+            .entries()
+            .map(([lockId, wallet]) => {
                 const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
-                if (locks && Object.keys(locks).length > 0) {
-                    return Object.entries(locks).map(([lockId, lock]) => {
-                        return {
-                            lockId,
-                            amount: lock.amount.toFixed(),
-                            secretHash: lock.secretHash,
-                            senderPublicKey: wallet.publicKey,
-                            recipientId: lock.recipientId,
-                            expirationType: lock.expiration.type,
-                            expirationValue: lock.expiration.value,
-                        };
-                    });
+                if (locks && locks[lockId]) {
+                    const lock: Interfaces.IHtlcLock = locks[lockId];
+                    return {
+                        lockId,
+                        amount: lock.amount.toFixed(),
+                        secretHash: lock.secretHash,
+                        senderPublicKey: wallet.publicKey,
+                        recipientId: lock.recipientId,
+                        expirationType: lock.expiration.type,
+                        expirationValue: lock.expiration.value,
+                    };
                 }
 
                 return undefined;
             })
-            .filter(lock => !!lock && lock.length > 0);
+            .filter(lock => !!lock);
 
         return {
             query,
-            entries: [].concat(...entries),
+            entries,
             defaultOrder: ["expirationValue", "asc"],
         };
     }
@@ -220,7 +219,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         const query: Record<string, string[]> = {};
         const entries: any[] = this.databaseServiceProvider()
             .walletManager.getIndex("businesses")
-            .all()
+            .values()
             .map(wallet => {
                 const business: Interfaces.IHtlcLocks = wallet.getAttribute("business");
                 return business;
@@ -240,7 +239,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
         const entries: any[][] = this.databaseServiceProvider()
             .walletManager.getIndex("bridgechains")
-            .all()
+            .values()
             .map(wallet => {
                 return wallet.getAttribute("business.bridgechains");
             })

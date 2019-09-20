@@ -7,7 +7,15 @@ export class WalletIndex implements State.IWalletIndex {
         this.walletIndex = {};
     }
 
-    public all(): ReadonlyArray<State.IWallet> {
+    public entries(): ReadonlyArray<[string, State.IWallet]> {
+        return Object.entries(this.walletIndex);
+    }
+
+    public keys(): string[] {
+        return Object.keys(this.walletIndex);
+    }
+
+    public values(): ReadonlyArray<State.IWallet> {
         return Object.values(this.walletIndex);
     }
 
