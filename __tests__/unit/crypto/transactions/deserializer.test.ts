@@ -4,7 +4,7 @@ import ByteBuffer from "bytebuffer";
 import { Enums, Errors, Utils } from "../../../../packages/crypto/src";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import {
-    MalformedTransactionBytesError,
+    InvalidTransactionBytesError,
     TransactionSchemaError,
     TransactionVersionError,
     UnkownTransactionError,
@@ -219,7 +219,7 @@ describe("Transaction serializer / deserializer", () => {
             transaction.serialized = transaction.serialized.slice(0, transaction.serialized.length - 2);
 
             expect(() => TransactionFactory.fromBytes(transaction.serialized)).toThrowError(
-                MalformedTransactionBytesError,
+                InvalidTransactionBytesError,
             );
         });
     });

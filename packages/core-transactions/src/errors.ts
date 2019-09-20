@@ -1,3 +1,4 @@
+import { State } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
 import { InternalTransactionType } from "@arkecosystem/crypto/dist/transactions";
 
@@ -40,11 +41,11 @@ export class DeactivatedTransactionHandlerError extends TransactionError {
 }
 
 export class UnexpectedNonceError extends TransactionError {
-    constructor(txNonce: Utils.BigNumber, walletNonce: Utils.BigNumber, reversal: boolean) {
+    constructor(txNonce: Utils.BigNumber, sender: State.IWallet, reversal: boolean) {
         const action: string = reversal ? "revert" : "apply";
         super(
             `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
-                `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`,
+            `sender ${sender.publicKey} has nonce ${sender.nonce.toFixed()}.`,
         );
     }
 }
