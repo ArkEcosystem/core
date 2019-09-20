@@ -60,6 +60,7 @@ export const defaults = {
             "/api/votes",
             "/api/wallets",
             "/api/wallets/top",
+            "/api/wallets/{id}/locks",
             "/api/wallets/{id}/transactions",
             "/api/wallets/{id}/transactions/received",
             "/api/wallets/{id}/transactions/sent",

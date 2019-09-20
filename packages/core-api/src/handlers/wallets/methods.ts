@@ -113,6 +113,27 @@ const votes = async request => {
     return toPagination(rows, "transaction", (request.query.transform as unknown) as boolean);
 };
 
+const locks = async request => {
+    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
+
+    if (!wallet) {
+        return Boom.notFound("Wallet not found");
+    }
+
+    // Sorry, cold wallets
+    if (!wallet.publicKey) {
+        return toPagination([], "lock");
+    }
+
+    const rows = databaseService.wallets.search(Database.SearchScope.Locks, {
+        ...request.params,
+        ...paginate(request),
+        senderPublicKey: wallet.publicKey,
+    });
+
+    return toPagination(rows, "lock");
+};
+
 const search = async request => {
     const wallets = databaseService.wallets.search(Database.SearchScope.Wallets, {
         ...request.payload,
@@ -151,6 +172,11 @@ export const registerMethods = server => {
             ...paginate(request),
         }))
         .method("v2.wallets.votes", votes, 30, request => ({
+            ...{ id: request.params.id },
+            ...request.params,
+            ...paginate(request),
+        }))
+        .method("v2.wallets.locks", locks, 30, request => ({
             ...{ id: request.params.id },
             ...request.params,
             ...paginate(request),
