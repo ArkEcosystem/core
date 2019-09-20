@@ -8,9 +8,25 @@ import transactionRaw from "./transaction-raw.json";
 import transactionTransformed from "./transaction-transformed.json";
 
 Managers.configManager.setFromPreset("testnet");
-
+Managers.configManager.getMilestone().aip11 = false;
 const genesisTransaction = Transactions.TransactionFactory.fromData(genesisBlock.transactions[0]);
 delete genesisBlock.transactions;
+
+const filterUndefined = values => {
+    if (Array.isArray(values)) {
+        for (const value of values) {
+            filterUndefined(value);
+        }
+    }
+
+    for (const key of Object.keys(values)) {
+        if (values[key] === undefined) {
+            delete values[key];
+        }
+    }
+
+    return values;
+};
 
 beforeAll(async () => setUp());
 afterAll(async () => tearDown());
@@ -26,7 +42,9 @@ describe("Transformer", () => {
         });
 
         it("should transform a transaction", () => {
-            expect(transformerService.toResource(genesisTransaction, "transaction")).toEqual(transactionTransformed);
+            expect(filterUndefined(transformerService.toResource(genesisTransaction, "transaction"))).toEqual(
+                transactionTransformed,
+            );
         });
 
         it("should not transform a transaction", () => {
@@ -44,7 +62,7 @@ describe("Transformer", () => {
         });
 
         it("should transform a transaction", () => {
-            expect(transformerService.toCollection([genesisTransaction], "transaction")).toEqual([
+            expect(filterUndefined(transformerService.toCollection([genesisTransaction], "transaction"))).toEqual([
                 transactionTransformed,
             ]);
         });

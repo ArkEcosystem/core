@@ -1,0 +1,11 @@
+---
+exclude_paths:
+  - 'benchmark/**/*'
+  - 'deprecated/**/*'
+  - 'docker/**/*'
+  - 'scripts/**/*'
+  - 'upgrade/**/*'
+  - 'vagrant/**/*'
+  - '**.sql'
+  - '**.sh'
+  - '**.md'

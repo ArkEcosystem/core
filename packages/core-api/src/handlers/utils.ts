@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import { transformerService } from "../services/transformer";
@@ -30,12 +31,30 @@ export const respondWithCollection = (data, transformer, transform: boolean = tr
 };
 
 export const respondWithCache = (data, h): any => {
+    if (!app.resolveOptions("api").cache.enabled) {
+        return data;
+    }
+
     const { value, cached } = data;
     const lastModified = cached ? new Date(cached.stored) : new Date();
 
-    return value.isBoom
-        ? h.response(value.output.payload).code(value.output.statusCode)
-        : h.response(value).header("Last-modified", lastModified.toUTCString());
+    if (value.isBoom) {
+        return h.response(value.output.payload).code(value.output.statusCode);
+    }
+
+    let arg;
+
+    if (value.results && value.totalCount !== undefined && value.totalCountIsEstimate !== undefined) {
+        arg = {
+            results: value.results,
+            totalCount: value.totalCount,
+            response: { meta: { totalCountIsEstimate: value.totalCountIsEstimate } },
+        };
+    } else {
+        arg = value;
+    }
+
+    return h.response(arg).header("Last-modified", lastModified.toUTCString());
 };
 
 export const toResource = (data, transformer, transform: boolean = true): object => {
@@ -50,5 +69,6 @@ export const toPagination = (data, transformer, transform: boolean = true): obje
     return {
         results: transformerService.toCollection(data.rows, transformer, transform),
         totalCount: data.count,
+        meta: { totalCountIsEstimate: data.countIsEstimate },
     };
 };

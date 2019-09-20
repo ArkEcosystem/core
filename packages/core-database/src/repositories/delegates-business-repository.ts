@@ -30,18 +30,39 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         this.applyOrder(params);
 
         // Execute...
-        let delegates: State.IWallet[] = this.databaseServiceProvider().walletManager.allByUsername();
+        let delegates: ReadonlyArray<State.IWallet>;
+        switch (params.type) {
+            case "resigned": {
+                delegates = this.databaseServiceProvider()
+                    .walletManager.getIndex(State.WalletIndexes.Resignations)
+                    .all();
+                break;
+            }
+            case "never-forged": {
+                delegates = this.databaseServiceProvider()
+                    .walletManager.allByUsername()
+                    .filter(delegate => {
+                        return delegate.getAttribute("delegate.producedBlocks") === 0;
+                    });
+                break;
+            }
+            default: {
+                delegates = this.databaseServiceProvider().walletManager.allByUsername();
+                break;
+            }
+        }
 
         const manipulators = {
             approval: delegateCalculator.calculateApproval,
             forgedTotal: delegateCalculator.calculateForgedTotal,
         };
 
+        // TODO: fix attributes lookup
         if (hasSomeProperty(params, Object.keys(manipulators))) {
             delegates = delegates.map(delegate => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
-                        delegate[prop] = method(delegate);
+                        delegate.setAttribute(`delegate.${prop}`, method(delegate));
                     }
                 }
 
@@ -49,7 +70,7 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
             });
         }
 
-        delegates = sortEntries(params, filterRows(delegates, params, query), ["rate", "asc"]);
+        delegates = sortEntries(params, filterRows(delegates, params, query), ["rank", "asc"]);
 
         return {
             rows: limitRows(delegates, params),
@@ -57,22 +78,31 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
         };
     }
 
-    // @TODO: simplify this
     public findById(id): State.IWallet {
-        return this.search().rows.find(a => a.address === id || a.publicKey === id || a.username === id);
+        const walletManager: State.IWalletManager = this.databaseServiceProvider().walletManager;
+        const wallet: State.IWallet = walletManager.findByIndex(
+            [State.WalletIndexes.Usernames, State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys],
+            id,
+        );
+
+        if (wallet && wallet.isDelegate()) {
+            return wallet;
+        }
+
+        return undefined;
     }
 
     private applyOrder(params): [CallbackFunctionVariadicVoidReturn | string, string] {
         const assignOrder = (params, value) => (params.orderBy = value);
 
         if (!params.orderBy) {
-            return assignOrder(params, ["rate", "asc"]);
+            return assignOrder(params, ["rank", "asc"]);
         }
 
         const orderByMapped: string[] = params.orderBy.split(":").map(p => p.toLowerCase());
 
         if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
-            return assignOrder(params, ["rate", "asc"]);
+            return assignOrder(params, ["rank", "asc"]);
         }
 
         return assignOrder(params, [this.manipulateIteratee(orderByMapped[0]), orderByMapped[1]]);
@@ -84,8 +114,6 @@ export class DelegatesBusinessRepository implements Database.IDelegatesBusinessR
                 return delegateCalculator.calculateApproval;
             case "forgedTotal":
                 return delegateCalculator.calculateForgedTotal;
-            case "rank":
-                return "rate";
             case "votes":
                 return "voteBalance";
             default:

@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import { Database, State } from "@arkecosystem/core-interfaces";
 import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
@@ -16,11 +17,24 @@ export class TransactionsRepository extends Repository implements Database.ITran
         }
 
         const selectQuery = this.query.select().from(this.query);
+        const selectQueryCount = this.query.select(this.query.count().as("cnt")).from(this.query);
         const params = parameters.parameters;
 
         if (params.length) {
+            // Special handling when called for `/wallets/transactions` endpoint
+            let walletAddress: string;
+            let walletPublicKey: string;
+
             // 'search' doesn't support custom-op 'ownerId' like 'findAll' can
-            const ops = params.filter(value => value.operator !== Database.SearchOperator.OP_CUSTOM);
+            const ops = params.filter(value => {
+                if (value.field === "walletAddress") {
+                    walletAddress = value.value;
+                } else if (value.field === "walletPublicKey") {
+                    walletPublicKey = value.value;
+                }
+
+                return value.operator !== Database.SearchOperator.OP_CUSTOM;
+            });
 
             const [participants, rest] = partition(ops, op =>
                 ["sender_public_key", "recipient_id"].includes(this.propToColumnName(op.field)),
@@ -28,7 +42,9 @@ export class TransactionsRepository extends Repository implements Database.ITran
 
             if (participants.length > 0) {
                 const [first, last] = participants;
-                selectQuery.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                for (const query of [selectQuery, selectQueryCount]) {
+                    query.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                }
 
                 if (last) {
                     const usesInOperator = participants.every(
@@ -36,26 +52,56 @@ export class TransactionsRepository extends Repository implements Database.ITran
                     );
 
                     if (usesInOperator) {
-                        selectQuery.or(this.query[this.propToColumnName(last.field)][last.operator](last.value));
+                        for (const query of [selectQuery, selectQueryCount]) {
+                            query.or(this.query[this.propToColumnName(last.field)][last.operator](last.value));
+                        }
                     } else {
                         // This search is 1 `senderPublicKey` and 1 `recipientId`
-                        selectQuery.and(this.query[this.propToColumnName(last.field)][last.operator](last.value));
+                        for (const query of [selectQuery, selectQueryCount]) {
+                            query.and(this.query[this.propToColumnName(last.field)][last.operator](last.value));
+                        }
+                    }
+                } else if (first.field === "recipientId" && first.operator === Database.SearchOperator.OP_EQ) {
+                    // Workaround to include transactions (e.g. type 2) where the recipient_id is missing in the database
+                    const walletManager: State.IWalletManager = app.resolvePlugin<Database.IDatabaseService>("database")
+                        .walletManager;
+                    const recipientWallet: State.IWallet = walletManager.findByAddress(first.value);
+
+                    for (const query of [selectQuery, selectQueryCount]) {
+                        query.or(
+                            this.query.sender_public_key
+                                .equals(recipientWallet.publicKey)
+                                .and(this.query.recipient_id.isNull()),
+                        );
                     }
                 }
             } else if (rest.length) {
                 const first = rest.shift();
 
-                selectQuery.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                for (const query of [selectQuery, selectQueryCount]) {
+                    query.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                }
+            }
+
+            if (walletAddress && walletPublicKey) {
+                const useWhere: boolean = !selectQuery.nodes.some(node => node.type === "WHERE");
+                for (const query of [selectQuery, selectQueryCount]) {
+                    query[useWhere ? "where" : "and"](
+                        this.query.sender_public_key
+                            .equals(walletPublicKey)
+                            .or(this.query.recipient_id.equals(walletAddress)),
+                    );
+                }
             }
 
             for (const condition of rest) {
-                selectQuery.and(
-                    this.query[this.propToColumnName(condition.field)][condition.operator](condition.value),
-                );
+                for (const query of [selectQuery, selectQueryCount]) {
+                    query.and(this.query[this.propToColumnName(condition.field)][condition.operator](condition.value));
+                }
             }
         }
 
-        return this.findManyWithCount(selectQuery, parameters.paginate, parameters.orderBy);
+        return this.findManyWithCount(selectQuery, selectQueryCount, parameters.paginate, parameters.orderBy);
     }
 
     public async findById(id: string): Promise<Interfaces.ITransactionData> {
@@ -96,8 +142,8 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.db.manyOrNone(queries.transactions.latestByBlocks, { ids });
     }
 
-    public async getAssetsByType(type: Enums.TransactionTypes | number): Promise<any> {
-        return this.db.manyOrNone(queries.stateBuilder.assetsByType, { type });
+    public async getAssetsByType(type: number, typeGroup: number = Enums.TransactionTypeGroup.Core): Promise<any> {
+        return this.db.manyOrNone(queries.stateBuilder.assetsByType, { typeGroup, type });
     }
 
     public async getReceivedTransactions(): Promise<any> {
@@ -137,22 +183,6 @@ export class TransactionsRepository extends Repository implements Database.ITran
         );
 
         return this.db.manyOrNone(queries.transactions.feeStatistics, { age, minFee });
-    }
-
-    public async findAllByWallet(
-        wallet: State.IWallet,
-        paginate?: Database.ISearchPaginate,
-        orderBy?: Database.ISearchOrderBy[],
-    ): Promise<Database.ITransactionsPaginated> {
-        return this.findManyWithCount(
-            this.query
-                .select()
-                .from(this.query)
-                .where(this.query.sender_public_key.equals(wallet.publicKey))
-                .or(this.query.recipient_id.equals(wallet.address)),
-            paginate,
-            orderBy,
-        );
     }
 
     public getModel(): Transaction {

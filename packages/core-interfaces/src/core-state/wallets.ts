@@ -2,24 +2,21 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { Logger, Shared } from "../index";
 import { IRoundInfo } from "../shared";
 
+export type WalletIndexer = (index: IWalletIndex, wallet: IWallet) => void;
+
+export enum WalletIndexes {
+    Addresses = "addresses",
+    PublicKeys = "publicKeys",
+    Usernames = "usernames",
+    Resignations = "resignations",
+    Locks = "locks",
+}
+
 export interface IWallet {
     address: string;
     publicKey: string | undefined;
-    secondPublicKey: string | undefined;
     balance: Utils.BigNumber;
-    vote: string;
-    voted: boolean;
-    username: string | undefined;
-    resigned: boolean;
-    lastBlock: any;
-    voteBalance: Utils.BigNumber;
-    multisignature?: Interfaces.IMultiSignatureAsset;
-    ipfsHashes: { [ipfsHash: string]: boolean };
-    dirty: boolean;
-    producedBlocks: number;
-    forgedFees: Utils.BigNumber;
-    forgedRewards: Utils.BigNumber;
-    rate?: number;
+    nonce: Utils.BigNumber;
 
     applyBlock(block: Interfaces.IBlockData): boolean;
     revertBlock(block: Interfaces.IBlockData): boolean;
@@ -27,54 +24,98 @@ export interface IWallet {
     auditApply(transaction: Interfaces.ITransactionData): any[];
     toString(): string;
 
+    hasAttribute(key: string): boolean;
+    getAttribute<T = any>(key: string, defaultValue?: T): T;
+    setAttribute<T = any>(key: string, value: T): void;
+    forgetAttribute(key: string): void;
+
+    isDelegate(): boolean;
+    hasVoted(): boolean;
+    hasSecondSignature(): boolean;
+    hasMultiSignature(): boolean;
+
+    canBePurged(): boolean;
+
     verifySignatures(
         transaction: Interfaces.ITransactionData,
         multisignature?: Interfaces.IMultiSignatureAsset,
     ): boolean;
 }
 
-export type IDelegateWallet = IWallet & { rate: number; round: number };
+export interface IWalletDelegateAttributes {
+    username: string;
+    voteBalance: Utils.BigNumber;
+    forgedFees: Utils.BigNumber;
+    forgedRewards: Utils.BigNumber;
+    producedBlocks: number;
+    rank?: number;
+    lastBlock?: Interfaces.IBlockData;
+    round?: number;
+    resigned?: boolean;
+}
+
+export type IWalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset & { legacy?: boolean };
+
+export interface IWalletIpfsAttributes {
+    [hash: string]: boolean;
+}
 
 export interface IWalletManager {
     logger: Logger.ILogger;
 
     reset(): void;
 
-    allByAddress(): IWallet[];
+    registerIndex(name: string, indexer: WalletIndexer): void;
 
-    allByPublicKey(): IWallet[];
+    unregisterIndex(name: string): void;
 
-    allByUsername(): IWallet[];
+    getIndex(name: string): IWalletIndex;
+
+    allByAddress(): ReadonlyArray<IWallet>;
+
+    allByPublicKey(): ReadonlyArray<IWallet>;
+
+    allByUsername(): ReadonlyArray<IWallet>;
+
+    findById(id: string): IWallet;
 
     findByAddress(address: string): IWallet;
 
-    has(addressOrPublicKey: string): boolean;
+    has(key: string): boolean;
+
+    hasByIndex(indexName: string, key: string): boolean;
+
+    getIndexNames(): string[];
 
     findByPublicKey(publicKey: string): IWallet;
 
     findByUsername(username: string): IWallet;
 
-    index(wallets: IWallet[]): void;
+    findByIndex(index: string | string[], key: string): IWallet | undefined;
+
+    getNonce(publicKey: string): Utils.BigNumber;
+
+    index(wallets: ReadonlyArray<IWallet>): void;
 
     reindex(wallet: IWallet): void;
 
-    cloneDelegateWallets(): IWalletManager;
+    getCurrentBlock(): Readonly<Interfaces.IBlock>;
 
-    loadActiveDelegateList(roundInfo: IRoundInfo): IDelegateWallet[];
+    clone(): IWalletManager;
+
+    loadActiveDelegateList(roundInfo: IRoundInfo): IWallet[];
 
     buildVoteBalances(): void;
 
-    applyBlock(block: Interfaces.IBlock): void;
+    applyBlock(block: Interfaces.IBlock): Promise<void>;
 
-    buildDelegateRanking(roundInfo?: Shared.IRoundInfo): IDelegateWallet[];
+    buildDelegateRanking(roundInfo?: Shared.IRoundInfo): IWallet[];
 
-    revertBlock(block: Interfaces.IBlock): void;
+    revertBlock(block: Interfaces.IBlock): Promise<void>;
 
-    applyTransaction(transaction: Interfaces.ITransaction): void;
+    applyTransaction(transaction: Interfaces.ITransaction): Promise<void>;
 
-    revertTransaction(transaction: Interfaces.ITransaction): void;
-
-    isDelegate(publicKey: string): boolean;
+    revertTransaction(transaction: Interfaces.ITransaction): Promise<void>;
 
     canBePurged(wallet: IWallet): boolean;
 
@@ -84,17 +125,22 @@ export interface IWalletManager {
 
     forgetByUsername(username: string): void;
 
-    setByAddress(address: string, wallet: IWallet): void;
-
-    setByPublicKey(publicKey: string, wallet: IWallet): void;
-
-    setByUsername(username: string, wallet: IWallet): void;
+    forgetByIndex(indexName: string, key: string): void;
 
     hasByAddress(address: string): boolean;
 
     hasByPublicKey(publicKey: string): boolean;
 
     hasByUsername(username: string): boolean;
+}
 
-    purgeEmptyNonDelegates(): void;
+export interface IWalletIndex {
+    readonly indexer: WalletIndexer;
+    index(wallet: IWallet): void;
+    has(key: string): boolean;
+    get(key: string): IWallet | undefined;
+    set(key: string, wallet: IWallet): void;
+    forget(key: string): void;
+    all(): ReadonlyArray<IWallet>;
+    clear(): void;
 }

@@ -16,7 +16,7 @@ export class AcceptBlockHandler extends BlockHandler {
 
             if (transactionPool) {
                 try {
-                    transactionPool.acceptChainedBlock(this.block);
+                    await transactionPool.acceptChainedBlock(this.block);
                 } catch (error) {
                     this.logger.warn("Issue applying block to transaction pool");
                     this.logger.debug(error.stack);
@@ -41,8 +41,6 @@ export class AcceptBlockHandler extends BlockHandler {
         } catch (error) {
             this.logger.warn(`Refused new block ${JSON.stringify(this.block.data)}`);
             this.logger.debug(error.stack);
-
-            this.blockchain.transactionPool.purgeByBlock(this.block);
 
             return super.execute();
         }

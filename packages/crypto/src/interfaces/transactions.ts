@@ -1,11 +1,14 @@
 import { ErrorObject } from "ajv";
-import { TransactionTypes } from "../enums";
+import { Enums } from "..";
 import { BigNumber } from "../utils";
 
 export interface ITransaction {
     readonly id: string;
-    readonly type: TransactionTypes;
+    readonly typeGroup: number;
+    readonly type: number;
     readonly verified: boolean;
+    readonly key: string;
+    readonly staticFee: BigNumber;
 
     isVerified: boolean;
 
@@ -30,13 +33,15 @@ export interface ITransactionAsset {
     };
     delegate?: {
         username: string;
-        publicKey?: string;
     };
     votes?: string[];
     multiSignatureLegacy?: IMultiSignatureLegacyAsset;
     multiSignature?: IMultiSignatureAsset;
     ipfs?: string;
-    payments?: any;
+    payments?: IMultiPaymentItem[];
+    lock?: IHtlcLockAsset;
+    claim?: IHtlcClaimAsset;
+    refund?: IHtlcRefundAsset;
     [custom: string]: any;
 }
 
@@ -44,8 +49,10 @@ export interface ITransactionData {
     version?: number;
     network?: number;
 
-    type: TransactionTypes;
+    typeGroup?: number;
+    type: number;
     timestamp: number;
+    nonce?: BigNumber;
     senderPublicKey: string;
 
     fee: BigNumber;
@@ -66,19 +73,17 @@ export interface ITransactionData {
 
     blockId?: string;
     sequence?: number;
-
-    timelock?: any;
-    timelockType?: number;
-
-    payments?: { [key: string]: any };
 }
 
 export interface ITransactionJson {
     version?: number;
     network?: number;
 
-    type: TransactionTypes;
-    timestamp: number;
+    typeGroup?: number;
+    type: number;
+
+    timestamp?: number;
+    nonce?: string;
     senderPublicKey: string;
 
     fee: string;
@@ -100,11 +105,7 @@ export interface ITransactionJson {
     blockId?: string;
     sequence?: number;
 
-    timelock?: any;
-    timelockType?: number;
-
     ipfsHash?: string;
-    payments?: { [key: string]: any };
 }
 
 export interface ISchemaValidationResult<T = any> {
@@ -129,7 +130,41 @@ export interface IMultiSignatureAsset {
     publicKeys: string[];
 }
 
+export interface IHtlcLockAsset {
+    secretHash: string;
+    expiration: {
+        type: Enums.HtlcLockExpirationType;
+        value: number;
+    };
+}
+
+export interface IHtlcClaimAsset {
+    lockTransactionId: string;
+    unlockSecret: string;
+}
+
+export interface IHtlcRefundAsset {
+    lockTransactionId: string;
+}
+
+export interface IHtlcLock extends IHtlcLockAsset {
+    amount: BigNumber;
+    recipientId: string;
+}
+
+export type IHtlcLocks = Record<string, IHtlcLock>;
+
+export interface IHtlcExpiration {
+    type: Enums.HtlcLockExpirationType;
+    value: number;
+}
+
+export interface IDeserializeOptions {
+    acceptLegacyVersion?: boolean;
+}
+
 export interface ISerializeOptions {
+    acceptLegacyVersion?: boolean;
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
     excludeMultiSignature?: boolean;

@@ -72,7 +72,7 @@ export class BlockCommand extends BaseCommand {
                 );
             }
 
-            const newBlock = await delegate.forge(transactions, {
+            const newBlock = delegate.forge(transactions, {
                 previousBlock,
                 timestamp: Crypto.Slots.getSlotNumber(Crypto.Slots.getTime()) * milestone.blocktime,
                 reward: milestone.reward,

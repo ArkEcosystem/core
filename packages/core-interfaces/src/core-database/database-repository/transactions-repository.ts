@@ -1,8 +1,18 @@
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-import { IWallet } from "../../core-state/wallets";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { ITransactionsPaginated } from "../business-repository";
-import { ISearchOrderBy, ISearchPaginate, ISearchParameters } from "../search";
+import { ISearchParameters } from "../search";
 import { IRepository } from "./repository";
+
+export interface IBootstrapTransaction {
+    id: string;
+    version: number;
+    timestamp: number;
+    senderPublicKey: string;
+    recipientId: string;
+    fee: Utils.BigNumber;
+    amount: Utils.BigNumber;
+    asset: Interfaces.ITransactionAsset;
+}
 
 export interface ITransactionsRepository extends IRepository {
     findById(id: string): Promise<Interfaces.ITransactionData>;
@@ -35,7 +45,7 @@ export interface ITransactionsRepository extends IRepository {
         }>
     >;
 
-    getAssetsByType(type: Enums.TransactionTypes | number): Promise<any>;
+    getAssetsByType(type: number, typeGroup?: number): Promise<IBootstrapTransaction[]>;
 
     getReceivedTransactions(): Promise<any>;
 
@@ -55,12 +65,6 @@ export interface ITransactionsRepository extends IRepository {
     ): Promise<Array<{ type: number; fee: number; timestamp: number }>>;
 
     deleteByBlockId(blockIds: string[], db: any): Promise<void>;
-
-    findAllByWallet(
-        wallet: IWallet,
-        paginate?: ISearchPaginate,
-        orderBy?: ISearchOrderBy[],
-    ): Promise<ITransactionsPaginated>;
 
     search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
 }

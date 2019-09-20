@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -10,33 +10,31 @@ export class StateBuilder {
     constructor(
         private readonly connection: Database.IConnection,
         private readonly walletManager: State.IWalletManager,
-    ) {}
+    ) { }
 
     public async run(): Promise<void> {
-        const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.all();
-        let steps = transactionHandlers.length + 1;
-
-        // FIXME: skip state generation of new tx types unless we are on testnet (until develop is on 2.6)
-        const aip11 =
-            Managers.configManager.getMilestone().aip11 && Managers.configManager.get("network.name") === "testnet";
-        if (!aip11) {
-            steps -= 4;
-        }
+        const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.getAll();
+        const steps = transactionHandlers.length + 3;
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
         await this.buildBlockRewards();
 
-        this.logger.info(`State Generation - Step 2 of ${steps}: Fees`);
+        this.logger.info(`State Generation - Step 2 of ${steps}: Fees & Nonces`);
         await this.buildSentTransactions();
 
-        for (let i = 0; i < (aip11 ? transactionHandlers.length : 4); i++) {
+        const capitalize = (key: string) => key[0].toUpperCase() + key.slice(1);
+        for (let i = 0; i < transactionHandlers.length; i++) {
             const transactionHandler = transactionHandlers[i];
-            const transactionName = transactionHandler.constructor.name.replace("TransactionHandler", "");
-
-            this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${transactionName}`);
+            this.logger.info(
+                `State Generation - Step ${3 + i} of ${steps}: ${capitalize(transactionHandler.getConstructor().key)}`,
+            );
 
             await transactionHandler.bootstrap(this.connection, this.walletManager);
         }
+
+        this.logger.info(`State Generation - Step ${steps} of ${steps}: Vote Balances & Delegate Ranking`);
+        this.walletManager.buildVoteBalances();
+        this.walletManager.buildDelegateRanking();
 
         this.logger.info(
             `State Generation complete! Wallets in memory: ${Object.keys(this.walletManager.allByAddress()).length}`,
@@ -62,6 +60,7 @@ export class StateBuilder {
 
         for (const transaction of transactions) {
             const wallet = this.walletManager.findByPublicKey(transaction.senderPublicKey);
+            wallet.nonce = Utils.BigNumber.make(transaction.nonce);
             wallet.balance = wallet.balance.minus(transaction.amount).minus(transaction.fee);
         }
     }
@@ -82,8 +81,9 @@ export class StateBuilder {
                 throw new Error("Non-genesis wallet with negative balance.");
             }
 
-            if (wallet.voteBalance.isLessThan(0)) {
-                this.logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${wallet.voteBalance}'`);
+            const voteBalance: Utils.BigNumber = wallet.getAttribute("delegate.voteBalance");
+            if (voteBalance && voteBalance.isLessThan(0)) {
+                this.logger.warn(`Wallet ${wallet.address} has a negative vote balance of '${voteBalance}'`);
 
                 throw new Error("Wallet with negative vote balance.");
             }

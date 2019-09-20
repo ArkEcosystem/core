@@ -2,7 +2,8 @@ import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
 import {
-    MalformedTransactionBytesError,
+    InvalidTransactionBytesError,
+    TransactionSchemaError,
     TransactionTypeError,
     TransactionVersionError,
 } from "../../../../packages/crypto/src/errors";
@@ -130,6 +131,11 @@ describe("Transaction", () => {
                         delete transaction.data.secondSignature;
                     }
 
+                    if (transaction.data.version === 1) {
+                        delete transaction.data.typeGroup;
+                        delete transaction.data.nonce;
+                    }
+
                     // @ts-ignore
                     transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
                     // @ts-ignore
@@ -148,16 +154,29 @@ describe("Transaction", () => {
         });
 
         it("should throw when getting garbage", () => {
-            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(MalformedTransactionBytesError);
-            expect(() => TransactionFactory.fromBytes(Buffer.from("garbage"))).toThrow(MalformedTransactionBytesError);
-            expect(() => TransactionFactory.fromHex(undefined)).toThrow(MalformedTransactionBytesError);
-            expect(() => TransactionFactory.fromHex("affe")).toThrow(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(InvalidTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(Buffer.from("garbage"))).toThrow(InvalidTransactionBytesError);
+            expect(() => TransactionFactory.fromHex(undefined)).toThrow(InvalidTransactionBytesError);
+            expect(() => TransactionFactory.fromHex("affe")).toThrow(InvalidTransactionBytesError);
         });
 
         it("should throw when getting an unsupported version", () => {
-            let hex = TransactionUtils.toBytes(transactionData).toString("hex");
-            hex = hex.slice(0, 2) + "99" + hex.slice(4);
-            expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionVersionError);
+            configManager.setFromPreset("testnet");
+
+            const transaction = BuilderFactory.transfer()
+                .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
+                .amount("1000")
+                .vendorField(Math.random().toString(36))
+                .nonce("1")
+                .sign(Math.random().toString(36))
+                .secondSign(Math.random().toString(36))
+                .build();
+
+            let hex = transaction.serialized.toString("hex");
+            hex = hex.slice(0, 2) + "04" + hex.slice(4);
+            expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionSchemaError);
+
+            configManager.setFromPreset("devnet");
         });
     });
 

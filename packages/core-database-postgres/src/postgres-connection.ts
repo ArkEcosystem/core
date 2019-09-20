@@ -51,7 +51,7 @@ export class PostgresConnection implements Database.IConnection {
         try {
             await this.connect();
             this.exposeRepositories();
-            await this.registerQueryExecutor();
+            this.registerQueryExecutor();
             await this.runMigrations();
             await this.registerModels();
             this.logger.debug("Connected to database.");
@@ -68,15 +68,26 @@ export class PostgresConnection implements Database.IConnection {
     public async connect(): Promise<void> {
         this.emitter.emit(Database.DatabaseEvents.PRE_CONNECT);
 
+        const options = this.options;
+
         const pgp: pgPromise.IMain = pgPromise({
-            ...this.options.initialization,
+            ...options.initialization,
             ...{
+                error: async (error, context) => {
+                    // https://www.postgresql.org/docs/11/errcodes-appendix.html
+                    // Class 53 — Insufficient Resources
+                    // Class 57 — Operator Intervention
+                    // Class 58 — System Error (errors external to PostgreSQL itself)
+                    if (error.code && ["53", "57", "58"].includes(error.code.slice(0, 2))) {
+                        app.forceExit("Unexpected database error. Shutting down to prevent further damage.", error);
+                    }
+                },
                 receive(data) {
                     camelizeColumns(pgp, data);
                 },
                 extend(object) {
                     for (const repository of Object.keys(repositories)) {
-                        object[repository] = new repositories[repository](object, pgp);
+                        object[repository] = new repositories[repository](object, pgp, options);
                     }
                 },
             },
@@ -98,7 +109,7 @@ export class PostgresConnection implements Database.IConnection {
             this.logger.warn(error.message);
         }
 
-        await this.pgp.end();
+        this.pgp.end();
 
         this.emitter.emit(Database.DatabaseEvents.POST_DISCONNECT);
         this.logger.debug("Disconnected from database");
@@ -114,11 +125,11 @@ export class PostgresConnection implements Database.IConnection {
                 const { nextRound } = roundCalculator.calculateRound(blocks[blocks.length - 1].height);
                 const blockIds: string[] = blocks.map(block => block.id);
 
-                return [
+                return t.batch([
                     this.transactionsRepository.deleteByBlockId(blockIds, t),
                     this.blocksRepository.delete(blockIds, t),
                     this.roundsRepository.delete(nextRound, t),
-                ];
+                ]);
             });
         } catch (error) {
             this.logger.error(error.message);
@@ -154,7 +165,7 @@ export class PostgresConnection implements Database.IConnection {
                     queries.push(this.transactionsRepository.insert(transactionInserts, t));
                 }
 
-                return queries;
+                return t.batch(queries);
             });
         } catch (err) {
             this.logger.error(err.message);
@@ -176,7 +187,7 @@ export class PostgresConnection implements Database.IConnection {
 
             if (name === "20180304100000-create-migrations-table") {
                 await this.query.none(migration);
-            } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
+            } else if (name === "20190917000000-add-asset-column-to-transactions-table") {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
             } else {
                 if (!(await this.migrationsRepository.findByName(name))) {
@@ -189,9 +200,6 @@ export class PostgresConnection implements Database.IConnection {
         }
     }
 
-    /**
-     * Migrate transactions table to asset column.
-     */
     private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
         const row: IMigration = await this.migrationsRepository.findByName(name);
 
@@ -200,7 +208,7 @@ export class PostgresConnection implements Database.IConnection {
         let runMigration = !row;
         if (!runMigration) {
             const { missingAsset } = await this.db.one(
-                `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
+                `SELECT EXISTS (SELECT id FROM transactions WHERE (type > 0 OR type_group != 1) AND asset IS NULL) as "missingAsset"`,
             );
             if (missingAsset) {
                 await this.db.none(`DELETE FROM migrations WHERE name = '${name}'`);
@@ -211,11 +219,13 @@ export class PostgresConnection implements Database.IConnection {
         if (!runMigration) {
             return;
         }
-        this.logger.warn(`Migrating transactions table. This may take a while.`);
+        this.logger.warn(`Migrating transactions table to assets. This may take a while.`);
 
         await this.query.none(migration);
 
-        const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
+        const all = await this.db.manyOrNone(
+            "SELECT id, serialized FROM transactions WHERE (type > 0 OR type_group != 1)",
+        );
         const { transactionIdFixTable } = Managers.configManager.get("exceptions");
 
         const chunks: Array<

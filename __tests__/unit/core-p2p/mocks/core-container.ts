@@ -1,15 +1,17 @@
 import { Managers } from "@arkecosystem/crypto";
+import { EventEmitter } from "../../../../packages/core-event-emitter/src/emitter";
 import { defaults } from "../../../../packages/core-p2p/src/defaults";
 import * as plugins from "../../../utils/config/testnet/plugins.js";
 import { blockchain } from "./blockchain";
 import { database } from "./database";
-import { eventEmitter } from "./event-emitter";
 import { logger } from "./logger";
 import { p2p } from "./p2p";
 import { state } from "./state";
 import { transactionPool } from "./transaction-pool";
 
 Managers.configManager.setFromPreset("unitnet");
+
+const eventEmitter: EventEmitter = new EventEmitter();
 
 jest.mock("@arkecosystem/core-container", () => {
     return {
@@ -24,6 +26,16 @@ jest.mock("@arkecosystem/core-container", () => {
                                 return [{ ip: "1.2.3.4", port: 4000 }];
                             case "blacklist":
                                 return [];
+                            case "network.pubKeyHash":
+                                return 23;
+                            case "network.name":
+                                return "unit";
+                            case "network.client.explorer":
+                                return "unit";
+                            case "network.client.token":
+                                return "T";
+                            case "network.client.symbol":
+                                return "T";
                         }
 
                         return undefined;

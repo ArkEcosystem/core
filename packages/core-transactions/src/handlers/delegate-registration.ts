@@ -1,19 +1,36 @@
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Enums, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     NotSupportedForMultiSignatureWalletError,
+    WalletIsAlreadyDelegateError,
+    WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
-    WalletUsernameEmptyError,
-    WalletUsernameNotEmptyError,
 } from "../errors";
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
-const { TransactionTypes } = Enums;
+const { TransactionType, TransactionTypeGroup } = Enums;
 
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.DelegateRegistrationTransaction;
+    }
+
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [];
+    }
+
+    public walletAttributes(): ReadonlyArray<string> {
+        return [
+            "delegate",
+            "delegate.lastBlock",
+            "delegate.rank",
+            "delegate.round",
+            "delegate.username",
+            "delegate.voteBalance",
+            "delegate.forgedTotal",
+            "delegate.approval",
+        ];
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -23,69 +40,92 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         for (const transaction of transactions) {
             const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.username = transaction.asset.delegate.username;
+            wallet.setAttribute<State.IWalletDelegateAttributes>("delegate", {
+                username: transaction.asset.delegate.username,
+                voteBalance: Utils.BigNumber.ZERO,
+                forgedFees: Utils.BigNumber.ZERO,
+                forgedRewards: Utils.BigNumber.ZERO,
+                producedBlocks: 0,
+                rank: undefined,
+            });
+
             walletManager.reindex(wallet);
         }
 
         for (const block of forgedBlocks) {
-            const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
-            wallet.forgedFees = wallet.forgedFees.plus(block.totalFees);
-            wallet.forgedRewards = wallet.forgedRewards.plus(block.totalRewards);
-            wallet.producedBlocks = +block.totalProduced;
+            const wallet: State.IWallet = walletManager.findByPublicKey(block.generatorPublicKey);
+            const delegate: State.IWalletDelegateAttributes = wallet.getAttribute("delegate");
+
+            // Genesis wallet is empty
+            if (!delegate) {
+                continue;
+            }
+
+            delegate.forgedFees = delegate.forgedFees.plus(block.totalFees);
+            delegate.forgedRewards = delegate.forgedRewards.plus(block.totalRewards);
+            delegate.producedBlocks += +block.totalProduced;
         }
 
         for (const block of lastForgedBlocks) {
             const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
-            wallet.lastBlock = block;
+            wallet.setAttribute("delegate.lastBlock", block);
         }
-
-        walletManager.buildDelegateRanking();
     }
 
-    public canBeApplied(
+    public async isActivated(): Promise<boolean> {
+        return true;
+    }
+
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
         databaseWalletManager: State.IWalletManager,
-    ): boolean {
+    ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        if (databaseWalletManager.findByPublicKey(data.senderPublicKey).multisignature) {
+        const sender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+        if (sender.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
         }
 
         const { username }: { username: string } = data.asset.delegate;
         if (!username) {
-            throw new WalletUsernameEmptyError();
+            throw new WalletNotADelegateError();
         }
 
-        if (wallet.username) {
-            throw new WalletUsernameNotEmptyError();
+        if (wallet.isDelegate()) {
+            throw new WalletIsAlreadyDelegateError();
         }
 
         if (databaseWalletManager.findByUsername(username)) {
             throw new WalletUsernameAlreadyRegisteredError(username);
         }
 
-        return super.canBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         emitter.emit(ApplicationEvents.DelegateRegistered, transaction.data);
     }
 
-    public canEnterTransactionPool(
+    public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): boolean {
-        if (this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+    ): Promise<boolean> {
+        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             return false;
         }
 
         const { username }: { username: string } = data.asset.delegate;
         const delegateRegistrationsSameNameInPayload = processor
             .getTransactions()
-            .filter(tx => tx.type === TransactionTypes.DelegateRegistration && tx.asset.delegate.username === username);
+            .filter(
+                transaction =>
+                    transaction.type === TransactionType.DelegateRegistration &&
+                    (transaction.typeGroup === undefined || transaction.typeGroup === TransactionTypeGroup.Core) &&
+                    transaction.asset.delegate.username === username,
+            );
 
         if (delegateRegistrationsSameNameInPayload.length > 1) {
             processor.pushError(
@@ -97,7 +137,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
 
         const delegateRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
-            pool.getTransactionsByType(TransactionTypes.DelegateRegistration),
+            await pool.getTransactionsByType(TransactionType.DelegateRegistration),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
         const containsDelegateRegistrationForSameNameInPool: boolean = delegateRegistrationsInPool.some(
@@ -111,29 +151,47 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    protected applyToSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.applyToSender(transaction, walletManager);
+    public async applyToSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        sender.username = transaction.data.asset.delegate.username;
+        sender.setAttribute<State.IWalletDelegateAttributes>("delegate", {
+            username: transaction.data.asset.delegate.username,
+            voteBalance: Utils.BigNumber.ZERO,
+            forgedFees: Utils.BigNumber.ZERO,
+            forgedRewards: Utils.BigNumber.ZERO,
+            producedBlocks: 0,
+            round: 0,
+        });
 
         walletManager.reindex(sender);
     }
 
-    protected revertForSender(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        super.revertForSender(transaction, walletManager);
+    public async revertForSender(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+    ): Promise<void> {
+        await super.revertForSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const username: string = sender.getAttribute("delegate.username");
 
-        walletManager.forgetByUsername(sender.username);
-        sender.username = undefined;
+        walletManager.forgetByUsername(username);
+        sender.forgetAttribute("delegate");
     }
 
-    protected applyToRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line: no-empty
+    ): Promise<void> {}
 
-    protected revertForRecipient(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): void {
-        return;
-    }
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        walletManager: State.IWalletManager,
+        // tslint:disable-next-line:no-empty
+    ): Promise<void> {}
 }

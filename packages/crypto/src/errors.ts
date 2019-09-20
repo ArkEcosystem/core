@@ -72,9 +72,9 @@ export class TransactionTypeError extends CryptoError {
     }
 }
 
-export class MalformedTransactionBytesError extends CryptoError {
-    constructor() {
-        super(`Failed to deserialize transaction, because the bytes are malformed.`);
+export class InvalidTransactionBytesError extends CryptoError {
+    constructor(message: string) {
+        super(`Failed to deserialize transaction, encountered invalid bytes: ${message}`);
     }
 }
 
@@ -91,8 +91,8 @@ export class TransactionVersionError extends CryptoError {
 }
 
 export class UnkownTransactionError extends CryptoError {
-    constructor(given: number) {
-        super(`Transaction type ${given} is not registered.`);
+    constructor(given: string) {
+        super(`Unknown transaction type: ${given}`);
     }
 }
 
@@ -102,9 +102,9 @@ export class TransactionAlreadyRegisteredError extends CryptoError {
     }
 }
 
-export class TransactionTypeInvalidRangeError extends CryptoError {
-    constructor(given: number) {
-        super(`Custom transaction type must be in the range 100-255 (${given}).`);
+export class CoreTransactionTypeGroupImmutableError extends CryptoError {
+    constructor() {
+        super(`The Core transaction type group is immutable.`);
     }
 }
 
@@ -116,7 +116,7 @@ export class MissingMilestoneFeeError extends CryptoError {
 
 export class MaximumPaymentCountExceededError extends CryptoError {
     constructor(given: number) {
-        super(`Expected a maximum of 2258 payments, but got ${given}.`);
+        super(`Expected a maximum of 500 payments, but got ${given}.`);
     }
 }
 
@@ -136,8 +136,8 @@ export class PreviousBlockIdFormatError extends CryptoError {
     constructor(thisBlockHeight: number, previousBlockId: string) {
         super(
             `The config denotes that the block at height ${thisBlockHeight - 1} ` +
-                `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
-                `contains previous block id "${previousBlockId}"`,
+            `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
+            `contains previous block id "${previousBlockId}"`,
         );
     }
 }
@@ -151,5 +151,11 @@ export class InvalidMilestoneConfigurationError extends CryptoError {
 export class InvalidMultiSignatureAssetError extends CryptoError {
     constructor() {
         super(`The multi signature asset is invalid.`);
+    }
+}
+
+export class DuplicateParticipantInMultiSignatureError extends CryptoError {
+    constructor() {
+        super(`Invalid multi signature, because duplicate participant found.`);
     }
 }

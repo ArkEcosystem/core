@@ -4,16 +4,21 @@ import "./mocks/core-container";
 
 import { blockchain } from "./mocks/blockchain";
 
+import { Delegate } from "@arkecosystem/core-forger";
 import { P2P } from "@arkecosystem/core-interfaces";
-import { Blocks, Transactions } from "@arkecosystem/crypto";
+import { Networks, Utils } from "@arkecosystem/crypto";
 import { NetworkState } from "../../../packages/core-p2p/src/network-state";
 import { createPeerService, createStubPeer, stubPeer } from "../../helpers/peers";
+import { TransactionFactory } from "../../helpers/transaction-factory";
 import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
+import { delegates } from "../../utils/fixtures/unitnet";
 
 let monitor: P2P.INetworkMonitor;
 let processor: P2P.IPeerProcessor;
 let storage: P2P.IPeerStorage;
 let communicator: P2P.IPeerCommunicator;
+
+jest.setTimeout(60000);
 
 beforeEach(() => {
     jest.resetAllMocks();
@@ -76,12 +81,92 @@ describe("NetworkMonitor", () => {
             const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
             const validatePeerIp = jest.spyOn(processor, "validatePeerIp").mockReturnValue(true);
 
-            await monitor.discoverPeers();
+            await expect(monitor.discoverPeers(true)).resolves.toBeTrue();
 
             expect(validateAndAcceptPeer).toHaveBeenCalledTimes(2);
             expect(validateAndAcceptPeer).toHaveBeenCalledWith({ ip: "1.1.1.1" }, { lessVerbose: true });
             expect(validateAndAcceptPeer).toHaveBeenCalledWith({ ip: "2.2.2.2" }, { lessVerbose: true });
 
+            validateAndAcceptPeer.mockReset();
+
+            await expect(monitor.discoverPeers()).resolves.toBeFalse();
+
+            expect(validateAndAcceptPeer).not.toHaveBeenCalled();
+
+            validatePeerIp.mockRestore();
+        });
+
+        it("should discover new peers when below minimum", async () => {
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.2.3.4",
+                    port: 4000,
+                }),
+            );
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.2.3.5",
+                    port: 4000,
+                }),
+            );
+
+            // @ts-ignore
+            monitor.config = { ignoreMinimumNetworkReach: true };
+
+            const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
+            const validatePeerIp = jest.spyOn(processor, "validatePeerIp").mockReturnValue(true);
+
+            communicator.getPeers = jest.fn().mockReturnValue([{ ip: "1.1.1.1" }, { ip: "2.2.2.2" }]);
+
+            await expect(monitor.discoverPeers()).resolves.toBeFalse();
+
+            expect(validateAndAcceptPeer).not.toHaveBeenCalled();
+
+            const fakePeers = [];
+            for (let i = 0; i < 10; i++) {
+                fakePeers.push({ ip: `${i + 1}.${i + 1}.${i + 1}.${i + 1}` });
+            }
+
+            communicator.getPeers = jest.fn().mockReturnValue(fakePeers);
+
+            await expect(monitor.discoverPeers()).resolves.toBeTrue();
+
+            expect(validateAndAcceptPeer).toHaveBeenCalledTimes(10);
+
+            for (let i = 0; i < 10; i++) {
+                expect(validateAndAcceptPeer).toHaveBeenCalledWith(fakePeers[i], { lessVerbose: true });
+            }
+
+            validatePeerIp.mockRestore();
+        });
+
+        it("should only pick up to 50 returned peers from a peer", async () => {
+            storage.setPeer(
+                createStubPeer({
+                    ip: "1.2.3.4",
+                    port: 4000,
+                }),
+            );
+
+            // @ts-ignore
+            monitor.config = { ignoreMinimumNetworkReach: true };
+
+            const mockPeers = [];
+            for (let i = 0; i < 100; i++) {
+                mockPeers.push({ ip: `3.3.3.${i + 1}` });
+                mockPeers.push({ ip: `3.3.3.${i + 101}` });
+            }
+
+            communicator.getPeers = jest.fn().mockReturnValue(mockPeers);
+
+            const validateAndAcceptPeer = jest.spyOn(processor, "validateAndAcceptPeer");
+            const validatePeerIp = jest.spyOn(processor, "validatePeerIp").mockReturnValue(true);
+
+            await expect(monitor.discoverPeers(true)).resolves.toBeTrue();
+
+            expect(validateAndAcceptPeer).toHaveBeenCalledTimes(50);
+
+            validateAndAcceptPeer.mockReset();
             validatePeerIp.mockRestore();
         });
     });
@@ -292,20 +377,34 @@ describe("NetworkMonitor", () => {
         it("should broadcast the block to peers", async () => {
             storage.setPeer(stubPeer);
 
+            global.Math.random = () => 0.5;
+
+            const delegate = new Delegate(delegates[0].passphrase, Networks.unitnet.network);
+            const transactions = TransactionFactory.transfer()
+                .withPassphrase(delegates[0].passphrase)
+                .create(10);
+
+            const block = delegate.forge(transactions, {
+                timestamp: 12345689,
+                previousBlock: {
+                    id: genesisBlock.id,
+                    height: 1,
+                },
+                reward: Utils.BigNumber.ZERO,
+            });
+
+            communicator.postBlock = jest.fn();
+
             blockchain.getBlockPing = jest.fn().mockReturnValue({
                 block: {
-                    id: genesisBlock.id,
+                    id: block.data.id,
                 },
                 last: 1110,
                 first: 800,
                 count: 1,
             });
 
-            global.Math.random = () => 0.5;
-
-            communicator.postBlock = jest.fn();
-
-            await monitor.broadcastBlock(Blocks.BlockFactory.fromData(genesisBlock));
+            await monitor.broadcastBlock(block);
 
             expect(communicator.postBlock).toHaveBeenCalled();
         });
@@ -317,9 +416,7 @@ describe("NetworkMonitor", () => {
 
             communicator.postTransactions = jest.fn();
 
-            await monitor.broadcastTransactions([
-                Transactions.TransactionFactory.fromData(genesisBlock.transactions[0]),
-            ]);
+            await monitor.broadcastTransactions(TransactionFactory.transfer().build());
 
             expect(communicator.postTransactions).toHaveBeenCalled();
         });

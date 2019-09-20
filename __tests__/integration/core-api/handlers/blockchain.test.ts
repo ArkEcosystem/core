@@ -15,7 +15,7 @@ describe("API 2.0 - Blockchain", () => {
 
             expect(response.data.data.block.height).toBeNumber();
             expect(response.data.data.block.id).toBeString();
-            expect(response.data.data.supply).toBeNumber();
+            expect(response.data.data.supply).toBeString();
         });
     });
 });

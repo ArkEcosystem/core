@@ -8,6 +8,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     public async search(params: Database.ISearchParameters): Promise<{ rows: Interfaces.IBlockData[]; count: number }> {
         // TODO: we're selecting all the columns right now. Add support for choosing specific columns, when it proves useful.
         const selectQuery = this.query.select().from(this.query);
+        const selectQueryCount = this.query.select(this.query.count().as("cnt")).from(this.query);
         // Blocks repo atm, doesn't search using any custom parameters
         const parameterList = params.parameters.filter(o => o.operator !== Database.SearchOperator.OP_CUSTOM);
 
@@ -19,14 +20,18 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
             } while (!first.operator && parameterList.length);
 
             if (first) {
-                selectQuery.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                for (const query of [selectQuery, selectQueryCount]) {
+                    query.where(this.query[this.propToColumnName(first.field)][first.operator](first.value));
+                }
                 for (const param of parameterList) {
-                    selectQuery.and(this.query[this.propToColumnName(param.field)][param.operator](param.value));
+                    for (const query of [selectQuery, selectQueryCount]) {
+                        query.and(this.query[this.propToColumnName(param.field)][param.operator](param.value));
+                    }
                 }
             }
         }
 
-        return this.findManyWithCount(selectQuery, params.paginate, params.orderBy);
+        return this.findManyWithCount(selectQuery, selectQueryCount, params.paginate, params.orderBy);
     }
 
     public async findById(id: string): Promise<Interfaces.IBlockData> {
@@ -77,6 +82,15 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
 
     public async heightRange(start: number, end: number): Promise<Interfaces.IBlockData[]> {
         return this.db.manyOrNone(queries.blocks.heightRange, { start, end });
+    }
+
+    public async heightRangeWithTransactions(start: number, end: number): Promise<Database.IDownloadBlock[]> {
+        return this.db.manyOrNone(queries.blocks.heightRangeWithTransactions, { start, end }).map(block => {
+            if (block.transactions === null) {
+                delete block.transactions;
+            }
+            return block;
+        });
     }
 
     public async latest(): Promise<Interfaces.IBlockData> {

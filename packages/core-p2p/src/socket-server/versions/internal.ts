@@ -3,6 +3,10 @@ import { Blockchain, Database, EventEmitter, Logger, P2P, TransactionPool } from
 import { roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto } from "@arkecosystem/crypto";
 
+export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
+    await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
+};
+
 export const emitEvent = ({ req }): void => {
     app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(req.data.event, req.data.body);
 };
@@ -17,7 +21,7 @@ export const getUnconfirmedTransactions = async (): Promise<P2P.IUnconfirmedTran
 
     return {
         transactions: await transactionPool.getTransactionsForForging(maxTransactions),
-        poolSize: transactionPool.getPoolSize(),
+        poolSize: await transactionPool.getPoolSize(),
     };
 };
 
@@ -54,6 +58,28 @@ export const getCurrentRound = async (): Promise<P2P.ICurrentRound> => {
 
 export const getNetworkState = async ({ service }: { service: P2P.IPeerService }): Promise<P2P.INetworkState> => {
     return service.getMonitor().getNetworkState();
+};
+
+export const getRateLimitStatus = async ({
+    service,
+    req,
+}: {
+    service: P2P.IPeerService;
+    req: { data: { ip: string; endpoint?: string } };
+}): Promise<P2P.IRateLimitStatus> => {
+    return service.getMonitor().getRateLimitStatus(req.data.ip, req.data.endpoint);
+};
+
+export const isBlockedByRateLimit = async ({
+    service,
+    req,
+}: {
+    service: P2P.IPeerService;
+    req: { data: { ip: string } };
+}): Promise<{ blocked: boolean }> => {
+    return {
+        blocked: await service.getMonitor().isBlockedByRateLimit(req.data.ip),
+    };
 };
 
 export const syncBlockchain = (): void => {

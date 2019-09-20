@@ -1,9 +1,10 @@
 import { TransactionFactory, Utils } from "../..";
 import { Slots } from "../../../crypto";
+import { TransactionTypeGroup } from "../../../enums";
 import { MissingTransactionSignatureError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
-import { configManager } from "../../../managers";
+import { configManager } from "../../../managers/config";
 import { NetworkType } from "../../../types";
 import { BigNumber, maxVendorFieldLength } from "../../../utils";
 import { Signer } from "../../signer";
@@ -18,7 +19,9 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         this.data = {
             id: undefined,
             timestamp: Slots.getTime(),
-            version: 0x01,
+            typeGroup: TransactionTypeGroup.Test,
+            nonce: BigNumber.ZERO,
+            version: configManager.getMilestone().aip11 ? 0x02 : 0x01,
         } as ITransactionData;
     }
 
@@ -28,6 +31,20 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     public version(version: number): TBuilder {
         this.data.version = version;
+
+        return this.instance();
+    }
+
+    public typeGroup(typeGroup: number): TBuilder {
+        this.data.typeGroup = typeGroup;
+
+        return this.instance();
+    }
+
+    public nonce(nonce: string): TBuilder {
+        if (nonce) {
+            this.data.nonce = BigNumber.make(nonce);
+        }
 
         return this.instance();
     }
@@ -143,13 +160,19 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
             id: Utils.getId(this.data).toString(),
             signature: this.data.signature,
             secondSignature: this.data.secondSignature,
-            timestamp: this.data.timestamp,
             version: this.data.version,
             type: this.data.type,
             fee: this.data.fee,
             senderPublicKey: this.data.senderPublicKey,
             network: this.data.network,
         } as ITransactionData;
+
+        if (this.data.version === 1) {
+            struct.timestamp = this.data.timestamp;
+        } else {
+            struct.typeGroup = this.data.typeGroup;
+            struct.nonce = this.data.nonce;
+        }
 
         if (Array.isArray(this.data.signatures)) {
             struct.signatures = this.data.signatures;

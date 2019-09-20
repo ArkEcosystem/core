@@ -101,6 +101,7 @@ export class Container implements container.IContainer {
             return undefined;
         }
     }
+
     public resolveOptions(key) {
         return this.container.resolve<container.IPluginConfig<any>>(`pkg.${key}.opts`);
     }

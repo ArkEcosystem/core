@@ -1,31 +1,31 @@
 {
     "name": "e2e-testing",
-    "description": "e2e testing for ARK Core",
     "version": "0.1.0",
+    "description": "e2e testing for ARK Core",
+    "license": "MIT",
     "contributors": [
         "Erwann Gentric <erw0nn@gmail.com>"
     ],
-    "license": "MIT",
     "main": "lib/index.js",
     "scripts": {
         "generate": "bin/e2e generate",
-        "run-tests": "bin/e2e run-tests",
         "run-sync": "bin/e2e run-sync",
+        "run-tests": "bin/e2e run-tests",
         "test": "jest --testRegex 'lib/tests/.*.test.js'"
     },
     "jest": {
-        "testURL": "http://localhost",
-        "setupTestFrameworkScriptFile": "jest-extended"
+        "setupTestFrameworkScriptFile": "jest-extended",
+        "testURL": "http://localhost"
     },
     "dependencies": {
-        "axios": "^0.18.0",
+        "axios": "^0.19.0",
+        "bip39": "^2.5.0",
         "commander": "^2.16.0",
         "delay": "^3.0.0",
         "jest": "^23.4.2",
-        "jest-extended": "^0.8.1",
+        "jest-extended": "^0.11.2",
         "js-promisify": "^1.3.1",
-        "simple-git": "^1.96.0",
-        "bip39": "^2.5.0"
+        "simple-git": "^1.96.0"
     },
     "publishConfig": {
         "access": "public"

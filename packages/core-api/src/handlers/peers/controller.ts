@@ -6,12 +6,15 @@ import { Controller } from "../shared/controller";
 
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const allPeers: P2P.IPeer[] = await this.blockchain.p2p.getStorage().getPeers();
+        const allPeers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
 
         let result = allPeers.sort((a, b) => a.latency - b.latency);
         result = request.query.version
             ? result.filter(peer => peer.version === (request.query as any).version)
             : result;
+
+        const count: number = result.length;
+
         result = result.slice(0, +request.query.limit || 100);
 
         const orderBy: string = request.query.orderBy as string;
@@ -26,17 +29,21 @@ export class PeersController extends Controller {
             }
         }
 
-        return super.toPagination({ rows: result, count: allPeers.length }, "peer");
+        return super.toPagination({ rows: result, count }, "peer");
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const peers: P2P.IPeer[] = await this.blockchain.p2p.getStorage().getPeers();
-        const peer: P2P.IPeer = peers.find(p => p.ip === request.params.ip);
+        try {
+            const peers: P2P.IPeer[] = this.blockchain.p2p.getStorage().getPeers();
+            const peer: P2P.IPeer = peers.find(p => p.ip === request.params.ip);
 
-        if (!peer) {
-            return Boom.notFound("Peer not found");
+            if (!peer) {
+                return Boom.notFound("Peer not found");
+            }
+
+            return super.respondWithResource(peer, "peer");
+        } catch (error) {
+            return Boom.badImplementation(error);
         }
-
-        return super.respondWithResource(peer, "peer");
     }
 }

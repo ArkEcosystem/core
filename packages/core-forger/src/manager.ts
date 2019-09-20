@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
+import { Wallets } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Managers, Transactions, Types } from "@arkecosystem/crypto";
 import isEmpty from "lodash.isempty";
 import uniq from "lodash.uniq";
@@ -57,7 +58,7 @@ export class ForgerManager {
             timeout = 2000;
             this.logger.warn("Waiting for a responsive host.");
         } finally {
-            await this.checkLater(timeout);
+            this.checkLater(timeout);
         }
     }
 
@@ -86,9 +87,7 @@ export class ForgerManager {
                     const username = this.usernames[this.round.nextForger.publicKey];
 
                     this.logger.info(
-                        `Next forging delegate ${username} (${
-                            this.round.nextForger.publicKey
-                        }) is active on this node.`,
+                        `Next forging delegate ${username} (${this.round.nextForger.publicKey}) is active on this node.`,
                     );
 
                     await this.client.syncWithNetwork();
@@ -101,9 +100,7 @@ export class ForgerManager {
 
             if (networkState.nodeHeight !== this.round.lastBlock.height) {
                 this.logger.warn(
-                    `The NetworkState height (${networkState.nodeHeight}) and round height (${
-                        this.round.lastBlock.height
-                    }) are out of sync. This indicates delayed blocks on the network.`,
+                    `The NetworkState height (${networkState.nodeHeight}) and round height (${this.round.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
 
@@ -157,18 +154,30 @@ export class ForgerManager {
             reward: round.reward,
         });
 
-        this.logger.info(
-            `Forged new block ${block.data.id} by delegate ${this.usernames[delegate.publicKey]} (${
-                delegate.publicKey
-            })`,
-        );
+        const minimumMs: number = 2000;
+        const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
+        const currentSlot: number = Crypto.Slots.getSlotNumber();
+        const roundSlot: number = Crypto.Slots.getSlotNumber(round.timestamp);
+        const prettyName: string = `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`;
 
-        await this.client.broadcastBlock(block.toJson());
+        if (timeLeftInMs >= minimumMs && currentSlot === roundSlot) {
+            this.logger.info(`Forged new block ${block.data.id} by delegate ${prettyName}`);
 
-        this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
+            await this.client.broadcastBlock(block.toJson());
 
-        for (const transaction of transactions) {
-            this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
+            this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
+
+            for (const transaction of transactions) {
+                this.client.emitEvent(ApplicationEvents.TransactionForged, transaction);
+            }
+        } else {
+            if (currentSlot !== roundSlot) {
+                this.logger.warn(`Failed to forge new block by delegate ${prettyName}, because already in next slot.`);
+            } else {
+                this.logger.warn(
+                    `Failed to forge new block by delegate ${prettyName}, because there were ${timeLeftInMs}ms left in the current slot (less than ${minimumMs}ms).`,
+                );
+            }
         }
     }
 
@@ -197,13 +206,12 @@ export class ForgerManager {
     public isForgingAllowed(networkState: P2P.INetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
-
             return false;
-        }
-
-        if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
+        } else if (networkState.status === NetworkStateStatus.ColdStart) {
+            this.logger.info("Skipping slot because of cold start. Will not forge.");
+            return false;
+        } else if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
             this.logger.info("Network reach is not sufficient to get quorum. Will not forge.");
-
             return false;
         }
 
@@ -220,9 +228,7 @@ export class ForgerManager {
                     const username: string = this.usernames[delegate.publicKey];
 
                     this.logger.warn(
-                        `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${
-                            overHeightBlockHeader.id
-                        }.`,
+                        `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${overHeightBlockHeader.id}.`,
                     );
                 }
             }
@@ -245,13 +251,22 @@ export class ForgerManager {
     private async loadRound(): Promise<void> {
         this.round = await this.client.getRound();
 
-        this.usernames = this.round.delegates.reduce(
-            (acc, delegate) => Object.assign(acc, { [delegate.publicKey]: delegate.username }),
-            {},
-        );
+        this.usernames = this.round.delegates
+            .map(delegate => Object.assign(new Wallets.Wallet(delegate.address), delegate))
+            .reduce(
+                (acc, delegate) =>
+                    Object.assign(acc, { [delegate.publicKey]: delegate.getAttribute("delegate.username") }),
+                {},
+            );
 
         if (!this.initialized) {
             this.printLoadedDelegates();
+
+            this.client.emitEvent(ApplicationEvents.ForgerStarted, {
+                activeDelegates: this.delegates.map(delegate => delegate.publicKey),
+            });
+
+            this.logger.info(`Forger Manager started.`);
         }
 
         this.initialized = true;
@@ -285,7 +300,5 @@ export class ForgerManager {
                 )}`,
             );
         }
-
-        this.logger.info(`Forger Manager started.`);
     }
 }

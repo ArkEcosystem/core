@@ -1,90 +1,132 @@
-import { Enums, Transactions } from "@arkecosystem/crypto";
+import { Enums, Errors, Transactions } from "@arkecosystem/crypto";
 
+import assert from "assert";
+import { DeactivatedTransactionHandlerError, InvalidTransactionTypeError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { DelegateResignationTransactionHandler } from "./delegate-resignation";
+import { HtlcClaimTransactionHandler } from "./htlc-claim";
+import { HtlcLockTransactionHandler } from "./htlc-lock";
+import { HtlcRefundTransactionHandler } from "./htlc-refund";
 import { IpfsTransactionHandler } from "./ipfs";
 import { MultiPaymentTransactionHandler } from "./multi-payment";
 import { MultiSignatureTransactionHandler } from "./multi-signature";
 import { SecondSignatureTransactionHandler } from "./second-signature";
-import { TimelockTransferTransactionHandler } from "./timelock-transfer";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 import { TransferTransactionHandler } from "./transfer";
 import { VoteTransactionHandler } from "./vote";
 
-import { InvalidTransactionTypeError, TransactionHandlerAlreadyRegisteredError } from "../errors";
-import { TransactionHandler } from "./transaction";
-
-export type TransactionHandlerConstructor = new () => TransactionHandler;
-
 export class TransactionHandlerRegistry {
-    private readonly coreTransactionHandlers: Map<Enums.TransactionTypes, TransactionHandler> = new Map<
-        Enums.TransactionTypes,
+    private readonly registeredTransactionHandlers: Map<
+        Transactions.InternalTransactionType,
         TransactionHandler
-    >();
-    private readonly customTransactionHandlers: Map<number, TransactionHandler> = new Map<number, TransactionHandler>();
+    > = new Map();
+
+    private readonly knownWalletAttributes: Map<string, boolean> = new Map();
 
     constructor() {
-        this.registerCoreTransactionHandler(TransferTransactionHandler);
-        this.registerCoreTransactionHandler(SecondSignatureTransactionHandler);
-        this.registerCoreTransactionHandler(DelegateRegistrationTransactionHandler);
-        this.registerCoreTransactionHandler(VoteTransactionHandler);
-        this.registerCoreTransactionHandler(MultiSignatureTransactionHandler);
-        this.registerCoreTransactionHandler(IpfsTransactionHandler);
-        this.registerCoreTransactionHandler(TimelockTransferTransactionHandler);
-        this.registerCoreTransactionHandler(MultiPaymentTransactionHandler);
-        this.registerCoreTransactionHandler(DelegateResignationTransactionHandler);
+        this.registerTransactionHandler(TransferTransactionHandler);
+        this.registerTransactionHandler(SecondSignatureTransactionHandler);
+        this.registerTransactionHandler(DelegateRegistrationTransactionHandler);
+        this.registerTransactionHandler(VoteTransactionHandler);
+        this.registerTransactionHandler(MultiSignatureTransactionHandler);
+        this.registerTransactionHandler(IpfsTransactionHandler);
+        this.registerTransactionHandler(MultiPaymentTransactionHandler);
+        this.registerTransactionHandler(DelegateResignationTransactionHandler);
+        this.registerTransactionHandler(HtlcLockTransactionHandler);
+        this.registerTransactionHandler(HtlcClaimTransactionHandler);
+        this.registerTransactionHandler(HtlcRefundTransactionHandler);
     }
 
-    public get(type: Enums.TransactionTypes | number): TransactionHandler {
-        if (this.coreTransactionHandlers.has(type)) {
-            return this.coreTransactionHandlers.get(type);
+    public getAll(): TransactionHandler[] {
+        return [...this.registeredTransactionHandlers.values()];
+    }
+
+    public async get(type: number, typeGroup?: number): Promise<TransactionHandler> {
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+        if (this.registeredTransactionHandlers.has(internalType)) {
+            const handler: TransactionHandler = this.registeredTransactionHandlers.get(internalType);
+            if (!(await handler.isActivated())) {
+                throw new DeactivatedTransactionHandlerError(internalType);
+            }
+            return handler;
         }
 
-        if (this.customTransactionHandlers.has(type)) {
-            return this.customTransactionHandlers.get(type);
+        throw new InvalidTransactionTypeError(internalType.toString());
+    }
+
+    public async getActivatedTransactionHandlers(): Promise<TransactionHandler[]> {
+        const activatedTransactionHandlers: TransactionHandler[] = [];
+
+        for (const handler of this.registeredTransactionHandlers.values()) {
+            if (await handler.isActivated()) {
+                activatedTransactionHandlers.push(handler);
+            }
         }
 
-        throw new InvalidTransactionTypeError(type);
+        return activatedTransactionHandlers;
     }
 
-    public all(): TransactionHandler[] {
-        return [...this.coreTransactionHandlers.values(), ...this.customTransactionHandlers.values()];
-    }
-
-    public registerCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
+    public registerTransactionHandler(constructor: TransactionHandlerConstructor) {
         const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
-        const { type } = transactionConstructor;
+        const { typeGroup, type } = transactionConstructor;
 
-        if (this.customTransactionHandlers.has(type)) {
-            throw new TransactionHandlerAlreadyRegisteredError(type);
+        for (const dependency of service.dependencies()) {
+            this.registerTransactionHandler(dependency);
         }
 
-        Transactions.TransactionRegistry.registerCustomType(transactionConstructor);
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+        if (this.registeredTransactionHandlers.has(internalType)) {
+            return;
+        }
 
-        this.customTransactionHandlers.set(type, service);
+        if (typeGroup !== Enums.TransactionTypeGroup.Core) {
+            Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
+        }
+
+        const walletAttributes: ReadonlyArray<string> = service.walletAttributes();
+        for (const attribute of walletAttributes) {
+            assert(!this.knownWalletAttributes.has(attribute), `Wallet attribute is already known: ${attribute}`);
+            this.knownWalletAttributes.set(attribute, true);
+        }
+
+        this.registeredTransactionHandlers.set(internalType, service);
     }
 
-    public deregisterCustomTransactionHandler(constructor: TransactionHandlerConstructor): void {
+    public deregisterTransactionHandler(constructor: TransactionHandlerConstructor): void {
         const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
-        const { type } = transactionConstructor;
+        const { typeGroup, type } = transactionConstructor;
 
-        if (this.customTransactionHandlers.has(type)) {
-            Transactions.TransactionRegistry.deregisterCustomType(type);
-            this.customTransactionHandlers.delete(type);
+        if (typeGroup === Enums.TransactionTypeGroup.Core || typeGroup === undefined) {
+            throw new Errors.CoreTransactionTypeGroupImmutableError();
         }
+
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+        if (!this.registeredTransactionHandlers.has(internalType)) {
+            throw new InvalidTransactionTypeError(internalType.toString());
+        }
+
+        const walletAttributes: ReadonlyArray<string> = service.walletAttributes();
+        for (const attribute of walletAttributes) {
+            this.knownWalletAttributes.delete(attribute);
+        }
+
+        Transactions.TransactionRegistry.deregisterTransactionType(transactionConstructor);
+        this.registeredTransactionHandlers.delete(internalType);
     }
 
-    private registerCoreTransactionHandler(constructor: TransactionHandlerConstructor) {
-        const service: TransactionHandler = new constructor();
-        const transactionConstructor = service.getConstructor();
-        const { type } = transactionConstructor;
-
-        if (this.coreTransactionHandlers.has(type)) {
-            throw new TransactionHandlerAlreadyRegisteredError(type);
-        }
-
-        this.coreTransactionHandlers.set(type, service);
+    public isKnownWalletAttribute(attribute: string): boolean {
+        return this.knownWalletAttributes.has(attribute);
     }
 }
 

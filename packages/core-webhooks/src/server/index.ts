@@ -12,11 +12,6 @@ export const startServer = async config => {
         port: config.port,
         routes: {
             cors: true,
-            validate: {
-                async failAction(request, h, err) {
-                    throw err;
-                },
-            },
         },
     });
 
@@ -32,7 +27,11 @@ export const startServer = async config => {
         path: "/api/webhooks",
         handler: () => {
             return {
-                data: database.all(),
+                data: database.all().map(webhook => {
+                    webhook = { ...webhook };
+                    delete webhook.token;
+                    return webhook;
+                }),
             };
         },
     });
@@ -73,7 +72,7 @@ export const startServer = async config => {
                 return Boom.notFound();
             }
 
-            const webhook: IWebhook = database.findById(request.params.id);
+            const webhook: IWebhook = { ...database.findById(request.params.id) };
             delete webhook.token;
 
             return utils.respondWithResource(webhook);

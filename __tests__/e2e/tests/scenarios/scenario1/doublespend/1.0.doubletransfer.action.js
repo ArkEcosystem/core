@@ -1,8 +1,9 @@
 "use strict";
 
-const { Managers, Transactions } = require("@arkecosystem/crypto");
+const { Managers, Utils } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
+const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
 
 /**
  * Attempt to double spend
@@ -13,20 +14,15 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [
-        Transactions.BuilderFactory.transfer()
-            .amount(600 * Math.pow(10, 8))
-            .recipientId(utils.doubleTransferRecipient.address)
-            .vendorField("first part of double spend")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(utils.doubleTransferSender.passphrase)
-            .getStruct(),
-        Transactions.BuilderFactory.transfer()
-            .amount(600 * Math.pow(10, 8))
-            .recipientId(utils.doubleTransferRecipient.address)
-            .vendorField("second part of double spend")
-            .fee(0.1 * Math.pow(10, 8))
-            .sign(utils.doubleTransferSender.passphrase)
-            .getStruct(),
+        TransactionFactory.transfer(utils.doubleTransferRecipient.address, 600 * Math.pow(10, 8), "first part of double spend")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withPassphrase(utils.doubleTransferSender.passphrase)
+            .createOne(),
+        TransactionFactory.transfer(utils.doubleTransferRecipient.address, 600 * Math.pow(10, 8), "second part of double spend")
+            .withFee(0.1 * Math.pow(10, 8))
+            .withNonce(Utils.BigNumber.make(1))
+            .withPassphrase(utils.doubleTransferSender.passphrase)
+            .createOne(),
     ];
 
     await testUtils.POST("transactions", { transactions });

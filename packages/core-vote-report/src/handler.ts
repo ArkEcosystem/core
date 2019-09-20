@@ -2,7 +2,6 @@ import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, roundCalculator, supplyCalculator } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
-import sumBy from "lodash.sumby";
 
 const formatDelegates = (
     delegates: State.IWallet[],
@@ -19,7 +18,9 @@ const formatDelegates = (
     return delegates.map((delegate: State.IWallet) => {
         const filteredVoters: State.IWallet[] = databaseService.walletManager
             .allByPublicKey()
-            .filter(wallet => wallet.vote === delegate.publicKey && wallet.balance.gt(0.1 * 1e8));
+            .filter(
+                wallet => wallet.getAttribute<string>("vote") === delegate.publicKey && wallet.balance.gt(0.1 * 1e8),
+            );
 
         const approval: string = Number(delegateCalculator.calculateApproval(delegate, lastHeight)).toLocaleString(
             undefined,
@@ -29,11 +30,13 @@ const formatDelegates = (
             },
         );
 
-        const rank: string = delegate.rate.toLocaleString(undefined, {
+        const rank: string = delegate.getAttribute<number>("delegate.rank").toLocaleString(undefined, {
             minimumIntegerDigits: 2,
         });
 
-        const votes: string = Number(delegate.voteBalance.div(1e8)).toLocaleString(undefined, {
+        const votes: string = Number(
+            delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance").div(1e8),
+        ).toLocaleString(undefined, {
             maximumFractionDigits: 0,
         });
 
@@ -43,7 +46,7 @@ const formatDelegates = (
 
         return {
             rank,
-            username: delegate.username.padEnd(25),
+            username: delegate.getAttribute<string>("delegate.username").padEnd(25),
             approval: approval.padEnd(4),
             votes: votes.padStart(10),
             voterCount: voterCount.padStart(5),
@@ -58,15 +61,15 @@ export const handler = (request, h) => {
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
     const { maxDelegates } = roundCalculator.calculateRound(lastBlock.data.height);
 
-    const supply: number = supplyCalculator.calculate(lastBlock.data.height);
+    const supply: Utils.BigNumber = Utils.BigNumber.make(supplyCalculator.calculate(lastBlock.data.height));
 
     const allByUsername: State.IWallet[] = databaseService.walletManager
         .allByUsername()
         .map((delegate, index) => {
-            delegate.rate = delegate.rate || index + 1;
+            delegate.setAttribute("delegate.rank", delegate.getAttribute("delegate.rank") || index + 1);
             return delegate;
         })
-        .sort((a, b) => a.rate - b.rate);
+        .sort((a, b) => a.getAttribute<number>("delegate.rank") - b.getAttribute<number>("delegate.rank"));
 
     const active: State.IWallet[] = allByUsername.slice(0, maxDelegates);
     const standby: State.IWallet[] = allByUsername.slice(
@@ -76,10 +79,11 @@ export const handler = (request, h) => {
 
     const voters: State.IWallet[] = databaseService.walletManager
         .allByPublicKey()
-        .filter(wallet => wallet.vote && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
+        .filter(wallet => wallet.hasVoted() && (wallet.balance as Utils.BigNumber).gt(0.1 * 1e8));
 
-    const totalVotes: number = sumBy(voters, wallet => +wallet.balance.toFixed());
-    const percentage: number = (totalVotes * 100) / supply;
+    const totalVotes: Utils.BigNumber = voters
+        .map(wallet => wallet.balance)
+        .reduce((a: Utils.BigNumber, b: Utils.BigNumber) => a.plus(b), Utils.BigNumber.ZERO);
 
     const client: {
         token: string;
@@ -97,16 +101,12 @@ export const handler = (request, h) => {
             voters: voters.length.toLocaleString(undefined, {
                 maximumFractionDigits: 0,
             }),
-            supply: (supply / 1e8).toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-            }),
-            totalVotes: (totalVotes / 1e8).toLocaleString(undefined, {
-                maximumFractionDigits: 0,
-            }),
-            percentage: percentage.toLocaleString(undefined, {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-            }),
+            supply: supply.div(1e8).toFixed(0),
+            totalVotes: totalVotes.div(1e8).toFixed(0),
+            percentage: totalVotes
+                .times(100)
+                .div(supply)
+                .toFixed(2),
         })
         .type("text/plain");
 };

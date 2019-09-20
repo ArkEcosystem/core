@@ -80,7 +80,7 @@ export class Client {
 
     public async emitEvent(
         event: string,
-        body: { error: string } | Interfaces.IBlockData | Interfaces.ITransactionData,
+        body: { error: string } | { activeDelegates: string[] } | Interfaces.IBlockData | Interfaces.ITransactionData,
     ): Promise<void> {
         // NOTE: Events need to be emitted to the localhost. If you need to trigger
         // actions on a remote host based on events you should be using webhooks
@@ -125,7 +125,7 @@ export class Client {
         throw new HostNoResponseError(this.hosts.map(host => host.hostname).join());
     }
 
-    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout: number = 2000): Promise<T> {
+    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout: number = 4000): Promise<T> {
         try {
             const response: P2P.IResponse<T> = await socketEmit(
                 this.host.hostname,

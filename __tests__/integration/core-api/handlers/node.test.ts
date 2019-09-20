@@ -18,6 +18,7 @@ describe("API 2.0 - Loader", () => {
             expect(response.data.data.synced).toBeBoolean();
             expect(response.data.data.now).toBeNumber();
             expect(response.data.data.blocksCount).toBeNumber();
+            expect(response.data.data.timestamp).toBeNumber();
         });
     });
 
@@ -40,6 +41,7 @@ describe("API 2.0 - Loader", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 
+            expect(response.data.data.core).toBeObject();
             expect(response.data.data.nethash).toBeString();
             expect(response.data.data.slip44).toBeNumber();
             expect(response.data.data.wif).toBeNumber();

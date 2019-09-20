@@ -4,8 +4,8 @@ import { blockchain } from "../../../mocks/blockchain";
 import { database } from "../../../mocks/database";
 
 import { Crypto } from "@arkecosystem/crypto";
+import { acceptNewPeer } from "../../../../../../packages/core-p2p/src/socket-server/versions/internal";
 import {
-    acceptNewPeer,
     getBlocks,
     getCommonBlocks,
     getPeers,

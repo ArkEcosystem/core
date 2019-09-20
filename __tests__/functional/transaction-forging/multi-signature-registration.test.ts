@@ -1,4 +1,4 @@
-import { Identities } from "@arkecosystem/crypto";
+import { Identities, Managers } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
@@ -69,6 +69,47 @@ describe("Transaction Forging - Multi Signature Registration", () => {
             .withPassphraseList(passphrases)
             .withPassphrasePair({ passphrase, secondPassphrase })
             .createOne();
+
+        await expect(multiSignature).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(multiSignature.id).toBeForged();
+    });
+
+    it("should reject before AIP11 milestone and accept after AIP11 milestone", async () => {
+        const passphrase = secrets[6];
+        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+            .withPassphrase(secrets[0])
+            .createOne();
+
+        await expect(initialFunds).toBeAccepted();
+        await support.snoozeForBlock(1);
+        await expect(initialFunds.id).toBeForged();
+
+        // Register a multi signature wallet with defaults
+        const passphrases = [passphrase, secrets[3], secrets[4]];
+        const participants = [
+            Identities.PublicKey.fromPassphrase(passphrases[0]),
+            Identities.PublicKey.fromPassphrase(passphrases[1]),
+            Identities.PublicKey.fromPassphrase(passphrases[2]),
+        ];
+
+        const multiSignature = TransactionFactory.multiSignature(participants, 3)
+            .withPassphraseList(passphrases)
+            .withPassphrase(passphrase)
+            .createOne();
+
+        Managers.configManager.getMilestone().aip11 = false;
+
+        support.injectMilestone(1, {
+            height: support.getLastHeight() + 1,
+            aip11: true,
+        });
+
+        await expect(multiSignature).toBeRejected();
+        await support.snoozeForBlock(1);
+        await expect(multiSignature.id).not.toBeForged();
+
+        expect(Managers.configManager.getMilestone().aip11).toBeTrue();
 
         await expect(multiSignature).toBeAccepted();
         await support.snoozeForBlock(1);

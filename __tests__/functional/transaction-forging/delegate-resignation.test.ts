@@ -1,3 +1,5 @@
+import { app } from "@arkecosystem/core-container";
+import { Database } from "@arkecosystem/core-interfaces";
 import { Identities } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
@@ -106,6 +108,49 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await support.snoozeForBlock(1);
             await expect(transactionsResign2.id).not.toBeForged();
         });
+
+        it("should broadcast, reject and not forge it if not enough delegates", async () => {
+            // Prepare a fresh wallet for the tests
+            const passphrase = generateMnemonic();
+
+            // Initial Funds
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+                .withPassphrase(genesisPassphrase)
+                .createOne();
+
+            await expect(initialFunds).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(initialFunds.id).toBeForged();
+
+            // Register a delegate
+            const transactionsRegister = TransactionFactory.delegateRegistration()
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(transactionsRegister).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(transactionsRegister.id).toBeForged();
+
+            const walletManager = app.resolvePlugin<Database.IDatabaseService>("database").walletManager;
+
+            const takenDelegates = walletManager.allByUsername().slice(0, 50);
+            for (const delegate of takenDelegates) {
+                walletManager.forgetByUsername(delegate.getAttribute("delegate.username"));
+            }
+
+            // Resign a delegate
+            const transactionsResign = TransactionFactory.delegateResignation()
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(transactionsResign).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(transactionsResign.id).not.toBeForged();
+
+            for (const delegate of takenDelegates) {
+                walletManager.reindex(delegate);
+            }
+        });
     });
 
     describe("Signed with 2 Passphases", () => {
@@ -179,7 +224,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();
 
-            await expect(transactionsResign.id).toBeRejected();
+            await expect(transactionsResign).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(transactionsResign.id).not.toBeForged();
         });
@@ -230,7 +275,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();
 
-            await expect(transactionsResign2.id).toBeRejected();
+            await expect(transactionsResign2).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(transactionsResign2.id).not.toBeForged();
         });

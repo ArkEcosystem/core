@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
-import { Interfaces } from "@arkecosystem/crypto";
-import AJV from "ajv";
+import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
@@ -19,17 +18,19 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     constructor(private readonly connector: P2P.IPeerConnector) {}
 
     public async downloadBlocks(peer: P2P.IPeer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
+        this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
+
+        let blocks: Interfaces.IBlockData[];
         try {
-            this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
-
-            return await this.getPeerBlocks(peer, { fromBlockHeight });
-        } catch (error) {
-            this.logger.error(`Could not download blocks from ${peer.url}: ${error.message}`);
-
-            this.emitter.emit("internal.p2p.disconnectPeer", { peer });
-
-            throw error;
+            blocks = await this.getPeerBlocks(peer, { fromBlockHeight });
+        } catch {
+            this.logger.debug(
+                `Failed to download blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}.`,
+            );
+            blocks = [];
         }
+
+        return blocks;
     }
 
     public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlockJson) {
@@ -69,27 +70,47 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             if (!peer.isVerified()) {
                 throw new PeerVerificationFailedError();
             }
-            const { config } = pingResponse;
-            Promise.all(
-                Object.entries(config.plugins).map(async ([name, plugin]) => {
-                    try {
-                        if (peer.ports[name] === undefined) {
-                            const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
-
-                            if (status === 200) {
-                                peer.ports[name] = plugin.port;
-                            }
-                        }
-                    } catch (error) {
-                        peer.ports[name] = -1;
-                    }
-                }),
-            );
         }
 
         peer.lastPinged = dayjs();
         peer.state = pingResponse.state;
+        peer.plugins = pingResponse.config.plugins;
+
         return pingResponse.state;
+    }
+
+    public async pingPorts(peer: P2P.IPeer): Promise<void> {
+        Promise.all(
+            Object.entries(peer.plugins).map(async ([name, plugin]) => {
+                try {
+                    let valid: boolean = false;
+
+                    if (name.includes("core-api") || name.includes("core-wallet-api")) {
+                        const { body, status } = await httpie.get(
+                            `http://${peer.ip}:${plugin.port}/api/node/configuration`,
+                        );
+
+                        if (status === 200) {
+                            if (body.data.nethash === Managers.configManager.get("network.nethash")) {
+                                valid = true;
+                            } else {
+                                this.logger.debug("Disconnecting from peer, because api returned a different nethash.");
+                                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                            }
+                        }
+                    } else {
+                        const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+                        valid = status === 200;
+                    }
+
+                    if (valid) {
+                        peer.ports[name] = plugin.port;
+                    }
+                } catch (error) {
+                    peer.ports[name] = -1;
+                }
+            }),
+        );
     }
 
     public validatePeerConfig(peer: P2P.IPeer, config: IPeerConfig): boolean {
@@ -137,19 +158,44 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         {
             fromBlockHeight,
             blockLimit,
-            timeoutMsec,
             headersOnly,
-        }: { fromBlockHeight: number; blockLimit?: number; timeoutMsec?: number; headersOnly?: boolean },
+        }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
-        return this.emit(peer, "p2p.peer.getBlocks", {
-            lastBlockHeight: fromBlockHeight,
-            blockLimit,
-            headersOnly,
-            headers: {
-                "Content-Type": "application/json",
+        const peerBlocks = await this.emit(
+            peer,
+            "p2p.peer.getBlocks",
+            {
+                lastBlockHeight: fromBlockHeight,
+                blockLimit,
+                headersOnly,
+                serialized: true,
+                headers: {
+                    "Content-Type": "application/json",
+                },
             },
-            timeout: timeoutMsec || 10000,
-        });
+            app.resolveOptions("p2p").getBlocksTimeout,
+        );
+
+        if (!peerBlocks) {
+            this.logger.debug(
+                `Peer ${peer.ip} did not return any blocks via height ${fromBlockHeight.toLocaleString()}.`,
+            );
+            return [];
+        }
+
+        for (const block of peerBlocks) {
+            if (!block.transactions) {
+                continue;
+            }
+
+            block.transactions = block.transactions.map(transaction => {
+                const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                data.blockId = block.id;
+                return data;
+            });
+        }
+
+        return peerBlocks;
     }
 
     private parseHeaders(peer: P2P.IPeer, response): void {
@@ -165,11 +211,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return false;
         }
 
-        const ajv = new AJV();
-        const errors = ajv.validate(schema, reply) ? undefined : ajv.errorsText();
-
-        if (errors) {
-            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${errors}`);
+        const { error } = Validation.validator.validate(schema, reply);
+        if (error) {
+            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
             return false;
         }
 
@@ -202,14 +246,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 throw new Error(`Response validation failed from peer ${peer.ip} : ${JSON.stringify(response.data)}`);
             }
         } catch (e) {
-            this.handleSocketError(peer, e);
+            this.handleSocketError(peer, event, e);
             return undefined;
         }
 
         return response.data;
     }
 
-    private handleSocketError(peer: P2P.IPeer, error: Error): void {
+    private handleSocketError(peer: P2P.IPeer, event: string, error: Error): void {
         if (!error.name) {
             return;
         }
@@ -223,17 +267,13 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             case "Error":
             case "CoreRateLimitExceededError":
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
-                    this.logger.debug(`Response error (peer ${peer.ip}) : ${error.message}`);
+                    this.logger.debug(`Response error (peer ${peer.ip}/${event}) : ${error.message}`);
                 }
                 break;
-            case SocketErrors.Timeout:
-            case "TimeoutError":
-            case "CoreSocketNotOpenError":
-                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
-
-                break;
             default:
-                this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+                if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                    this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
+                }
                 this.emitter.emit("internal.p2p.disconnectPeer", { peer });
         }
     }

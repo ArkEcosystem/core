@@ -13,8 +13,8 @@ export class Utils {
         return HashAlgorithms.sha256(Serializer.getBytes(transaction, options));
     }
 
-    public static getId(transaction: ITransactionData): string {
-        const id: string = Utils.toHash(transaction).toString("hex");
+    public static getId(transaction: ITransactionData, options?: ISerializeOptions): string {
+        const id: string = Utils.toHash(transaction, options).toString("hex");
 
         // Apply fix for broken type 1 and 4 transactions, which were
         // erroneously calculated with a recipient id.

@@ -10,8 +10,9 @@ import {
     State,
     TransactionPool,
 } from "@arkecosystem/core-interfaces";
-import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
+import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
 import async from "async";
 import delay from "delay";
 import pluralize from "pluralize";
@@ -86,9 +87,7 @@ export class Blockchain implements blockchain.IBlockchain {
                 return this.processBlocks(blockList.blocks.map(b => Blocks.BlockFactory.fromData(b)), cb);
             } catch (error) {
                 logger.error(
-                    `Failed to process ${blockList.blocks.length} blocks from height ${
-                        blockList.blocks[0].height
-                    } in queue.`,
+                    `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
                 logger.error(error.stack);
                 return cb();
@@ -127,7 +126,7 @@ export class Blockchain implements blockchain.IBlockchain {
             const action = this.actions[actionKey];
 
             if (action) {
-                setTimeout(() => action.call(this, event), 0);
+                setImmediate(() => action(event));
             } else {
                 logger.error(`No action '${actionKey}' found`);
             }
@@ -221,15 +220,6 @@ export class Blockchain implements blockchain.IBlockchain {
     }
 
     /**
-     * Hand the given transactions to the transaction handler.
-     */
-    public async postTransactions(transactions: Interfaces.ITransaction[]): Promise<void> {
-        logger.info(`Received ${transactions.length} new ${pluralize("transaction", transactions.length)}`);
-
-        await this.transactionPool.addTransactions(transactions);
-    }
-
-    /**
      * Push a block to the process queue.
      */
     public handleIncomingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
@@ -283,7 +273,9 @@ export class Blockchain implements blockchain.IBlockchain {
                 this.queue.push({ blocks: currentBlocksChunk });
                 currentBlocksChunk = [];
                 currentTransactionsCount = 0;
-                milestoneHeights.shift();
+                if (nextMilestone) {
+                    milestoneHeights.shift();
+                }
             }
         }
         this.queue.push({ blocks: currentBlocksChunk });
@@ -318,7 +310,15 @@ export class Blockchain implements blockchain.IBlockchain {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());
+            let newLastBlock: Interfaces.IBlock;
+            if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
+                newLastBlock = app
+                    .resolvePlugin<State.IStateService>("state")
+                    .getStore()
+                    .getGenesisBlock();
+            } else {
+                newLastBlock = BlockFactory.fromData(blocksToRemove.pop(), { deserializeTransactionsUnchecked: true });
+            }
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock.data;
@@ -385,6 +385,16 @@ export class Blockchain implements blockchain.IBlockchain {
     public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
+
+        if (blocks[0] &&
+            !isBlockChained(this.getLastBlock().data, blocks[0].data, logger) &&
+            !Utils.isException(blocks[0].data)) {
+            // Discard remaining blocks as it won't go anywhere anyway.
+            this.clearQueue();
+            this.resetLastDownloadedBlock();
+            return callback();
+        }
+
         for (const block of blocks) {
             lastProcessResult = await this.blockProcessor.process(block);
 
@@ -398,23 +408,33 @@ export class Blockchain implements blockchain.IBlockchain {
         if (acceptedBlocks.length > 0) {
             try {
                 await this.database.saveBlocks(acceptedBlocks);
-            } catch (exceptionSaveBlocks) {
-                logger.error(
-                    `Could not save ${acceptedBlocks.length} blocks to database : ${exceptionSaveBlocks.stack}`,
+            } catch (error) {
+                logger.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
+
+                this.clearQueue();
+
+                // Rounds are saved while blocks are being processed and may now be out of sync with the last
+                // block that was written into the database.
+
+                const lastBlock: Interfaces.IBlock = await this.database.getLastBlock();
+                const lastHeight: number = lastBlock.data.height;
+                const deleteRoundsAfter: number = roundCalculator.calculateRound(lastHeight).round;
+
+                logger.info(
+                    `Reverting ${pluralize("block", acceptedBlocks.length, true)} back to last height: ${lastHeight}`,
                 );
 
-                const resetToHeight = async height => {
-                    try {
-                        return await this.removeTopBlocks((await this.database.getLastBlock()).data.height - height);
-                    } catch (e) {
-                        logger.error(`Could not remove top blocks from database : ${e.stack}`);
+                for (const block of acceptedBlocks.reverse()) {
+                    await this.database.walletManager.revertBlock(block);
+                }
 
-                        return resetToHeight(height); // keep trying, we can't do anything while this fails
-                    }
-                };
-                await resetToHeight(acceptedBlocks[0].data.height - 1);
+                this.state.setLastBlock(lastBlock);
+                this.resetLastDownloadedBlock();
 
-                return this.processBlocks(blocks, callback); // keep trying, we can't do anything while this fails
+                await this.database.deleteRound(deleteRoundsAfter + 1);
+                await this.database.loadBlocksFromCurrentRound();
+
+                return callback();
             }
         }
 
@@ -498,7 +518,7 @@ export class Blockchain implements blockchain.IBlockchain {
      * Get the last downloaded block of the blockchain.
      */
     public getLastDownloadedBlock(): Interfaces.IBlockData {
-        return this.state.lastDownloadedBlock;
+        return this.state.lastDownloadedBlock || this.getLastBlock().data;
     }
 
     /**

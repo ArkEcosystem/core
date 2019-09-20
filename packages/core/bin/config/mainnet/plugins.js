@@ -2,6 +2,7 @@ module.exports = {
     "@arkecosystem/core-event-emitter": {},
     "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-state": {},
+    "@arkecosystem/core-marketplace":{},
     "@arkecosystem/core-database-postgres": {
         connection: {
             host: process.env.CORE_DB_HOST || "localhost",
@@ -26,9 +27,11 @@ module.exports = {
                 vote: 100,
                 multiSignature: 500,
                 ipfs: 250,
-                timelockTransfer: 500,
                 multiPayment: 500,
                 delegateResignation: 100,
+                htlcLock: 100,
+                htlcClaim: 0,
+                htlcRefund: 0,
             },
         },
     },
@@ -42,7 +45,6 @@ module.exports = {
         enabled: !process.env.CORE_API_DISABLED,
         host: process.env.CORE_API_HOST || "0.0.0.0",
         port: process.env.CORE_API_PORT || 4003,
-        whitelist: ["*"],
     },
     "@arkecosystem/core-wallet-api": {},
     "@arkecosystem/core-webhooks": {

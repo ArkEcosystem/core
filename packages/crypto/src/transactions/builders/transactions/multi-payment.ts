@@ -1,17 +1,16 @@
-import { TransactionTypes } from "../../../enums";
 import { MaximumPaymentCountExceededError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { MultiPaymentTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.MultiPayment;
-        this.data.fee = feeManager.get(TransactionTypes.MultiPayment);
-        this.data.payments = {};
+        this.data.type = MultiPaymentTransaction.type;
+        this.data.typeGroup = MultiPaymentTransaction.typeGroup;
+        this.data.fee = MultiPaymentTransaction.staticFee();
         this.data.vendorFieldHex = undefined;
         this.data.asset = {
             payments: [],
@@ -19,16 +18,15 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         this.data.amount = BigNumber.make(0);
     }
 
-    public addPayment(recipientId: string, amount: number): MultiPaymentBuilder {
-        if (this.data.asset.payments.length >= 2258) {
-            throw new MaximumPaymentCountExceededError(this.data.asset.payments.length);
+    public addPayment(recipientId: string, amount: string): MultiPaymentBuilder {
+        if (this.data.asset.payments.length >= 500) {
+            throw new MaximumPaymentCountExceededError(this.data.asset.payments.length + 1);
         }
 
         this.data.asset.payments.push({
             amount: BigNumber.make(amount),
             recipientId,
         });
-        this.data.amount = (this.data.amount as BigNumber).plus(amount);
 
         return this;
     }

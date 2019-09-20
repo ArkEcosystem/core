@@ -4,7 +4,7 @@ import "./mocks/core-container";
 
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Transactions } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Transactions } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
@@ -12,18 +12,20 @@ import { testnet } from "../../../packages/crypto/src/networks";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { sampleBlock } from "./__fixtures__/block";
 import { delegate } from "./__fixtures__/delegate";
-import { sampleTransaction } from "./__fixtures__/transaction";
 
 jest.setTimeout(30000);
 jest.mock("../../../packages/core-forger/src/client");
 
 let forgeManager;
+let mockTransaction: Interfaces.ITransactionData;
 
 afterAll(async () => {
     jest.restoreAllMocks();
 });
 
 beforeEach(() => {
+    jest.restoreAllMocks();
+    mockTransaction = TransactionFactory.transfer().createOne();
     defaults.hosts = [{ hostname: "127.0.0.1", port: 4000 }];
     forgeManager = new ForgerManager(defaults);
 });
@@ -47,9 +49,11 @@ describe("Forger Manager", () => {
             const del = new Delegate("a secret", testnet.network);
             const round = {
                 lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
-                timestamp: 1,
+                timestamp: Crypto.Slots.getTime(),
                 reward: 2 * 1e8,
             };
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(2000);
 
             await forgeManager.forgeNewBlock(del, round, {
                 lastBlockId: round.lastBlock.id,
@@ -71,6 +75,62 @@ describe("Forger Manager", () => {
                 expect.any(Object),
             );
         });
+
+        it("should not forge a block when not enough time left", async () => {
+            // NOTE: make sure we have valid transactions from an existing wallet
+            const transactions = TransactionFactory.transfer()
+                .withNetwork("testnet")
+                .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+                .build();
+
+            // @ts-ignore
+            forgeManager.client.getTransactions.mockReturnValue({
+                transactions: transactions.map(tx => tx.serialized.toString("hex")),
+            });
+
+            forgeManager.usernames = [];
+
+            const del = new Delegate("a secret", testnet.network);
+            const round = {
+                lastBlock: { id: sampleBlock.data.id, height: sampleBlock.data.height },
+                timestamp: Crypto.Slots.getTime(),
+                reward: 2 * 1e8,
+            };
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(2000);
+
+            await forgeManager.forgeNewBlock(del, round, {
+                lastBlockId: round.lastBlock.id,
+                nodeHeight: round.lastBlock.height,
+            });
+
+            expect(forgeManager.client.broadcastBlock).toHaveBeenCalled();
+
+            jest.resetAllMocks();
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(1000);
+
+            await forgeManager.forgeNewBlock(del, round, {
+                lastBlockId: round.lastBlock.id,
+                nodeHeight: round.lastBlock.height,
+            });
+
+            expect(forgeManager.client.broadcastBlock).not.toHaveBeenCalled();
+
+            jest.resetAllMocks();
+
+            jest.spyOn(Crypto.Slots, "getTimeInMsUntilNextSlot").mockReturnValueOnce(2000);
+            jest.spyOn(Crypto.Slots, "getSlotNumber").mockImplementation(timestamp => {
+                return timestamp === undefined ? 1 : 2;
+            });
+
+            await forgeManager.forgeNewBlock(del, round, {
+                lastBlockId: round.lastBlock.id,
+                nodeHeight: round.lastBlock.height,
+            });
+
+            expect(forgeManager.client.broadcastBlock).not.toHaveBeenCalled();
+        });
     });
 
     describe("checkSlot", () => {
@@ -82,6 +142,21 @@ describe("Forger Manager", () => {
 
             expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerFailed, {
                 error: "oh bollocks",
+            });
+        });
+    });
+
+    describe("forger.started", () => {
+        it("should emit forger.started event", async () => {
+            const passphrase = "secret";
+            const manager = new ForgerManager(defaults);
+            (manager as any).client.getRound.mockResolvedValueOnce({ delegates: [] });
+            (manager as any).secrets = [passphrase];
+
+            const publicKey = Identities.PublicKey.fromPassphrase(passphrase);
+            await manager.startForging("", "");
+            expect((manager as any).client.emitEvent).toHaveBeenCalledWith(ApplicationEvents.ForgerStarted, {
+                activeDelegates: [publicKey],
             });
         });
     });
@@ -99,15 +174,15 @@ describe("Forger Manager", () => {
         it("should return deserialized transactions", async () => {
             // @ts-ignore
             forgeManager.client.getTransactions.mockReturnValue({
-                transactions: [Transactions.TransactionFactory.fromData(sampleTransaction).serialized.toString("hex")],
+                transactions: [Transactions.TransactionFactory.fromData(mockTransaction).serialized.toString("hex")],
             });
 
             const transactions = await forgeManager.getTransactionsForForging();
 
             expect(transactions).toHaveLength(1);
             expect(forgeManager.client.getTransactions).toHaveBeenCalled();
-            expect(transactions[0].recipientId).toEqual(sampleTransaction.recipientId);
-            expect(transactions[0].senderPublicKey).toEqual(sampleTransaction.senderPublicKey);
+            expect(transactions[0].recipientId).toEqual(mockTransaction.recipientId);
+            expect(transactions[0].senderPublicKey).toEqual(mockTransaction.senderPublicKey);
         });
     });
 

@@ -14,13 +14,16 @@ import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
+import { RateLimiter } from "./rate-limiter";
 import { checkDNS, checkNTP } from "./utils";
+import { buildRateLimiter } from "./utils/build-rate-limiter";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
     public server: SocketCluster;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
     private initializing: boolean = true;
+    private coldStart: boolean = false;
 
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
@@ -28,6 +31,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     private readonly communicator: P2P.IPeerCommunicator;
     private readonly processor: P2P.IPeerProcessor;
     private readonly storage: P2P.IPeerStorage;
+    private readonly rateLimiter: RateLimiter;
 
     public constructor({
         communicator,
@@ -44,6 +48,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         this.communicator = communicator;
         this.processor = processor;
         this.storage = storage;
+        this.rateLimiter = buildRateLimiter(options);
     }
 
     public getServer(): SocketCluster {
@@ -78,16 +83,20 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             }
         }
 
+        // Give time to cooldown rate limits after peer verifier finished.
+        await delay(1000);
+
         this.initializing = false;
     }
 
     public async updateNetworkStatus(initialRun?: boolean): Promise<void> {
-        if (process.env.CORE_ENV === "test" || process.env.NODE_ENV === "test") {
+        if (process.env.NODE_ENV === "test") {
             return;
         }
 
         if (this.config.networkStart) {
-            this.logger.warn("Skipped peer discovery because the relay is in genesis-start mode.");
+            this.coldStart = true;
+            this.logger.warn("Entering cold start because the relay is in genesis-start mode.");
             return;
         }
 
@@ -96,13 +105,12 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return;
         }
 
-        if (initialRun || !this.hasMinimumPeers()) {
-            try {
-                await this.discoverPeers();
+        try {
+            if (await this.discoverPeers(initialRun)) {
                 await this.cleansePeers();
-            } catch (error) {
-                this.logger.error(`Network Status: ${error.message}`);
             }
+        } catch (error) {
+            this.logger.error(`Network Status: ${error.message}`);
         }
 
         let nextRunDelaySeconds = 600;
@@ -127,7 +135,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         let max = peers.length;
 
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").globalTimeout;
+        const pingDelay = fast ? 1500 : app.resolveOptions("p2p").verifyTimeout;
 
         if (peerCount) {
             peers = shuffle(peers).slice(0, peerCount);
@@ -149,9 +157,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                         peerErrors[error] = [peer];
                     }
 
+                    this.emitter.emit("internal.p2p.disconnectPeer", { peer });
                     this.emitter.emit(ApplicationEvents.PeerRemoved, peer);
-
-                    this.storage.forgetPeer(peer);
 
                     return undefined;
                 }
@@ -169,25 +176,60 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         }
     }
 
-    public async discoverPeers(): Promise<void> {
-        const queryAtLeastNPeers = 4;
-        let queriedPeers = 0;
+    public async discoverPeers(initialRun?: boolean): Promise<boolean> {
+        const maxPeersPerPeer: number = 50;
+        const ownPeers: P2P.IPeer[] = this.storage.getPeers();
+        const theirPeers: P2P.IPeer[] = Object.values(
+            (await Promise.all(
+                shuffle(this.storage.getPeers())
+                    .slice(0, 8)
+                    .map(async (peer: P2P.IPeer) => {
+                        try {
+                            const hisPeers = await this.communicator.getPeers(peer);
+                            return hisPeers || [];
+                        } catch (error) {
+                            this.logger.debug(`Failed to get peers from ${peer.ip}: ${error.message}`);
+                            return [];
+                        }
+                    }),
+            ))
+                .map(peers =>
+                    shuffle(peers)
+                        .slice(0, maxPeersPerPeer)
+                        .reduce((acc, curr) => ({ ...acc, ...{ [curr.ip]: curr } }), {}),
+                )
+                .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+        );
 
-        const shuffledPeers = shuffle(this.storage.getPeers());
+        if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
+            await Promise.all(theirPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
+            this.pingPeerPorts(initialRun);
 
-        for (const peer of shuffledPeers) {
-            try {
-                const hisPeers = await this.communicator.getPeers(peer);
-                queriedPeers++;
-                await Promise.all(hisPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
-            } catch (error) {
-                // Just try with the next peer from shuffledPeers.
-            }
-
-            if (this.hasMinimumPeers() && queriedPeers >= queryAtLeastNPeers) {
-                return;
-            }
+            return true;
         }
+
+        this.pingPeerPorts();
+
+        return false;
+    }
+
+    public async getRateLimitStatus(ip: string, endpoint?: string): Promise<P2P.IRateLimitStatus> {
+        return {
+            blocked: await this.rateLimiter.isBlocked(ip),
+            exceededLimitOnEndpoint: await this.rateLimiter.hasExceededRateLimit(ip, endpoint),
+        };
+    }
+
+    public async isBlockedByRateLimit(ip: string): Promise<boolean> {
+        return this.rateLimiter.isBlocked(ip);
+    }
+
+    public isColdStart(): boolean {
+        return this.coldStart;
+    }
+
+    public completeColdStart(): void {
+        this.coldStart = false;
     }
 
     public getNetworkHeight(): number {
@@ -269,9 +311,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
             if (peersFiltered.length === 0) {
                 this.logger.error(
-                    `Could not download blocks: Failed to pick a random peer from our list of ${
-                        peersAll.length
-                    } peers: all are either banned or on a different chain than us`,
+                    `Could not download blocks: Failed to pick a random peer from our list of ${peersAll.length} peers: all are either banned or on a different chain than us`,
                 );
 
                 return [];
@@ -295,17 +335,16 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                         const height: number = fromBlockHeight + chunkSize * index;
                         const peersToTry: P2P.IPeer[] = [peer, sample(peersFiltered), sample(peersFiltered)]; // 2 "fallback" peers to download from if 1st one failed
 
+                        let blocks: Interfaces.IBlockData[];
                         for (const peerToDownloadFrom of peersToTry) {
-                            try {
-                                return await this.communicator.downloadBlocks(peerToDownloadFrom, height);
-                            } catch (e) {} // tslint:disable-line
+                            blocks = await this.communicator.downloadBlocks(peerToDownloadFrom, height);
+
+                            if (blocks.length > 0) {
+                                return blocks;
+                            }
                         }
 
-                        throw new Error(
-                            `Could not download blocks at height ${height} from peers: ${peersToTry
-                                .map(p => p.ip)
-                                .join()}`,
-                        );
+                        return blocks;
                     }),
             )).reduce((acc, curr) => [...acc, ...(curr || [])], []);
         } catch (error) {
@@ -375,6 +414,25 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         return Promise.all(
             peers.map((peer: P2P.IPeer) => this.communicator.postTransactions(peer, transactionsBroadcast)),
+        );
+    }
+
+    private async pingPeerPorts(initialRun?: boolean): Promise<void> {
+        let peers = this.storage.getPeers();
+        if (!initialRun) {
+            peers = shuffle(peers).slice(0, Math.floor(peers.length / 2));
+        }
+
+        this.logger.debug(`Checking ports of ${pluralize("peer", peers.length, true)}.`);
+
+        Promise.all(
+            peers.map(async peer => {
+                try {
+                    await this.communicator.pingPorts(peer);
+                } catch (error) {
+                    return undefined;
+                }
+            }),
         );
     }
 

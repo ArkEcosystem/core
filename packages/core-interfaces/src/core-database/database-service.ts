@@ -1,5 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IDelegateWallet, IWalletManager } from "../core-state/wallets";
+import { IWallet, IWalletManager } from "../core-state/wallets";
 import { EventEmitter, Logger } from "../index";
 import { IRoundInfo } from "../shared";
 import {
@@ -9,6 +9,10 @@ import {
     IWalletsBusinessRepository,
 } from "./business-repository";
 import { IConnection } from "./database-connection";
+
+export interface IDownloadBlock extends Omit<Interfaces.IBlockData, "transactions"> {
+    transactions: string[];
+}
 
 export interface IDatabaseService {
     walletManager: IWalletManager;
@@ -37,7 +41,7 @@ export interface IDatabaseService {
 
     verifyBlockchain(): Promise<boolean>;
 
-    getActiveDelegates(roundInfo: IRoundInfo, delegates?: IDelegateWallet[]): Promise<IDelegateWallet[]>;
+    getActiveDelegates(roundInfo: IRoundInfo, delegates?: IWallet[]): Promise<IWallet[]>;
 
     restoreCurrentRound(height: number): Promise<void>;
 
@@ -56,6 +60,8 @@ export interface IDatabaseService {
     getLastBlock(): Promise<Interfaces.IBlock>;
 
     getBlocks(offset: number, limit: number, headersOnly?: boolean): Promise<Interfaces.IBlockData[]>;
+
+    getBlocksForDownload(offset: number, limit: number, headersOnly?: boolean): Promise<IDownloadBlock[]>;
 
     /**
      * Get the blocks at the given heights.
@@ -81,7 +87,7 @@ export interface IDatabaseService {
 
     getRecentBlockIds(): Promise<string[]>;
 
-    saveRound(activeDelegates: IDelegateWallet[]): Promise<void>;
+    saveRound(activeDelegates: IWallet[]): Promise<void>;
 
     deleteRound(round: number): Promise<void>;
 
@@ -94,10 +100,6 @@ export interface IDatabaseService {
     reset(): Promise<void>;
 
     loadBlocksFromCurrentRound(): Promise<void>;
-
-    loadTransactionsForBlocks(blocks): Promise<void>;
-
-    updateDelegateStats(delegates: IDelegateWallet[]): void;
 
     applyRound(height: number): Promise<void>;
 

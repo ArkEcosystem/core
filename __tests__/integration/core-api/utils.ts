@@ -2,7 +2,8 @@ import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
 import { httpie } from "@arkecosystem/core-utils";
-import { Managers, Transactions } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
+import { TransactionFactory } from "../../helpers";
 import { ApiHelpers } from "../../utils/helpers/api";
 
 class Helpers {
@@ -64,6 +65,7 @@ class Helpers {
         expect(transaction).toHaveProperty("id");
         expect(transaction).toHaveProperty("blockId");
         expect(transaction).toHaveProperty("type");
+        expect(transaction).toHaveProperty("typeGroup");
         expect(transaction).toHaveProperty("amount");
         expect(transaction).toHaveProperty("fee");
         expect(transaction).toHaveProperty("sender");
@@ -83,10 +85,10 @@ class Helpers {
         expect(block.height).toBeNumber();
         expect(block).toHaveProperty("previous"); // `undefined` or String
         expect(block).toHaveProperty("forged");
-        expect(block.forged.reward).toBeNumber();
-        expect(block.forged.fee).toBeNumber();
-        expect(block.forged.total).toBeNumber();
-        expect(block.forged.amount).toBeNumber();
+        expect(block.forged.reward).toBeString();
+        expect(block.forged.fee).toBeString();
+        expect(block.forged.total).toBeString();
+        expect(block.forged.amount).toBeString();
         expect(block).toHaveProperty("payload");
         expect(block.payload.length).toBeNumber();
         expect(block.payload.hash).toBeString();
@@ -95,9 +97,9 @@ class Helpers {
         expect(block.signature).toBeString();
         expect(block.transactions).toBeNumber();
 
-        Object.keys(expected || {}).forEach(attr => {
+        for (const attr of Object.keys(expected || {})) {
             expect(block[attr]).toEqual(expected[attr]);
-        });
+        }
     }
 
     public expectDelegate(delegate, expected: any = {}) {
@@ -105,25 +107,26 @@ class Helpers {
         expect(delegate.username).toBeString();
         expect(delegate.address).toBeString();
         expect(delegate.publicKey).toBeString();
-        expect(delegate.votes).toBeNumber();
+        expect(delegate.votes).toBeString();
         expect(delegate.rank).toBeNumber();
         expect(delegate.blocks).toBeObject();
         expect(delegate.blocks.produced).toBeNumber();
         expect(delegate.production).toBeObject();
         expect(delegate.production.approval).toBeNumber();
-        expect(delegate.forged.fees).toBeNumber();
-        expect(delegate.forged.rewards).toBeNumber();
-        expect(delegate.forged.total).toBeNumber();
+        expect(delegate.forged.fees).toBeString();
+        expect(delegate.forged.rewards).toBeString();
+        expect(delegate.forged.total).toBeString();
 
-        Object.keys(expected || {}).forEach(attr => {
+        for (const attr of Object.keys(expected || {})) {
             expect(delegate[attr]).toBe(expected[attr]);
-        });
+        }
     }
 
     public expectWallet(wallet) {
         expect(wallet).toBeObject();
         expect(wallet).toHaveProperty("address");
         expect(wallet).toHaveProperty("publicKey");
+        expect(wallet).toHaveProperty("nonce");
         expect(wallet).toHaveProperty("balance");
         expect(wallet).toHaveProperty("isDelegate");
         expect(wallet).toHaveProperty("vote");
@@ -132,12 +135,9 @@ class Helpers {
     public async createTransaction() {
         Managers.configManager.setConfig(Managers.NetworkManager.findByName("testnet"));
 
-        const transaction = Transactions.BuilderFactory.transfer()
-            .amount("100000000")
-            .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
-            .vendorField("test")
-            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
-            .getStruct();
+        const transaction = TransactionFactory.transfer("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 100000000, "test")
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
 
         await httpie.post("http://127.0.0.1:4003/api/transactions", {
             body: {

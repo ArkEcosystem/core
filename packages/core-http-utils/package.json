@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-http-utils",
-    "version": "2.5.0-next.3",
+    "version": "2.5.0-next.10",
     "description": "Http Utilities for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -18,21 +18,22 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.0-next.3",
-        "@arkecosystem/core-utils": "^2.5.0-next.3",
-        "@arkecosystem/crypto": "^2.5.0-next.3",
+        "@arkecosystem/core-container": "^2.5.0-next.10",
+        "@arkecosystem/core-utils": "^2.5.0-next.10",
+        "@arkecosystem/crypto": "^2.5.0-next.10",
         "@hapi/boom": "^7.4.2",
         "@hapi/good": "^8.2.0",
         "@hapi/good-console": "^8.1.0",
         "@hapi/good-squeeze": "^5.2.0",
         "@hapi/hapi": "^18.3.1",
+        "deepmerge": "^4.0.0",
         "expand-home-dir": "^0.0.3",
         "hapi-trailing-slash": "^3.1.0",
         "nanomatch": "^1.2.13"
     },
     "devDependencies": {
         "@types/hapi__boom": "^7.4.0",
-        "@types/hapi__hapi": "^18.2.1",
+        "@types/hapi__hapi": "^18.2.5",
         "@types/inert": "^5.1.2",
         "@types/micromatch": "^3.1.0",
         "@types/vision": "^5.3.6"

@@ -1,9 +1,10 @@
 import "jest-extended";
 
-import { Utils } from "@arkecosystem/crypto";
+import { Identities, Utils } from "@arkecosystem/crypto";
+import { Hash } from "@arkecosystem/crypto/src/crypto";
 import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
 import { Keys } from "@arkecosystem/crypto/src/identities";
-import { Signer, Verifier } from "@arkecosystem/crypto/src/transactions";
+import { BuilderFactory, Signer, Utils as TransactionUtils, Verifier } from "@arkecosystem/crypto/src/transactions";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { createRandomTx } from "./__support__";
 
@@ -38,6 +39,24 @@ describe("Verifier", () => {
             delete transactionWithoutSignature.signature;
 
             expect(Verifier.verifyHash(transactionWithoutSignature)).toBeFalse();
+        });
+
+        it("should verify ECDSA signature for a version 2 transaction", () => {
+            configManager.getMilestone().aip11 = true;
+
+            const keys = Keys.fromPassphrase("secret");
+            const { data }: any = BuilderFactory.transfer()
+                .senderPublicKey(keys.publicKey)
+                .recipientId(Identities.Address.fromPublicKey(keys.publicKey))
+                .version(2)
+                .fee("10")
+                .amount("100");
+
+            const hash = TransactionUtils.toHash(data);
+            data.signature = Hash.signECDSA(hash, keys);
+
+            expect(Verifier.verify(data)).toBeTrue();
+            configManager.getMilestone().aip11 = false;
         });
 
         // Test each type on it's own

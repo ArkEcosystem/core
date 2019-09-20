@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
-import { Crypto, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
 export class Memory {
@@ -15,7 +15,8 @@ export class Memory {
     private allIsSorted: boolean = true;
     private byId: { [key: string]: Interfaces.ITransaction } = {};
     private bySender: { [key: string]: Set<Interfaces.ITransaction> } = {};
-    private byType: { [key: number]: Set<Interfaces.ITransaction> } = {};
+    private byType: Map<Transactions.InternalTransactionType, Set<Interfaces.ITransaction>> = new Map();
+
     /**
      * Contains only transactions that expire, possibly sorted by height (lower first).
      */
@@ -30,35 +31,7 @@ export class Memory {
 
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
-            const currentHeight: number = this.currentHeight();
-            const expirationContext = {
-                blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
-                currentHeight,
-                now: Crypto.Slots.getTime()
-            };
-
-            this.all.sort((a, b) => {
-                const feeA: Utils.BigNumber = a.data.fee;
-                const feeB: Utils.BigNumber = b.data.fee;
-
-                if (feeA.isGreaterThan(feeB)) {
-                    return -1;
-                }
-
-                if (feeA.isLessThan(feeB)) {
-                    return 1;
-                }
-
-                const expirationA: number = this.calculateTransactionExpiration(a, expirationContext);
-                const expirationB: number = this.calculateTransactionExpiration(b, expirationContext);
-
-                if (expirationA !== null && expirationB !== null) {
-                    return expirationA - expirationB;
-                }
-
-                return 0;
-            });
-
+            this.sortAll();
             this.allIsSorted = true;
         }
 
@@ -70,14 +43,14 @@ export class Memory {
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
-            now: Crypto.Slots.getTime()
+            now: Crypto.Slots.getTime(),
         };
 
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort(
                 (a, b) =>
                     this.calculateTransactionExpiration(a, expirationContext) -
-                    this.calculateTransactionExpiration(b, expirationContext)
+                    this.calculateTransactionExpiration(b, expirationContext),
             );
             this.byExpirationIsSorted = true;
         }
@@ -117,9 +90,14 @@ export class Memory {
         return this.byId[id];
     }
 
-    public getByType(type: number): Set<Interfaces.ITransaction> {
-        if (this.byType[type] !== undefined) {
-            return this.byType[type];
+    public getByType(type: number, typeGroup: number): Set<Interfaces.ITransaction> {
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+
+        if (this.byType.has(internalType)) {
+            return this.byType.get(internalType);
         }
 
         return new Set();
@@ -142,7 +120,7 @@ export class Memory {
         this.byId[transaction.id] = transaction;
 
         const sender: string = transaction.data.senderPublicKey;
-        const type: number = transaction.type;
+        const { type, typeGroup } = transaction;
 
         if (this.bySender[sender] === undefined) {
             // First transaction from this sender, create a new Set.
@@ -152,19 +130,23 @@ export class Memory {
             this.bySender[sender].add(transaction);
         }
 
-        if (this.byType[type] === undefined) {
-            // First transaction of this type, create a new Set.
-            this.byType[type] = new Set([transaction]);
-        } else {
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+        if (this.byType.has(internalType)) {
             // Append to existing transaction ids for this type.
-            this.byType[type].add(transaction);
+            this.byType.get(internalType).add(transaction);
+        } else {
+            // First transaction of this type, create a new Set.
+            this.byType.set(internalType, new Set([transaction]));
         }
 
         const currentHeight: number = this.currentHeight();
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
-            now: Crypto.Slots.getTime()
+            now: Crypto.Slots.getTime(),
         };
         const expiration: number = this.calculateTransactionExpiration(transaction, expirationContext);
         if (expiration !== null) {
@@ -194,7 +176,7 @@ export class Memory {
         }
 
         const transaction: Interfaces.ITransaction = this.byId[id];
-        const type: number = this.byId[id].type;
+        const { type, typeGroup } = this.byId[id];
 
         // XXX worst case: O(n)
         let i: number = this.byExpiration.findIndex(e => e.id === id);
@@ -207,9 +189,13 @@ export class Memory {
             delete this.bySender[senderPublicKey];
         }
 
-        this.byType[type].delete(transaction);
-        if (this.byType[type].size === 0) {
-            delete this.byType[type];
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
+        this.byType.get(internalType).delete(transaction);
+        if (this.byType.get(internalType).size === 0) {
+            this.byType.delete(internalType);
         }
 
         delete this.byId[id];
@@ -217,6 +203,7 @@ export class Memory {
         i = this.all.findIndex(e => e.id === id);
         assert.notStrictEqual(i, -1);
         this.all.splice(i, 1);
+        this.allIsSorted = false;
 
         if (this.dirty.added.has(id)) {
             // This transaction has been added and deleted without data being synced
@@ -237,7 +224,7 @@ export class Memory {
         this.allIsSorted = true;
         this.byId = {};
         this.bySender = {};
-        this.byType = {};
+        this.byType.clear();
         this.byExpiration = [];
         this.byExpirationIsSorted = true;
         this.dirty.added.clear();
@@ -271,6 +258,79 @@ export class Memory {
         return removed;
     }
 
+    /**
+     * Sort `this.all` by fee (highest fee first) with the exception that transactions
+     * from the same sender must be ordered lowest `nonce` first.
+     */
+    private sortAll(): void {
+        const currentHeight: number = this.currentHeight();
+        const expirationContext = {
+            blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
+            currentHeight,
+            now: Crypto.Slots.getTime(),
+        };
+
+        this.all.sort((a, b) => {
+            const feeA: Utils.BigNumber = a.data.fee;
+            const feeB: Utils.BigNumber = b.data.fee;
+
+            if (feeA.isGreaterThan(feeB)) {
+                return -1;
+            }
+
+            if (feeA.isLessThan(feeB)) {
+                return 1;
+            }
+
+            const expirationA: number = this.calculateTransactionExpiration(a, expirationContext);
+            const expirationB: number = this.calculateTransactionExpiration(b, expirationContext);
+
+            if (expirationA !== null && expirationB !== null) {
+                return expirationA - expirationB;
+            }
+
+            return 0;
+        });
+
+        const indexBySender = {};
+        for (let i = 0; i < this.all.length; i++) {
+            const transaction: Interfaces.ITransaction = this.all[i];
+
+            if (transaction.data.version < 2) {
+                continue;
+            }
+
+            const sender: string = transaction.data.senderPublicKey;
+            if (indexBySender[sender] === undefined) {
+                indexBySender[sender] = [];
+            }
+            indexBySender[sender].push(i);
+
+            let nMoved = 0;
+
+            for (let j = 0; j < indexBySender[sender].length - 1; j++) {
+                const prevIndex: number = indexBySender[sender][j];
+                if (this.all[i].data.nonce.isLessThan(this.all[prevIndex].data.nonce)) {
+                    const newIndex = i + 1 + nMoved;
+                    this.all.splice(newIndex, 0, this.all[prevIndex]);
+                    this.all[prevIndex] = undefined;
+
+                    indexBySender[sender][j] = newIndex;
+
+                    nMoved++;
+                }
+            }
+
+            if (nMoved > 0) {
+                indexBySender[sender].sort((a, b) => a - b);
+            }
+
+            i += nMoved;
+        }
+
+        this.all = this.all.filter(t => t !== undefined);
+    }
+
     private currentHeight(): number {
         return app
             .resolvePlugin<State.IStateService>("state")
@@ -290,20 +350,17 @@ export class Memory {
     private calculateTransactionExpiration(
         transaction: Interfaces.ITransaction,
         context: {
-            blockTime: number,
-            currentHeight: number,
-            now: number,
-        }
+            blockTime: number;
+            currentHeight: number;
+            now: number;
+        },
     ): number {
-        if (transaction.type === Enums.TransactionTypes.TimelockTransfer) {
-            // tslint:disable-next-line:no-null-keyword
-            return null;
-        }
-
         // We ignore data.expiration in v1 transactions because it is not signed
         // by the transaction creator.
-        if (transaction.data.version >= 2 && transaction.data.expiration > 0) {
-            return transaction.data.expiration;
+        // TODO: check if ok
+        if (transaction.data.version >= 2) {
+            // tslint:disable-next-line:no-null-keyword
+            return transaction.data.expiration || null;
         }
 
         // Since the user did not specify an expiration we set one by calculating

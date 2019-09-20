@@ -7,7 +7,8 @@
         "block": {
             "version": 0,
             "maxTransactions": 50,
-            "maxPayload": 2097152
+            "maxPayload": 2097152,
+            "acceptExpiredTransactionTimestamps": true
         },
         "epoch": "2017-03-21T13:00:00.000Z",
         "fees": {
@@ -17,10 +18,12 @@
                 "delegateRegistration": 2500000000,
                 "vote": 100000000,
                 "multiSignature": 500000000,
-                "ipfs": 0,
-                "timelockTransfer": 0,
-                "multiPayment": 0,
-                "delegateResignation": 2500000000
+                "ipfs": 500000000,
+                "multiPayment": 10000000,
+                "delegateResignation": 2500000000,
+                "htlcLock": 10000000,
+                "htlcClaim": 0,
+                "htlcRefund": 0
             }
         },
         "ignoreInvalidSecondSignatureField": true,
@@ -62,5 +65,11 @@
     {
         "height": 2300000,
         "ignoreExpiredTransactions": false
+    },
+    {
+        "height": 2850000,
+        "block": {
+            "acceptExpiredTransactionTimestamps": false
+        }
     }
 ]

@@ -1,13 +1,20 @@
-import { Utils } from "@arkecosystem/crypto";
+import { State } from "@arkecosystem/core-interfaces";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-export const transformWallet = model => {
+export const transformWallet = (wallet: State.IWallet) => {
+    const username: string = wallet.getAttribute("delegate.username");
+    const multiSignature: Interfaces.IMultiSignatureAsset = wallet.getAttribute("multiSignature");
+
     return {
-        address: model.address,
-        publicKey: model.publicKey,
-        username: model.username,
-        secondPublicKey: model.secondPublicKey,
-        balance: +Utils.BigNumber.make(model.balance).toFixed(),
-        isDelegate: !!model.username,
-        vote: model.vote,
+        address: wallet.address,
+        publicKey: wallet.publicKey,
+        username,
+        nonce: wallet.nonce.toFixed(),
+        secondPublicKey: wallet.getAttribute("secondPublicKey"),
+        balance: Utils.BigNumber.make(wallet.balance).toFixed(),
+        isDelegate: !!username,
+        isResigned: !!wallet.getAttribute("delegate.resigned"),
+        vote: wallet.getAttribute("vote"),
+        multiSignature,
     };
 };
