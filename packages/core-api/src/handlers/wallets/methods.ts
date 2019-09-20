@@ -122,7 +122,7 @@ const locks = async request => {
 
     // Sorry, cold wallets
     if (!wallet.publicKey) {
-        return toPagination([], "lock");
+        return toPagination({ rows: [], count: 0 }, "lock");
     }
 
     const rows = databaseService.wallets.search(Database.SearchScope.Locks, {
