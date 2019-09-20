@@ -54,11 +54,8 @@ export class Connection implements TransactionPool.IConnection {
         }
 
         this.emitter.once("internal.stateBuilder.finished", async () => {
-            const validTransactions = await this.validateTransactions(transactionsFromDisk);
-            transactionsFromDisk = transactionsFromDisk.filter(transaction =>
-                validTransactions.includes(transaction.serialized.toString("hex")),
-            );
-
+            // Remove from the pool invalid entries found in `transactionsFromDisk`.
+            await this.validateTransactions(transactionsFromDisk);
             await this.purgeExpired();
             this.syncToPersistentStorage();
         });
@@ -362,16 +359,11 @@ export class Connection implements TransactionPool.IConnection {
 
         let transactionBytes: number = 0;
 
-        const removeInvalid = async (transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> => {
-            const valid = await this.validateTransactions(transactions);
-            return transactions.filter(transaction => valid.includes(transaction.serialized.toString("hex")));
-        };
-
         let i = 0;
         const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
         for (const transaction of allTransactions) {
             if (data.length === size) {
-                data = await removeInvalid(data);
+                data = await this.validateTransactions(data);
                 if (data.length === size) {
                     return data;
                 } else {
@@ -402,7 +394,7 @@ export class Connection implements TransactionPool.IConnection {
             }
         }
 
-        return removeInvalid(data);
+        return this.validateTransactions(data);
     }
 
     private async addTransaction(
@@ -477,8 +469,12 @@ export class Connection implements TransactionPool.IConnection {
         this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
     }
 
-    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
-        const validTransactions: string[] = [];
+    /**
+     * Validate the given transactions and return only the valid ones - a subset of the input.
+     * The invalid ones are removed from the pool.
+     */
+    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> {
+        const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
         const unforgedTransactions = differencewith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
@@ -513,7 +509,7 @@ export class Connection implements TransactionPool.IConnection {
                     await handler.applyToRecipient(transaction, localWalletManager);
                 }
 
-                validTransactions.push(deserialized.serialized.toString("hex"));
+                validTransactions.push(transaction);
             } catch (error) {
                 this.removeTransactionById(transaction.id);
                 this.logger.error(
