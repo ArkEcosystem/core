@@ -37,7 +37,7 @@ beforeEach(() => {
 });
 
 const createService = () => {
-    const service = new DatabaseService({}, connection, walletManager, undefined, undefined, undefined, undefined);
+    const service = new DatabaseService({}, connection, walletManager, undefined, undefined, undefined);
     service.emitter = emitter;
 
     return service;
