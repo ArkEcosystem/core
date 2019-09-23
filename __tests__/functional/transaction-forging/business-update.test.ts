@@ -64,7 +64,7 @@ describe("Transaction Forging - Business update", () => {
 
         it("should broadcast, accept and forge it ", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 1000 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -142,7 +142,7 @@ describe("Transaction Forging - Business update", () => {
 
         it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
             // Funds to register a multi signature wallet
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 1000 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -159,11 +159,23 @@ describe("Transaction Forging - Business update", () => {
             await support.snoozeForBlock(1);
             await expect(multiSignature.id).toBeForged();
 
+            const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
+            const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
+
+            const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 300 * 1e8)
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(multiSignatureFunds).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(multiSignatureFunds.id).toBeForged();
+
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
                 website: "ark.io",
             })
+                .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
@@ -175,6 +187,7 @@ describe("Transaction Forging - Business update", () => {
             let businessUpdate = TransactionFactory.businessUpdate({
                 name: "ark2",
             })
+                .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
@@ -184,6 +197,7 @@ describe("Transaction Forging - Business update", () => {
 
             // Resigning a business
             const businessResignation = TransactionFactory.businessResignation()
+                .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
@@ -195,6 +209,7 @@ describe("Transaction Forging - Business update", () => {
             businessUpdate = TransactionFactory.businessUpdate({
                 name: "ark3",
             })
+                .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 

@@ -154,11 +154,23 @@ describe("Transaction Forging - Business resignation", () => {
             await support.snoozeForBlock(1);
             await expect(multiSignature.id).toBeForged();
 
+            const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
+            const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
+
+            const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 300 * 1e8)
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(multiSignatureFunds).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(multiSignatureFunds.id).toBeForged();
+
             // Registering a business
             let businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
                 website: "ark.io",
             })
+                .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
@@ -168,6 +180,7 @@ describe("Transaction Forging - Business resignation", () => {
 
             // Resigning a business
             let businessResignation = TransactionFactory.businessResignation()
+                .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
@@ -177,6 +190,7 @@ describe("Transaction Forging - Business resignation", () => {
 
             // Reject a second resignation
             businessResignation = TransactionFactory.businessResignation()
+                .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
@@ -189,6 +203,7 @@ describe("Transaction Forging - Business resignation", () => {
                 name: "ark",
                 website: "ark.io",
             })
+                .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
