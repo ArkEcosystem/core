@@ -779,7 +779,6 @@ describe("Connection", () => {
 
             expect(getTransaction).toHaveBeenCalled();
             expect(findByPublicKey).not.toHaveBeenCalled();
-            expect(throwIfCannotBeApplied).toHaveBeenCalled();
             expect(applyToSender).toHaveBeenCalled();
         });
 
