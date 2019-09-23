@@ -24,7 +24,7 @@ jobs:
             - name: Install & Build
               run: yarn setup
             - name: Test
-              run: yarn test:unit:coverage --coverageDirectory .coverage/unit/
+              run: yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
 
