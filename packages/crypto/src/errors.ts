@@ -72,9 +72,9 @@ export class TransactionTypeError extends CryptoError {
     }
 }
 
-export class MalformedTransactionBytesError extends CryptoError {
-    constructor() {
-        super(`Failed to deserialize transaction, because the bytes are malformed.`);
+export class InvalidTransactionBytesError extends CryptoError {
+    constructor(message: string) {
+        super(`Failed to deserialize transaction, encountered invalid bytes: ${message}`);
     }
 }
 

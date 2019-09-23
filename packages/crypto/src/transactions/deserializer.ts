@@ -2,7 +2,7 @@ import ByteBuffer from "bytebuffer";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import {
     DuplicateParticipantInMultiSignatureError,
-    MalformedTransactionBytesError,
+    InvalidTransactionBytesError,
     TransactionVersionError,
 } from "../errors";
 import { Address } from "../identities";
@@ -130,7 +130,7 @@ class Deserializer {
         }
 
         if (buf.remaining()) {
-            throw new MalformedTransactionBytesError();
+            throw new InvalidTransactionBytesError("signature buffer not exhausted");
         }
     }
 
@@ -166,7 +166,7 @@ class Deserializer {
                     transaction.signatures.push(multiSignaturePart);
                 }
             } else {
-                throw new MalformedTransactionBytesError();
+                throw new InvalidTransactionBytesError("signature buffer not exhausted");
             }
         }
     }

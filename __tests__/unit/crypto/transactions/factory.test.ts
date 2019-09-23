@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import {
-    MalformedTransactionBytesError,
+    InvalidTransactionBytesError,
     TransactionSchemaError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
@@ -46,7 +46,7 @@ describe("TransactionFactory", () => {
         });
 
         it("should fail to create a transaction from hex that contains malformed bytes", () => {
-            expect(() => TransactionFactory.fromHex("deadbeef")).toThrowError(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromHex("deadbeef")).toThrowError(InvalidTransactionBytesError);
         });
     });
 
@@ -57,7 +57,7 @@ describe("TransactionFactory", () => {
 
         it("should fail to create a transaction from a buffer that contains malformed bytes", () => {
             expect(() => TransactionFactory.fromBytes(Buffer.from("deadbeef"))).toThrowError(
-                MalformedTransactionBytesError,
+                InvalidTransactionBytesError,
             );
         });
     });
@@ -69,7 +69,7 @@ describe("TransactionFactory", () => {
 
         it("should fail to create a transaction from a buffer that contains malformed bytes", () => {
             expect(() => TransactionFactory.fromBytesUnsafe(Buffer.from("deadbeef"))).toThrowError(
-                MalformedTransactionBytesError,
+                InvalidTransactionBytesError,
             );
         });
 

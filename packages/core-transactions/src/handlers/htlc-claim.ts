@@ -138,7 +138,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         await this.throwIfCannotBeApplied(transaction, sender, walletManager);
 
         if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
-            throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
+            throw new UnexpectedNonceError(data.nonce, sender, false);
         }
 
         sender.nonce = data.nonce;
@@ -171,7 +171,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (!sender.nonce.isEqualTo(data.nonce)) {
-            throw new UnexpectedNonceError(data.nonce, sender.nonce, true);
+            throw new UnexpectedNonceError(data.nonce, sender, true);
         }
 
         sender.nonce = sender.nonce.minus(1);
