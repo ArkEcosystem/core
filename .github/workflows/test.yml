@@ -24,7 +24,7 @@ jobs:
             - name: Install & Build
               run: yarn setup
             - name: Test
-              run: yarn test:unit:coverage
+              run: yarn test:unit:coverage --coverageDirectory .coverage/unit/
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
 
@@ -61,7 +61,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Integration tests
-              run: yarn test:integration:coverage
+              run: yarn test:integration:coverage --coverageDirectory .coverage/integration/
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
 
@@ -105,7 +105,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test:functional:coverage
+              run: yarn test:functional:coverage --coverageDirectory .coverage/functional/
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
 
