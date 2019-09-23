@@ -13,7 +13,7 @@ describe("Transaction Forging - Business registration", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -56,7 +56,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 150 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -104,7 +104,7 @@ describe("Transaction Forging - Business registration", () => {
     });
 
     describe("Signed with multi signature [3 of 5]", () => {
-        // Prepare a fresh wallet for the tests
+        // Multi signature wallet data
         const passphrase = generateMnemonic();
         const registerPassphrases = [passphrase, secrets[1], secrets[2], secrets[3], secrets[4]];
         const signPassphrases = [passphrase, secrets[1], secrets[2]];
@@ -117,9 +117,9 @@ describe("Transaction Forging - Business registration", () => {
         ];
         let multiSigAddress;
         let multiSigPublicKey;
-        it("should broadcast, accept and forge it [3 of 5] ", async () => {
+        it("should broadcast, accept and forge it [3 of 5]", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 1000 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -141,7 +141,7 @@ describe("Transaction Forging - Business registration", () => {
             multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
             multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-            const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 300 * 1e8)
+            const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 100 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 

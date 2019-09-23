@@ -62,7 +62,7 @@ describe("Transaction Forging - Business update", () => {
         const passphrase = generateMnemonic();
         const secondPassphrase = generateMnemonic();
 
-        it("should broadcast, accept and forge it ", async () => {
+        it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
             // Initial Funds
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 1000 * 1e8)
                 .withPassphrase(secrets[0])
@@ -150,6 +150,7 @@ describe("Transaction Forging - Business update", () => {
             await support.snoozeForBlock(1);
             await expect(initialFunds.id).toBeForged();
 
+            // Registering a multi-signature wallet
             const multiSignature = TransactionFactory.multiSignature(participants, 3)
                 .withPassphrase(passphrase)
                 .withPassphraseList(passphrases)
@@ -159,10 +160,11 @@ describe("Transaction Forging - Business update", () => {
             await support.snoozeForBlock(1);
             await expect(multiSignature.id).toBeForged();
 
+            // Send funds to multi signature wallet
             const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
             const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-            const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 300 * 1e8)
+            const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 200 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 

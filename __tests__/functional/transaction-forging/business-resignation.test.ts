@@ -9,7 +9,7 @@ afterAll(support.tearDown);
 
 describe("Transaction Forging - Business resignation", () => {
     describe("Signed with 1 Passphrase", () => {
-        it("should broadcast, accept and forge it", async () => {
+        it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Registering a business
             let businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
@@ -54,14 +54,14 @@ describe("Transaction Forging - Business resignation", () => {
         });
     });
 
-    describe("Signed with 2 Passphases", () => {
+    describe("Signed with 2 Passphrases", () => {
         // Prepare a fresh wallet for the tests
         const passphrase = generateMnemonic();
         const secondPassphrase = generateMnemonic();
 
         it("should broadcast, accept and forge it [Signed with 2 Passphrases] ", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 1000 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 250 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -126,7 +126,7 @@ describe("Transaction Forging - Business resignation", () => {
         });
     });
     describe("Signed with multi signature [3 of 3]", () => {
-        // Register a multi signature wallet with defaults
+        // Multi signature wallet data
         const passphrase = generateMnemonic();
         const passphrases = [passphrase, secrets[4], secrets[5]];
         const participants = [
@@ -137,7 +137,7 @@ describe("Transaction Forging - Business resignation", () => {
 
         it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
             // Funds to register a multi signature wallet
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 10000 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -145,6 +145,7 @@ describe("Transaction Forging - Business resignation", () => {
             await support.snoozeForBlock(1);
             await expect(initialFunds.id).toBeForged();
 
+            // Registering a multi-signature wallet
             const multiSignature = TransactionFactory.multiSignature(participants, 3)
                 .withPassphrase(passphrase)
                 .withPassphraseList(passphrases)
@@ -154,6 +155,7 @@ describe("Transaction Forging - Business resignation", () => {
             await support.snoozeForBlock(1);
             await expect(multiSignature.id).toBeForged();
 
+            // Send funds to multi signature wallet
             const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
             const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
