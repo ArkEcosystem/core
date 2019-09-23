@@ -1,12 +1,21 @@
 import "jest-extended";
 
-import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { setupAjvPeerValidation } from "@arkecosystem/core-p2p";
+import { Errors, Managers, Transactions, Utils, Validation } from "@arkecosystem/crypto";
 import { BridgechainRegistrationBuilder } from "../../../../packages/core-marketplace/src/builders";
 import { MarketplaceTransactionType } from "../../../../packages/core-marketplace/src/enums";
 import { BridgechainRegistrationTransaction } from "../../../../packages/core-marketplace/src/transactions";
-import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
+import {
+    bridgechainRegistrationAsset1,
+    bridgechainRegistrationAsset2,
+    bridgechainRegistrationAssetBad,
+} from "../helper";
 
 let builder: BridgechainRegistrationBuilder;
+
+beforeAll(() => {
+    setupAjvPeerValidation(Validation.validator);
+});
 
 describe("Bridgechain registration builder", () => {
     Managers.configManager.setFromPreset("testnet");
@@ -49,6 +58,17 @@ describe("Bridgechain registration builder", () => {
             expect(builder).not.toHaveProperty("data.seedNodes");
             expect(builder).not.toHaveProperty("data.genesisHash");
             expect(builder).not.toHaveProperty("data.bridgechainRepository");
+        });
+    });
+
+    describe("should test asset", () => {
+        it("should reject bad seednodes", () => {
+            expect(() =>
+                builder
+                    .bridgechainRegistrationAsset(bridgechainRegistrationAssetBad)
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquirev")
+                    .build(),
+            ).toThrowError(Errors.TransactionSchemaError);
         });
     });
 });

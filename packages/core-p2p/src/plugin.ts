@@ -1,4 +1,5 @@
 import { Container, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Validation } from "@arkecosystem/crypto";
 import { defaults } from "./defaults";
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
@@ -8,6 +9,7 @@ import { PeerProcessor } from "./peer-processor";
 import { PeerService } from "./peer-service";
 import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
+import { setupAjvPeerValidation } from "./utils/setup-ajv-peer-validation";
 
 export const makePeerService = (options): PeerService => {
     const storage = new PeerStorage();
@@ -27,6 +29,8 @@ export const plugin: Container.IPluginDescriptor = {
     alias: "p2p",
     async register(container: Container.IContainer, options) {
         container.resolvePlugin<Logger.ILogger>("logger").info("Starting P2P Interface");
+
+        setupAjvPeerValidation(Validation.validator);
 
         const service: P2P.IPeerService = makePeerService(options);
 
