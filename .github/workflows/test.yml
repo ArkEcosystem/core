@@ -1,0 +1,117 @@
+name: Test
+
+on:
+    push:
+        branches:
+            - "**"
+    pull_request:
+        types: [ready_for_review, opened] # add synchronize to trigger builds for PR merges with the base branch, currently causes duplicate builds as synchronize is treated the same as push for everything besides merges
+
+jobs:
+    unit:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [10.x, 11.x, 12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - name: Install & Build
+              run: yarn setup
+            - name: Test
+              run: yarn test:unit:coverage
+            - name: Codecov
+              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
+
+    integration:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:10.8
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [10.x, 11.x, 12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - name: Update system
+              run: sudo apt-get update -y
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+            - name: Install and build packages
+              run: yarn setup
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+            - name: Integration tests
+              run: yarn test:integration:coverage
+            - name: Codecov
+              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
+
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+                  POSTGRES_USER: ark
+                  POSTGRES_PASSWORD: password
+                  POSTGRES_DB: ark_unitnet
+
+    functional:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:10.8
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [10.x, 11.x, 12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - name: Update system
+              run: sudo apt-get update -y
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+            - name: Install and build packages
+              run: yarn setup
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+            - name: Functional tests
+              run: yarn test:functional:coverage
+            - name: Codecov
+              run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
+
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+                  POSTGRES_USER: ark
+                  POSTGRES_PASSWORD: password
+                  POSTGRES_DB: ark_unitnet

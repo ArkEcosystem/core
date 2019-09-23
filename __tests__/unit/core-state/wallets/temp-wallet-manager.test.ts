@@ -3,7 +3,7 @@ import "../../core-database/mocks/core-container";
 
 import { State } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
-import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
+import { TempWalletManager, Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import wallets from "../__fixtures__/wallets.json";
 
 const walletData1 = wallets[0];
@@ -46,13 +46,20 @@ describe("TempWalletManager", () => {
         it("should return a copy", () => {
             const wallet = new Wallet(walletData1.address);
             wallet.publicKey = walletData1.publicKey;
+            wallet.balance = Utils.BigNumber.SATOSHI;
             walletManager.reindex(wallet);
 
-            const tempWalletManager = walletManager.clone();
-            const tempWallet = tempWalletManager.findByPublicKey(wallet.publicKey);
-            tempWallet.balance = Utils.BigNumber.ONE;
+            const cloneWalletManager = walletManager.clone();
+            const cloneWallet = cloneWalletManager.findByPublicKey(wallet.publicKey);
+            cloneWallet.balance = Utils.BigNumber.ONE;
 
-            expect(wallet.balance).not.toEqual(tempWallet.balance);
+            const tempWalletManager = new TempWalletManager(walletManager);
+            const tempWallet = tempWalletManager.findByPublicKey(wallet.publicKey);
+            tempWallet.balance = Utils.BigNumber.ZERO;
+
+            expect(wallet.balance).toEqual(Utils.BigNumber.SATOSHI);
+            expect(cloneWallet.balance).toEqual(Utils.BigNumber.ONE);
+            expect(tempWallet.balance).toEqual(Utils.BigNumber.ZERO);
         });
     });
 
