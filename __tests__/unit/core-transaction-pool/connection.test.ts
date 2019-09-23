@@ -781,27 +781,6 @@ describe("Connection", () => {
             expect(findByPublicKey).not.toHaveBeenCalled();
             expect(applyToSender).toHaveBeenCalled();
         });
-
-        it("should not apply transaction to wallet if throwIfCannotBeApplied() failed", async () => {
-            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
-            throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
-                throw new Error("throw from test");
-            });
-            const purgeByPublicKey = jest.spyOn(connection, "purgeByPublicKey").mockReturnValue();
-
-            updateSenderNonce(mockData.dummy1);
-            addTransactions([mockData.dummy1]);
-
-            await connection.buildWallets();
-
-            expect(applyToSender).not.toHaveBeenCalled();
-            expect(throwIfCannotBeApplied).toHaveBeenCalledWith(
-                mockData.dummy1,
-                findByPublicKeyWallet,
-                (connection as any).databaseService.walletManager,
-            );
-            expect(purgeByPublicKey).not.toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
-        });
     });
 
     describe("senderHasTransactionsOfType", () => {
