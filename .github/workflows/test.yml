@@ -93,14 +93,7 @@ jobs:
               run: node --version && cd __tests__/e2e && yarn generate -c 3 -v ${{ matrix.node-version }}
             - name: Make scripts executable
               run: |
-                  sudo chmod +x __tests__/e2e/dist/docker* && sudo chmod +x
-                  __tests__/e2e/dist/node0/docker/testnet-e2e/entrypoint.sh && sudo
-                  chmod +x __tests__/e2e/dist/node1/docker/testnet-e2e/entrypoint.sh
-                  && sudo chmod +x
-                  __tests__/e2e/dist/node2/docker/testnet-e2e/entrypoint.sh && sudo
-                  chmod +x __tests__/e2e/dist/node0/ark.sh && sudo chmod +x
-                  __tests__/e2e/dist/node1/ark.sh && sudo chmod +x
-                  __tests__/e2e/dist/node2/ark.sh
+                  sudo chmod +x __tests__/e2e/dist/docker* && sudo chmod +x __tests__/e2e/dist/node0/docker/testnet-e2e/entrypoint.sh && sudo chmod +x __tests__/e2e/dist/node1/docker/testnet-e2e/entrypoint.sh && sudo chmod +x __tests__/e2e/dist/node2/docker/testnet-e2e/entrypoint.sh && sudo chmod +x __tests__/e2e/dist/node0/ark.sh && sudo chmod +x __tests__/e2e/dist/node1/ark.sh && sudo chmod +x __tests__/e2e/dist/node2/ark.sh
             - name: Docker init and start
               run: cd __tests__/e2e/dist && ./docker-init.sh && ./docker-start.sh
             - name: Wait 10 sec for docker containers to be up
