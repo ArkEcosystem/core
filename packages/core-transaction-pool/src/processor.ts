@@ -187,7 +187,8 @@ export class Processor implements TransactionPool.IProcessor {
             now: Crypto.Slots.getTime(),
         };
 
-        const expiration: number = (this.pool.memory as any).calculateTransactionExpiration(transaction, expirationContext);
+        const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(transaction);
+        const expiration: number = transactionInstance.calculateExpiration(expirationContext);
 
         if (expiration <= lastHeight + 1) {
             this.pushError(

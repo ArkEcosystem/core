@@ -27,8 +27,6 @@ export class Memory {
         removed: new Set(),
     };
 
-    constructor(private readonly maxTransactionAge: number) {}
-
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
             this.sortAll();
@@ -48,9 +46,7 @@ export class Memory {
 
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort(
-                (a, b) =>
-                    this.calculateTransactionExpiration(a.data, expirationContext) -
-                    this.calculateTransactionExpiration(b.data, expirationContext),
+                (a, b) => a.calculateExpiration(expirationContext) - b.calculateExpiration(expirationContext),
             );
             this.byExpirationIsSorted = true;
         }
@@ -58,7 +54,7 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (this.calculateTransactionExpiration(transaction.data, expirationContext) > currentHeight) {
+            if (transaction.calculateExpiration(expirationContext) > currentHeight) {
                 break;
             }
 
@@ -148,7 +144,7 @@ export class Memory {
             currentHeight,
             now: Crypto.Slots.getTime(),
         };
-        const expiration: number = this.calculateTransactionExpiration(transaction.data, expirationContext);
+        const expiration: number = transaction.calculateExpiration(expirationContext);
         if (expiration !== null) {
             this.byExpiration.push(transaction);
             this.byExpirationIsSorted = false;
@@ -282,8 +278,8 @@ export class Memory {
                 return 1;
             }
 
-            const expirationA: number = this.calculateTransactionExpiration(a.data, expirationContext);
-            const expirationB: number = this.calculateTransactionExpiration(b.data, expirationContext);
+            const expirationA: number = a.calculateExpiration(expirationContext);
+            const expirationB: number = b.calculateExpiration(expirationContext);
 
             if (expirationA !== null && expirationB !== null) {
                 return expirationA - expirationB;
@@ -329,45 +325,6 @@ export class Memory {
         }
 
         this.all = this.all.filter(t => t !== undefined);
-    }
-
-    /**
-     * Calculate the expiration height of a transaction.
-     * An expiration height H means that the transaction cannot be included in block at height
-     * H or any higher block.
-     * If the user did not specify an expiration height when creating the transaction then
-     * we calculate one from the timestamp of the transaction creation and the configured
-     * maximum transaction age.
-     * @return number expiration height or null if the transaction does not expire
-     */
-    public calculateTransactionExpiration(
-        transaction: Interfaces.ITransactionData,
-        context: {
-            blockTime: number;
-            currentHeight: number;
-            now: number;
-        },
-    ): number {
-        // We ignore transaction.expiration in v1 transactions because it is not signed
-        // by the transaction creator.
-        // TODO: check if ok
-        if (transaction.version >= 2) {
-            // tslint:disable-next-line:no-null-keyword
-            return transaction.expiration || null;
-        }
-
-        // Since the user did not specify an expiration we set one by calculating
-        // approximately the height of the chain as of the time the transaction was
-        // created and adding maxTransactionAge to that.
-
-        // Both now and transaction.timestamp use [number of seconds since the genesis block].
-        const createdSecondsAgo: number = context.now - transaction.timestamp;
-
-        const createdBlocksAgo: number = Math.floor(createdSecondsAgo / context.blockTime);
-
-        const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
-
-        return createdAtHeight + this.maxTransactionAge;
     }
 
     private currentHeight(): number {

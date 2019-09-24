@@ -18,7 +18,7 @@ export const plugin: Container.IPluginDescriptor = {
             new Connection({
                 options,
                 walletManager: new WalletManager(),
-                memory: new Memory(options.maxTransactionAge as number),
+                memory: new Memory(),
                 storage: new Storage(),
             }),
         );

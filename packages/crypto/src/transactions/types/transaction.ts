@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import { TransactionTypeGroup } from "../../enums";
 import { NotImplementedError } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
@@ -96,5 +97,46 @@ export abstract class Transaction implements ITransaction {
 
     public hasVendorField(): boolean {
         return false;
+    }
+
+    /**
+     * Calculate the expiration height of a transaction.
+     * An expiration height H means that the transaction cannot be included in block at height
+     * H or any higher block.
+     * If the user did not specify an expiration height when creating the transaction then
+     * we calculate one from the timestamp of the transaction creation and the configured
+     * maximum transaction age.
+     * @return number expiration height or null if the transaction does not expire
+     */
+    public calculateExpiration(
+        context: {
+            blockTime: number;
+            currentHeight: number;
+            now: number;
+        },
+    ): number {
+        const data: ITransactionData = this.data;
+        // We ignore data.expiration in v1 transactions because it is not signed
+        // by the transaction creator.
+        // TODO: check if ok
+        if (data.version >= 2) {
+            // tslint:disable-next-line:no-null-keyword
+            return data.expiration || null;
+        }
+
+        const maxTransactionAge = app.resolveOptions("transaction-pool").maxTransactionAge;
+
+        // Since the user did not specify an expiration we set one by calculating
+        // approximately the height of the chain as of the time the transaction was
+        // created and adding maxTransactionAge to that.
+
+        // Both now and data.timestamp use [number of seconds since the genesis block].
+        const createdSecondsAgo: number = context.now - data.timestamp;
+
+        const createdBlocksAgo: number = Math.floor(createdSecondsAgo / context.blockTime);
+
+        const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
+
+        return createdAtHeight + maxTransactionAge;
     }
 }
