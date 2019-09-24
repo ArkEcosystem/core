@@ -71,7 +71,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public makeProcessor(): TransactionPool.IProcessor {
-        return new Processor(this, this.walletManager);
+        return new Processor(this);
     }
 
     public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {

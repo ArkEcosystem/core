@@ -2,7 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
-import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError, UnexpectedNonceError } from "../errors";
+import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "../errors";
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -126,9 +126,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         await this.throwIfCannotBeApplied(transaction, sender, walletManager);
 
-        if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
-            throw new UnexpectedNonceError(data.nonce, sender, false);
-        }
+        sender.verifyTransactionNonceApply(transaction);
 
         sender.nonce = data.nonce;
 
@@ -153,11 +151,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         walletManager: State.IWalletManager,
     ): Promise<void> {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const data: Interfaces.ITransactionData = transaction.data;
 
-        if (!sender.nonce.isEqualTo(data.nonce)) {
-            throw new UnexpectedNonceError(data.nonce, sender, true);
-        }
+        sender.verifyTransactionNonceRevert(transaction);
 
         sender.nonce = sender.nonce.minus(1);
 
