@@ -41,7 +41,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -83,7 +83,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -125,7 +125,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -167,7 +167,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -209,7 +209,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -251,7 +251,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/business-update.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/business-update.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -293,7 +293,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -335,7 +335,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -377,7 +377,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -419,7 +419,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -461,7 +461,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -503,7 +503,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -545,7 +545,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -587,7 +587,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -629,7 +629,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -671,7 +671,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/transfer.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/transfer.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
@@ -713,7 +713,7 @@ jobs:
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
-              run: yarn test __tests__/functional/transaction-forging/vote.test.ts --forceExit
+              run: yarn test __tests__/functional/transaction-forging/vote.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet
