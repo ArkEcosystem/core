@@ -22,7 +22,8 @@
                 "delegateResignation": 2500000000
             }
         },
-        "vendorFieldLength": 64
+        "vendorFieldLength": 64,
+        "multiPaymentLimit": 500
     },
     {
         "height": 75600,
