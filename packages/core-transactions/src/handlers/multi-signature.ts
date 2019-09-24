@@ -41,6 +41,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             }
 
             wallet.setAttribute("multiSignature", multiSignature);
+            walletManager.reindex(wallet);
         }
     }
 

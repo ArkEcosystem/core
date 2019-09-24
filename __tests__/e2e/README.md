@@ -23,13 +23,13 @@ Now to run the tests locally, you need to have Docker installed. Then, run this 
 You can now run the configured tests like this :
 
     bin/e2e generate -c 3
-    sudo chmod +x dist/docker*
-    sudo chmod +x dist/node0/docker/testnet-e2e/entrypoint.sh
-    sudo chmod +x dist/node1/docker/testnet-e2e/entrypoint.sh
-    sudo chmod +x dist/node2/docker/testnet-e2e/entrypoint.sh
-    sudo chmod +x dist/node0/ark.sh
-    sudo chmod +x dist/node1/ark.sh
-    sudo chmod +x dist/node2/ark.sh
+    chmod +x dist/docker*
+    chmod +x dist/node0/docker/testnet-e2e/entrypoint.sh
+    chmod +x dist/node1/docker/testnet-e2e/entrypoint.sh
+    chmod +x dist/node2/docker/testnet-e2e/entrypoint.sh
+    chmod +x dist/node0/ark.sh
+    chmod +x dist/node1/ark.sh
+    chmod +x dist/node2/ark.sh
     cd dist && ./docker-init.sh && ./docker-start.sh && cd ..
     bin/e2e run-tests -s scenario1
 
