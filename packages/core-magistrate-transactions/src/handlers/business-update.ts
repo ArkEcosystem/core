@@ -1,10 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { BusinessUpdateTransaction } from "@arkecosystem/core-magistrate-crypto";
-import { Interfaces as MagistrateInterfaces} from "@arkecosystem/core-magistrate-crypto";
+import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
+import { MagistrateTransactionGroup, MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-import { MagistrateTransactionGroup, MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateAplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
@@ -35,10 +35,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         for (const transaction of transactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
 
-            const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = wallet.getAttribute<IBusinessWalletAttributes>(
-                "business",
-            ).businessAsset;
-            const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.asset.businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset;
+            const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = wallet.getAttribute<
+                IBusinessWalletAttributes
+            >("business").businessAsset;
+            const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.asset
+                .businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset;
 
             wallet.setAttribute("business.businessAsset", {
                 ...businessWalletAsset,
@@ -82,9 +83,9 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<IBusinessWalletAttributes>(
-            "business",
-        ).businessAsset;
+        const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
+            IBusinessWalletAttributes
+        >("business").businessAsset;
         const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.data.asset.businessUpdate;
 
         sender.setAttribute("business.businessAsset", {
@@ -99,8 +100,9 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        let businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<IBusinessWalletAttributes>("business")
-            .businessAsset;
+        let businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
+            IBusinessWalletAttributes
+        >("business").businessAsset;
 
         const transactionsRepository: Database.ITransactionsRepository = app.resolvePlugin<Database.IConnection>(
             "database",
@@ -125,7 +127,8 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             );
 
             const registerTransaction: Database.IBootstrapTransaction = registerTransactions.pop();
-            const previousRegistration: MagistrateInterfaces.IBusinessRegistrationAsset = registerTransaction.asset.businessRegistration;
+            const previousRegistration: MagistrateInterfaces.IBusinessRegistrationAsset =
+                registerTransaction.asset.businessRegistration;
             businessWalletAsset = {
                 ...businessWalletAsset,
                 ...previousRegistration,
@@ -139,11 +142,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }
