@@ -826,11 +826,13 @@ describe("Connection", () => {
             indexWalletWithSufficientBalance(mockData.dummy1);
             indexWalletWithSufficientBalance(mockData.dummyLarge1);
 
-            const transactions = [mockData.dummy1, mockData.dummyLarge1];
+            // Be sure to use transactions with appropriate nonce - can't fire a transaction
+            // with nonce 5 if the sender wallet has nonce 1, for example.
+            const transactions = [mockData.dummy1, mockData.dummy10, mockData.dummyLarge1];
 
             addTransactions(transactions);
 
-            await expect(connection.getPoolSize()).resolves.toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(transactions.length);
 
             connection.disconnect();
 
@@ -840,7 +842,7 @@ describe("Connection", () => {
 
             await delay(200);
 
-            await expect(connection.getPoolSize()).resolves.toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(transactions.length);
 
             for (const t of transactions) {
                 expect((await connection.getTransaction(t.id)).serialized).toEqual(t.serialized);
