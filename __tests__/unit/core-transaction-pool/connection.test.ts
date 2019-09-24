@@ -779,29 +779,7 @@ describe("Connection", () => {
 
             expect(getTransaction).toHaveBeenCalled();
             expect(findByPublicKey).not.toHaveBeenCalled();
-            expect(throwIfCannotBeApplied).toHaveBeenCalled();
             expect(applyToSender).toHaveBeenCalled();
-        });
-
-        it("should not apply transaction to wallet if throwIfCannotBeApplied() failed", async () => {
-            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
-            throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
-                throw new Error("throw from test");
-            });
-            const purgeByPublicKey = jest.spyOn(connection, "purgeByPublicKey").mockReturnValue();
-
-            updateSenderNonce(mockData.dummy1);
-            addTransactions([mockData.dummy1]);
-
-            await connection.buildWallets();
-
-            expect(applyToSender).not.toHaveBeenCalled();
-            expect(throwIfCannotBeApplied).toHaveBeenCalledWith(
-                mockData.dummy1,
-                findByPublicKeyWallet,
-                (connection as any).databaseService.walletManager,
-            );
-            expect(purgeByPublicKey).not.toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
         });
     });
 
@@ -845,14 +823,20 @@ describe("Connection", () => {
         it("save and restore transactions", async () => {
             await expect(connection.getPoolSize()).resolves.toBe(0);
 
+            // Reset the senders' nonces to cleanup leftovers from previous tests.
+            updateSenderNonce(mockData.dummy1);
+            updateSenderNonce(mockData.dummy10);
+
+            // Be sure to use transactions with appropriate nonce - can't fire a transaction
+            // with nonce 5 if the sender wallet has nonce 1, for example.
+            const transactions = [mockData.dummy1, mockData.dummy10, mockData.dummyLarge1];
+
             indexWalletWithSufficientBalance(mockData.dummy1);
             indexWalletWithSufficientBalance(mockData.dummyLarge1);
 
-            const transactions = [mockData.dummy1, mockData.dummyLarge1];
-
             addTransactions(transactions);
 
-            await expect(connection.getPoolSize()).resolves.toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(transactions.length);
 
             connection.disconnect();
 
@@ -862,7 +846,7 @@ describe("Connection", () => {
 
             await delay(200);
 
-            await expect(connection.getPoolSize()).resolves.toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(transactions.length);
 
             for (const t of transactions) {
                 expect((await connection.getTransaction(t.id)).serialized).toEqual(t.serialized);
