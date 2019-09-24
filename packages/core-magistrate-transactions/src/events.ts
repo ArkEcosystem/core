@@ -1,4 +1,4 @@
-export enum MagistrateAplicationEvents {
+export enum MagistrateApplicationEvents {
     BusinessRegistered = "business.registered",
     BusinessResigned = "business.resigned",
     BusinessUpdate = "business.updated",

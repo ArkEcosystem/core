@@ -9,7 +9,7 @@ import {
     BusinessIsResignedError,
     WalletIsNotBusinessError,
 } from "../errors";
-import { MagistrateAplicationEvents } from "../events";
+import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
@@ -66,7 +66,8 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
             throw new BusinessIsResignedError();
         }
 
-        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset = transaction.data.asset.bridgechainResignation;
+        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
+            transaction.data.asset.bridgechainResignation;
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainResignation.bridgechainId];
         if (!bridgechainAttributes) {
@@ -81,7 +82,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateAplicationEvents.BridgechainResigned, transaction.data);
+        emitter.emit(MagistrateApplicationEvents.BridgechainResigned, transaction.data);
     }
 
     public async canEnterTransactionPool(
@@ -112,7 +113,8 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
             "business",
         );
 
-        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset = transaction.data.asset.bridgechainResignation;
+        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
+            transaction.data.asset.bridgechainResignation;
         businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = true;
     }
 
@@ -127,7 +129,8 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
             "business",
         );
 
-        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset = transaction.data.asset.bridgechainResignation;
+        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
+            transaction.data.asset.bridgechainResignation;
         businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = false;
     }
 

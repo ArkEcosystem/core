@@ -1,9 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    MagistrateTransactionGroup,
-    MagistrateTransactionType,
-} from "@arkecosystem/core-magistrate-crypto";
+import { MagistrateTransactionGroup, MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
 import { BridgechainUpdateTransaction, Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
@@ -13,7 +10,7 @@ import {
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
 } from "../errors";
-import { MagistrateAplicationEvents } from "../events";
+import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
@@ -68,7 +65,8 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
-        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset = transaction.data.asset.bridgechainUpdate;
+        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
+            transaction.data.asset.bridgechainUpdate;
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
 
@@ -84,7 +82,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateAplicationEvents.BridgechainUpdate, transaction.data);
+        emitter.emit(MagistrateApplicationEvents.BridgechainUpdate, transaction.data);
     }
 
     public async canEnterTransactionPool(
@@ -105,7 +103,8 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
-        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset = transaction.data.asset.bridgechainUpdate;
+        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
+            transaction.data.asset.bridgechainUpdate;
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];

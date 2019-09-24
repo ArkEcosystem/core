@@ -3,7 +3,7 @@ import { BridgechainRegistrationTransaction } from "@arkecosystem/core-magistrat
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
-import { MagistrateAplicationEvents } from "../events";
+import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-manager";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
@@ -67,7 +67,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateAplicationEvents.BridgechainRegistered, transaction.data);
+        emitter.emit(MagistrateApplicationEvents.BridgechainRegistered, transaction.data);
     }
 
     public async canEnterTransactionPool(
@@ -85,7 +85,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         await super.applyToSender(transaction, walletManager);
 
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessAttributes:IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
+        const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
         if (!businessAttributes.bridgechains) {

@@ -6,7 +6,7 @@ import { MagistrateTransactionGroup, MagistrateTransactionType } from "@arkecosy
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
-import { MagistrateAplicationEvents } from "../events";
+import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -65,7 +65,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateAplicationEvents.BusinessUpdate, transaction.data);
+        emitter.emit(MagistrateApplicationEvents.BusinessUpdate, transaction.data);
     }
 
     public async canEnterTransactionPool(

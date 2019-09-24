@@ -3,7 +3,7 @@ import { BusinessResignationTransaction } from "@arkecosystem/core-magistrate-cr
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
-import { MagistrateAplicationEvents } from "../events";
+import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -53,7 +53,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateAplicationEvents.BusinessResigned, transaction.data);
+        emitter.emit(MagistrateApplicationEvents.BusinessResigned, transaction.data);
     }
 
     public async canEnterTransactionPool(

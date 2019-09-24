@@ -3,7 +3,7 @@ import { BusinessRegistrationTransaction } from "@arkecosystem/core-magistrate-c
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessAlreadyRegisteredError } from "../errors";
-import { MagistrateAplicationEvents } from "../events";
+import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-manager";
 
@@ -60,7 +60,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateAplicationEvents.BusinessRegistered, transaction.data);
+        emitter.emit(MagistrateApplicationEvents.BusinessRegistered, transaction.data);
     }
 
     public async canEnterTransactionPool(

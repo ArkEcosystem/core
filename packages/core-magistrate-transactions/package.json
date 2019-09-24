@@ -27,7 +27,7 @@
         "@arkecosystem/core-transactions": "^2.5.0-next.10",
         "@arkecosystem/core-utils": "^2.5.0-next.10",
         "@arkecosystem/crypto": "^2.5.0-next.10",
-        "@arkecosystem/core-magistrate-crypto": "2.5.0-next.10"
+        "@arkecosystem/core-magistrate-crypto": "^2.5.0-next.10"
     },
     "publishConfig": {
         "access": "public"

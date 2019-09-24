@@ -19,7 +19,7 @@ sudo curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-
 sudo chmod +x /usr/local/bin/docker-compose
 
 # initialize docker swarm
-hostname -MagistrateInterfaces | awk '{print $1}' | xargs -MagistrateInterfaces {} docker swarm init --advertise-addr {}
+hostname -I | awk '{print $1}' | xargs -I {} docker swarm init --advertise-addr {}
 
 # checkout core develop branch and build app
 git clone https://github.com/ArkEcosystem/core.git && cd core && git checkout develop
@@ -42,8 +42,8 @@ cd dist && ./docker-init.sh && ./docker-start.sh && cd ..
 
 # download and restore last mainnet snapshot into nodes 0 and 1 : node2 will be the one syncing from zero
 wget http://snapshots.ark.io/current-v2
-docker ps --format \"{{.Names}}\" | grep node[0-1]_postgres | xargs -MagistrateInterfaces {} sh -c 'docker cp current-v2 {}:current-v2'
-docker ps --format \"{{.Names}}\" | grep node[0-1]_postgres | xargs -MagistrateInterfaces {} sh -c 'docker exec -i {} pg_restore -U ark -O -j 8 -d ark_testnet current-v2'
+docker ps --format \"{{.Names}}\" | grep node[0-1]_postgres | xargs -I {} sh -c 'docker cp current-v2 {}:current-v2'
+docker ps --format \"{{.Names}}\" | grep node[0-1]_postgres | xargs -I {} sh -c 'docker exec -i {} pg_restore -U ark -O -j 8 -d ark_testnet current-v2'
 
 # run sync
 sudo chown -R $USER:$USER ./dist/ && yarn run-sync -n mainnet -t 1200
