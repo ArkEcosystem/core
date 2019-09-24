@@ -1,7 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import {
-    Builders as MagistrateBuilders,
+    BridgechainRegistrationBuilder,
+    BridgechainResignationBuilder,
+    BridgechainUpdateBuilder,
+    BusinessRegistrationBuilder,
+    BusinessResignationBuilder,
+    BusinessUpdateBuilder,
     Interfaces as MagistrateInterfaces,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
@@ -120,17 +125,17 @@ export class TransactionFactory {
     public static businessRegistration(
         businessRegistrationAsset: MagistrateInterfaces.IBusinessRegistrationAsset,
     ): TransactionFactory {
-        const businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
+        const businessRegistrationBuilder = new BusinessRegistrationBuilder();
         businessRegistrationBuilder.businessRegistrationAsset(businessRegistrationAsset);
         return new TransactionFactory(businessRegistrationBuilder);
     }
 
     public static businessResignation(): TransactionFactory {
-        return new TransactionFactory(new MagistrateBuilders.BusinessResignationBuilder());
+        return new TransactionFactory(new BusinessResignationBuilder());
     }
 
     public static businessUpdate(businessUpdateAsset: MagistrateInterfaces.IBusinessUpdateAsset): TransactionFactory {
-        const businessUpdateBuilder = new MagistrateBuilders.BusinessUpdateBuilder();
+        const businessUpdateBuilder = new BusinessUpdateBuilder();
         businessUpdateBuilder.businessUpdateAsset(businessUpdateAsset);
         return new TransactionFactory(businessUpdateBuilder);
     }
@@ -138,13 +143,13 @@ export class TransactionFactory {
     public static bridgechainRegistration(
         bridgechainRegistrationAsset: MagistrateInterfaces.IBridgechainRegistrationAsset,
     ): TransactionFactory {
-        const bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder();
+        const bridgechainRegistrationBuilder = new BridgechainRegistrationBuilder();
         bridgechainRegistrationBuilder.bridgechainRegistrationAsset(bridgechainRegistrationAsset);
         return new TransactionFactory(bridgechainRegistrationBuilder);
     }
 
     public static bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
-        const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
+        const bridgechainResignationBuilder = new BridgechainResignationBuilder();
         bridgechainResignationBuilder.businessResignationAsset(registeredBridgechainId);
         return new TransactionFactory(bridgechainResignationBuilder);
     }
@@ -152,7 +157,7 @@ export class TransactionFactory {
     public static bridgechainUpdate(
         bridgechainUpdateAsset: MagistrateInterfaces.IBridgechainUpdateAsset,
     ): TransactionFactory {
-        const bridgechainUpdateBuilder = new MagistrateBuilders.BridgechainUpdateBuilder();
+        const bridgechainUpdateBuilder = new BridgechainUpdateBuilder();
         bridgechainUpdateBuilder.bridgechainUpdateAsset(bridgechainUpdateAsset);
         return new TransactionFactory(bridgechainUpdateBuilder);
     }
