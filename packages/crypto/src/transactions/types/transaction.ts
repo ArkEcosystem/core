@@ -135,6 +135,6 @@ export abstract class Transaction implements ITransaction {
 
         const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
 
-        return createdAtHeight + maxTransactionAge;
+        return createdAtHeight + context.maxTransactionAge;
     }
 }
