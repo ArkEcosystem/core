@@ -181,10 +181,13 @@ export class Processor implements TransactionPool.IProcessor {
             .getStore()
             .getLastHeight();
 
+        const maxTransactionAge: number = app.resolveOptions("transaction-pool").maxTransactionAge;
+
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
             lastHeight,
             now: Crypto.Slots.getTime(),
+            maxTransactionAge,
         };
 
         const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(transaction);

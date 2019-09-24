@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-container";
 import { TransactionTypeGroup } from "../../enums";
 import { NotImplementedError } from "../../errors";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
@@ -113,6 +112,7 @@ export abstract class Transaction implements ITransaction {
             blockTime: number;
             currentHeight: number;
             now: number;
+            maxTransactionAge: number;
         },
     ): number {
         const data: ITransactionData = this.data;
@@ -123,8 +123,6 @@ export abstract class Transaction implements ITransaction {
             // tslint:disable-next-line:no-null-keyword
             return data.expiration || null;
         }
-
-        const maxTransactionAge = app.resolveOptions("transaction-pool").maxTransactionAge;
 
         // Since the user did not specify an expiration we set one by calculating
         // approximately the height of the chain as of the time the transaction was

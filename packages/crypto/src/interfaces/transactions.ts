@@ -31,6 +31,7 @@ export interface ITransaction {
             blockTime: number;
             currentHeight: number;
             now: number;
+            maxTransactionAge: number;
         }
     ): number;
 }

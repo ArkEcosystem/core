@@ -27,6 +27,8 @@ export class Memory {
         removed: new Set(),
     };
 
+    constructor(private readonly maxTransactionAge: number) {}
+
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
             this.sortAll();
@@ -42,6 +44,7 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
+            maxTransactionAge: this.maxTransactionAge,
         };
 
         if (!this.byExpirationIsSorted) {
@@ -143,6 +146,7 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
+            maxTransactionAge: this.maxTransactionAge,
         };
         const expiration: number = transaction.calculateExpiration(expirationContext);
         if (expiration !== null) {
@@ -264,6 +268,7 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
+            maxTransactionAge: this.maxTransactionAge,
         };
 
         this.all.sort((a, b) => {
