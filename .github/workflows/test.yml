@@ -90,7 +90,7 @@ jobs:
             - name: Install and build packages
               run: yarn setup && cd __tests__/e2e && ../../node_modules/.bin/tsc && yarn install --frozen-lockfile
             - name: Generate files
-              run: node --version && cd __tests__/e2e && yarn generate -c 3 -v $USE_NVM_VERSION
+              run: node --version && cd __tests__/e2e && yarn generate -c 3 -v ${{ matrix.node-version }}
             - name: Make scripts executable
               run: |
                   sudo chmod +x __tests__/e2e/dist/docker* && sudo chmod +x
