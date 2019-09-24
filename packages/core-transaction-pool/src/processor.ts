@@ -5,7 +5,6 @@ import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactio
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { IDynamicFeeMatch, ITransactionsCached, ITransactionsProcessed } from "./interfaces";
-import { WalletManager } from "./wallet-manager";
 
 /**
  * @TODO: this class has too many responsibilities at the moment.
@@ -19,7 +18,7 @@ export class Processor implements TransactionPool.IProcessor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) {}
+    constructor(private readonly pool: TransactionPool.IConnection) {}
 
     public async validate(transactions: Interfaces.ITransactionData[]): Promise<TransactionPool.IProcessorResult> {
         this.cacheTransactions(transactions);
@@ -121,7 +120,6 @@ export class Processor implements TransactionPool.IProcessor {
                     );
                     if (await handler.verify(transactionInstance, this.pool.walletManager)) {
                         try {
-                            await this.walletManager.throwIfCannotBeApplied(transactionInstance);
                             const dynamicFee: IDynamicFeeMatch = await dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
