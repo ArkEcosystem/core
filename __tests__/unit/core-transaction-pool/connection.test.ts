@@ -823,12 +823,16 @@ describe("Connection", () => {
         it("save and restore transactions", async () => {
             await expect(connection.getPoolSize()).resolves.toBe(0);
 
-            indexWalletWithSufficientBalance(mockData.dummy1);
-            indexWalletWithSufficientBalance(mockData.dummyLarge1);
+            // Reset the senders' nonces to cleanup leftovers from previous tests.
+            updateSenderNonce(mockData.dummy1);
+            updateSenderNonce(mockData.dummy10);
 
             // Be sure to use transactions with appropriate nonce - can't fire a transaction
             // with nonce 5 if the sender wallet has nonce 1, for example.
             const transactions = [mockData.dummy1, mockData.dummy10, mockData.dummyLarge1];
+
+            indexWalletWithSufficientBalance(mockData.dummy1);
+            indexWalletWithSufficientBalance(mockData.dummyLarge1);
 
             addTransactions(transactions);
 
