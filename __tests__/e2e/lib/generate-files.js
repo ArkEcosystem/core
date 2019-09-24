@@ -37,8 +37,8 @@ class GenerateManager {
 
         this.relay = options.relay;
 
-        this.rootPath = path.dirname("../");
-        this.coreRootPath = path.dirname("../../..");
+        this.rootPath = path.resolve(__dirname, "../");
+        this.coreRootPath = path.resolve(__dirname, "../../..");
     }
 
     async generate() {
@@ -70,13 +70,11 @@ class GenerateManager {
 
         await exec(`mkdir ${distNginxPath}`);
 
-        copyFiles([
-            {
-                from: thisNginxPath,
-                to: distNginxPath,
-                files: ["docker-compose.yml", "nginx.conf"],
-            },
-        ]);
+        copyFiles([{
+            from: thisNginxPath,
+            to: distNginxPath,
+            files: ["docker-compose.yml", "nginx.conf"],
+        }, ]);
         console.log(`[generate-files] Files copy done for nginx`);
 
         const thisNetworkPath = path.join(this.coreRootPath, `packages/core/bin/config/${this.network}`);
@@ -93,8 +91,7 @@ class GenerateManager {
 
             const arkScript = index > 0 ? "ark.sh" : "ark-network-start.sh";
 
-            copyFiles([
-                {
+            copyFiles([{
                     from: thisDockerPath,
                     to: distDockerPath,
                     files: [
@@ -107,16 +104,18 @@ class GenerateManager {
                 {
                     from: thisDockerPath,
                     to: distNodePath,
-                    files: [[arkScript, "ark.sh"]],
+                    files: [
+                        [arkScript, "ark.sh"]
+                    ],
                 },
             ]);
 
             // rework ark.sh script if base network is not testnet + adapt if relay mode
             const arkDistScript = fs.readFileSync(path.join(distNodePath, "ark.sh"), "utf8");
             let arkDistScriptUpdated = arkDistScript.replace(/config\/testnet/g, `config/${this.network}`);
-            arkDistScriptUpdated = this.relay
-                ? arkDistScriptUpdated.replace(/core:run/, "relay:run")
-                : arkDistScriptUpdated;
+            arkDistScriptUpdated = this.relay ?
+                arkDistScriptUpdated.replace(/core:run/, "relay:run") :
+                arkDistScriptUpdated;
 
             fs.writeFileSync(path.join(distNodePath, "ark.sh"), arkDistScriptUpdated);
 
@@ -141,13 +140,11 @@ class GenerateManager {
             console.log(`[generate-files] Files copy done for ${node}`);
         }
 
-        copyFiles([
-            {
-                from: thisDockerPath,
-                to: path.join(this.rootPath, "dist"),
-                files: ["docker-init.sh", "docker-start.sh"],
-            },
-        ]);
+        copyFiles([{
+            from: thisDockerPath,
+            to: path.join(this.rootPath, "dist"),
+            files: ["docker-init.sh", "docker-start.sh"],
+        }, ]);
 
         console.log(`[generate-files] Docker files copy done`);
 
