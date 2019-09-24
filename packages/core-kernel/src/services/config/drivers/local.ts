@@ -11,6 +11,7 @@ import {
 } from "../../../exceptions/config";
 import { Identifiers, inject, injectable } from "../../../ioc";
 import { JsonObject, KeyValuePair } from "../../../types";
+import { ConfigRepository } from "../repository";
 
 /**
  * @export
@@ -30,6 +31,16 @@ export class LocalConfigLoader implements ConfigLoader {
     protected readonly app: Application;
 
     /**
+     * The application configuration.
+     *
+     * @private
+     * @type {ConfigRepository}
+     * @memberof LoadCryptography
+     */
+    @inject(Identifiers.ConfigRepository)
+    private readonly configRepository: ConfigRepository;
+
+    /**
      * @returns {Promise<void>}
      * @memberof LocalConfigLoader
      */
@@ -40,6 +51,8 @@ export class LocalConfigLoader implements ConfigLoader {
             this.loadPeers();
 
             this.loadDelegates();
+
+            this.loadCryptography();
         } catch {
             throw new ApplicationConfigurationCannotBeLoaded();
         }
@@ -69,15 +82,15 @@ export class LocalConfigLoader implements ConfigLoader {
     private loadApplication(): void {
         const config = this.loadFromLocation([this.app.configPath("app.json"), this.app.configPath("app.js")]);
 
-        this.app.config("app.flags", {
+        this.configRepository.set("app.flags", {
             ...this.app.get<JsonObject>(Identifiers.ConfigFlags),
             ...defaults.flags,
             ...get(config, "flags", {}),
         });
 
-        this.app.config("app.services", { ...defaults.services, ...get(config, "services", {}) });
+        this.configRepository.set("app.services", { ...defaults.services, ...get(config, "services", {}) });
 
-        this.app.config("app.plugins", [...defaults.plugins, ...get(config, "plugins", [] as any)]);
+        this.configRepository.set("app.plugins", [...defaults.plugins, ...get(config, "plugins", [] as any)]);
     }
 
     /**
@@ -86,7 +99,7 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LocalConfigLoader
      */
     private loadPeers(): void {
-        this.app.config("peers", this.loadFromLocation([this.app.configPath("peers.json")]));
+        this.configRepository.set("peers", this.loadFromLocation([this.app.configPath("peers.json")]));
     }
 
     /**
@@ -95,7 +108,22 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LocalConfigLoader
      */
     private loadDelegates(): void {
-        this.app.config("delegates", this.loadFromLocation([this.app.configPath("delegates.json")]));
+        this.configRepository.set("delegates", this.loadFromLocation([this.app.configPath("delegates.json")]));
+    }
+
+    /**
+     * @private
+     * @returns {void}
+     * @memberof LocalConfigLoader
+     */
+    private loadCryptography(): void {
+        for (const key of ["genesisBlock", "exceptions", "milestones", "network"]) {
+            const config: KeyValuePair | undefined = this.loadFromLocation([this.app.configPath(`crypto/${key}.json`)]);
+
+            if (config) {
+                this.configRepository.set(`crypto.${key}`, config);
+            }
+        }
     }
 
     /**
@@ -104,10 +132,12 @@ export class LocalConfigLoader implements ConfigLoader {
      * @returns {KeyValuePair}
      * @memberof LocalConfigLoader
      */
-    private loadFromLocation(searchPlaces: string[]): KeyValuePair {
-        return cosmiconfig(this.app.namespace(), {
+    private loadFromLocation(searchPlaces: string[]): KeyValuePair | undefined {
+        const result: KeyValuePair | undefined = cosmiconfig(this.app.namespace(), {
             searchPlaces,
             stopDir: this.app.configPath(),
-        }).searchSync().config;
+        }).searchSync();
+
+        return result ? result.config : undefined;
     }
 }

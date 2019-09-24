@@ -3,6 +3,7 @@ import { dirSync, setGracefulCleanup } from "tmp";
 
 import { LocalConfigLoader } from "@packages/core-kernel/src/services/config/drivers/local";
 import { Application } from "@packages/core-kernel/src/application";
+import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
 import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
@@ -22,6 +23,9 @@ beforeEach(() => {
     container.snapshot();
 
     app = new Application(container);
+    app.bind(Identifiers.ConfigRepository)
+        .to(ConfigRepository)
+        .inSingletonScope();
     app.bind(Identifiers.EventDispatcherService).toConstantValue(new MemoryEventDispatcher());
     app.bind(Identifiers.ServiceProviderRepository).toConstantValue(new ServiceProviderRepository());
     app.bind("path.config").toConstantValue(configPath);

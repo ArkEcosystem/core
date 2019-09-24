@@ -22,6 +22,16 @@ export class RegisterBaseConfiguration implements Bootstrapper {
     private readonly app: Application;
 
     /**
+     * The application configuration.
+     *
+     * @private
+     * @type {ConfigRepository}
+     * @memberof LoadCryptography
+     */
+    @inject(Identifiers.ConfigRepository)
+    private readonly configRepository: ConfigRepository;
+
+    /**
      * @param {Kernel.Application} app
      * @returns {Promise<void>}
      * @memberof RegisterBaseConfiguration
@@ -34,11 +44,8 @@ export class RegisterBaseConfiguration implements Bootstrapper {
 
         await this.app.get<ConfigManager>(Identifiers.ConfigManager).boot();
 
-        const configRepository: ConfigRepository = new ConfigRepository({});
-        configRepository.set("app.flags", this.app.get<KeyValuePair>(Identifiers.ConfigFlags));
+        this.configRepository.set("app.flags", this.app.get<KeyValuePair>(Identifiers.ConfigFlags));
         // @todo: better name for storing pluginOptions
-        configRepository.set("app.pluginOptions", this.app.get<KeyValuePair>(Identifiers.ConfigPlugins));
-
-        this.app.bind<ConfigRepository>(Identifiers.ConfigRepository).toConstantValue(configRepository);
+        this.configRepository.set("app.pluginOptions", this.app.get<KeyValuePair>(Identifiers.ConfigPlugins));
     }
 }

@@ -84,7 +84,9 @@ describe("Application", () => {
 
         const serviceProviderRepository = new ServiceProviderRepository();
         app.bind(Identifiers.ServiceProviderRepository).toConstantValue(serviceProviderRepository);
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider = app.resolve(StubServiceProvider);
         const spyRegister = jest.spyOn(serviceProvider, "register");
@@ -111,7 +113,9 @@ describe("Application", () => {
 
         const serviceProviderRepository = new ServiceProviderRepository();
         app.bind(Identifiers.ServiceProviderRepository).toConstantValue(serviceProviderRepository);
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider = app.resolve(StubServiceProvider);
         const spyRegister = jest.spyOn(serviceProvider, "register");
@@ -131,7 +135,11 @@ describe("Application", () => {
     });
 
     it("should get and set the given configuration value", () => {
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({ key: "Hello World" }));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
+
+        app.get<ConfigRepository>(Identifiers.ConfigRepository).merge({ key: "Hello World" });
 
         expect(app.config("key")).toBe("Hello World");
 
@@ -386,7 +394,9 @@ describe("Application", () => {
 
         const serviceProviderRepository = new ServiceProviderRepository();
         app.bind(Identifiers.ServiceProviderRepository).toConstantValue(serviceProviderRepository);
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider = app.resolve(StubServiceProvider);
         const spyDispose = jest.spyOn(serviceProvider, "dispose");
@@ -410,7 +420,9 @@ describe("Application", () => {
 
         const serviceProviderRepository = new ServiceProviderRepository();
         app.bind(Identifiers.ServiceProviderRepository).toConstantValue(serviceProviderRepository);
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider = app.resolve(StubServiceProvider);
         const spyDispose = jest.spyOn(serviceProvider, "dispose");
@@ -435,7 +447,9 @@ describe("Application", () => {
 
         const serviceProviderRepository = new ServiceProviderRepository();
         app.bind(Identifiers.ServiceProviderRepository).toConstantValue(serviceProviderRepository);
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider = app.resolve(StubServiceProvider);
         const spyDispose = jest.spyOn(serviceProvider, "dispose");

@@ -37,7 +37,7 @@ export class Application implements Contracts.Kernel.Application {
     public constructor(readonly container: Contracts.Kernel.Container.Container) {
         // this.listenToShutdownSignals();
 
-        this.container.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
+        this.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
     }
 
     /**
@@ -48,11 +48,15 @@ export class Application implements Contracts.Kernel.Application {
     public async bootstrap({ flags, plugins }: { flags: JsonObject; plugins?: JsonObject }): Promise<void> {
         await this.registerEventDispatcher();
 
-        this.container.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
-        this.container.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins);
+        // todo: move into a bootstrapper
+        this.bind<ConfigRepository>(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
-        this.container
-            .bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
+        this.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
+        this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins);
+
+        this.bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
             .to(ServiceProviderRepository)
             .inSingletonScope();
 
@@ -87,7 +91,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public config<T = any>(key: string, value?: T): T {
-        const config: ConfigRepository = this.container.get<ConfigRepository>(Identifiers.ConfigRepository);
+        const config: ConfigRepository = this.get<ConfigRepository>(Identifiers.ConfigRepository);
 
         if (value) {
             config.set(key, value);
@@ -101,7 +105,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public dirPrefix(): string {
-        return this.container.get(Identifiers.ApplicationDirPrefix);
+        return this.get(Identifiers.ApplicationDirPrefix);
     }
 
     /**
@@ -109,7 +113,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public namespace(): string {
-        return this.container.get(Identifiers.ApplicationNamespace);
+        return this.get(Identifiers.ApplicationNamespace);
     }
 
     /**
@@ -117,7 +121,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public version(): string {
-        return this.container.get(Identifiers.ApplicationVersion);
+        return this.get(Identifiers.ApplicationVersion);
     }
 
     /**
@@ -125,7 +129,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public token(): string {
-        return this.container.get(Identifiers.ApplicationToken);
+        return this.get(Identifiers.ApplicationToken);
     }
 
     /**
@@ -133,7 +137,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public network(): string {
-        return this.container.get(Identifiers.ApplicationNetwork);
+        return this.get(Identifiers.ApplicationNetwork);
     }
 
     /**
@@ -141,11 +145,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public useNetwork(value: string): void {
-        if (this.isBound(Identifiers.ApplicationNetwork)) {
-            this.container.unbind(Identifiers.ApplicationNetwork);
-        }
-
-        this.container.bind<string>(Identifiers.ApplicationNetwork).toConstantValue(value);
+        this.rebind<string>(Identifiers.ApplicationNetwork).toConstantValue(value);
     }
 
     /**
@@ -246,7 +246,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public environment(): string {
-        return this.container.get(Identifiers.ApplicationEnvironment);
+        return this.get(Identifiers.ApplicationEnvironment);
     }
 
     /**
@@ -347,7 +347,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get log(): Contracts.Kernel.Log.Logger {
-        return this.container.get<Contracts.Kernel.Log.Logger>(Identifiers.LogService);
+        return this.get<Contracts.Kernel.Log.Logger>(Identifiers.LogService);
     }
 
     /**
@@ -358,7 +358,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public get events(): Contracts.Kernel.Events.EventDispatcher {
-        return this.container.get<Contracts.Kernel.Events.EventDispatcher>(Identifiers.EventDispatcherService);
+        return this.get<Contracts.Kernel.Events.EventDispatcher>(Identifiers.EventDispatcherService);
     }
 
     /**
@@ -465,7 +465,7 @@ export class Application implements Contracts.Kernel.Application {
         for (const bootstrapper of bootstrappers) {
             this.events.dispatch(`bootstrapping:${bootstrapper.name}`, this);
 
-            await this.container.resolve<Bootstrapper>(bootstrapper).bootstrap();
+            await this.resolve<Bootstrapper>(bootstrapper).bootstrap();
 
             this.events.dispatch(`bootstrapped:${bootstrapper.name}`, this);
         }
@@ -486,9 +486,9 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     private async disposeServiceProviders(): Promise<void> {
-        const serviceProviders: ServiceProvider[] = this.container
-            .get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
-            .allLoadedProviders();
+        const serviceProviders: ServiceProvider[] = this.get<ServiceProviderRepository>(
+            Identifiers.ServiceProviderRepository,
+        ).allLoadedProviders();
 
         for (const serviceProvider of serviceProviders.reverse()) {
             this.log.debug(`Disposing ${serviceProvider.name()}...`);
@@ -504,7 +504,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     private getPath(type: string): string {
-        const path: string = this.container.get<string>(`path.${type}`);
+        const path: string = this.get<string>(`path.${type}`);
 
         if (!existsSync(path)) {
             throw new DirectoryCannotBeFound(path);

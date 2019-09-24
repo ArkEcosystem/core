@@ -41,7 +41,10 @@ export function expectLogger(callback, options): void {
 
         app = new Application(container);
         app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository(options));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
+        app.get<ConfigRepository>(Identifiers.ConfigRepository).merge(options);
         app.bind("path.log").toConstantValue(dirSync().name);
 
         container.snapshot();

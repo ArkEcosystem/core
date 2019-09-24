@@ -91,7 +91,9 @@ describe("ServiceProvider", () => {
     });
 
     it(".config", () => {
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
 

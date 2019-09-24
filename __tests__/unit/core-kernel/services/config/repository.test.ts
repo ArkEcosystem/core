@@ -2,7 +2,7 @@ import "jest-extended";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
 
 let configRepository: ConfigRepository;
-beforeEach(() => (configRepository = new ConfigRepository({})));
+beforeEach(() => (configRepository = new ConfigRepository()));
 
 describe("ConfigRepository", () => {
     it("should set, get and unset the given key-value", () => {

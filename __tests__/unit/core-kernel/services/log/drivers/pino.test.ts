@@ -29,23 +29,24 @@ describe("filestream", () => {
     it("should rotate the log 3 times", async () => {
         const app = new Application(new Container());
         app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
-        app.bind(Identifiers.ConfigRepository).toConstantValue(
-            new ConfigRepository({
-                app: {
-                    services: {
-                        log: {
-                            levels: {
-                                console: process.env.CORE_LOG_LEVEL || "emergency",
-                                file: process.env.CORE_LOG_LEVEL_FILE || "emergency",
-                            },
-                            fileRotator: {
-                                interval: "1s",
-                            },
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
+        app.get<ConfigRepository>(Identifiers.ConfigRepository).merge({
+            app: {
+                services: {
+                    log: {
+                        levels: {
+                            console: process.env.CORE_LOG_LEVEL || "emergency",
+                            file: process.env.CORE_LOG_LEVEL_FILE || "emergency",
+                        },
+                        fileRotator: {
+                            interval: "1s",
                         },
                     },
                 },
-            }),
-        );
+            },
+        });
         app.useLogPath(dirSync().name);
 
         const logger = await app.resolve(PinoLogger).make();

@@ -14,7 +14,9 @@ beforeEach(() => {
     container.snapshot();
 
     app = new Application(container);
-    app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+    app.bind(Identifiers.ConfigRepository)
+        .to(ConfigRepository)
+        .inSingletonScope();
 
     pluginConfiguration = app.resolve<PluginConfiguration>(PluginConfiguration);
 });

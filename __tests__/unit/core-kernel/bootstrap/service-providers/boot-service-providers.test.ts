@@ -43,7 +43,9 @@ afterEach(() => container.restore());
 
 describe("BootServiceProviders", () => {
     it("RequiredFaultyBootServiceProvider", async () => {
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider: ServiceProvider = new RequiredFaultyBootServiceProvider();
         serviceProviderRepository.set("stub", serviceProvider);
@@ -54,7 +56,9 @@ describe("BootServiceProviders", () => {
     });
 
     it("FaultyBootServiceProvider", async () => {
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider: ServiceProvider = new FaultyBootServiceProvider();
         const spyBoot = jest.spyOn(serviceProvider, "boot");
@@ -66,7 +70,9 @@ describe("BootServiceProviders", () => {
     });
 
     it("DeferredServiceProvider", async () => {
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider: ServiceProvider = new DeferredServiceProvider();
         const spyBoot = jest.spyOn(serviceProvider, "boot");
@@ -79,7 +85,9 @@ describe("BootServiceProviders", () => {
     });
 
     it("DeferredServiceProvider - failed", async () => {
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider: ServiceProvider = new DeferredServiceProvider();
         const spyBoot = jest.spyOn(serviceProvider, "boot");
@@ -98,7 +106,9 @@ describe("BootServiceProviders", () => {
     });
 
     it("DeferredServiceProvider - enableWhen", async () => {
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider: ServiceProvider = new DeferredServiceProvider();
         const spyBoot = jest.spyOn(serviceProvider, "boot");
@@ -118,7 +128,9 @@ describe("BootServiceProviders", () => {
     });
 
     it("DeferredServiceProvider - disableWhen", async () => {
-        app.bind(Identifiers.ConfigRepository).toConstantValue(new ConfigRepository({}));
+        app.bind(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
 
         const serviceProvider: ServiceProvider = new DeferredServiceProvider();
         const spyDispose = jest.spyOn(serviceProvider, "dispose");

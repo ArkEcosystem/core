@@ -19,23 +19,31 @@ let serviceProviderRepository: ServiceProviderRepository;
 
 beforeEach(() => {
     container = new Container();
-    container.snapshot();
 
     app = new Application(container);
 
-    serviceProviderRepository = new ServiceProviderRepository();
-    app.bind(Identifiers.ServiceProviderRepository).toConstantValue(serviceProviderRepository);
+    app.bind(Identifiers.ConfigRepository)
+        .to(ConfigRepository)
+        .inSingletonScope();
+
+    app.bind(Identifiers.ServiceProviderRepository)
+        .to(ServiceProviderRepository)
+        .inSingletonScope();
+
+    configRepository = app.get<ConfigRepository>(Identifiers.ConfigRepository);
+
+    serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);
+
+    container.snapshot();
 });
 
 afterEach(() => container.restore());
 
 describe("LoadServiceProviders", () => {
     it("should bootstrap with defaults", async () => {
-        configRepository = new ConfigRepository({
+        configRepository.merge({
             app: { plugins: [{ package: resolve(__dirname, "../../__stubs__/stub-plugin-with-defaults") }] },
         });
-
-        app.bind(Identifiers.ConfigRepository).toConstantValue(configRepository);
 
         serviceProviderRepository.set("stub", new StubServiceProvider());
 
@@ -43,11 +51,9 @@ describe("LoadServiceProviders", () => {
     });
 
     it("should bootstrap without defaults", async () => {
-        configRepository = new ConfigRepository({
+        configRepository.merge({
             app: { plugins: [{ package: resolve(__dirname, "../../__stubs__/stub-plugin") }] },
         });
-
-        app.bind(Identifiers.ConfigRepository).toConstantValue(configRepository);
 
         serviceProviderRepository.set("stub", new StubServiceProvider());
 

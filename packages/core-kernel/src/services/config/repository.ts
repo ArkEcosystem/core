@@ -1,12 +1,14 @@
 import { get, has, set, unset } from "@arkecosystem/utils";
 
-import { JsonObject } from "../../types";
+import { injectable } from "../../ioc";
+import { JsonObject, KeyValuePair } from "../../types";
 
 /**
  * @export
  * @class ConfigRepository
  * @extends {Map<string, any>}
  */
+@injectable()
 export class ConfigRepository {
     /**
      * All of the configuration items.
@@ -15,17 +17,7 @@ export class ConfigRepository {
      * @type {JsonObject}
      * @memberof ConfigRepository
      */
-    private readonly items: JsonObject;
-
-    /**
-     * Create a new configuration repository.
-     *
-     * @param {JsonObject} config
-     * @memberof ConfigRepository
-     */
-    public constructor(config: JsonObject) {
-        this.items = config;
-    }
+    private items: JsonObject = {};
 
     /**
      * Get all configuration values.
@@ -87,5 +79,30 @@ export class ConfigRepository {
      */
     public has(key: string): boolean {
         return has(this.items, key);
+    }
+
+    /**
+     * Determine if the given configuration values exists.
+     *
+     * @param {string[]} keys
+     * @returns {boolean}
+     * @memberof ConfigRepository
+     */
+    public hasAll(keys: string[]): boolean {
+        for (const key of keys) {
+            if (!has(this.items, key)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * @param {KeyValuePair} items
+     * @memberof ConfigRepository
+     */
+    public merge(items: KeyValuePair): void {
+        this.items = { ...this.items, ...items };
     }
 }
