@@ -28,7 +28,8 @@
         },
         "ignoreInvalidSecondSignatureField": true,
         "ignoreExpiredTransactions": true,
-        "vendorFieldLength": 64
+        "vendorFieldLength": 64,
+        "multiPaymentLimit": 500
     },
     {
         "height": 10800,

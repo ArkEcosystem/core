@@ -6,12 +6,12 @@ import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecos
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import differencewith from "lodash.differencewith";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
-import differencewith from "lodash.differencewith";
 
 export class Connection implements TransactionPool.IConnection {
     // @TODO: make this private, requires some bigger changes to tests
@@ -48,7 +48,7 @@ export class Connection implements TransactionPool.IConnection {
         this.memory.flush();
         this.storage.connect(this.options.storage);
 
-        let transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
+        const transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
         for (const transaction of transactionsFromDisk) {
             this.memory.remember(transaction, true);
         }
@@ -173,7 +173,7 @@ export class Connection implements TransactionPool.IConnection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                    `(listed in options.allowedSenders), thus skipping throttling.`,
+                        `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -244,7 +244,7 @@ export class Connection implements TransactionPool.IConnection {
 
                     this.logger.error(
                         `Cannot apply transaction ${transaction.id} when trying to accept ` +
-                        `block ${block.data.id}: ${error.message}`,
+                            `block ${block.data.id}: ${error.message}`,
                     );
 
                     continue;
@@ -266,7 +266,6 @@ export class Connection implements TransactionPool.IConnection {
 
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
-
 
         app.resolvePlugin<State.IStateService>("state")
             .getStore()
@@ -403,7 +402,7 @@ export class Connection implements TransactionPool.IConnection {
         if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                `in the pool, id: ${transaction.id}`,
+                    `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
