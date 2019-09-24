@@ -213,7 +213,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
         const { error } = Validation.validator.validate(schema, reply);
         if (error) {
-            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
+            if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                this.logger.debug(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
+            }
+
             return false;
         }
 
