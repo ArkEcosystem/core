@@ -3,8 +3,9 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Utils } from "@arkecosystem/crypto";
 import { Peer } from "./peer";
-import { isValidPeer, isValidVersion, isWhitelisted } from "./utils";
+import { isValidVersion, isWhitelisted } from "./utils";
 
 export class PeerProcessor implements P2P.IPeerProcessor {
     public server: any;
@@ -47,7 +48,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (!isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
+        if (!Utils.isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
             return false;
         }
 
