@@ -12,7 +12,6 @@ import {
     LegacyMultiSignatureError,
     SenderWalletMismatchError,
     UnexpectedMultiSignatureError,
-    UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { ITransactionHandler } from "../interfaces";
@@ -72,9 +71,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
             return;
         }
 
-        if (data.version > 1 && data.nonce.isLessThanOrEqualTo(sender.nonce)) {
-            throw new UnexpectedNonceError(data.nonce, sender, false);
-        }
+        sender.verifyTransactionNonceApply(transaction);
 
         if (
             sender.balance
@@ -176,13 +173,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         await this.throwIfCannotBeApplied(transaction, sender, walletManager);
 
+        let nonce: Utils.BigNumber;
         if (data.version > 1) {
-            if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
-                throw new UnexpectedNonceError(data.nonce, sender, false);
-            }
-
-            sender.nonce = data.nonce;
+            sender.verifyTransactionNonceApply(transaction);
+            nonce = data.nonce;
+        } else {
+            nonce = sender.nonce.plus(1);
         }
+
+        sender.nonce = nonce;
 
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
 
@@ -205,12 +204,10 @@ export abstract class TransactionHandler implements ITransactionHandler {
         sender.balance = sender.balance.plus(data.amount).plus(data.fee);
 
         if (data.version > 1) {
-            if (!sender.nonce.isEqualTo(data.nonce)) {
-                throw new UnexpectedNonceError(data.nonce, sender, true);
-            }
-
-            sender.nonce = sender.nonce.minus(1);
+            sender.verifyTransactionNonceRevert(transaction);
         }
+
+        sender.nonce = sender.nonce.minus(1);
     }
 
     public abstract async applyToRecipient(

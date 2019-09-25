@@ -5,7 +5,7 @@ on:
         branches:
             - "**"
     pull_request:
-        types: [ready_for_review, synchronize, opened] # synchronize triggers builds for PR merges with the base branch, currently causes duplicate builds as synchronize is treated the same as push for everything besides merges
+        types: [ready_for_review, synchronize, opened] # fix: synchronize triggers builds for PR merges with the base branch, currently causes duplicate builds as synchronize is treated the same as push for everything besides merges
 
 jobs:
     bridgechain-registration:
@@ -24,7 +24,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -66,7 +66,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -108,7 +108,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -150,7 +150,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -192,7 +192,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -234,7 +234,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -276,7 +276,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -318,7 +318,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -360,7 +360,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -402,7 +402,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -444,7 +444,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -486,7 +486,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -528,7 +528,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -570,7 +570,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -612,7 +612,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -654,7 +654,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -696,7 +696,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 11.x, 12.x]
+                node-version: [10.x, 12.x]
 
         steps:
             - uses: actions/checkout@v1
