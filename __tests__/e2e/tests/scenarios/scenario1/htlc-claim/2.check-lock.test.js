@@ -17,7 +17,7 @@ describe("Check confirmed and unconfirmed transactions", () => {
         const response = await testUtils.GET("transactions");
         testUtils.expectSuccessful(response);
         const transactions = response.data.data;
-        
+
         for (const recipientName of ["htlcRecipient1", "htlcRecipient2", "htlcRecipient3", "htlcRecipient4"]) {
             expect(transactions.filter(transaction => transaction.recipient === utils[recipientName].address).length).toBe(1);
         }
