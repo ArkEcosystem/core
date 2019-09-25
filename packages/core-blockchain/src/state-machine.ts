@@ -269,11 +269,13 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         blockchain.clearAndStopQueue();
 
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
+        const blocksToRemove: number = stateStorage.numberOfBlocksToRollback || random;
 
-        await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
+        await blockchain.removeBlocks(blocksToRemove);
+
         stateStorage.numberOfBlocksToRollback = undefined;
 
-        logger.info(`Removed ${pluralize("block", random, true)}`);
+        logger.info(`Removed ${pluralize("block", blocksToRemove, true)}`);
 
         await blockchain.transactionPool.buildWallets();
         await blockchain.p2p.getMonitor().refreshPeersAfterFork();
