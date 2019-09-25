@@ -17,7 +17,7 @@ describe("Check confirmed and unconfirmed transactions", () => {
         const response = await testUtils.GET("transactions");
         testUtils.expectSuccessful(response);
         const transactions = response.data.data;
-        
+
         // recipients 1 and htlcNotRecipient sent valid htlc claim transactions
         for (const senderName of ["htlcRecipient1", "htlcNotRecipient"]) {
             expect(transactions.filter(transaction => transaction.sender === utils[senderName].address).length).toBe(1);
