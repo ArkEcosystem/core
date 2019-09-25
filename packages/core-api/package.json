@@ -27,7 +27,7 @@
         "@arkecosystem/core-transaction-pool": "^2.5.25",
         "@arkecosystem/core-utils": "^2.5.25",
         "@arkecosystem/crypto": "^2.5.25",
-        "@arkecosystem/utils": "^0.3.0",
+        "@arkecosystem/utils": "^0.4.0",
         "@hapi/boom": "^7.4.2",
         "@hapi/joi": "^15.1.0",
         "ajv": "^6.10.2",
