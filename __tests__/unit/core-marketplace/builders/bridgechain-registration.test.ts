@@ -1,7 +1,6 @@
 import "jest-extended";
 
-import { setupAjvPeerValidation } from "@arkecosystem/core-p2p";
-import { Errors, Managers, Transactions, Utils, Validation } from "@arkecosystem/crypto";
+import { Errors, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BridgechainRegistrationBuilder } from "../../../../packages/core-marketplace/src/builders";
 import { MarketplaceTransactionType } from "../../../../packages/core-marketplace/src/enums";
 import { BridgechainRegistrationTransaction } from "../../../../packages/core-marketplace/src/transactions";
@@ -12,10 +11,6 @@ import {
 } from "../helper";
 
 let builder: BridgechainRegistrationBuilder;
-
-beforeAll(() => {
-    setupAjvPeerValidation(Validation.validator);
-});
 
 describe("Bridgechain registration builder", () => {
     Managers.configManager.setFromPreset("testnet");

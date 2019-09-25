@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import os from "os";
-import { isValidPeer } from "../../../../packages/core-p2p/src/utils";
+import { isValidPeer } from "../../../../packages/crypto/src/utils/is-valid-peer";
 
 describe("isValidPeer", () => {
     it("should not be ok for 127.0.0.1", () => {
@@ -36,13 +36,13 @@ describe("isValidPeer", () => {
         const addresses = [];
 
         // getting local addresses
-        Object.keys(interfaces).forEach(ifname => {
-            interfaces[ifname].some(iface => (addresses as any).push(iface.address));
-        });
+        for (const iface of Object.keys(interfaces)) {
+            interfaces[iface].some(iface => (addresses as any).push(iface.address));
+        };
 
-        addresses.forEach(ipAddress => {
+        for (const ipAddress of addresses) {
             expect(isValidPeer({ ip: ipAddress })).toBeFalse();
-        });
+        };
     });
 
     it("should be ok", () => {

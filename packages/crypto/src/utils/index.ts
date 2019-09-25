@@ -3,6 +3,7 @@ import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
+import { isLocalHost, isValidPeer } from "./is-valid-peer";
 
 let genesisTransactions: { [key: string]: boolean };
 let currentNetwork: number;
@@ -65,4 +66,4 @@ export const isSupportedTansactionVersion = (version: number): boolean => {
     return true;
 };
 
-export { Base58, BigNumber };
+export { Base58, BigNumber, isValidPeer, isLocalHost };
