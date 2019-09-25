@@ -71,7 +71,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public makeProcessor(): TransactionPool.IProcessor {
-        return new Processor(this, this.walletManager);
+        return new Processor(this);
     }
 
     public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
@@ -500,7 +500,6 @@ export class Connection implements TransactionPool.IConnection {
                     transaction.type,
                     transaction.typeGroup,
                 );
-                await handler.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
 
                 await handler.applyToSender(transaction, localWalletManager);
 

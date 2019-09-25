@@ -780,8 +780,8 @@ describe("Transaction Guard", () => {
                 const result = await processor.validate(transfers);
 
                 expect(result.errors).toContainKey(transfers[0].id);
-                expect(result.errors[transfers[0].id][0].message).toStartWith("Cannot apply a transaction with nonce");
-                expect(result.errors[transfers[0].id][0].type).toEqual("ERR_APPLY");
+                expect(result.errors[transfers[0].id][0].message).toStartWith("Already forged");
+                expect(result.errors[transfers[0].id][0].type).toEqual("ERR_FORGED");
             });
 
             it("should not validate an already forged transaction - trying to tweak tx id", async () => {
@@ -791,13 +791,15 @@ describe("Transaction Guard", () => {
                     .create();
                 await addBlock(transfers);
 
+                const originalId: string = transfers[0].id;
+
                 transfers[0].id = "c".repeat(64);
 
                 const result = await processor.validate(transfers);
 
-                expect(result.errors).toContainKey(transfers[0].id);
-                expect(result.errors[transfers[0].id][0].message).toStartWith("Cannot apply a transaction with nonce");
-                expect(result.errors[transfers[0].id][0].type).toEqual("ERR_APPLY");
+                expect(result.errors).toContainKey(originalId);
+                expect(result.errors[originalId][0].message).toStartWith("Already forged");
+                expect(result.errors[originalId][0].type).toEqual("ERR_FORGED");
             });
         });
 
