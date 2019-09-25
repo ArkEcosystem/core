@@ -48,7 +48,7 @@ describe("Transaction Forging - Bridgechain update", () => {
         // Updating a bridgechain
         let bridgechainUpdate = TransactionFactory.bridgechainUpdate({
             bridgechainId: Utils.BigNumber.ONE,
-            seedNodes: ["1.2.3.4", "127.0.0.1", "192.168.1.0", "131.107.0.89"],
+            seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
         })
             .withPassphrase(secrets[0])
             .createOne();
@@ -68,7 +68,7 @@ describe("Transaction Forging - Bridgechain update", () => {
         // Updating a bridgechain after resignation
         bridgechainUpdate = TransactionFactory.bridgechainUpdate({
             bridgechainId: Utils.BigNumber.ONE,
-            seedNodes: ["1.2.3.4", "1.2.3.4.5", "192.168.1.0", "131.107.0.89"],
+            seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
         })
             .withPassphrase(secrets[0])
             .createOne();
