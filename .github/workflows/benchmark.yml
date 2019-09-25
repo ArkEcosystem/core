@@ -5,7 +5,7 @@ on:
         branches:
             - "**"
     pull_request:
-        types: [ready_for_review, opened] # add synchronize to trigger builds for PR merges with the base branch, currently causes duplicate builds as synchronize is treated the same as push for everything besides merges
+        types: [ready_for_review, synchronize, opened] # fix: synchronize triggers builds for PR merges with the base branch, currently causes duplicate builds as synchronize is treated the same as push for everything besides merges
 
 jobs:
     crypto:

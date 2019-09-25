@@ -206,6 +206,19 @@ describe("General Tests", () => {
 
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).plus(instance.data.amount));
         });
+
+        it("should increase nonce when applying v1 transactions", async () => {
+            senderWallet.nonce = Utils.BigNumber.ZERO;
+            const legacyTransaction = TransactionFactory.transfer("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd", 10000000)
+                .withVersion(1)
+                .withFee(10000000)
+                .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+                .build()[0];
+
+            expect(senderWallet.nonce).toEqual(Utils.BigNumber.ZERO);
+            await handler.apply(legacyTransaction, walletManager);
+            expect(senderWallet.nonce).toEqual(Utils.BigNumber.ONE);
+        });
     });
 
     describe("revert", () => {
@@ -243,6 +256,19 @@ describe("General Tests", () => {
 
             expect(senderWallet.nonce.isZero()).toBeTrue();
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.make(recipientBalance).minus(instance.data.amount));
+        });
+
+        it("should decrease nonce when reverting v1 transactions", async () => {
+            senderWallet.nonce = Utils.BigNumber.ONE;
+            const legacyTransaction = TransactionFactory.transfer("AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd", 10000000)
+                .withVersion(1)
+                .withFee(10000000)
+                .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+                .build()[0];
+
+            expect(senderWallet.nonce).toEqual(Utils.BigNumber.ONE);
+            await handler.revert(legacyTransaction, walletManager);
+            expect(senderWallet.nonce).toEqual(Utils.BigNumber.ZERO);
         });
     });
 
