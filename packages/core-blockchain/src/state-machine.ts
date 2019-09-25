@@ -72,9 +72,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 stateStorage.p2pUpdateCounter++;
             }
-        }
-
-        if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
+        } else if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
             stateStorage.noBlockCounter = 0;
             stateStorage.p2pUpdateCounter = 0;
 
@@ -226,9 +224,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                     true,
                 )}`,
             );
-
-            stateStorage.noBlockCounter = 0;
-            stateStorage.p2pUpdateCounter = 0;
 
             try {
                 blockchain.enqueueBlocks(blocks);
