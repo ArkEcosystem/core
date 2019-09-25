@@ -183,7 +183,7 @@ export class Processor implements TransactionPool.IProcessor {
 
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
-            lastHeight,
+            currentHeight: lastHeight,
             now: Crypto.Slots.getTime(),
             maxTransactionAge,
         };
