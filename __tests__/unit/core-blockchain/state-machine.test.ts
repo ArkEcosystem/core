@@ -75,17 +75,17 @@ describe("State Machine", () => {
                     - stateStorage.noBlockCounter > 5 and process queue is empty
                     - stateStorage.p2pUpdateCounter + 1 > 3 (network keeps missing blocks)
                     - blockchain.p2p.checkNetworkHealth() returns a forked network status`, async () => {
-                blockchain.isSynced = jest.fn(() => false);
-                blockchain.queue.idle = jest.fn(() => true);
-                stateStorage.noBlockCounter = 6;
-                stateStorage.p2pUpdateCounter = 3;
+                    blockchain.isSynced = jest.fn(() => false);
+                    blockchain.queue.idle = jest.fn(() => true);
+                    stateStorage.noBlockCounter = 6;
+                    stateStorage.p2pUpdateCounter = 3;
 
-                jest.spyOn(getMonitor, "checkNetworkHealth").mockImplementation(() => ({
-                    forked: true,
-                }));
+                    jest.spyOn(getMonitor, "checkNetworkHealth").mockImplementation(() => ({
+                        forked: true,
+                    }));
 
-                await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "FORK");
-            });
+                    await expect(actionMap.checkLastDownloadedBlockSynced).toDispatch(blockchain, "FORK");
+                });
 
             it('should dispatch the event "SYNCED" if stateStorage.networkStart is true', async () => {
                 blockchain.isSynced = jest.fn(() => false);
@@ -294,11 +294,9 @@ describe("State Machine", () => {
 
         describe("downloadBlocks", () => {
             let loggerInfo;
-            let loggerWarn;
 
             beforeAll(() => {
                 loggerInfo = jest.spyOn(logger, "info");
-                loggerWarn = jest.spyOn(logger, "warn");
             });
 
             beforeEach(() => {
@@ -336,19 +334,38 @@ describe("State Machine", () => {
                 enQueueBlocks.mockRestore();
             });
 
-            it("should dispatch NOBLOCK if new blocks downloaded are not chained", async () => {
+            it("should dispatch NOBLOCK if new blocks downloaded are not chained and NETWORKHALTED if it keeps failing", async () => {
+                stateStorage.noBlockCounter = 0;
+                stateStorage.p2pUpdateCounter = 0;
+
                 const downloadedBlock = {
                     numberOfTransactions: 2,
                     previousBlock: genesisBlock.id,
                     height: 3,
                     timestamp: genesisBlock.timestamp + 115,
                 };
+
+                blockchain.queue.idle = () => true;
+                blockchain.queue.length = () => 0;
+
                 jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([downloadedBlock]);
                 // tslint:disable-next-line: await-promise
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "NOBLOCK");
-                expect(loggerWarn).toHaveBeenCalledWith(
-                    `Downloaded block not accepted: ${JSON.stringify(downloadedBlock)}`,
-                );
+
+                expect(stateStorage.noBlockCounter).toBe(1);
+
+                for (let i = 0; i < 5; i++) {
+                    // tslint:disable-next-line: await-promise
+                    await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "NOBLOCK");
+                }
+
+                expect(stateStorage.noBlockCounter).toBe(6);
+                expect(stateStorage.p2pUpdateCounter).toBe(0);
+
+                // tslint:disable-next-line: await-promise
+                await expect(() => actionMap.checkLastDownloadedBlockSynced()).toDispatch(blockchain, "NETWORKHALTED");
+
+                blockchain.queue.idle = () => undefined;
             });
 
             it("should dispatch NOBLOCK if new blocks downloaded are empty", async () => {
@@ -399,11 +416,11 @@ describe("State Machine", () => {
                 jest.spyOn(container.app, "resolveOptions").mockImplementation(plugin =>
                     plugin === "blockchain"
                         ? {
-                              databaseRollback: {
-                                  maxBlockRewind: 14,
-                                  steps: 3,
-                              },
-                          }
+                            databaseRollback: {
+                                maxBlockRewind: 14,
+                                steps: 3,
+                            },
+                        }
                         : {},
                 );
             });
@@ -434,22 +451,22 @@ describe("State Machine", () => {
 
             it(`should try to remove X blocks based on databaseRollback config until database.verifyBlockchain() passes
                     and dispatch FAILURE as verifyBlockchain never passed`, async () => {
-                // @ts-ignore
-                const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
-                // @ts-ignore
-                jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue(false);
-                jest.spyOn(blockchain.state, "getLastBlock").mockReturnValue({
                     // @ts-ignore
-                    data: {
-                        height: 1,
-                    },
+                    const removeTopBlocks = jest.spyOn(blockchain, "removeTopBlocks").mockReturnValue(true);
+                    // @ts-ignore
+                    jest.spyOn(blockchain.database, "verifyBlockchain").mockReturnValue(false);
+                    jest.spyOn(blockchain.state, "getLastBlock").mockReturnValue({
+                        // @ts-ignore
+                        data: {
+                            height: 1,
+                        },
+                    });
+
+                    // tslint:disable-next-line: await-promise
+                    await expect(() => actionMap.rollbackDatabase()).toDispatch(blockchain, "FAILURE");
+
+                    expect(removeTopBlocks).toHaveBeenCalledTimes(5); // because after 5 times we get past maxBlockRewind
                 });
-
-                // tslint:disable-next-line: await-promise
-                await expect(() => actionMap.rollbackDatabase()).toDispatch(blockchain, "FAILURE");
-
-                expect(removeTopBlocks).toHaveBeenCalledTimes(5); // because after 5 times we get past maxBlockRewind
-            });
         });
     });
 });
