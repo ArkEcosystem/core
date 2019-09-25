@@ -1,6 +1,6 @@
 version: '3'
 services:
-  nginx: 
+  nginx:
     image: nginx:latest
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
@@ -69,4 +69,4 @@ networks:
   node9backend:
     external:
       name: node9backend
-  
+

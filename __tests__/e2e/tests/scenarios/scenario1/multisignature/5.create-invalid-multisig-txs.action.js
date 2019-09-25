@@ -15,9 +15,9 @@ const { TransactionFactory } = require('../../../../../helpers/transaction-facto
  */
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
-    
+
     const multisigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(shared.multisigRegistration.asset.multiSignature);
-    
+
     const transactions = [
         TransactionFactory.transfer(utils.randomWallet2.address, 1e8)
             .withFee(1e7)
