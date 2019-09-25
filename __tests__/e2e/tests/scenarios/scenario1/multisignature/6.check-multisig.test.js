@@ -17,7 +17,7 @@ describe("Check confirmed and unconfirmed transactions", () => {
         const response = await testUtils.GET("transactions");
         testUtils.expectSuccessful(response);
         const transactions = response.data.data;
-        
+
         // valid transaction was accepted
         expect(transactions.filter(tx => tx.recipient === utils.randomWallet1.address).length).toBe(1);
 
