@@ -358,6 +358,8 @@ export class Connection implements TransactionPool.IConnection {
 
         let transactionBytes: number = 0;
 
+        const tempWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(this.databaseService.walletManager);
+
         let i = 0;
         // Copy the returned array because validateTransactions() in the loop body we may remove entries.
         const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
@@ -366,7 +368,8 @@ export class Connection implements TransactionPool.IConnection {
                 return data;
             }
 
-            const valid: Interfaces.ITransaction[] = await this.validateTransactions([transaction]);
+            const valid: Interfaces.ITransaction[] = await this.validateTransactions([transaction], tempWalletManager);
+
             if (valid.length === 0) {
                 continue;
             }
@@ -467,14 +470,18 @@ export class Connection implements TransactionPool.IConnection {
      * Validate the given transactions and return only the valid ones - a subset of the input.
      * The invalid ones are removed from the pool.
      */
-    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> {
+    private async validateTransactions(
+        transactions: Interfaces.ITransaction[],
+        walletManager?: Wallets.TempWalletManager
+    ): Promise<Interfaces.ITransaction[]> {
         const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
         const unforgedTransactions = differencewith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
 
-        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
-        const localWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(databaseWalletManager);
+        if (walletManager === undefined) {
+            walletManager = new Wallets.TempWalletManager(this.databaseService.walletManager);
+        }
 
         for (const transaction of unforgedTransactions) {
             try {
@@ -484,11 +491,11 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
-                const sender: State.IWallet = localWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
                 let recipient: State.IWallet | undefined;
                 if (transaction.data.recipientId) {
-                    recipient = localWalletManager.findByAddress(transaction.data.recipientId);
+                    recipient = walletManager.findByAddress(transaction.data.recipientId);
                 }
 
                 const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
@@ -496,10 +503,10 @@ export class Connection implements TransactionPool.IConnection {
                     transaction.typeGroup,
                 );
 
-                await handler.applyToSender(transaction, localWalletManager);
+                await handler.applyToSender(transaction, walletManager);
 
                 if (recipient && sender.address !== recipient.address) {
-                    await handler.applyToRecipient(transaction, localWalletManager);
+                    await handler.applyToRecipient(transaction, walletManager);
                 }
 
                 validTransactions.push(transaction);
