@@ -106,6 +106,9 @@ export class StateStore implements State.IStateStore {
         if (this.lastBlocks.size > app.resolveOptions("state").storage.maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
+
+        this.noBlockCounter = 0;
+        this.p2pUpdateCounter = 0;
     }
 
     /**
