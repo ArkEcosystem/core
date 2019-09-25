@@ -173,11 +173,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         await this.throwIfCannotBeApplied(transaction, sender, walletManager);
 
+        let nonce: Utils.BigNumber;
         if (data.version > 1) {
             sender.verifyTransactionNonceApply(transaction);
-
-            sender.nonce = data.nonce;
+            nonce = data.nonce;
+        } else {
+            nonce = sender.nonce.plus(1);
         }
+
+        sender.nonce = nonce;
 
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
 
@@ -201,9 +205,9 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (data.version > 1) {
             sender.verifyTransactionNonceRevert(transaction);
-
-            sender.nonce = sender.nonce.minus(1);
         }
+
+        sender.nonce = sender.nonce.minus(1);
     }
 
     public abstract async applyToRecipient(
