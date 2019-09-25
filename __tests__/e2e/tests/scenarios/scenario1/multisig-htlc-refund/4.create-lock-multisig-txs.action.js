@@ -13,9 +13,9 @@ const { TransactionFactory } = require('../../../../../helpers/transaction-facto
  */
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
-    
+
     const multisigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(shared.transactions.multisigRegistration.asset.multiSignature);
-    
+
     const nodesHeight = await testUtils.getNodesHeight();
     const lastHeight = Math.max(...nodesHeight);
 

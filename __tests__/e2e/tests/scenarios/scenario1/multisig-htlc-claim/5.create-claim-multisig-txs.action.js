@@ -13,16 +13,16 @@ const { TransactionFactory } = require('../../../../../helpers/transaction-facto
  */
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
-    
+
     const multisigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(shared.transactions.multisigRegistration.asset.multiSignature);
-    
+
     // 1st transaction : "normal" htlc lock transaction that we claim without issue
     shared.claimTransactions.normal = TransactionFactory.htlcClaim(
             {
                 lockTransactionId: shared.lockTransactions.normal.id,
                 unlockSecret: shared.lockTransactions.normal.recipientId.slice(0, 32),
             }
-        ) 
+        )
         .withSenderPublicKey(multisigPublicKey)
         .withNonce(Utils.BigNumber.make(1))
         .withPassphraseList([
