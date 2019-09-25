@@ -124,16 +124,15 @@ export class PostgresConnection implements Database.IConnection {
             await this.db.tx(t => {
                 const blockIds: string[] = blocks.map(block => block.id);
 
-                // Only delete the current round if `lastBlockHeight` is equal
-                // to the `roundHeight` (first block of the round).
+                // Delete all rounds after the current round if there are still
+                // any left.
                 const lastBlockHeight: number = blocks[blocks.length - 1].height;
-                const { round, roundHeight } = roundCalculator.calculateRound(lastBlockHeight);
-                const roundToDelete = lastBlockHeight > roundHeight ? round + 1 : round;
+                const { round } = roundCalculator.calculateRound(lastBlockHeight);
 
                 return t.batch([
                     this.transactionsRepository.deleteByBlockId(blockIds, t),
                     this.blocksRepository.delete(blockIds, t),
-                    this.roundsRepository.delete(roundToDelete, t),
+                    this.roundsRepository.delete(round + 1),
                 ]);
             });
         } catch (error) {
