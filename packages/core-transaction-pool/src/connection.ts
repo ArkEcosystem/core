@@ -495,7 +495,6 @@ export class Connection implements TransactionPool.IConnection {
                     transaction.type,
                     transaction.typeGroup,
                 );
-                await handler.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
 
                 await handler.applyToSender(transaction, localWalletManager);
 
