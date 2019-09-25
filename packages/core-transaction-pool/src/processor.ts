@@ -191,7 +191,7 @@ export class Processor implements TransactionPool.IProcessor {
         const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(transaction);
         const expiration: number = transactionInstance.calculateExpiration(expirationContext);
 
-        if (expiration <= lastHeight + 1) {
+        if (expiration !== null && expiration <= lastHeight + 1) {
             this.pushError(
                 transaction,
                 "ERR_EXPIRED",
