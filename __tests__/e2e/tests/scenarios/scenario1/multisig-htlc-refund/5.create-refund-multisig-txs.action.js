@@ -13,15 +13,15 @@ const { TransactionFactory } = require('../../../../../helpers/transaction-facto
  */
 module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
-    
+
     const multisigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(shared.transactions.multisigRegistration.asset.multiSignature);
-    
+
     // 1st transaction : "normal" htlc lock transaction that we refund without issue
     shared.refundTransactions.normal = TransactionFactory.htlcRefund(
             {
                 lockTransactionId: shared.lockTransactions.normal.id,
             }
-        ) 
+        )
         .withSenderPublicKey(multisigPublicKey)
         .withNonce(Utils.BigNumber.make(1))
         .withPassphraseList([

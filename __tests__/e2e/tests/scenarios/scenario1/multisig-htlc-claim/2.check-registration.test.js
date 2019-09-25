@@ -17,8 +17,8 @@ describe("Check confirmed and unconfirmed transactions", () => {
         const response = await testUtils.GET("transactions");
         testUtils.expectSuccessful(response);
         const transactions = response.data.data;
-        
+
         expect(transactions.filter(transaction => transaction.sender === utils.multiSender1.address).length).toBe(1);
-        
+
     });
 });

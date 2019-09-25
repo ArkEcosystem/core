@@ -5,20 +5,6 @@ export const seedNodesSchema = {
     uniqueItems: true,
     items: {
         type: "string",
-        required: ["ip"],
-        properties: {
-            ip: {
-                oneOf: [
-                    {
-                        type: "string",
-                        format: "ipv4",
-                    },
-                    {
-                        type: "string",
-                        format: "ipv6",
-                    },
-                ],
-            },
-        },
+        format: "peer",
     },
 };

@@ -29,7 +29,7 @@ export default {
             // for tree-shaking, properties will be declared as
             // variables, using either `var` or `const`
             preferConst: true, // Default: false
-    
+
             // ignores indent and generates the smallest code
             compact: true, // Default: false
         }),
