@@ -359,16 +359,6 @@ describe("State Machine", () => {
             });
         });
 
-        describe("analyseFork", () => {
-            it("should log 'analysing fork' message", () => {
-                const loggerInfo = jest.spyOn(logger, "info");
-
-                actionMap.analyseFork();
-
-                expect(loggerInfo).toHaveBeenCalledWith("Analysing fork");
-            });
-        });
-
         describe("startForkRecovery", () => {
             it("should proceed to fork recovery and dispatch SUCCESS", async () => {
                 const loggerInfo = jest.spyOn(logger, "info");

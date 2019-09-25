@@ -259,10 +259,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
     },
 
-    async analyseFork() {
-        logger.info("Analysing fork");
-    },
-
     async startForkRecovery() {
         logger.info("Starting fork recovery");
 
