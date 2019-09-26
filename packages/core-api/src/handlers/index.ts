@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import Hapi from "@hapi/hapi";
 import * as Blockchain from "./blockchain";
 import * as Blocks from "./blocks";
@@ -14,23 +15,16 @@ import * as Wallets from "./wallets";
 
 export = {
     async register(server: Hapi.Server): Promise<void> {
-        const modules = [
-            Blockchain,
-            Blocks,
-            Bridgechains,
-            Businesses,
-            Delegates,
-            Locks,
-            Node,
-            Peers,
-            Rounds,
-            Transactions,
-            Votes,
-            Wallets,
-        ];
+        const modules = [Blockchain, Blocks, Delegates, Locks, Node, Peers, Rounds, Transactions, Votes, Wallets];
 
         for (const module of modules) {
             module.register(server);
+        }
+
+        // TODO: hook into core-api instead in V3
+        if (app.has("core-marketplace")) {
+            Businesses.register(server);
+            Bridgechains.register(server);
         }
     },
     name: "Public API",
