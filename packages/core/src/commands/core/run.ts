@@ -1,6 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
+import deepmerge from "deepmerge";
 import { CommandFlags } from "../../types";
+import { getCliConfig } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class RunCommand extends BaseCommand {
@@ -43,14 +45,18 @@ $ ark core:run --launchMode=seed
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(RunCommand);
 
-        await this.buildApplication(app, flags, {
-            options: {
-                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
-                "@arkecosystem/core-blockchain": {
-                    networkStart: flags.networkStart,
+        await this.buildApplication(
+            app,
+            flags,
+            deepmerge(getCliConfig(flags), {
+                options: {
+                    "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                    "@arkecosystem/core-blockchain": {
+                        networkStart: flags.networkStart,
+                    },
+                    "@arkecosystem/core-forger": await this.buildBIP38(flags),
                 },
-                "@arkecosystem/core-forger": await this.buildBIP38(flags),
-            },
-        });
+            }),
+        );
     }
 }
