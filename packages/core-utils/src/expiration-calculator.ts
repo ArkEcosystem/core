@@ -1,4 +1,4 @@
-import { Transaction } from "@arkecosystem/core-interfaces";
+import { Interfaces } from "@arkecosystem/crypto";
 
 /**
  * Calculate the expiration height of a transaction.
@@ -11,7 +11,7 @@ import { Transaction } from "@arkecosystem/core-interfaces";
  * @return number expiration height or null if the transaction does not expire
  */
 export const calculateTransactionExpiration = (
-    transaction: Transaction.ITransactionData,
+    transaction: Interfaces.ITransactionData,
     context: {
         blockTime: number;
         currentHeight: number;

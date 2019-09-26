@@ -1,6 +1,6 @@
 import { CappedSet } from "./capped-set";
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
-import { calculateTransactionExpiration } "./expiration-calculator";
+import { calculateTransactionExpiration } from "./expiration-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { hasSomeProperty } from "./has-some-property";
 import { httpie, IHttpieResponse } from "./httpie";
