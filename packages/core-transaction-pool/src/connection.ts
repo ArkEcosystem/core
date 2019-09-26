@@ -6,12 +6,12 @@ import { Database, EventEmitter, Logger, State, TransactionPool } from "@arkecos
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import differencewith from "lodash.differencewith";
 import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
 import { Storage } from "./storage";
 import { WalletManager } from "./wallet-manager";
-import differencewith from "lodash.differencewith";
 
 export class Connection implements TransactionPool.IConnection {
     // @TODO: make this private, requires some bigger changes to tests
@@ -48,7 +48,7 @@ export class Connection implements TransactionPool.IConnection {
         this.memory.flush();
         this.storage.connect(this.options.storage);
 
-        let transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
+        const transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
         for (const transaction of transactionsFromDisk) {
             this.memory.remember(transaction, true);
         }
@@ -71,7 +71,7 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public makeProcessor(): TransactionPool.IProcessor {
-        return new Processor(this, this.walletManager);
+        return new Processor(this);
     }
 
     public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
@@ -173,7 +173,7 @@ export class Connection implements TransactionPool.IConnection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                    `(listed in options.allowedSenders), thus skipping throttling.`,
+                        `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -244,7 +244,7 @@ export class Connection implements TransactionPool.IConnection {
 
                     this.logger.error(
                         `Cannot apply transaction ${transaction.id} when trying to accept ` +
-                        `block ${block.data.id}: ${error.message}`,
+                            `block ${block.data.id}: ${error.message}`,
                     );
 
                     continue;
@@ -266,7 +266,6 @@ export class Connection implements TransactionPool.IConnection {
 
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
-
 
         app.resolvePlugin<State.IStateService>("state")
             .getStore()
@@ -359,42 +358,40 @@ export class Connection implements TransactionPool.IConnection {
 
         let transactionBytes: number = 0;
 
+        const tempWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(this.databaseService.walletManager);
+
         let i = 0;
+        // Copy the returned array because validateTransactions() in the loop body we may remove entries.
         const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
         for (const transaction of allTransactions) {
             if (data.length === size) {
-                data = await this.validateTransactions(data);
-                if (data.length === size) {
+                return data;
+            }
+
+            const valid: Interfaces.ITransaction[] = await this.validateTransactions([transaction], tempWalletManager);
+
+            if (valid.length === 0) {
+                continue;
+            }
+
+            if (i++ < start) {
+                continue;
+            }
+
+            if (maxBytes > 0) {
+                const transactionSize: number = JSON.stringify(transaction.data).length;
+
+                if (transactionBytes + transactionSize > maxBytes) {
                     return data;
-                } else {
-                    transactionBytes = 0; // TODO: get rid of `maxBytes`
                 }
+
+                transactionBytes += transactionSize;
             }
 
-            if (i >= start) {
-                let pushTransaction: boolean = false;
-
-                if (maxBytes > 0) {
-                    const transactionSize: number = JSON.stringify(transaction.data).length;
-
-                    if (transactionBytes + transactionSize <= maxBytes) {
-                        transactionBytes += transactionSize;
-                        pushTransaction = true;
-                    }
-                } else {
-                    pushTransaction = true;
-                }
-
-                if (pushTransaction) {
-                    data.push(transaction);
-                    i++;
-                }
-            } else {
-                i++;
-            }
+            data.push(transaction);
         }
 
-        return this.validateTransactions(data);
+        return data;
     }
 
     private async addTransaction(
@@ -403,7 +400,7 @@ export class Connection implements TransactionPool.IConnection {
         if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                `in the pool, id: ${transaction.id}`,
+                    `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
@@ -473,14 +470,18 @@ export class Connection implements TransactionPool.IConnection {
      * Validate the given transactions and return only the valid ones - a subset of the input.
      * The invalid ones are removed from the pool.
      */
-    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> {
+    private async validateTransactions(
+        transactions: Interfaces.ITransaction[],
+        walletManager?: Wallets.TempWalletManager
+    ): Promise<Interfaces.ITransaction[]> {
         const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
         const unforgedTransactions = differencewith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
 
-        const databaseWalletManager: State.IWalletManager = this.databaseService.walletManager;
-        const localWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(databaseWalletManager);
+        if (walletManager === undefined) {
+            walletManager = new Wallets.TempWalletManager(this.databaseService.walletManager);
+        }
 
         for (const transaction of unforgedTransactions) {
             try {
@@ -490,23 +491,22 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
-                const sender: State.IWallet = localWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
                 let recipient: State.IWallet | undefined;
                 if (transaction.data.recipientId) {
-                    recipient = localWalletManager.findByAddress(transaction.data.recipientId);
+                    recipient = walletManager.findByAddress(transaction.data.recipientId);
                 }
 
                 const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                     transaction.type,
                     transaction.typeGroup,
                 );
-                await handler.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
 
-                await handler.applyToSender(transaction, localWalletManager);
+                await handler.applyToSender(transaction, walletManager);
 
                 if (recipient && sender.address !== recipient.address) {
-                    await handler.applyToRecipient(transaction, localWalletManager);
+                    await handler.applyToRecipient(transaction, walletManager);
                 }
 
                 validTransactions.push(transaction);

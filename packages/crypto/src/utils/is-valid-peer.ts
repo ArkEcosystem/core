@@ -4,15 +4,7 @@ import os from "os";
 export const isLocalHost = (ip: string): boolean => {
     try {
         const parsed = parse(ip);
-        if (parsed.range() === "loopback") {
-            return true;
-        }
-
-        if (ip.startsWith("0")) {
-            return true;
-        }
-
-        if (["127.0.0.1", "::ffff:127.0.0.1"].includes(ip)) {
+        if (parsed.range() === "loopback" || ip.startsWith("0") || ["127.0.0.1", "::ffff:127.0.0.1"].includes(ip)) {
             return true;
         }
 

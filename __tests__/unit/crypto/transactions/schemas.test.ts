@@ -730,16 +730,37 @@ describe("Multi Payment Transaction", () => {
         expect(errorOnePayment).not.toBeUndefined();
     });
 
-    it("should be invalid with 501 payments", () => {
-        for (let i = 0; i < 500; i++) {
-            multiPayment.addPayment(address, `${i}`);
+    it("should not accept more than `multiPaymentLimit` payments", () => {
+        const limit = configManager.getMilestone().multiPaymentLimit;
+
+        for (let i = 0; i < limit; i++) {
+            multiPayment.addPayment(address, `${i + 1}`);
         }
 
         multiPayment.data.asset.payments.push({ amount: Utils.BigNumber.ONE, recipientId: address });
         multiPayment.sign("passphrase");
 
-        const { error } = Ajv.validate(transactionSchema.$id, "test");
+        const { error } = Ajv.validate(transactionSchema.$id, multiPayment.data);
         expect(error).not.toBeUndefined();
+
+        configManager.getMilestone().multiPaymentLimit = 10;
+        multiPayment.data.asset.payments = multiPayment.data.asset.payments.slice(0, 50);
+        expect(Ajv.validate(transactionSchema.$id, multiPayment.data).error).not.toBeUndefined();
+
+        multiPayment.data.asset.payments = multiPayment.data.asset.payments.slice(0, 10);
+        expect(Ajv.validate(transactionSchema.$id, multiPayment.data).error).toBeUndefined();
+
+        configManager.getMilestone().multiPaymentLimit = 2;
+        expect(Ajv.validate(transactionSchema.$id, multiPayment.data).error).not.toBeUndefined();
+
+        multiPayment.data.asset.payments = [
+            { amount: Utils.BigNumber.ONE, recipientId: address },
+            { amount: Utils.BigNumber.ONE, recipientId: address },
+        ];
+
+        expect(Ajv.validate(transactionSchema.$id, multiPayment.data).error).toBeUndefined();
+        configManager.getMilestone().multiPaymentLimit = limit;
+        expect(Ajv.validate(transactionSchema.$id, multiPayment.data).error).toBeUndefined();
     });
 
     it("should be invalid due to zero fee", () => {

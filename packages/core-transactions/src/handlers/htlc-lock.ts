@@ -34,6 +34,9 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             const lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
             wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
             walletManager.reindex(wallet);
+
+            const recipientWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
+            walletManager.reindex(recipientWallet);
         }
     }
 

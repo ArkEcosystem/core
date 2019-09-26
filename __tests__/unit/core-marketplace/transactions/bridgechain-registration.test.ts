@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
+import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import { BridgechainRegistrationBuilder } from "../../../../packages/core-marketplace/src/builders";
 import { BridgechainRegistrationTransaction } from "../../../../packages/core-marketplace/src/transactions";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, checkCommonFields } from "../helper";
@@ -9,6 +9,7 @@ let builder: BridgechainRegistrationBuilder;
 
 describe("Bridgechain registration transaction", () => {
     Managers.configManager.setFromPreset("testnet");
+
     Transactions.TransactionRegistry.registerTransactionType(BridgechainRegistrationTransaction);
 
     beforeEach(() => {
@@ -67,7 +68,7 @@ describe("Bridgechain registration transaction", () => {
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                 .sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
@@ -76,7 +77,7 @@ describe("Bridgechain registration transaction", () => {
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
                 .sign("passphrase");
 
-            const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+            const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
@@ -91,7 +92,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -105,7 +106,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -121,7 +122,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -135,7 +136,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -151,7 +152,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -165,7 +166,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
         });
@@ -181,7 +182,7 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
@@ -195,23 +196,23 @@ describe("Bridgechain registration transaction", () => {
                     })
                     .sign("passphrase");
 
-                const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
 
-            // it("should not accept localhost", () => {
-            //     const bridgechainRegistration = builder
-            //         .bridgechainRegistrationAsset({
-            //             name: "google",
-            //             genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-            //             bridgechainRepository: "www.repository.com/google/syzkaller",
-            //             seedNodes: ["127.0.0.1"],
-            //         })
-            //         .sign("passphrase");
-            //
-            //     const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
-            //     expect(error).not.toBeUndefined();
-            // });
+            it("should not accept localhost", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        bridgechainRepository: "www.repository.com/google/syzkaller",
+                        seedNodes: ["127.0.0.1"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
         });
     });
 });
