@@ -97,7 +97,24 @@ export class Database {
             );
         }
 
-        const roundInfoStart: Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight);
+        let startRound: number;
+
+        if (meta.startHeight <= 1) {
+            startRound = 1;
+        } else {
+            const roundInfoPrev: Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight - 1);
+            const roundInfoStart: Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight);
+
+            if (roundInfoPrev.round === roundInfoStart.round) {
+                // The lower snapshot contains this round, so skip it from this snapshot.
+                // For example: a snapshot of blocks 1-80 contains full rounds 1 and 2, so
+                // when we create a snapshot 81-... we must skip round 2 and start from 3.
+                startRound = roundInfoStart.round + 1;
+            } else {
+                startRound = roundInfoStart.round;
+            }
+        }
+
         const roundInfoEnd: Shared.IRoundInfo = roundCalculator.calculateRound(meta.endHeight);
 
         return {
@@ -110,7 +127,7 @@ export class Database {
                 end: endBlock.timestamp,
             }),
             rounds: rawQuery(this.pgp, queries.rounds.roundRange, {
-                startRound: roundInfoStart.round,
+                startRound: startRound,
                 endRound: roundInfoEnd.round,
             }),
         };
