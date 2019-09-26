@@ -24,7 +24,7 @@ describe("WalletIndex", () => {
         expect(walletIndex.get(walletData1.address)).toBe(wallet);
         expect(walletIndex.has(walletData1.address)).toBeTrue();
 
-        expect(walletIndex.all()).toContain(wallet);
+        expect(walletIndex.values()).toContain(wallet);
 
         walletIndex.clear();
         expect(walletIndex.has(walletData1.address)).toBeFalse();

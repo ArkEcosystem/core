@@ -9,8 +9,8 @@ export interface IBootstrapTransaction {
     timestamp: number;
     senderPublicKey: string;
     recipientId: string;
-    fee: Utils.BigNumber;
-    amount: Utils.BigNumber;
+    fee: string;
+    amount: string;
     asset: Interfaces.ITransactionAsset;
 }
 

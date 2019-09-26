@@ -62,6 +62,20 @@ export const businessUpdateAsset3: IBusinessUpdateAsset = {
 // Bridgechain registration assets
 export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     name: "arkecosystem1",
+    seedNodes: ["74.125.224.71", "74.125.224.72", "64.233.173.193", "2001:4860:4860::8888", "2001:4860:4860::8844"],
+    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+    bridgechainRepository: "arkecosystem1.com/repo",
+};
+
+export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {
+    name: "arkecosystem2",
+    seedNodes: ["131.107.0.89"],
+    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+    bridgechainRepository: "arkecosystem2.com/repo",
+};
+
+export const bridgechainRegistrationAssetBad: IBridgechainRegistrationAsset = {
+    name: "arkecosystem1",
     seedNodes: [
         "1.2.3.4",
         "127.0.0.1",
@@ -73,11 +87,4 @@ export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     ],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
     bridgechainRepository: "arkecosystem1.com/repo",
-};
-
-export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {
-    name: "arkecosystem2",
-    seedNodes: ["1.2.3.4", "127.0.0.1", "192.168.1.0", "131.107.0.89"],
-    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    bridgechainRepository: "arkecosystem2.com/repo",
 };
