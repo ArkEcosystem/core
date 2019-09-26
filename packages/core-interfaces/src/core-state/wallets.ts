@@ -155,6 +155,8 @@ export interface IWalletIndex {
     get(key: string): IWallet | undefined;
     set(key: string, wallet: IWallet): void;
     forget(key: string): void;
-    all(): ReadonlyArray<IWallet>;
+    entries(): ReadonlyArray<[string, IWallet]>;
+    values(): ReadonlyArray<IWallet>;
+    keys(): string[];
     clear(): void;
 }
