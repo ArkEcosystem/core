@@ -25,15 +25,6 @@ export interface ITransaction {
     toJson(): ITransactionJson;
 
     hasVendorField(): boolean;
-
-    calculateExpiration(
-        context: {
-            blockTime: number;
-            currentHeight: number;
-            now: number;
-            maxTransactionAge: number;
-        }
-    ): number;
 }
 
 export interface ITransactionAsset {

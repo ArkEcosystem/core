@@ -1,5 +1,6 @@
 import { CappedSet } from "./capped-set";
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
+import { calculateTransactionExpiration } "./expiration-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { hasSomeProperty } from "./has-some-property";
 import { httpie, IHttpieResponse } from "./httpie";
@@ -12,6 +13,7 @@ import { calculate } from "./supply-calculator";
 import * as Plugins from "./transform-plugins";
 
 export const delegateCalculator = { calculateApproval, calculateForgedTotal };
+export const expirationCalculator = { calculateTransactionExpiration };
 export const roundCalculator = { calculateRound, isNewRound };
 export const supplyCalculator = { calculate };
 

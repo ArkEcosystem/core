@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
+import { expirationCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -186,8 +187,10 @@ export class Processor implements TransactionPool.IProcessor {
             maxTransactionAge: app.resolveOptions("transaction-pool").maxTransactionAge,
         };
 
-        const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(transaction);
-        const expiration: number = transactionInstance.calculateExpiration(expirationContext);
+        const expiration: number = expirationCalculator.calculateTransactionExpiration(
+            transaction,
+            expirationContext,
+        );
 
         if (expiration !== null && expiration <= lastHeight + 1) {
             this.pushError(

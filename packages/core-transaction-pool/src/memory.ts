@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
+import { expirationCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -49,7 +50,9 @@ export class Memory {
 
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort(
-                (a, b) => a.calculateExpiration(expirationContext) - b.calculateExpiration(expirationContext),
+                (a, b) =>
+                    expirationCalculator.calculateTransactionExpiration(a.data, expirationContext) -
+                    expirationCalculator.calculateTransactionExpiration(b.data, expirationContext),
             );
             this.byExpirationIsSorted = true;
         }
@@ -57,7 +60,10 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (transaction.calculateExpiration(expirationContext) > currentHeight) {
+            if (expirationCalculator.calculateTransactionExpiration(
+                transaction.data,
+                expirationContext,
+            ) > currentHeight) {
                 break;
             }
 
@@ -148,7 +154,10 @@ export class Memory {
             now: Crypto.Slots.getTime(),
             maxTransactionAge: this.maxTransactionAge,
         };
-        const expiration: number = transaction.calculateExpiration(expirationContext);
+        const expiration: number = expirationCalculator.calculateTransactionExpiration(
+            transaction.data,
+            expirationContext,
+        );
         if (expiration !== null) {
             this.byExpiration.push(transaction);
             this.byExpirationIsSorted = false;
@@ -283,8 +292,14 @@ export class Memory {
                 return 1;
             }
 
-            const expirationA: number = a.calculateExpiration(expirationContext);
-            const expirationB: number = b.calculateExpiration(expirationContext);
+            const expirationA: number = expirationCalculator.calculateTransactionExpiration(
+                a.data,
+                expirationContext,
+            );
+            const expirationB: number = expirationCalculator.calculateTransactionExpiration(
+                b.data,
+                expirationContext,
+            );
 
             if (expirationA !== null && expirationB !== null) {
                 return expirationA - expirationB;
