@@ -122,13 +122,17 @@ export class PostgresConnection implements Database.IConnection {
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         try {
             await this.db.tx(t => {
-                const { nextRound } = roundCalculator.calculateRound(blocks[blocks.length - 1].height);
                 const blockIds: string[] = blocks.map(block => block.id);
+
+                // Delete all rounds after the current round if there are still
+                // any left.
+                const lastBlockHeight: number = blocks[blocks.length - 1].height;
+                const { round } = roundCalculator.calculateRound(lastBlockHeight);
 
                 return t.batch([
                     this.transactionsRepository.deleteByBlockId(blockIds, t),
                     this.blocksRepository.delete(blockIds, t),
-                    this.roundsRepository.delete(nextRound, t),
+                    this.roundsRepository.delete(round + 1),
                 ]);
             });
         } catch (error) {
