@@ -40,6 +40,7 @@
         "bytebuffer": "^5.0.1",
         "dayjs": "^1.8.15",
         "deepmerge": "^4.0.0",
+        "ipaddr.js": "^1.9.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "lodash.sumby": "^4.6.0",

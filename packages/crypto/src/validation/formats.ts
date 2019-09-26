@@ -1,5 +1,5 @@
 import { Ajv } from "ajv";
-import { maxVendorFieldLength } from "../utils";
+import { isValidPeer, maxVendorFieldLength } from "../utils";
 
 const vendorField = (ajv: Ajv) => {
     ajv.addFormat("vendorField", data => {
@@ -25,4 +25,14 @@ const vendorFieldHex = (ajv: Ajv) => {
     });
 };
 
-export const formats = [vendorField, vendorFieldHex];
+const validPeer = (ajv: Ajv) => {
+    ajv.addFormat("peer", (ip: string) => {
+        try {
+            return isValidPeer({ ip });
+        } catch {
+            return false;
+        }
+    });
+};
+
+export const formats = [vendorField, vendorFieldHex, validPeer];

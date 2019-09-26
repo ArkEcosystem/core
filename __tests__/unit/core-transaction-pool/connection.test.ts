@@ -483,24 +483,27 @@ describe("Connection", () => {
 
     describe("getTransactionIdsForForging", () => {
         it("should return an array of transactions ids", async () => {
-            addTransactions([
+            const added = [
                 mockData.dummy1,
                 mockData.dummy2,
                 mockData.dummy3,
                 mockData.dummy4,
                 mockData.dummy5,
                 mockData.dummy6,
-            ]);
+            ];
 
-            const transactionIds = await connection.getTransactionIdsForForging(0, 6);
+            addTransactions(added);
 
-            expect(transactionIds).toBeArray();
-            expect(transactionIds[0]).toBe(mockData.dummy1.id);
-            expect(transactionIds[1]).toBe(mockData.dummy2.id);
-            expect(transactionIds[2]).toBe(mockData.dummy3.id);
-            expect(transactionIds[3]).toBe(mockData.dummy4.id);
-            expect(transactionIds[4]).toBe(mockData.dummy5.id);
-            expect(transactionIds[5]).toBe(mockData.dummy6.id);
+            const retrieved = await connection.getTransactionIdsForForging(0, added.length);
+
+            expect(retrieved).toBeArray();
+            expect(retrieved).toHaveLength(added.length);
+            expect(retrieved[0]).toBe(mockData.dummy1.id);
+            expect(retrieved[1]).toBe(mockData.dummy2.id);
+            expect(retrieved[2]).toBe(mockData.dummy3.id);
+            expect(retrieved[3]).toBe(mockData.dummy4.id);
+            expect(retrieved[4]).toBe(mockData.dummy5.id);
+            expect(retrieved[5]).toBe(mockData.dummy6.id);
         });
 
         it("should only return transaction ids for transactions not exceeding the maximum payload size", async () => {

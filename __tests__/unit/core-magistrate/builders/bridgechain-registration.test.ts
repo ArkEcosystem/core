@@ -1,8 +1,14 @@
 import "jest-extended";
 
-import { BridgechainRegistrationBuilder,BridgechainRegistrationTransaction,MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
-import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2 } from "../helper";
+import { Errors, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { BridgechainRegistrationBuilder } from "../../../../packages/core-magistrate-crypto/src/builders";
+import { MagistrateTransactionType } from "../../../../packages/core-magistrate-crypto/src/enums";
+import { BridgechainRegistrationTransaction } from "../../../../packages/core-magistrate-crypto/src/transactions";
+import {
+    bridgechainRegistrationAsset1,
+    bridgechainRegistrationAsset2,
+    bridgechainRegistrationAssetBad,
+} from "../helper";
 
 let builder: BridgechainRegistrationBuilder;
 
@@ -47,6 +53,17 @@ describe("Bridgechain registration builder", () => {
             expect(builder).not.toHaveProperty("data.seedNodes");
             expect(builder).not.toHaveProperty("data.genesisHash");
             expect(builder).not.toHaveProperty("data.bridgechainRepository");
+        });
+    });
+
+    describe("should test asset", () => {
+        it("should reject bad seednodes", () => {
+            expect(() =>
+                builder
+                    .bridgechainRegistrationAsset(bridgechainRegistrationAssetBad)
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquirev")
+                    .build(),
+            ).toThrowError(Errors.TransactionSchemaError);
         });
     });
 });

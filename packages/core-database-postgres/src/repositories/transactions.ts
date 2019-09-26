@@ -68,11 +68,22 @@ export class TransactionsRepository extends Repository implements Database.ITran
                     const recipientWallet: State.IWallet = walletManager.findByAddress(first.value);
 
                     for (const query of [selectQuery, selectQueryCount]) {
-                        query.or(
-                            this.query.sender_public_key
-                                .equals(recipientWallet.publicKey)
-                                .and(this.query.recipient_id.isNull()),
-                        );
+                        query
+                            .or(
+                                this.query.sender_public_key
+                                    .equals(recipientWallet.publicKey)
+                                    .and(this.query.recipient_id.isNull()),
+                            )
+                            .or(
+                                // Include multipayment recipients
+                                this.query.asset.contains({
+                                    payments: [
+                                        {
+                                            recipientId: first.value,
+                                        },
+                                    ],
+                                }),
+                            );
                     }
                 }
             } else if (rest.length) {
@@ -83,14 +94,26 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 }
             }
 
-            if (walletAddress && walletPublicKey) {
+            if (walletAddress) {
                 const useWhere: boolean = !selectQuery.nodes.some(node => node.type === "WHERE");
                 for (const query of [selectQuery, selectQueryCount]) {
-                    query[useWhere ? "where" : "and"](
-                        this.query.sender_public_key
-                            .equals(walletPublicKey)
-                            .or(this.query.recipient_id.equals(walletAddress)),
+                    let condition = this.query.recipient_id.equals(walletAddress).or(
+                        // Include multipayment recipients
+                        this.query.asset.contains({
+                            payments: [
+                                {
+                                    recipientId: walletAddress,
+                                },
+                            ],
+                        }),
                     );
+
+                    // We do not know public key for cold wallets
+                    if (walletPublicKey) {
+                        condition = condition.or(this.query.sender_public_key.equals(walletPublicKey));
+                    }
+
+                    query[useWhere ? "where" : "and"](condition);
                 }
             }
 

@@ -9,6 +9,7 @@ let builder: BridgechainUpdateBuilder;
 
 describe("Bridgechain update ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
+
     Transactions.TransactionRegistry.registerTransactionType(BridgechainUpdateTransaction);
 
     beforeEach(() => {

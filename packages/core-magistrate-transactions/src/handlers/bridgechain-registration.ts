@@ -132,6 +132,6 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     ): Promise<void> {}
 
     private getBridgechainId(walletManager: State.IWalletManager): Utils.BigNumber {
-        return Utils.BigNumber.make(walletManager.getIndex(MagistrateIndex.Bridgechains).all().length).plus(1);
+        return Utils.BigNumber.make(walletManager.getIndex(MagistrateIndex.Bridgechains).values().length).plus(1);
     }
 }

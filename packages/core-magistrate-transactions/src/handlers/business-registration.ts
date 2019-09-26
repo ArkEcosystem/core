@@ -121,6 +121,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     ): Promise<void> {}
 
     private getBusinessId(walletManager: State.IWalletManager): Utils.BigNumber {
-        return Utils.BigNumber.make(walletManager.getIndex(MagistrateIndex.Businesses).all().length).plus(1);
+        return Utils.BigNumber.make(walletManager.getIndex(MagistrateIndex.Businesses).values().length).plus(1);
     }
 }

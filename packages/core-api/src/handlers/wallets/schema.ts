@@ -179,6 +179,15 @@ export const votes: object = {
     },
 };
 
+export const locks: object = {
+    params: {
+        id: Joi.string(),
+    },
+    query: {
+        ...pagination,
+    },
+};
+
 export const search: object = {
     query: {
         ...pagination,

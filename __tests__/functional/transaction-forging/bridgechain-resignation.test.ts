@@ -8,48 +8,50 @@ beforeAll(support.setUp);
 afterAll(support.tearDown);
 
 describe("Transaction Forging - Bridgechain registration", () => {
-    it("should broadcast, accept and forge it", async () => {
-        // Business registration
-        const businessRegistration = TransactionFactory.businessRegistration({
-            name: "ark",
-            website: "ark.io",
-        })
-            .withPassphrase(secrets[0])
-            .createOne();
+    describe("Signed with 1 Passphrase", () => {
+        it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
+            // Business registration
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "ark.io",
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
 
-        await expect(businessRegistration).toBeAccepted();
-        await support.snoozeForBlock(1);
-        await expect(businessRegistration.id).toBeForged();
+            await expect(businessRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
 
-        // Bridgechain registration
-        const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
-            name: "cryptoProject",
-            seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-            genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-            bridgechainRepository: "www.repository.com/myorg/myrepo",
-        })
-            .withPassphrase(secrets[0])
-            .createOne();
+            // Bridgechain registration
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+                name: "cryptoProject",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainRepository: "www.repository.com/myorg/myrepo",
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
 
-        await expect(bridgechainRegistration).toBeAccepted();
-        await support.snoozeForBlock(1);
-        await expect(bridgechainRegistration.id).toBeForged();
+            await expect(bridgechainRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).toBeForged();
 
-        // Bridgechain resignation
-        let bridgechainResignation = TransactionFactory.bridgechainResignation("1")
-            .withPassphrase(secrets[0])
-            .createOne();
-        await expect(bridgechainResignation).toBeAccepted();
-        await support.snoozeForBlock(1);
-        await expect(bridgechainResignation.id).toBeForged();
+            // Bridgechain resignation
+            let bridgechainResignation = TransactionFactory.bridgechainResignation("1")
+                .withPassphrase(secrets[0])
+                .createOne();
+            await expect(bridgechainResignation).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainResignation.id).toBeForged();
 
-        bridgechainResignation = TransactionFactory.bridgechainResignation("1")
-            .withPassphrase(secrets[0])
-            .createOne();
+            bridgechainResignation = TransactionFactory.bridgechainResignation("1")
+                .withPassphrase(secrets[0])
+                .createOne();
 
-        expect(bridgechainResignation).toBeRejected();
-        await support.snoozeForBlock(1);
-        await expect(bridgechainResignation.id).not.toBeForged();
+            expect(bridgechainResignation).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainResignation.id).not.toBeForged();
+        });
     });
 
     describe("Signed with 2 Passphrases", () => {

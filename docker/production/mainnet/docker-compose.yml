@@ -7,7 +7,7 @@ services:
     volumes:
       - 'postgres:/var/lib/postgresql/data'
     networks:
-      - core 
+      - core
     environment:
      POSTGRES_PASSWORD: password
      POSTGRES_DB: core_mainnet
@@ -23,7 +23,7 @@ services:
      - "4040:4040"
      - "127.0.0.1:4004:4004"
      - "127.0.0.1:4005:4005"
-     - "127.0.0.1:8080:8080" 
+     - "127.0.0.1:8080:8080"
     cap_add:
       - SYS_NICE
       - SYS_RESOURCE
@@ -35,7 +35,7 @@ services:
      - /etc/localtime:/etc/localtime:ro
      - ./enc:/run/secrets
     networks:
-      - core 
+      - core
     env_file: ./mainnet.env
     tty: true
     links:
