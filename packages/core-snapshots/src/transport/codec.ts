@@ -44,6 +44,11 @@ const decodeTransaction = (buffer: Buffer) => {
 
     transaction.block_id = blockId;
     transaction.sequence = sequence;
+    if (transaction.version === 1) {
+        transaction.nonce = "0"; // Will be set correctly at database level by an INSERT trigger
+    } else {
+        transaction.nonce = transaction.nonce.toFixed();
+    }
     transaction.timestamp = timestamp;
     transaction.amount = transaction.amount.toFixed();
     transaction.fee = transaction.fee.toFixed();
