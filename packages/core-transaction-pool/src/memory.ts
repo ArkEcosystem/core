@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { State } from "@arkecosystem/core-interfaces";
+import { expirationCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -44,13 +45,14 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
+            maxTransactionAge: this.maxTransactionAge,
         };
 
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort(
                 (a, b) =>
-                    this.calculateTransactionExpiration(a, expirationContext) -
-                    this.calculateTransactionExpiration(b, expirationContext),
+                    expirationCalculator.calculateTransactionExpiration(a.data, expirationContext) -
+                    expirationCalculator.calculateTransactionExpiration(b.data, expirationContext),
             );
             this.byExpirationIsSorted = true;
         }
@@ -58,7 +60,10 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (this.calculateTransactionExpiration(transaction, expirationContext) > currentHeight) {
+            if (expirationCalculator.calculateTransactionExpiration(
+                transaction.data,
+                expirationContext,
+            ) > currentHeight) {
                 break;
             }
 
@@ -147,8 +152,12 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
+            maxTransactionAge: this.maxTransactionAge,
         };
-        const expiration: number = this.calculateTransactionExpiration(transaction, expirationContext);
+        const expiration: number = expirationCalculator.calculateTransactionExpiration(
+            transaction.data,
+            expirationContext,
+        );
         if (expiration !== null) {
             this.byExpiration.push(transaction);
             this.byExpirationIsSorted = false;
@@ -268,6 +277,7 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
+            maxTransactionAge: this.maxTransactionAge,
         };
 
         this.all.sort((a, b) => {
@@ -282,8 +292,14 @@ export class Memory {
                 return 1;
             }
 
-            const expirationA: number = this.calculateTransactionExpiration(a, expirationContext);
-            const expirationB: number = this.calculateTransactionExpiration(b, expirationContext);
+            const expirationA: number = expirationCalculator.calculateTransactionExpiration(
+                a.data,
+                expirationContext,
+            );
+            const expirationB: number = expirationCalculator.calculateTransactionExpiration(
+                b.data,
+                expirationContext,
+            );
 
             if (expirationA !== null && expirationB !== null) {
                 return expirationA - expirationB;
@@ -336,44 +352,5 @@ export class Memory {
             .resolvePlugin<State.IStateService>("state")
             .getStore()
             .getLastHeight();
-    }
-
-    /**
-     * Calculate the expiration height of a transaction.
-     * An expiration height H means that the transaction cannot be included in block at height
-     * H or any higher block.
-     * If the user did not specify an expiration height when creating the transaction then
-     * we calculate one from the timestamp of the transaction creation and the configured
-     * maximum transaction age.
-     * @return number expiration height or null if the transaction does not expire
-     */
-    private calculateTransactionExpiration(
-        transaction: Interfaces.ITransaction,
-        context: {
-            blockTime: number;
-            currentHeight: number;
-            now: number;
-        },
-    ): number {
-        // We ignore data.expiration in v1 transactions because it is not signed
-        // by the transaction creator.
-        // TODO: check if ok
-        if (transaction.data.version >= 2) {
-            // tslint:disable-next-line:no-null-keyword
-            return transaction.data.expiration || null;
-        }
-
-        // Since the user did not specify an expiration we set one by calculating
-        // approximately the height of the chain as of the time the transaction was
-        // created and adding maxTransactionAge to that.
-
-        // Both now and transaction.data.timestamp use [number of seconds since the genesis block].
-        const createdSecondsAgo: number = context.now - transaction.data.timestamp;
-
-        const createdBlocksAgo: number = Math.floor(createdSecondsAgo / context.blockTime);
-
-        const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
-
-        return createdAtHeight + this.maxTransactionAge;
     }
 }
