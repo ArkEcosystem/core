@@ -1,5 +1,5 @@
-import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { Utils } from "@arkecosystem/crypto";
+import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { delegates } from "../../../utils/fixtures/unitnet/delegates";
 
 export const transactions = {
