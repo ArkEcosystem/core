@@ -44,5 +44,6 @@ export const queries = {
         findById: loadQueryFile(__dirname, "./transactions/find-by-id.sql"),
         deleteByBlock: loadQueryFile(__dirname, "./transactions/delete-by-block.sql"),
         feeStatistics: loadQueryFile(__dirname, "./transactions/fee-statistics.sql"),
+        findByHtlcLocks: loadQueryFile(__dirname, "./transactions/find-by-htlc-locks.sql"),
     },
 };

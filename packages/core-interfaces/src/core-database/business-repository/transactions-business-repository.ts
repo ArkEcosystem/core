@@ -29,6 +29,8 @@ export interface ITransactionsBusinessRepository {
 
     getSentTransactions(): Promise<any>;
 
+    findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]>;
+
     getFeeStatistics(
         days: number,
     ): Promise<
