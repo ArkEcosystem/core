@@ -34,7 +34,7 @@ export const updateEnvironmentVariables = (envFile: string, variables: Environme
 export const getCliConfig = (options: Record<string, any>, defaultValue = {}): Record<string, any> => {
     const configPath: string = `${process.env.CORE_PATH_CONFIG}/app.js`;
     if (!existsSync(configPath)) {
-        throw new Error(`${configPath} does not exist.`);
+        return defaultValue;
     }
 
     const key: string = `cli.${options.suffix}.run.plugins`;
