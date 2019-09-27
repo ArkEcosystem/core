@@ -1,11 +1,8 @@
 import "jest-extended";
 
+import { MagistrateTransactionGroup, MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers } from "@arkecosystem/crypto";
-import {
-    MagistrateTransactionGroup,
-    MagistrateTransactionType,
-} from "@arkecosystem/core-magistrate-crypto";
 import {
     BridgechainRegistrationTransactionHandler,
     BridgechainResignationTransactionHandler,

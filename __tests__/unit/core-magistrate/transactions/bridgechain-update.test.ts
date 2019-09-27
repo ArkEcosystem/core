@@ -1,11 +1,11 @@
 import "jest-extended";
 
-import { BridgechainUpdateBuilder } from "@arkecosystem/core-magistrate-crypto";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { BridgechainUpdateTransaction } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { checkCommonFields } from "../helper";
 
-let builder: BridgechainUpdateBuilder;
+let builder: MagistrateBuilders.BridgechainUpdateBuilder;
 
 describe("Bridgechain update ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
@@ -13,7 +13,7 @@ describe("Bridgechain update ser/deser", () => {
     Transactions.TransactionRegistry.registerTransactionType(BridgechainUpdateTransaction);
 
     beforeEach(() => {
-        builder = new BridgechainUpdateBuilder();
+        builder = new MagistrateBuilders.BridgechainUpdateBuilder();
     });
 
     it("should ser/deserialize giving back original fields", () => {

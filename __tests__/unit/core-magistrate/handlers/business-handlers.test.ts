@@ -1,22 +1,20 @@
 import "jest-extended";
 
 import { State } from "@arkecosystem/core-interfaces";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
+import { businessIndexer, MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-manager";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import {
-    BusinessRegistrationBuilder, BusinessResignationBuilder,
-} from "@arkecosystem/core-magistrate-crypto";
-
-import {
-    businessIndexer,
-    MagistrateIndex,
-} from "@arkecosystem/core-magistrate-transactions/src/wallet-manager";
-import {
-     BusinessAlreadyRegisteredError, BusinessIsNotRegisteredError, BusinessIsResignedError,
+    BusinessAlreadyRegisteredError,
+    BusinessIsNotRegisteredError,
+    BusinessIsResignedError,
 } from "../../../../packages/core-magistrate-transactions/src/errors";
 import {
-    BusinessRegistrationTransactionHandler, BusinessResignationTransactionHandler, BusinessUpdateTransactionHandler,
+    BusinessRegistrationTransactionHandler,
+    BusinessResignationTransactionHandler,
+    BusinessUpdateTransactionHandler,
 } from "../../../../packages/core-magistrate-transactions/src/handlers";
 import { IBusinessWalletAttributes } from "../../../../packages/core-magistrate-transactions/src/interfaces";
 import { businessRegistrationAsset1, businessRegistrationAsset2 } from "../helper";
@@ -24,8 +22,8 @@ import { businessRegistrationAsset1, businessRegistrationAsset2 } from "../helpe
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
 
-let businessRegistrationBuilder: BusinessRegistrationBuilder;
-let businessResignationBuilder: BusinessResignationBuilder;
+let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;
+let businessResignationBuilder: MagistrateBuilders.BusinessResignationBuilder;
 
 let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
@@ -41,8 +39,8 @@ describe("should test marketplace transaction handlers", () => {
         businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
         businessResignationHandler = new BusinessResignationTransactionHandler();
 
-        businessRegistrationBuilder = new BusinessRegistrationBuilder();
-        businessResignationBuilder = new BusinessResignationBuilder();
+        businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
+        businessResignationBuilder = new MagistrateBuilders.BusinessResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);

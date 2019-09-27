@@ -1,7 +1,7 @@
 import "jest-extended";
 
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { Errors, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { BridgechainRegistrationBuilder } from "../../../../packages/core-magistrate-crypto/src/builders";
 import { MagistrateTransactionType } from "../../../../packages/core-magistrate-crypto/src/enums";
 import { BridgechainRegistrationTransaction } from "../../../../packages/core-magistrate-crypto/src/transactions";
 import {
@@ -10,14 +10,14 @@ import {
     bridgechainRegistrationAssetBad,
 } from "../helper";
 
-let builder: BridgechainRegistrationBuilder;
+let builder: MagistrateBuilders.BridgechainRegistrationBuilder;
 
 describe("Bridgechain registration builder", () => {
     Managers.configManager.setFromPreset("testnet");
     Transactions.TransactionRegistry.registerTransactionType(BridgechainRegistrationTransaction);
 
     beforeEach(() => {
-        builder = new BridgechainRegistrationBuilder();
+        builder = new MagistrateBuilders.BridgechainRegistrationBuilder();
     });
 
     describe("should test verification", () => {

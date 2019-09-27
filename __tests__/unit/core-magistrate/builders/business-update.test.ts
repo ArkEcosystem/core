@@ -1,17 +1,17 @@
 import "jest-extended";
 
-import { BusinessUpdateBuilder } from "@arkecosystem/core-magistrate-crypto";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { BusinessUpdateTransaction } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 
-let builder: BusinessUpdateBuilder;
+let builder: MagistrateBuilders.BusinessUpdateBuilder;
 
 describe("Business update builder", () => {
     Managers.configManager.setFromPreset("testnet");
     Transactions.TransactionRegistry.registerTransactionType(BusinessUpdateTransaction);
 
     beforeEach(() => {
-        builder = new BusinessUpdateBuilder();
+        builder = new MagistrateBuilders.BusinessUpdateBuilder();
     });
 
     describe("should test verification", () => {

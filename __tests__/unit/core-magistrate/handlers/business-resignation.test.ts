@@ -1,18 +1,12 @@
 import "jest-extended";
 
 import { State } from "@arkecosystem/core-interfaces";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { businessIndexer, MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-manager";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
-import {
-    BusinessRegistrationBuilder,
-    BusinessResignationBuilder,
-} from "@arkecosystem/core-magistrate-crypto";
-import {
-    BusinessIsNotRegisteredError,
-} from "../../../../packages/core-magistrate-transactions/src/errors";
-
+import { BusinessIsNotRegisteredError } from "../../../../packages/core-magistrate-transactions/src/errors";
 
 import {
     BusinessRegistrationTransactionHandler,
@@ -24,8 +18,8 @@ let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
 
 // @ts-ignore
-let businessRegistrationBuilder: BusinessRegistrationBuilder;
-let businessResignationBuilder: BusinessResignationBuilder;
+let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;
+let businessResignationBuilder: MagistrateBuilders.BusinessResignationBuilder;
 
 let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
@@ -40,8 +34,8 @@ describe("Business resignation handler", () => {
         businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
         businessResignationHandler = new BusinessResignationTransactionHandler();
 
-        businessRegistrationBuilder = new BusinessRegistrationBuilder();
-        businessResignationBuilder = new BusinessResignationBuilder();
+        businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
+        businessResignationBuilder = new MagistrateBuilders.BusinessResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);

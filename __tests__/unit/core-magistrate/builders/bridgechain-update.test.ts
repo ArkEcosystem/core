@@ -1,10 +1,10 @@
 import "jest-extended";
 
-import { BridgechainUpdateBuilder } from "@arkecosystem/core-magistrate-crypto";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { BridgechainUpdateTransaction } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
-let builder: BridgechainUpdateBuilder;
+let builder: MagistrateBuilders.BridgechainUpdateBuilder;
 
 describe("Bridgechain update builder", () => {
     Managers.configManager.setFromPreset("testnet");
@@ -12,7 +12,7 @@ describe("Bridgechain update builder", () => {
     Transactions.TransactionRegistry.registerTransactionType(BridgechainUpdateTransaction);
 
     beforeEach(() => {
-        builder = new BridgechainUpdateBuilder();
+        builder = new MagistrateBuilders.BridgechainUpdateBuilder();
     });
 
     describe("should test verification", () => {

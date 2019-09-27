@@ -1,5 +1,6 @@
+import * as Builders from "./builders";
 import * as Interfaces from "./interfaces";
+
 export { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "./enums";
-export { Interfaces };
-export * from "./builders";
+export { Builders, Interfaces };
 export * from "./transactions";

@@ -1,10 +1,8 @@
 import "jest-extended";
 
 import { State } from "@arkecosystem/core-interfaces";
-import { BusinessRegistrationBuilder } from "@arkecosystem/core-magistrate-crypto";
-import {
-    Interfaces as MagistrateInterfaces,
-} from "@arkecosystem/core-magistrate-crypto";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
+import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { businessIndexer, MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-manager";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
@@ -16,7 +14,7 @@ import { businessRegistrationAsset1 } from "../helper";
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 
-let businessRegistrationBuilder: BusinessRegistrationBuilder;
+let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;
 
 let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
@@ -29,7 +27,7 @@ describe("Business registration handler", () => {
     beforeEach(() => {
         businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
 
-        businessRegistrationBuilder = new BusinessRegistrationBuilder();
+        businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);
@@ -53,7 +51,10 @@ describe("Business registration handler", () => {
         });
 
         it("should reject because wallet is already a business", async () => {
-            senderWallet.setAttribute<MagistrateInterfaces.IBusinessRegistrationAsset>("business.businessAsset", businessRegistrationAsset1);
+            senderWallet.setAttribute<MagistrateInterfaces.IBusinessRegistrationAsset>(
+                "business.businessAsset",
+                businessRegistrationAsset1,
+            );
 
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset(businessRegistrationAsset1)

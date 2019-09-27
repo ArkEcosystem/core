@@ -1,17 +1,17 @@
 import "jest-extended";
 
-import { BusinessResignationBuilder } from "@arkecosystem/core-magistrate-crypto";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { BusinessResignationTransaction } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 
-let builder: BusinessResignationBuilder;
+let builder: MagistrateBuilders.BusinessResignationBuilder;
 
 describe("Business resignation builder", () => {
     Managers.configManager.setFromPreset("testnet");
     Transactions.TransactionRegistry.registerTransactionType(BusinessResignationTransaction);
 
     beforeEach(() => {
-        builder = new BusinessResignationBuilder();
+        builder = new MagistrateBuilders.BusinessResignationBuilder();
     });
 
     describe("should test verification", () => {

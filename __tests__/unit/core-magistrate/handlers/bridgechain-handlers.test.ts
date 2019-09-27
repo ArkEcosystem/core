@@ -1,15 +1,10 @@
 import "jest-extended";
 
 import { State } from "@arkecosystem/core-interfaces";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
-import {
-    BridgechainRegistrationBuilder,
-    BridgechainResignationBuilder,
-    BusinessRegistrationBuilder,
-} from "@arkecosystem/core-magistrate-crypto";
-
 import {
     BridgechainIsResignedError,
     WalletIsNotBusinessError,
@@ -31,9 +26,9 @@ let businessRegistrationHandler: Handlers.TransactionHandler;
 let bridgechainRegistrationHandler: Handlers.TransactionHandler;
 let bridgechainResignationHandler: Handlers.TransactionHandler;
 
-let businessRegistrationBuilder: BusinessRegistrationBuilder;
-let bridgechianRegistrationBuilder: BridgechainRegistrationBuilder;
-let bridgechainResignationBuilder: BridgechainResignationBuilder;
+let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;
+let bridgechianRegistrationBuilder: MagistrateBuilders.BridgechainRegistrationBuilder;
+let bridgechainResignationBuilder: MagistrateBuilders.BridgechainResignationBuilder;
 
 let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
@@ -50,9 +45,9 @@ describe("should test marketplace transaction handlers", () => {
         bridgechainRegistrationHandler = new BridgechainRegistrationTransactionHandler();
         bridgechainResignationHandler = new BridgechainResignationTransactionHandler();
 
-        businessRegistrationBuilder = new BusinessRegistrationBuilder();
-        bridgechianRegistrationBuilder = new BridgechainRegistrationBuilder();
-        bridgechainResignationBuilder = new BridgechainResignationBuilder();
+        businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
+        bridgechianRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder();
+        bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);

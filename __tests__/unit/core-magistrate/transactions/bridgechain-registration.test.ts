@@ -1,11 +1,11 @@
 import "jest-extended";
 
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
-import { BridgechainRegistrationBuilder } from "../../../../packages/core-magistrate-crypto/src/builders";
 import { BridgechainRegistrationTransaction } from "../../../../packages/core-magistrate-crypto/src/transactions";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, checkCommonFields } from "../helper";
 
-let builder: BridgechainRegistrationBuilder;
+let builder: MagistrateBuilders.BridgechainRegistrationBuilder;
 
 describe("Bridgechain registration transaction", () => {
     Managers.configManager.setFromPreset("testnet");
@@ -13,7 +13,7 @@ describe("Bridgechain registration transaction", () => {
     Transactions.TransactionRegistry.registerTransactionType(BridgechainRegistrationTransaction);
 
     beforeEach(() => {
-        builder = new BridgechainRegistrationBuilder();
+        builder = new MagistrateBuilders.BridgechainRegistrationBuilder();
     });
 
     describe("Ser/deser", () => {

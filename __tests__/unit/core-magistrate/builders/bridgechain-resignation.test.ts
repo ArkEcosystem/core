@@ -1,17 +1,17 @@
 import "jest-extended";
 
-import { BridgechainResignationBuilder } from "@arkecosystem/core-magistrate-crypto";
+import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { BridgechainResignationTransaction } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 
-let builder: BridgechainResignationBuilder;
+let builder: MagistrateBuilders.BridgechainResignationBuilder;
 
 describe("Bridgechain resignation builder", () => {
     Managers.configManager.setFromPreset("testnet");
     Transactions.TransactionRegistry.registerTransactionType(BridgechainResignationTransaction);
 
     beforeEach(() => {
-        builder = new BridgechainResignationBuilder();
+        builder = new MagistrateBuilders.BridgechainResignationBuilder();
     });
     describe("should test verification", () => {
         it("should be true", () => {
