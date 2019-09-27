@@ -72,9 +72,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 stateStorage.p2pUpdateCounter++;
             }
-        }
-
-        if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
+        } else if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
             stateStorage.noBlockCounter = 0;
             stateStorage.p2pUpdateCounter = 0;
 
@@ -227,9 +225,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 )}`,
             );
 
-            stateStorage.noBlockCounter = 0;
-            stateStorage.p2pUpdateCounter = 0;
-
             try {
                 blockchain.enqueueBlocks(blocks);
                 blockchain.dispatch("DOWNLOADED");
@@ -259,21 +254,19 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
     },
 
-    async analyseFork() {
-        logger.info("Analysing fork");
-    },
-
     async startForkRecovery() {
         logger.info("Starting fork recovery");
 
         blockchain.clearAndStopQueue();
 
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
+        const blocksToRemove: number = stateStorage.numberOfBlocksToRollback || random;
 
-        await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
+        await blockchain.removeBlocks(blocksToRemove);
+
         stateStorage.numberOfBlocksToRollback = undefined;
 
-        logger.info(`Removed ${pluralize("block", random, true)}`);
+        logger.info(`Removed ${pluralize("block", blocksToRemove, true)}`);
 
         await blockchain.transactionPool.buildWallets();
         await blockchain.p2p.getMonitor().refreshPeersAfterFork();

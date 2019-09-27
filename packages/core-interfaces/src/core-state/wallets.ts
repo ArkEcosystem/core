@@ -40,6 +40,20 @@ export interface IWallet {
         transaction: Interfaces.ITransactionData,
         multisignature?: Interfaces.IMultiSignatureAsset,
     ): boolean;
+
+    /**
+     * Verify that the transaction's nonce is the wallet nonce plus one, so that the
+     * transaction can be applied to the wallet.
+     * Throw an exception if it is not.
+     */
+    verifyTransactionNonceApply(transaction: Interfaces.ITransaction): void;
+
+    /**
+     * Verify that the transaction's nonce is the same as the wallet nonce, so that the
+     * transaction can be reverted from the wallet.
+     * Throw an exception if it is not.
+     */
+    verifyTransactionNonceRevert(transaction: Interfaces.ITransaction): void;
 }
 
 export interface IWalletDelegateAttributes {
@@ -141,6 +155,8 @@ export interface IWalletIndex {
     get(key: string): IWallet | undefined;
     set(key: string, wallet: IWallet): void;
     forget(key: string): void;
-    all(): ReadonlyArray<IWallet>;
+    entries(): ReadonlyArray<[string, IWallet]>;
+    values(): ReadonlyArray<IWallet>;
+    keys(): string[];
     clear(): void;
 }

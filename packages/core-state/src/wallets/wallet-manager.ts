@@ -81,15 +81,15 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public allByAddress(): ReadonlyArray<State.IWallet> {
-        return this.getIndex(State.WalletIndexes.Addresses).all();
+        return this.getIndex(State.WalletIndexes.Addresses).values();
     }
 
     public allByPublicKey(): ReadonlyArray<State.IWallet> {
-        return this.getIndex(State.WalletIndexes.PublicKeys).all();
+        return this.getIndex(State.WalletIndexes.PublicKeys).values();
     }
 
     public allByUsername(): ReadonlyArray<State.IWallet> {
-        return this.getIndex(State.WalletIndexes.Usernames).all();
+        return this.getIndex(State.WalletIndexes.Usernames).values();
     }
 
     public findById(id: string): State.IWallet {

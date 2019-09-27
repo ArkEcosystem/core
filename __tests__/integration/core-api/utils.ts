@@ -132,6 +132,17 @@ class Helpers {
         expect(wallet).toHaveProperty("vote");
     }
 
+    public expectLock(lock) {
+        expect(lock).toBeObject();
+        expect(lock).toHaveProperty("lockId");
+        expect(lock).toHaveProperty("senderPublicKey");
+        expect(lock).toHaveProperty("recipientId");
+        expect(lock).toHaveProperty("amount");
+        expect(lock).toHaveProperty("secretHash");
+        expect(lock).toHaveProperty("expirationType");
+        expect(lock).toHaveProperty("expirationValue");
+    }
+
     public async createTransaction() {
         Managers.configManager.setConfig(Managers.NetworkManager.findByName("testnet"));
 

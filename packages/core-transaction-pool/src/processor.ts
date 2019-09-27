@@ -1,11 +1,11 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, Logger, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
+import { expirationCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { IDynamicFeeMatch, ITransactionsCached, ITransactionsProcessed } from "./interfaces";
-import { WalletManager } from "./wallet-manager";
 
 /**
  * @TODO: this class has too many responsibilities at the moment.
@@ -19,7 +19,7 @@ export class Processor implements TransactionPool.IProcessor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: TransactionPool.ITransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: TransactionPool.IConnection, private readonly walletManager: WalletManager) {}
+    constructor(private readonly pool: TransactionPool.IConnection) {}
 
     public async validate(transactions: Interfaces.ITransactionData[]): Promise<TransactionPool.IProcessorResult> {
         this.cacheTransactions(transactions);
@@ -121,7 +121,6 @@ export class Processor implements TransactionPool.IProcessor {
                     );
                     if (await handler.verify(transactionInstance, this.pool.walletManager)) {
                         try {
-                            await this.walletManager.throwIfCannotBeApplied(transactionInstance);
                             const dynamicFee: IDynamicFeeMatch = await dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
@@ -163,10 +162,6 @@ export class Processor implements TransactionPool.IProcessor {
 
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
-        const lastHeight: number = app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastHeight();
 
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture: number = transaction.timestamp - now;
@@ -178,11 +173,30 @@ export class Processor implements TransactionPool.IProcessor {
             );
 
             return false;
-        } else if (transaction.expiration > 0 && transaction.expiration <= lastHeight + 1) {
+        }
+
+        const lastHeight: number = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
+
+        const expirationContext = {
+            blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
+            currentHeight: lastHeight,
+            now: Crypto.Slots.getTime(),
+            maxTransactionAge: app.resolveOptions("transaction-pool").maxTransactionAge,
+        };
+
+        const expiration: number = expirationCalculator.calculateTransactionExpiration(
+            transaction,
+            expirationContext,
+        );
+
+        if (expiration !== null && expiration <= lastHeight + 1) {
             this.pushError(
                 transaction,
                 "ERR_EXPIRED",
-                `Transaction ${transaction.id} is expired since ${lastHeight - transaction.expiration} blocks.`,
+                `Transaction ${transaction.id} is expired since ${lastHeight - expiration} blocks.`,
             );
 
             return false;

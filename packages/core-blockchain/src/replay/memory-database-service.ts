@@ -4,7 +4,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 export class MemoryDatabaseService extends DatabaseService {
     public constructor(public walletManager: State.IWalletManager) {
-        super(undefined, undefined, undefined, undefined, undefined, undefined, undefined);
+        super(undefined, undefined, undefined, undefined, undefined, undefined);
         this.blocksInCurrentRound = [];
     }
 

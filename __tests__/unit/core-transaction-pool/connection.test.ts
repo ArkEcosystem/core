@@ -483,24 +483,27 @@ describe("Connection", () => {
 
     describe("getTransactionIdsForForging", () => {
         it("should return an array of transactions ids", async () => {
-            addTransactions([
+            const added = [
                 mockData.dummy1,
                 mockData.dummy2,
                 mockData.dummy3,
                 mockData.dummy4,
                 mockData.dummy5,
                 mockData.dummy6,
-            ]);
+            ];
 
-            const transactionIds = await connection.getTransactionIdsForForging(0, 6);
+            addTransactions(added);
 
-            expect(transactionIds).toBeArray();
-            expect(transactionIds[0]).toBe(mockData.dummy1.id);
-            expect(transactionIds[1]).toBe(mockData.dummy2.id);
-            expect(transactionIds[2]).toBe(mockData.dummy3.id);
-            expect(transactionIds[3]).toBe(mockData.dummy4.id);
-            expect(transactionIds[4]).toBe(mockData.dummy5.id);
-            expect(transactionIds[5]).toBe(mockData.dummy6.id);
+            const retrieved = await connection.getTransactionIdsForForging(0, added.length);
+
+            expect(retrieved).toBeArray();
+            expect(retrieved).toHaveLength(added.length);
+            expect(retrieved[0]).toBe(mockData.dummy1.id);
+            expect(retrieved[1]).toBe(mockData.dummy2.id);
+            expect(retrieved[2]).toBe(mockData.dummy3.id);
+            expect(retrieved[3]).toBe(mockData.dummy4.id);
+            expect(retrieved[4]).toBe(mockData.dummy5.id);
+            expect(retrieved[5]).toBe(mockData.dummy6.id);
         });
 
         it("should only return transaction ids for transactions not exceeding the maximum payload size", async () => {
@@ -779,29 +782,7 @@ describe("Connection", () => {
 
             expect(getTransaction).toHaveBeenCalled();
             expect(findByPublicKey).not.toHaveBeenCalled();
-            expect(throwIfCannotBeApplied).toHaveBeenCalled();
             expect(applyToSender).toHaveBeenCalled();
-        });
-
-        it("should not apply transaction to wallet if throwIfCannotBeApplied() failed", async () => {
-            const transactionHandler = await Handlers.Registry.get(TransactionType.Transfer);
-            throwIfCannotBeApplied = jest.spyOn(transactionHandler, "throwIfCannotBeApplied").mockImplementation(() => {
-                throw new Error("throw from test");
-            });
-            const purgeByPublicKey = jest.spyOn(connection, "purgeByPublicKey").mockReturnValue();
-
-            updateSenderNonce(mockData.dummy1);
-            addTransactions([mockData.dummy1]);
-
-            await connection.buildWallets();
-
-            expect(applyToSender).not.toHaveBeenCalled();
-            expect(throwIfCannotBeApplied).toHaveBeenCalledWith(
-                mockData.dummy1,
-                findByPublicKeyWallet,
-                (connection as any).databaseService.walletManager,
-            );
-            expect(purgeByPublicKey).not.toHaveBeenCalledWith(mockData.dummy1.data.senderPublicKey);
         });
     });
 
@@ -845,14 +826,20 @@ describe("Connection", () => {
         it("save and restore transactions", async () => {
             await expect(connection.getPoolSize()).resolves.toBe(0);
 
+            // Reset the senders' nonces to cleanup leftovers from previous tests.
+            updateSenderNonce(mockData.dummy1);
+            updateSenderNonce(mockData.dummy10);
+
+            // Be sure to use transactions with appropriate nonce - can't fire a transaction
+            // with nonce 5 if the sender wallet has nonce 1, for example.
+            const transactions = [mockData.dummy1, mockData.dummy10, mockData.dummyLarge1];
+
             indexWalletWithSufficientBalance(mockData.dummy1);
             indexWalletWithSufficientBalance(mockData.dummyLarge1);
 
-            const transactions = [mockData.dummy1, mockData.dummyLarge1];
-
             addTransactions(transactions);
 
-            await expect(connection.getPoolSize()).resolves.toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(transactions.length);
 
             connection.disconnect();
 
@@ -862,7 +849,7 @@ describe("Connection", () => {
 
             await delay(200);
 
-            await expect(connection.getPoolSize()).resolves.toBe(2);
+            await expect(connection.getPoolSize()).resolves.toBe(transactions.length);
 
             for (const t of transactions) {
                 expect((await connection.getTransaction(t.id)).serialized).toEqual(t.serialized);

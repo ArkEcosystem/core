@@ -36,7 +36,7 @@ module.exports = async options => {
         .withFee(0.1 * Math.pow(10, 8))
         .withPassphrase(utils.htlcSender.passphrase)
         .createOne();
-    
+
     // htlc lock transaction that we will claim with a wrong secret hash
     shared.lockTransactions.wrongSecret = TransactionFactory.htlcLock(
             {

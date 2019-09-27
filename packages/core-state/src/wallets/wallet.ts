@@ -161,6 +161,28 @@ export class Wallet implements State.IWallet {
         return verified;
     }
 
+    /**
+     * Verify that the transaction's nonce is the wallet nonce plus one, so that the
+     * transaction can be applied to the wallet.
+     * Throw an exception if it is not.
+     */
+    public verifyTransactionNonceApply(transaction: Interfaces.ITransaction): void {
+        if (transaction.data.version > 1 && !this.nonce.plus(1).isEqualTo(transaction.data.nonce)) {
+            throw new Errors.UnexpectedNonceError(transaction.data.nonce, this, false);
+        }
+    }
+
+    /**
+     * Verify that the transaction's nonce is the same as the wallet nonce, so that the
+     * transaction can be reverted from the wallet.
+     * Throw an exception if it is not.
+     */
+    public verifyTransactionNonceRevert(transaction: Interfaces.ITransaction): void {
+        if (transaction.data.version > 1 && !this.nonce.isEqualTo(transaction.data.nonce)) {
+            throw new Errors.UnexpectedNonceError(transaction.data.nonce, this, true);
+        }
+    }
+
     public auditApply(transaction: Interfaces.ITransactionData): any[] {
         const audit = [];
 
