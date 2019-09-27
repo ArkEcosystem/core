@@ -68,20 +68,22 @@ export class TransactionsRepository extends Repository implements Database.ITran
                     const recipientWallet: State.IWallet = walletManager.findByAddress(first.value);
 
                     for (const query of [selectQuery, selectQueryCount]) {
-                        query.or(
-                            this.query.sender_public_key
-                                .equals(recipientWallet.publicKey)
-                                .and(this.query.recipient_id.isNull()),
-                        ).or(
-                            // Include multipayment recipients
-                            this.query.asset.contains({
-                                payments: [
-                                    {
-                                        recipientId: first.value,
-                                    },
-                                ],
-                            }),
-                        );
+                        query
+                            .or(
+                                this.query.sender_public_key
+                                    .equals(recipientWallet.publicKey)
+                                    .and(this.query.recipient_id.isNull()),
+                            )
+                            .or(
+                                // Include multipayment recipients
+                                this.query.asset.contains({
+                                    payments: [
+                                        {
+                                            recipientId: first.value,
+                                        },
+                                    ],
+                                }),
+                            );
                     }
                 }
             } else if (rest.length) {
