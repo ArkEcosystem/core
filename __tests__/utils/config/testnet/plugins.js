@@ -2,7 +2,7 @@ module.exports = {
     "@arkecosystem/core-event-emitter": {},
     "@arkecosystem/core-logger-pino": {},
     "@arkecosystem/core-state": {},
-    "@arkecosystem/core-marketplace":{},
+    "@arkecosystem/core-magistrate-transactions": {},
     "@arkecosystem/core-database-postgres": {
         connection: {
             host: process.env.CORE_DB_HOST || "localhost",
@@ -50,5 +50,5 @@ module.exports = {
         port: process.env.CORE_EXCHANGE_JSON_RPC_PORT || 8080,
         allowRemote: false,
         whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
-    }
+    },
 };

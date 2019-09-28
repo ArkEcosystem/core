@@ -1,6 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { flags } from "@oclif/command";
+import deepmerge from "deepmerge";
 import { CommandFlags } from "../../types";
+import { getCliConfig } from "../../utils";
 import { BaseCommand } from "../command";
 
 export class RunCommand extends BaseCommand {
@@ -42,14 +44,18 @@ $ ark relay:run --launchMode=seed
     public async run(): Promise<void> {
         const { flags } = await this.parseWithNetwork(RunCommand);
 
-        await super.buildApplication(app, flags, {
-            exclude: ["@arkecosystem/core-forger"],
-            options: {
-                "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
-                "@arkecosystem/core-blockchain": {
-                    networkStart: flags.networkStart,
+        await super.buildApplication(
+            app,
+            flags,
+            deepmerge(getCliConfig(flags), {
+                exclude: ["@arkecosystem/core-forger"],
+                options: {
+                    "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
+                    "@arkecosystem/core-blockchain": {
+                        networkStart: flags.networkStart,
+                    },
                 },
-            },
-        });
+            }),
+        );
     }
 }

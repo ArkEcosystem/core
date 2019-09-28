@@ -354,11 +354,13 @@ export class Connection implements TransactionPool.IConnection {
     ): Promise<Interfaces.ITransaction[]> {
         await this.purgeExpired();
 
-        let data: Interfaces.ITransaction[] = [];
+        const data: Interfaces.ITransaction[] = [];
 
         let transactionBytes: number = 0;
 
-        const tempWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(this.databaseService.walletManager);
+        const tempWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(
+            this.databaseService.walletManager,
+        );
 
         let i = 0;
         // Copy the returned array because validateTransactions() in the loop body we may remove entries.
@@ -472,7 +474,7 @@ export class Connection implements TransactionPool.IConnection {
      */
     private async validateTransactions(
         transactions: Interfaces.ITransaction[],
-        walletManager?: Wallets.TempWalletManager
+        walletManager?: Wallets.TempWalletManager,
     ): Promise<Interfaces.ITransaction[]> {
         const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
