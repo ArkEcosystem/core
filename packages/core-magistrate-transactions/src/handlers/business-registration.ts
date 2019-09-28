@@ -1,5 +1,5 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { BusinessRegistrationTransaction } from "@arkecosystem/core-magistrate-crypto";
+import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessAlreadyRegisteredError } from "../errors";
@@ -9,7 +9,7 @@ import { MagistrateIndex } from "../wallet-manager";
 
 export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
-        return BusinessRegistrationTransaction;
+        return MagistrateTransactions.BusinessRegistrationTransaction;
     }
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {

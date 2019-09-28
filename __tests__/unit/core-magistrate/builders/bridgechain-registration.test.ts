@@ -1,9 +1,11 @@
 import "jest-extended";
 
-import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
+import {
+    Builders as MagistrateBuilders,
+    Enums,
+    Transactions as MagistrateTransactions,
+} from "@arkecosystem/core-magistrate-crypto";
 import { Errors, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { MagistrateTransactionType } from "../../../../packages/core-magistrate-crypto/src/enums";
-import { BridgechainRegistrationTransaction } from "../../../../packages/core-magistrate-crypto/src/transactions";
 import {
     bridgechainRegistrationAsset1,
     bridgechainRegistrationAsset2,
@@ -14,7 +16,7 @@ let builder: MagistrateBuilders.BridgechainRegistrationBuilder;
 
 describe("Bridgechain registration builder", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerTransactionType(BridgechainRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainRegistrationTransaction);
 
     beforeEach(() => {
         builder = new MagistrateBuilders.BridgechainRegistrationBuilder();
@@ -38,9 +40,12 @@ describe("Bridgechain registration builder", () => {
 
     describe("should test properties", () => {
         it("should have its specific properties", () => {
-            expect(builder).toHaveProperty("data.type", MagistrateTransactionType.BridgechainRegistration);
+            expect(builder).toHaveProperty("data.type", Enums.MagistrateTransactionType.BridgechainRegistration);
             expect(builder).toHaveProperty("data.amount", Utils.BigNumber.ZERO);
-            expect(builder).toHaveProperty("data.fee", BridgechainRegistrationTransaction.staticFee());
+            expect(builder).toHaveProperty(
+                "data.fee",
+                MagistrateTransactions.BridgechainRegistrationTransaction.staticFee(),
+            );
             expect(builder).toHaveProperty("data.recipientId", undefined);
             expect(builder).toHaveProperty("data.senderPublicKey", undefined);
             expect(builder).toHaveProperty("data.asset", { bridgechainRegistration: {} });

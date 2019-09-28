@@ -127,7 +127,7 @@ export class Database {
                 end: endBlock.timestamp,
             }),
             rounds: rawQuery(this.pgp, queries.rounds.roundRange, {
-                startRound: startRound,
+                startRound,
                 endRound: roundInfoEnd.round,
             }),
         };

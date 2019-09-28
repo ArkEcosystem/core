@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
-import { BusinessRegistrationTransaction } from "@arkecosystem/core-magistrate-crypto";
+import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
 import {
     businessRegistrationAsset1,
@@ -15,7 +15,7 @@ let builder: MagistrateBuilders.BusinessRegistrationBuilder;
 
 describe("Business registration transaction", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerTransactionType(BusinessRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessRegistrationTransaction);
 
     beforeEach(() => {
         builder = new MagistrateBuilders.BusinessRegistrationBuilder();
@@ -92,7 +92,7 @@ describe("Business registration transaction", () => {
         let transactionSchema;
 
         beforeAll(() => {
-            transactionSchema = BusinessRegistrationTransaction.getSchema();
+            transactionSchema = MagistrateTransactions.BusinessRegistrationTransaction.getSchema();
         });
 
         it("should not throw any error ", () => {

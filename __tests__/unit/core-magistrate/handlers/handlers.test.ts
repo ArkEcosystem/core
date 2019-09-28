@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { MagistrateTransactionGroup, MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
+import { Enums } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers } from "@arkecosystem/crypto";
 import {
@@ -24,12 +24,24 @@ describe("Registry test", () => {
         Handlers.Registry.registerTransactionHandler(BridgechainUpdateTransactionHandler);
 
         expect(() => {
-            Handlers.Registry.get(MagistrateTransactionType.BusinessRegistration, MagistrateTransactionGroup);
-            Handlers.Registry.get(MagistrateTransactionType.BusinessResignation, MagistrateTransactionGroup);
-            Handlers.Registry.get(MagistrateTransactionType.BridgechainRegistration, MagistrateTransactionGroup);
-            Handlers.Registry.get(MagistrateTransactionType.BridgechainResignation, MagistrateTransactionGroup);
-            Handlers.Registry.get(MagistrateTransactionType.BusinessUpdate, MagistrateTransactionGroup);
-            Handlers.Registry.get(MagistrateTransactionType.BridgechainUpdate, MagistrateTransactionGroup);
+            Handlers.Registry.get(
+                Enums.MagistrateTransactionType.BusinessRegistration,
+                Enums.MagistrateTransactionGroup,
+            );
+            Handlers.Registry.get(
+                Enums.MagistrateTransactionType.BusinessResignation,
+                Enums.MagistrateTransactionGroup,
+            );
+            Handlers.Registry.get(
+                Enums.MagistrateTransactionType.BridgechainRegistration,
+                Enums.MagistrateTransactionGroup,
+            );
+            Handlers.Registry.get(
+                Enums.MagistrateTransactionType.BridgechainResignation,
+                Enums.MagistrateTransactionGroup,
+            );
+            Handlers.Registry.get(Enums.MagistrateTransactionType.BusinessUpdate, Enums.MagistrateTransactionGroup);
+            Handlers.Registry.get(Enums.MagistrateTransactionType.BridgechainUpdate, Enums.MagistrateTransactionGroup);
         }).not.toThrowError();
     });
 });
