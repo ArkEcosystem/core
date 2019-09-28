@@ -3,35 +3,35 @@ module.exports = {
         core: {
             run: {
                 plugins: {
-                    include: ["@arkecosystem/core-marketplace"],
+                    include: ["@arkecosystem/core-magistrate-transactions"],
                 },
             },
         },
         relay: {
             run: {
                 plugins: {
-                    include: ["@arkecosystem/core-marketplace"],
+                    include: ["@arkecosystem/core-magistrate-transactions"],
                 },
             },
         },
         forger: {
             run: {
                 plugins: {
-                    include: ["@arkecosystem/core-marketplace"],
+                    include: ["@arkecosystem/core-magistrate-transactions"],
                 },
             },
         },
         chain: {
             run: {
                 plugins: {
-                    include: ["@arkecosystem/core-marketplace"],
+                    include: ["@arkecosystem/core-magistrate-transactions"],
                 },
             },
         },
         snapshot: {
             run: {
                 plugins: {
-                    include: ["@arkecosystem/core-marketplace"],
+                    include: ["@arkecosystem/core-magistrate-transactions"],
                 },
             },
         },
