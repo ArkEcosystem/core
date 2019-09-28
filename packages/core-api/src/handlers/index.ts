@@ -22,7 +22,7 @@ export = {
         }
 
         // TODO: hook into core-api instead in V3
-        if (app.has("core-marketplace")) {
+        if (app.has("core-magistrate-transactions")) {
             Businesses.register(server);
             Bridgechains.register(server);
         }
