@@ -99,6 +99,10 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return this.databaseServiceProvider().connection.transactionsRepository.getSentTransactions();
     }
 
+    public async findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]> {
+        return this.databaseServiceProvider().connection.transactionsRepository.findByHtlcLocks(lockIds);
+    }
+
     private getPublicKeyFromAddress(senderId: string): string {
         const { walletManager }: Database.IDatabaseService = this.databaseServiceProvider();
 

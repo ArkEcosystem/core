@@ -1,7 +1,9 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
+import { Database } from '@arkecosystem/core-interfaces';
 import { Identities, Utils } from "@arkecosystem/crypto";
+import { TransactionFactory } from '../../../helpers';
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
@@ -152,5 +154,26 @@ describe("API 2.0 - Locks", () => {
         });
 
         // TODO: more coverage
+    });
+
+    describe("POST /locks/unlocked", () => {
+        it("should find matching transactions for the given lock ids", async () => {
+            const refundTransaction = TransactionFactory.htlcRefund({
+                lockTransactionId: lockIds[0],
+            }).build()[0];
+
+            const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
+            jest.spyOn(databaseService.transactionsBusinessRepository, "findByHtlcLocks").mockResolvedValueOnce([refundTransaction as any])
+
+            const response = await utils.request("POST", "locks/unlocked", {
+                ids: [lockIds[0]],
+            });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+            expect(refundTransaction.id).toEqual(response.data.data[0].id);
+        });
     });
 });

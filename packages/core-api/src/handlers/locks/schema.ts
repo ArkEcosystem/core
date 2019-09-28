@@ -76,3 +76,23 @@ export const search: object = {
         }),
     },
 };
+
+export const unlocked: object = {
+    query: {
+        ...pagination,
+        ...{
+            orderBy: Joi.string(),
+        },
+    },
+    payload: {
+        ids: Joi.array()
+            .unique()
+            .min(1)
+            .max(25)
+            .items(
+                Joi.string()
+                    .hex()
+                    .length(64),
+            ),
+    },
+};
