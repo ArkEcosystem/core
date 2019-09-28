@@ -2900,9 +2900,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/newrelic@^4.11.0":
-  version "4.11.0"
-  resolved "https://registry.yarnpkg.com/@types/newrelic/-/newrelic-4.11.0.tgz#d023597a44bf5be5b68b52543cdc5f521f8f4da8"
+"@types/newrelic@^5.0.0":
+  version "5.11.0"
+  resolved "https://registry.yarnpkg.com/@types/newrelic/-/newrelic-5.11.0.tgz#1cbc6afb2bf56c5fead8cb91549ba03696340d72"
+  integrity sha512-amiR95ClFvGC9gOT4TOu1MxgZEVc0OdLqfig4hRyS7OalRO336n9OIRorrNKfLOWP/qn63qOionweeKw8UyB5A==
 
 "@types/nock@^10.0.3":
   version "10.0.3"
