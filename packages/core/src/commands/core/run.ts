@@ -49,6 +49,7 @@ $ ark core:run --launchMode=seed
             app,
             flags,
             deepmerge(getCliConfig(flags), {
+                exclude: [],
                 options: {
                     "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
                     "@arkecosystem/core-blockchain": {
