@@ -1,6 +1,6 @@
 import { Database, State } from "@arkecosystem/core-interfaces";
 import { delegateCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { searchEntries } from "./utils/search-entries";
 
 interface ISearchContext<T = any> {
@@ -12,7 +12,7 @@ interface ISearchContext<T = any> {
 interface IUnwrappedHtlcLock {
     lockId: string;
     senderPublicKey: string;
-    amount: string;
+    amount: Utils.BigNumber;
     recipientId: string;
     secretHash: string;
     expirationType: number;
@@ -20,7 +20,7 @@ interface IUnwrappedHtlcLock {
 }
 
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
+    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) { }
 
     public search<T>(scope: Database.SearchScope, params: Database.IParameters = {}): Database.IRowsPaginated<T> {
         let searchContext: ISearchContext;
@@ -90,7 +90,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
     private searchWallets(params: Database.IParameters): ISearchContext<State.IWallet> {
         const query: Record<string, string[]> = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
-            between: ["balance", "voteBalance"],
+            between: ["balance", "voteBalance", "lockedBalance"],
         };
 
         if (params.addresses) {
@@ -194,7 +194,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                     const lock: Interfaces.IHtlcLock = locks[lockId];
                     return {
                         lockId,
-                        amount: lock.amount.toFixed(),
+                        amount: lock.amount,
                         secretHash: lock.secretHash,
                         senderPublicKey: wallet.publicKey,
                         recipientId: lock.recipientId,
