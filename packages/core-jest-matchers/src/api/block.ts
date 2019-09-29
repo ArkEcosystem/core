@@ -1,5 +1,4 @@
 import { Utils } from "@arkecosystem/core-kernel";
-import { sortBy } from "@arkecosystem/utils";
 
 export {};
 
@@ -13,7 +12,7 @@ declare global {
 }
 
 const isValidBlock = block => {
-    const allowedKeys = sortBy([
+    const allowedKeys = Utils.sortBy([
         "blockSignature",
         "createdAt",
         "generatorPublicKey",
@@ -33,7 +32,7 @@ const isValidBlock = block => {
     ]);
     const actualKeys = Object.keys(block).filter(key => allowedKeys.includes(key));
 
-    return Utils.isEqual(sortBy(actualKeys), allowedKeys);
+    return Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys);
 };
 
 expect.extend({

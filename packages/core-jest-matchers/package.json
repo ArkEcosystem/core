@@ -23,7 +23,6 @@
     "dependencies": {
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@arkecosystem/utils": "^0.4.0",
         "bip39": "^3.0.2",
         "got": "^9.6.0",
         "jest-extended": "^0.11.2",

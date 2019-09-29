@@ -1,5 +1,4 @@
 import { Utils } from "@arkecosystem/core-kernel";
-import { sortBy } from "@arkecosystem/utils";
 
 export {};
 
@@ -13,10 +12,10 @@ declare global {
 }
 
 const isValidPeer = peer => {
-    const allowedKeys = sortBy(["ip", "port"]);
+    const allowedKeys = Utils.sortBy(["ip", "port"]);
     const actualKeys = Object.keys(peer).filter(key => allowedKeys.includes(key));
 
-    return Utils.isEqual(sortBy(actualKeys), allowedKeys);
+    return Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys);
 };
 
 expect.extend({

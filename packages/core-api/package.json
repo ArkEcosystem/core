@@ -25,7 +25,6 @@
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "@arkecosystem/core-transaction-pool": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@arkecosystem/utils": "^0.4.0",
         "@hapi/boom": "^7.4.3",
         "@hapi/hapi": "^18.3.2",
         "@hapi/joi": "^15.1.1",

@@ -1,5 +1,4 @@
 import { Utils } from "@arkecosystem/core-kernel";
-import { sortBy } from "@arkecosystem/utils";
 
 export {};
 
@@ -14,7 +13,7 @@ declare global {
 expect.extend({
     toBeApiTransaction: (actual, expected) => {
         // TODO based on type
-        const allowedKeys = sortBy([
+        const allowedKeys = Utils.sortBy([
             "id",
             "blockid",
             "type",
@@ -31,7 +30,7 @@ expect.extend({
 
         return {
             message: () => `Expected ${JSON.stringify(actual)} to be a valid transaction`,
-            pass: Utils.isEqual(sortBy(actualKeys), allowedKeys),
+            pass: Utils.isEqual(Utils.sortBy(actualKeys), allowedKeys),
         };
     },
 });

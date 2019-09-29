@@ -1,6 +1,5 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import { orderBy } from "@arkecosystem/utils";
 
 import { getProperty } from "./get-property";
 
@@ -16,5 +15,5 @@ export const sortEntries = (params: Contracts.Database.Parameters, entries: Cont
         });
     }
 
-    return orderBy(entries, [iteratee], [order as "desc" | "asc"]);
+    return AppUtils.orderBy(entries, [iteratee], [order as "desc" | "asc"]);
 };
