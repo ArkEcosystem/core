@@ -3,9 +3,10 @@ name: Test
 on:
     push:
         branches:
-            - "**"
+            - "*"
+            - "*/*"
     pull_request:
-        types: [opened]
+        types: [ready_for_review, synchronize, opened]
 
 jobs:
     unit:
@@ -17,16 +18,17 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Install & Build
               run: yarn setup
+
             - name: Test
               run: yarn test:unit --coverage --coverageDirectory .coverage/unit --forceExit
+
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-
-              env:
-                  CI: true
