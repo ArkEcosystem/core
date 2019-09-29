@@ -3,6 +3,7 @@ import { strictEqual } from "assert";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
+// todo: review the implementation
 export class Storage {
     private readonly table: string = "pool";
     private database: BetterSqlite3.Database;

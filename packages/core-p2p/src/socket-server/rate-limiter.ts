@@ -15,6 +15,7 @@ export interface RateLimiterConfigurations {
     endpoints: EndpointRateLimiterConfiguration[];
 }
 
+// todo: review the implementation
 export class RateLimiter {
     private global: RateLimiterMemory;
     private endpoints: Map<string, RateLimiterMemory>;

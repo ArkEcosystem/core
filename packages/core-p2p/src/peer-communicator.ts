@@ -10,6 +10,7 @@ import { PeerVerifier } from "./peer-verifier";
 import { replySchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
+// todo: review the implementation
 @Container.injectable()
 export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.LogService)

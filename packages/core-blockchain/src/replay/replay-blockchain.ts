@@ -6,6 +6,7 @@ import { Blockchain } from "../blockchain";
 import { FailedToReplayBlocksError } from "./errors";
 import { MemoryDatabaseService } from "./memory-database-service";
 
+// todo: review the implementation
 export class ReplayBlockchain extends Blockchain {
     private logger: Contracts.Kernel.Log.Logger;
     private localDatabase: Contracts.Database.DatabaseService;

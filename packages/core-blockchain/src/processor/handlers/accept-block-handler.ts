@@ -4,6 +4,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "./block-handler";
 
+// todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()
 export class AcceptBlockHandler extends BlockHandler {
     @Container.inject(Container.Identifiers.LogService)
@@ -56,6 +57,7 @@ export class AcceptBlockHandler extends BlockHandler {
             this.logger.warning(`Refused new block ${JSON.stringify(block.data)}`);
             this.logger.debug(error.stack);
 
+            // todo: replace this with an actual implementation after the abstract is gone
             return super.execute(block);
         }
     }

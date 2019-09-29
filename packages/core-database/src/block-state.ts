@@ -3,11 +3,12 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers, Interfaces as TransactionInterfaces } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
-// @todo: ioc
+// todo: review the implementation and make use of ioc
 @Container.injectable()
 export class BlockState {
     private walletRepository: Contracts.State.WalletRepository;
 
+    // todo: remove the need for this method
     public init(walletRepository: Contracts.State.WalletRepository): this {
         this.walletRepository = walletRepository;
 

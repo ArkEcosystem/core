@@ -4,6 +4,7 @@ import Hapi from "@hapi/hapi";
 
 import { Controller } from "../shared/controller";
 
+// todo: remove the abstract and use dependency injection if needed
 export class BlockchainController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {

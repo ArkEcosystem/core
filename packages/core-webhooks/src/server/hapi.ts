@@ -3,6 +3,7 @@ import { badData } from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
+// todo: review implementation
 @Container.injectable()
 export class Server {
     /**

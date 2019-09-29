@@ -1,7 +1,8 @@
 import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
-// @todo: ioc
+// todo: ioc
+// todo: review the implementation
 @Container.injectable()
 export class WalletState {
     private walletRepository: Contracts.State.WalletRepository;

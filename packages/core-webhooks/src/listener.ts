@@ -5,6 +5,7 @@ import { Database } from "./database";
 import { Webhook } from "./interfaces";
 
 // todo: inject database via container instead of passing references around between methods
+// todo: review the implementation and potentially turn this into a class with smaller and easily testable methods
 export const startListeners = (app: Contracts.Kernel.Application): void => {
     for (const event of Object.values(Enums.Events.State)) {
         app.events.listen(event, async payload => {

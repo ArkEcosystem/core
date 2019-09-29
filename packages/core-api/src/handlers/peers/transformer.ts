@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-kernel";
 
+// todo: review the implementation
 export const transformPeer = model => {
     return {
         ip: model.ip,

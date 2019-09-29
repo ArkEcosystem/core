@@ -8,22 +8,31 @@ import { stateMachine } from "./state-machine";
 
 const { BlockFactory } = Blocks;
 
+// todo: reduce the overall complexity of this class and remove all helpers and getters that just serve as proxies
 @Container.injectable()
 export class Blockchain implements Contracts.Blockchain.Blockchain {
+    // todo: make this private
     public isStopped: boolean;
+    // todo: make this private
     public options: any;
+    // todo: make this private and use a queue instance from core-kernel
     public queue: async.AsyncQueue<any>;
+    // todo: make this private
     protected blockProcessor: BlockProcessor;
+    // todo: add type
     private actions: any;
 
+    // todo: make this private, only protected because of replay
     @Container.inject(Container.Identifiers.StateStore)
-    protected readonly state: Contracts.State.StateStore; // todo: make this private? only protected because of replay
+    protected readonly state: Contracts.State.StateStore;
 
+    // todo: make this private, only protected because of replay
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database: Contracts.Database.DatabaseService; // todo: make this private? only protected because of replay
+    protected readonly database: Contracts.Database.DatabaseService;
 
+    // todo: make this private, only protected because of replay
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    protected readonly transactionPool: Contracts.TransactionPool.Connection; // todo: make this private? only protected because of replay
+    protected readonly transactionPool: Contracts.TransactionPool.Connection;
 
     /**
      * Create a new blockchain manager instance.
@@ -38,8 +47,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             app.log.warning(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
-
-            app.log.info("Starting ARK Core for a new world, welcome aboard");
         }
 
         this.actions = stateMachine.actionMap(this);
@@ -52,7 +59,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 app.log.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
+
                 app.log.error(error.stack);
+
                 return cb();
             }
         }, 1);

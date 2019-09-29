@@ -46,6 +46,7 @@ class BlockNotReadyCounter {
     }
 }
 
+// todo: remove the abstract and instead require a contract to be implemented
 export class UnchainedHandler extends BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
 
@@ -57,6 +58,7 @@ export class UnchainedHandler extends BlockHandler {
 
     private isValidGenerator: boolean;
 
+    // todo: remove the need for this method
     public init(isValidGenerator: boolean): this {
         this.isValidGenerator = isValidGenerator;
 
@@ -104,6 +106,7 @@ export class UnchainedHandler extends BlockHandler {
     private checkUnchainedBlock(block: Interfaces.IBlock): UnchainedBlockStatus {
         const lastBlock: Interfaces.IBlock = this.blockchain.getLastBlock();
 
+        // todo: clean up this if-else-if-else-if-else mess
         if (block.data.height > lastBlock.data.height + 1) {
             this.logger.debug(
                 `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()}`,

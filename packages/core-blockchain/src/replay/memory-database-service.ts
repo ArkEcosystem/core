@@ -2,6 +2,7 @@ import { DatabaseService } from "@arkecosystem/core-database";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
+// todo: review the implementation
 export class MemoryDatabaseService extends DatabaseService {
     public constructor(public walletRepository: Contracts.State.WalletRepository) {
         super(undefined, undefined, undefined, undefined, undefined, undefined, undefined);

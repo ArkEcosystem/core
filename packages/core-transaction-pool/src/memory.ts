@@ -2,6 +2,7 @@ import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
+// todo: review implementation and reduce the complexity of all methods as it is quite high
 export class Memory {
     /**
      * An array of all transactions, possibly sorted by fee (highest fee first).

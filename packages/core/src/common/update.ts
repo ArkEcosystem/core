@@ -7,6 +7,8 @@ import { abort } from "./cli";
 
 // import { configManager } from "./config";
 
+// todo: review the implementation of all methods
+
 export const getLatestVersion = async (name: string, channel: string): Promise<string> => {
     try {
         const version = await latestVersion(name, { version: channel });

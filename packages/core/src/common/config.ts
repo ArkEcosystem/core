@@ -6,6 +6,7 @@ import { CommandFlags } from "../types";
 // import { abort } from "./cli";
 import { getPaths } from "./env";
 
+// todo: review the implementation - throw or return a default?
 export const getConfigValue = <T>(flags: CommandFlags, file: string, path: string): T | void => {
     const { config } = getPaths(flags.token, flags.network);
 

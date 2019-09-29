@@ -5,6 +5,7 @@ import { BlockProcessorResult } from "../block-processor";
 import { AcceptBlockHandler } from "./accept-block-handler";
 import { BlockHandler } from "./block-handler";
 
+// todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()
 export class ExceptionHandler extends BlockHandler {
     @Container.inject(Container.Identifiers.LogService)
@@ -18,6 +19,7 @@ export class ExceptionHandler extends BlockHandler {
         const forgedBlock: Interfaces.IBlock = await this.database.getBlock(block.data.id);
 
         if (forgedBlock) {
+            // todo: replace this with an actual implementation after the abstract is gone
             return super.execute(block);
         }
 

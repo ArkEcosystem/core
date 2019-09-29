@@ -4,6 +4,7 @@ import { Hook } from "@oclif/config";
 
 // import { checkForUpdates } from "../../common/update";
 
+// todo: review the implementation - check for updates every time or only every X hours?
 export const init: Hook<"init"> = async function({ id }): Promise<void> {
     if (id === "update") {
         return;

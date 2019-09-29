@@ -1,6 +1,7 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
+// todo: review the implementation
 export const transformTransaction = (model, transform) => {
     const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
     const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);

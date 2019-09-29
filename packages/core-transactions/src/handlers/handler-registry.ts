@@ -15,6 +15,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 import { TransferTransactionHandler } from "./transfer";
 import { VoteTransactionHandler } from "./vote";
 
+// todo: review the implementation
 @Container.injectable()
 export class TransactionHandlerRegistry {
     private readonly registeredTransactionHandlers: Map<
@@ -115,9 +116,5 @@ export class TransactionHandlerRegistry {
 
         Transactions.TransactionRegistry.deregisterTransactionType(transactionConstructor);
         this.registeredTransactionHandlers.delete(internalType);
-    }
-
-    public isKnownWalletAttribute(attribute: string): boolean {
-        return this.attributes.isBound(attribute);
     }
 }

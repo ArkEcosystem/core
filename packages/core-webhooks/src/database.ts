@@ -6,6 +6,7 @@ import uuidv4 from "uuid/v4";
 
 import { Webhook } from "./interfaces";
 
+// todo: review the implementation and check for issues with mutability
 @Container.injectable()
 export class Database {
     @Container.inject(Container.Identifiers.Application)

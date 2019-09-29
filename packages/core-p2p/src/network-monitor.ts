@@ -8,6 +8,7 @@ import { PeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { checkDNS, checkNTP } from "./utils";
 
+// todo: review the implementation
 @Container.injectable()
 export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public server: SocketCluster;

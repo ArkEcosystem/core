@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-kernel";
 import { Crypto } from "@arkecosystem/crypto";
 import Hapi, { ServerMethod } from "@hapi/hapi";
 
+// todo: review the implementation
 export class ServerCache {
     public static make(server: Hapi.Server): ServerCache {
         return new ServerCache(server);

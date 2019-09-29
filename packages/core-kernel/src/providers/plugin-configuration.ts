@@ -4,6 +4,7 @@ import { Identifiers, inject, injectable } from "../ioc";
 import { ConfigRepository } from "../services/config";
 import { JsonObject } from "../types";
 
+// todo: review the implementation
 /**
  * @export
  * @class PluginConfiguration

@@ -1,5 +1,6 @@
 import { Managers, Utils } from "@arkecosystem/crypto";
 
+// todo: review the implementation
 export const calculate = (height: number): string => {
     const { genesisBlock, milestones } = Managers.configManager.all();
 

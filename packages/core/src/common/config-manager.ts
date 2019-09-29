@@ -2,6 +2,7 @@ import { ensureFileSync, readJsonSync, removeSync, writeJsonSync } from "fs-extr
 
 import { getRegistryChannel } from "./update";
 
+// todo: review the implementation
 export class ConfigManager {
     private config;
     private file: string;

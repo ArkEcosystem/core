@@ -5,6 +5,7 @@ import semver from "semver";
 
 import { Controller } from "../shared/controller";
 
+// todo: remove the abstract and use dependency injection if needed
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         // todo: inject from container

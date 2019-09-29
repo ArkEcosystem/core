@@ -7,6 +7,7 @@ import { parseWithNetwork } from "../common/parser";
 import { abortMissingProcess } from "../common/process";
 import { processManager } from "../common/process-manager";
 
+// todo: review the implementation
 export abstract class AbstractLogCommand extends Command {
     public async run(): Promise<void> {
         const { flags } = await parseWithNetwork(this.parse(this.getClass()));

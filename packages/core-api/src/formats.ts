@@ -2,6 +2,7 @@ import { Managers, Utils } from "@arkecosystem/crypto";
 import { Ajv } from "ajv";
 import * as ipAddress from "ip";
 
+// todo: review the implementation - still needed at all or some unused?
 export const registerFormats = (ajv: Ajv) => {
     ajv.addFormat("address", {
         type: "string",

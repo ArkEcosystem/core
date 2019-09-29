@@ -1,5 +1,6 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
+// todo: review the implementation
 @Container.injectable()
 export class EventListener {
     @Container.inject(Container.Identifiers.EventDispatcherService)
@@ -15,10 +16,10 @@ export class EventListener {
     private readonly networkMonitor: Contracts.P2P.NetworkMonitor;
 
     public init() {
-        this.emitter.listen("internal.p2p.disconnectPeer", ({ name, data: peer }) => {
-            this.connector.disconnect(peer);
+        this.emitter.listen("internal.p2p.disconnectPeer", ({ data }) => {
+            this.connector.disconnect(data);
 
-            this.storage.forgetPeer(peer);
+            this.storage.forgetPeer(data);
         });
 
         const exitHandler = () => this.networkMonitor.stopServer();

@@ -2,6 +2,7 @@ import { Container, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 
+// todo: review its implementation and finally integrate it as planned in v2
 @Container.injectable()
 export class BlockStore {
     private readonly byId: Utils.CappedMap<string, Interfaces.IBlockData>;

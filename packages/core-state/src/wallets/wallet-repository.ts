@@ -6,6 +6,7 @@ import { TempWalletRepository } from "./temp-wallet-repository";
 import { Wallet } from "./wallet";
 import { WalletIndex } from "./wallet-index";
 
+// todo: review the implementation
 export class WalletRepository implements Contracts.State.WalletRepository {
     private readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 

@@ -5,21 +5,20 @@ import { Managers } from "@arkecosystem/crypto";
 import { PeerConfig } from "../../interfaces";
 
 export const getPeerConfig = (): PeerConfig => {
-    const appConfig = Managers.configManager;
-
     return {
         version: app.version(),
         network: {
-            version: appConfig.get("network.pubKeyHash"),
-            name: appConfig.get("network.name"),
-            nethash: appConfig.get("network.nethash"),
-            explorer: appConfig.get("network.client.explorer"),
+            version: Managers.configManager.get("network.pubKeyHash"),
+            name: Managers.configManager.get("network.name"),
+            nethash: Managers.configManager.get("network.nethash"),
+            explorer: Managers.configManager.get("network.client.explorer"),
             token: {
-                name: appConfig.get("network.client.token"),
-                symbol: appConfig.get("network.client.symbol"),
+                name: Managers.configManager.get("network.client.token"),
+                symbol: Managers.configManager.get("network.client.symbol"),
             },
         },
         plugins: {},
+        // todo: review and re-enable
         // plugins: Plugins.transformPlugins(appConfig.config.plugins),
     };
 };

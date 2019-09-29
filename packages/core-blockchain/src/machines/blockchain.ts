@@ -3,6 +3,7 @@ import { Machine } from "xstate";
 import { fork } from "./actions/fork";
 import { syncWithNetwork } from "./actions/sync-with-network";
 
+// todo: move this into a class based state machine that triggers actions on this
 export const blockchainMachine: any = Machine({
     key: "blockchain",
     initial: "uninitialised",

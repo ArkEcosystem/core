@@ -25,7 +25,7 @@ export class BlockJob implements Job {
      * @type {number}
      * @memberof BlockJob
      */
-    protected blockCount = 1;
+    protected blockCount: number = 1;
 
     /**
      * @param {Function} callback

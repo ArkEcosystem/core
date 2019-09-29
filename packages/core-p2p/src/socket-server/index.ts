@@ -10,6 +10,7 @@ import { getHeaders } from "./utils/get-headers";
 import { validate } from "./utils/validate";
 import * as handlers from "./versions";
 
+// todo: review implementation
 export const startSocketServer = async (service: PeerService, config: Record<string, any>): Promise<any> => {
     // when testing we also need to get socket files from dist folder
     // todo: get rid of thise, no test vars in production code

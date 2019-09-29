@@ -4,6 +4,7 @@ import Hapi from "@hapi/hapi";
 
 const name = "hapi-ajv";
 
+// todo: review implementation - still needed?
 export const hapiAjv = {
     name,
     version: "1.0.0",

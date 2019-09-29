@@ -5,6 +5,7 @@ import Hapi from "@hapi/hapi";
 
 import { Controller } from "../shared/controller";
 
+// todo: remove the abstract and use dependency injection if needed
 export class TransactionsController extends Controller {
     // todo: inject from container
     private readonly transactionPool = app.get<Contracts.TransactionPool.Connection>(

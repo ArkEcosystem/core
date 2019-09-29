@@ -4,6 +4,7 @@ import prompts from "prompts";
 
 import { abort } from "./cli";
 
+// todo: review the implementation
 export const setUpLite = async (flags): Promise<Contracts.Kernel.Application> => {
     await app.bootstrap({
         flags,
@@ -21,6 +22,7 @@ export const setUpLite = async (flags): Promise<Contracts.Kernel.Application> =>
     return app;
 };
 
+// todo: review the implementation
 export const chooseSnapshot = async (dataPath: string, message: string) => {
     const source = `${dataPath}/snapshots`;
 

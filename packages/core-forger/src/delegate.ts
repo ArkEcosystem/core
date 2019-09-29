@@ -3,6 +3,7 @@ import forge from "node-forge";
 import { authenticator } from "otplib";
 import wif from "wif";
 
+// todo: review the implementation - quite messy right now
 export class Delegate {
     public static encryptPassphrase(passphrase: string, network: Types.NetworkType, password: string): string {
         const keys = Identities.Keys.fromPassphrase(passphrase);
@@ -29,7 +30,7 @@ export class Delegate {
     public publicKey: string;
     public address: string;
     public otpSecret: string;
-    public bip38 = false;
+    public bip38: boolean = false;
     public otp: string;
     public encryptedKeys: string;
 

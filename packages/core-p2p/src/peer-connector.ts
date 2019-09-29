@@ -1,6 +1,7 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { create, SCClientSocket } from "socketcluster-client";
 
+// todo: review the implementation
 @Container.injectable()
 export class PeerConnector implements Contracts.P2P.PeerConnector {
     private readonly connections: Utils.Collection<SCClientSocket> = new Utils.Collection<SCClientSocket>();

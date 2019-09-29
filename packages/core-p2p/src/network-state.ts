@@ -19,6 +19,7 @@ class QuorumDetails implements Contracts.P2P.QuorumDetails {
     }
 }
 
+// todo: review the implementation
 export class NetworkState implements Contracts.P2P.NetworkState {
     public nodeHeight: number;
     public lastBlockId: string;

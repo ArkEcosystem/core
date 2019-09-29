@@ -1,5 +1,6 @@
 import nm from "nanomatch";
 
+// todo: review the implementation
 export const isWhitelisted = (whitelist: string[], remoteAddress: string): boolean => {
     if (!Array.isArray(whitelist) || !whitelist.length) {
         return true;

@@ -15,7 +15,8 @@ import { TransactionHandler as TransactionHandlerContract } from "../interfaces"
 
 export type TransactionHandlerConstructor = new () => TransactionHandler;
 
-// todo: revisit container usage and arguments after core-database rework
+// todo: revisit the implementation, container usage and arguments after core-database rework
+// todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 export abstract class TransactionHandler implements TransactionHandlerContract {
     public abstract getConstructor(): Transactions.TransactionConstructor;
 

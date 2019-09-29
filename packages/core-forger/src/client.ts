@@ -7,6 +7,7 @@ import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
 
+// todo: review the implementation and make use of ioc
 @Container.injectable()
 export class Client {
     public hosts: RelayHost[];

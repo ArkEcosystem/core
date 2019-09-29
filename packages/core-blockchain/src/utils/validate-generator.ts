@@ -1,6 +1,7 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
+// todo: review the implementation
 export const validateGenerator = async (block: Interfaces.IBlock): Promise<boolean> => {
     const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         Container.Identifiers.DatabaseService,

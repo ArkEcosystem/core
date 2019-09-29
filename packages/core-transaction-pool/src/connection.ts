@@ -11,6 +11,9 @@ import { Storage } from "./storage";
 import { WalletRepository } from "./wallet-repository";
 
 // todo: migrate to make use of ioc
+// todo: review the implementation
+// todo: reduce the overall complexity of methods
+// todo: review if the purging logic should be moved out as there is quite a bit of it now
 export class Connection implements Contracts.TransactionPool.Connection {
     // @todo: make this private, requires some bigger changes to tests
     public options: Record<string, any>;

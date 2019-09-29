@@ -3,6 +3,7 @@ import Hapi from "@hapi/hapi";
 
 import { Controller } from "../shared/controller";
 
+// todo: remove the abstract and use dependency injection if needed
 export class RoundsController extends Controller {
     public async delegates(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {

@@ -5,6 +5,8 @@ import { Peer } from "../../peer";
 import { PeerService } from "../../types";
 
 // todo: turn this into a class so that ioc can be used
+// todo: review the implementation of all methods
+
 export const acceptNewPeer = async ({ service, req }: { service: PeerService; req }): Promise<void> =>
     service.processor.validateAndAcceptPeer({ ip: req.data.ip } as Peer);
 

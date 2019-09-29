@@ -1,5 +1,6 @@
 import Hapi from "@hapi/hapi";
 
+// todo: review the implementation - still needed?
 export = {
     name: "set-headers",
     version: "1.0.0",

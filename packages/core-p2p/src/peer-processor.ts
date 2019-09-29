@@ -3,6 +3,7 @@ import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Peer } from "./peer";
 import { isValidPeer, isValidVersion, isWhitelisted } from "./utils";
 
+// todo: review the implementation
 @Container.injectable()
 export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     public server: any;

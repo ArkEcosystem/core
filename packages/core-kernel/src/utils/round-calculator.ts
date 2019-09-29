@@ -3,6 +3,7 @@ import assert from "assert";
 
 import { RoundInfo } from "../contracts/shared";
 
+// todo: review the implementation
 export const isNewRound = (height: number): boolean => {
     const milestones = Managers.configManager.get("milestones");
 
@@ -24,6 +25,7 @@ export const isNewRound = (height: number): boolean => {
     return height === 1 || (height - milestone.height) % milestone.activeDelegates === 0;
 };
 
+// todo: review the implementation
 export const calculateRound = (height: number): RoundInfo => {
     const milestones = Managers.configManager.get("milestones");
 

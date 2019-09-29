@@ -11,6 +11,6 @@ export const pagination = {
     limit: Joi.number()
         .integer()
         .min(1),
-    // @fixme: the container is not available at the time this file is loaded
+    // todo: the container is not available at the time this file is loaded
     // .max(app.get<any>("api.options").get("plugins.pagination.limit")),
 };

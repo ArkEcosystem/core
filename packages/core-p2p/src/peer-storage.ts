@@ -1,6 +1,7 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { cidr } from "ip";
 
+// todo: review the implementation
 @Container.injectable()
 export class PeerStorage implements Contracts.P2P.PeerStorage {
     private readonly peers: Utils.Collection<Contracts.P2P.Peer> = new Utils.Collection<Contracts.P2P.Peer>();

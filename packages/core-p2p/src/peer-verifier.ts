@@ -13,6 +13,7 @@ export class PeerVerificationResult implements Contracts.P2P.PeerVerificationRes
     }
 }
 
+// todo: review the implementation
 export class PeerVerifier {
     /**
      * A cache of verified blocks' ids. A block is verified if it is connected to a chain

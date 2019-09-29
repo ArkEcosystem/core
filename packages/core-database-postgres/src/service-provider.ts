@@ -4,6 +4,7 @@ import { Wallets } from "@arkecosystem/core-state";
 
 import { PostgresConnection } from "./postgres-connection";
 
+// todo: review the implementation
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.log.info("Establishing Database Connection");

@@ -4,6 +4,8 @@ import Hapi from "@hapi/hapi";
 
 import { transformerService } from "../services/transformer";
 
+// todo: review the implementation of all methods
+
 export const paginate = (request: Hapi.Request): any => {
     const pagination = {
         // @ts-ignore

@@ -1,5 +1,6 @@
 import { PeerPlugins } from "../contracts/p2p";
 
+// todo: review the implementation
 export const transformPlugins = (plugins): PeerPlugins => {
     const result: PeerPlugins = {};
 

@@ -2,6 +2,7 @@ import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
+// todo: review the implementation
 export class WalletRepository extends Wallets.WalletRepository {
     private readonly databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         Container.Identifiers.DatabaseService,

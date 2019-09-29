@@ -35,6 +35,7 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Contracts.Kernel.Application
      */
     public constructor(readonly container: Contracts.Kernel.Container.Container) {
+        // todo: enable this after solving the event emitter limit issues
         // this.listenToShutdownSignals();
 
         this.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
@@ -53,9 +54,13 @@ export class Application implements Contracts.Kernel.Application {
             .to(ConfigRepository)
             .inSingletonScope();
 
+        // todo: move into a bootstrapper
         this.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
+
+        // todo: move into a bootstrapper
         this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins);
 
+        // todo: move into a bootstrapper
         this.bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
             .to(ServiceProviderRepository)
             .inSingletonScope();
@@ -340,7 +345,7 @@ export class Application implements Contracts.Kernel.Application {
     }
 
     /**
-     * @todo remove after initial migration
+     * todo: remove after initial migration - ioc/injection should be used to access those
      *
      * @readonly
      * @type {Contracts.Kernel.Log.Logger}
@@ -351,7 +356,7 @@ export class Application implements Contracts.Kernel.Application {
     }
 
     /**
-     * @todo remove after initial migration
+     * todo: remove after initial migration - ioc/injection should be used to access those
      *
      * @readonly
      * @type {Contracts.Kernel.Events.EventDispatcher}

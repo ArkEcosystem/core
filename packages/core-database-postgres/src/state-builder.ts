@@ -2,6 +2,7 @@ import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
+// todo: review the implementation
 export class StateBuilder {
     private readonly logger: Contracts.Kernel.Log.Logger = app.log;
     private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<

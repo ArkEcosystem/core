@@ -3,6 +3,7 @@ import dayjs, { Dayjs } from "dayjs";
 
 import { PeerVerificationResult } from "./peer-verifier";
 
+// todo: review the implementation
 export class Peer implements Contracts.P2P.Peer {
     public readonly ports: Contracts.P2P.PeerPorts = {};
     public readonly port: number = +app.get<any>("p2p.options").server.port;

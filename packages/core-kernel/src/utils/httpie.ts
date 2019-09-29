@@ -36,6 +36,7 @@ export interface HttpieResponse<T> {
     status: number;
 }
 
+// todo: review implementation
 class Httpie {
     public async get<T = any>(url: string, opts?): Promise<HttpieResponse<T>> {
         return this.sendRequest("get", url, opts);

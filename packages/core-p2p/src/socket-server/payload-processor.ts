@@ -6,6 +6,7 @@ import SocketCluster from "socketcluster";
 
 import { getHeaders } from "./utils/get-headers";
 
+// todo: review the implementation or trash it in favour of a proper implementation
 class PayloadProcessor {
     private payloadDatabasePath = `${process.env.CORE_PATH_DATA}/transactions-received.sqlite`;
 

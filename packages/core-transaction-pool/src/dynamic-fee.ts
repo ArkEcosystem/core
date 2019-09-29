@@ -4,7 +4,7 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import { DynamicFeeMatch } from "./interfaces";
 
-// @todo: better name
+// todo: review implementation and better method name that indicates what it does
 export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): DynamicFeeMatch => {
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;

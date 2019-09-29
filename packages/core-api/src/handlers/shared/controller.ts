@@ -12,6 +12,7 @@ import {
     toResource,
 } from "../utils";
 
+// todo: remove this class and expose helpers as functions
 export class Controller {
     // todo: remove
     protected readonly config = Managers.configManager;

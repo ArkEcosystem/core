@@ -15,6 +15,7 @@ import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
 import { Bootstrapper } from "../interfaces";
 
+// todo: review the implementation
 /**
  * @export
  * @class RegisterServiceProviders

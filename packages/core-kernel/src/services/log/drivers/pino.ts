@@ -15,6 +15,7 @@ import { Identifiers, inject, injectable } from "../../../ioc";
 import { isEmpty } from "../../../utils";
 import { ConfigRepository } from "../../config";
 
+// todo: review the implementation
 @injectable()
 export class PinoLogger implements Logger {
     /**

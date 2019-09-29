@@ -9,6 +9,8 @@ import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
 
+// todo: review the implementation of all methods
+
 export const getPeers = ({ service }: { service: PeerService }): Contracts.P2P.PeerBroadcast[] => {
     return service.storage
         .getPeers()

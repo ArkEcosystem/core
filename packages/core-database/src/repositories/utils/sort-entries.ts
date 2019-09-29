@@ -3,6 +3,7 @@ import { Utils } from "@arkecosystem/crypto";
 
 import { getProperty } from "./get-property";
 
+// todo: review the implementation
 export const sortEntries = (params: Contracts.Database.Parameters, entries: Contracts.State.Wallet[], defaultValue) => {
     const [iteratee, order] = params.orderBy ? params.orderBy : defaultValue;
 

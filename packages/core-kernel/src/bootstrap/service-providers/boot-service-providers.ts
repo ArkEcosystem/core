@@ -5,6 +5,7 @@ import { Identifiers, inject, injectable } from "../../ioc";
 import { ServiceProviderRepository } from "../../providers";
 import { Bootstrapper } from "../interfaces";
 
+// todo: review the implementation
 /**
  * @export
  * @class RegisterProviders

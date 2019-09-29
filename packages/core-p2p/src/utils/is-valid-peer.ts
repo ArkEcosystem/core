@@ -1,6 +1,8 @@
 import { parse, process } from "ipaddr.js";
 import os from "os";
 
+// todo: review the implementation of all methods
+
 export const isLocalHost = (ip: string): boolean => {
     try {
         const parsed = parse(ip);

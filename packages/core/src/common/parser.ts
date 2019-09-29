@@ -6,6 +6,7 @@ import { configManager } from "./config-manager";
 import { getEnvPaths, getPaths } from "./env";
 import { isValidNetwork } from "./networks";
 
+// todo: review the implementation
 export const parseWithNetwork = async ({ args, flags }): Promise<any> => {
     if (!flags.token) {
         flags.token = configManager.get("token");

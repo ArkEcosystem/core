@@ -1,6 +1,7 @@
 import { Validation } from "@arkecosystem/crypto";
 import ip from "ip";
 
+// todo: review the implementation
 export const validateJSON = (data, schema) => {
     Validation.validator.addFormat("ip", {
         type: "string",

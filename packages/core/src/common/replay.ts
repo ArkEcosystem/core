@@ -1,5 +1,6 @@
 import { app, Contracts } from "@arkecosystem/core-kernel";
 
+// todo: review the implementation
 export const setUpLite = async (options): Promise<Contracts.Kernel.Application> => {
     // await app.setUp(version, options, {
     //     options: {

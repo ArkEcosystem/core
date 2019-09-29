@@ -1,3 +1,4 @@
+// todo: review implementation - quite a mess at the moment
 export const getProperty = (item: any, prop: string): any => {
     for (const [key, value] of Object.entries(item)) {
         if (key === prop) {

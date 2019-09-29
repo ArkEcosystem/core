@@ -3,6 +3,7 @@ import { resolve } from "path";
 
 export const getEnvPaths = (token: string): Paths => envPaths(token, { suffix: "core" });
 
+// todo: review the implementation
 export const getPaths = (token: string, network: string): Paths => {
     let paths: Paths = getEnvPaths(token);
 

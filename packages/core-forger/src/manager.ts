@@ -7,6 +7,7 @@ import { Client } from "./client";
 import { Delegate } from "./delegate";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
 
+// todo: review the implementation - quite a mess right now with quite a few responsibilities
 @Container.injectable()
 export class ForgerManager {
     @Container.inject(Container.Identifiers.Application)

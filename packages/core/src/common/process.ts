@@ -6,6 +6,8 @@ import { CommandFlags, ProcessOptions } from "../types";
 import { abort } from "./cli";
 import { processManager } from "./process-manager";
 
+// todo: review the implementation of all methods
+
 export const restartProcess = (processName: string): void => {
     try {
         cli.action.start(`Restarting ${processName}`);

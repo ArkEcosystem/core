@@ -10,6 +10,7 @@ import { abort } from "../../common/cli";
 import { TaskService } from "../../common/task.service";
 import { CommandFlags } from "../../types";
 
+// todo: review implementation - nOS previously reported some issues
 export class GenerateCommand extends Command {
     public static description = "Generates a new network configuration";
 

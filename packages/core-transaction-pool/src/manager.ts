@@ -2,6 +2,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 
 import { ConnectionFactory } from "./factory";
 
+// todo: review the implementation - still needed?
 export class ConnectionManager {
     private readonly factory: ConnectionFactory = new ConnectionFactory();
     private readonly connections: Map<string, Contracts.TransactionPool.Connection> = new Map<

@@ -3,10 +3,8 @@ import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
 
-/**
- * @todo
- * - extract block and transaction behaviours into their respective stores
- */
+// todo: extract block and transaction behaviours into their respective stores
+// todo: review the implementation
 @Container.injectable()
 export class StateStore implements Contracts.State.StateStore {
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class

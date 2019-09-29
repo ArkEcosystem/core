@@ -3,6 +3,7 @@ import { SCClientSocket } from "socketcluster-client";
 
 import { SocketErrors } from "../enums";
 
+// todo: review the implementation
 export const socketEmit = async (
     host: string,
     socket: SCClientSocket,
