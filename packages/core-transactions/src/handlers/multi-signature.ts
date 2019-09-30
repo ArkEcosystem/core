@@ -6,6 +6,7 @@ import {
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
 } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class MultiSignatureTransactionHandler extends TransactionHandler {
@@ -22,26 +23,30 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        for (const transaction of transactions) {
-            let wallet: State.IWallet;
-            let multiSignature: State.IWalletMultiSignatureAttributes;
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
 
-            if (transaction.version === 1) {
-                multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
-                wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-                multiSignature.legacy = true;
-            } else {
-                multiSignature = transaction.asset.multiSignature;
-                wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
+            for (const transaction of transactions) {
+                let wallet: State.IWallet;
+                let multiSignature: State.IWalletMultiSignatureAttributes;
+
+                if (transaction.version === 1) {
+                    multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+                    wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                    multiSignature.legacy = true;
+                } else {
+                    multiSignature = transaction.asset.multiSignature;
+                    wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
+                }
+                if (wallet.hasMultiSignature()) {
+                    throw new MultiSignatureAlreadyRegisteredError();
+                }
+
+                wallet.setAttribute("multiSignature", multiSignature);
+                walletManager.reindex(wallet);
             }
-            if (wallet.hasMultiSignature()) {
-                throw new MultiSignatureAlreadyRegisteredError();
-            }
-
-            wallet.setAttribute("multiSignature", multiSignature);
-            walletManager.reindex(wallet);
         }
     }
 

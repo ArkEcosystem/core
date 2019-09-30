@@ -165,8 +165,12 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.db.manyOrNone(queries.transactions.latestByBlocks, { ids });
     }
 
-    public async getAssetsByType(type: number, typeGroup: number = Enums.TransactionTypeGroup.Core): Promise<any> {
-        return this.db.manyOrNone(queries.stateBuilder.assetsByType, { typeGroup, type });
+    public async getCountOfType(type: number, typeGroup: number = Enums.TransactionTypeGroup.Core): Promise<any> {
+        return +(await this.db.one(queries.stateBuilder.countType, { typeGroup, type })).count;
+    }
+
+    public async getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<any> {
+        return this.db.manyOrNone(queries.stateBuilder.assetsByType, { typeGroup, type, limit, offset });
     }
 
     public async getReceivedTransactions(): Promise<any> {

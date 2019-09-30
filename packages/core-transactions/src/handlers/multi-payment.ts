@@ -1,8 +1,10 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { InsufficientBalanceError } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
+// tslint:disable-next-line: max-classes-per-file
 export class MultiPaymentTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.MultiPaymentTransaction;
@@ -17,15 +19,18 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        for (const transaction of transactions) {
-            const sender: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            for (const payment of transaction.asset.payments) {
-                const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
-                recipient.balance = recipient.balance.plus(payment.amount);
-                sender.balance = sender.balance.minus(payment.amount);
-                walletManager.reindex(recipient);
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+            for (const transaction of transactions) {
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                for (const payment of transaction.asset.payments) {
+                    const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
+                    recipient.balance = recipient.balance.plus(payment.amount);
+                    sender.balance = sender.balance.minus(payment.amount);
+                    walletManager.reindex(recipient);
+                }
             }
         }
     }
