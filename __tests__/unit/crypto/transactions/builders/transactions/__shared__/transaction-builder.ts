@@ -197,5 +197,20 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 expect(spySecondSign).toHaveBeenCalledWith((builder as any).getSigningObject(), identitySecond.keys);
             });
         });
+
+        describe("multiSignWithWif", () => {
+            it("signs this transaction with the keys of a multisig wif", () => {
+                const spyKeys = jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identitySecond.keys);
+                const spyMultiSign = jest.spyOn(Signer, "multiSign").mockImplementationOnce(jest.fn());
+
+                const builder = provider();
+                builder.senderPublicKey(identity.publicKey).network(23).multiSignWithWif(0, identitySecond.bip39, undefined);
+
+                expect(spyKeys).toHaveBeenCalledWith(identitySecond.bip39, {
+                    wif: 186,
+                });
+                expect(spyMultiSign).toHaveBeenCalledWith((builder as any).getSigningObject(), identitySecond.keys, 0);
+            });
+        });
     });
 };
