@@ -181,6 +181,10 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.db.manyOrNone(queries.transactions.forged, { ids });
     }
 
+    public async findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]> {
+        return this.db.manyOrNone(queries.transactions.findByHtlcLocks, { ids: lockIds });
+    }
+
     public async statistics(): Promise<{
         count: number;
         totalFee: Utils.BigNumber;

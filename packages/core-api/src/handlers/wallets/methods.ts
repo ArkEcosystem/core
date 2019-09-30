@@ -127,6 +127,7 @@ const locks = async request => {
 
     const rows = databaseService.wallets.search(Database.SearchScope.Locks, {
         ...request.params,
+        ...request.query,
         ...paginate(request),
         senderPublicKey: wallet.publicKey,
     });

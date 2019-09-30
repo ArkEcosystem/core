@@ -53,6 +53,8 @@ export interface ITransactionsRepository extends IRepository {
 
     forged(ids: string[]): Promise<Interfaces.ITransactionData[]>;
 
+    findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]>;
+
     statistics(): Promise<{
         count: number;
         totalFee: Utils.BigNumber;
