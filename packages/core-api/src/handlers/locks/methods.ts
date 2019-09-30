@@ -37,6 +37,18 @@ const search = async request => {
     return toPagination(locks, "lock");
 };
 
+const unlocked = async request => {
+    const transactions = await databaseService.transactionsBusinessRepository.findByHtlcLocks(request.payload.ids);
+
+    return toPagination(
+        {
+            count: transactions.length,
+            rows: transactions,
+        },
+        "transaction",
+    );
+};
+
 export const registerMethods = server => {
     ServerCache.make(server)
         .method("v2.locks.index", index, 8, request => ({
@@ -45,6 +57,11 @@ export const registerMethods = server => {
         }))
         .method("v2.locks.show", show, 8, request => ({ id: request.params.id }))
         .method("v2.locks.search", search, 30, request => ({
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        }))
+        .method("v2.locks.unlocked", unlocked, 30, request => ({
             ...request.payload,
             ...request.query,
             ...paginate(request),

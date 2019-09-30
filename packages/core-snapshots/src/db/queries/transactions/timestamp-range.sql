@@ -7,6 +7,7 @@ SELECT
   sender_public_key,
   recipient_id,
   type,
+  type_group,
   vendor_field_hex,
   amount,
   fee,

@@ -53,6 +53,7 @@ export const defaults = {
             "/api/delegates/search",
             "/api/locks",
             "/api/locks/search",
+            "/api/locks/unlocked",
             "/api/peers",
             "/api/transactions",
             "/api/transactions/search",

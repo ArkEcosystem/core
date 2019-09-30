@@ -1,7 +1,9 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
+import { Database } from '@arkecosystem/core-interfaces';
 import { Identities, Utils } from "@arkecosystem/crypto";
+import { TransactionFactory } from '../../../helpers';
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
@@ -19,6 +21,9 @@ describe("API 2.0 - Locks", () => {
             walletManager.findByAddress(Identities.Address.fromPassphrase("1")),
             walletManager.findByAddress(Identities.Address.fromPassphrase("2")),
             walletManager.findByAddress(Identities.Address.fromPassphrase("3")),
+            walletManager.findByAddress(Identities.Address.fromPassphrase("4")),
+            walletManager.findByAddress(Identities.Address.fromPassphrase("5")),
+            walletManager.findByAddress(Identities.Address.fromPassphrase("6")),
         ];
 
         lockIds = [];
@@ -33,7 +38,7 @@ describe("API 2.0 - Locks", () => {
                 lockIds.push(transaction.id);
 
                 locks[transaction.id] = {
-                    amount: Utils.BigNumber.make(10),
+                    amount: Utils.BigNumber.make(10 * (j + 1)),
                     recipientId: wallet.address,
                     secretHash: transaction.id,
                     expiration: {
@@ -80,6 +85,34 @@ describe("API 2.0 - Locks", () => {
             expect(response.data.data).not.toBeEmpty();
             expect(response.data.data.every(lock => lock.expirationType === 2)).toBeTrue();
         });
+
+        describe("orderBy", () => {
+            it("should be ordered by amount:desc", async () => {
+                const response = await utils.request("GET", "locks", { orderBy: "amount:desc", expirationType: 2 });
+                expect(response).toBeSuccessfulResponse();
+                expect(response.data.data).toBeArray();
+
+                for (let i = 0; i < response.data.data.length - 1; i++) {
+                    const lockA = response.data.data[i];
+                    const lockB = response.data.data[i + 1];
+
+                    expect(Utils.BigNumber.make(lockA.amount).isGreaterThanOrEqualTo(lockB.amount)).toBeTrue();
+                }
+            });
+
+            it("should be ordered by amount:ascs", async () => {
+                const response = await utils.request("GET", "locks", { orderBy: "amount:asc", expirationType: 2 });
+                expect(response).toBeSuccessfulResponse();
+                expect(response.data.data).toBeArray();
+
+                for (let i = 0; i < response.data.data.length - 1; i++) {
+                    const lockA = response.data.data[i];
+                    const lockB = response.data.data[i + 1];
+
+                    expect(Utils.BigNumber.make(lockA.amount).isLessThanOrEqualTo(lockB.amount)).toBeTrue();
+                }
+            });
+        });
     });
 
     describe("GET /locks/:id", () => {
@@ -121,5 +154,26 @@ describe("API 2.0 - Locks", () => {
         });
 
         // TODO: more coverage
+    });
+
+    describe("POST /locks/unlocked", () => {
+        it("should find matching transactions for the given lock ids", async () => {
+            const refundTransaction = TransactionFactory.htlcRefund({
+                lockTransactionId: lockIds[0],
+            }).build()[0];
+
+            const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
+            jest.spyOn(databaseService.transactionsBusinessRepository, "findByHtlcLocks").mockResolvedValueOnce([refundTransaction as any])
+
+            const response = await utils.request("POST", "locks/unlocked", {
+                ids: [lockIds[0]],
+            });
+
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+            expect(refundTransaction.id).toEqual(response.data.data[0].id);
+        });
     });
 });
