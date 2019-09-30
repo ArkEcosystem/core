@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { BusinessUpdateTransaction } from "@arkecosystem/core-magistrate-crypto";
+import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
-import { MagistrateTransactionGroup, MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
@@ -12,7 +11,7 @@ import { BusinessRegistrationTransactionHandler } from "./business-registration"
 
 export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
-        return BusinessUpdateTransaction;
+        return MagistrateTransactions.BusinessUpdateTransaction;
     }
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
@@ -108,8 +107,8 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             "database",
         ).transactionsRepository;
         const updateTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
-            MagistrateTransactionType.BusinessUpdate,
-            MagistrateTransactionGroup,
+            Enums.MagistrateTransactionType.BusinessUpdate,
+            Enums.MagistrateTransactionGroup,
         );
 
         if (updateTransactions.length > 0) {
@@ -122,8 +121,8 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             };
         } else {
             const registerTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
-                MagistrateTransactionType.BusinessRegistration,
-                MagistrateTransactionGroup,
+                Enums.MagistrateTransactionType.BusinessRegistration,
+                Enums.MagistrateTransactionGroup,
             );
 
             const registerTransaction: Database.IBootstrapTransaction = registerTransactions.pop();

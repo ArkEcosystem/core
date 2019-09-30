@@ -1,8 +1,10 @@
 import "jest-extended";
 
 import { State } from "@arkecosystem/core-interfaces";
-import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
-import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
+import {
+    Builders as MagistrateBuilders,
+    Interfaces as MagistrateInterfaces,
+} from "@arkecosystem/core-magistrate-crypto";
 import { businessIndexer, MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-manager";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
