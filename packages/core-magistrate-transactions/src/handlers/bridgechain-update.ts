@@ -1,7 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { MagistrateTransactionGroup, MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
-import { BridgechainUpdateTransaction, Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
+import {
+    Enums,
+    Interfaces as MagistrateInterfaces,
+    Transactions as MagistrateTransactions,
+} from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
@@ -16,7 +19,7 @@ import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registr
 
 export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
-        return BridgechainUpdateTransaction;
+        return MagistrateTransactions.BridgechainUpdateTransaction;
     }
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
@@ -128,8 +131,8 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             "database",
         ).transactionsRepository;
         const updateTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
-            MagistrateTransactionType.BridgechainUpdate,
-            MagistrateTransactionGroup,
+            Enums.MagistrateTransactionType.BridgechainUpdate,
+            Enums.MagistrateTransactionGroup,
         );
 
         if (updateTransactions.length > 1) {
@@ -155,7 +158,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
                         },
                         {
                             field: "type",
-                            value: MagistrateTransactionType.BridgechainRegistration,
+                            value: Enums.MagistrateTransactionType.BridgechainRegistration,
                             operator: Database.SearchOperator.OP_EQ,
                         },
                     ],

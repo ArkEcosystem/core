@@ -1,15 +1,17 @@
 import "jest-extended";
 
-import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
-import { MagistrateTransactionType } from "@arkecosystem/core-magistrate-crypto";
-import { BusinessRegistrationTransaction } from "@arkecosystem/core-magistrate-crypto";
+import {
+    Builders as MagistrateBuilders,
+    Enums,
+    Transactions as MagistrateTransactions,
+} from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 let builder: MagistrateBuilders.BusinessRegistrationBuilder;
 
 describe("Business registration builder", () => {
     Managers.configManager.setFromPreset("testnet");
-    Transactions.TransactionRegistry.registerTransactionType(BusinessRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessRegistrationTransaction);
 
     beforeEach(() => {
         builder = new MagistrateBuilders.BusinessRegistrationBuilder();
@@ -58,9 +60,12 @@ describe("Business registration builder", () => {
 
     describe("should test properties", () => {
         it("should have its specific properties", () => {
-            expect(builder).toHaveProperty("data.type", MagistrateTransactionType.BusinessRegistration);
+            expect(builder).toHaveProperty("data.type", Enums.MagistrateTransactionType.BusinessRegistration);
             expect(builder).toHaveProperty("data.amount", Utils.BigNumber.ZERO);
-            expect(builder).toHaveProperty("data.fee", BusinessRegistrationTransaction.staticFee());
+            expect(builder).toHaveProperty(
+                "data.fee",
+                MagistrateTransactions.BusinessRegistrationTransaction.staticFee(),
+            );
             expect(builder).toHaveProperty("data.recipientId", undefined);
             expect(builder).toHaveProperty("data.senderPublicKey", undefined);
             expect(builder).toHaveProperty("data.asset", { businessRegistration: {} });
