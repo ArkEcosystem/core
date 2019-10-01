@@ -305,6 +305,7 @@ describe("Transaction serializer / deserializer", () => {
                 .network(23)
                 .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "1555")
                 .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "5000")
+                .vendorField("Multipayment")
                 .sign("dummy passphrase")
                 .getStruct();
 
@@ -367,6 +368,7 @@ describe("Transaction serializer / deserializer", () => {
                 .amount("10000")
                 .fee("50000000")
                 .network(23)
+                .vendorField("HTLC")
                 .htlcLockAsset(htlcLockAsset)
                 .sign("dummy passphrase")
                 .getStruct();
