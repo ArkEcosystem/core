@@ -56,5 +56,8 @@ describe("Configuration", () => {
 
         configManager.setHeight(999999);
         expect(configManager.isNewMilestone()).toBeFalse();
+
+        configManager.setHeight(1);
+        expect(configManager.isNewMilestone(999999)).toBeFalse();
     });
 });
