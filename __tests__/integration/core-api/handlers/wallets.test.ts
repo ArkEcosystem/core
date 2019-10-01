@@ -1,5 +1,9 @@
 import "../../../utils";
 
+import { app } from "@arkecosystem/core-container";
+import { Database, State } from "@arkecosystem/core-interfaces";
+import { Identities, Utils } from "@arkecosystem/crypto";
+import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
@@ -124,6 +128,77 @@ describe("API 2.0 - Wallets", () => {
 
         it("should fail to GET all the votes for the given wallet if it doesn't exist", async () => {
             utils.expectError(await utils.request("GET", "wallets/fake-address/votes"), 404);
+        });
+    });
+
+    describe("GET /wallets/:id/locks", () => {
+        let walletManager: State.IWalletManager;
+        let wallets;
+        let lockIds;
+
+        beforeAll(() => {
+            walletManager = app.resolvePlugin<Database.IDatabaseService>("database").walletManager;
+
+            wallets = [
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("1")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("2")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("3")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("4")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("5")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("6")),
+            ];
+
+            lockIds = [];
+
+            for (let i = 0; i < wallets.length; i++) {
+                const wallet = wallets[i];
+                const transactions = genesisBlock.transactions.slice(i * 10, i * 10 + i + 1);
+
+                const locks = {};
+                for (let j = 0; j < transactions.length; j++) {
+                    const transaction = transactions[j];
+                    lockIds.push(transaction.id);
+
+                    locks[transaction.id] = {
+                        amount: Utils.BigNumber.make(10 * (j + 1)),
+                        recipientId: wallet.address,
+                        secretHash: transaction.id,
+                        expiration: {
+                            type: j % 2 === 0 ? 1 : 2,
+                            value: 100 * (j + 1),
+                        },
+                    };
+                }
+
+                wallet.setAttribute("htlc.locks", locks);
+            }
+
+            walletManager.index(wallets);
+        });
+
+        it("should GET all locks for the given wallet by id", async () => {
+            const response = await utils.request("GET", `wallets/${wallets[0].address}/locks`);
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+            utils.expectLock(response.data.data[0]);
+        });
+
+        it("should fail to GET locks for the given wallet if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "wallets/fake-address/locks"), 404);
+        });
+
+        it("should GET all locks for the given wallet in the given order", async () => {
+            const response = await utils.request("GET", `wallets/${wallets[5].address}/locks`, {
+                orderBy: "amount:desc",
+            });
+
+            for (let i = 0; i < response.data.data.length - 1; i++) {
+                const lockA = response.data.data[i];
+                const lockB = response.data.data[i + 1];
+
+                expect(Utils.BigNumber.make(lockA.amount).isGreaterThanOrEqualTo(lockB.amount)).toBeTrue();
+            }
         });
     });
 

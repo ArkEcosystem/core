@@ -185,6 +185,9 @@ export const locks: object = {
     },
     query: {
         ...pagination,
+        ...{
+            orderBy: Joi.string(),
+        },
     },
 };
 
@@ -220,6 +223,14 @@ export const search: object = {
             to: Joi.number().integer(),
         }),
         voteBalance: Joi.object().keys({
+            from: Joi.number()
+                .integer()
+                .min(0),
+            to: Joi.number()
+                .integer()
+                .min(0),
+        }),
+        lockedBalance: Joi.object().keys({
             from: Joi.number()
                 .integer()
                 .min(0),

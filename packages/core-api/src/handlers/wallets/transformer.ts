@@ -12,6 +12,9 @@ export const transformWallet = (wallet: State.IWallet) => {
         nonce: wallet.nonce.toFixed(),
         secondPublicKey: wallet.getAttribute("secondPublicKey"),
         balance: Utils.BigNumber.make(wallet.balance).toFixed(),
+        lockedBalance: wallet.hasAttribute("htlc.lockedBalance")
+            ? wallet.getAttribute("htlc.lockedBalance").toFixed()
+            : undefined,
         isDelegate: !!username,
         isResigned: !!wallet.getAttribute("delegate.resigned"),
         vote: wallet.getAttribute("vote"),

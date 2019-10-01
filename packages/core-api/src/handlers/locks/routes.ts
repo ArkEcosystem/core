@@ -32,4 +32,13 @@ export const registerRoutes = (server: Hapi.Server): void => {
             validate: Schema.search,
         },
     });
+
+    server.route({
+        method: "POST",
+        path: "/locks/unlocked",
+        handler: controller.unlocked,
+        options: {
+            validate: Schema.unlocked,
+        },
+    });
 };
