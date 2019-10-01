@@ -59,7 +59,7 @@ export class ConfigManager {
 
     public isNewMilestone(height?: number): boolean {
         height = height || this.height;
-        return this.milestones.map(milestone => milestone.height).includes(height);
+        return this.milestones.some(milestone => milestone.height === height);
     }
 
     public getMilestone(height?: number): { [key: string]: any } {
