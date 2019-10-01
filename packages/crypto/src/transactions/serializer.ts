@@ -7,7 +7,7 @@ import { Address } from "../identities";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { ISerializeOptions } from "../interfaces";
 import { configManager } from "../managers/config";
-import { Base58, isSupportedTansactionVersion } from "../utils";
+import { isSupportedTansactionVersion } from "../utils";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -123,7 +123,7 @@ export class Serializer {
         if (isBrokenTransaction || (transaction.recipientId && transaction.type !== 1 && transaction.type !== 4)) {
             const recipientId =
                 transaction.recipientId || Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
-            const recipient = Base58.decodeCheck(recipientId);
+            const recipient = Address.toBuffer(recipientId);
             for (const byte of recipient) {
                 bb.writeByte(byte);
             }

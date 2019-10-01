@@ -1,7 +1,6 @@
 import { Ajv } from "ajv";
 import ajvKeywords from "ajv-keywords";
 import { TransactionType } from "../enums";
-import { Address } from "../identities/address";
 import { ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { BigNumber, isGenesisTransaction } from "../utils";
@@ -162,18 +161,4 @@ const blockId = (ajv: Ajv) => {
     });
 };
 
-const addressOnNetwork = (ajv: Ajv) => {
-    ajv.addKeyword("addressOnNetwork", {
-        compile(schema) {
-            return data => {
-                return schema && Address.validate(data);
-            };
-        },
-        errors: false,
-        metaSchema: {
-            type: "boolean",
-        },
-    });
-};
-
-export const keywords = [bignumber, blockId, maxBytes, network, transactionType, addressOnNetwork];
+export const keywords = [bignumber, blockId, maxBytes, network, transactionType];

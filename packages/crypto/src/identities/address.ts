@@ -1,5 +1,5 @@
 import { HashAlgorithms } from "../crypto";
-import { PublicKeyError } from "../errors";
+import { AddressNetworkError, PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
 import { Base58 } from "../utils";
@@ -25,7 +25,7 @@ export class Address {
         payload.writeUInt8(networkVersion, 0);
         buffer.copy(payload, 1);
 
-        return Base58.encodeCheck(payload);
+        return this.fromBuffer(payload);
     }
 
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
@@ -34,6 +34,20 @@ export class Address {
 
     public static fromPrivateKey(privateKey, networkVersion?: number): string {
         return Address.fromPublicKey(privateKey.publicKey, networkVersion);
+    }
+
+    public static fromBuffer(buffer: Buffer): string {
+        return Base58.encodeCheck(buffer);
+    }
+
+    public static toBuffer(address: string): Buffer {
+        const buffer: Buffer = Base58.decodeCheck(address);
+        const networkVersion: number = configManager.get("network.pubKeyHash");
+        if (buffer[0] !== networkVersion) {
+            throw new AddressNetworkError(networkVersion, buffer[0]);
+        }
+
+        return buffer;
     }
 
     public static validate(address: string, networkVersion?: number): boolean {
