@@ -27,7 +27,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@hapi/joi": "^15.1.0",
+        "@hapi/joi": "^16.0.0",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
         "bcrypto": "^4.1.0",
