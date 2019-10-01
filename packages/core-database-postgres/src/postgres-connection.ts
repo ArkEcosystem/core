@@ -206,23 +206,10 @@ export class PostgresConnection implements Database.IConnection {
 
     private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
         const row: IMigration = await this.migrationsRepository.findByName(name);
-
-        // Also run migration if the asset column is present, but missing values. E.g.
-        // after restoring a snapshot without assets even though the database has already been migrated.
-        let runMigration = !row;
-        if (!runMigration) {
-            const { missingAsset } = await this.db.one(
-                `SELECT EXISTS (SELECT id FROM transactions WHERE (type > 0 OR type_group != 1) AND asset IS NULL) as "missingAsset"`,
-            );
-            if (missingAsset) {
-                await this.db.none(`DELETE FROM migrations WHERE name = '${name}'`);
-                runMigration = true;
-            }
-        }
-
-        if (!runMigration) {
+        if (row) {
             return;
         }
+
         this.logger.warn(`Migrating transactions table to assets. This may take a while.`);
 
         await this.query.none(migration);
