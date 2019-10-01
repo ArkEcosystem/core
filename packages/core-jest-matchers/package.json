@@ -22,7 +22,7 @@
     "dependencies": {
         "@arkecosystem/core-container": "^2.5.25",
         "@arkecosystem/crypto": "^2.5.25",
-        "@arkecosystem/utils": "^0.3.0",
+        "@arkecosystem/utils": "^0.6.0",
         "bip39": "^3.0.2",
         "got": "^9.6.0",
         "jest-extended": "^0.11.2",
