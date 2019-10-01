@@ -117,7 +117,8 @@ export class Ext {
                     totalCount: totalCount ? totalCount : 0,
 
                     next: getUri(currentPage + 1),
-                    previous: getUri(currentPage - 1),
+                    // tslint:disable-next-line: no-null-keyword
+                    previous: (totalCount && currentPage > 1 && currentPage <= pageCount + 1) ? getUri(currentPage - 1) : null,
 
                     self: getUri(currentPage),
                     first: getUri(1),
