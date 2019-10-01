@@ -90,7 +90,7 @@
         "tslint": "^5.18.0",
         "tslint-config-prettier": "^1.18.0",
         "typescript": "^3.5.3",
-        "typesync": "^0.5.1",
+        "typesync": "^0.6.0",
         "uuid": "^3.3.2"
     },
     "workspaces": [
