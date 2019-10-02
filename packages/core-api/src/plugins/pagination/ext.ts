@@ -97,7 +97,7 @@ export class Ext {
         const currentPage = query.page;
         const currentLimit = query.limit;
 
-        const { totalCount } = !!source.totalCount ? request : source;
+        const { totalCount } = !!source.totalCount ? source : request;
 
         let pageCount: number;
         if (totalCount) {
@@ -117,9 +117,10 @@ export class Ext {
                     totalCount: totalCount ? totalCount : 0,
 
                     // tslint:disable-next-line: no-null-keyword
-                    next: (totalCount && currentPage < pageCount) ? getUri(currentPage + 1) : null,
-                    // tslint:disable-next-line: no-null-keyword
-                    previous: (totalCount && currentPage > 1 && currentPage <= pageCount + 1) ? getUri(currentPage - 1) : null,
+                    next: totalCount && currentPage < pageCount ? getUri(currentPage + 1) : null,
+                    previous:
+                        // tslint:disable-next-line: no-null-keyword
+                        totalCount && currentPage > 1 && currentPage <= pageCount + 1 ? getUri(currentPage - 1) : null,
 
                     self: getUri(currentPage),
                     first: getUri(1),
