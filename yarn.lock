@@ -53,6 +53,17 @@
     uuid "^3.3.2"
     wif "^2.0.6"
 
+"@arkecosystem/utils@0.8.0":
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.8.0.tgz#8c28abc36653ec3e4c8ad7202f046f8bc8272733"
+  integrity sha512-N7a4CCephXez3hQZtAfaiCXcZV9TYuVTyycJQyfc2ZjtFIW60QCWrTALdGZ7Iqgnv47mPOddxIakXaIMTiE8Xg==
+  dependencies:
+    "@hapi/bourne" "^1.3.2"
+    fast-copy "^2.0.3"
+    fast-deep-equal "^2.0.1"
+    fast-sort "^1.5.6"
+    fast.js "^0.1.1"
+
 "@arkecosystem/utils@^0.3.0":
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.3.0.tgz#f0d6040ab0134ee7db046ab8246cb17b2c5b9867"
@@ -5734,6 +5745,11 @@ extsprintf@^1.2.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
 
+fast-copy@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/fast-copy/-/fast-copy-2.0.3.tgz#e9202d6944c9602b575f44d2857cef0f40dc6581"
+  integrity sha512-q0VzLSTRXwNOBzTG8dP+SkCxyTieVAhDEddSvw7X799+k3gb8I5T2IVPhBcwZzAY3Ac1P7/B6TSUvJDdO+8vcg==
+
 fast-deep-equal@^2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-2.0.1.tgz#7b05218ddf9667bf7f370bf7fdb2cb15fdd0aa49"
@@ -5785,7 +5801,7 @@ fast-safe-stringify@2.x.x, fast-safe-stringify@^2.0.4, fast-safe-stringify@^2.0.
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.6.tgz#04b26106cc56681f51a044cfc0d76cf0008ac2c2"
 
-fast-sort@^1.5.4:
+fast-sort@^1.5.4, fast-sort@^1.5.6:
   version "1.5.6"
   resolved "https://registry.yarnpkg.com/fast-sort/-/fast-sort-1.5.6.tgz#fe5dbe919f2f2333d1823808d6d1e7c3b8c562cc"
 

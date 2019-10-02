@@ -58,7 +58,7 @@ class Deserializer {
             block.previousBlock = block.previousBlockHex;
         } else {
             block.previousBlockHex = buf.readBytes(8).toString("hex");
-            block.previousBlock = BigNumber.make(block.previousBlockHex, 16).toFixed();
+            block.previousBlock = BigNumber.make(block.previousBlockHex, 16).toString();
         }
 
         block.numberOfTransactions = buf.readUint32();

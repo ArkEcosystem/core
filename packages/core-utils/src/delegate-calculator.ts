@@ -1,9 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, State } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
-import { supplyCalculator } from './index';
-
-const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
+import { supplyCalculator } from "./index";
 
 export const calculateApproval = (delegate: State.IWallet, height?: number): number => {
     if (!height) {
@@ -11,12 +9,12 @@ export const calculateApproval = (delegate: State.IWallet, height?: number): num
     }
 
     const totalSupply = supplyCalculator.calculate(height);
-    const voteBalance = new BignumMod(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance"));
+    const voteBalance = Utils.BigNumber.make(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance"));
 
     return +voteBalance
         .times(100)
         .dividedBy(totalSupply)
-        .toFixed(2);
+        .toFixed();
 };
 
 export const calculateForgedTotal = (wallet: State.IWallet): string => {

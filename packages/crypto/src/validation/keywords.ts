@@ -79,10 +79,6 @@ const bignumber = (ajv: Ajv) => {
 
                 const bignum = BigNumber.make(data);
 
-                if (!bignum.isInteger()) {
-                    return false;
-                }
-
                 if (parentObject && property) {
                     parentObject[property] = bignum;
                 }
