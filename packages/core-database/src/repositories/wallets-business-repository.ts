@@ -15,8 +15,10 @@ interface IUnwrappedHtlcLock {
     amount: Utils.BigNumber;
     recipientId: string;
     secretHash: string;
+    timestamp: number;
     expirationType: number;
     expirationValue: number;
+    vendorField: string;
 }
 
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
@@ -177,8 +179,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchLocks(params: Database.IParameters = {}): ISearchContext<IUnwrappedHtlcLock> {
         const query: Record<string, string[]> = {
-            exact: ["senderPublicKey", "lockId", "recipientId", "secretHash", "expirationType"],
-            between: ["expirationValue", "amount"],
+            exact: ["senderPublicKey", "lockId", "recipientId", "secretHash", "expirationType", "vendorField"],
+            between: ["expirationValue", "amount", "timestamp"],
         };
 
         if (params.amount !== undefined) {
@@ -188,23 +190,28 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         const entries: IUnwrappedHtlcLock[] = this.databaseServiceProvider()
             .walletManager.getIndex(State.WalletIndexes.Locks)
             .entries()
-            .reduce((acc, [lockId, wallet]) => {
-                const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
-                if (locks && locks[lockId]) {
-                    const lock: Interfaces.IHtlcLock = locks[lockId];
-                    acc.push({
-                        lockId,
-                        amount: lock.amount,
-                        secretHash: lock.secretHash,
-                        senderPublicKey: wallet.publicKey,
-                        recipientId: lock.recipientId,
-                        expirationType: lock.expiration.type,
-                        expirationValue: lock.expiration.value,
-                    });
-                }
+            .reduce(
+                (acc, [lockId, wallet]) => {
+                    const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
+                    if (locks && locks[lockId]) {
+                        const lock: Interfaces.IHtlcLock = locks[lockId];
+                        acc.push({
+                            lockId,
+                            amount: lock.amount,
+                            secretHash: lock.secretHash,
+                            senderPublicKey: wallet.publicKey,
+                            recipientId: lock.recipientId,
+                            timestamp: lock.timestamp,
+                            expirationType: lock.expiration.type,
+                            expirationValue: lock.expiration.value,
+                            vendorField: lock.vendorField,
+                        });
+                    }
 
-                return acc;
-            }, []);
+                    return acc;
+                },
+                [] as IUnwrappedHtlcLock[],
+            );
 
         return {
             query,

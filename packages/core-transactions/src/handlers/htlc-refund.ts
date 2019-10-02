@@ -172,6 +172,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         locks[lockTransaction.id] = {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
+            timestamp: lockTransaction.timestamp,
+            vendorField: lockTransaction.vendorField,
             ...lockTransaction.asset.lock,
         };
 
