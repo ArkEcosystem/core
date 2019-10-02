@@ -190,28 +190,25 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         const entries: IUnwrappedHtlcLock[] = this.databaseServiceProvider()
             .walletManager.getIndex(State.WalletIndexes.Locks)
             .entries()
-            .reduce(
-                (acc, [lockId, wallet]) => {
-                    const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
-                    if (locks && locks[lockId]) {
-                        const lock: Interfaces.IHtlcLock = locks[lockId];
-                        acc.push({
-                            lockId,
-                            amount: lock.amount,
-                            secretHash: lock.secretHash,
-                            senderPublicKey: wallet.publicKey,
-                            recipientId: lock.recipientId,
-                            timestamp: lock.timestamp,
-                            expirationType: lock.expiration.type,
-                            expirationValue: lock.expiration.value,
-                            vendorField: lock.vendorField,
-                        });
-                    }
+            .reduce<IUnwrappedHtlcLock[]>((acc, [lockId, wallet]) => {
+                const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
+                if (locks && locks[lockId]) {
+                    const lock: Interfaces.IHtlcLock = locks[lockId];
+                    acc.push({
+                        lockId,
+                        amount: lock.amount,
+                        secretHash: lock.secretHash,
+                        senderPublicKey: wallet.publicKey,
+                        recipientId: lock.recipientId,
+                        timestamp: lock.timestamp,
+                        expirationType: lock.expiration.type,
+                        expirationValue: lock.expiration.value,
+                        vendorField: lock.vendorField,
+                    });
+                }
 
-                    return acc;
-                },
-                [] as IUnwrappedHtlcLock[],
-            );
+                return acc;
+            }, []);
 
         return {
             query,
