@@ -28,7 +28,7 @@
         "@arkecosystem/core-transactions": "^2.5.25",
         "@arkecosystem/core-utils": "^2.5.25",
         "@arkecosystem/crypto": "^2.5.25",
-        "@arkecosystem/utils": "^0.3.0",
+        "@arkecosystem/utils": "^0.6.8",
         "lodash.clonedeep": "^4.5.0",
         "lodash.compact": "^3.0.1",
         "lodash.snakecase": "^4.1.1",
