@@ -11,13 +11,6 @@ export class Block implements IBlock {
     public static applySchema(data: IBlockData): IBlockData {
         const { value, error } = validator.validate("block", data);
 
-        if (
-            error &&
-            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
-        ) {
-            throw new BlockSchemaError(data.height, error);
-        }
-
         if (error) {
             if (
                 isException(value) ||
