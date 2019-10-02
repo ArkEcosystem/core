@@ -74,7 +74,7 @@ export class Block implements IBlock {
         const constants = configManager.getMilestone(data.height);
         const idHex: string = Block.getIdHex(data);
 
-        return constants.block.idFullSha256 ? idHex : BigNumber.make(idHex, 16).toString();
+        return constants.block.idFullSha256 ? idHex : BigNumber.make(`0x${idHex}`).toString();
     }
 
     public serialized: string;
