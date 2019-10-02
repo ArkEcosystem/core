@@ -35,6 +35,7 @@ export const queries = {
         sentTransactions: loadQueryFile(__dirname, "./state-builder/sent-transactions.sql"),
         countType: loadQueryFile(__dirname, "./state-builder/count-type.sql"),
         assetsByType: loadQueryFile(__dirname, "./state-builder/assets-by-type.sql"),
+        multiPaymentsGrouped: loadQueryFile(__dirname, "./state-builder/multi-payments-grouped.sql"),
     },
     transactions: {
         findByBlock: loadQueryFile(__dirname, "./transactions/find-by-block.sql"),

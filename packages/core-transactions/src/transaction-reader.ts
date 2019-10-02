@@ -18,7 +18,7 @@ export class TransactionReader {
     public bufferSize: number = 2000;
 
     private index: number;
-    private count: number;
+    public count: number;
 
     private constructor(private connection: Database.IConnection, private type: number, private typeGroup: number) {}
 

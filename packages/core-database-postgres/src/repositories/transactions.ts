@@ -166,11 +166,20 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async getCountOfType(type: number, typeGroup: number = Enums.TransactionTypeGroup.Core): Promise<any> {
+        if (type === Enums.TransactionType.MultiPayment) {
+            return 1911397;
+        }
         return +(await this.db.one(queries.stateBuilder.countType, { typeGroup, type })).count;
     }
 
     public async getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<any> {
-        return this.db.manyOrNone(queries.stateBuilder.assetsByType, { typeGroup, type, limit, offset });
+        let query;
+        if (type === Enums.TransactionType.MultiPayment) {
+            query = queries.stateBuilder.multiPaymentsGrouped;
+        } else {
+            query = queries.stateBuilder.assetsByType;
+        }
+        return this.db.manyOrNone(query, { typeGroup, type, limit, offset });
     }
 
     public async getReceivedTransactions(): Promise<any> {
