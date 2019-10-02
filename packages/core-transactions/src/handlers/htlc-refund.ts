@@ -172,6 +172,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         locks[lockTransaction.id] = {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
+            timestamp: lockTransaction.timestamp,
+            vendorField: lockTransaction.vendorFieldHex
+                ? Buffer.from(lockTransaction.vendorFieldHex, "hex").toString("utf8")
+                : undefined,
             ...lockTransaction.asset.lock,
         };
 

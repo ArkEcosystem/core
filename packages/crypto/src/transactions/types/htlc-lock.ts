@@ -22,6 +22,10 @@ export class HtlcLockTransaction extends Transaction {
         return configManager.getMilestone().aip11 && super.verify();
     }
 
+    public hasVendorField(): boolean {
+        return true;
+    }
+
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
 

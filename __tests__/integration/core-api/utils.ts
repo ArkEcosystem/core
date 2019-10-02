@@ -139,6 +139,7 @@ class Helpers {
         expect(lock).toHaveProperty("recipientId");
         expect(lock).toHaveProperty("amount");
         expect(lock).toHaveProperty("secretHash");
+        expect(lock).toHaveProperty("timestamp");
         expect(lock).toHaveProperty("expirationType");
         expect(lock).toHaveProperty("expirationValue");
     }
