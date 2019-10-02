@@ -156,3 +156,52 @@ export const dummyBlock3 = {
         "304402204087bb1d2c82b9178b02b9b3f285de260cdf0778643064fe6c7aef27321d49520220594c57009c1fca543350126d277c6adeb674c00685a464c3e4bf0d634dc37e39",
     createdAt: "2018-09-11T16:48:58.431Z",
 };
+
+export const blockWithExceptions = {
+    "id": "15986760691378510176",
+    "version": 0,
+    "timestamp": 52310186,
+    "height": 766787,
+    "reward": "200000000",
+    "transactions": [
+        {
+            "version": 1,
+            "network": 30,
+            "type": 0,
+            "timestamp": 52308692,
+            "senderPublicKey": "039c09c66328ebe7569cd49aa441e45c9df96c1d644c7acf33f7bc763709c41c1f",
+            "fee": "10000000",
+            "amount": "0",
+            "vendorFieldHex": "54727565205061737461205765696768742e",
+            "expiration": 0,
+            "recipientId": "D5KU9KrMYXdkEsRbv4y8hvetGbsJwf9z3P",
+            "signature": "304402200ca79a6ebcd29cbf6bea42fa6890e0c7bfd82fd5e7cd327913f966b433b24086022051f127b1349af1ccb49cdc27595844d5228d612ef8c7d57d63dc5b75620c7e64",
+            "vendorField": "True Pasta Weight.",
+            "id": "3945e67bb5e864d2dd206293f1e778fa2181db5f81c2efc0a89e8fe53e2a2e7c"
+        },
+        {
+            "version": 1,
+            "network": 30,
+            "type": 0,
+            "timestamp": 52308443,
+            "senderPublicKey": "02364aaaf17c35f74e397433f988361aee408c5b5314eaad5b815c4f4f7c578b1e",
+            "fee": "10000000",
+            "amount": "250000000",
+            "vendorFieldHex": "54727565205061737461205765696768742e",
+            "expiration": 0,
+            "recipientId": "DJA2sqCbnmR63sD8doGrXrK3fCiqcA4GUw",
+            "signature": "3045022100f3a61a0460abe78a4705904216ac17a7bf50b19d70717624c15b64a94207cbeb022070a7bf3d97a3e690839ce1764413ce890ea233eb7eba202d373a376fc4b551b6",
+            "vendorField": "True Pasta Weight.",
+            "id": "8e4853ed764bb1853e58fda4a9c507f73b820dd738e4a9b197dafb37a22b6b0f"
+        }
+    ],
+    "previousBlock": "17296711371070322453",
+    "numberOfTransactions": 2,
+    "totalAmount": "250000000",
+    "totalFee": "20000000",
+    "payloadLength": 64,
+    "payloadHash": "53033d24a4f133e47fee3871d82bca12bdf8b58ec4ebf43ac2b7849e78278256",
+    "generatorPublicKey": "02d0244d939fad9004cc104f71b46b428d903e4f2988a65f39fdaa1b7482894c9e",
+    "blockSignature": "30440220053747c5d02b38c9f8980d771918a5c48c99080a0bba661d3609553ed14c3f0d022063da2ba62e002d91b0f3bdba4e0c822bf0f5ce88b95867192252a2418ec0556f",
+    "previousBlockHex": "f00a43599f1b3715"
+}

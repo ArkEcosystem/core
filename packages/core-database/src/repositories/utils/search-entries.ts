@@ -61,6 +61,8 @@ const manipulateIteratee = (iteratee): any => {
             return delegateCalculator.calculateForgedTotal;
         case "votes":
             return "voteBalance";
+        case "vendorfield":
+            return "vendorField";
         case "expirationvalue":
             return "expirationValue";
         case "expirationtype":

@@ -208,6 +208,8 @@ export const htlcLock = extend(transactionBaseSchema, {
         type: { transactionType: TransactionType.HtlcLock },
         amount: { bignumber: { minimum: 1 } },
         recipientId: { $ref: "address" },
+        vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
+        vendorFieldHex: { anyOf: [{ type: "null" }, { type: "string", format: "vendorFieldHex" }] },
         asset: {
             type: "object",
             required: ["lock"],
@@ -282,6 +284,8 @@ export const multiPayment = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionType.MultiPayment },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
+        vendorFieldHex: { anyOf: [{ type: "null" }, { type: "string", format: "vendorFieldHex" }] },
         asset: {
             type: "object",
             required: ["payments"],
