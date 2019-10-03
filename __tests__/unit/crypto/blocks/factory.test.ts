@@ -15,7 +15,7 @@ export const expectBlock = ({ data }: { data: IBlockData }) => {
     delete blockWithoutTransactions.transactions;
 
     expect(data).toEqual(blockWithoutTransactions);
-}
+};
 
 beforeEach(() => configManager.setFromPreset("devnet"));
 
@@ -40,7 +40,7 @@ describe("BlockFactory", () => {
         it("should create a block with exceptions", () => {
             // @ts-ignore
             expect(() => BlockFactory.fromData(blockWithExceptions)).not.toThrow();
-        })
+        });
     });
 
     describe(".fromJson", () => {

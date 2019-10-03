@@ -33,6 +33,7 @@ export const queries = {
         lastForgedBlocks: loadQueryFile(__dirname, "./state-builder/last-forged-blocks.sql"),
         receivedTransactions: loadQueryFile(__dirname, "./state-builder/received-transactions.sql"),
         sentTransactions: loadQueryFile(__dirname, "./state-builder/sent-transactions.sql"),
+        countType: loadQueryFile(__dirname, "./state-builder/count-type.sql"),
         assetsByType: loadQueryFile(__dirname, "./state-builder/assets-by-type.sql"),
     },
     transactions: {

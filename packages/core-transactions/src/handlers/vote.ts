@@ -7,6 +7,7 @@ import {
     VotedForNonDelegateError,
     VotedForResignedDelegateError,
 } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -24,25 +25,29 @@ export class VoteTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        for (const transaction of transactions) {
-            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const vote = transaction.asset.votes[0];
-            const walletVote: string = wallet.getAttribute("vote");
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
 
-            if (vote.startsWith("+")) {
-                if (walletVote) {
-                    throw new AlreadyVotedError();
+            for (const transaction of transactions) {
+                const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const vote = transaction.asset.votes[0];
+                const walletVote: string = wallet.getAttribute("vote");
+
+                if (vote.startsWith("+")) {
+                    if (walletVote) {
+                        throw new AlreadyVotedError();
+                    }
+                    wallet.setAttribute("vote", vote.slice(1));
+                } else {
+                    if (!walletVote) {
+                        throw new NoVoteError();
+                    } else if (walletVote !== vote.slice(1)) {
+                        throw new UnvoteMismatchError();
+                    }
+                    wallet.forgetAttribute("vote");
                 }
-                wallet.setAttribute("vote", vote.slice(1));
-            } else {
-                if (!walletVote) {
-                    throw new NoVoteError();
-                } else if (walletVote !== vote.slice(1)) {
-                    throw new UnvoteMismatchError();
-                }
-                wallet.forgetAttribute("vote");
             }
         }
     }

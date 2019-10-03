@@ -1,6 +1,6 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers } from "@arkecosystem/core-transactions";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
@@ -26,27 +26,29 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
-            this.getConstructor().type,
-            this.getConstructor().typeGroup,
-        );
-        for (const transaction of transactions) {
-            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
-                "business",
-            );
-            if (!businessAttributes.bridgechains) {
-                businessAttributes.bridgechains = {};
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+
+            for (const transaction of transactions) {
+                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
+                    "business",
+                );
+                if (!businessAttributes.bridgechains) {
+                    businessAttributes.bridgechains = {};
+                }
+
+                const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletManager);
+                businessAttributes.bridgechains[bridgechainId.toFixed()] = {
+                    bridgechainId,
+                    bridgechainAsset: transaction.asset.bridgechainRegistration,
+                };
+
+                wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
+                walletManager.reindex(wallet);
             }
-
-            const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletManager);
-            businessAttributes.bridgechains[bridgechainId.toFixed()] = {
-                bridgechainId,
-                bridgechainAsset: transaction.asset.bridgechainRegistration,
-            };
-
-            wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-            walletManager.reindex(wallet);
         }
     }
 
