@@ -18,6 +18,18 @@ export class Block implements IBlock {
             throw new BlockSchemaError(data.height, error);
         }
 
+        if (error) {
+            if (
+                isException(value) ||
+                data.transactions.some((transaction: ITransactionData) => isException(transaction))
+            ) {
+                // Validate again without bailing out on the first error to ensure that all properties get properly converted if necessary
+                validator.validateException("block", data);
+            } else {
+                throw new BlockSchemaError(data.height, error);
+            }
+        }
+
         return value;
     }
 
