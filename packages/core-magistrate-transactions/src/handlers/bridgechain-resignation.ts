@@ -69,7 +69,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainResignation.bridgechainId];
+            businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()];
         if (!bridgechainAttributes) {
             throw new BridgechainIsNotRegisteredError();
         }
@@ -115,7 +115,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
 
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
-        businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = true;
+        businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()].resigned = true;
     }
 
     public async revertForSender(
@@ -131,18 +131,18 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
 
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
-        businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = false;
+        businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()].resigned = false;
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

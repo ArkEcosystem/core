@@ -100,7 +100,7 @@ describe("API 2.0 - Locks", () => {
                     const lockA = response.data.data[i];
                     const lockB = response.data.data[i + 1];
 
-                    expect(Utils.BigNumber.make(lockA.amount).isGreaterThanOrEqualTo(lockB.amount)).toBeTrue();
+                    expect(Utils.BigNumber.make(lockA.amount).isGreaterThanEqual(lockB.amount)).toBeTrue();
                 }
             });
 
@@ -113,7 +113,7 @@ describe("API 2.0 - Locks", () => {
                     const lockA = response.data.data[i];
                     const lockB = response.data.data[i + 1];
 
-                    expect(Utils.BigNumber.make(lockA.amount).isLessThanOrEqualTo(lockB.amount)).toBeTrue();
+                    expect(Utils.BigNumber.make(lockA.amount).isLessThanEqual(lockB.amount)).toBeTrue();
                 }
             });
         });

@@ -77,9 +77,14 @@ const bignumber = (ajv: Ajv) => {
                 const minimum = typeof schema.minimum !== "undefined" ? schema.minimum : 0;
                 const maximum = typeof schema.maximum !== "undefined" ? schema.maximum : "9223372036854775807"; // 8 byte maximum
 
-                const bignum = BigNumber.make(data);
+                if (data !== 0 && !data) {
+                    return false;
+                }
 
-                if (!bignum.isInteger()) {
+                let bignum: BigNumber;
+                try {
+                    bignum = BigNumber.make(data);
+                } catch {
                     return false;
                 }
 

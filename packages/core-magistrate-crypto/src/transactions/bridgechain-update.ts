@@ -1,5 +1,6 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import Long from "long";
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainUpdateAsset } from "../interfaces";
 import { seedNodesSchema } from "./utils/bridgechain-schemas";
@@ -54,7 +55,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         const buffer: ByteBuffer = new ByteBuffer(64 + seedNodesBuffersLength + 1 + seedNodes.length, true);
-        buffer.writeUint64(+bridgechainUpdateAsset.bridgechainId);
+        buffer.writeUint64(Long.fromString(bridgechainUpdateAsset.bridgechainId.toFixed()));
 
         buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {

@@ -125,7 +125,7 @@ describe("TransactionFactory", () => {
             expect(() =>
                 TransactionFactory.fromJson({
                     ...transactionJson,
-                    ...{ fee: "something" },
+                    ...{ senderPublicKey: "something" },
                 }),
             ).toThrowError(TransactionSchemaError);
         });

@@ -11,15 +11,11 @@ export class Block implements IBlock {
     public static applySchema(data: IBlockData): IBlockData {
         const { value, error } = validator.validate("block", data);
 
-        if (
-            error &&
-            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
-        ) {
-            throw new BlockSchemaError(data.height, error);
-        }
-
         if (error) {
-            if (isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction))) {
+            if (
+                isException(value) ||
+                data.transactions.some((transaction: ITransactionData) => isException(transaction))
+            ) {
                 // Validate again without bailing out on the first error to ensure that all properties get properly converted if necessary
                 validator.validateException("block", data);
             } else {
@@ -71,7 +67,7 @@ export class Block implements IBlock {
         const constants = configManager.getMilestone(data.height);
         const idHex: string = Block.getIdHex(data);
 
-        return constants.block.idFullSha256 ? idHex : BigNumber.make(idHex, 16).toFixed();
+        return constants.block.idFullSha256 ? idHex : BigNumber.make(`0x${idHex}`).toString();
     }
 
     public serialized: string;
@@ -128,9 +124,9 @@ export class Block implements IBlock {
 
     public toJson(): IBlockJson {
         const data: IBlockJson = JSON.parse(JSON.stringify(this.data));
-        data.reward = this.data.reward.toFixed();
-        data.totalAmount = this.data.totalAmount.toFixed();
-        data.totalFee = this.data.totalFee.toFixed();
+        data.reward = this.data.reward.toString();
+        data.totalAmount = this.data.totalAmount.toString();
+        data.totalFee = this.data.totalFee.toString();
         data.transactions = this.transactions.map(transaction => transaction.toJson());
 
         return data;
