@@ -150,6 +150,8 @@ export interface IHtlcRefundAsset {
 export interface IHtlcLock extends IHtlcLockAsset {
     amount: BigNumber;
     recipientId: string;
+    timestamp: number;
+    vendorField: string;
 }
 
 export type IHtlcLocks = Record<string, IHtlcLock>;

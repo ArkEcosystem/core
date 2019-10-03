@@ -83,6 +83,10 @@ const bignumber = (ajv: Ajv) => {
                     return false;
                 }
 
+                if (parentObject && property) {
+                    parentObject[property] = bignum;
+                }
+
                 let bypassGenesis: boolean = false;
                 if (schema.bypassGenesis) {
                     if (parentObject.id) {
@@ -100,10 +104,6 @@ const bignumber = (ajv: Ajv) => {
 
                 if (bignum.isGreaterThan(maximum) && !bypassGenesis) {
                     return false;
-                }
-
-                if (parentObject && property) {
-                    parentObject[property] = bignum;
                 }
 
                 return true;

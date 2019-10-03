@@ -3,9 +3,9 @@ import "jest-extended";
 import { Block, BlockFactory } from "../../../../packages/crypto/src/blocks";
 import { IBlockData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { dummyBlock } from "../fixtures/block";
+import { blockWithExceptions, dummyBlock } from "../fixtures/block";
 
-function expectBlock({ data }: { data: IBlockData }) {
+export const expectBlock = ({ data }: { data: IBlockData }) => {
     delete data.idHex;
 
     const blockWithoutTransactions: IBlockData = { ...dummyBlock };
@@ -36,6 +36,11 @@ describe("BlockFactory", () => {
         it("should create a block instance from an object", () => {
             expectBlock(BlockFactory.fromData(dummyBlock));
         });
+
+        it("should create a block with exceptions", () => {
+            // @ts-ignore
+            expect(() => BlockFactory.fromData(blockWithExceptions)).not.toThrow();
+        })
     });
 
     describe(".fromJson", () => {

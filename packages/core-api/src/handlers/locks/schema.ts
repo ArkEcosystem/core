@@ -65,6 +65,17 @@ export const search: object = {
                 .integer()
                 .min(0),
         }),
+        timestamp: Joi.object().keys({
+            from: Joi.number()
+                .integer()
+                .min(0),
+            to: Joi.number()
+                .integer()
+                .min(0),
+        }),
+        vendorField: Joi.string()
+            .min(1)
+            .max(255),
         expirationType: Joi.number().only(1, 2),
         expirationValue: Joi.object().keys({
             from: Joi.number()

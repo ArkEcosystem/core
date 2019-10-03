@@ -12,6 +12,7 @@ export class HtlcLockBuilder extends TransactionBuilder<HtlcLockBuilder> {
         this.data.recipientId = undefined;
         this.data.amount = BigNumber.ZERO;
         this.data.fee = HtlcLockTransaction.staticFee();
+        this.data.vendorField = undefined;
         this.data.asset = {};
     }
 
@@ -27,6 +28,7 @@ export class HtlcLockBuilder extends TransactionBuilder<HtlcLockBuilder> {
         const struct: ITransactionData = super.getStruct();
         struct.recipientId = this.data.recipientId;
         struct.amount = this.data.amount;
+        struct.vendorField = this.data.vendorField;
         struct.asset = this.data.asset;
         return struct;
     }
