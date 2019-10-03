@@ -27,11 +27,11 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
+        "@arkecosystem/utils": "0.8.3",
         "@hapi/joi": "^15.1.0",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
         "bcrypto": "^4.1.0",
-        "bignumber.js": "^9.0.0",
         "bip32": "^2.0.3",
         "bip39": "^3.0.2",
         "browserify-aes": "^1.2.0",
@@ -48,7 +48,8 @@
         "otplib": "^11.0.1",
         "pluralize": "^8.0.0",
         "tiny-glob": "^0.2.6",
-        "wif": "^2.0.6"
+        "wif": "^2.0.6",
+        "fast-memoize": "^2.5.1"
     },
     "devDependencies": {
         "@types/bip32": "^1.0.2",

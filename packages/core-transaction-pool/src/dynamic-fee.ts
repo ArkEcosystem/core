@@ -26,7 +26,7 @@ export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): P
             dynamicFees.minFeeBroadcast,
         );
 
-        if (fee.isGreaterThanOrEqualTo(minFeeBroadcast)) {
+        if (fee.isGreaterThanEqual(minFeeBroadcast)) {
             broadcast = true;
 
             app.resolvePlugin<Logger.ILogger>("logger").debug(
@@ -46,7 +46,7 @@ export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): P
 
         const minFeePool: Utils.BigNumber = handler.dynamicFee(transaction, addonBytes, dynamicFees.minFeePool);
 
-        if (fee.isGreaterThanOrEqualTo(minFeePool)) {
+        if (fee.isGreaterThanEqual(minFeePool)) {
             enterPool = true;
 
             app.resolvePlugin<Logger.ILogger>("logger").debug(

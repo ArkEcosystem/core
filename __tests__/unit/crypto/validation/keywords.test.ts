@@ -161,7 +161,6 @@ describe("keyword bignumber", () => {
         for (const value of [1e8, 1999.000001, 1 / 1e8, -100, -500, -2000.1]) {
             expect(validate(value)).toBeFalse();
             expect(validate(String(value))).toBeFalse();
-            expect(validate(Utils.BigNumber.make(value))).toBeFalse();
         }
     });
 

@@ -158,12 +158,12 @@ export const dummyBlock3 = {
 };
 
 export const blockWithExceptions = {
-    "id": "15986760691378510176",
-    "version": 0,
-    "timestamp": 52310186,
-    "height": 766787,
-    "reward": "200000000",
-    "transactions": [
+    id: "15986760691378510176",
+    version: 0,
+    timestamp: 52310186,
+    height: 766787,
+    reward: "200000000",
+    transactions: [
         {
             "version": 1,
             "network": 30,
@@ -193,13 +193,14 @@ export const blockWithExceptions = {
             "id": "8e4853ed764bb1853e58fda4a9c507f73b820dd738e4a9b197dafb37a22b6b0f"
         }
     ],
-    "previousBlock": "17296711371070322453",
-    "numberOfTransactions": 2,
-    "totalAmount": "250000000",
-    "totalFee": "20000000",
-    "payloadLength": 64,
-    "payloadHash": "53033d24a4f133e47fee3871d82bca12bdf8b58ec4ebf43ac2b7849e78278256",
-    "generatorPublicKey": "02d0244d939fad9004cc104f71b46b428d903e4f2988a65f39fdaa1b7482894c9e",
-    "blockSignature": "30440220053747c5d02b38c9f8980d771918a5c48c99080a0bba661d3609553ed14c3f0d022063da2ba62e002d91b0f3bdba4e0c822bf0f5ce88b95867192252a2418ec0556f",
-    "previousBlockHex": "f00a43599f1b3715"
-}
+    previousBlock: "17296711371070322453",
+    numberOfTransactions: 2,
+    totalAmount: "250000000",
+    totalFee: "20000000",
+    payloadLength: 64,
+    payloadHash: "53033d24a4f133e47fee3871d82bca12bdf8b58ec4ebf43ac2b7849e78278256",
+    generatorPublicKey: "02d0244d939fad9004cc104f71b46b428d903e4f2988a65f39fdaa1b7482894c9e",
+    blockSignature:
+        "30440220053747c5d02b38c9f8980d771918a5c48c99080a0bba661d3609553ed14c3f0d022063da2ba62e002d91b0f3bdba4e0c822bf0f5ce88b95867192252a2418ec0556f",
+    previousBlockHex: "f00a43599f1b3715",
+};

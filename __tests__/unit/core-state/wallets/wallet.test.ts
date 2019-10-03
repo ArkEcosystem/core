@@ -18,7 +18,7 @@ describe("Models - Wallet", () => {
         it("returns the address and the balance", () => {
             const address = "Abcde";
             const wallet = new Wallet(address);
-            const balance = +(Math.random() * 1000).toFixed(8);
+            const balance = +(Math.random() * 1000).toFixed(8).split(".")[0];
             wallet.balance = Utils.BigNumber.make(balance * SATOSHI);
             expect(wallet.toString()).toBe(
                 `${address} (${balance} ${Managers.configManager.get("network.client.symbol")})`,

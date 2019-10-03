@@ -3,6 +3,7 @@ import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces"
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -20,19 +21,24 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
-        for (const transaction of transactions) {
-            const lockId: string = transaction.asset.claim.lockTransactionId;
-            const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
-            const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
-            const claimWallet: State.IWallet = walletManager.findByAddress(locks[lockId].recipientId);
-            claimWallet.balance = claimWallet.balance.plus(locks[lockId].amount);
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-            const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
-            lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
-            delete locks[lockId];
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
 
-            walletManager.reindex(lockWallet);
+            for (const transaction of transactions) {
+                const lockId: string = transaction.asset.claim.lockTransactionId;
+                const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+                const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
+                const claimWallet: State.IWallet = walletManager.findByAddress(locks[lockId].recipientId);
+                claimWallet.balance = claimWallet.balance.plus(locks[lockId].amount);
+
+                const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
+                lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
+                delete locks[lockId];
+
+                walletManager.reindex(lockWallet);
+            }
         }
     }
 

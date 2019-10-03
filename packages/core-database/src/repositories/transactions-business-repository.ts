@@ -87,8 +87,17 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         );
     }
 
-    public async getAssetsByType(type: number, typeGroup?: number): Promise<any> {
-        return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(type, typeGroup);
+    public async getCountOfType(type: number, typeGroup?: number): Promise<number> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getCountOfType(type, typeGroup);
+    }
+
+    public async getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(
+            type,
+            typeGroup,
+            limit,
+            offset,
+        );
     }
 
     public async getReceivedTransactions(): Promise<any> {

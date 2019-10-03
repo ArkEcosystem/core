@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers } from "@arkecosystem/core-transactions";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
@@ -27,23 +27,25 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
-            this.getConstructor().type,
-            this.getConstructor().typeGroup,
-        );
-        for (const transaction of transactions) {
-            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-            const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = wallet.getAttribute<
-                IBusinessWalletAttributes
-            >("business").businessAsset;
-            const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.asset
-                .businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset;
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
 
-            wallet.setAttribute("business.businessAsset", {
-                ...businessWalletAsset,
-                ...businessUpdate,
-            });
+            for (const transaction of transactions) {
+                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+
+                const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = wallet.getAttribute<
+                    IBusinessWalletAttributes
+                >("business").businessAsset;
+                const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.asset
+                    .businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset;
+
+                wallet.setAttribute("business.businessAsset", {
+                    ...businessWalletAsset,
+                    ...businessUpdate,
+                });
+            }
         }
     }
 
@@ -103,13 +105,12 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             IBusinessWalletAttributes
         >("business").businessAsset;
 
-        const transactionsRepository: Database.ITransactionsRepository = app.resolvePlugin<Database.IConnection>(
-            "database",
-        ).transactionsRepository;
-        const updateTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
-            Enums.MagistrateTransactionType.BusinessUpdate,
-            Enums.MagistrateTransactionGroup,
-        );
+        const connection: Database.IConnection = app.resolvePlugin<Database.IConnection>("database");
+        let reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+        const updateTransactions: Database.IBootstrapTransaction[] = [];
+        while (reader.hasNext()) {
+            updateTransactions.push(...(await reader.read()));
+        }
 
         if (updateTransactions.length > 0) {
             const updateTransaction: Database.IBootstrapTransaction = updateTransactions.pop();
@@ -120,10 +121,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
                 ...previousUpdate,
             };
         } else {
-            const registerTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
-                Enums.MagistrateTransactionType.BusinessRegistration,
-                Enums.MagistrateTransactionGroup,
-            );
+            reader = await TransactionReader.create(connection, MagistrateTransactions.BusinessRegistrationTransaction);
+            const registerTransactions: Database.IBootstrapTransaction[] = [];
+            while (reader.hasNext()) {
+                registerTransactions.push(...(await reader.read()));
+            }
 
             const registerTransaction: Database.IBootstrapTransaction = registerTransactions.pop();
             const previousRegistration: MagistrateInterfaces.IBusinessRegistrationAsset =

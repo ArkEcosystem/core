@@ -27,5 +27,5 @@ export interface IBridgechainUpdateAsset {
 }
 
 export interface IBridgechainResignationAsset {
-    bridgechainId: string;
+    bridgechainId: Utils.BigNumber;
 }

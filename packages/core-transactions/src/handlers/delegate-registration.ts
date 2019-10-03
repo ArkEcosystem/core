@@ -7,6 +7,7 @@ import {
     WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
 } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 const { TransactionType, TransactionTypeGroup } = Enums;
@@ -34,22 +35,27 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
         const forgedBlocks = await connection.blocksRepository.getDelegatesForgedBlocks();
         const lastForgedBlocks = await connection.blocksRepository.getLastForgedBlocks();
 
-        for (const transaction of transactions) {
-            const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.setAttribute<State.IWalletDelegateAttributes>("delegate", {
-                username: transaction.asset.delegate.username,
-                voteBalance: Utils.BigNumber.ZERO,
-                forgedFees: Utils.BigNumber.ZERO,
-                forgedRewards: Utils.BigNumber.ZERO,
-                producedBlocks: 0,
-                rank: undefined,
-            });
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-            walletManager.reindex(wallet);
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+
+            for (const transaction of transactions) {
+                const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                wallet.setAttribute<State.IWalletDelegateAttributes>("delegate", {
+                    username: transaction.asset.delegate.username,
+                    voteBalance: Utils.BigNumber.ZERO,
+                    forgedFees: Utils.BigNumber.ZERO,
+                    forgedRewards: Utils.BigNumber.ZERO,
+                    producedBlocks: 0,
+                    rank: undefined,
+                });
+
+                walletManager.reindex(wallet);
+            }
         }
 
         for (const block of forgedBlocks) {
