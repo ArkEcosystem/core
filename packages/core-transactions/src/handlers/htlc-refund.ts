@@ -182,8 +182,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
-            vendorField: lockTransaction.vendorFieldHex
-                ? Buffer.from(lockTransaction.vendorFieldHex, "hex").toString("utf8")
+            vendorField: lockTransaction.vendorField
+                ? lockTransaction.vendorField
                 : undefined,
             ...lockTransaction.asset.lock,
         };
@@ -195,11 +195,11 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

@@ -11,7 +11,7 @@ export interface IBootstrapTransaction {
     recipientId: string;
     fee: string;
     amount: string;
-    vendorFieldHex: string;
+    vendorField: string;
     asset: Interfaces.ITransactionAsset;
 }
 

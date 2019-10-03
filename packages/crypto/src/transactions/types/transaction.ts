@@ -87,10 +87,6 @@ export abstract class Transaction implements ITransaction {
             delete data.timestamp;
         }
 
-        if (!data.vendorFieldHex) {
-            delete data.vendorFieldHex;
-        }
-
         return data;
     }
 

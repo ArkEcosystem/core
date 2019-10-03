@@ -135,16 +135,7 @@ export class Serializer {
             }
         }
 
-        if (transaction.vendorFieldHex) {
-            const vf: Buffer = Buffer.from(transaction.vendorFieldHex, "hex");
-            const fillstart: number = vf.length;
-            for (let i = 0; i < fillstart; i++) {
-                bb.writeByte(vf[i]);
-            }
-            for (let i = fillstart; i < 64; i++) {
-                bb.writeByte(0);
-            }
-        } else if (transaction.vendorField) {
+        if (transaction.vendorField) {
             const vf: Buffer = Buffer.from(transaction.vendorField);
             const fillstart: number = vf.length;
             for (let i = 0; i < fillstart; i++) {
@@ -224,9 +215,6 @@ export class Serializer {
                 const vf: Buffer = Buffer.from(data.vendorField, "utf8");
                 buffer.writeByte(vf.length);
                 buffer.append(vf);
-            } else if (data.vendorFieldHex) {
-                buffer.writeByte(data.vendorFieldHex.length / 2);
-                buffer.append(data.vendorFieldHex, "hex");
             } else {
                 buffer.writeByte(0x00);
             }

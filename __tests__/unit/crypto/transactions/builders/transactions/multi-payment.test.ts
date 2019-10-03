@@ -20,7 +20,7 @@ describe("Multi Payment Transaction", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.MultiPayment);
         expect(builder).toHaveProperty("data.fee", MultiPaymentTransaction.staticFee());
         expect(builder).toHaveProperty("data.asset.payments", []);
-        expect(builder).toHaveProperty("data.vendorFieldHex", undefined);
+        expect(builder).toHaveProperty("data.vendorField", undefined);
     });
 
     describe("vendorField", () => {
