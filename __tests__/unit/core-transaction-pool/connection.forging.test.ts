@@ -139,9 +139,6 @@ describe("Connection", () => {
             const vf: Buffer = Buffer.from(transaction.vendorField, "utf8");
             buffer.writeByte(vf.length);
             buffer.append(vf);
-        } else if (transaction.vendorFieldHex) {
-            buffer.writeByte(transaction.vendorFieldHex.length / 2);
-            buffer.append(transaction.vendorFieldHex, "hex");
         } else {
             buffer.writeByte(0x00);
         }

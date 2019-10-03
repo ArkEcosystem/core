@@ -55,20 +55,6 @@ describe("Transaction serializer / deserializer", () => {
             expect(deserialized.data.recipientId).toBe(transfer.recipientId);
         });
 
-        it("should ser/deserialize giving back original fields - with vendorFieldHex", () => {
-            delete transfer.vendorField;
-            const vendorField = "cool vendor field";
-            transfer.vendorFieldHex = Buffer.from(vendorField, "utf8").toString("hex");
-
-            const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, transfer);
-
-            expect(deserialized.data.vendorField).toBe(vendorField);
-            expect(deserialized.data.recipientId).toBe(transfer.recipientId);
-        });
-
         it("should ser/deserialize with long vendorfield when vendorFieldLength=255 milestone is active", () => {
             configManager.getMilestone().vendorFieldLength = 255;
 
@@ -86,7 +72,6 @@ describe("Transaction serializer / deserializer", () => {
 
             expect(deserialized.verified).toBeTrue();
             expect(deserialized.data.vendorField).toHaveLength(255);
-            expect(deserialized.data.vendorFieldHex).toHaveLength(510);
             expect(deserialized.data.vendorField).toEqual("y".repeat(255));
 
             configManager.getMilestone().vendorFieldLength = 64;

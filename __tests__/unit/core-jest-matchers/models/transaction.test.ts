@@ -8,7 +8,6 @@ describe(".toBeTransaction", () => {
         timestamp: 35672738,
         senderPublicKey: "03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357",
         fee: 10000000,
-        vendorFieldHex: "5449443a2030",
         amount: 200000000,
         expiration: 0,
         recipientId: "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",

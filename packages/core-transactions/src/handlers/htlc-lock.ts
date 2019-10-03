@@ -28,8 +28,8 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
                 amount: Utils.BigNumber.make(transaction.amount),
                 recipientId: transaction.recipientId,
                 timestamp: transaction.timestamp,
-                vendorField: transaction.vendorFieldHex
-                    ? Buffer.from(transaction.vendorFieldHex, "hex").toString("utf8")
+                vendorField: transaction.vendorField
+                    ? transaction.vendorField
                     : undefined,
                 ...transaction.asset.lock,
             };
@@ -131,11 +131,11 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

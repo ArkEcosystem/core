@@ -405,13 +405,11 @@ describe("API 2.0 - Transactions", () => {
             }
         });
 
-        it("should POST a search for transactions with the exact specified vendorFieldHex", async () => {
+        it("should POST a search for transactions with the exact specified vendorField", async () => {
             const dummyTransaction = await utils.createTransaction();
-            const hexify = (value: string) => Buffer.from(value, "utf8").toString("hex");
 
-            const vendorFieldHex = hexify(dummyTransaction.vendorField);
             const response = await utils.request("POST", "transactions/search", {
-                vendorFieldHex,
+                vendorField: dummyTransaction.vendorField,
             });
 
             expect(response).toBeSuccessfulResponse();
@@ -421,7 +419,7 @@ describe("API 2.0 - Transactions", () => {
 
             for (const transaction of response.data.data) {
                 utils.expectTransaction(transaction);
-                expect(hexify(transaction.vendorField)).toBe(vendorFieldHex);
+                expect(transaction.vendorField).toBe(dummyTransaction.vendorField);
             }
         });
 

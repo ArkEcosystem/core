@@ -46,7 +46,7 @@ export const index: object = {
             fee: Joi.number()
                 .integer()
                 .min(0),
-            vendorFieldHex: Joi.string().hex(),
+            vendorField: Joi.string().max(255, "utf8"),
             transform: Joi.bool().default(true),
         },
     },
@@ -125,7 +125,7 @@ export const search: object = {
             .min(1)
             .max(50)
             .items(address),
-        vendorFieldHex: Joi.string().hex(),
+        vendorField: Joi.string().max(255, "utf8"),
         timestamp: Joi.object().keys({
             from: Joi.number()
                 .integer()
