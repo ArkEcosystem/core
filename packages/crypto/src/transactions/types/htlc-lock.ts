@@ -1,9 +1,9 @@
 import ByteBuffer from "bytebuffer";
 import Long from "long";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
+import { Address } from "../../identities";
 import { ISerializeOptions } from "../../interfaces";
 import { configManager } from "../../managers";
-import { Base58 } from "../../utils/base58";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -36,7 +36,7 @@ export class HtlcLockTransaction extends Transaction {
         buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
         buffer.writeUint8(data.asset.lock.expiration.type);
         buffer.writeUint32(data.asset.lock.expiration.value);
-        buffer.append(Base58.decodeCheck(data.recipientId));
+        buffer.append(Address.toBuffer(data.recipientId));
 
         return buffer;
     }
@@ -48,7 +48,7 @@ export class HtlcLockTransaction extends Transaction {
         const secretHash: string = buf.readBytes(32).toString("hex");
         const expirationType: number = buf.readUint8();
         const expirationValue: number = buf.readUint32();
-        const recipientId: string = Base58.encodeCheck(buf.readBytes(21).toBuffer());
+        const recipientId: string = Address.fromBuffer(buf.readBytes(21).toBuffer());
 
         data.amount = amount;
         data.recipientId = recipientId;

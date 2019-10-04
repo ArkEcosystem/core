@@ -466,6 +466,10 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("deserialize - others", () => {
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        })
+
         it("should throw if type is not supported", () => {
             const serializeWrongType = (transaction: ITransactionData) => {
                 // copy-paste from transaction serializer, common stuff
@@ -483,11 +487,11 @@ describe("Transaction serializer / deserializer", () => {
                 return Buffer.from(buffer.flip().toBuffer());
             };
             const transactionWrongType = BuilderFactory.transfer()
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+                .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
                 .amount("10000")
                 .fee("50000000")
                 .vendorField("yo")
-                .network(30)
+                .network(23)
                 .sign("dummy passphrase")
                 .getStruct();
             transactionWrongType.type = 55;
@@ -601,11 +605,11 @@ describe("Transaction serializer / deserializer", () => {
     describe("serialize - others", () => {
         it("should throw if type is not supported", () => {
             const transactionWrongType = BuilderFactory.transfer()
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+                .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
                 .amount("10000")
                 .fee("50000000")
                 .vendorField("yo")
-                .network(30)
+                .network(23)
                 .sign("dummy passphrase")
                 .getStruct();
             transactionWrongType.type = 55;
