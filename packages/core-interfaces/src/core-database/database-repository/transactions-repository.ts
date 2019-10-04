@@ -11,6 +11,7 @@ export interface IBootstrapTransaction {
     recipientId: string;
     fee: string;
     amount: string;
+    vendorField: string;
     asset: Interfaces.ITransactionAsset;
 }
 
@@ -45,7 +46,9 @@ export interface ITransactionsRepository extends IRepository {
         }>
     >;
 
-    getAssetsByType(type: number, typeGroup?: number): Promise<IBootstrapTransaction[]>;
+    getCountOfType(type: number, typeGroup?: number): Promise<number>;
+
+    getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<IBootstrapTransaction[]>;
 
     getReceivedTransactions(): Promise<any>;
 

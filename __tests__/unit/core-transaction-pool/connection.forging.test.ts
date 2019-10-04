@@ -7,6 +7,7 @@ import ByteBuffer from "bytebuffer";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Constants, Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import Long from "long";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -114,7 +115,7 @@ describe("Connection", () => {
         const writeUint32 = (txField, value) =>
             options[txField] ? options[txField](buffer) : buffer.writeUint32(value);
         const writeUint64 = (txField, value) =>
-            options[txField] ? options[txField](buffer) : buffer.writeUint64(value);
+            options[txField] ? options[txField](buffer) : buffer.writeUint64(Long.fromString(value.toFixed()));
         const append = (txField, value, encoding = "utf8") =>
             options[txField] ? options[txField](buffer) : buffer.append(value, encoding);
 
@@ -125,13 +126,13 @@ describe("Connection", () => {
         writeUint16("type", transaction.type);
 
         if (transaction.nonce) {
-            writeUint64("nonce", transaction.nonce.toString());
+            writeUint64("nonce", transaction.nonce);
         } else {
             writeUint32("timestamp", transaction.timestamp);
         }
 
         append("senderPublicKey", transaction.senderPublicKey, "hex");
-        writeUint64("fee", +transaction.fee);
+        writeUint64("fee", transaction.fee);
 
         if (options.vendorField) {
             options.vendorField(buffer);
@@ -139,15 +140,12 @@ describe("Connection", () => {
             const vf: Buffer = Buffer.from(transaction.vendorField, "utf8");
             buffer.writeByte(vf.length);
             buffer.append(vf);
-        } else if (transaction.vendorFieldHex) {
-            buffer.writeByte(transaction.vendorFieldHex.length / 2);
-            buffer.append(transaction.vendorFieldHex, "hex");
         } else {
             buffer.writeByte(0x00);
         }
 
         // only for transfer right now
-        writeUint64("amount", +transaction.amount);
+        writeUint64("amount", transaction.amount);
         writeUint32("expiration", transaction.expiration || 0);
         append("recipientId", Utils.Base58.decodeCheck(transaction.recipientId));
 

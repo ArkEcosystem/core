@@ -1,6 +1,6 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers } from "@arkecosystem/core-transactions";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
@@ -25,14 +25,16 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
-            this.getConstructor().type,
-            this.getConstructor().typeGroup,
-        );
-        for (const transaction of transactions) {
-            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            wallet.setAttribute("business.resigned", true);
-            walletManager.reindex(wallet);
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+
+            for (const transaction of transactions) {
+                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                wallet.setAttribute("business.resigned", true);
+                walletManager.reindex(wallet);
+            }
         }
     }
 

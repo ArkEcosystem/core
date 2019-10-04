@@ -4,9 +4,9 @@ import { camelizeKeys, decamelizeKeys } from "xcase";
 
 const encodeBlock = block => {
     const blockCamelized = camelizeKeys(block);
-    blockCamelized.totalAmount = Utils.BigNumber.make(blockCamelized.totalAmount);
-    blockCamelized.totalFee = Utils.BigNumber.make(blockCamelized.totalFee);
-    blockCamelized.reward = Utils.BigNumber.make(blockCamelized.reward);
+    blockCamelized.totalAmount = Utils.BigNumber.make(block.total_amount);
+    blockCamelized.totalFee = Utils.BigNumber.make(block.total_fee);
+    blockCamelized.reward = Utils.BigNumber.make(block.reward);
 
     return Blocks.Block.serialize(blockCamelized, true);
 };
@@ -47,7 +47,7 @@ const decodeTransaction = (buffer: Buffer) => {
     transaction.timestamp = timestamp;
     transaction.amount = transaction.amount.toFixed();
     transaction.fee = transaction.fee.toFixed();
-    transaction.vendorFieldHex = transaction.vendorFieldHex ? transaction.vendorFieldHex : undefined;
+    transaction.vendorField = transaction.vendorField ? transaction.vendorField : undefined;
     transaction.recipientId = transaction.recipientId ? transaction.recipientId : undefined;
     transaction.serialized = serialized;
 

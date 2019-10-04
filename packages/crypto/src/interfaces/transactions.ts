@@ -63,7 +63,6 @@ export interface ITransactionData {
 
     asset?: ITransactionAsset;
     vendorField?: string;
-    vendorFieldHex?: string;
 
     id?: string;
     signature?: string;
@@ -94,7 +93,6 @@ export interface ITransactionJson {
 
     asset?: ITransactionAsset;
     vendorField?: string;
-    vendorFieldHex?: string;
 
     id?: string;
     signature?: string;
@@ -150,6 +148,8 @@ export interface IHtlcRefundAsset {
 export interface IHtlcLock extends IHtlcLockAsset {
     amount: BigNumber;
     recipientId: string;
+    timestamp: number;
+    vendorField: string;
 }
 
 export type IHtlcLocks = Record<string, IHtlcLock>;

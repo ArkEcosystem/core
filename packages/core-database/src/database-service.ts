@@ -107,6 +107,10 @@ export class DatabaseService implements Database.IDatabaseService {
                 this.logger.info(`Starting Round ${roundInfo.round.toLocaleString()}`);
 
                 try {
+                    if (nextHeight > 1) {
+                        this.detectMissedRound(this.forgingDelegates);
+                    }
+
                     const delegates: State.IWallet[] = this.walletManager.loadActiveDelegateList(roundInfo);
 
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
@@ -685,6 +689,34 @@ export class DatabaseService implements Database.IDatabaseService {
         const blocksPerDay: number = Math.ceil(86400 / blocktime);
         state.getBlocks().resize(blocksPerDay);
         state.getTransactions().resize(blocksPerDay * block.maxTransactions);
+    }
+
+    private detectMissedRound(delegates: State.IWallet[]): void {
+        if (!delegates || !this.blocksInCurrentRound) {
+            return;
+        }
+
+        if (this.blocksInCurrentRound.length === 1 && this.blocksInCurrentRound[0].data.height === 1) {
+            return;
+        }
+
+        for (const delegate of delegates) {
+            const producedBlocks: Interfaces.IBlock[] = this.blocksInCurrentRound.filter(
+                blockGenerator => blockGenerator.data.generatorPublicKey === delegate.publicKey,
+            );
+
+            if (producedBlocks.length === 0) {
+                const wallet: State.IWallet = this.walletManager.findByPublicKey(delegate.publicKey);
+
+                this.logger.debug(
+                    `Delegate ${wallet.getAttribute("delegate.username")} (${wallet.publicKey}) just missed a round.`,
+                );
+
+                this.emitter.emit(ApplicationEvents.RoundMissed, {
+                    delegate: wallet,
+                });
+            }
+        }
     }
 
     private async initializeActiveDelegates(height: number): Promise<void> {

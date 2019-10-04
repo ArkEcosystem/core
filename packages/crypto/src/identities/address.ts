@@ -2,7 +2,7 @@ import { HashAlgorithms } from "../crypto";
 import { AddressNetworkError, PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
-import { Base58 } from "../utils";
+import { Base58 } from "../utils/base58";
 import { PublicKey } from "./public-key";
 
 export class Address {

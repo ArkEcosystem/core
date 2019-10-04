@@ -11,7 +11,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         this.data.type = MultiPaymentTransaction.type;
         this.data.typeGroup = MultiPaymentTransaction.typeGroup;
         this.data.fee = MultiPaymentTransaction.staticFee();
-        this.data.vendorFieldHex = undefined;
+        this.data.vendorField = undefined;
         this.data.asset = {
             payments: [],
         };
@@ -34,7 +34,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
     public getStruct(): ITransactionData {
         const struct: ITransactionData = super.getStruct();
         struct.senderPublicKey = this.data.senderPublicKey;
-        struct.vendorFieldHex = this.data.vendorFieldHex;
+        struct.vendorField = this.data.vendorField;
         struct.amount = this.data.amount;
         struct.asset = this.data.asset;
 

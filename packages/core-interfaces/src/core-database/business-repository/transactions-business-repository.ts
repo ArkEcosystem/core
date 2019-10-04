@@ -23,7 +23,9 @@ export interface ITransactionsBusinessRepository {
 
     findByTypeAndId(type: number, id: string): Promise<Interfaces.ITransactionData>;
 
-    getAssetsByType(type: number, typeGroup?: number): Promise<any>;
+    getCountOfType(type: number, typeGroup?: number): Promise<number>;
+
+    getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<any>;
 
     getReceivedTransactions(): Promise<any>;
 

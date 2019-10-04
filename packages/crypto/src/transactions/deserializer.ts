@@ -63,7 +63,6 @@ class Deserializer {
         if (vendorFieldLength > 0) {
             if (transaction.hasVendorField()) {
                 const vendorFieldBuffer: Buffer = buf.readBytes(vendorFieldLength).toBuffer();
-                transaction.data.vendorFieldHex = vendorFieldBuffer.toString("hex"); // TODO: purpose?
                 transaction.data.vendorField = vendorFieldBuffer.toString("utf8");
             } else {
                 buf.skip(vendorFieldLength);

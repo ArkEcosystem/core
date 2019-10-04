@@ -1,13 +1,15 @@
 /* tslint:disable:no-shadowed-variable */
 import ByteBuffer from "bytebuffer";
+import Long from "long";
 import { Utils } from "..";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
-import { ITransaction, ITransactionData } from "../interfaces";
 import { ISerializeOptions } from "../interfaces";
+import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { isSupportedTansactionVersion } from "../utils";
+import { Base58 } from "../utils/base58";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -133,16 +135,7 @@ export class Serializer {
             }
         }
 
-        if (transaction.vendorFieldHex) {
-            const vf: Buffer = Buffer.from(transaction.vendorFieldHex, "hex");
-            const fillstart: number = vf.length;
-            for (let i = 0; i < fillstart; i++) {
-                bb.writeByte(vf[i]);
-            }
-            for (let i = fillstart; i < 64; i++) {
-                bb.writeByte(0);
-            }
-        } else if (transaction.vendorField) {
+        if (transaction.vendorField) {
             const vf: Buffer = Buffer.from(transaction.vendorField);
             const fillstart: number = vf.length;
             for (let i = 0; i < fillstart; i++) {
@@ -157,8 +150,8 @@ export class Serializer {
             }
         }
 
-        bb.writeInt64(+transaction.amount.toFixed());
-        bb.writeInt64(+transaction.fee.toFixed());
+        bb.writeInt64(Long.fromString(transaction.amount.toString()));
+        bb.writeInt64(Long.fromString(transaction.fee.toString()));
 
         if (assetSize > 0) {
             for (let i = 0; i < assetSize; i++) {
@@ -207,11 +200,11 @@ export class Serializer {
         } else {
             buffer.writeUint32(transaction.typeGroup);
             buffer.writeUint16(transaction.type);
-            buffer.writeUint64(+transaction.nonce);
+            buffer.writeUint64(Long.fromString(transaction.nonce.toString()));
         }
 
         buffer.append(transaction.senderPublicKey, "hex");
-        buffer.writeUint64(+transaction.fee);
+        buffer.writeUint64(Long.fromString(transaction.fee.toString()));
     }
 
     private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {
@@ -222,9 +215,6 @@ export class Serializer {
                 const vf: Buffer = Buffer.from(data.vendorField, "utf8");
                 buffer.writeByte(vf.length);
                 buffer.append(vf);
-            } else if (data.vendorFieldHex) {
-                buffer.writeByte(data.vendorFieldHex.length / 2);
-                buffer.append(data.vendorFieldHex, "hex");
             } else {
                 buffer.writeByte(0x00);
             }

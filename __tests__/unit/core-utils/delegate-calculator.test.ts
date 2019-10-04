@@ -36,6 +36,9 @@ describe("Delegate Calculator", () => {
             attributes.voteBalance = Utils.BigNumber.make(16500 * 1e8);
 
             expect(calculateApproval(delegate, 1)).toBe(1.65);
+
+            attributes.voteBalance = Utils.BigNumber.make(100 * 1e8);
+            expect(calculateApproval(delegate, 1)).toBe(0.01);
         });
     });
 

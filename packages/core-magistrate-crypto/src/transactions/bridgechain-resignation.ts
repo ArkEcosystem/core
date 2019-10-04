@@ -1,5 +1,6 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+import Long from "long";
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainResignationAsset } from "../interfaces";
 
@@ -43,7 +44,8 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
 
         const bridgechainResignationAsset = data.asset.bridgechainResignation as IBridgechainResignationAsset;
         const buffer: ByteBuffer = new ByteBuffer(8, true);
-        buffer.writeUint64(+bridgechainResignationAsset.bridgechainId);
+        buffer.writeUint64(Long.fromString(bridgechainResignationAsset.bridgechainId.toString()));
+
         return buffer;
     }
 

@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+import Long from "long";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { Address } from "../../identities";
 import { ISerializeOptions } from "../../interfaces";
@@ -22,12 +23,16 @@ export class HtlcLockTransaction extends Transaction {
         return configManager.getMilestone().aip11 && super.verify();
     }
 
+    public hasVendorField(): boolean {
+        return true;
+    }
+
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
 
         const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 1 + 4 + 21, true);
 
-        buffer.writeUint64(+data.amount);
+        buffer.writeUint64(Long.fromString(data.amount.toString()));
         buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
         buffer.writeUint8(data.asset.lock.expiration.type);
         buffer.writeUint32(data.asset.lock.expiration.value);

@@ -19,7 +19,7 @@ import {
 } from "../errors";
 import { Keys } from "../identities";
 import { IDecryptResult } from "../interfaces";
-import { Base58 } from "../utils";
+import { Base58 } from "../utils/base58";
 
 const SCRYPT_PARAMS = {
     N: 16384, // specified by BIP38

@@ -7,6 +7,7 @@ import { Registry, TransactionHandler } from "../../../packages/core-transaction
 import { TransactionHandlerConstructor } from "../../../packages/core-transactions/src/handlers/transaction";
 import { TransferTransactionHandler } from "../../../packages/core-transactions/src/handlers/transfer";
 
+import Long from "long";
 import { DeactivatedTransactionHandlerError } from "../../../packages/core-transactions/src/errors";
 import { testnet } from "../../../packages/crypto/src/networks";
 
@@ -43,7 +44,7 @@ class TestTransaction extends Transactions.Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
         const buffer = new ByteBuffer(24, true);
-        buffer.writeUint64(+data.amount);
+        buffer.writeUint64(Long.fromString(data.amount.toFixed()));
         buffer.writeUint32(data.expiration || 0);
         buffer.append(Utils.Base58.decodeCheck(data.recipientId));
         buffer.writeInt32(data.asset.test);
@@ -103,13 +104,13 @@ class TestTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }
 
 beforeAll(() => {
@@ -241,9 +242,7 @@ describe("Registry", () => {
     it("should throw when trying to use a deactivated transaction type", async () => {
         Managers.configManager.getMilestone().aip11 = false;
 
-        await expect(Registry.get(TransactionType.Ipfs)).rejects.toThrowError(
-            DeactivatedTransactionHandlerError,
-        );
+        await expect(Registry.get(TransactionType.Ipfs)).rejects.toThrowError(DeactivatedTransactionHandlerError);
 
         Managers.configManager.getMilestone().aip11 = true;
 
