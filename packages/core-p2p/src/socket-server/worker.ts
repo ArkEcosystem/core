@@ -114,9 +114,9 @@ export class Worker extends SCWorker {
             return next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
         }
 
-        // @TODO: check if this is still needed
-        if (!req.data) {
-            return next(this.createError(SocketErrors.HeadersRequired, "Request data and is mandatory"));
+        // ensure basic format of incoming data, req.data must be as { data, headers }
+        if (typeof req.data !== "object" || typeof req.data.data !== "object" || typeof req.data.headers !== "object") {
+            return next(this.createError(SocketErrors.HeadersRequired, "Request data is mandatory"));
         }
 
         try {
