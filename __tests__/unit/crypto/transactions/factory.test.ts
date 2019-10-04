@@ -101,6 +101,7 @@ describe("TransactionFactory", () => {
 
         // Old tests
         it("should match transaction id", () => {
+            configManager.setFromPreset("testnet");
             [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {

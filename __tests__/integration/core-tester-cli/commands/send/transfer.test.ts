@@ -27,7 +27,7 @@ afterEach(() => {
 
 describe("Commands - Transfer", () => {
     it("should postTransactions using custom smartBridge value", async () => {
-        const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
+        const expectedRecipientId = "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff";
         const expectedTransactionAmount = 2;
         const expectedFee = 0.1;
         const opts = {
@@ -53,7 +53,7 @@ describe("Commands - Transfer", () => {
 
     it("should generate n transactions", async () => {
         const expectedTxCount = 5;
-        const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
+        const expectedRecipientId = "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff";
         const opts = {
             amount: 2,
             transferFee: 2,
@@ -76,7 +76,7 @@ describe("Commands - Transfer", () => {
 
     it("should send n transactions to specified recipient", async () => {
         const expectedTxCount = 10;
-        const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
+        const expectedRecipientId = "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff";
         const opts = {
             amount: 2,
             transferFee: 0.1,
@@ -98,7 +98,7 @@ describe("Commands - Transfer", () => {
     it("should sign with 2nd passphrase if specified", async () => {
         const expectedTransactionAmount = 2;
         const expectedFee = 0.1;
-        const expectedRecipientId = "DFyUhQW52sNB5PZdS7VD9HknwYrSNHPQDq";
+        const expectedRecipientId = "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff";
 
         const opts = {
             amount: expectedTransactionAmount,
