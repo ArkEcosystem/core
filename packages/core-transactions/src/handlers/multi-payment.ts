@@ -29,7 +29,6 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
                     const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
                     recipient.balance = recipient.balance.plus(payment.amount);
                     sender.balance = sender.balance.minus(payment.amount);
-                    walletManager.reindex(recipient);
                 }
             }
         }
