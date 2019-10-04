@@ -4,6 +4,7 @@ import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { Address } from "../../identities";
 import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
 import { configManager } from "../../managers";
+import { Base58 } from "../../utils/base58";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";

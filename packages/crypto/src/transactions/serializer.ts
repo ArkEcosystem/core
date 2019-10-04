@@ -9,7 +9,6 @@ import { ISerializeOptions } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { isSupportedTansactionVersion } from "../utils";
-import { Base58 } from "../utils/base58";
 import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
