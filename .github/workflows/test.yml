@@ -89,7 +89,7 @@ jobs:
             - name: Docker swarm init
               run: docker swarm init
             - name: Install and build packages
-              run: yarn setup && cd __tests__/e2e && ../../node_modules/.bin/tsc && yarn install --frozen-lockfile
+              run: yarn setup && cd __tests__/e2e && ../../node_modules/.bin/tsc && yarn cache clean && yarn install --frozen-lockfile
             - name: Generate files
               run: node --version && cd __tests__/e2e && yarn generate -c 3 -v ${{ matrix.node-version }}
             - name: Make scripts executable
