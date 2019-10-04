@@ -66,6 +66,12 @@ export class PublicKeyError extends CryptoError {
     }
 }
 
+export class AddressNetworkError extends CryptoError {
+    constructor(expected: number, given: number) {
+        super(`Expected address network byte ${expected}, but got ${given}.`);
+    }
+}
+
 export class TransactionTypeError extends CryptoError {
     constructor(given: string) {
         super(`Type ${given} not supported.`);
@@ -136,8 +142,8 @@ export class PreviousBlockIdFormatError extends CryptoError {
     constructor(thisBlockHeight: number, previousBlockId: string) {
         super(
             `The config denotes that the block at height ${thisBlockHeight - 1} ` +
-            `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
-            `contains previous block id "${previousBlockId}"`,
+                `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
+                `contains previous block id "${previousBlockId}"`,
         );
     }
 }

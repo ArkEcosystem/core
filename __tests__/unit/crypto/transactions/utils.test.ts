@@ -3,7 +3,6 @@ import "jest-extended";
 import { Utils } from "@arkecosystem/crypto";
 import {
     InvalidTransactionBytesError,
-    TransactionSchemaError,
     TransactionTypeError,
     TransactionVersionError,
 } from "../../../../packages/crypto/src/errors";
@@ -16,6 +15,7 @@ import {
     TransactionFactory,
     Utils as TransactionUtils,
 } from "../../../../packages/crypto/src/transactions";
+import { TransactionFactory as TestTransactionFactory } from "../../../helpers/transaction-factory";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
 let transactionData: ITransactionData;
@@ -174,31 +174,31 @@ describe("Transaction", () => {
 
             let hex = transaction.serialized.toString("hex");
             hex = hex.slice(0, 2) + "04" + hex.slice(4);
-            expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionSchemaError);
+            expect(() => TransactionFactory.fromHex(hex)).toThrow(TransactionVersionError);
 
             configManager.setFromPreset("devnet");
         });
     });
 
     describe("getHash", () => {
-        const transaction = {
-            version: 1,
-            type: 0,
-            amount: Utils.BigNumber.make(1000),
-            fee: Utils.BigNumber.make(2000),
-            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
-            timestamp: 141738,
-            asset: {},
-            senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
-            signature:
-                "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-        };
+        let transaction: ITransactionData
+
+        beforeEach(() => {
+            configManager.setFromPreset("testnet");
+
+            transaction = TestTransactionFactory
+                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+                .withFee(2000)
+                .withPassphrase("secret")
+                .withVersion(2)
+                .createOne();
+        });
 
         it("should return Buffer and Buffer most be 32 bytes length", () => {
             const result = TransactionUtils.toHash(transaction);
             expect(result).toBeObject();
             expect(result).toHaveLength(32);
-            expect(result.toString("hex")).toBe("952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea");
+            expect(result.toString("hex")).toBe("27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c");
         });
 
         it("should throw for unsupported versions", () => {
@@ -209,22 +209,23 @@ describe("Transaction", () => {
     });
 
     describe("getId", () => {
-        const transaction = {
-            type: 0,
-            amount: Utils.BigNumber.make(1000),
-            fee: Utils.BigNumber.make(2000),
-            recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
-            timestamp: 141738,
-            asset: {},
-            senderPublicKey: "5d036a858ce89f844491762eb89e2bfbd50a4a0a0da658e4b2628b25b117ae09",
-            signature:
-                "618a54975212ead93df8c881655c625544bce8ed7ccdfe6f08a42eecfb1adebd051307be5014bb051617baf7815d50f62129e70918190361e5d4dd4796541b0a",
-        };
+        let transaction: ITransactionData
 
-        it("should return string id and be equal to 952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea", () => {
+        beforeEach(() => {
+            configManager.setFromPreset("testnet");
+
+            transaction = TestTransactionFactory
+                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+                .withFee(2000)
+                .withPassphrase("secret")
+                .withVersion(2)
+                .createOne();
+        });
+
+        it("should return string id and be equal to 27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c", () => {
             const id = TransactionUtils.getId(transaction); // old id
             expect(id).toBeString();
-            expect(id).toBe("952e33b66c35a3805015657c008e73a0dee1efefd9af8c41adb59fe79745ccea");
+            expect(id).toBe("27f68f1e62b9e6e3bc13b7113488f1e27263a4e47e7d9c7acd9c9af67d7fa11c");
         });
 
         it("should throw for unsupported version", () => {
