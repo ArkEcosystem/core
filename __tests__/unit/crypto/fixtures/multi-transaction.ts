@@ -5,7 +5,6 @@ export const multiTransaction = {
     timestamp: 25921690,
     senderPublicKey: "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece",
     fee: 9000000000,
-    vendorFieldHex: "776c386c777473386a65",
     asset: {
         multisignature: {
             min: 15,

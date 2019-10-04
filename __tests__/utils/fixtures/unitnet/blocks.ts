@@ -33,7 +33,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 5",
-            vendorFieldHex: "54657374205472616e73616374696f6e2035",
             version: 1,
         },
         {
@@ -49,7 +48,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 10",
-            vendorFieldHex: "54657374205472616e73616374696f6e203130",
             version: 1,
         },
         {
@@ -65,7 +63,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 8",
-            vendorFieldHex: "54657374205472616e73616374696f6e2038",
             version: 1,
         },
         {
@@ -81,7 +78,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 3",
-            vendorFieldHex: "54657374205472616e73616374696f6e2033",
             version: 1,
         },
         {
@@ -97,7 +93,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 1",
-            vendorFieldHex: "54657374205472616e73616374696f6e2031",
             version: 1,
         },
         {
@@ -113,7 +108,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 4",
-            vendorFieldHex: "54657374205472616e73616374696f6e2034",
             version: 1,
         },
         {
@@ -129,7 +123,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 2",
-            vendorFieldHex: "54657374205472616e73616374696f6e2032",
             version: 1,
         },
         {
@@ -145,7 +138,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 9",
-            vendorFieldHex: "54657374205472616e73616374696f6e2039",
             version: 1,
         },
         {
@@ -161,7 +153,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 6",
-            vendorFieldHex: "54657374205472616e73616374696f6e2036",
             version: 1,
         },
         {
@@ -177,7 +168,6 @@ export const block2 = {
             timestamp: 58557033,
             type: 0,
             vendorField: "Test Transaction 7",
-            vendorFieldHex: "54657374205472616e73616374696f6e2037",
             version: 1,
         },
     ],

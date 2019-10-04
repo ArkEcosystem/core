@@ -5,7 +5,7 @@ import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers } from "@arkecosystem/core-transactions";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
     BridgechainIsNotRegisteredError,
@@ -35,20 +35,22 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const transactions: Database.IBootstrapTransaction[] = await connection.transactionsRepository.getAssetsByType(
-            this.getConstructor().type,
-            this.getConstructor().typeGroup,
-        );
-        for (const transaction of transactions) {
-            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-            const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
-                "business",
-            );
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-            const { bridgechainId, seedNodes } = transaction.asset.bridgechainUpdate;
-            businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
 
-            walletManager.reindex(wallet);
+            for (const transaction of transactions) {
+                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
+                    "business",
+                );
+
+                const { bridgechainId, seedNodes } = transaction.asset.bridgechainUpdate;
+                businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
+
+                walletManager.reindex(wallet);
+            }
         }
     }
 
@@ -127,13 +129,12 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             "business",
         );
 
-        const transactionsRepository: Database.ITransactionsRepository = app.resolvePlugin<Database.IConnection>(
-            "database",
-        ).transactionsRepository;
-        const updateTransactions: Database.IBootstrapTransaction[] = await transactionsRepository.getAssetsByType(
-            Enums.MagistrateTransactionType.BridgechainUpdate,
-            Enums.MagistrateTransactionGroup,
-        );
+        const connection: Database.IConnection = app.resolvePlugin<Database.IConnection>("database");
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+        const updateTransactions: Database.IBootstrapTransaction[] = [];
+        while (reader.hasNext()) {
+            updateTransactions.push(...(await reader.read()));
+        }
 
         if (updateTransactions.length > 1) {
             const updateTransaction: Database.IBootstrapTransaction = updateTransactions.pop();

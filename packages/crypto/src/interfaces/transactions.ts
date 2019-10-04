@@ -63,7 +63,6 @@ export interface ITransactionData {
 
     asset?: ITransactionAsset;
     vendorField?: string;
-    vendorFieldHex?: string;
 
     id?: string;
     signature?: string;
@@ -94,7 +93,6 @@ export interface ITransactionJson {
 
     asset?: ITransactionAsset;
     vendorField?: string;
-    vendorFieldHex?: string;
 
     id?: string;
     signature?: string;

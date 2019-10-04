@@ -1107,7 +1107,7 @@ describe("Connection", () => {
                         // be greater or equal to the fee of curTransaction.
                     }
                     j++;
-                    expect(sortedTransactions[j].data.fee.isGreaterThanOrEqualTo(curTransaction.data.fee)).toBeTrue();
+                    expect(sortedTransactions[j].data.fee.isGreaterThanEqual(curTransaction.data.fee)).toBeTrue();
                 }
 
                 if (lastNonceBySender[curSender] !== undefined) {

@@ -20,4 +20,5 @@ export const migrations = [
     loadQueryFile(__dirname, "./20190806000000-add-nonce-column-to-transactions-table.sql"),
     loadQueryFile(__dirname, "./20190905000000-change-set_row_nonce-to-use-max-nonce.sql"),
     loadQueryFile(__dirname, "./20190917000000-add-asset-column-to-transactions-table.sql"),
+    loadQueryFile(__dirname, "./20191003000000-migrate-vendor-field-hex.sql"),
 ];
