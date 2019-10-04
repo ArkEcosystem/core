@@ -111,28 +111,31 @@ export class Worker extends SCWorker {
                 return;
             }
 
-            return next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
+            req.socket.terminate();
+            return;
         }
 
         // ensure basic format of incoming data, req.data must be as { data, headers }
         if (typeof req.data !== "object" || typeof req.data.data !== "object" || typeof req.data.headers !== "object") {
-            return next(this.createError(SocketErrors.HeadersRequired, "Request data is mandatory"));
+            req.socket.terminate();
+            return;
         }
 
         try {
             const [prefix, version] = req.event.split(".");
 
             if (prefix !== "p2p") {
-                req.socket.disconnect(4404, "Not Found");
+                req.socket.terminate();
                 return;
             }
 
             // Check that blockchain, tx-pool and p2p are ready
             const isAppReady: any = await this.sendToMasterAsync("p2p.utils.isAppReady");
 
-            for (const [plugin, ready] of Object.entries(isAppReady.data)) {
+            for (const [, ready] of Object.entries(isAppReady.data)) {
                 if (!ready) {
-                    return next(this.createError(SocketErrors.AppNotReady, `${plugin} isn't ready!`));
+                    req.socket.terminate();
+                    return;
                 }
             }
 
@@ -142,12 +145,8 @@ export class Worker extends SCWorker {
                 });
 
                 if (!data.authorized) {
-                    return next(
-                        this.createError(
-                            SocketErrors.ForgerNotAuthorized,
-                            "Not authorized: internal endpoint is only available for whitelisted forger",
-                        ),
-                    );
+                    req.socket.terminate();
+                    return;
                 }
             } else if (version === "peer") {
                 this.sendToMasterAsync("p2p.internal.acceptNewPeer", {
@@ -166,11 +165,8 @@ export class Worker extends SCWorker {
         } catch (e) {
             this.log(e.message, "error");
 
-            if (e.name === SocketErrors.Validation) {
-                return next(e);
-            }
-
-            return next(this.createError(SocketErrors.Unknown, "Unknown error"));
+            req.socket.terminate();
+            return;
         }
 
         next();
