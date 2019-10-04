@@ -101,11 +101,6 @@ describe("validator", () => {
                 expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).toBeUndefined();
             });
 
-            it("should not validate if address is not on the same network", () => {
-                configManager.setFromPreset("unitnet");
-                expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).not.toBeUndefined();
-            });
-
             it("should not be ok", () => {
                 expect(validator.validate("address", "€TRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh").error).not.toBeUndefined();
                 expect(validator.validate("address", "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9").error).not.toBeUndefined();

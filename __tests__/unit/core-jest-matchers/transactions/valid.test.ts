@@ -1,21 +1,18 @@
-import { Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers } from "@arkecosystem/crypto";
 import "../../../../packages/core-jest-matchers/src/transactions/valid";
+import { TransactionFactory } from '../../../helpers/transaction-factory';
 
-const transaction = {
-    version: 1,
-    network: 23,
-    type: 0,
-    timestamp: 35672738,
-    senderPublicKey: "03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357",
-    fee: Utils.BigNumber.make(10000000),
-    amount: Utils.BigNumber.make(200000000),
-    expiration: 0,
-    recipientId: "AFzQCx5YpGg5vKMBg4xbuYbqkhvMkKfKe5",
-    signature:
-        "304502210096ec6e27176fa694638d6fff35d7a551b2ed8c479a7e03264026eea41a05edd702206c071c97d1c6cc3bfec64dfff808cb0d5dfe857803428efb80bf7717b85cb619",
-    vendorField: "TID: 0",
-    id: "a5e9e6039675563959a783fa672c0ffe65369168a1ecffa3c89bf82961d8dbad",
-};
+let transaction: Interfaces.ITransactionData;
+
+beforeAll(() => {
+    Managers.configManager.setFromPreset("testnet");
+
+    transaction = TransactionFactory
+        .transfer("AaWAUV5hgDdUnpWHkD1a65AFQBayGgTaFF")
+        .withVersion(2)
+        .withPassphrase("poet virtual attend winter mushroom near manual dish exact palm siren motion")
+        .createOne();
+});
 
 describe(".toBeValidTransaction", () => {
     test("passes when given a valid transaction", () => {
