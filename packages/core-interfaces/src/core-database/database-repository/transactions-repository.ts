@@ -52,6 +52,10 @@ export interface ITransactionsRepository extends IRepository {
 
     getOpenHtlcLocks(): Promise<any>;
 
+    getRefundedHtlcLocks(): Promise<any>;
+
+    getClaimedHtlcLocks(): Promise<any>;
+
     getReceivedTransactions(): Promise<any>;
 
     getSentTransactions(): Promise<any>;

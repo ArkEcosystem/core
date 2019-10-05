@@ -33,6 +33,10 @@ export interface ITransactionsBusinessRepository {
 
     getOpenHtlcLocks(): Promise<any>;
 
+    getRefundedHtlcLocks(): Promise<any>;
+
+    getClaimedHtlcLocks(): Promise<any>;
+
     findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]>;
 
     getFeeStatistics(

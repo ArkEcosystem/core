@@ -20,7 +20,12 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        return;
+        const transactions = await connection.transactionsRepository.getRefundedHtlcLocks();
+
+        for (const transaction of transactions) {
+            const refundWallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey); // sender is from the original lock
+            refundWallet.balance = refundWallet.balance.plus(transaction.amount);
+        }
     }
 
     public async isActivated(): Promise<boolean> {
@@ -128,7 +133,16 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         lockWallet.balance = newBalance;
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
-        lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
+
+        const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
+        assert(!newLockedBalance.isNegative());
+
+        if (newLockedBalance.isZero()) {
+            lockWallet.forgetAttribute("htlc.lockedBalance");
+        } else {
+            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
+        }
+
         delete locks[lockId];
 
         walletManager.reindex(lockWallet);

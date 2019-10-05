@@ -20,7 +20,12 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        return;
+        const transactions = await connection.transactionsRepository.getClaimedHtlcLocks();
+
+        for (const transaction of transactions) {
+            const claimWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
+            claimWallet.balance = claimWallet.balance.plus(transaction.amount);
+        }
     }
 
     public async isActivated(): Promise<boolean> {
@@ -135,7 +140,16 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         recipientWallet.balance = newBalance;
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
-        lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
+
+        const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
+        assert(!newLockedBalance.isNegative());
+
+        if (newLockedBalance.isZero()) {
+            lockWallet.forgetAttribute("htlc.lockedBalance");
+        } else {
+            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
+        }
+
         delete locks[lockId];
 
         walletManager.reindex(sender);

@@ -112,6 +112,14 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
         return this.databaseServiceProvider().connection.transactionsRepository.getOpenHtlcLocks();
     }
 
+    public async getRefundedHtlcLocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getRefundedHtlcLocks();
+    }
+
+    public async getClaimedHtlcLocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getClaimedHtlcLocks();
+    }
+
     public async findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]> {
         return this.databaseServiceProvider().connection.transactionsRepository.findByHtlcLocks(lockIds);
     }

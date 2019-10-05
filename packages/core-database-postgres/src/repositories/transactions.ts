@@ -189,6 +189,14 @@ export class TransactionsRepository extends Repository implements Database.ITran
         return this.db.manyOrNone(queries.stateBuilder.openLocks);
     }
 
+    public async getRefundedHtlcLocks(): Promise<any> {
+        return this.db.manyOrNone(queries.stateBuilder.refundedLocks);
+    }
+
+    public async getClaimedHtlcLocks(): Promise<any> {
+        return this.db.manyOrNone(queries.stateBuilder.claimedLocks);
+    }
+
     public async findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]> {
         return this.db.manyOrNone(queries.transactions.findByHtlcLocks, { ids: lockIds });
     }
