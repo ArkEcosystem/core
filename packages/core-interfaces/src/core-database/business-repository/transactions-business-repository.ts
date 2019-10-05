@@ -31,6 +31,8 @@ export interface ITransactionsBusinessRepository {
 
     getSentTransactions(): Promise<any>;
 
+    getOpenHtlcLocks(): Promise<any>;
+
     findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]>;
 
     getFeeStatistics(

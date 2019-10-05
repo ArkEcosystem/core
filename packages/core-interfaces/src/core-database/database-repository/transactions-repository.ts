@@ -50,6 +50,8 @@ export interface ITransactionsRepository extends IRepository {
 
     getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<IBootstrapTransaction[]>;
 
+    getOpenHtlcLocks(): Promise<any>;
+
     getReceivedTransactions(): Promise<any>;
 
     getSentTransactions(): Promise<any>;
