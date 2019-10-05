@@ -178,6 +178,7 @@ export class Database {
             [
                 "id",
                 "version",
+                "nonce",
                 "block_id",
                 "sequence",
                 "timestamp",
@@ -185,7 +186,7 @@ export class Database {
                 "recipient_id",
                 "type",
                 "type_group",
-                "vendor_field_hex",
+                "vendor_field",
                 "amount",
                 "fee",
                 "serialized",

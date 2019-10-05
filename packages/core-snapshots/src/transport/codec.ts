@@ -4,8 +4,8 @@ import { camelizeKeys, decamelizeKeys } from "xcase";
 
 const encodeBlock = block => {
     const blockCamelized = camelizeKeys(block);
-    blockCamelized.totalAmount = Utils.BigNumber.make(block.total_amount);
-    blockCamelized.totalFee = Utils.BigNumber.make(block.total_fee);
+    blockCamelized.totalAmount = Utils.BigNumber.make(block.total_amount || block.totalAmount);
+    blockCamelized.totalFee = Utils.BigNumber.make(block.total_fee || block.totalFee);
     blockCamelized.reward = Utils.BigNumber.make(block.reward);
 
     return Blocks.Block.serialize(blockCamelized, true);
@@ -44,6 +44,11 @@ const decodeTransaction = (buffer: Buffer) => {
 
     transaction.block_id = blockId;
     transaction.sequence = sequence;
+    if (transaction.version === 1) {
+        transaction.nonce = "0"; // Will be set correctly at database level by an INSERT trigger
+    } else {
+        transaction.nonce = transaction.nonce.toFixed();
+    }
     transaction.timestamp = timestamp;
     transaction.amount = transaction.amount.toFixed();
     transaction.fee = transaction.fee.toFixed();
