@@ -2,7 +2,6 @@ import { app } from "@arkecosystem/core-container";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { HtlcLockExpiredError } from "../errors";
-import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 export class HtlcLockTransactionHandler extends TransactionHandler {
@@ -19,31 +18,31 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+        const transactions = await connection.transactionsRepository.getOpenHtlcLocks();
 
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
+        const walletsToIndex: Record<string, State.IWallet> = {};
+        for (const transaction of transactions) {
+            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
+            locks[transaction.id] = {
+                amount: Utils.BigNumber.make(transaction.amount),
+                recipientId: transaction.recipientId,
+                timestamp: transaction.timestamp,
+                vendorField: transaction.vendorField ? transaction.vendorField : undefined,
+                ...transaction.asset.lock,
+            };
+            wallet.setAttribute("htlc.locks", locks);
 
-            for (const transaction of transactions) {
-                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-                const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
-                locks[transaction.id] = {
-                    amount: Utils.BigNumber.make(transaction.amount),
-                    recipientId: transaction.recipientId,
-                    timestamp: transaction.timestamp,
-                    vendorField: transaction.vendorField ? transaction.vendorField : undefined,
-                    ...transaction.asset.lock,
-                };
-                wallet.setAttribute("htlc.locks", locks);
+            const lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+            wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
 
-                const lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
-                wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
-                walletManager.reindex(wallet);
+            const recipientWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
 
-                const recipientWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
-                walletManager.reindex(recipientWallet);
-            }
+            walletsToIndex[wallet.address] = wallet;
+            walletsToIndex[recipientWallet.address] = recipientWallet;
         }
+
+        walletManager.index(Object.values(walletsToIndex));
     }
 
     public async isActivated(): Promise<boolean> {

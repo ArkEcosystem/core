@@ -15,7 +15,7 @@ export class TransactionReader {
         return reader;
     }
 
-    public bufferSize: number = 2000;
+    public bufferSize: number = 10000;
 
     private index: number;
     private count: number;
