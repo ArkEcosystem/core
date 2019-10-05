@@ -186,7 +186,7 @@ export class Database {
                 "recipient_id",
                 "type",
                 "type_group",
-                "vendor_field_hex",
+                "vendor_field",
                 "amount",
                 "fee",
                 "serialized",
