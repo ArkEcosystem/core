@@ -4,8 +4,8 @@ import { camelizeKeys, decamelizeKeys } from "xcase";
 
 const encodeBlock = block => {
     const blockCamelized = camelizeKeys(block);
-    blockCamelized.totalAmount = Utils.BigNumber.make(block.total_amount);
-    blockCamelized.totalFee = Utils.BigNumber.make(block.total_fee);
+    blockCamelized.totalAmount = Utils.BigNumber.make(block.total_amount || block.totalAmount);
+    blockCamelized.totalFee = Utils.BigNumber.make(block.total_fee || block.totalFee);
     blockCamelized.reward = Utils.BigNumber.make(block.reward);
 
     return Blocks.Block.serialize(blockCamelized, true);
