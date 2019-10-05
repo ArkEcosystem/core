@@ -103,7 +103,7 @@ describe("Htlc claim handler bootstrap", () => {
                 .minus(lockTransaction.amount)
                 .minus(lockTransaction.fee),
         );
-        expect(senderWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+        expect(senderWallet.getAttribute("htlc.lockedBalance")).toEqual(undefined);
 
         const claimerWallet = walletManager.findByAddress(claimer.address);
         expect(claimerWallet.balance).toEqual(genesisWalletBalance(claimer));

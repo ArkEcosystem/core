@@ -1,6 +1,7 @@
 SELECT
   id,
   version,
+  nonce,
   block_id,
   sequence,
   timestamp,
@@ -8,7 +9,7 @@ SELECT
   recipient_id,
   type,
   type_group,
-  vendor_field_hex,
+  vendor_field,
   amount,
   fee,
   serialized,
@@ -18,4 +19,5 @@ FROM
 WHERE
   timestamp BETWEEN ${start} AND ${end}
 ORDER BY
-  timestamp
+  timestamp,
+  sequence

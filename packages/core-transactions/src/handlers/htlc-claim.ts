@@ -3,7 +3,6 @@ import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces"
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../errors";
-import { TransactionReader } from "../transaction-reader";
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -21,24 +20,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+        const transactions = await connection.transactionsRepository.getClaimedHtlcLocks();
 
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
-
-            for (const transaction of transactions) {
-                const lockId: string = transaction.asset.claim.lockTransactionId;
-                const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
-                const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
-                const claimWallet: State.IWallet = walletManager.findByAddress(locks[lockId].recipientId);
-                claimWallet.balance = claimWallet.balance.plus(locks[lockId].amount);
-
-                const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
-                lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
-                delete locks[lockId];
-
-                walletManager.reindex(lockWallet);
-            }
+        for (const transaction of transactions) {
+            const claimWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
+            claimWallet.balance = claimWallet.balance.plus(transaction.amount);
         }
     }
 
@@ -154,7 +140,16 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         recipientWallet.balance = newBalance;
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
-        lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.minus(locks[lockId].amount));
+
+        const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
+        assert(!newLockedBalance.isNegative());
+
+        if (newLockedBalance.isZero()) {
+            lockWallet.forgetAttribute("htlc.lockedBalance");
+        } else {
+            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
+        }
+
         delete locks[lockId];
 
         walletManager.reindex(sender);
@@ -184,7 +179,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const recipientWallet: State.IWallet = walletManager.findByAddress(lockTransaction.recipientId);
 
         recipientWallet.balance = recipientWallet.balance.minus(lockTransaction.amount).plus(data.fee);
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
+        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
@@ -192,9 +187,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
-            vendorField: lockTransaction.vendorField
-                ? lockTransaction.vendorField
-                : undefined,
+            vendorField: lockTransaction.vendorField ? lockTransaction.vendorField : undefined,
             ...lockTransaction.asset.lock,
         };
 
@@ -207,11 +200,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

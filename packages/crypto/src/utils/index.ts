@@ -55,11 +55,11 @@ export const maxVendorFieldLength = (height?: number): number => configManager.g
 export const isSupportedTansactionVersion = (version: number): boolean => {
     const aip11: boolean = configManager.getMilestone().aip11;
 
-    if (aip11 && version === 1) {
+    if (aip11 && version !== 2) {
         return false;
     }
 
-    if (!aip11 && version > 1) {
+    if (!aip11 && version !== 1) {
         return false;
     }
 

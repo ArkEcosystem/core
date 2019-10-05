@@ -29,7 +29,7 @@ export const schemas = {
 
     address: {
         $id: "address",
-        allOf: [{ minLength: 34, maxLength: 34 }, { $ref: "base58" }, { addressOnNetwork: true }],
+        allOf: [{ minLength: 34, maxLength: 34 }, { $ref: "base58" }],
     },
 
     publicKey: {

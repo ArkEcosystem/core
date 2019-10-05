@@ -94,7 +94,7 @@ describe("Htlc refund handler bootstrap", () => {
         const senderWallet = walletManager.findByAddress(sender.address);
 
         expect(senderWallet.balance).toEqual(genesisWalletBalance(sender).minus(lockTransaction.fee));
-        expect(senderWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+        expect(senderWallet.getAttribute("htlc.lockedBalance")).toEqual(undefined);
 
         const refunderWallet = walletManager.findByAddress(refunder.address);
         expect(refunderWallet.balance).toEqual(genesisWalletBalance(refunder));

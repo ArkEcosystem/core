@@ -1,6 +1,7 @@
 import ByteBuffer from "bytebuffer";
 import Long from "long";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
+import { Address } from "../../identities";
 import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
 import { configManager } from "../../managers";
 import { Base58 } from "../../utils/base58";
@@ -49,7 +50,7 @@ export class MultiPaymentTransaction extends Transaction {
         for (let j = 0; j < total; j++) {
             payments.push({
                 amount: BigNumber.make(buf.readUint64().toString()),
-                recipientId: Base58.encodeCheck(buf.readBytes(21).toBuffer()),
+                recipientId: Address.fromBuffer(buf.readBytes(21).toBuffer()),
             });
         }
 
