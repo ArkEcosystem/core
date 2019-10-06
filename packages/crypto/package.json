@@ -40,16 +40,17 @@
         "bytebuffer": "^5.0.1",
         "dayjs": "^1.8.15",
         "deepmerge": "^4.0.0",
+        "fast-memoize": "^2.5.1",
         "ipaddr.js": "^1.9.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
         "lodash.sumby": "^4.6.0",
+        "long": "^4.0.0",
         "node-forge": "^0.9.0",
         "otplib": "^11.0.1",
         "pluralize": "^8.0.0",
         "tiny-glob": "^0.2.6",
-        "wif": "^2.0.6",
-        "fast-memoize": "^2.5.1"
+        "wif": "^2.0.6"
     },
     "devDependencies": {
         "@types/bip32": "^1.0.2",
@@ -65,10 +66,10 @@
         "@types/pluralize": "^0.0.29",
         "@types/wif": "^2.0.1",
         "rollup": "^1.17.0",
-        "rollup-plugin-terser": "^5.1.1",
         "rollup-plugin-commonjs": "^10.0.1",
         "rollup-plugin-json": "^4.0.0",
-        "rollup-plugin-node-resolve": "^5.2.0"
+        "rollup-plugin-node-resolve": "^5.2.0",
+        "rollup-plugin-terser": "^5.1.1"
     },
     "publishConfig": {
         "access": "public"
