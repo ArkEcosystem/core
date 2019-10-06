@@ -60,7 +60,7 @@ export class Delegate {
     }
 
     public encryptKeysWithOtp(): void {
-        this.otp = authenticator.generate(this.otpSecret);
+        this.otp = forge.random.getBytesSync(16);
 
         const wifKey: string = Identities.WIF.fromKeys(this.keys, this.network);
 
@@ -132,7 +132,7 @@ export class Delegate {
             "AES-CBC",
             forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
         );
-        cipher.start({ iv: forge.util.decode64(this.otp) });
+        cipher.start({ iv: this.otp });
         cipher.update(forge.util.createBuffer(content));
         cipher.finish();
 
@@ -144,7 +144,7 @@ export class Delegate {
             "AES-CBC",
             forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
         );
-        decipher.start({ iv: forge.util.decode64(this.otp) });
+        decipher.start({ iv: this.otp });
         decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)));
         decipher.finish();
 
