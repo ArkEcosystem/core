@@ -19,13 +19,13 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.5.0-next.10",
-        "newrelic": "^5.10.0"
+        "newrelic": "^5.13.0"
     },
     "devDependencies": {
-        "@types/newrelic": "^5.0.0"
+        "@types/newrelic": "^5.11.0"
     },
     "engines": {
-        "node": ">=10.x <11.0.0"
+        "node": ">=10.x"
     },
     "publishConfig": {
         "access": "public"
