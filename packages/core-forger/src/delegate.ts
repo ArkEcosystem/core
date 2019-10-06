@@ -1,6 +1,5 @@
 import { Blocks, Crypto, Identities, Interfaces, Types, Utils } from "@arkecosystem/crypto";
 import forge from "node-forge";
-import { authenticator } from "otplib";
 import wif from "wif";
 
 export class Delegate {
@@ -43,7 +42,7 @@ export class Delegate {
                 this.keys = Delegate.decryptPassphrase(passphrase, network, password);
                 this.publicKey = this.keys.publicKey;
                 this.address = Identities.Address.fromPublicKey(this.keys.publicKey, network.pubKeyHash);
-                this.otpSecret = authenticator.generateSecret();
+                this.otpSecret = forge.random.getBytesSync(128);
                 this.bip38 = true;
 
                 this.encryptKeysWithOtp();
@@ -60,12 +59,11 @@ export class Delegate {
     }
 
     public encryptKeysWithOtp(): void {
-        this.otp = forge.random.getBytesSync(16);
-
         const wifKey: string = Identities.WIF.fromKeys(this.keys, this.network);
 
-        this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
         this.keys = undefined;
+        this.otp = forge.random.getBytesSync(16);
+        this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
     }
 
     public decryptKeysWithOtp(): void {

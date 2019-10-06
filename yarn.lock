@@ -3149,11 +3149,6 @@
   resolved "https://registry.yarnpkg.com/@types/normalize-package-data/-/normalize-package-data-2.4.0.tgz#e486d0d97396d79beedd0a6e33f4534ff6b4973e"
   integrity sha512-f5j5b/Gf71L+dbqxIpQ4Z2WlmI/mPJ0fOkGGmFgtb6sAu97EPczzbS3/tJKxmcYDj55OX6ssqwDAWOHIYDRDGA==
 
-"@types/otplib@^7.0.0":
-  version "7.0.0"
-  resolved "https://registry.yarnpkg.com/@types/otplib/-/otplib-7.0.0.tgz#bc608c8771cba0f4417478eef79ef3f79c47e9f6"
-  integrity sha512-OZFn1eVNRGpaCfVZhTCIeSlHfxXM1oe1qtu9w07hWfH4nHiDo+tI6b6pIrOCNKQN9gYOP2M4Q43YvkT1R50deA==
-
 "@types/pg-query-stream@^1.0.2":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@types/pg-query-stream/-/pg-query-stream-1.0.3.tgz#3b858d4a0f66fbb73e6927ea53ef5bf375f88f85"
@@ -8909,6 +8904,11 @@ logform@^2.1.1:
     fecha "^2.3.3"
     ms "^2.1.1"
     triple-beam "^1.3.0"
+
+long@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/long/-/long-4.0.0.tgz#9a7b71cfb7d361a194ea555241c92f7468d5bf28"
+  integrity sha512-XsP+KhQif4bjX1kbuSiySJFNAehNxgLb6hPRGJ9QsUr8ajHkuXGdrHmFUTUUXhDwVX2R5bY4JNZEwbUiMhV+MA==
 
 long@~3:
   version "3.2.0"
