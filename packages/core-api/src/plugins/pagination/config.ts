@@ -3,16 +3,19 @@
 import Joi from "@hapi/joi";
 
 export const getConfig = options => {
-    const { error, value } = Joi.validate(options, {
-        query: Joi.object({
-            limit: Joi.object({
-                default: Joi.number()
-                    .integer()
-                    .positive()
-                    .default(100),
-            }),
-        }),
-    });
+    const { error, value } = Joi.validate(
+        options,
+        Joi.object({
+            query: Joi.object({
+                limit: Joi.object({
+                    default: Joi.number()
+                        .integer()
+                        .positive()
+                        .default(100),
+                }),
+            }).unknown(),
+        }).unknown(),
+    );
 
     return { error: error || undefined, config: error ? undefined : value };
 };
