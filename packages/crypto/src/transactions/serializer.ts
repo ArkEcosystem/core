@@ -149,8 +149,8 @@ export class Serializer {
             }
         }
 
-        bb.writeInt64(Long.fromString(transaction.amount.toString()));
-        bb.writeInt64(Long.fromString(transaction.fee.toString()));
+        bb.writeInt64(Long.fromString(transaction.amount.toString(), true).toNumber());
+        bb.writeInt64(Long.fromString(transaction.fee.toString(), true).toNumber());
 
         if (assetSize > 0) {
             for (let i = 0; i < assetSize; i++) {
@@ -199,11 +199,11 @@ export class Serializer {
         } else {
             buffer.writeUint32(transaction.typeGroup);
             buffer.writeUint16(transaction.type);
-            buffer.writeUint64(Long.fromString(transaction.nonce.toString()));
+            buffer.writeUint64(Long.fromString(transaction.nonce.toString(), true).toNumber());
         }
 
         buffer.append(transaction.senderPublicKey, "hex");
-        buffer.writeUint64(Long.fromString(transaction.fee.toString()));
+        buffer.writeUint64(Long.fromString(transaction.fee.toString(), true).toNumber());
     }
 
     private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {

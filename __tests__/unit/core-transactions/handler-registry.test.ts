@@ -44,7 +44,7 @@ class TestTransaction extends Transactions.Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
         const buffer = new ByteBuffer(24, true);
-        buffer.writeUint64(Long.fromString(data.amount.toFixed()));
+        buffer.writeUint64(Long.fromString(data.amount.toFixed(), true).toNumber());
         buffer.writeUint32(data.expiration || 0);
         buffer.append(Utils.Base58.decodeCheck(data.recipientId));
         buffer.writeInt32(data.asset.test);
