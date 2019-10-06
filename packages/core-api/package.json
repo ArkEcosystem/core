@@ -33,6 +33,7 @@
         "ajv": "^6.10.2",
         "bs58check": "^2.1.2",
         "dayjs": "^1.8.15",
+        "dottie": "^2.0.1",
         "hapi-rate-limit": "^4.0.0",
         "ip": "^1.1.5",
         "lodash.groupby": "^4.6.0",
