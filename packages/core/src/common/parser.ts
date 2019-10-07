@@ -1,3 +1,4 @@
+import { Paths } from "env-paths";
 import { existsSync, readdirSync } from "fs-extra";
 import prompts from "prompts";
 
@@ -7,7 +8,7 @@ import { getEnvPaths, getPaths } from "./env";
 import { isValidNetwork } from "./networks";
 
 // todo: review the implementation
-export const parseWithNetwork = async ({ args, flags }): Promise<any> => {
+export const parseWithNetwork = async ({ args, flags }): Promise<{ args: any; flags: any; paths: Paths }> => {
     if (!flags.token) {
         flags.token = configManager.get("token");
     }

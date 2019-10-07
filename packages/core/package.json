@@ -87,6 +87,8 @@
         "prompts": "^2.2.1",
         "read-last-lines": "^1.7.1",
         "semver": "^6.3.0",
+        "simple-git": "^1.126.0",
+        "tar": "^5.0.5",
         "wif": "^2.0.6"
     },
     "devDependencies": {

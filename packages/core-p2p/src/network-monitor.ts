@@ -62,7 +62,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         } else {
             await this.updateNetworkStatus(true);
 
-            for (const [version, peers] of Object.entries(Utils.groupBy(this.storage.getPeers(), "version"))) {
+            for (const [version, peers] of Object.entries(
+                Utils.groupBy(this.storage.getPeers(), peer => peer.version),
+            )) {
                 this.logger.info(`Discovered ${Utils.pluralize("peer", peers.length, true)} with v${version}.`);
             }
         }
@@ -239,9 +241,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             return { forked: false };
         }
 
-        const groupedByCommonHeight = Utils.groupBy(allPeers, "verification.highestCommonHeight");
+        const groupedByCommonHeight = Utils.groupBy(allPeers, peer => peer.verification.highestCommonHeight);
 
-        const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), "length");
+        const groupedByLength = Utils.groupBy(Object.values(groupedByCommonHeight), peer => peer.length);
 
         // Sort by longest
         // @ts-ignore
