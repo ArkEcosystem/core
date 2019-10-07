@@ -26,7 +26,7 @@ export class TransferTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(24, true);
-        buffer.writeUint64(Long.fromString(data.amount.toString(), true).toNumber());
+        buffer.writeUint64(Long.fromString(data.amount.toString()));
         buffer.writeUint32(data.expiration || 0);
         buffer.append(Address.toBuffer(data.recipientId));
 

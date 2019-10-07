@@ -35,7 +35,7 @@ export class MultiPaymentTransaction extends Transaction {
         buffer.writeUint16(data.asset.payments.length);
 
         for (const p of data.asset.payments) {
-            buffer.writeUint64(Long.fromString(p.amount.toString(), true).toNumber());
+            buffer.writeUint64(Long.fromString(p.amount.toString()));
             buffer.append(Base58.decodeCheck(p.recipientId));
         }
 

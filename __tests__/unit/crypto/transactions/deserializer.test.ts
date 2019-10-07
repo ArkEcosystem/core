@@ -479,9 +479,9 @@ describe("Transaction serializer / deserializer", () => {
                 buffer.writeByte(transaction.network);
                 buffer.writeUint32(Enums.TransactionTypeGroup.Core);
                 buffer.writeUint16(transaction.type);
-                buffer.writeUint64(Long.fromString(transaction.nonce.toFixed(), true).toNumber());
+                buffer.writeUint64(Long.fromString(transaction.nonce.toFixed()));
                 buffer.append(transaction.senderPublicKey, "hex");
-                buffer.writeUint64(Long.fromString(Utils.BigNumber.make(transaction.fee).toFixed(), true).toNumber());
+                buffer.writeUint64(Long.fromString(Utils.BigNumber.make(transaction.fee).toFixed()));
                 buffer.writeByte(0x00);
 
                 return Buffer.from(buffer.flip().toBuffer());

@@ -115,9 +115,7 @@ describe("Connection", () => {
         const writeUint32 = (txField, value) =>
             options[txField] ? options[txField](buffer) : buffer.writeUint32(value);
         const writeUint64 = (txField, value) =>
-            options[txField]
-                ? options[txField](buffer)
-                : buffer.writeUint64(Long.fromString(value.toFixed(), true).toNumber());
+            options[txField] ? options[txField](buffer) : buffer.writeUint64(Long.fromString(value.toFixed()));
         const append = (txField, value, encoding = "utf8") =>
             options[txField] ? options[txField](buffer) : buffer.append(value, encoding);
 

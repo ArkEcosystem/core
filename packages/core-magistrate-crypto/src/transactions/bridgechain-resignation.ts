@@ -44,7 +44,7 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
 
         const bridgechainResignationAsset = data.asset.bridgechainResignation as IBridgechainResignationAsset;
         const buffer: ByteBuffer = new ByteBuffer(8, true);
-        buffer.writeUint64(Long.fromString(bridgechainResignationAsset.bridgechainId.toString(), true).toNumber());
+        buffer.writeUint64(Long.fromString(bridgechainResignationAsset.bridgechainId.toString()));
 
         return buffer;
     }
