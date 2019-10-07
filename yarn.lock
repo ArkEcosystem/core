@@ -54,27 +54,15 @@
     uuid "^3.3.2"
     wif "^2.0.6"
 
-"@arkecosystem/utils@0.8.3":
-  version "0.8.3"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.8.3.tgz#1ab84a463a5bf4df4788da9e4c92bc592e9bcfa6"
-  integrity sha512-uRqMLW7qrPDGpYFpJ+LgtfM4ecSZJzcERZBZ8rjIdC9IgAHPDJaXRaoXw5pHw5YopD2LGyUvfMw9EPze15hfTw==
+"@arkecosystem/utils@0.8.8", "@arkecosystem/utils@^0.8.0":
+  version "0.8.8"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.8.8.tgz#1072fc6cde12edb821df4dd37760f4e09b04125b"
+  integrity sha512-RT8lyu3KCM4v/9DAYjazlN6ByXRIiEWPLe4AhGgtWP1VmUwT6czDlNsznH27WOUv1YryEl9kh/upaYejDWH1OQ==
   dependencies:
     "@hapi/bourne" "^1.3.2"
     fast-copy "^2.0.3"
     fast-deep-equal "^2.0.1"
     fast-sort "^1.5.6"
-
-"@arkecosystem/utils@^0.3.0":
-  version "0.3.0"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.3.0.tgz#f0d6040ab0134ee7db046ab8246cb17b2c5b9867"
-  integrity sha512-FNHihowzUItP8qQC8m8I2/XFogffjynbhIlQaAAvAQHep3QDfPL4Rr92iGdCDzpPpP166GlorkHD7344PfgxzA==
-  dependencies:
-    "@flatten/array" "^1.1.7"
-    dottie "^2.0.1"
-    fast-safe-stringify "^2.0.6"
-    fast-sort "^1.5.4"
-    fast.js "^0.1.1"
-    hyperid "^2.0.1"
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.5.5":
   version "7.5.5"
@@ -845,11 +833,6 @@
     ipaddr.js "^1.9.0"
     lodash.flatten "^4.4.0"
     lodash.map "^4.6.0"
-
-"@flatten/array@^1.1.7":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@flatten/array/-/array-1.1.8.tgz#5cce316da119d7851ae51e08adb1af714b7f05b9"
-  integrity sha512-6zP/OIuGkE+p7jdS0VwyqHoCjK0cuCsO+StkBEV1eHQ40m/A6o2+NnRB6G9h+OnYV4C4o8mZakWY56QUrsM6fA==
 
 "@hapi/accept@3.x.x":
   version "3.2.3"
@@ -6276,15 +6259,10 @@ fast-safe-stringify@2.x.x, fast-safe-stringify@^2.0.4, fast-safe-stringify@^2.0.
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.7.tgz#124aa885899261f68aedb42a7c080de9da608743"
   integrity sha512-Utm6CdzT+6xsDk2m8S6uL8VHxNwI6Jub+e9NYTcAms28T84pTa25GJQV9j0CY0N1rM8hK4x6grpF2BQf+2qwVA==
 
-fast-sort@^1.5.4, fast-sort@^1.5.6:
+fast-sort@^1.5.6:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/fast-sort/-/fast-sort-1.6.0.tgz#68c6d94ce309ead19d562014159902c80c68d0a0"
   integrity sha512-sjV6dxWdHs14cef7GzJgCWSOagw57cUBYMey+seWeOsU0HgMf2g4Wkdflv65X/8E4UWptUcq9EZ3YqSXUnUy9Q==
-
-fast.js@^0.1.1:
-  version "0.1.1"
-  resolved "https://registry.yarnpkg.com/fast.js/-/fast.js-0.1.1.tgz#7c024d55ae144882fbcee44b79005fe2dcabd9fe"
-  integrity sha1-fAJNVa4USIL7zuRLeQBf4tyr2f4=
 
 fastq@^1.6.0:
   version "1.6.0"
@@ -7104,14 +7082,6 @@ husky@^3.0.0:
     read-pkg "^5.1.1"
     run-node "^1.0.0"
     slash "^3.0.0"
-
-hyperid@^2.0.1:
-  version "2.0.2"
-  resolved "https://registry.yarnpkg.com/hyperid/-/hyperid-2.0.2.tgz#f56d898f810f0b737c81475803ea4b63515a92d5"
-  integrity sha512-D4krJfLyXZTZZibL5CEUJzyL001ah1TOK+5wlsra9eMnb0RtMZcBRkblxVRDwzB9VIm9PKXJ4zZtAisFCKuuKQ==
-  dependencies:
-    uuid "^3.3.2"
-    uuid-parse "^1.0.0"
 
 hyperlinker@^1.0.0:
   version "1.0.0"
@@ -13314,11 +13284,6 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
-
-uuid-parse@^1.0.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/uuid-parse/-/uuid-parse-1.1.0.tgz#7061c5a1384ae0e1f943c538094597e1b5f3a65b"
-  integrity sha512-OdmXxA8rDsQ7YpNVbKSJkNzTw2I+S5WsbMDnCtIWSQaosNAcWtFuI/YK1TjzUI6nbkgiqEyh8gWngfcv8Asd9A==
 
 uuid@3.0.x:
   version "3.0.1"
