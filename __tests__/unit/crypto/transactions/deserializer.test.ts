@@ -468,7 +468,7 @@ describe("Transaction serializer / deserializer", () => {
     describe("deserialize - others", () => {
         beforeAll(() => {
             configManager.setFromPreset("testnet");
-        })
+        });
 
         it("should throw if type is not supported", () => {
             const serializeWrongType = (transaction: ITransactionData) => {
