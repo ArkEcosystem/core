@@ -23,7 +23,7 @@
     "dependencies": {
         "@arkecosystem/crypto": "^2.5.0-next.10",
         "bytebuffer": "^5.0.1",
-        "long": "~3"
+        "long": "~4.0.0"
     },
     "publishConfig": {
         "access": "public"
