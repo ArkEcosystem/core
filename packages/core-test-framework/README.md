@@ -1,4 +1,4 @@
-# ARK Core - Jest Matchers
+# ARK Core - Test Framework
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/ARKEcosystem/core/master/banner.png" />
@@ -6,7 +6,7 @@
 
 ## Documentation
 
-You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-jest-matchers.html).
+You can find installation instructions and detailed instructions on how to use this package at the [dedicated documentation site](https://docs.ark.io/guidebook/core/plugins/core-test-framework.html).
 
 ## Security
 

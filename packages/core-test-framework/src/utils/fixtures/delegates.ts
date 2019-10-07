@@ -7,8 +7,8 @@ import { Identities, Managers } from "@arkecosystem/crypto";
 
 Managers.configManager.setFromPreset("unitnet");
 
-import { secrets } from "../../config/unitnet/delegates.json";
-import { genesisBlock } from "../../config/unitnet/genesisBlock";
+import { secrets } from "../config/delegates.json";
+import { genesisBlock } from "../config/genesisBlock";
 
 export const delegates: any = secrets.map(secret => {
     const publicKey: string = Identities.PublicKey.fromPassphrase(secret);

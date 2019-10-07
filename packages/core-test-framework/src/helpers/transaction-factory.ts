@@ -1,8 +1,7 @@
-import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
 
-import { secrets } from "../utils/config/testnet/delegates.json";
+import { secrets } from "../utils/config/delegates.json";
 
 const defaultPassphrase: string = secrets[0];
 
@@ -116,7 +115,7 @@ export class TransactionFactory {
 
     public static getNonce(publicKey: string): Utils.BigNumber {
         try {
-            return app.resolvePlugin<Database.IDatabaseService>("database").walletRepository.getNonce(publicKey);
+            return app.get<Contracts.Database.DatabaseService>("database").walletRepository.getNonce(publicKey);
         } catch {
             return Utils.BigNumber.ZERO;
         }
