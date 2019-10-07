@@ -67,6 +67,7 @@ describe("Peer socket endpoint", () => {
         it("should getPeers", async () => {
             const { data } = await emit("p2p.peer.getPeers", {
                 headers,
+                data: {},
             });
 
             expect(data).toBeArray();
@@ -75,6 +76,7 @@ describe("Peer socket endpoint", () => {
         it("should getStatus", async () => {
             const { data } = await emit("p2p.peer.getStatus", {
                 headers,
+                data: {},
             });
 
             expect(data.state.height).toBe(1);
@@ -177,6 +179,7 @@ describe("Peer socket endpoint", () => {
             for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 });
                 expect(data.state.height).toBeNumber();
             }
@@ -184,6 +187,7 @@ describe("Peer socket endpoint", () => {
             for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 });
                 expect(data.state.height).toBeNumber();
             }
@@ -194,6 +198,7 @@ describe("Peer socket endpoint", () => {
             for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 });
                 expect(data.state.height).toBeNumber();
             }
@@ -201,6 +206,7 @@ describe("Peer socket endpoint", () => {
             await expect(
                 emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 }),
             ).rejects.toHaveProperty("name", "CoreRateLimitExceededError");
         });
@@ -225,6 +231,7 @@ describe("Peer socket endpoint", () => {
             await expect(
                 emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 }),
             ).toResolve();
 
@@ -246,6 +253,7 @@ describe("Peer socket endpoint", () => {
                     "p2p.internal.eventNameIsTooLongSoShouldCloseTheConnectionWithCode4413AsItTheEventNameExceedsTheMaximumPermittedLengthSizeOf128Characters",
                     {
                         headers,
+                        data: {},
                     },
                 ),
             ).rejects.toHaveProperty("name", "BadConnectionError");
@@ -257,6 +265,7 @@ describe("Peer socket endpoint", () => {
             await expect(
                 emit("p3p.peer.getStatus", {
                     headers,
+                    data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
         });
@@ -267,6 +276,7 @@ describe("Peer socket endpoint", () => {
             await expect(
                 emit("p2p.invalid.getStatus", {
                     headers,
+                    data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
         });
@@ -276,6 +286,7 @@ describe("Peer socket endpoint", () => {
 
             await emit("p2p.peer.getPeers", {
                 headers,
+                data: {},
             });
 
             expect(socket.state).toBe("open");
@@ -284,6 +295,7 @@ describe("Peer socket endpoint", () => {
                 await expect(
                     emit("p2p.peer.getPeers", {
                         headers,
+                        data: {},
                     }),
                 ).rejects.toContainAnyEntries([["name", "CoreRateLimitExceededError"], ["name", "BadConnectionError"]]);
             }
