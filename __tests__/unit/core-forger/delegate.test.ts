@@ -44,7 +44,11 @@ describe("Delegate", () => {
 
     describe("encryptPassphrase", () => {
         it("should pass with valid data", () => {
-            const passphrase = Delegate.encryptPassphrase(dummy.plainPassphrase, Networks.testnet.network, "bip38-password");
+            const passphrase = Delegate.encryptPassphrase(
+                dummy.plainPassphrase,
+                Networks.testnet.network,
+                "bip38-password",
+            );
 
             expect(passphrase).toBe(dummy.bip38Passphrase);
         });
@@ -58,7 +62,11 @@ describe("Delegate", () => {
 
     describe("decryptPassphrase", () => {
         it("should pass with a valid password", () => {
-            const { publicKey } = Delegate.decryptPassphrase(dummy.bip38Passphrase, Networks.testnet.network, "bip38-password");
+            const { publicKey } = Delegate.decryptPassphrase(
+                dummy.bip38Passphrase,
+                Networks.testnet.network,
+                "bip38-password",
+            );
 
             expect(publicKey).toBe(dummy.publicKey);
         });

@@ -32,7 +32,6 @@
         "lodash.isempty": "^4.4.0",
         "lodash.uniq": "^4.5.0",
         "node-forge": "^0.9.0",
-        "otplib": "^11.0.1",
         "pluralize": "^8.0.0",
         "socketcluster-client": "^14.2.2",
         "wif": "^2.0.6"
@@ -41,7 +40,6 @@
         "@types/lodash.isempty": "^4.4.6",
         "@types/lodash.uniq": "^4.5.6",
         "@types/node-forge": "^0.8.4",
-        "@types/otplib": "^7.0.0",
         "@types/pluralize": "^0.0.29",
         "@types/socketcluster-client": "^13.0.3",
         "@types/wif": "^2.0.1"
