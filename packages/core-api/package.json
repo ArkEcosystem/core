@@ -43,7 +43,7 @@
     },
     "devDependencies": {
         "@types/hapi__boom": "^7.4.0",
-        "@types/hapi__joi": "^15.0.2",
+        "@types/hapi__joi": "^16.0.0",
         "@types/ip": "^1.1.0",
         "@types/lodash.groupby": "^4.6.6",
         "@types/lodash.orderby": "^4.6.6",

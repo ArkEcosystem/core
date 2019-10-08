@@ -33,7 +33,7 @@
     "devDependencies": {
         "@types/fs-extra": "^8.0.0",
         "@types/hapi__boom": "^7.4.0",
-        "@types/hapi__joi": "^15.0.2",
+        "@types/hapi__joi": "^16.0.0",
         "@types/uuid": "^3.4.5"
     },
     "engines": {
