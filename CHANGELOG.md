@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.26] - 2019-10-07
+
+### Changed
+
+-   Integrate hapi-pagination to replace fork ([#3030])
+
 ## [2.5.25] - 2019-09-19
 
 ### Fixed
@@ -974,3 +980,4 @@ Closed security vulnerabilities:
 [#2894]: https://github.com/ARKEcosystem/core/pull/2894
 [#2907]: https://github.com/ARKEcosystem/core/pull/2907
 [#2945]: https://github.com/ARKEcosystem/core/pull/2945
+[#3030]: https://github.com/ARKEcosystem/core/pull/3030
