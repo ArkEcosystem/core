@@ -28,7 +28,7 @@
         "@arkecosystem/core-transactions": "^2.5.0-next.10",
         "@arkecosystem/core-utils": "^2.5.0-next.10",
         "@arkecosystem/crypto": "^2.5.0-next.10",
-        "@arkecosystem/utils": "^0.3.0",
+        "@arkecosystem/utils": "^0.9.0",
         "bluebird": "^3.5.5",
         "cpy-cli": "^2.0.0",
         "dayjs": "^1.8.15",
