@@ -13,8 +13,8 @@ export const getConfig = options => {
                         .positive()
                         .default(100),
                 }),
-            }).unknown(),
-        }).unknown(),
+            }),
+        }),
     );
 
     return { error: error || undefined, config: error ? undefined : value };
