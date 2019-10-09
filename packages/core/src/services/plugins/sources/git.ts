@@ -1,15 +1,14 @@
 import { Utils } from "@arkecosystem/core-kernel";
-import { Paths } from "env-paths";
+import execa from "execa";
 import { ensureDirSync, removeSync } from "fs-extra";
-import git from "simple-git/promise";
 
 import { Source } from "./contracts";
 
 export class Git implements Source {
     private readonly dataPath: string;
 
-    public constructor(private readonly paths: Paths) {
-        this.dataPath = `${this.paths.data}/plugins`;
+    public constructor({ data }: { data: string; temp?: string }) {
+        this.dataPath = `${data}/plugins`;
 
         ensureDirSync(this.dataPath);
     }
@@ -23,11 +22,11 @@ export class Git implements Source {
 
         removeSync(dest);
 
-        await git().clone(value, dest);
+        execa.sync(`git clone ${value} ${dest}`);
     }
 
     public async update(value: string): Promise<void> {
-        await git(this.getTargetPath(value)).pull();
+        execa.sync(`cd ${this.getTargetPath(value)} && git reset --hard && git pull`);
     }
 
     private getName(value: string): string {

@@ -3,9 +3,7 @@ import { CLIError } from "@oclif/errors";
 import { existsSync } from "fs";
 
 import { parseWithNetwork } from "../../common/parser";
-import { Blockchain } from "../../services/plugins/sources/blockchain";
-import { Git } from "../../services/plugins/sources/git";
-import { NPM } from "../../services/plugins/sources/npm";
+import { Git, NPM } from "../../services/plugins/sources";
 
 export class UpdateCommand extends Command {
     public static description = "Updates a package and any packages that it depends on.";
@@ -34,10 +32,6 @@ export class UpdateCommand extends Command {
 
         if (existsSync(`${directory}/.git`)) {
             return new Git(paths).update(args.package);
-        }
-
-        if (existsSync(`${directory}/.blockchain`)) {
-            return new Blockchain(paths).update(args.package);
         }
 
         return new NPM(paths).update(args.package);

@@ -1,6 +1,4 @@
-import { Paths } from "env-paths";
-import { createWriteStream } from "fs";
-import { ensureDirSync, moveSync, removeSync } from "fs-extra";
+import { createWriteStream, ensureDirSync, ensureFileSync, moveSync, removeSync } from "fs-extra";
 import got from "got";
 import stream from "stream";
 import { extract } from "tar";
@@ -10,9 +8,11 @@ import { Source } from "./contracts";
 
 export class NPM implements Source {
     private readonly dataPath: string;
+    private readonly tempPath: string;
 
-    public constructor(private readonly paths: Paths) {
-        this.dataPath = `${this.paths.data}/plugins`;
+    public constructor({ data, temp }: { data: string; temp?: string }) {
+        this.dataPath = `${data}/plugins`;
+        this.tempPath = temp;
 
         ensureDirSync(this.dataPath);
     }
@@ -30,7 +30,7 @@ export class NPM implements Source {
     public async install(value: string): Promise<void> {
         const { name, tarball }: { name: string; tarball: string } = await this.getPackage(value);
 
-        const tarballPath: string = `${this.paths.temp}/plugins/${name}.tgz`;
+        const tarballPath: string = `${this.tempPath}/plugins/${name}.tgz`;
 
         await this.downloadPackage(tarball, tarballPath);
 
@@ -57,6 +57,8 @@ export class NPM implements Source {
     private async downloadPackage(source: string, dest: string): Promise<void> {
         removeSync(dest);
 
+        ensureFileSync(dest);
+
         await promisify(stream.pipeline)(got.stream(source), createWriteStream(dest));
     }
 
@@ -70,6 +72,8 @@ export class NPM implements Source {
         });
 
         moveSync(`${this.dataPath}/package`, this.getTargetPath(name));
+
+        removeSync(file);
     }
 
     private getTargetPath(value: string): string {
