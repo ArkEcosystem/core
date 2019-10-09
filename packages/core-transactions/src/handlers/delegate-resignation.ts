@@ -1,3 +1,4 @@
+import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
@@ -50,7 +51,9 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             throw new WalletAlreadyResignedError();
         }
 
-        const delegates: ReadonlyArray<State.IWallet> = databaseWalletManager.allByUsername();
+        const delegates: ReadonlyArray<State.IWallet> = app
+            .resolvePlugin<Database.IDatabaseService>("database")
+            .walletManager.allByUsername();
         let requiredDelegates: number = Managers.configManager.getMilestone().activeDelegates + 1;
         for (const delegate of delegates) {
             if (requiredDelegates === 0) {
