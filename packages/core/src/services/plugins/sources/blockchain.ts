@@ -1,4 +1,5 @@
 import { Paths } from "env-paths";
+import { ensureDirSync } from "fs-extra";
 
 import { Source } from "./contracts";
 
@@ -8,6 +9,8 @@ export class Blockchain implements Source {
 
     public constructor(private readonly paths: Paths) {
         this.dataPath = `${this.paths.data}/plugins`;
+
+        ensureDirSync(this.dataPath);
     }
 
     public async exists(value: string): Promise<boolean> {

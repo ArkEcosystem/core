@@ -10,7 +10,7 @@
         "clean": "yarn lerna clean --yes",
         "build": "yarn lerna run build",
         "lint": "./node_modules/eslint/bin/eslint.js packages --ext .ts --fix",
-        "format": "yarn lint:code && yarn prettier",
+        "format": "yarn lint && yarn prettier",
         "prettier": "prettier --write \"./*.{ts,js,json,md}\" \"./packages/**/*.{ts,js,json,md}\" \"./__tests__/**/*.{ts,js,json,md}\"",
         "test": "cross-env CORE_ENV=test jest --runInBand --forceExit",
         "test:coverage": "cross-env CORE_ENV=test jest --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$' --runInBand --forceExit",

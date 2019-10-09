@@ -1,6 +1,6 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import { Paths } from "env-paths";
-import { removeSync } from "fs-extra";
+import { ensureDirSync, removeSync } from "fs-extra";
 import git from "simple-git/promise";
 
 import { Source } from "./contracts";
@@ -10,6 +10,8 @@ export class Git implements Source {
 
     public constructor(private readonly paths: Paths) {
         this.dataPath = `${this.paths.data}/plugins`;
+
+        ensureDirSync(this.dataPath);
     }
 
     public async exists(value: string): Promise<boolean> {

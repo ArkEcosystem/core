@@ -1,6 +1,6 @@
 import { Paths } from "env-paths";
 import { createWriteStream } from "fs";
-import { moveSync, removeSync } from "fs-extra";
+import { ensureDirSync, moveSync, removeSync } from "fs-extra";
 import got from "got";
 import stream from "stream";
 import { extract } from "tar";
@@ -13,6 +13,8 @@ export class NPM implements Source {
 
     public constructor(private readonly paths: Paths) {
         this.dataPath = `${this.paths.data}/plugins`;
+
+        ensureDirSync(this.dataPath);
     }
 
     public async exists(value: string): Promise<boolean> {
