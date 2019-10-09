@@ -121,7 +121,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]> {
-        return this.databaseServiceProvider().connection.transactionsRepository.findByHtlcLocks(lockIds);
+        return this.mapBlocksToTransactions(await this.databaseServiceProvider().connection.transactionsRepository.findByHtlcLocks(lockIds));
     }
 
     private getPublicKeyFromAddress(senderId: string): string {
