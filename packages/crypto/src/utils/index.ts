@@ -1,5 +1,4 @@
 import { SATOSHI } from "../constants";
-import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
@@ -23,7 +22,7 @@ export const formatSatoshi = (amount: BigNumber): string => {
 /**
  * Check if the given block or transaction id is an exception.
  */
-export const isException = (blockOrTransaction: IBlockData | ITransactionData): boolean => {
+export const isException = (blockOrTransaction: { id?: string }): boolean => {
     return ["blocks", "transactions"].some(key => {
         const exceptions = configManager.get(`exceptions.${key}`);
         return Array.isArray(exceptions) && exceptions.includes(blockOrTransaction.id);
