@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { asValue } from "awilix";
 import { defaults as defaultsBlockchain } from "../../../../packages/core-blockchain/src/defaults";
-import { defaults as defaultsPeer } from "../../../../packages/core-p2p/src/defaults";
 import { defaults as defaultsPool } from "../../../../packages/core-transaction-pool/src/defaults";
 import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 
@@ -55,16 +54,6 @@ export const setUpFull = async () => {
 
         await registerWithContainer(require("../../../../packages/core-transaction-pool/src/plugin").plugin, options);
 
-        app.register("pkg.p2p.opts", asValue(defaultsPeer));
-
-        // now registering the plugins that need to be registered after transaction pool
-        // register p2p
-        await registerWithContainer(require("@arkecosystem/core-p2p").plugin, {
-            host: "0.0.0.0",
-            port: 4000,
-            minimumNetworkReach: 5,
-        });
-
         app.register("pkg.blockchain.opts", asValue(defaultsBlockchain));
 
         await registerWithContainer(require("@arkecosystem/core-blockchain").plugin, {});
@@ -82,7 +71,6 @@ export const tearDown = async () => {
 
 export const tearDownFull = async () => {
     await require("../../../../packages/core-transaction-pool/src/plugin").plugin.deregister(app, options);
-    await require("@arkecosystem/core-p2p").plugin.deregister(app, {});
     await require("@arkecosystem/core-blockchain").plugin.deregister(app, {});
 
     await app.tearDown();
