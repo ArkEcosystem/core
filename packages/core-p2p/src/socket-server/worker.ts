@@ -105,12 +105,6 @@ export class Worker extends SCWorker {
         );
 
         if (data.exceededLimitOnEndpoint) {
-            if (data.blocked) {
-                // Global ban
-                req.socket.terminate();
-                return;
-            }
-
             req.socket.terminate();
             return;
         }
@@ -151,7 +145,7 @@ export class Worker extends SCWorker {
                     headers: req.data.headers,
                 });
             } else {
-                req.socket.disconnect(4400, "Bad Request");
+                req.socket.terminate();
                 return;
             }
 
