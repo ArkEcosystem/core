@@ -21,9 +21,7 @@ export const socketEmit = async (
     }
 
     if (socket.getState() !== socket.OPEN) {
-        const error = new Error(`Peer ${host} socket is not connected. State: ${socket.getState()}`);
-        error.name = SocketErrors.SocketNotOpen;
-        throw error;
+        throw new Error(`Peer ${host} socket is not connected. State: ${socket.getState()}`);
     }
 
     const socketEmitPromise = new Promise((resolve, reject) => {
@@ -33,9 +31,7 @@ export const socketEmit = async (
     const timeoutPromiseFn = (resolve, reject) => {
         const id = setTimeout(() => {
             clearTimeout(id);
-            const timeoutError = new Error(`Socket emit "${event}" : timed out (${timeout}ms)`);
-            timeoutError.name = SocketErrors.Timeout;
-            reject(timeoutError);
+            reject(new Error(`Socket emit "${event}" : timed out (${timeout}ms)`));
         }, timeout);
     };
 
