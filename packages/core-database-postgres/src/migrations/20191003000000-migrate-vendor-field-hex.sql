@@ -1,6 +1,3 @@
-ALTER TABLE transactions
-    ALTER COLUMN vendor_field_hex SET DATA TYPE varchar(255)
-	USING
-		ENCODE(('\x' || ENCODE(vendor_field_hex, 'escape'))::bytea, 'escape');
+UPDATE transactions SET vendor_field_hex = ('\x' || ENCODE(vendor_field_hex, 'escape'))::BYTEA;
 
 ALTER TABLE transactions RENAME vendor_field_hex TO vendor_field;
