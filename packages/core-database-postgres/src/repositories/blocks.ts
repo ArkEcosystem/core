@@ -31,7 +31,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
             }
         }
 
-        return this.findManyWithCount(selectQuery, selectQueryCount, params.paginate, params.orderBy);
+        return this.findAnyWithCount(selectQuery, selectQueryCount, params.paginate, params.orderBy);
     }
 
     public async findById(id: string): Promise<Interfaces.IBlockData> {
@@ -39,7 +39,7 @@ export class BlocksRepository extends Repository implements Database.IBlocksRepo
     }
 
     public async findByIds(ids: string[]): Promise<Interfaces.IBlockData[]> {
-        return this.findMany(
+        return this.findAny(
             this.query
                 .select()
                 .from(this.query)
