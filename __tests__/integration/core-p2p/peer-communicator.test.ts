@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import "./mocks/core-container";
+import { eventEmitter } from "./mocks/core-container";
 
 import { P2P } from "@arkecosystem/core-interfaces";
 import { Transactions } from "@arkecosystem/crypto";
@@ -196,6 +196,19 @@ describe("PeerCommunicator", () => {
             expect(commonBlocks.id).toBe(genesisBlock.id);
             expect(commonBlocks.height).toBe(genesisBlock.height);
             expect(commonBlocks.transactions).toHaveLength(255);
+        });
+    });
+
+    describe("when socket is terminated in middleware", () => {
+        it("should disconnect the peer calling internal.p2p.disconnectPeer", async () => {
+            const spyEmit = jest.spyOn(eventEmitter, "emit");
+            await socketManager.addMiddlewareTerminate();
+
+            await communicator.getPeers(stubPeer);
+
+            expect(spyEmit).toHaveBeenCalledWith("internal.p2p.disconnectPeer", expect.anything());
+
+            await socketManager.removeMiddlewareTerminate();
         });
     });
 });

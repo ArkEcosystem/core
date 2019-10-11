@@ -187,10 +187,7 @@ export class Processor implements TransactionPool.IProcessor {
             maxTransactionAge: app.resolveOptions("transaction-pool").maxTransactionAge,
         };
 
-        const expiration: number = expirationCalculator.calculateTransactionExpiration(
-            transaction,
-            expirationContext,
-        );
+        const expiration: number = expirationCalculator.calculateTransactionExpiration(transaction, expirationContext);
 
         if (expiration !== null && expiration <= lastHeight + 1) {
             this.pushError(
@@ -255,7 +252,9 @@ export class Processor implements TransactionPool.IProcessor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin<Logger.ILogger>("logger").debug(JSON.stringify(this.errors));
+        if (Object.keys(this.errors).length > 0) {
+            app.resolvePlugin<Logger.ILogger>("logger").debug(JSON.stringify(this.errors));
+        }
 
         app.resolvePlugin<Logger.ILogger>("logger").info(
             `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,

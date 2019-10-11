@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
-import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
 import { ServerError } from "./errors";
 import { payloadProcessor } from "./payload-processor";
@@ -55,15 +54,8 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 return res(error);
             }
 
-            if (error.name === SocketErrors.Validation) {
-                return res(error);
-            }
-
-            if (error.name === SocketErrors.AppNotReady) {
-                return res(error);
-            }
-
             app.resolvePlugin<Logger.ILogger>("logger").error(error.message);
+
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
     });
