@@ -27,15 +27,15 @@ export class RemoteConfigLoader implements ConfigLoader {
      * @returns {Promise<void>}
      * @memberof RemoteConfigLoader
      */
-    public async loadConfiguration(): Promise<void> {
-        throw new ApplicationConfigurationCannotBeLoaded();
+    public async loadEnvironmentVariables(): Promise<void> {
+        throw new EnvironmentConfigurationCannotBeLoaded();
     }
 
     /**
      * @returns {Promise<void>}
      * @memberof RemoteConfigLoader
      */
-    public async loadEnvironmentVariables(): Promise<void> {
-        throw new EnvironmentConfigurationCannotBeLoaded();
+    public async loadConfiguration(): Promise<void> {
+        throw new ApplicationConfigurationCannotBeLoaded();
     }
 }

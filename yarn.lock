@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@arkecosystem/utils@^0.8.8":
-  version "0.8.8"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-0.8.8.tgz#1072fc6cde12edb821df4dd37760f4e09b04125b"
-  integrity sha512-RT8lyu3KCM4v/9DAYjazlN6ByXRIiEWPLe4AhGgtWP1VmUwT6czDlNsznH27WOUv1YryEl9kh/upaYejDWH1OQ==
+"@arkecosystem/utils@^1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-1.0.0.tgz#27946d83ad5bd714d99e122047b57e73579ff316"
+  integrity sha512-3hYOLnRxBfiA1AHBV+PBLTdu+gpU8DFKZk+TOJjxcsYcraONNKB6G4AgPgnvtNchJG20m96jMmMKZytl67eFng==
   dependencies:
     "@hapi/bourne" "^1.3.2"
     fast-copy "^2.0.3"
@@ -2380,13 +2380,6 @@
   resolved "https://registry.yarnpkg.com/@types/component-emitter/-/component-emitter-1.2.8.tgz#9797fd3ba9f55254ee926f05e1cda6767eab7597"
   integrity sha512-XhMozzUGSzFDlmIl3jgrUeQPUbJkiwsItKd+1uZhdzQrCy+8BXSHOofO77DqQN7QXQ5NeC8egdorZiLwAFCfAA==
 
-"@types/cosmiconfig@^5.0.3":
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/@types/cosmiconfig/-/cosmiconfig-5.0.3.tgz#880644bb155d4038d3b752159684b777b0a159dd"
-  integrity sha512-HgTGG7X5y9pLl3pixeo2XtDEFD8rq2EuH+S4mK6teCnAwWMucQl6v1D43hI4Uw1VJh6nu59lxLkqXHRl4uwThA==
-  dependencies:
-    "@types/node" "*"
-
 "@types/create-hash@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@types/create-hash/-/create-hash-1.2.0.tgz#a30e091ce5904652dd6cee76d1b5e4ce6e883a68"
@@ -2485,11 +2478,6 @@
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/@types/hapi__sntp/-/hapi__sntp-3.1.0.tgz#8817bcc3b091ef486ddd4fe5be305d0fa33ed570"
   integrity sha512-8tKFfiK7vIp9LbfabJ95YegLhLVaNUyT9nqYnWwkt77tQ7hw/QZByPBIENByuLUMa4d8g24L8rdn0EjPyb2cIw==
-
-"@types/hoek@^4.1.3":
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/@types/hoek/-/hoek-4.1.3.tgz#d1982d48fb0d2a0e5d7e9d91838264d8e428d337"
-  integrity sha1-0ZgtSPsNKg5dfp2Rg4Jk2OQo0zc=
 
 "@types/integer@*":
   version "1.0.0"
@@ -5500,11 +5488,6 @@ expand-brackets@^2.1.4:
     snapdragon "^0.8.1"
     to-regex "^3.0.1"
 
-expand-home-dir@^0.0.3:
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/expand-home-dir/-/expand-home-dir-0.0.3.tgz#72de8a0486cc28a3bbd704635398825b5b62827d"
-  integrity sha1-ct6KBIbMKKO71wRjU5iCW1tign0=
-
 expect@^24.1.0, expect@^24.9.0:
   version "24.9.0"
   resolved "https://registry.yarnpkg.com/expect/-/expect-24.9.0.tgz#b75165b4817074fa4a157794f46fe9f1ba15b6ca"
@@ -5653,7 +5636,7 @@ fast-redact@^2.0.0:
   resolved "https://registry.yarnpkg.com/fast-redact/-/fast-redact-2.0.0.tgz#17bb8f5e1f56ecf4a38c8455985e5eab4c478431"
   integrity sha512-zxpkULI9W9MNTK2sJ3BpPQrTEXFNESd2X6O1tXMFpK/XM0G5c5Rll2EVYZH2TqI3xRGK/VaJ+eEOt7pnENJpeA==
 
-fast-safe-stringify@^2.0.6, fast-safe-stringify@^2.0.7:
+fast-safe-stringify@^2.0.7:
   version "2.0.7"
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.7.tgz#124aa885899261f68aedb42a7c080de9da608743"
   integrity sha512-Utm6CdzT+6xsDk2m8S6uL8VHxNwI6Jub+e9NYTcAms28T84pTa25GJQV9j0CY0N1rM8hK4x6grpF2BQf+2qwVA==
@@ -6406,7 +6389,7 @@ hoek@5.x.x, hoek@^5.0.2:
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-5.0.4.tgz#0f7fa270a1cafeb364a4b2ddfaa33f864e4157da"
   integrity sha512-Alr4ZQgoMlnere5FZJsIyfIjORBqZll5POhDsF4q64dPuJR6rNxXdDxtHSQq8OXRurhmx+PWYEE8bXRROY8h0w==
 
-hoek@6.x.x, hoek@^6.1.3:
+hoek@6.x.x:
   version "6.1.3"
   resolved "https://registry.yarnpkg.com/hoek/-/hoek-6.1.3.tgz#73b7d33952e01fe27a38b0457294b79dd8da242c"
   integrity sha512-YXXAAhmF9zpQbC7LEcREFtXfGq5K1fmd+4PHkBq8NUqmzW3G+Dq10bI/i0KucLRwss3YYFQ0fSfoxBZYiGUqtQ==
@@ -6546,7 +6529,7 @@ import-fresh@^2.0.0:
     caller-path "^2.0.0"
     resolve-from "^3.0.0"
 
-import-fresh@^3.0.0:
+import-fresh@^3.0.0, import-fresh@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/import-fresh/-/import-fresh-3.1.0.tgz#6d33fa1dcef6df930fae003446f33415af905118"
   integrity sha512-PpuksHKGt8rXfWEr9m9EHIpgyyaltBy8+eF6GJM0QCAxMgxCfucMF3mjecK2QsJr0amJW7gTqh5/wht0z2UhEQ==
@@ -9712,19 +9695,19 @@ pinkie@^2.0.0:
   resolved "https://registry.yarnpkg.com/pinkie/-/pinkie-2.0.4.tgz#72556b80cfa0d48a974e80e77248e80ed4f7f870"
   integrity sha1-clVrgM+g1IqXToDnckjoDtT3+HA=
 
-pino-pretty@^3.2.1:
-  version "3.2.1"
-  resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-3.2.1.tgz#db13b793f7074f25051306ee625b6feabae056d9"
-  integrity sha512-PGdcRYw7HCF7ovMhrnepOUmEVh5+tATydRrBICEbP37oRasXV+lo2HA9gg8b7cE7LG6G1OZGVXTZ7MLd946k1Q==
+pino-pretty@^3.2.2:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/pino-pretty/-/pino-pretty-3.2.2.tgz#e252f964f99a0a3bd34f4a484bb4e202632eaaad"
+  integrity sha512-2SP++Wbo4EsH5RpLhcsYHOR/8CMTIJWZpU0aPiVK0Wq8SrRMQ9oHQNffVK5ZyDFZMtSuTdFCVfLVNFmtFMDEeA==
   dependencies:
     "@hapi/bourne" "^1.3.2"
     args "^5.0.1"
     chalk "^2.4.2"
     dateformat "^3.0.3"
-    fast-safe-stringify "^2.0.6"
+    fast-safe-stringify "^2.0.7"
     jmespath "^0.15.0"
     pump "^3.0.0"
-    readable-stream "^3.3.0"
+    readable-stream "^3.4.0"
     split2 "^3.1.1"
 
 pino-std-serializers@^2.3.0:
@@ -10182,7 +10165,7 @@ read@1, read@~1.0.1:
     string_decoder "~1.1.1"
     util-deprecate "~1.0.1"
 
-"readable-stream@2 || 3", readable-stream@^3.0.0, readable-stream@^3.0.1, readable-stream@^3.0.2, readable-stream@^3.1.1, readable-stream@^3.3.0, readable-stream@^3.4.0:
+"readable-stream@2 || 3", readable-stream@^3.0.0, readable-stream@^3.0.1, readable-stream@^3.0.2, readable-stream@^3.1.1, readable-stream@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/readable-stream/-/readable-stream-3.4.0.tgz#a51c26754658e0a3c21dbf59163bd45ba6f447fc"
   integrity sha512-jItXPLmrSR8jmTRmRWJXCnGJsfy85mB3Wd/uINMXA65yrnFo0cPClFIUWzo2najVNSl+mx7/4W8ttlLWJe99pQ==
@@ -11424,11 +11407,6 @@ strip-json-comments@~2.0.1:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/strip-json-comments/-/strip-json-comments-2.0.1.tgz#3c531942e908c2697c0ec344858c286c7ca0a60a"
   integrity sha1-PFMZQukIwml8DsNEhYwobHygpgo=
-
-strman@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/strman/-/strman-2.0.1.tgz#d43bb91c91e100609f336fd4a6539fd8e980e1de"
-  integrity sha512-00kB9pulmzaQUBl8DJQ4255QXnQn/MHnJzYqKz4a/W5KqCMSaqmv0VReOzkSg2u4FYkKpNhxpp6bs6aEMZeLPw==
 
 strong-log-transformer@^2.0.0:
   version "2.1.0"

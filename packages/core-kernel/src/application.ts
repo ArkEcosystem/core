@@ -26,7 +26,7 @@ export class Application implements Contracts.Kernel.Application {
      * @type {boolean}
      * @memberof Application
      */
-    private booted = false;
+    private booted: boolean = false;
 
     /**
      * Creates an instance of Application.

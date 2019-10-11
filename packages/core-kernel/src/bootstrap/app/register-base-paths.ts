@@ -1,6 +1,5 @@
-import { camelCase, set } from "@arkecosystem/utils";
+import { camelCase, expandTilde, set } from "@arkecosystem/utils";
 import envPaths from "env-paths";
-import expandHomeDir from "expand-home-dir";
 import { ensureDirSync } from "fs-extra";
 import { resolve } from "path";
 
@@ -52,7 +51,7 @@ export class RegisterBasePaths implements Bootstrapper {
                 path = this.configRepository.get(`app.flags.paths.${type}`);
             }
 
-            path = resolve(expandHomeDir(path));
+            path = resolve(expandTilde(path));
 
             ensureDirSync(path);
 

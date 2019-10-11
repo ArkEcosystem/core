@@ -1,5 +1,8 @@
 {
     "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "./tsconfig.json"
+    },
     "plugins": ["@typescript-eslint", "jest", "prettier", "simple-import-sort"],
     "extends": [
         "eslint:recommended",
@@ -10,9 +13,6 @@
         "plugin:prettier/recommended",
         "prettier/@typescript-eslint"
     ],
-    "parserOptions": {
-        "project": "./tsconfig.json"
-    },
     "rules": {
         "@typescript-eslint/await-thenable": "off",
         "@typescript-eslint/ban-ts-ignore": "off",

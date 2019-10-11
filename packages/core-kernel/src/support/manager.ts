@@ -1,8 +1,7 @@
-import { toStudlyCaps } from "strman";
-
 import { Kernel } from "../contracts";
 import { DriverCannotBeResolved } from "../exceptions/container";
 import { Identifiers, inject, injectable } from "../ioc";
+import { pascalCase } from "../utils";
 
 /**
  * @export
@@ -122,7 +121,7 @@ export abstract class Manager<T> {
      * @memberof Manager
      */
     private async createDriver(name: string): Promise<void> {
-        const creatorFunction = `create${toStudlyCaps(name)}Driver`;
+        const creatorFunction = `create${pascalCase(name)}Driver`;
 
         if (typeof this[creatorFunction] !== "function") {
             throw new Error(`${name} driver is not supported by ${this.constructor.name}.`);

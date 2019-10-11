@@ -1,6 +1,6 @@
-import { get, set } from "@arkecosystem/utils";
-import cosmiconfig from "cosmiconfig";
-import { parseFileSync } from "envfile";
+import { dotenv, get, set } from "@arkecosystem/utils";
+import { existsSync, readFileSync } from "fs";
+import importFresh from "import-fresh";
 
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
@@ -10,8 +10,9 @@ import {
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
 import { Identifiers, inject, injectable } from "../../../ioc";
-import { JsonObject, KeyValuePair } from "../../../types";
+import { JsonObject, KeyValuePair, Primitive } from "../../../types";
 import { ConfigRepository } from "../repository";
+import { extname } from "path";
 
 /**
  * @export
@@ -44,6 +45,22 @@ export class LocalConfigLoader implements ConfigLoader {
      * @returns {Promise<void>}
      * @memberof LocalConfigLoader
      */
+    public async loadEnvironmentVariables(): Promise<void> {
+        try {
+            const config: Record<string, Primitive> = dotenv.parseFile(this.app.environmentFile());
+
+            for (const [key, value] of Object.entries(config)) {
+                set(process.env, key, value);
+            }
+        } catch {
+            throw new EnvironmentConfigurationCannotBeLoaded();
+        }
+    }
+
+    /**
+     * @returns {Promise<void>}
+     * @memberof LocalConfigLoader
+     */
     public async loadConfiguration(): Promise<void> {
         try {
             this.loadApplication();
@@ -59,28 +76,12 @@ export class LocalConfigLoader implements ConfigLoader {
     }
 
     /**
-     * @returns {Promise<void>}
-     * @memberof LocalConfigLoader
-     */
-    public async loadEnvironmentVariables(): Promise<void> {
-        try {
-            const config: Record<string, string> = parseFileSync(this.app.environmentFile());
-
-            for (const [key, value] of Object.entries(config)) {
-                set(process.env, key, value);
-            }
-        } catch {
-            throw new EnvironmentConfigurationCannotBeLoaded();
-        }
-    }
-
-    /**
      * @private
      * @returns {void}
      * @memberof LocalConfigLoader
      */
     private loadApplication(): void {
-        const config = this.loadFromLocation([this.app.configPath("app.json"), this.app.configPath("app.js")]);
+        const config = this.loadFromLocation(["app.json", "app.js"]);
 
         this.configRepository.set("app.flags", {
             ...this.app.get<JsonObject>(Identifiers.ConfigFlags),
@@ -99,7 +100,7 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LocalConfigLoader
      */
     private loadPeers(): void {
-        this.configRepository.set("peers", this.loadFromLocation([this.app.configPath("peers.json")]));
+        this.configRepository.set("peers", this.loadFromLocation(["peers.json"]));
     }
 
     /**
@@ -108,7 +109,7 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LocalConfigLoader
      */
     private loadDelegates(): void {
-        this.configRepository.set("delegates", this.loadFromLocation([this.app.configPath("delegates.json")]));
+        this.configRepository.set("delegates", this.loadFromLocation(["delegates.json"]));
     }
 
     /**
@@ -118,7 +119,7 @@ export class LocalConfigLoader implements ConfigLoader {
      */
     private loadCryptography(): void {
         for (const key of ["genesisBlock", "exceptions", "milestones", "network"]) {
-            const config: KeyValuePair | undefined = this.loadFromLocation([this.app.configPath(`crypto/${key}.json`)]);
+            const config: KeyValuePair | undefined = this.loadFromLocation([`crypto/${key}.json`]);
 
             if (config) {
                 this.configRepository.set(`crypto.${key}`, config);
@@ -128,16 +129,21 @@ export class LocalConfigLoader implements ConfigLoader {
 
     /**
      * @private
-     * @param {string[]} searchPlaces
+     * @param {string[]} files
      * @returns {KeyValuePair}
      * @memberof LocalConfigLoader
      */
-    private loadFromLocation(searchPlaces: string[]): KeyValuePair | undefined {
-        const result: KeyValuePair | undefined = cosmiconfig(this.app.namespace(), {
-            searchPlaces,
-            stopDir: this.app.configPath(),
-        }).searchSync();
+    private loadFromLocation(files: string[]): KeyValuePair | undefined {
+        for (const file of files) {
+            const fullPath: string = this.app.configPath(file);
 
-        return result ? result.config : undefined;
+            if (existsSync(fullPath)) {
+                return extname(fullPath) === ".json"
+                    ? JSON.parse(readFileSync(fullPath).toString())
+                    : importFresh(fullPath);
+            }
+        }
+
+        return undefined;
     }
 }
