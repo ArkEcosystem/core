@@ -52,6 +52,14 @@ export class MockSocketManager {
         return this.clientSocket.emit("mock.resetAll", {});
     }
 
+    public async addMiddlewareTerminate() {
+        return this.clientSocket.emit("mock.terminate.add", {});
+    }
+
+    public async removeMiddlewareTerminate() {
+        return this.clientSocket.emit("mock.terminate.remove", {});
+    }
+
     public stopServer() {
         this.clientSocket.destroy();
         return this.serverProcess.kill();
