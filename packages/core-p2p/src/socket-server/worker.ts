@@ -1,6 +1,5 @@
 import { P2P } from "@arkecosystem/core-interfaces";
 import SCWorker from "socketcluster/scworker";
-import { SocketErrors } from "../enums";
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
@@ -77,7 +76,6 @@ export class Worker extends SCWorker {
 
         const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
         if (data.blocked || isBlacklisted) {
-            req.socket.terminate();
             return;
         }
 

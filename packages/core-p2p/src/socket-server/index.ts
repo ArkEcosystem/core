@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
-import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
 import { ServerError } from "./errors";
 import { payloadProcessor } from "./payload-processor";

@@ -1,6 +1,5 @@
 import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
-import { SocketErrors } from "../enums";
 
 export const socketEmit = async (
     host: string,
