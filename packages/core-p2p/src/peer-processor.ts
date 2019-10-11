@@ -1,7 +1,7 @@
 import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 
 import { Peer } from "./peer";
-import { isValidPeer, isValidVersion, isWhitelisted } from "./utils";
+import { isValidVersion, isWhitelisted } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
@@ -43,7 +43,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return false;
         }
 
-        if (!isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
+        if (!Utils.isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
             return false;
         }
 
@@ -73,8 +73,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         const peers: Contracts.P2P.Peer[] = this.storage.getPeers();
         for (const peer of peers) {
             if (!isValidVersion(peer)) {
-                this.connector.disconnect(peer);
-                this.storage.forgetPeer(peer);
+                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
             }
         }
     }

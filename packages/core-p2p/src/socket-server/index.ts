@@ -28,10 +28,8 @@ export const startSocketServer = async (service: PeerService, config: Record<str
             wsEngine: "ws",
             // See https://github.com/SocketCluster/socketcluster/issues/506 about
             // details on how pingTimeout works.
-            pingTimeout: Math.max(
-                app.get<any>("p2p.options").getBlocksTimeout,
-                app.get<any>("p2p.options").verifyTimeout,
-            ),
+            pingTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
+            perMessageDeflate: true,
         },
         ...config.server,
     });

@@ -84,9 +84,9 @@ export interface StateStore {
     ): { [key in "added" | "notAdded"]: Interfaces.ITransactionData[] };
 
     /**
-     * Remove the given transaction ids from the cache.
+     * Drop all cached transaction ids.
      */
-    removeCachedTransactionIds(transactionIds: string[]): void;
+    clearCachedTransactionIds(): void;
 
     /**
      * Get cached transaction ids.

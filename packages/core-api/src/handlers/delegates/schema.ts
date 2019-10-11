@@ -39,6 +39,7 @@ export const index: object = {
         ...pagination,
         ...{
             orderBy: Joi.string(),
+            type: Joi.string().valid("resigned", "never-forged"),
             address: Joi.string()
                 .alphanum()
                 .length(34),

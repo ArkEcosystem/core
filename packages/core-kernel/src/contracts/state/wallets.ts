@@ -6,6 +6,7 @@ export enum WalletIndexes {
     Addresses = "addresses",
     PublicKeys = "publicKeys",
     Usernames = "usernames",
+    Resignations = "resignations",
     Locks = "locks",
 }
 
@@ -37,6 +38,20 @@ export interface Wallet {
         transaction: Interfaces.ITransactionData,
         multisignature?: Interfaces.IMultiSignatureAsset,
     ): boolean;
+
+    /**
+     * Verify that the transaction's nonce is the wallet nonce plus one, so that the
+     * transaction can be applied to the wallet.
+     * Throw an exception if it is not.
+     */
+    verifyTransactionNonceApply(transaction: Interfaces.ITransaction): void;
+
+    /**
+     * Verify that the transaction's nonce is the same as the wallet nonce, so that the
+     * transaction can be reverted from the wallet.
+     * Throw an exception if it is not.
+     */
+    verifyTransactionNonceRevert(transaction: Interfaces.ITransaction): void;
 }
 
 export interface WalletDelegateAttributes {
@@ -51,7 +66,7 @@ export interface WalletDelegateAttributes {
     resigned?: boolean;
 }
 
-export type WalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset;
+export type IWalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset & { legacy?: boolean };
 
 export interface WalletIpfsAttributes {
     [hash: string]: boolean;
@@ -80,11 +95,13 @@ export interface WalletRepository {
 
     hasByIndex(indexName: string, key: string): boolean;
 
-    findByPublicKey(publicKey: string): Wallet;
+    getIndexNames(): string[];
+
+    findByPublicKey(publicKey: string): IWallet;
 
     findByUsername(username: string): Wallet;
 
-    findByIndex(indexName: string, key: string): Wallet | undefined;
+    findByIndex(index: string | string[], key: string): IWallet | undefined;
 
     getNonce(publicKey: string): Utils.BigNumber;
 
@@ -109,12 +126,15 @@ export interface WalletRepository {
     hasByUsername(username: string): boolean;
 }
 
-export interface WalletIndex {
-    index(wallet: Wallet): void;
+export interface IWalletIndex {
+    readonly indexer: WalletIndexer;
+    index(wallet: IWallet): void;
     has(key: string): boolean;
     get(key: string): Wallet | undefined;
     set(key: string, wallet: Wallet): void;
     forget(key: string): void;
-    all(): ReadonlyArray<Wallet>;
+    entries(): ReadonlyArray<[string, IWallet]>;
+    values(): ReadonlyArray<IWallet>;
+    keys(): string[];
     clear(): void;
 }

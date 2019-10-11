@@ -36,13 +36,23 @@ export interface TransactionsRepository extends Repository {
         }>
     >;
 
-    getAssetsByType(type: Enums.TransactionType | number): Promise<any>;
+    getCountOfType(type: number, typeGroup?: number): Promise<number>;
+
+    getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<IBootstrapTransaction[]>;
+
+    getOpenHtlcLocks(): Promise<any>;
+
+    getRefundedHtlcLocks(): Promise<any>;
+
+    getClaimedHtlcLocks(): Promise<any>;
 
     getReceivedTransactions(): Promise<any>;
 
     getSentTransactions(): Promise<any>;
 
     forged(ids: string[]): Promise<Interfaces.ITransactionData[]>;
+
+    findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]>;
 
     statistics(): Promise<{
         count: number;
@@ -57,11 +67,5 @@ export interface TransactionsRepository extends Repository {
 
     deleteByBlockId(blockIds: string[], db: any): Promise<void>;
 
-    findAllByWallet(
-        wallet: Wallet,
-        paginate?: SearchPaginate,
-        orderBy?: SearchOrderBy[],
-    ): Promise<TransactionsPaginated>;
-
-    search(parameters: SearchParameters): Promise<TransactionsPaginated>;
+    search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
 }

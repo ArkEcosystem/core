@@ -1,3 +1,4 @@
+import { Interfaces } from "@arkecosystem/crypto";
 import got from "got";
 
 export {};
@@ -12,8 +13,8 @@ declare global {
 }
 
 expect.extend({
-    toBeAccepted: async transaction => {
-        let pass = false;
+    toBeAccepted: async (transaction: Interfaces.ITransactionData) => {
+        let pass: boolean = false;
         let error: string;
 
         try {

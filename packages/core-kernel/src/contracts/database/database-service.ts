@@ -19,9 +19,7 @@ export interface DownloadBlock extends Omit<Interfaces.IBlockData, "transactions
 export interface DatabaseService {
     wallets: WalletsBusinessRepository;
 
-    delegates: DelegatesBusinessRepository;
-
-    blocksBusinessRepository: BlocksBusinessRepository;
+    blocksBusinessRepository: IBlocksBusinessRepository;
 
     transactionsBusinessRepository: TransactionsBusinessRepository;
 
@@ -103,8 +101,6 @@ export interface DatabaseService {
     reset(): Promise<void>;
 
     loadBlocksFromCurrentRound(): Promise<void>;
-
-    updateDelegateStats(delegates: Wallet[]): void;
 
     applyRound(height: number): Promise<void>;
 

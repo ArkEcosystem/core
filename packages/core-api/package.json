@@ -29,7 +29,6 @@
         "@hapi/hapi": "^18.3.2",
         "@hapi/joi": "^15.1.1",
         "ajv": "^6.10.2",
-        "hapi-pagination": "https://github.com/faustbrian/hapi-pagination#f4991348ca779b68b8e7139cfcbc601e6d496612",
         "hapi-rate-limit": "^4.0.1",
         "ip": "^1.1.5",
         "semver": "^6.3.0"

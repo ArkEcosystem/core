@@ -27,6 +27,8 @@ export enum State {
     PeerRemoved = "peer.removed",
     RoundApplied = "round.applied",
     RoundCreated = "round.created",
+    RoundMissed = "round.missed",
+    StateStarting = "state.starting",
     StateStarted = "state.started",
     TransactionApplied = "transaction.applied",
     TransactionExpired = "transaction.expired",
@@ -35,8 +37,6 @@ export enum State {
     TransactionPoolRejected = "transaction.pool.rejected",
     TransactionPoolRemoved = "transaction.pool.removed",
     TransactionReverted = "transaction.reverted",
-    WalletColdCreated = "wallet.created.cold",
-    WalletSaved = "wallet.saved",
 }
 
 /**

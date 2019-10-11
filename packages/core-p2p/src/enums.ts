@@ -17,6 +17,7 @@ export enum NetworkStateStatus {
     Default,
     BelowMinimumPeers,
     Test,
+    ColdStart,
     Unknown,
 }
 
@@ -31,4 +32,5 @@ export enum SocketErrors {
     Validation = "CoreValidationError",
     RateLimitExceeded = "CoreRateLimitExceededError",
     Forbidden = "CoreForbiddenError",
+    InvalidMessagePayload = "CoreInvalidMessagePayloadError",
 }

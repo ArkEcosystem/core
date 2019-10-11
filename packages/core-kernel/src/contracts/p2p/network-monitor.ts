@@ -8,7 +8,12 @@ export interface NetworkStatus {
     blocksToRollback?: number;
 }
 
-export interface NetworkMonitor {
+export interface IRateLimitStatus {
+    blocked: boolean;
+    exceededLimitOnEndpoint: boolean;
+}
+
+export interface INetworkMonitor {
     start(): Promise<void>;
     updateNetworkStatus(initialRun?: boolean): Promise<void>;
     cleansePeers({
@@ -22,7 +27,9 @@ export interface NetworkMonitor {
     }): Promise<void>;
     discoverPeers(initialRun?: boolean): Promise<boolean>;
     getNetworkHeight(): number;
-    getNetworkState(): Promise<NetworkState>;
+    getNetworkState(): Promise<INetworkState>;
+    getRateLimitStatus(ip: string, endpoint?: string): Promise<IRateLimitStatus>;
+    isBlockedByRateLimit(ip: string): Promise<boolean>;
     refreshPeersAfterFork(): Promise<void>;
     checkNetworkHealth(): Promise<NetworkStatus>;
     syncWithNetwork(fromBlockHeight: number, maxParallelDownloads?: number): Promise<Interfaces.IBlockData[]>;
@@ -30,5 +37,7 @@ export interface NetworkMonitor {
     broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
     getServer(): SocketCluster;
     setServer(server: SocketCluster): void;
+    isColdStart(): boolean;
+    completeColdStart(): void;
     stopServer(): void;
 }

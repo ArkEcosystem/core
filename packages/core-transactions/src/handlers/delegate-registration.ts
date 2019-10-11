@@ -7,9 +7,10 @@ import {
     WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
 } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
-const { TransactionType } = Enums;
+const { TransactionType, TransactionTypeGroup } = Enums;
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
@@ -35,26 +36,28 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         ];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
         const forgedBlocks = await connection.blocksRepository.getDelegatesForgedBlocks();
         const lastForgedBlocks = await connection.blocksRepository.getLastForgedBlocks();
 
-        for (const transaction of transactions) {
-            const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-            wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
-                username: transaction.asset.delegate.username,
-                voteBalance: Utils.BigNumber.ZERO,
-                forgedFees: Utils.BigNumber.ZERO,
-                forgedRewards: Utils.BigNumber.ZERO,
-                producedBlocks: 0,
-                rank: 0,
-            });
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-            walletRepository.reindex(wallet);
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+
+            for (const transaction of transactions) {
+                const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                wallet.setAttribute<State.IWalletDelegateAttributes>("delegate", {
+                    username: transaction.asset.delegate.username,
+                    voteBalance: Utils.BigNumber.ZERO,
+                    forgedFees: Utils.BigNumber.ZERO,
+                    forgedRewards: Utils.BigNumber.ZERO,
+                    producedBlocks: 0,
+                    rank: undefined,
+                });
+
+                walletManager.reindex(wallet);
+            }
         }
 
         for (const block of forgedBlocks) {
@@ -125,7 +128,12 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         const { username }: { username: string } = data.asset.delegate;
         const delegateRegistrationsSameNameInPayload = processor
             .getTransactions()
-            .filter(tx => tx.type === TransactionType.DelegateRegistration && tx.asset.delegate.username === username);
+            .filter(
+                transaction =>
+                    transaction.type === TransactionType.DelegateRegistration &&
+                    (transaction.typeGroup === undefined || transaction.typeGroup === TransactionTypeGroup.Core) &&
+                    transaction.asset.delegate.username === username,
+            );
 
         if (delegateRegistrationsSameNameInPayload.length > 1) {
             processor.pushError(

@@ -41,28 +41,36 @@ export class TransactionHandlerRegistry {
         this.registerTransactionHandler(HtlcRefundTransactionHandler);
     }
 
-    public get(type: number, typeGroup?: number): TransactionHandler {
+    public getAll(): TransactionHandler[] {
+        return [...this.registeredTransactionHandlers.values()];
+    }
+
+    public async get(type: number, typeGroup?: number): Promise<TransactionHandler> {
         const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
             type,
             typeGroup,
         );
         if (this.registeredTransactionHandlers.has(internalType)) {
-            return this.registeredTransactionHandlers.get(internalType);
+            const handler: TransactionHandler = this.registeredTransactionHandlers.get(internalType);
+            if (!(await handler.isActivated())) {
+                throw new DeactivatedTransactionHandlerError(internalType);
+            }
+            return handler;
         }
 
         throw new InvalidTransactionTypeError(internalType.toString());
     }
 
-    public async getActivatedTransactions(): Promise<TransactionHandler[]> {
-        const activatedTransactions: TransactionHandler[] = [];
+    public async getActivatedTransactionHandlers(): Promise<TransactionHandler[]> {
+        const activatedTransactionHandlers: TransactionHandler[] = [];
 
         for (const handler of this.registeredTransactionHandlers.values()) {
             if (await handler.isActivated()) {
-                activatedTransactions.push(handler);
+                activatedTransactionHandlers.push(handler);
             }
         }
 
-        return activatedTransactions;
+        return activatedTransactionHandlers;
     }
 
     public registerTransactionHandler(constructor: TransactionHandlerConstructor) {
@@ -82,7 +90,7 @@ export class TransactionHandlerRegistry {
             return;
         }
 
-        if (!(type in Enums.TransactionType)) {
+        if (typeGroup !== Enums.TransactionTypeGroup.Core) {
             Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
         }
 

@@ -27,7 +27,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
         parameters: Contracts.Database.Parameters = {},
     ): Promise<Contracts.Database.TransactionsPaginated> {
         return this.search({
-            ...{ senderPublicKey, type: Enums.TransactionType.Vote },
+            ...{ senderPublicKey, type: Enums.TransactionType.Vote, typeGroup: Enums.TransactionTypeGroup.Core },
             ...parameters,
         });
     }
@@ -60,25 +60,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
         return this.search({ type, ...parameters });
     }
 
-    // @todo: simplify this
-    public async findAllByWallet(
-        wallet: Contracts.State.Wallet,
-        parameters: Contracts.Database.Parameters = {},
-    ): Promise<Contracts.Database.TransactionsPaginated> {
-        const { transactionsRepository }: Contracts.Database.Connection = this.databaseServiceProvider().connection;
-        const searchParameters = new SearchParameterConverter(transactionsRepository.getModel()).convert(parameters);
-
-        const result = await transactionsRepository.findAllByWallet(
-            wallet,
-            searchParameters.paginate,
-            searchParameters.orderBy,
-        );
-        result.rows = await this.mapBlocksToTransactions(result.rows);
-
-        return result;
-    }
-
-    // @todo: simplify this
+    // @TODO: simplify this
     public async findById(id: string) {
         return (await this.mapBlocksToTransactions(
             await this.databaseServiceProvider().connection.transactionsRepository.findById(id),
@@ -105,8 +87,17 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
         );
     }
 
-    public async getAssetsByType(type: Enums.TransactionType | number): Promise<any> {
-        return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(type);
+    public async getCountOfType(type: number, typeGroup?: number): Promise<number> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getCountOfType(type, typeGroup);
+    }
+
+    public async getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getAssetsByType(
+            type,
+            typeGroup,
+            limit,
+            offset,
+        );
     }
 
     public async getReceivedTransactions(): Promise<any> {
@@ -115,6 +106,24 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
 
     public async getSentTransactions(): Promise<any> {
         return this.databaseServiceProvider().connection.transactionsRepository.getSentTransactions();
+    }
+
+    public async getOpenHtlcLocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getOpenHtlcLocks();
+    }
+
+    public async getRefundedHtlcLocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getRefundedHtlcLocks();
+    }
+
+    public async getClaimedHtlcLocks(): Promise<any> {
+        return this.databaseServiceProvider().connection.transactionsRepository.getClaimedHtlcLocks();
+    }
+
+    public async findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]> {
+        return this.mapBlocksToTransactions(
+            await this.databaseServiceProvider().connection.transactionsRepository.findByHtlcLocks(lockIds),
+        );
     }
 
     private getPublicKeyFromAddress(senderId: string): string {

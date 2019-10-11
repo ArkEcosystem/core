@@ -1,6 +1,5 @@
 import { ErrorObject } from "ajv";
-
-import { HtlcLockExpirationType } from "../transactions/types/enums";
+import { Enums } from "..";
 import { BigNumber } from "../utils";
 
 export interface ITransaction {
@@ -64,7 +63,6 @@ export interface ITransactionData {
 
     asset?: ITransactionAsset;
     vendorField?: string;
-    vendorFieldHex?: string;
 
     id?: string;
     signature?: string;
@@ -95,7 +93,6 @@ export interface ITransactionJson {
 
     asset?: ITransactionAsset;
     vendorField?: string;
-    vendorFieldHex?: string;
 
     id?: string;
     signature?: string;
@@ -134,7 +131,7 @@ export interface IMultiSignatureAsset {
 export interface IHtlcLockAsset {
     secretHash: string;
     expiration: {
-        type: HtlcLockExpirationType;
+        type: Enums.HtlcLockExpirationType;
         value: number;
     };
 }
@@ -148,7 +145,26 @@ export interface IHtlcRefundAsset {
     lockTransactionId: string;
 }
 
+export interface IHtlcLock extends IHtlcLockAsset {
+    amount: BigNumber;
+    recipientId: string;
+    timestamp: number;
+    vendorField: string;
+}
+
+export type IHtlcLocks = Record<string, IHtlcLock>;
+
+export interface IHtlcExpiration {
+    type: Enums.HtlcLockExpirationType;
+    value: number;
+}
+
+export interface IDeserializeOptions {
+    acceptLegacyVersion?: boolean;
+}
+
 export interface ISerializeOptions {
+    acceptLegacyVersion?: boolean;
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
     excludeMultiSignature?: boolean;

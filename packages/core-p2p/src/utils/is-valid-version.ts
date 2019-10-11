@@ -19,5 +19,8 @@ export const isValidVersion = (peer: Contracts.P2P.Peer): boolean => {
         minimumVersions = app.get<{ minimumVersions: string[] }>("p2p.options").minimumVersions;
     }
 
-    return minimumVersions.some((minimumVersion: string) => semver.satisfies(peer.version, minimumVersion));
+    const includePrerelease: boolean = Managers.configManager.get("network.name") !== "mainnet";
+    return minimumVersions.some((minimumVersion: string) =>
+        semver.satisfies(peer.version, minimumVersion, { includePrerelease }),
+    );
 };

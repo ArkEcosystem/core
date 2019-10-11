@@ -4,15 +4,12 @@ import { isWhitelisted } from "../../utils/is-whitelisted";
 import * as internalHandlers from "./internal";
 import * as peerHandlers from "./peer";
 
-export const isAppReady = (): {
-    transactionPool: boolean;
-    blockchain: boolean;
-    p2p: boolean;
-} => ({
-    transactionPool: app.isBound(Container.Identifiers.TransactionPoolService),
-    blockchain: app.isBound(Container.Identifiers.BlockchainService),
-    p2p: app.isBound(Container.Identifiers.PeerNetworkMonitor),
-});
+export const isAppReady = (): { ready: boolean } => {
+    return {
+        ready:
+            !!app.resolvePlugin("transaction-pool") && !!app.resolvePlugin("blockchain") && !!app.resolvePlugin("p2p"),
+    };
+};
 
 export const getHandlers = (): { [key: string]: string[] } => ({
     peer: Object.keys(peerHandlers),

@@ -105,6 +105,9 @@ export class StateStore implements Contracts.State.StateStore {
         if (this.lastBlocks.size > app.get<any>("state.options").storage.maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
+
+        this.noBlockCounter = 0;
+        this.p2pUpdateCounter = 0;
     }
 
     /**
@@ -196,10 +199,10 @@ export class StateStore implements Contracts.State.StateStore {
     }
 
     /**
-     * Remove the given transaction ids from the cache.
+     * Drop all cached transaction ids.
      */
-    public removeCachedTransactionIds(transactionIds: string[]): void {
-        this.cachedTransactionIds = this.cachedTransactionIds.subtract(transactionIds);
+    public clearCachedTransactionIds(): void {
+        this.cachedTransactionIds = this.cachedTransactionIds.clear();
     }
 
     /**

@@ -51,17 +51,14 @@ export class Connection implements Contracts.TransactionPool.Connection {
         this.memory.flush();
         this.storage.connect(this.options.storage);
 
-        let transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
+        const transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
         for (const transaction of transactionsFromDisk) {
             this.memory.remember(transaction, true);
         }
 
-        this.emitter.listenOnce("internal.stateBuilder.finished", async () => {
-            const validTransactions = await this.validateTransactions(transactionsFromDisk);
-            transactionsFromDisk = transactionsFromDisk.filter(transaction =>
-                validTransactions.includes(transaction.serialized.toString("hex")),
-            );
-
+        this.emitter.once("internal.stateBuilder.finished", async () => {
+            // Remove from the pool invalid entries found in `transactionsFromDisk`.
+            await this.validateTransactions(transactionsFromDisk);
             await this.purgeExpired();
             this.syncToPersistentStorage();
         });
@@ -76,14 +73,18 @@ export class Connection implements Contracts.TransactionPool.Connection {
         this.storage.disconnect();
     }
 
-    public makeProcessor(): Contracts.TransactionPool.Processor {
-        return new Processor(this, this.walletRepository);
+    public makeProcessor(): TransactionPool.IProcessor {
+        return new Processor(this);
     }
 
-    public async getTransactionsByType(type: number): Promise<Set<Interfaces.ITransaction>> {
+    public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
+        if (typeGroup === undefined) {
+            typeGroup = Enums.TransactionTypeGroup.Core;
+        }
+
         await this.purgeExpired();
 
-        return this.memory.getByType(type);
+        return this.memory.getByType(type, typeGroup);
     }
 
     public async getPoolSize(): Promise<number> {
@@ -208,9 +209,10 @@ export class Connection implements Contracts.TransactionPool.Connection {
             const { data }: Interfaces.ITransaction = transaction;
             const exists: boolean = await this.has(data.id);
             const senderPublicKey: string = data.senderPublicKey;
-            const transactionHandler: Handlers.TransactionHandler = app
-                .get<any>("transactionHandlerRegistry")
-                .get(transaction.type, transaction.typeGroup);
+            const transactionHandler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                transaction.type,
+                transaction.typeGroup,
+            );
 
             const senderWallet: Contracts.State.Wallet = this.walletRepository.hasByPublicKey(senderPublicKey)
                 ? this.walletRepository.findByPublicKey(senderPublicKey)
@@ -266,9 +268,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
             delegateWallet.balance = delegateWallet.balance.plus(block.data.reward.plus(block.data.totalFee));
         }
 
-        app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).removeCachedTransactionIds(
-            block.transactions.map(tx => tx.id),
-        );
+        app.resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .clearCachedTransactionIds();
     }
 
     public async buildWallets(): Promise<void> {
@@ -276,9 +278,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
-        app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).removeCachedTransactionIds(
-            transactionIds,
-        );
+        app.resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .clearCachedTransactionIds();
 
         for (const transactionId of transactionIds) {
             const transaction: Interfaces.ITransaction = await this.getTransaction(transactionId);
@@ -293,9 +295,10 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
             // TODO: rework error handling
             try {
-                const transactionHandler: Handlers.TransactionHandler = app
-                    .get<any>("transactionHandlerRegistry")
-                    .get(transaction.type, transaction.typeGroup);
+                const transactionHandler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                    transaction.type,
+                    transaction.typeGroup,
+                );
                 await transactionHandler.throwIfCannotBeApplied(
                     transaction,
                     senderWallet,
@@ -326,12 +329,20 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
     public async senderHasTransactionsOfType(
         senderPublicKey: string,
-        transactionType: Enums.TransactionType,
+        type: number,
+        typeGroup?: number,
     ): Promise<boolean> {
         await this.purgeExpired();
 
+        if (typeGroup === undefined) {
+            typeGroup = Enums.TransactionTypeGroup.Core;
+        }
+
         for (const transaction of this.memory.getBySender(senderPublicKey)) {
-            if (transaction.type === transactionType) {
+            const transactionGroup: number =
+                transaction.typeGroup === undefined ? Enums.TransactionTypeGroup.Core : transaction.typeGroup;
+
+            if (transaction.type === type && transactionGroup === typeGroup) {
                 return true;
             }
         }
@@ -346,51 +357,46 @@ export class Connection implements Contracts.TransactionPool.Connection {
     ): Promise<Interfaces.ITransaction[]> {
         await this.purgeExpired();
 
-        let data: Interfaces.ITransaction[] = [];
+        const data: Interfaces.ITransaction[] = [];
 
         let transactionBytes = 0;
 
-        const removeInvalid = async (transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> => {
-            const valid = await this.validateTransactions(transactions);
-            return transactions.filter(transaction => valid.includes(transaction.serialized.toString("hex")));
-        };
+        const tempWalletManager: Wallets.TempWalletManager = new Wallets.TempWalletManager(
+            this.databaseService.walletManager,
+        );
 
         let i = 0;
+        // Copy the returned array because validateTransactions() in the loop body we may remove entries.
         const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
         for (const transaction of allTransactions) {
             if (data.length === size) {
-                data = await removeInvalid(data);
-                if (data.length === size) {
+                return data;
+            }
+
+            const valid: Interfaces.ITransaction[] = await this.validateTransactions([transaction], tempWalletManager);
+
+            if (valid.length === 0) {
+                continue;
+            }
+
+            if (i++ < start) {
+                continue;
+            }
+
+            if (maxBytes > 0) {
+                const transactionSize: number = JSON.stringify(transaction.data).length;
+
+                if (transactionBytes + transactionSize > maxBytes) {
                     return data;
-                } else {
-                    transactionBytes = 0; // TODO: get rid of `maxBytes`
                 }
+
+                transactionBytes += transactionSize;
             }
 
-            if (i >= start) {
-                let pushTransaction = false;
-
-                if (maxBytes > 0) {
-                    const transactionSize: number = JSON.stringify(transaction.data).length;
-
-                    if (transactionBytes + transactionSize <= maxBytes) {
-                        transactionBytes += transactionSize;
-                        pushTransaction = true;
-                    }
-                } else {
-                    pushTransaction = true;
-                }
-
-                if (pushTransaction) {
-                    data.push(transaction);
-                    i++;
-                }
-            } else {
-                i++;
-            }
+            data.push(transaction);
         }
 
-        return removeInvalid(data);
+        return data;
     }
 
     private async addTransaction(
@@ -434,11 +440,13 @@ export class Connection implements Contracts.TransactionPool.Connection {
         this.memory.remember(transaction);
 
         try {
-            await this.walletRepository.throwIfCannotBeApplied(transaction);
-            await app
-                .get<any>("transactionHandlerRegistry")
-                .get(transaction.type, transaction.typeGroup)
-                .applyToSender(transaction, this.walletRepository);
+            await this.walletManager.throwIfCannotBeApplied(transaction);
+
+            const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                transaction.type,
+                transaction.typeGroup,
+            );
+            await handler.applyToSender(transaction, this.walletManager);
         } catch (error) {
             this.logger.error(error.message);
 
@@ -463,16 +471,22 @@ export class Connection implements Contracts.TransactionPool.Connection {
         this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
     }
 
-    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
-        const validTransactions: string[] = [];
+    /**
+     * Validate the given transactions and return only the valid ones - a subset of the input.
+     * The invalid ones are removed from the pool.
+     */
+    private async validateTransactions(
+        transactions: Interfaces.ITransaction[],
+        walletManager?: Wallets.TempWalletManager,
+    ): Promise<Interfaces.ITransaction[]> {
+        const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
-        const unforgedTransactions = transactions.filter(
-            (transaction: Interfaces.ITransaction) => !forgedIds.includes(transaction.id),
-        );
+        const unforgedTransactions = differencewith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
 
-        const databaseWalletRepository: Contracts.State.WalletRepository = this.databaseService.walletRepository;
-        const localWalletRepository: Wallets.WalletRepository = new Wallets.WalletRepository();
+        if (walletManager === undefined) {
+            walletManager = new Wallets.TempWalletManager(this.databaseService.walletManager);
+        }
 
         for (const transaction of unforgedTransactions) {
             try {
@@ -482,20 +496,25 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
                 strictEqual(transaction.id, deserialized.id);
 
-                const { sender, recipient } = this.getSenderAndRecipient(transaction, localWalletRepository);
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
-                const handler: Handlers.TransactionHandler = app
-                    .get<any>("transactionHandlerRegistry")
-                    .get(transaction.type, transaction.typeGroup);
-                await handler.throwIfCannotBeApplied(transaction, sender, databaseWalletRepository);
-
-                await handler.applyToSender(transaction, localWalletRepository);
-
-                if (recipient && sender.address !== recipient.address) {
-                    await handler.applyToRecipient(transaction, localWalletRepository);
+                let recipient: State.IWallet | undefined;
+                if (transaction.data.recipientId) {
+                    recipient = walletManager.findByAddress(transaction.data.recipientId);
                 }
 
-                validTransactions.push(deserialized.serialized.toString("hex"));
+                const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                    transaction.type,
+                    transaction.typeGroup,
+                );
+
+                await handler.applyToSender(transaction, walletManager);
+
+                if (recipient && sender.address !== recipient.address) {
+                    await handler.applyToRecipient(transaction, walletManager);
+                }
+
+                validTransactions.push(transaction);
             } catch (error) {
                 this.removeTransactionById(transaction.id);
                 this.logger.error(
@@ -505,52 +524,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
         }
 
         return validTransactions;
-    }
-
-    private getSenderAndRecipient(
-        transaction: Interfaces.ITransaction,
-        localWalletRepository: Contracts.State.WalletRepository,
-    ): { sender: Contracts.State.Wallet; recipient: Contracts.State.Wallet } {
-        const databaseWalletRepository: Contracts.State.WalletRepository = this.databaseService.walletRepository;
-        const { senderPublicKey, recipientId } = transaction.data;
-
-        let sender: Contracts.State.Wallet;
-        let recipient: Contracts.State.Wallet;
-
-        if (localWalletRepository.hasByPublicKey(senderPublicKey)) {
-            sender = localWalletRepository.findByPublicKey(senderPublicKey);
-        } else {
-            sender = AppUtils.cloneDeep(databaseWalletRepository.findByPublicKey(senderPublicKey));
-            localWalletRepository.reindex(sender);
-        }
-
-        // HACK: need tx agonistic way for wallets which are modified by transaction
-        if (transaction.type === Enums.TransactionType.Vote) {
-            const vote = transaction.data.asset.votes[0].slice(1);
-            if (!localWalletRepository.hasByPublicKey(vote)) {
-                localWalletRepository.reindex(AppUtils.cloneDeep(databaseWalletRepository.findByPublicKey(vote)));
-            }
-        } else if (transaction.type === Enums.TransactionType.HtlcClaim) {
-            const lockId = transaction.data.asset.claim.lockTransactionId;
-            if (!localWalletRepository.hasByIndex(Contracts.State.WalletIndexes.Locks, lockId)) {
-                localWalletRepository.reindex(
-                    AppUtils.cloneDeep(
-                        databaseWalletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId),
-                    ),
-                );
-            }
-        }
-
-        if (recipientId) {
-            if (localWalletRepository.hasByAddress(recipientId)) {
-                recipient = localWalletRepository.findByAddress(recipientId);
-            } else {
-                recipient = AppUtils.cloneDeep(databaseWalletRepository.findByAddress(recipientId));
-                localWalletRepository.reindex(recipient);
-            }
-        }
-
-        return { sender, recipient };
     }
 
     private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {

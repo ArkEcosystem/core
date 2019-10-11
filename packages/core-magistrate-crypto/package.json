@@ -1,0 +1,31 @@
+{
+    "name": "@arkecosystem/core-magistrate-crypto",
+    "version": "2.5.0-next.10",
+    "description": "ARK transactions for businesses and bridgechains",
+    "license": "MIT",
+    "contributors": [
+        "Joshua Noack <joshua@ark.io>",
+        "Kristjan Košič <kristjan@ark.io>",
+        "Žan Kovač <zan@ark.io>"
+    ],
+    "files": [
+        "dist"
+    ],
+    "main": "dist/index",
+    "types": "dist/index",
+    "scripts": {
+        "build": "yarn clean && tsc",
+        "build:watch": "yarn clean && yarn compile -w",
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build"
+    },
+    "dependencies": {
+        "@arkecosystem/crypto": "^2.5.0-next.10",
+        "bytebuffer": "^5.0.1",
+        "long": "~3"
+    },
+    "publishConfig": {
+        "access": "public"
+    }
+}

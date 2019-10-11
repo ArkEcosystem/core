@@ -2,7 +2,6 @@ import { Contracts } from "@arkecosystem/core-kernel";
 
 import { DatabaseService } from "./database-service";
 import { BlocksBusinessRepository } from "./repositories/blocks-business-repository";
-import { DelegatesBusinessRepository } from "./repositories/delegates-business-repository";
 import { TransactionsBusinessRepository } from "./repositories/transactions-business-repository";
 import { WalletsBusinessRepository } from "./repositories/wallets-business-repository";
 
@@ -17,7 +16,6 @@ export const databaseServiceFactory = async (
         connection,
         walletRepository,
         new WalletsBusinessRepository(() => databaseService),
-        new DelegatesBusinessRepository(() => databaseService),
         new TransactionsBusinessRepository(() => databaseService),
         new BlocksBusinessRepository(() => databaseService),
     );

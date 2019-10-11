@@ -1,6 +1,7 @@
 import ByteBuffer from "bytebuffer";
-
+import Long from "long";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
+import { Address } from "../../identities";
 import { ISerializeOptions } from "../../interfaces";
 import { Base58 } from "../../utils/base58";
 import { BigNumber } from "../../utils/bignum";
@@ -25,9 +26,9 @@ export class TransferTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(24, true);
-        buffer.writeUint64(+data.amount);
+        buffer.writeUint64(Long.fromString(data.amount.toString()));
         buffer.writeUint32(data.expiration || 0);
-        buffer.append(Base58.decodeCheck(data.recipientId));
+        buffer.append(Address.toBuffer(data.recipientId));
 
         return buffer;
     }

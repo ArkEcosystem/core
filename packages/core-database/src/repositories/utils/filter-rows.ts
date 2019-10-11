@@ -9,8 +9,7 @@ import { getProperty } from "./get-property";
  * @param  {Object} filters
  * @return {Array}
  */
-// todo: review implementation - quite a mess at the moment
-export = (rows: ReadonlyArray<Contracts.State.Wallet>, params, filters): Contracts.State.Wallet[] => {
+export = <T = any>(rows: ReadonlyArray<T>, params: Database.IParameters, filters: Record<string, string[]>): T[] => {
     return rows.filter(item => {
         if (filters.hasOwnProperty("exact")) {
             for (const elem of filters.exact) {
@@ -47,10 +46,12 @@ export = (rows: ReadonlyArray<Contracts.State.Wallet>, params, filters): Contrac
                     let isLessThan = true;
 
                     if (params[elem].hasOwnProperty("from")) {
+                        // @ts-ignore
                         isMoreThan = getProperty(item, elem) >= params[elem].from;
                     }
 
                     if (params[elem].hasOwnProperty("to")) {
+                        // @ts-ignore
                         isLessThan = getProperty(item, elem) <= params[elem].to;
                     }
 
@@ -62,6 +63,7 @@ export = (rows: ReadonlyArray<Contracts.State.Wallet>, params, filters): Contrac
         if (filters.hasOwnProperty("in")) {
             for (const elem of filters.in) {
                 if (params[elem] && Array.isArray(params[elem])) {
+                    // @ts-ignore
                     return params[elem].indexOf(getProperty(item, elem)) > -1;
                 }
             }
@@ -73,6 +75,7 @@ export = (rows: ReadonlyArray<Contracts.State.Wallet>, params, filters): Contrac
             for (const elem of filters.any) {
                 if (params[elem] && getProperty(item, elem)) {
                     if (Array.isArray(params[elem])) {
+                        // @ts-ignore
                         if (item[elem].every(a => params[elem].indexOf(a) === -1)) {
                             return false;
                         }

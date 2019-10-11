@@ -2,10 +2,10 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { InsufficientBalanceError } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
-// todo: revisit the implementation, container usage and arguments after core-database rework
-// todo: replace unnecessary function arguments with dependency injection to avoid passing around references
+// tslint:disable-next-line: max-classes-per-file
 export class MultiPaymentTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.MultiPaymentTransaction;
@@ -19,18 +19,18 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        for (const transaction of transactions) {
-            const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-            for (const payment of transaction.asset.payments) {
-                const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
-                recipient.balance = recipient.balance.plus(payment.amount);
-                sender.balance = sender.balance.minus(payment.amount);
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+            for (const transaction of transactions) {
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                for (const payment of transaction.asset.payments) {
+                    const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
+                    recipient.balance = recipient.balance.plus(payment.amount);
+                    sender.balance = sender.balance.minus(payment.amount);
+                }
             }
         }
     }

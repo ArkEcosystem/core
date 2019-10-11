@@ -27,7 +27,6 @@ export class ConfigManager {
         };
 
         this.validateMilestones();
-
         this.buildConstants();
     }
 
@@ -59,8 +58,9 @@ export class ConfigManager {
         return this.height;
     }
 
-    public isNewMilestone(): boolean {
-        return this.milestones.map(milestone => milestone.height).includes(this.height);
+    public isNewMilestone(height?: number): boolean {
+        height = height || this.height;
+        return this.milestones.some(milestone => milestone.height === height);
     }
 
     public getMilestone(height?: number): { [key: string]: any } {

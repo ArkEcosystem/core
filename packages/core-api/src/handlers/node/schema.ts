@@ -10,3 +10,14 @@ export const fees: object = {
             .default(7),
     },
 };
+
+export const debug: object = {
+    query: {
+        lines: joi
+            .number()
+            .integer()
+            .min(1)
+            .max(10000)
+            .default(1000),
+    },
+};

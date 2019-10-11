@@ -10,15 +10,12 @@ export class StateBuilder {
     >(Container.Identifiers.EventDispatcherService);
 
     constructor(
-        private readonly connection: Contracts.Database.Connection,
-        private readonly walletRepository: Contracts.State.WalletRepository,
-        private readonly walletState,
+        private readonly connection: Database.IConnection,
+        private readonly walletManager: State.IWalletManager,
     ) {}
 
     public async run(): Promise<void> {
-        const transactionHandlers: Handlers.TransactionHandler[] = await app
-            .get<any>("transactionHandlerRegistry")
-            .getActivatedTransactions();
+        const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.getAll();
         const steps = transactionHandlers.length + 3;
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
@@ -38,12 +35,9 @@ export class StateBuilder {
         }
 
         this.logger.info(`State Generation - Step ${steps} of ${steps}: Vote Balances & Delegate Ranking`);
-        this.walletState.buildVoteBalances();
-        this.walletState.buildDelegateRanking();
+        this.walletManager.buildVoteBalances();
+        this.walletManager.buildDelegateRanking();
 
-        this.logger.info(
-            `State Generation complete! Wallets in memory: ${Object.keys(this.walletRepository.allByAddress()).length}`,
-        );
         this.logger.info(
             `Number of registered delegates: ${Object.keys(this.walletRepository.allByUsername()).length}`,
         );

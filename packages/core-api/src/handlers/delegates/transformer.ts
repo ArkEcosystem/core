@@ -12,6 +12,7 @@ export const transformDelegate = (delegate: Contracts.State.Wallet) => {
         publicKey: delegate.publicKey,
         votes: Utils.BigNumber.make(attributes.voteBalance).toFixed(),
         rank: attributes.rank,
+        isResigned: attributes.resigned,
         blocks: {
             produced: attributes.producedBlocks,
         },

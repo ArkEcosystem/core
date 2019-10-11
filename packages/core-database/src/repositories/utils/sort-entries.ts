@@ -16,5 +16,25 @@ export const sortEntries = (params: Contracts.Database.Parameters, entries: Cont
         });
     }
 
-    return AppUtils.orderBy(entries, [iteratee], [order as "desc" | "asc"]);
+    return orderBy(
+        entries,
+        (entry: T) => {
+            if (typeof iteratee === "function") {
+                // @ts-ignore
+                return iteratee(entry);
+            }
+
+            if (dottie.exists(entry, iteratee)) {
+                return dottie.get(entry, iteratee);
+            }
+
+            const delegateAttribute: string = `attributes.delegate.${iteratee}`;
+            if (dottie.exists(entry, delegateAttribute)) {
+                return dottie.get(entry, delegateAttribute);
+            }
+
+            return dottie.get(entry, `attributes.${iteratee}`);
+        },
+        [order],
+    );
 };

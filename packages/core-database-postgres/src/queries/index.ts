@@ -33,7 +33,11 @@ export const queries = {
         lastForgedBlocks: loadQueryFile(__dirname, "./state-builder/last-forged-blocks.sql"),
         receivedTransactions: loadQueryFile(__dirname, "./state-builder/received-transactions.sql"),
         sentTransactions: loadQueryFile(__dirname, "./state-builder/sent-transactions.sql"),
+        countType: loadQueryFile(__dirname, "./state-builder/count-type.sql"),
         assetsByType: loadQueryFile(__dirname, "./state-builder/assets-by-type.sql"),
+        openLocks: loadQueryFile(__dirname, "./state-builder/open-locks.sql"),
+        refundedLocks: loadQueryFile(__dirname, "./state-builder/refunded-locks.sql"),
+        claimedLocks: loadQueryFile(__dirname, "./state-builder/claimed-locks.sql"),
     },
     transactions: {
         findByBlock: loadQueryFile(__dirname, "./transactions/find-by-block.sql"),
@@ -44,5 +48,6 @@ export const queries = {
         findById: loadQueryFile(__dirname, "./transactions/find-by-id.sql"),
         deleteByBlock: loadQueryFile(__dirname, "./transactions/delete-by-block.sql"),
         feeStatistics: loadQueryFile(__dirname, "./transactions/fee-statistics.sql"),
+        findByHtlcLocks: loadQueryFile(__dirname, "./transactions/find-by-htlc-locks.sql"),
     },
 };

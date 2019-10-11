@@ -129,11 +129,19 @@ export class Wallet implements Contracts.State.Wallet {
             excludeMultiSignature: true,
         });
 
-        let verified = false;
-        let verifiedSignatures = 0;
+        const publicKeyIndexes: { [index: number]: boolean } = {};
+        let verified: boolean = false;
+        let verifiedSignatures: number = 0;
         for (let i = 0; i < signatures.length; i++) {
             const signature: string = signatures[i];
             const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
+
+            if (!publicKeyIndexes[publicKeyIndex]) {
+                publicKeyIndexes[publicKeyIndex] = true;
+            } else {
+                throw new CryptoErrors.DuplicateParticipantInMultiSignatureError();
+            }
+
             const partialSignature: string = signature.slice(2, 130);
             const publicKey: string = publicKeys[publicKeyIndex];
 
@@ -150,6 +158,28 @@ export class Wallet implements Contracts.State.Wallet {
         }
 
         return verified;
+    }
+
+    /**
+     * Verify that the transaction's nonce is the wallet nonce plus one, so that the
+     * transaction can be applied to the wallet.
+     * Throw an exception if it is not.
+     */
+    public verifyTransactionNonceApply(transaction: Interfaces.ITransaction): void {
+        if (transaction.data.version > 1 && !this.nonce.plus(1).isEqualTo(transaction.data.nonce)) {
+            throw new Errors.UnexpectedNonceError(transaction.data.nonce, this, false);
+        }
+    }
+
+    /**
+     * Verify that the transaction's nonce is the same as the wallet nonce, so that the
+     * transaction can be reverted from the wallet.
+     * Throw an exception if it is not.
+     */
+    public verifyTransactionNonceRevert(transaction: Interfaces.ITransaction): void {
+        if (transaction.data.version > 1 && !this.nonce.isEqualTo(transaction.data.nonce)) {
+            throw new Errors.UnexpectedNonceError(transaction.data.nonce, this, true);
+        }
     }
 
     public auditApply(transaction: Interfaces.ITransactionData): any[] {
@@ -188,54 +218,59 @@ export class Wallet implements Contracts.State.Wallet {
             });
         }
 
-        if (transaction.type === Enums.TransactionType.Transfer) {
-            audit.push({ Transfer: true });
-        }
+        const typeGroup: number = transaction.typeGroup || Enums.TransactionTypeGroup.Core;
+        if (typeGroup === Enums.TransactionTypeGroup.Core) {
+            if (transaction.type === Enums.TransactionType.Transfer) {
+                audit.push({ Transfer: true });
+            }
 
-        if (transaction.type === Enums.TransactionType.SecondSignature) {
-            audit.push({ "Second public key": secondPublicKey });
-        }
+            if (transaction.type === Enums.TransactionType.SecondSignature) {
+                audit.push({ "Second public key": secondPublicKey });
+            }
 
-        if (transaction.type === Enums.TransactionType.DelegateRegistration) {
-            const username = transaction.asset.delegate.username;
-            audit.push({ "Current username": delegate.username });
-            audit.push({ "New username": username });
-        }
+            if (transaction.type === Enums.TransactionType.DelegateRegistration) {
+                const username = transaction.asset.delegate.username;
+                audit.push({ "Current username": delegate.username });
+                audit.push({ "New username": username });
+            }
 
-        if (transaction.type === Enums.TransactionType.DelegateResignation) {
-            audit.push({ "Resigned delegate": delegate.username });
-        }
+            if (transaction.type === Enums.TransactionType.DelegateResignation) {
+                audit.push({ "Resigned delegate": delegate.username });
+            }
 
-        if (transaction.type === Enums.TransactionType.Vote) {
-            audit.push({ "Current vote": this.getAttribute("vote") });
-            audit.push({ "New vote": transaction.asset.votes[0] });
-        }
+            if (transaction.type === Enums.TransactionType.Vote) {
+                audit.push({ "Current vote": this.getAttribute("vote") });
+                audit.push({ "New vote": transaction.asset.votes[0] });
+            }
 
-        if (transaction.type === Enums.TransactionType.MultiSignature) {
-            const keysgroup = transaction.asset.multisignature.keysgroup;
-            audit.push({ "Multisignature not yet registered": !multiSignature });
-            audit.push({
-                "Multisignature enough keys": keysgroup.length >= transaction.asset.multiSignature.min,
-            });
-            audit.push({
-                "Multisignature all keys signed": keysgroup.length === transaction.signatures.length,
-            });
-            audit.push({
-                "Multisignature verification": this.verifySignatures(transaction, transaction.asset.multiSignature),
-            });
-        }
+            if (transaction.type === Enums.TransactionType.MultiSignature) {
+                const keysgroup = transaction.asset.multisignature.keysgroup;
+                audit.push({ "Multisignature not yet registered": !multiSignature });
+                audit.push({
+                    "Multisignature enough keys": keysgroup.length >= transaction.asset.multiSignature.min,
+                });
+                audit.push({
+                    "Multisignature all keys signed": keysgroup.length === transaction.signatures.length,
+                });
+                audit.push({
+                    "Multisignature verification": this.verifySignatures(transaction, transaction.asset.multiSignature),
+                });
+            }
 
-        if (transaction.type === Enums.TransactionType.Ipfs) {
-            audit.push({ IPFS: true });
-        }
+            if (transaction.type === Enums.TransactionType.Ipfs) {
+                audit.push({ IPFS: true });
+            }
 
-        if (transaction.type === Enums.TransactionType.MultiPayment) {
-            const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
-            audit.push({ "Multipayment remaining amount": amount });
-        }
+            if (transaction.type === Enums.TransactionType.MultiPayment) {
+                const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
+                audit.push({ "Multipayment remaining amount": amount });
+            }
 
-        if (!Object.values(Enums.TransactionType).includes(transaction.type)) {
-            audit.push({ "Unknown Type": true });
+            if (!(transaction.type in Enums.TransactionType)) {
+                audit.push({ "Unknown Type": true });
+            }
+        } else {
+            audit.push({ Type: transaction.type, TypeGroup: transaction.typeGroup });
         }
 
         return audit;

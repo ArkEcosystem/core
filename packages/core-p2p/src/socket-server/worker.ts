@@ -1,17 +1,18 @@
+import { P2P } from "@arkecosystem/core-interfaces";
 import SCWorker from "socketcluster/scworker";
 
 import { SocketErrors } from "../enums";
-import { RateLimiter } from "./rate-limiter";
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
-    private rateLimiter: RateLimiter;
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
 
         await this.loadConfiguration();
 
+        // @ts-ignore
+        this.scServer.wsServer.on("connection", (ws, req) => this.handlePayload(ws, req));
         this.scServer.on("connection", socket => this.handleConnection(socket));
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
             this.handleHandshake(req, next),
@@ -21,38 +22,36 @@ export class Worker extends SCWorker {
 
     private async loadConfiguration(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
-
         this.config = data;
-        this.rateLimiter = new RateLimiter({
-            whitelist: [...this.config.whitelist, ...this.config.remoteAccess],
-            configurations: {
-                global: {
-                    rateLimit: this.config.rateLimit,
-                    blockDuration: 60 * 1, // 1 minute ban for now
-                },
-                endpoints: [
-                    {
-                        rateLimit: 1,
-                        endpoint: "p2p.peer.postBlock",
-                    },
-                    {
-                        rateLimit: 1,
-                        endpoint: "p2p.peer.getBlocks",
-                    },
-                    {
-                        rateLimit: 1,
-                        endpoint: "p2p.peer.getPeers",
-                    },
-                    {
-                        rateLimit: 2,
-                        endpoint: "p2p.peer.getStatus",
-                    },
-                    {
-                        rateLimit: 5,
-                        endpoint: "p2p.peer.getCommonBlocks",
-                    },
-                ],
-            },
+    }
+
+    private handlePayload(ws, req) {
+        ws.on("message", message => {
+            try {
+                const InvalidMessagePayloadError: Error = this.createError(
+                    SocketErrors.InvalidMessagePayload,
+                    "The message contained an invalid payload",
+                );
+                if (message === "#2") {
+                    const timeNow: number = new Date().getTime() / 1000;
+                    if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
+                        throw InvalidMessagePayloadError;
+                    }
+                    ws._lastPingTime = timeNow;
+                } else {
+                    const parsed = JSON.parse(message);
+                    if (
+                        typeof parsed.event !== "string" ||
+                        typeof parsed.data !== "object" ||
+                        (typeof parsed.cid !== "number" &&
+                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
+                    ) {
+                        throw InvalidMessagePayloadError;
+                    }
+                }
+            } catch (error) {
+                ws.terminate();
+            }
         });
     }
 
@@ -74,9 +73,15 @@ export class Worker extends SCWorker {
     }
 
     private async handleHandshake(req, next): Promise<void> {
-        const isBlocked = await this.rateLimiter.isBlocked(req.socket.remoteAddress);
-        const isBlacklisted = (this.config.blacklist || []).includes(req.socket.remoteAddress);
-        if (isBlocked || isBlacklisted) {
+        const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
+            "p2p.internal.isBlockedByRateLimit",
+            {
+                data: { ip: req.socket.remoteAddress },
+            },
+        );
+
+        const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
+        if (data.blocked || isBlacklisted) {
             next(this.createError(SocketErrors.Forbidden, "Blocked due to rate limit or blacklisted."));
             return;
         }
@@ -85,34 +90,51 @@ export class Worker extends SCWorker {
     }
 
     private async handleEmit(req, next): Promise<void> {
-        if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
-            if (await this.rateLimiter.isBlocked(req.socket.remoteAddress)) {
-                req.socket.disconnect(4403, "Forbidden");
+        if (req.event.length > 128) {
+            req.socket.terminate();
+            return;
+        }
+
+        const { data }: { data: P2P.IRateLimitStatus } = await this.sendToMasterAsync(
+            "p2p.internal.getRateLimitStatus",
+            {
+                data: {
+                    ip: req.socket.remoteAddress,
+                    endpoint: req.event,
+                },
+            },
+        );
+
+        if (data.exceededLimitOnEndpoint) {
+            if (data.blocked) {
+                // Global ban
+                req.socket.terminate();
                 return;
             }
 
-            return next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
+            req.socket.terminate();
+            return;
         }
 
-        // @todo: check if this is still needed
-        if (!req.data) {
-            return next(this.createError(SocketErrors.HeadersRequired, "Request data and is mandatory"));
+        // ensure basic format of incoming data, req.data must be as { data, headers }
+        if (typeof req.data !== "object" || typeof req.data.data !== "object" || typeof req.data.headers !== "object") {
+            req.socket.terminate();
+            return;
         }
 
         try {
             const [prefix, version] = req.event.split(".");
 
             if (prefix !== "p2p") {
-                return next(this.createError(SocketErrors.WrongEndpoint, `Wrong endpoint: ${req.event}`));
+                req.socket.terminate();
+                return;
             }
 
             // Check that blockchain, tx-pool and p2p are ready
-            const isAppReady: any = await this.sendToMasterAsync("p2p.utils.isAppReady");
-
-            for (const [plugin, ready] of Object.entries(isAppReady.data)) {
-                if (!ready) {
-                    return next(this.createError(SocketErrors.AppNotReady, `${plugin} isn't ready!`));
-                }
+            const isAppReady: boolean = (await this.sendToMasterAsync("p2p.utils.isAppReady")).data.ready;
+            if (!isAppReady) {
+                req.socket.terminate();
+                return;
             }
 
             if (version === "internal") {
@@ -121,18 +143,17 @@ export class Worker extends SCWorker {
                 });
 
                 if (!data.authorized) {
-                    return next(
-                        this.createError(
-                            SocketErrors.ForgerNotAuthorized,
-                            "Not authorized: internal endpoint is only available for whitelisted forger",
-                        ),
-                    );
+                    req.socket.terminate();
+                    return;
                 }
             } else if (version === "peer") {
                 this.sendToMasterAsync("p2p.internal.acceptNewPeer", {
                     data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
                 });
+            } else {
+                req.socket.disconnect(4400, "Bad Request");
+                return;
             }
 
             // some handlers need this remoteAddress info
@@ -143,11 +164,8 @@ export class Worker extends SCWorker {
             console.log(e);
             this.log(e.message, "error");
 
-            if (e.name === SocketErrors.Validation) {
-                return next(e);
-            }
-
-            return next(this.createError(SocketErrors.Unknown, "Unknown error"));
+            req.socket.terminate();
+            return;
         }
 
         next();

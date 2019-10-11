@@ -71,6 +71,15 @@ export const registerRoutes = (server: Hapi.Server): void => {
     });
 
     server.route({
+        method: "GET",
+        path: "/wallets/{id}/locks",
+        handler: controller.locks,
+        options: {
+            validate: Schema.locks,
+        },
+    });
+
+    server.route({
         method: "POST",
         path: "/wallets/search",
         handler: controller.search,

@@ -66,7 +66,6 @@ export const transfer = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionType.Transfer },
         vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
-        vendorFieldHex: { anyOf: [{ type: "null" }, { type: "string", format: "vendorFieldHex" }] },
         recipientId: { $ref: "address" },
         expiration: { type: "integer", minimum: 0 },
     },
@@ -144,33 +143,73 @@ export const vote = extend(transactionBaseSchema, {
 
 export const multiSignature = extend(transactionBaseSchema, {
     $id: "multiSignature",
-    required: ["asset", "signatures"],
+    if: { properties: { version: { anyOf: [{ type: "null" }, { const: 1 }] } } },
+    then: { required: ["asset"] },
+    else: { required: ["asset", "signatures"] },
     properties: {
         type: { transactionType: TransactionType.MultiSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         asset: {
-            type: "object",
-            required: ["multiSignature"],
-            properties: {
-                multiSignature: {
+            anyOf: [
+                {
                     type: "object",
-                    required: ["min", "publicKeys"],
+                    required: ["multiSignature"],
                     properties: {
-                        min: {
-                            type: "integer",
-                            minimum: 1,
-                            maximum: { $data: "1/publicKeys/length" },
-                        },
-                        publicKeys: {
-                            type: "array",
-                            minItems: 1,
-                            maxItems: 16,
-                            additionalItems: false,
-                            items: { $ref: "publicKey" },
+                        multiSignature: {
+                            type: "object",
+                            required: ["min", "publicKeys"],
+                            properties: {
+                                min: {
+                                    type: "integer",
+                                    minimum: 1,
+                                    maximum: { $data: "1/publicKeys/length" },
+                                },
+                                publicKeys: {
+                                    type: "array",
+                                    minItems: 1,
+                                    maxItems: 16,
+                                    additionalItems: false,
+                                    uniqueItems: true,
+                                    items: { $ref: "publicKey" },
+                                },
+                            },
                         },
                     },
                 },
-            },
+                {
+                    type: "object",
+                    required: ["multiSignatureLegacy"],
+                    properties: {
+                        multiSignatureLegacy: {
+                            type: "object",
+                            required: ["keysgroup", "min", "lifetime"],
+                            properties: {
+                                min: {
+                                    type: "integer",
+                                    minimum: 1,
+                                    maximum: { $data: "1/keysgroup/length" },
+                                },
+                                lifetime: {
+                                    type: "integer",
+                                    minimum: 1,
+                                    maximum: 72,
+                                },
+                                keysgroup: {
+                                    type: "array",
+                                    minItems: 1,
+                                    maxItems: 16,
+                                    additionalItems: false,
+                                    items: {
+                                        allOf: [
+                                            { type: "string", minimum: 67, maximum: 67, transform: ["toLowerCase"] },
+                                        ],
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
         },
         signatures: {
             type: "array",
@@ -207,6 +246,7 @@ export const htlcLock = extend(transactionBaseSchema, {
         type: { transactionType: TransactionType.HtlcLock },
         amount: { bignumber: { minimum: 1 } },
         recipientId: { $ref: "address" },
+        vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
         asset: {
             type: "object",
             required: ["lock"],
@@ -220,7 +260,7 @@ export const htlcLock = extend(transactionBaseSchema, {
                             type: "object",
                             required: ["type", "value"],
                             properties: {
-                                type: { type: "integer", minimum: 1, maximum: 2 },
+                                type: { enum: [1, 2] },
                                 value: { type: "integer", minimum: 0 },
                             },
                         },
@@ -281,6 +321,7 @@ export const multiPayment = extend(transactionBaseSchema, {
     properties: {
         type: { transactionType: TransactionType.MultiPayment },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
+        vendorField: { anyOf: [{ type: "null" }, { type: "string", format: "vendorField" }] },
         asset: {
             type: "object",
             required: ["payments"],
@@ -288,7 +329,6 @@ export const multiPayment = extend(transactionBaseSchema, {
                 payments: {
                     type: "array",
                     minItems: 2,
-                    maxItems: 500,
                     additionalItems: false,
                     uniqueItems: false,
                     items: {

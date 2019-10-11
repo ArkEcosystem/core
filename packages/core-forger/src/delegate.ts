@@ -1,6 +1,5 @@
 import { Blocks, Crypto, Identities, Interfaces, Types, Utils } from "@arkecosystem/crypto";
 import forge from "node-forge";
-import { authenticator } from "otplib";
 import wif from "wif";
 
 // todo: review the implementation - quite messy right now
@@ -44,7 +43,7 @@ export class Delegate {
                 this.keys = Delegate.decryptPassphrase(passphrase, network, password);
                 this.publicKey = this.keys.publicKey;
                 this.address = Identities.Address.fromPublicKey(this.keys.publicKey, network.pubKeyHash);
-                this.otpSecret = authenticator.generateSecret();
+                this.otpSecret = forge.random.getBytesSync(128);
                 this.bip38 = true;
 
                 this.encryptKeysWithOtp();
@@ -61,12 +60,11 @@ export class Delegate {
     }
 
     public encryptKeysWithOtp(): void {
-        this.otp = authenticator.generate(this.otpSecret);
-
         const wifKey: string = Identities.WIF.fromKeys(this.keys, this.network);
 
-        this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
         this.keys = undefined;
+        this.otp = forge.random.getBytesSync(16);
+        this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
     }
 
     public decryptKeysWithOtp(): void {
@@ -133,7 +131,7 @@ export class Delegate {
             "AES-CBC",
             forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
         );
-        cipher.start({ iv: forge.util.decode64(this.otp) });
+        cipher.start({ iv: this.otp });
         cipher.update(forge.util.createBuffer(content));
         cipher.finish();
 
@@ -145,7 +143,7 @@ export class Delegate {
             "AES-CBC",
             forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
         );
-        decipher.start({ iv: forge.util.decode64(this.otp) });
+        decipher.start({ iv: this.otp });
         decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)));
         decipher.finish();
 

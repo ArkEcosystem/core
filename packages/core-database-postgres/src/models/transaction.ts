@@ -52,9 +52,9 @@ export class Transaction extends Model {
             supportedOperators: [Contracts.Database.SearchOperator.OP_EQ, Contracts.Database.SearchOperator.OP_IN],
         },
         {
-            name: "vendor_field_hex",
-            prop: "vendorFieldHex",
-            supportedOperators: [Contracts.Database.SearchOperator.OP_LIKE],
+            name: "vendor_field",
+            prop: "vendorField",
+            supportedOperators: [Database.SearchOperator.OP_LIKE],
             def: undefined,
         },
         {

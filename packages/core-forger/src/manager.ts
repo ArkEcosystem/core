@@ -209,13 +209,12 @@ export class ForgerManager {
     public isForgingAllowed(networkState: Contracts.P2P.NetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
-
             return false;
-        }
-
-        if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
+        } else if (networkState.status === NetworkStateStatus.ColdStart) {
+            this.logger.info("Skipping slot because of cold start. Will not forge.");
+            return false;
+        } else if (networkState.status === NetworkStateStatus.BelowMinimumPeers) {
             this.logger.info("Network reach is not sufficient to get quorum. Will not forge.");
-
             return false;
         }
 
@@ -269,6 +268,12 @@ export class ForgerManager {
 
         if (!this.initialized) {
             this.printLoadedDelegates();
+
+            this.client.emitEvent(ApplicationEvents.ForgerStarted, {
+                activeDelegates: this.delegates.map(delegate => delegate.publicKey),
+            });
+
+            this.logger.info(`Forger Manager started.`);
         }
 
         this.initialized = true;
@@ -304,7 +309,5 @@ export class ForgerManager {
                 )}: ${inactiveDelegates.join(", ")}`,
             );
         }
-
-        this.logger.info(`Forger Manager started.`);
     }
 }

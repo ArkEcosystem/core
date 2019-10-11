@@ -12,7 +12,7 @@ export class Verifier {
             return true;
         }
 
-        if (data.type >= 4 && data.type <= 99 && !configManager.getMilestone().aip11) {
+        if (configManager.getMilestone().aip11 && (!data.version || data.version === 1)) {
             return false;
         }
 

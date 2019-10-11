@@ -57,19 +57,16 @@ export const transactions: object = {
             type: Joi.number()
                 .integer()
                 .min(0),
+            typeGroup: Joi.number()
+                .integer()
+                .min(0),
             version: Joi.number()
                 .integer()
                 .positive(),
-            senderPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            senderId: Joi.string()
-                .alphanum()
-                .length(34),
-            recipientId: Joi.string()
-                .alphanum()
-                .length(34),
             timestamp: Joi.number()
+                .integer()
+                .min(0),
+            nonce: Joi.number()
                 .integer()
                 .min(0),
             amount: Joi.number()
@@ -78,7 +75,7 @@ export const transactions: object = {
             fee: Joi.number()
                 .integer()
                 .min(0),
-            vendorFieldHex: Joi.string().hex(),
+            vendorField: Joi.string().max(255, "utf8"),
             transform: Joi.bool().default(true),
         },
     },
@@ -99,6 +96,9 @@ export const transactionsSent: object = {
             type: Joi.number()
                 .integer()
                 .min(0),
+            typeGroup: Joi.number()
+                .integer()
+                .min(0),
             version: Joi.number()
                 .integer()
                 .positive(),
@@ -108,13 +108,16 @@ export const transactionsSent: object = {
             timestamp: Joi.number()
                 .integer()
                 .min(0),
+            nonce: Joi.number()
+                .integer()
+                .min(0),
             amount: Joi.number()
                 .integer()
                 .min(0),
             fee: Joi.number()
                 .integer()
                 .min(0),
-            vendorFieldHex: Joi.string().hex(),
+            vendorField: Joi.string().max(255, "utf8"),
             transform: Joi.bool().default(true),
         },
     },
@@ -135,6 +138,9 @@ export const transactionsReceived: object = {
             type: Joi.number()
                 .integer()
                 .min(0),
+            typeGroup: Joi.number()
+                .integer()
+                .min(0),
             version: Joi.number()
                 .integer()
                 .positive(),
@@ -147,13 +153,16 @@ export const transactionsReceived: object = {
             timestamp: Joi.number()
                 .integer()
                 .min(0),
+            nonce: Joi.number()
+                .integer()
+                .min(0),
             amount: Joi.number()
                 .integer()
                 .min(0),
             fee: Joi.number()
                 .integer()
                 .min(0),
-            vendorFieldHex: Joi.string().hex(),
+            vendorField: Joi.string().max(255, "utf8"),
             transform: Joi.bool().default(true),
         },
     },
@@ -167,6 +176,18 @@ export const votes: object = {
         ...pagination,
         ...{
             transform: Joi.bool().default(true),
+        },
+    },
+};
+
+export const locks: object = {
+    params: {
+        id: Joi.string(),
+    },
+    query: {
+        ...pagination,
+        ...{
+            orderBy: Joi.string(),
         },
     },
 };
@@ -203,6 +224,14 @@ export const search: object = {
             to: Joi.number().integer(),
         }),
         voteBalance: Joi.object().keys({
+            from: Joi.number()
+                .integer()
+                .min(0),
+            to: Joi.number()
+                .integer()
+                .min(0),
+        }),
+        lockedBalance: Joi.object().keys({
             from: Joi.number()
                 .integer()
                 .min(0),

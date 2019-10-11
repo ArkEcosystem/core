@@ -126,13 +126,17 @@ export class PostgresConnection implements Contracts.Database.Connection {
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
         try {
             await this.db.tx(t => {
-                const { nextRound } = Utils.roundCalculator.calculateRound(blocks[blocks.length - 1].height);
                 const blockIds: string[] = blocks.map(block => block.id);
+
+                // Delete all rounds after the current round if there are still
+                // any left.
+                const lastBlockHeight: number = blocks[blocks.length - 1].height;
+                const { round } = roundCalculator.calculateRound(lastBlockHeight);
 
                 return t.batch([
                     this.transactionsRepository.deleteByBlockId(blockIds, t),
                     this.blocksRepository.delete(blockIds, t),
-                    this.roundsRepository.delete(nextRound, t),
+                    this.roundsRepository.delete(round + 1),
                 ]);
             });
         } catch (error) {
@@ -191,7 +195,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
 
             if (name === "20180304100000-create-migrations-table") {
                 await this.query.none(migration);
-            } else if (name === "20190313000000-add-asset-column-to-transactions-table") {
+            } else if (name === "20190917000000-add-asset-column-to-transactions-table") {
                 await this.migrateTransactionsTableToAssetColumn(name, migration);
             } else {
                 if (!(await this.migrationsRepository.findByName(name))) {
@@ -205,29 +209,18 @@ export class PostgresConnection implements Contracts.Database.Connection {
     }
 
     private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
-        const row: Migration = await this.migrationsRepository.findByName(name);
-
-        // Also run migration if the asset column is present, but missing values. E.g.
-        // after restoring a snapshot without assets even though the database has already been migrated.
-        let runMigration = !row;
-        if (!runMigration) {
-            const { missingAsset } = await this.db.one(
-                `SELECT EXISTS (SELECT id FROM transactions WHERE type > 0 AND asset IS NULL) as "missingAsset"`,
-            );
-            if (missingAsset) {
-                await this.db.none(`DELETE FROM migrations WHERE name = '${name}'`);
-                runMigration = true;
-            }
-        }
-
-        if (!runMigration) {
+        const row: IMigration = await this.migrationsRepository.findByName(name);
+        if (row) {
             return;
         }
-        this.logger.warning(`Migrating transactions table to assets. This may take a while.`);
+
+        this.logger.warn(`Migrating transactions table to assets. This may take a while.`);
 
         await this.query.none(migration);
 
-        const all = await this.db.manyOrNone("SELECT id, serialized FROM transactions WHERE type > 0");
+        const all = await this.db.manyOrNone(
+            "SELECT id, serialized FROM transactions WHERE (type > 0 OR type_group != 1)",
+        );
         const { transactionIdFixTable } = Managers.configManager.get("exceptions");
 
         const chunks: Array<

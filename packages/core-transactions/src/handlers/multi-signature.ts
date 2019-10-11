@@ -7,6 +7,7 @@ import {
     MultiSignatureKeyCountMismatchError,
     MultiSignatureMinimumKeysError,
 } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
@@ -24,33 +25,39 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return ["multiSignature"];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        for (const transaction of transactions) {
-            let wallet: Contracts.State.Wallet;
-            let multiSignature: Contracts.State.WalletMultiSignatureAttributes;
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
 
-            if (transaction.version === 1) {
-                multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
-                wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-            } else {
-                multiSignature = transaction.asset.multiSignature;
-                wallet = walletRepository.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
+            for (const transaction of transactions) {
+                let wallet: State.IWallet;
+                let multiSignature: State.IWalletMultiSignatureAttributes;
+
+                if (transaction.version === 1) {
+                    multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+                    wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                    multiSignature.legacy = true;
+                } else {
+                    multiSignature = transaction.asset.multiSignature;
+                    wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
+                }
+                if (wallet.hasMultiSignature()) {
+                    throw new MultiSignatureAlreadyRegisteredError();
+                }
+
+                wallet.setAttribute("multiSignature", multiSignature);
+                walletManager.reindex(wallet);
             }
-            if (wallet.hasMultiSignature()) {
-                throw new MultiSignatureAlreadyRegisteredError();
-            }
-
-            wallet.setAttribute("multiSignature", multiSignature);
         }
     }
 
+    // Technically, we only enable `MultiSignatureRegistration` when the `aip11` milestone is active,
+    // but since there are no versioned transaction types yet we have to do it differently, to not break
+    // existing legacy multi signatures. TODO: becomes obsolete with 3.0
     public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
+        return true;
     }
 
     public async throwIfCannotBeApplied(

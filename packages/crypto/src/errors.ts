@@ -64,15 +64,21 @@ export class PublicKeyError extends CryptoError {
     }
 }
 
+export class AddressNetworkError extends CryptoError {
+    constructor(expected: number, given: number) {
+        super(`Expected address network byte ${expected}, but got ${given}.`);
+    }
+}
+
 export class TransactionTypeError extends CryptoError {
     constructor(given: string) {
         super(`Type ${given} not supported.`);
     }
 }
 
-export class MalformedTransactionBytesError extends CryptoError {
-    constructor() {
-        super(`Failed to deserialize transaction, because the bytes are malformed.`);
+export class InvalidTransactionBytesError extends CryptoError {
+    constructor(message: string) {
+        super(`Failed to deserialize transaction, encountered invalid bytes: ${message}`);
     }
 }
 
@@ -90,7 +96,7 @@ export class TransactionVersionError extends CryptoError {
 
 export class UnkownTransactionError extends CryptoError {
     constructor(given: string) {
-        super(`Transaction type ${given} is not registered.`);
+        super(`Unknown transaction type: ${given}`);
     }
 }
 
@@ -114,7 +120,7 @@ export class MissingMilestoneFeeError extends CryptoError {
 
 export class MaximumPaymentCountExceededError extends CryptoError {
     constructor(given: number) {
-        super(`Expected a maximum of 2258 payments, but got ${given}.`);
+        super(`Expected a maximum of 500 payments, but got ${given}.`);
     }
 }
 
@@ -149,5 +155,11 @@ export class InvalidMilestoneConfigurationError extends CryptoError {
 export class InvalidMultiSignatureAssetError extends CryptoError {
     constructor() {
         super(`The multi signature asset is invalid.`);
+    }
+}
+
+export class DuplicateParticipantInMultiSignatureError extends CryptoError {
+    constructor() {
+        super(`Invalid multi signature, because duplicate participant found.`);
     }
 }

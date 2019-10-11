@@ -26,10 +26,8 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         connection = create({
             port: peer.port,
             hostname: peer.ip,
-            ackTimeout: Math.max(
-                app.get<any>("p2p.options").getBlocksTimeout,
-                app.get<any>("p2p.options").verifyTimeout,
-            ),
+            ackTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
+            perMessageDeflate: true,
         });
 
         this.connections.set(peer.ip, connection);

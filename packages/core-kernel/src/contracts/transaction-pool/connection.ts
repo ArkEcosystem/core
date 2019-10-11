@@ -1,4 +1,5 @@
-import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
+import { IProcessor } from "./processor";
 
 import { Processor } from "./processor";
 
@@ -29,7 +30,7 @@ export interface Connection {
     getTransaction(id: string): Promise<Interfaces.ITransaction>;
     getTransactionIdsForForging(start: number, size: number): Promise<string[]>;
     getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]>;
-    getTransactionsByType(type: any): Promise<Set<Interfaces.ITransaction>>;
+    getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>>;
     getTransactionsForForging(blockSize: number): Promise<string[]>;
     has(transactionId: string): Promise<boolean>;
     hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean>;
@@ -38,5 +39,5 @@ export interface Connection {
     removeTransactionById(id: string, senderPublicKey?: string): void;
     removeTransactionsById(ids: string[]): void;
     removeTransactionsForSender(senderPublicKey: string): void;
-    senderHasTransactionsOfType(senderPublicKey: string, transactionType: Enums.TransactionType): Promise<boolean>;
+    senderHasTransactionsOfType(senderPublicKey: string, type: number, typeGroup?: number): Promise<boolean>;
 }

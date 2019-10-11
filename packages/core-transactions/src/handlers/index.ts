@@ -1,3 +1,3 @@
-import { TransactionHandler } from "./transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
-export { TransactionHandler };
+export { TransactionHandler, TransactionHandlerConstructor };

@@ -2,6 +2,7 @@ import ByteBuffer from "bytebuffer";
 
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { ISerializeOptions } from "../../interfaces";
+import { configManager } from "../../managers";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -16,6 +17,10 @@ export class DelegateResignationTransaction extends Transaction {
     }
 
     protected static defaultStaticFee: BigNumber = BigNumber.make("2500000000");
+
+    public verify(): boolean {
+        return configManager.getMilestone().aip11 && super.verify();
+    }
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         return new ByteBuffer(0);

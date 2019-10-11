@@ -3,12 +3,13 @@ import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/
 import assert from "assert";
 
 import {
+    ColdWalletError,
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
+    LegacyMultiSignatureError,
     SenderWalletMismatchError,
     UnexpectedMultiSignatureError,
-    UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { TransactionHandler as TransactionHandlerContract } from "../interfaces";
@@ -58,11 +59,11 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
             satoshiPerByte = 1;
         }
 
-        const transactionSizeInBytes: number = transaction.serialized.length / 2;
+        const transactionSizeInBytes: number = Math.round(transaction.serialized.length / 2);
         return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
     }
 
-    public async throwIfCannotBeApplied(
+    protected async performGenericWalletChecks(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
         databaseWalletRepository: Contracts.State.WalletRepository,
@@ -73,9 +74,7 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
             return;
         }
 
-        if (data.version > 1 && data.nonce.isLessThanOrEqualTo(sender.nonce)) {
-            throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
-        }
+        sender.verifyTransactionNonceApply(transaction);
 
         if (
             sender.balance
@@ -111,11 +110,23 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
             }
         }
 
+        // Prevent legacy multi signatures from being used
+        const isMultiSignatureRegistration: boolean =
+            transaction.type === Enums.TransactionType.MultiSignature &&
+            transaction.typeGroup === Enums.TransactionTypeGroup.Core;
+        if (isMultiSignatureRegistration && !Managers.configManager.getMilestone().aip11) {
+            throw new UnexpectedMultiSignatureError();
+        }
+
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
             const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
+
+            if (dbSender.getAttribute("multiSignature").legacy) {
+                throw new LegacyMultiSignatureError();
+            }
 
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
@@ -124,17 +135,29 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
             if (!dbSender.verifySignatures(data, dbSender.getAttribute("multiSignature"))) {
                 throw new InvalidMultiSignatureError();
             }
-        } else if (transaction.type !== Enums.TransactionType.MultiSignature && transaction.data.signatures) {
+        } else if (transaction.data.signatures && !isMultiSignatureRegistration) {
             throw new UnexpectedMultiSignatureError();
         }
     }
 
-    public async apply(
+    public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        sender: State.IWallet,
+        databaseWalletManager: State.IWalletManager,
     ): Promise<void> {
-        await this.applyToSender(transaction, walletRepository);
-        await this.applyToRecipient(transaction, walletRepository);
+        if (
+            !databaseWalletManager.hasByPublicKey(sender.publicKey) &&
+            databaseWalletManager.findByAddress(sender.address).balance.isZero()
+        ) {
+            throw new ColdWalletError();
+        }
+
+        return this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
+    }
+
+    public async apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
+        await this.applyToSender(transaction, walletManager);
+        await this.applyToRecipient(transaction, walletManager);
     }
 
     public async revert(
@@ -158,13 +181,15 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
 
         await this.throwIfCannotBeApplied(transaction, sender, walletRepository);
 
+        let nonce: Utils.BigNumber;
         if (data.version > 1) {
-            if (!sender.nonce.plus(1).isEqualTo(data.nonce)) {
-                throw new UnexpectedNonceError(data.nonce, sender.nonce, false);
-            }
-
-            sender.nonce = data.nonce;
+            sender.verifyTransactionNonceApply(transaction);
+            nonce = data.nonce;
+        } else {
+            nonce = sender.nonce.plus(1);
         }
+
+        sender.nonce = nonce;
 
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
 
@@ -187,12 +212,10 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         sender.balance = sender.balance.plus(data.amount).plus(data.fee);
 
         if (data.version > 1) {
-            if (!sender.nonce.isEqualTo(data.nonce)) {
-                throw new UnexpectedNonceError(data.nonce, sender.nonce, true);
-            }
-
-            sender.nonce = sender.nonce.minus(1);
+            sender.verifyTransactionNonceRevert(transaction);
         }
+
+        sender.nonce = sender.nonce.minus(1);
     }
 
     public abstract async applyToRecipient(

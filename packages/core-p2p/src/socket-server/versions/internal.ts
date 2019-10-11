@@ -64,6 +64,28 @@ export const getCurrentRound = async (): Promise<Contracts.P2P.CurrentRound> => 
 export const getNetworkState = async ({ service }: { service: PeerService }): Promise<Contracts.P2P.NetworkState> =>
     service.networkMonitor.getNetworkState();
 
+export const getRateLimitStatus = async ({
+    service,
+    req,
+}: {
+    service: P2P.IPeerService;
+    req: { data: { ip: string; endpoint?: string } };
+}): Promise<P2P.IRateLimitStatus> => {
+    return service.getMonitor().getRateLimitStatus(req.data.ip, req.data.endpoint);
+};
+
+export const isBlockedByRateLimit = async ({
+    service,
+    req,
+}: {
+    service: P2P.IPeerService;
+    req: { data: { ip: string } };
+}): Promise<{ blocked: boolean }> => {
+    return {
+        blocked: await service.getMonitor().isBlockedByRateLimit(req.data.ip),
+    };
+};
+
 export const syncBlockchain = (): void => {
     app.log.debug("Blockchain sync check WAKEUP requested by forger");
 

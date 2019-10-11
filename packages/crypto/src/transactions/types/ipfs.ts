@@ -3,6 +3,7 @@ import ByteBuffer from "bytebuffer";
 
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { ISerializeOptions } from "../../interfaces";
+import { configManager } from "../../managers";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -17,6 +18,10 @@ export class IpfsTransaction extends Transaction {
     }
 
     protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
+
+    public verify(): boolean {
+        return configManager.getMilestone().aip11 && super.verify();
+    }
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
@@ -36,7 +41,7 @@ export class IpfsTransaction extends Transaction {
         const ipfsHashLength: number = buf.readUint8();
         const ipfsHash: Buffer = buf.readBytes(ipfsHashLength).toBuffer();
 
-        const buffer: Buffer = new Buffer(ipfsHashLength + 2);
+        const buffer: Buffer = Buffer.alloc(ipfsHashLength + 2);
         buffer.writeUInt8(hashFunction, 0);
         buffer.writeUInt8(ipfsHashLength, 1);
         buffer.fill(ipfsHash, 2);

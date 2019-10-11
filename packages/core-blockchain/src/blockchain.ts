@@ -100,7 +100,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const action = this.actions[actionKey];
 
             if (action) {
-                setTimeout(() => action.call(this, event), 0);
+                setImmediate(() => action(event));
             } else {
                 app.log.error(`No action '${actionKey}' found`);
             }
@@ -248,7 +248,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 this.queue.push({ blocks: currentBlocksChunk });
                 currentBlocksChunk = [];
                 currentTransactionsCount = 0;
-                milestoneHeights.shift();
+                if (nextMilestone) {
+                    milestoneHeights.shift();
+                }
             }
         }
         this.queue.push({ blocks: currentBlocksChunk });
@@ -282,7 +284,15 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 await this.transactionPool.addTransactions(lastBlock.transactions);
             }
 
-            const newLastBlock = BlockFactory.fromData(blocksToRemove.pop());
+            let newLastBlock: Interfaces.IBlock;
+            if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
+                newLastBlock = app
+                    .resolvePlugin<State.IStateService>("state")
+                    .getStore()
+                    .getGenesisBlock();
+            } else {
+                newLastBlock = BlockFactory.fromData(blocksToRemove.pop(), { deserializeTransactionsUnchecked: true });
+            }
 
             this.state.setLastBlock(newLastBlock);
             this.state.lastDownloadedBlock = newLastBlock.data;
@@ -351,7 +361,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
 
-        if (blocks[0] && !Utils.isBlockChained(this.getLastBlock().data, blocks[0].data)) {
+        if (
+            blocks[0] &&
+            !isBlockChained(this.getLastBlock().data, blocks[0].data, logger) &&
+            !Utils.isException(blocks[0].data)
+        ) {
+            // Discard remaining blocks as it won't go anywhere anyway.
+            this.clearQueue();
+            this.resetLastDownloadedBlock();
             return callback();
         }
 

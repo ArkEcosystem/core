@@ -66,6 +66,7 @@ export const requestSchemas = {
 export const replySchemas = {
     "p2p.peer.getBlocks": {
         type: "array",
+        maxItems: 400,
         items: {
             $ref: "blockHeader",
         },
@@ -97,6 +98,7 @@ export const replySchemas = {
     },
     "p2p.peer.getPeers": {
         type: "array",
+        maxItems: 2000,
         items: {
             type: "object",
             properties: {
@@ -118,36 +120,124 @@ export const replySchemas = {
     },
     "p2p.peer.getStatus": {
         type: "object",
-        required: ["state"],
+        required: ["state", "config"],
         additionalProperties: false,
         properties: {
-            state: { type: "object" },
-            config: { type: "object" },
+            state: {
+                type: "object",
+                required: ["height", "forgingAllowed", "currentSlot", "header"],
+                properties: {
+                    height: {
+                        type: "integer",
+                        minimum: 1,
+                    },
+                    forgingAllowed: {
+                        type: "boolean",
+                    },
+                    currentSlot: {
+                        type: "integer",
+                        minimum: 1,
+                    },
+                    header: {
+                        anyOf: [
+                            {
+                                $ref: "blockHeader",
+                            },
+                            {
+                                type: "object",
+                                minProperties: 0,
+                                maxProperties: 0,
+                            },
+                        ],
+                    },
+                },
+            },
+            config: {
+                type: "object",
+                required: ["version", "network", "plugins"],
+                additionalProperties: false,
+                properties: {
+                    version: {
+                        type: "string",
+                        minLength: 5,
+                        maxLength: 24,
+                    },
+                    network: {
+                        type: "object",
+                        required: ["name", "nethash", "explorer", "token"],
+                        additionalProperties: false,
+                        properties: {
+                            name: {
+                                type: "string",
+                                minLength: 1,
+                                maxLength: 20,
+                            },
+                            version: {
+                                type: "integer",
+                                minimum: 0,
+                                maximum: 255,
+                            },
+                            nethash: {
+                                allOf: [
+                                    {
+                                        $ref: "hex",
+                                    },
+                                    {
+                                        minLength: 64,
+                                        maxLength: 64,
+                                    },
+                                ],
+                            },
+                            explorer: {
+                                type: "string",
+                                minLength: 0,
+                                maxLength: 128,
+                            },
+                            token: {
+                                type: "object",
+                                required: ["name", "symbol"],
+                                additionalProperties: false,
+                                properties: {
+                                    name: {
+                                        type: "string",
+                                        minLength: 1,
+                                        maxLength: 8,
+                                    },
+                                    symbol: {
+                                        type: "string",
+                                        minLength: 1,
+                                        maxLength: 3,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    plugins: {
+                        type: "object",
+                        maxProperties: 32,
+                        minProperties: 1,
+                        additionalProperties: false,
+                        patternProperties: {
+                            "^.{4,64}$": {
+                                type: "object",
+                                required: ["port", "enabled"],
+                                additionalProperties: false,
+                                properties: {
+                                    port: {
+                                        type: "integer",
+                                        minimum: 0,
+                                        maximum: 65535,
+                                    },
+                                    enabled: {
+                                        type: "boolean",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
         },
-        // @todo: adjust schema to match { state, config }
-        // type: "object",
-        // properties: {
-        //     header: {
-        //         type: "object",
-        //         properties: {
-        //             height: {
-        //                 type: "integer",
-        //                 minimum: 1,
-        //             },
-        //             id: {
-        //                 type: "string",
-        //                 maxLength: 64,
-        //                 pattern: "[0-9a-fA-F]+", // hexadecimal
-        //             },
-        //         },
-        //         required: ["height", "id"],
-        //     },
-        //     height: {
-        //         type: "integer",
-        //         minimum: 1,
-        //     },
-        // },
-        // required: ["header", "height"],
     },
     "p2p.peer.postBlock": {
         type: "object",

@@ -112,16 +112,22 @@ export class TransactionsController extends Controller {
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            // Remove reverse mapping from TransactionType enum.
-            const { TransactionType } = Enums;
-            const data = Object.assign({}, TransactionType);
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactionHandlers();
+            const typeGroups: Record<string | number, Record<string, number>> = {};
 
-            Object.values(TransactionType)
-                .filter(value => typeof value === "string")
-                .map((type: string) => data[type])
-                .forEach((key: string) => delete data[key]);
+            for (const handler of activatedTransactionHandlers) {
+                const constructor = handler.getConstructor();
 
-            return { data };
+                const { type, typeGroup, key } = constructor;
+                const groupName: string | number = Enums.TransactionTypeGroup[typeGroup] || typeGroup;
+                if (typeGroups[groupName] === undefined) {
+                    typeGroups[groupName] = {};
+                }
+
+                typeGroups[groupName][key[0].toUpperCase() + key.slice(1)] = type;
+            }
+
+            return { data: typeGroups };
         } catch (error) {
             return Boom.badImplementation(error);
         }

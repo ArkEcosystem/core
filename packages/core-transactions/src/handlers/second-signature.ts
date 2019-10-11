@@ -2,6 +2,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { NotSupportedForMultiSignatureWalletError, SecondSignatureAlreadyRegisteredError } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
@@ -19,15 +20,16 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return ["secondPublicKey"];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        for (const transaction of transactions) {
-            const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-            wallet.setAttribute("secondPublicKey", transaction.asset.signature.publicKey);
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+
+            for (const transaction of transactions) {
+                const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                wallet.setAttribute("secondPublicKey", transaction.asset.signature.publicKey);
+            }
         }
     }
 

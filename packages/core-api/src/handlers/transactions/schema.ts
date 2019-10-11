@@ -20,6 +20,9 @@ export const index: object = {
             type: Joi.number()
                 .integer()
                 .min(0),
+            typeGroup: Joi.number()
+                .integer()
+                .min(0),
             version: Joi.number()
                 .integer()
                 .positive(),
@@ -35,13 +38,16 @@ export const index: object = {
             timestamp: Joi.number()
                 .integer()
                 .min(0),
+            nonce: Joi.number()
+                .integer()
+                .min(0),
             amount: Joi.number()
                 .integer()
                 .min(0),
             fee: Joi.number()
                 .integer()
                 .min(0),
-            vendorFieldHex: Joi.string().hex(),
+            vendorField: Joi.string().max(255, "utf8"),
             transform: Joi.bool().default(true),
         },
     },
@@ -106,6 +112,9 @@ export const search: object = {
         type: Joi.number()
             .integer()
             .min(0),
+        typeGroup: Joi.number()
+            .integer()
+            .min(0),
         version: Joi.number()
             .integer()
             .positive(),
@@ -119,7 +128,7 @@ export const search: object = {
             .min(1)
             .max(50)
             .items(address),
-        vendorFieldHex: Joi.string().hex(),
+        vendorField: Joi.string().max(255, "utf8"),
         timestamp: Joi.object().keys({
             from: Joi.number()
                 .integer()
@@ -128,6 +137,9 @@ export const search: object = {
                 .integer()
                 .min(0),
         }),
+        nonce: Joi.number()
+            .integer()
+            .min(0),
         amount: Joi.object().keys({
             from: Joi.number()
                 .integer()

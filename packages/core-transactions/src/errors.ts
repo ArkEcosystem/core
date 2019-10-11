@@ -1,4 +1,6 @@
+import { State } from "@arkecosystem/core-interfaces";
 import { Utils } from "@arkecosystem/crypto";
+import { InternalTransactionType } from "@arkecosystem/crypto/dist/transactions";
 
 export class TransactionError extends Error {
     constructor(message: string) {
@@ -30,13 +32,25 @@ export class InvalidTransactionTypeError extends TransactionError {
     }
 }
 
+export class DeactivatedTransactionHandlerError extends TransactionError {
+    constructor(type: InternalTransactionType) {
+        super(`Transaction type ${type.toString()} is deactivated.`);
+    }
+}
+
 export class UnexpectedNonceError extends TransactionError {
-    constructor(txNonce: Utils.BigNumber, walletNonce: Utils.BigNumber, reversal: boolean) {
+    constructor(txNonce: Utils.BigNumber, sender: State.IWallet, reversal: boolean) {
         const action: string = reversal ? "revert" : "apply";
         super(
             `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
-                `corresponding sender wallet has nonce ${walletNonce.toFixed()}.`,
+            `sender ${sender.publicKey} has nonce ${sender.nonce.toFixed()}.`,
         );
+    }
+}
+
+export class ColdWalletError extends TransactionError {
+    constructor() {
+        super(`Insufficient balance in database wallet. Wallet is not allowed to spend before funding is confirmed.`);
     }
 }
 
@@ -141,6 +155,12 @@ export class VotedForResignedDelegateError extends TransactionError {
     }
 }
 
+export class NotEnoughDelegatesError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because not enough delegates to allow resignation.`);
+    }
+}
+
 export class MultiSignatureAlreadyRegisteredError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because multi signature is already enabled.`);
@@ -150,6 +170,12 @@ export class MultiSignatureAlreadyRegisteredError extends TransactionError {
 export class InvalidMultiSignatureError extends TransactionError {
     constructor() {
         super(`Failed to apply transaction, because the multi signature could not be verified.`);
+    }
+}
+
+export class LegacyMultiSignatureError extends TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because legacy multi signature is no longer supported.`);
     }
 }
 

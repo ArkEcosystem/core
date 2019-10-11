@@ -377,7 +377,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
             blockBuffer[i] = hash[7 - i];
         }
 
-        return new Utils.BigNumber(blockBuffer.toString("hex"), 16).toString();
+        return Utils.BigNumber.make(`0x${blockBuffer.toString("hex")}`).toString();
     }
 
     private signBlock(block, keys) {

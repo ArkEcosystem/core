@@ -1,5 +1,6 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
+import { expirationCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { dynamicFeeMatcher } from "./dynamic-fee";
@@ -18,10 +19,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } = {};
 
-    constructor(
-        private readonly pool: Contracts.TransactionPool.Connection,
-        private readonly walletRepository: WalletRepository,
-    ) {}
+    constructor(private readonly pool: TransactionPool.IConnection) {}
 
     public async validate(
         transactions: Interfaces.ITransactionData[],
@@ -88,8 +86,6 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
-        app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).removeCachedTransactionIds(forgedIdsSet);
-
         for (const id of forgedIdsSet) {
             this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
 
@@ -120,13 +116,13 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
-                    const handler: Handlers.TransactionHandler = app
-                        .get<any>("transactionHandlerRegistry")
-                        .get(transactionInstance.type, transactionInstance.typeGroup);
-                    if (await handler.verify(transactionInstance, this.pool.walletRepository)) {
+                    const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                        transactionInstance.type,
+                        transactionInstance.typeGroup,
+                    );
+                    if (await handler.verify(transactionInstance, this.pool.walletManager)) {
                         try {
-                            await this.walletRepository.throwIfCannotBeApplied(transactionInstance);
-                            const dynamicFee: DynamicFeeMatch = dynamicFeeMatcher(transactionInstance);
+                            const dynamicFee: IDynamicFeeMatch = await dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,
@@ -167,9 +163,6 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
-        const lastHeight: number = app
-            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-            .getLastHeight();
 
         if (transaction.timestamp > now + 3600) {
             const secondsInFuture: number = transaction.timestamp - now;
@@ -181,11 +174,27 @@ export class Processor implements Contracts.TransactionPool.Processor {
             );
 
             return false;
-        } else if (transaction.expiration > 0 && transaction.expiration <= lastHeight + 1) {
+        }
+
+        const lastHeight: number = app
+            .resolvePlugin<State.IStateService>("state")
+            .getStore()
+            .getLastHeight();
+
+        const expirationContext = {
+            blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
+            currentHeight: lastHeight,
+            now: Crypto.Slots.getTime(),
+            maxTransactionAge: app.resolveOptions("transaction-pool").maxTransactionAge,
+        };
+
+        const expiration: number = expirationCalculator.calculateTransactionExpiration(transaction, expirationContext);
+
+        if (expiration !== null && expiration <= lastHeight + 1) {
             this.pushError(
                 transaction,
                 "ERR_EXPIRED",
-                `Transaction ${transaction.id} is expired since ${lastHeight - transaction.expiration} blocks.`,
+                `Transaction ${transaction.id} is expired since ${lastHeight - expiration} blocks.`,
             );
 
             return false;
@@ -204,11 +213,12 @@ export class Processor implements Contracts.TransactionPool.Processor {
         }
 
         try {
-            // @todo: this leaks private members, refactor this
-            return app
-                .get<any>("transactionHandlerRegistry")
-                .get(transaction.type, transaction.typeGroup)
-                .canEnterTransactionPool(transaction, this.pool, this);
+            // @TODO: this leaks private members, refactor this
+            const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+                transaction.type,
+                transaction.typeGroup,
+            );
+            return handler.canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(
@@ -243,6 +253,10 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.log.info(`Received ${Utils.pluralize("transaction", this.transactions.length, true)} (${stats}).`);
+        app.resolvePlugin<Logger.ILogger>("logger").debug(JSON.stringify(this.errors));
+
+        app.resolvePlugin<Logger.ILogger>("logger").info(
+            `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
+        );
     }
 }

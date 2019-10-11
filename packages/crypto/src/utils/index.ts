@@ -1,8 +1,9 @@
 import { SATOSHI } from "../constants";
 import { IBlockData, ITransactionData } from "../interfaces";
-import { configManager } from "../managers";
+import { configManager } from "../managers/config";
 import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
+import { isLocalHost, isValidPeer } from "./is-valid-peer";
 
 let genesisTransactions: { [key: string]: boolean };
 let currentNetwork: number;
@@ -51,4 +52,18 @@ export const numberToHex = (num: number, padding = 2): string => {
 
 export const maxVendorFieldLength = (height?: number): number => configManager.getMilestone(height).vendorFieldLength;
 
-export { Base58, BigNumber };
+export const isSupportedTansactionVersion = (version: number): boolean => {
+    const aip11: boolean = configManager.getMilestone().aip11;
+
+    if (aip11 && version !== 2) {
+        return false;
+    }
+
+    if (!aip11 && version !== 1) {
+        return false;
+    }
+
+    return true;
+};
+
+export { Base58, BigNumber, isValidPeer, isLocalHost };

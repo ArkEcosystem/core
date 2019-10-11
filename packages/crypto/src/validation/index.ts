@@ -13,29 +13,10 @@ export class Validator {
     }
 
     private ajv: Ajv.Ajv;
-    private readonly transactionSchemas: Set<string> = new Set<string>();
+    private readonly transactionSchemas: Map<string, TransactionSchema> = new Map<string, TransactionSchema>();
 
     private constructor(options: Record<string, any>) {
-        const ajv = new Ajv({
-            ...{
-                $data: true,
-                schemas,
-                removeAdditional: true,
-                extendRefs: true,
-            },
-            ...options,
-        });
-        ajvKeywords(ajv);
-
-        for (const addKeyword of keywords) {
-            addKeyword(ajv);
-        }
-
-        for (const addFormat of formats) {
-            addFormat(ajv);
-        }
-
-        this.ajv = ajv;
+        this.ajv = this.instantiateAjv(options);
     }
 
     public getInstance(): Ajv.Ajv {
@@ -43,15 +24,17 @@ export class Validator {
     }
 
     public validate<T = any>(schemaKeyRef: string | boolean | object, data: T): ISchemaValidationResult<T> {
-        try {
-            this.ajv.validate(schemaKeyRef, data);
+        return this.validateSchema(this.ajv, schemaKeyRef, data);
+    }
 
-            const error = this.ajv.errors ? this.ajv.errorsText() : undefined;
+    public validateException<T = any>(schemaKeyRef: string | boolean | object, data: T): ISchemaValidationResult<T> {
+        const ajv = this.instantiateAjv({ allErrors: true });
 
-            return { value: data, error, errors: this.ajv.errors };
-        } catch (error) {
-            return { value: undefined, error: error.stack, errors: [] };
+        for (const schema of this.transactionSchemas.values()) {
+            this.extendTransactionSchema(ajv, schema);
         }
+
+        return this.validateSchema(ajv, schemaKeyRef, data);
     }
 
     public addFormat(name: string, format: Ajv.FormatDefinition): void {
@@ -75,33 +58,76 @@ export class Validator {
     }
 
     public extendTransaction(schema: TransactionSchema, remove?: boolean) {
+        this.extendTransactionSchema(this.ajv, schema, remove);
+    }
+
+    private validateSchema<T = any>(
+        ajv: Ajv.Ajv,
+        schemaKeyRef: string | boolean | object,
+        data: T,
+    ): ISchemaValidationResult<T> {
+        try {
+            ajv.validate(schemaKeyRef, data);
+
+            const error = ajv.errors ? ajv.errorsText() : undefined;
+
+            return { value: data, error, errors: ajv.errors };
+        } catch (error) {
+            return { value: undefined, error: error.stack, errors: [] };
+        }
+    }
+
+    private instantiateAjv(options: Record<string, any>) {
+        const ajv = new Ajv({
+            ...{
+                $data: true,
+                schemas,
+                removeAdditional: true,
+                extendRefs: true,
+            },
+            ...options,
+        });
+        ajvKeywords(ajv);
+
+        for (const addKeyword of keywords) {
+            addKeyword(ajv);
+        }
+
+        for (const addFormat of formats) {
+            addFormat(ajv);
+        }
+
+        return ajv;
+    }
+
+    private extendTransactionSchema(ajv: Ajv.Ajv, schema: TransactionSchema, remove?: boolean) {
         if (remove) {
             this.transactionSchemas.delete(schema.$id);
 
-            this.ajv.removeSchema(schema.$id);
-            this.ajv.removeSchema(`${schema.$id}Signed`);
-            this.ajv.removeSchema(`${schema.$id}Strict`);
+            ajv.removeSchema(schema.$id);
+            ajv.removeSchema(`${schema.$id}Signed`);
+            ajv.removeSchema(`${schema.$id}Strict`);
         } else {
-            this.transactionSchemas.add(schema.$id);
+            this.transactionSchemas.set(schema.$id, schema);
 
-            this.ajv.addSchema(schema);
-            this.ajv.addSchema(signedSchema(schema));
-            this.ajv.addSchema(strictSchema(schema));
+            ajv.addSchema(schema);
+            ajv.addSchema(signedSchema(schema));
+            ajv.addSchema(strictSchema(schema));
         }
 
-        this.updateTransactionArray();
+        this.updateTransactionArray(ajv);
     }
 
-    private updateTransactionArray() {
-        this.ajv.removeSchema("block");
-        this.ajv.removeSchema("transactions");
-        this.ajv.addSchema({
+    private updateTransactionArray(ajv: Ajv.Ajv) {
+        ajv.removeSchema("block");
+        ajv.removeSchema("transactions");
+        ajv.addSchema({
             $id: "transactions",
             type: "array",
             additionalItems: false,
-            items: { oneOf: [...this.transactionSchemas].map(schema => ({ $ref: `${schema}Signed` })) },
+            items: { anyOf: [...this.transactionSchemas.keys()].map(schema => ({ $ref: `${schema}Signed` })) },
         });
-        this.ajv.addSchema(schemas.block);
+        ajv.addSchema(schemas.block);
     }
 }
 

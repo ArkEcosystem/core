@@ -1,6 +1,7 @@
 import pluralize from "pluralize";
 
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
+import { calculateTransactionExpiration } from "./expiration-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { httpie, HttpieResponse } from "./httpie";
 import { isBlockChained } from "./is-block-chained";
@@ -12,6 +13,7 @@ import * as Plugins from "./transform-plugins";
 export * from "@arkecosystem/utils";
 
 export const delegateCalculator = { calculateApproval, calculateForgedTotal };
+export const expirationCalculator = { calculateTransactionExpiration };
 export const roundCalculator = { calculateRound, isNewRound };
 export const supplyCalculator = { calculate };
 

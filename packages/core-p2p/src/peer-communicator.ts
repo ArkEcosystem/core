@@ -88,9 +88,27 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
-                    const { status } = await Utils.httpie.get(`http://${peer.ip}:${plugin.port}/`);
+                    let valid: boolean = false;
 
-                    if (status === 200) {
+                    if (name.includes("core-api") || name.includes("core-wallet-api")) {
+                        const { body, status } = await httpie.get(
+                            `http://${peer.ip}:${plugin.port}/api/node/configuration`,
+                        );
+
+                        if (status === 200) {
+                            if (body.data.nethash === Managers.configManager.get("network.nethash")) {
+                                valid = true;
+                            } else {
+                                this.logger.debug("Disconnecting from peer, because api returned a different nethash.");
+                                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                            }
+                        }
+                    } else {
+                        const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+                        valid = status === 200;
+                    }
+
+                    if (valid) {
                         peer.ports[name] = plugin.port;
                     }
                 } catch (error) {
@@ -170,26 +188,16 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             return [];
         }
 
-        // To stay backward compatible, don't assume peers respond with serialized transactions just yet.
-        // TODO: remove with 2.6
         for (const block of peerBlocks) {
             if (!block.transactions) {
                 continue;
             }
 
-            let transactions: Interfaces.ITransactionData[] = [];
-
-            try {
-                transactions = block.transactions.map(transaction => {
-                    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
-                    data.blockId = block.id;
-                    return data;
-                });
-            } catch {
-                transactions = block.transactions;
-            }
-
-            block.transactions = transactions;
+            block.transactions = block.transactions.map(transaction => {
+                const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                data.blockId = block.id;
+                return data;
+            });
         }
 
         return peerBlocks;
@@ -210,7 +218,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
         const { error } = Validation.validator.validate(schema, reply);
         if (error) {
-            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
+            if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                this.logger.debug(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
+            }
+
             return false;
         }
 

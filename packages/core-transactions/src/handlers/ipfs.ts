@@ -1,6 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
-
+import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
@@ -18,20 +18,21 @@ export class IpfsTransactionHandler extends TransactionHandler {
         return ["ipfs", "ipfs.hashes"];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        for (const transaction of transactions) {
-            const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-            if (!wallet.hasAttribute("ipfs")) {
-                wallet.setAttribute("ipfs", { hashes: {} });
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+
+            for (const transaction of transactions) {
+                const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                if (!wallet.hasAttribute("ipfs")) {
+                    wallet.setAttribute("ipfs", { hashes: {} });
+                }
+
+                const ipfsHashes: State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
+                ipfsHashes[transaction.asset.ipfs] = true;
             }
-
-            const ipfsHashes: Contracts.State.WalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
-            ipfsHashes[transaction.asset.ipfs] = true;
         }
     }
 

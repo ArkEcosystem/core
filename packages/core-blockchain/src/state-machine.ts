@@ -22,7 +22,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;
-            emitter.dispatch("state:started", true);
+            emitter.emit(ApplicationEvents.StateStarted, true);
         }
     },
 
@@ -66,9 +66,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 stateStorage.p2pUpdateCounter++;
             }
-        }
-
-        if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
+        } else if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
             stateStorage.noBlockCounter = 0;
             stateStorage.p2pUpdateCounter = 0;
 
@@ -124,7 +122,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         blockchainMachine.state = stateStorage;
 
         try {
-            const block: Interfaces.IBlock = await database.getLastBlock();
+            const block: Interfaces.IBlock = blockchain.state.getLastBlock();
 
             if (!database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");
@@ -159,10 +157,10 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             await database.deleteRound(roundInfo.round + 1);
 
             if (stateStorage.networkStart) {
-                await database.buildWallets();
-                await database.applyRound(block.data.height);
-                await transactionPool.buildWallets();
-                await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
+                await blockchain.database.buildWallets();
+                await blockchain.database.restoreCurrentRound(block.data.height);
+                await blockchain.transactionPool.buildWallets();
+                await blockchain.p2p.getMonitor().start();
 
                 return blockchain.dispatch("STARTED");
             }
@@ -170,9 +168,8 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (process.env.NODE_ENV === "test") {
                 logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
-                stateStorage.setLastBlock(BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
-                await database.buildWallets();
-                await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
+                await blockchain.database.buildWallets();
+                await blockchain.p2p.getMonitor().start();
 
                 return blockchain.dispatch("STARTED");
             }
@@ -230,9 +227,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 )}`,
             );
 
-            stateStorage.noBlockCounter = 0;
-            stateStorage.p2pUpdateCounter = 0;
-
             try {
                 blockchain.enqueueBlocks(blocks);
                 blockchain.dispatch("DOWNLOADED");
@@ -262,21 +256,19 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
     },
 
-    async analyseFork() {
-        logger.info("Analysing fork");
-    },
-
     async startForkRecovery() {
         logger.info("Starting fork recovery");
 
         blockchain.clearAndStopQueue();
 
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
+        const blocksToRemove: number = stateStorage.numberOfBlocksToRollback || random;
 
-        await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
+        await blockchain.removeBlocks(blocksToRemove);
+
         stateStorage.numberOfBlocksToRollback = undefined;
 
-        logger.info(`Removed ${AppUtils.pluralize("block", random, true)}`);
+        logger.info(`Removed ${pluralize("block", blocksToRemove, true)}`);
 
         await transactionPool.buildWallets();
         await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).refreshPeersAfterFork();
