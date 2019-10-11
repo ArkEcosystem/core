@@ -76,6 +76,7 @@ export class Worker extends SCWorker {
 
         const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
         if (data.blocked || isBlacklisted) {
+            req.socket.destroy();
             return;
         }
 
