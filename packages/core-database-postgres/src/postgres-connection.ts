@@ -153,13 +153,23 @@ export class PostgresConnection implements Database.IConnection {
                 for (const block of blocks) {
                     blockInserts.push(block.data);
                     if (block.transactions.length > 0) {
-                        transactionInserts.push(
-                            ...block.transactions.map(tx => ({
-                                ...tx.data,
-                                timestamp: tx.timestamp,
-                                serialized: tx.serialized,
-                            })),
-                        );
+                        let transactions = block.transactions.map(tx => ({
+                            ...tx.data,
+                            timestamp: tx.timestamp,
+                            serialized: tx.serialized,
+                        }));
+
+                        // Order of transactions messed up in mainnet V1
+                        const { wrongTransactionOrder } = Managers.configManager.get("exceptions");
+                        if (wrongTransactionOrder && wrongTransactionOrder[block.data.id]) {
+                            const fixedOrderIds = wrongTransactionOrder[block.data.id].reverse();
+
+                            transactions = fixedOrderIds.map((id: string) =>
+                                transactions.find(transaction => transaction.id === id),
+                            );
+                        }
+
+                        transactionInserts.push(...transactions);
                     }
                 }
 
