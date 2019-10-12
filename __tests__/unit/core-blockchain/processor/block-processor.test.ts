@@ -45,11 +45,11 @@ describe("Block processor", () => {
     describe("getHandler", () => {
         it("should return ExceptionHandler if block is an exception", async () => {
             const exceptionBlock = BlockFactory.fromData(blockTemplate);
-            exceptionBlock.data.id = "998877";
+            exceptionBlock.data.id = "10370119864814436559";
 
-            jest.spyOn(Managers.configManager, "get").mockReturnValueOnce(["998877"]);
-
+            Managers.configManager.setFromPreset("mainnet");
             expect(await blockProcessor.getHandler(exceptionBlock)).toBeInstanceOf(ExceptionHandler);
+            Managers.configManager.setFromPreset("testnet");
         });
 
         it("should return VerificationFailedHandler if block failed verification", async () => {
