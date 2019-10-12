@@ -35,7 +35,7 @@ export const isException = (blockOrTransaction: { id?: string }): boolean => {
         ].reduce((acc, curr) => Object.assign(acc, { [curr]: true }), {});
     }
 
-    return whitelistedBlockAndTransactionIds[blockOrTransaction.id];
+    return !!whitelistedBlockAndTransactionIds[blockOrTransaction.id];
 };
 
 export const isGenesisTransaction = (id: string): boolean => {
