@@ -3,7 +3,6 @@ import Long from "long";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { Address } from "../../identities";
 import { ISerializeOptions } from "../../interfaces";
-import { Base58 } from "../../utils/base58";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -28,7 +27,11 @@ export class TransferTransaction extends Transaction {
         const buffer: ByteBuffer = new ByteBuffer(24, true);
         buffer.writeUint64(Long.fromString(data.amount.toString()));
         buffer.writeUint32(data.expiration || 0);
-        buffer.append(Address.toBuffer(data.recipientId));
+
+        const { addressBuffer, addressError } = Address.toBuffer(data.recipientId);
+        options.addressError = addressError;
+
+        buffer.append(addressBuffer);
 
         return buffer;
     }
@@ -37,6 +40,6 @@ export class TransferTransaction extends Transaction {
         const { data } = this;
         data.amount = BigNumber.make(buf.readUint64().toString());
         data.expiration = buf.readUint32();
-        data.recipientId = Base58.encodeCheck(buf.readBytes(21).toBuffer());
+        data.recipientId = Address.fromBuffer(buf.readBytes(21).toBuffer());
     }
 }

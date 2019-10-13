@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 
 export class StateBuilder {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -10,7 +10,7 @@ export class StateBuilder {
     constructor(
         private readonly connection: Database.IConnection,
         private readonly walletManager: State.IWalletManager,
-    ) { }
+    ) {}
 
     public async run(): Promise<void> {
         const transactionHandlers: Handlers.TransactionHandler[] = Handlers.Registry.getAll();
@@ -65,20 +65,28 @@ export class StateBuilder {
         }
     }
 
-    private isGenesis(wallet: State.IWallet): boolean {
-        return app
+    private verifyWalletsConsistency(): void {
+        const genesisPublicKeys: Record<string, true> = app
             .getConfig()
             .get("genesisBlock.transactions")
-            .map((tx: Interfaces.ITransactionData) => tx.senderPublicKey)
-            .includes(wallet.publicKey);
-    }
+            .reduce((acc, curr) => Object.assign(acc, { [curr.senderPublicKey]: true }), {});
 
-    private verifyWalletsConsistency(): void {
         for (const wallet of this.walletManager.allByAddress()) {
-            if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
-                this.logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
-
-                throw new Error("Non-genesis wallet with negative balance.");
+            if (wallet.balance.isLessThan(0) && !genesisPublicKeys[wallet.publicKey]) {
+                // Senders of whitelisted transactions that result in a negative balance,
+                // also need to be special treated during bootstrap. Therefore, specific
+                // senderPublicKey/nonce pairs are allowed to be negative.
+                // Example:
+                //          https://explorer.ark.io/transaction/608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e
+                //          Results in a negative balance (-2 ARK) from height 93478 to 187315
+                const negativeBalanceExceptions: Record<string, Record<string, string>> = app
+                    .getConfig()
+                    .get("exceptions.negativeBalances", {});
+                const negativeBalances: Record<string, string> = negativeBalanceExceptions[wallet.publicKey] || {};
+                if (!wallet.balance.isEqualTo(negativeBalances[wallet.nonce.toString()] || 0)) {
+                    this.logger.warn(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
+                    throw new Error("Non-genesis wallet with negative balance.");
+                }
             }
 
             const voteBalance: Utils.BigNumber = wallet.getAttribute("delegate.voteBalance");

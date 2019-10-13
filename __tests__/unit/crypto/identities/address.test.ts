@@ -86,6 +86,23 @@ describe("Identities - Address", () => {
         });
     });
 
+    describe("toBuffer", () => {
+        it("should be OK", () => {
+            expect(Address.toBuffer("DMS861mLRrtH47QUMVif3C2rBCAdHbmwsi").addressError).toBeUndefined();
+        });
+
+        it("should not be OK", () => {
+            expect(Address.toBuffer("AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX").addressError).not.toBeUndefined();
+        });
+    });
+
+    describe("fromBuffer", () => {
+        it("should be OK", () => {
+            const { addressBuffer } = Address.toBuffer("DMS861mLRrtH47QUMVif3C2rBCAdHbmwsi");
+            expect(Address.fromBuffer(addressBuffer)).toEqual("DMS861mLRrtH47QUMVif3C2rBCAdHbmwsi");
+        });
+    });
+
     describe("validate", () => {
         it("should pass with a valid address", () => {
             expect(Address.validate(data.address)).toBeTrue();

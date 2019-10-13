@@ -124,7 +124,7 @@ export class Serializer {
         if (isBrokenTransaction || (transaction.recipientId && transaction.type !== 1 && transaction.type !== 4)) {
             const recipientId =
                 transaction.recipientId || Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
-            const recipient = Address.toBuffer(recipientId);
+            const recipient = Address.toBuffer(recipientId).addressBuffer;
             for (const byte of recipient) {
                 bb.writeByte(byte);
             }

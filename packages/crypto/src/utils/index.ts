@@ -1,11 +1,11 @@
 import { SATOSHI } from "../constants";
-import { IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
 import { isLocalHost, isValidPeer } from "./is-valid-peer";
 
 let genesisTransactions: { [key: string]: boolean };
+let whitelistedBlockAndTransactionIds: { [key: string]: boolean };
 let currentNetwork: number;
 
 /**
@@ -23,11 +23,19 @@ export const formatSatoshi = (amount: BigNumber): string => {
 /**
  * Check if the given block or transaction id is an exception.
  */
-export const isException = (blockOrTransaction: IBlockData | ITransactionData): boolean => {
-    return ["blocks", "transactions"].some(key => {
-        const exceptions = configManager.get(`exceptions.${key}`);
-        return Array.isArray(exceptions) && exceptions.includes(blockOrTransaction.id);
-    });
+export const isException = (blockOrTransaction: { id?: string }): boolean => {
+    const network: number = configManager.get("network.pubKeyHash");
+
+    if (!whitelistedBlockAndTransactionIds || currentNetwork !== network) {
+        currentNetwork = network;
+
+        whitelistedBlockAndTransactionIds = [
+            ...(configManager.get("exceptions.blocks") || []),
+            ...(configManager.get("exceptions.transactions") || []),
+        ].reduce((acc, curr) => Object.assign(acc, { [curr]: true }), {});
+    }
+
+    return !!whitelistedBlockAndTransactionIds[blockOrTransaction.id];
 };
 
 export const isGenesisTransaction = (id: string): boolean => {
