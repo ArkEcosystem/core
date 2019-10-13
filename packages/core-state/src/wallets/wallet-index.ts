@@ -3,11 +3,11 @@ import { Contracts } from "@arkecosystem/core-kernel";
 export class WalletIndex implements Contracts.State.WalletIndex {
     private walletIndex: Record<string, Contracts.State.Wallet>;
 
-    public constructor(public readonly indexer: State.WalletIndexer) {
+    public constructor(public readonly indexer: Contracts.State.WalletIndexer) {
         this.walletIndex = {};
     }
 
-    public entries(): ReadonlyArray<[string, State.IWallet]> {
+    public entries(): ReadonlyArray<[string, Contracts.State.Wallet]> {
         return Object.entries(this.walletIndex);
     }
 
@@ -15,7 +15,7 @@ export class WalletIndex implements Contracts.State.WalletIndex {
         return Object.keys(this.walletIndex);
     }
 
-    public values(): ReadonlyArray<State.IWallet> {
+    public values(): ReadonlyArray<Contracts.State.Wallet> {
         return Object.values(this.walletIndex);
     }
 

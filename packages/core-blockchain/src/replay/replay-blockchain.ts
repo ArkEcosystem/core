@@ -108,7 +108,9 @@ export class ReplayBlockchain extends Blockchain {
                 transaction.type === Enums.TransactionType.Transfer &&
                 transaction.typeGroup === Enums.TransactionTypeGroup.Core
             ) {
-                const recipient: State.IWallet = this.walletManager.findByAddress(transaction.data.recipientId);
+                const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(
+                    transaction.data.recipientId,
+                );
                 recipient.balance = new Utils.BigNumber(transaction.data.amount);
             }
         }
@@ -129,7 +131,7 @@ export class ReplayBlockchain extends Blockchain {
                         producedBlocks: 0,
                         round: 0,
                     });
-                    this.walletManager.reindex(sender);
+                    this.walletRepository.reindex(sender);
                 } else if (transaction.type === Enums.TransactionType.Vote) {
                     const vote = transaction.data.asset.votes[0];
                     sender.setAttribute("vote", vote.slice(1));

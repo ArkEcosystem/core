@@ -1,11 +1,9 @@
 import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
-import { expirationCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./interfaces";
-import { WalletRepository } from "./wallet-repository";
 
 /**
  * @todo: this class has too many responsibilities at the moment.
@@ -19,7 +17,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: TransactionPool.IConnection) {}
+    constructor(private readonly pool: Contracts.TransactionPool.Connection) {}
 
     public async validate(
         transactions: Interfaces.ITransactionData[],
@@ -116,13 +114,12 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
-                    const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
-                        transactionInstance.type,
-                        transactionInstance.typeGroup,
-                    );
-                    if (await handler.verify(transactionInstance, this.pool.walletManager)) {
+                    const handler: Handlers.TransactionHandler = await app
+                        .get<any>("transactionHandlerRegistry")
+                        .get(transactionInstance.type, transactionInstance.typeGroup);
+                    if (await handler.verify(transactionInstance, this.pool.walletRepository)) {
                         try {
-                            const dynamicFee: IDynamicFeeMatch = await dynamicFeeMatcher(transactionInstance);
+                            const dynamicFee: DynamicFeeMatch = await dynamicFeeMatcher(transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,
@@ -176,19 +173,19 @@ export class Processor implements Contracts.TransactionPool.Processor {
             return false;
         }
 
-        const lastHeight: number = app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastHeight();
+        const lastHeight: number = app.get<any>(Container.Identifiers.StateStore).getLastHeight();
 
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
             currentHeight: lastHeight,
             now: Crypto.Slots.getTime(),
-            maxTransactionAge: app.resolveOptions("transaction-pool").maxTransactionAge,
+            maxTransactionAge: app.get<any>("transactionPool.options").maxTransactionAge,
         };
 
-        const expiration: number = expirationCalculator.calculateTransactionExpiration(transaction, expirationContext);
+        const expiration: number = Utils.expirationCalculator.calculateTransactionExpiration(
+            transaction,
+            expirationContext,
+        );
 
         if (expiration !== null && expiration <= lastHeight + 1) {
             this.pushError(
@@ -214,10 +211,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
-                transaction.type,
-                transaction.typeGroup,
-            );
+            const handler: Handlers.TransactionHandler = await app
+                .get<any>("transactionHandlerRegistry")
+                .get(transaction.type, transaction.typeGroup);
             return handler.canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
@@ -253,10 +249,8 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.resolvePlugin<Logger.ILogger>("logger").debug(JSON.stringify(this.errors));
+        app.log.debug(JSON.stringify(this.errors));
 
-        app.resolvePlugin<Logger.ILogger>("logger").info(
-            `Received ${pluralize("transaction", this.transactions.length, true)} (${stats}).`,
-        );
+        app.log.info(`Received ${Utils.pluralize("transaction", this.transactions.length, true)} (${stats}).`);
     }
 }

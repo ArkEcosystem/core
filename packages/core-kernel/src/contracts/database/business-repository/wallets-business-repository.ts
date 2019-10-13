@@ -1,19 +1,25 @@
 import { Wallet } from "../../state/wallets";
 import { Parameters } from "./parameters";
 
-export interface WalletsPaginated {
-    rows: ReadonlyArray<Wallet>;
+export interface RowsPaginated<T> {
+    rows: ReadonlyArray<T>;
     count: number;
 }
 
+export enum SearchScope {
+    Wallets,
+    Delegates,
+    Locks,
+    Businesses,
+    Bridgechains,
+}
+
 export interface WalletsBusinessRepository {
-    search(params: Parameters): WalletsPaginated;
+    search<T>(scope: SearchScope, params: Parameters): RowsPaginated<T>;
 
-    findAllByVote(publicKey: string, params?: Parameters): WalletsPaginated;
+    findById(searchScope: SearchScope, id: string): Wallet;
 
-    findById(id: string): Wallet;
+    count(searchScope: SearchScope): number;
 
-    count(): number;
-
-    top(params?: Parameters): WalletsPaginated;
+    top(searchScope: SearchScope, params?: Parameters): RowsPaginated<Wallet>;
 }

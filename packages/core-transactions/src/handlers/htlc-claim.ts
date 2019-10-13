@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../errors";
@@ -18,11 +18,14 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const transactions = await connection.transactionsRepository.getClaimedHtlcLocks();
 
         for (const transaction of transactions) {
-            const claimWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
+            const claimWallet: Contracts.State.Wallet = walletRepository.findByAddress(transaction.recipientId);
             claimWallet.balance = claimWallet.balance.plus(transaction.amount);
         }
     }
@@ -45,12 +48,15 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         sender: Contracts.State.Wallet,
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
+        await this.performGenericWalletChecks(transaction, sender, databaseWalletRepository);
 
         // Specific HTLC claim checks
         const claimAsset: Interfaces.IHtlcClaimAsset = transaction.data.asset.claim;
         const lockId: string = claimAsset.lockTransactionId;
-        const lockWallet: State.IWallet = databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const lockWallet: Contracts.State.Wallet = databaseWalletRepository.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
@@ -82,8 +88,13 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     ): Promise<boolean> {
         const lockId: string = data.asset.claim.lockTransactionId;
 
-        const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-        const lockWallet: State.IWallet = databaseService.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+            Container.Identifiers.DatabaseService,
+        );
+        const lockWallet: Contracts.State.Wallet = databaseService.walletRepository.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
             processor.pushError(
                 data,
@@ -127,11 +138,14 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         sender.nonce = data.nonce;
 
         const lockId: string = data.asset.claim.lockTransactionId;
-        const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
         assert(lockWallet && lockWallet.getAttribute("htlc.locks")[lockId]);
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
-        const recipientWallet: State.IWallet = walletManager.findByAddress(locks[lockId].recipientId);
+        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(locks[lockId].recipientId);
 
         const newBalance: Utils.BigNumber = recipientWallet.balance.plus(locks[lockId].amount).minus(data.fee);
         assert(!newBalance.isNegative());
@@ -167,14 +181,16 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         sender.nonce = sender.nonce.minus(1);
 
         // TODO: not so good to call database from here, would need a better way
-        const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+        const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+            Container.Identifiers.DatabaseService,
+        );
 
         const lockId: string = data.asset.claim.lockTransactionId;
         const lockTransaction: Interfaces.ITransactionData = await databaseService.transactionsBusinessRepository.findById(
             lockId,
         );
-        const lockWallet: State.IWallet = walletManager.findByPublicKey(lockTransaction.senderPublicKey);
-        const recipientWallet: State.IWallet = walletManager.findByAddress(lockTransaction.recipientId);
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
+        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(lockTransaction.recipientId);
 
         recipientWallet.balance = recipientWallet.balance.minus(lockTransaction.amount).plus(data.fee);
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);

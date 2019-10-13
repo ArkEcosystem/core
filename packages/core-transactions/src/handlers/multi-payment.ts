@@ -19,15 +19,18 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
         while (reader.hasNext()) {
             const transactions = await reader.read();
             for (const transaction of transactions) {
-                const sender: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                 for (const payment of transaction.asset.payments) {
-                    const recipient: State.IWallet = walletManager.findByAddress(payment.recipientId);
+                    const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
                     recipient.balance = recipient.balance.plus(payment.amount);
                     sender.balance = sender.balance.minus(payment.amount);
                 }

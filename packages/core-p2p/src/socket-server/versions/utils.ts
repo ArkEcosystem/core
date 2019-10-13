@@ -7,7 +7,9 @@ import * as peerHandlers from "./peer";
 export const isAppReady = (): { ready: boolean } => {
     return {
         ready:
-            !!app.resolvePlugin("transaction-pool") && !!app.resolvePlugin("blockchain") && !!app.resolvePlugin("p2p"),
+            app.isBound(Container.Identifiers.TransactionPoolService) &&
+            app.isBound(Container.Identifiers.BlockchainService) &&
+            app.isBound(Container.Identifiers.PeerNetworkMonitor),
     };
 };
 

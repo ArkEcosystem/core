@@ -1,10 +1,15 @@
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
+import dottie from "dottie";
 
 import { getProperty } from "./get-property";
 
 // todo: review the implementation
-export const sortEntries = (params: Contracts.Database.Parameters, entries: Contracts.State.Wallet[], defaultValue) => {
+export const sortEntries = <T>(
+    params: Contracts.Database.Parameters,
+    entries: Contracts.State.Wallet[],
+    defaultValue,
+) => {
     const [iteratee, order] = params.orderBy ? params.orderBy : defaultValue;
 
     if (["balance", "voteBalance"].includes(iteratee)) {
@@ -16,7 +21,7 @@ export const sortEntries = (params: Contracts.Database.Parameters, entries: Cont
         });
     }
 
-    return orderBy(
+    return AppUtils.orderBy(
         entries,
         (entry: T) => {
             if (typeof iteratee === "function") {

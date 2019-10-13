@@ -1,7 +1,8 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces, Managers, Transactions, Utils, Enums } from "@arkecosystem/crypto";
 
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import { HtlcLockExpiredError } from "../errors";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
@@ -18,12 +19,15 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         return ["htlc.locks", "htlc.lockedBalance"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const transactions = await connection.transactionsRepository.getOpenHtlcLocks();
 
-        const walletsToIndex: Record<string, State.IWallet> = {};
+        const walletsToIndex: Record<string, Contracts.State.Wallet> = {};
         for (const transaction of transactions) {
-            const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+            const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
             const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
             locks[transaction.id] = {
                 amount: Utils.BigNumber.make(transaction.amount),
@@ -37,13 +41,13 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             const lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
             wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
 
-            const recipientWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
+            const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(transaction.recipientId);
 
             walletsToIndex[wallet.address] = wallet;
             walletsToIndex[recipientWallet.address] = recipientWallet;
         }
 
-        walletManager.index(Object.values(walletsToIndex));
+        walletRepository.index(Object.values(walletsToIndex));
     }
 
     public async isActivated(): Promise<boolean> {
@@ -56,10 +60,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const lock: Interfaces.IHtlcLockAsset = transaction.data.asset.lock;
-        const lastBlock: Interfaces.IBlock = app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastBlock();
+        const lastBlock: Interfaces.IBlock = app.get<any>(Container.Identifiers.StateStore).getLastBlock();
 
         let { blocktime, activeDelegates } = Managers.configManager.getMilestone();
         const expiration: Interfaces.IHtlcExpiration = lock.expiration;
@@ -79,7 +80,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             throw new HtlcLockExpiredError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
     }
 
     public async canEnterTransactionPool(
@@ -96,7 +97,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks", {});
         locks[transaction.id] = {
             amount: transaction.data.amount,
@@ -119,7 +120,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const lockedBalance: Utils.BigNumber = sender.getAttribute("htlc.lockedBalance");
         sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
 

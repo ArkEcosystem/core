@@ -6,7 +6,6 @@ import { RoundInfo } from "../shared";
 import { Wallet, WalletRepository } from "../state/wallets";
 import {
     BlocksBusinessRepository,
-    DelegatesBusinessRepository,
     TransactionsBusinessRepository,
     WalletsBusinessRepository,
 } from "./business-repository";
@@ -19,7 +18,7 @@ export interface DownloadBlock extends Omit<Interfaces.IBlockData, "transactions
 export interface DatabaseService {
     wallets: WalletsBusinessRepository;
 
-    blocksBusinessRepository: IBlocksBusinessRepository;
+    blocksBusinessRepository: BlocksBusinessRepository;
 
     transactionsBusinessRepository: TransactionsBusinessRepository;
 

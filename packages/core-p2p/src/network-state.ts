@@ -39,7 +39,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
     }
 
     public static analyze(
-        monitor: Contracts.P2P.NetworkMonitor,
+        monitor: Contracts.P2P.INetworkMonitor,
         storage: Contracts.P2P.PeerStorage,
     ): Contracts.P2P.NetworkState {
         const lastBlock: Interfaces.IBlock = app.get<any>(Container.Identifiers.BlockchainService).getLastBlock();

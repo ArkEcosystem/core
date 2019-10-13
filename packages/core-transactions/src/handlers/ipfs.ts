@@ -18,19 +18,22 @@ export class IpfsTransactionHandler extends TransactionHandler {
         return ["ipfs", "ipfs.hashes"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
         while (reader.hasNext()) {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                 if (!wallet.hasAttribute("ipfs")) {
                     wallet.setAttribute("ipfs", { hashes: {} });
                 }
 
-                const ipfsHashes: State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
+                const ipfsHashes: Contracts.State.WalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
                 ipfsHashes[transaction.asset.ipfs] = true;
             }
         }

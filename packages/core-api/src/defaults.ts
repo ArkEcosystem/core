@@ -16,8 +16,20 @@ export const defaults = {
             },
         },
     },
-    // @see https://github.com/fknop/hapi-pagination
-    pagination: {
-        limit: 100,
+    plugins: {
+        // @see https://github.com/wraithgar/hapi-rate-limit
+        rateLimit: {
+            enabled: !process.env.CORE_API_RATE_LIMIT,
+            pathLimit: false,
+            userLimit: process.env.CORE_API_RATE_LIMIT_USER_LIMIT || 300,
+            userCache: {
+                expiresIn: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60000,
+            },
+        },
+        // @see https://github.com/fknop/hapi-pagination
+        pagination: {
+            limit: 100,
+        },
+        whitelist: ["*"],
     },
 };

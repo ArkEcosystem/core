@@ -1,5 +1,5 @@
 import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
 import delay from "delay";
 
@@ -128,7 +128,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             await delay(1000);
         }
 
-        app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
+        app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
             forcePing: true,
             peerCount: 10,
         });
@@ -172,7 +172,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async updateNetworkStatus(): Promise<void> {
-        await app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).updateNetworkStatus();
+        await app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).updateNetworkStatus();
     }
 
     /**
@@ -286,10 +286,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             let newLastBlock: Interfaces.IBlock;
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
-                newLastBlock = app
-                    .resolvePlugin<State.IStateService>("state")
-                    .getStore()
-                    .getGenesisBlock();
+                newLastBlock = app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
             } else {
                 newLastBlock = BlockFactory.fromData(blocksToRemove.pop(), { deserializeTransactionsUnchecked: true });
             }
@@ -363,8 +360,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         if (
             blocks[0] &&
-            !isBlockChained(this.getLastBlock().data, blocks[0].data, logger) &&
-            !Utils.isException(blocks[0].data)
+            !Utils.isBlockChained(this.getLastBlock().data, blocks[0].data, app.log) &&
+            !CryptoUtils.isException(blocks[0].data)
         ) {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
@@ -427,7 +424,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const blocktime: number = Managers.configManager.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
-                app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastBlock(
+                app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastBlock(
                     currentBlock,
                 );
             }

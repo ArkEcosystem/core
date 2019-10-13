@@ -1,6 +1,5 @@
-import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 
-import { Wallet } from "../../state/wallets";
 import { Parameters } from "./parameters";
 
 export interface TransactionsPaginated {
@@ -10,8 +9,6 @@ export interface TransactionsPaginated {
 
 export interface TransactionsBusinessRepository {
     search(params: Parameters, sequenceOrder?: "asc" | "desc"): Promise<TransactionsPaginated>;
-
-    findAllByWallet(wallet: Wallet, parameters?: Parameters): Promise<TransactionsPaginated>;
 
     findAllBySender(senderPublicKey: string, parameters?: Parameters): Promise<TransactionsPaginated>;
 
@@ -27,11 +24,21 @@ export interface TransactionsBusinessRepository {
 
     findByTypeAndId(type: number, id: string): Promise<Interfaces.ITransactionData>;
 
-    getAssetsByType(type: Enums.TransactionType | number): Promise<any>;
+    getCountOfType(type: number, typeGroup?: number): Promise<number>;
+
+    getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<any>;
 
     getReceivedTransactions(): Promise<any>;
 
     getSentTransactions(): Promise<any>;
+
+    getOpenHtlcLocks(): Promise<any>;
+
+    getRefundedHtlcLocks(): Promise<any>;
+
+    getClaimedHtlcLocks(): Promise<any>;
+
+    findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]>;
 
     getFeeStatistics(
         days: number,

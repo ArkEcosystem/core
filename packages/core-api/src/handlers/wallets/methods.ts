@@ -6,10 +6,12 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 
 // todo: rework to make use of injection rather then manual resolving
 const index = async request => {
-    const wallets = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService).wallets.search({
-        ...request.query,
-        ...paginate(request),
-    });
+    const wallets = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Wallets, {
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(wallets, "wallet");
 };
@@ -25,7 +27,7 @@ const top = async request => {
 const show = async request => {
     const wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(request.params.id);
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -37,19 +39,28 @@ const show = async request => {
 const transactions = async request => {
     const wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(request.params.id);
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
     }
 
+    // Overwrite parameters for special wallet treatment inside transaction repository
+    const parameters = {
+        ...request.query,
+        ...request.params,
+        ...paginate(request),
+        walletPublicKey: wallet.publicKey,
+        walletAddress: wallet.address,
+    };
+
+    delete parameters.publicKey;
+    delete parameters.recipientId;
+    delete parameters.id;
+
     const rows = await app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .transactionsBusinessRepository.findAllByWallet(wallet, {
-            ...request.query,
-            ...request.params,
-            ...paginate(request),
-        });
+        .transactionsBusinessRepository.search(parameters);
 
     return toPagination(rows, "transaction", (request.query.transform as unknown) as boolean);
 };
@@ -57,7 +68,7 @@ const transactions = async request => {
 const transactionsSent = async request => {
     const wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(request.params.id);
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -80,7 +91,7 @@ const transactionsSent = async request => {
 const transactionsReceived = async request => {
     const wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(request.params.id);
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -103,7 +114,7 @@ const transactionsReceived = async request => {
 const votes = async request => {
     const wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(request.params.id);
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -123,7 +134,9 @@ const votes = async request => {
 };
 
 const locks = async request => {
-    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
+    const wallet = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!wallet) {
         return Boom.notFound("Wallet not found");
@@ -134,22 +147,26 @@ const locks = async request => {
         return toPagination({ rows: [], count: 0 }, "lock");
     }
 
-    const rows = databaseService.wallets.search(Database.SearchScope.Locks, {
-        ...request.params,
-        ...request.query,
-        ...paginate(request),
-        senderPublicKey: wallet.publicKey,
-    });
+    const rows = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Locks, {
+            ...request.params,
+            ...request.query,
+            ...paginate(request),
+            senderPublicKey: wallet.publicKey,
+        });
 
     return toPagination(rows, "lock");
 };
 
 const search = async request => {
-    const wallets = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService).wallets.search({
-        ...request.payload,
-        ...request.query,
-        ...paginate(request),
-    });
+    const wallets = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Wallets, {
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(wallets, "wallet");
 };

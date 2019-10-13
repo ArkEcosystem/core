@@ -1,5 +1,18 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
+export interface WalletIndex {
+    readonly indexer: WalletIndexer;
+    index(wallet: Wallet): void;
+    has(key: string): boolean;
+    get(key: string): Wallet | undefined;
+    set(key: string, wallet: Wallet): void;
+    forget(key: string): void;
+    entries(): ReadonlyArray<[string, Wallet]>;
+    values(): ReadonlyArray<Wallet>;
+    keys(): string[];
+    clear(): void;
+}
+
 export type WalletIndexer = (index: WalletIndex, wallet: Wallet) => void;
 
 export enum WalletIndexes {
@@ -66,7 +79,7 @@ export interface WalletDelegateAttributes {
     resigned?: boolean;
 }
 
-export type IWalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset & { legacy?: boolean };
+export type WalletMultiSignatureAttributes = Interfaces.IMultiSignatureAsset & { legacy?: boolean };
 
 export interface WalletIpfsAttributes {
     [hash: string]: boolean;
@@ -97,11 +110,11 @@ export interface WalletRepository {
 
     getIndexNames(): string[];
 
-    findByPublicKey(publicKey: string): IWallet;
+    findByPublicKey(publicKey: string): Wallet;
 
     findByUsername(username: string): Wallet;
 
-    findByIndex(index: string | string[], key: string): IWallet | undefined;
+    findByIndex(index: string | string[], key: string): Wallet | undefined;
 
     getNonce(publicKey: string): Utils.BigNumber;
 
@@ -124,17 +137,4 @@ export interface WalletRepository {
     hasByPublicKey(publicKey: string): boolean;
 
     hasByUsername(username: string): boolean;
-}
-
-export interface IWalletIndex {
-    readonly indexer: WalletIndexer;
-    index(wallet: IWallet): void;
-    has(key: string): boolean;
-    get(key: string): Wallet | undefined;
-    set(key: string, wallet: Wallet): void;
-    forget(key: string): void;
-    entries(): ReadonlyArray<[string, IWallet]>;
-    values(): ReadonlyArray<IWallet>;
-    keys(): string[];
-    clear(): void;
 }

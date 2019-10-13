@@ -1,7 +1,8 @@
-import { Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
-import { WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
+import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
+import { TransactionReader } from "../transaction-reader";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -24,10 +25,16 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         connection: Contracts.Database.Connection,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getAssetsByType(this.getConstructor().type);
+        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
-        for (const transaction of transactions) {
-            walletRepository.findByPublicKey(transaction.senderPublicKey).setAttribute("delegate.resigned", true);
+        while (reader.hasNext()) {
+            const transactions = await reader.read();
+
+            for (const transaction of transactions) {
+                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+                wallet.setAttribute("delegate.resigned", true);
+                walletRepository.reindex(wallet);
+            }
         }
     }
 
@@ -46,6 +53,26 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
         if (wallet.hasAttribute("delegate.resigned")) {
             throw new WalletAlreadyResignedError();
+        }
+
+        const delegates: ReadonlyArray<Contracts.State.Wallet> = app
+            .get<Contracts.Database.DatabaseService>("database")
+            .walletRepository.allByUsername();
+        let requiredDelegates: number = Managers.configManager.getMilestone().activeDelegates + 1;
+        for (const delegate of delegates) {
+            if (requiredDelegates === 0) {
+                break;
+            }
+
+            if (delegate.getAttribute("delegate.resigned")) {
+                continue;
+            }
+
+            requiredDelegates--;
+        }
+
+        if (requiredDelegates > 0) {
+            throw new NotEnoughDelegatesError();
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
@@ -94,10 +121,12 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
+        // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 }

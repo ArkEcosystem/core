@@ -1,5 +1,6 @@
 import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Handlers } from "@arkecosystem/core-transactions";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -30,7 +31,7 @@ export class TransactionsController extends Controller {
 
             if (result.broadcast.length > 0) {
                 // todo: inject from container
-                app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastTransactions(
+                app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastTransactions(
                     processor.getBroadcastTransactions(),
                 );
             }
@@ -112,7 +113,9 @@ export class TransactionsController extends Controller {
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactionHandlers();
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await app
+                .get<any>("transactionHandlerRegistry")
+                .getActivatedTransactionHandlers();
             const typeGroups: Record<string | number, Record<string, number>> = {};
 
             for (const handler of activatedTransactionHandlers) {

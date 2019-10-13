@@ -1,4 +1,4 @@
-import { app } from '@arkecosystem/core-container';
+import { app } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 
 import { NodeController } from "./controller";
@@ -41,7 +41,7 @@ export const registerRoutes = (server: Hapi.Server): void => {
         },
     });
 
-    if (app.getConfig().get("network.name") === "testnet" || process.env.CORE_API_DEBUG_ENDPOINT_ENABLED) {
+    if (app.network() === "testnet" || process.env.CORE_API_DEBUG_ENDPOINT_ENABLED) {
         server.route({
             method: "GET",
             path: "/node/debug",

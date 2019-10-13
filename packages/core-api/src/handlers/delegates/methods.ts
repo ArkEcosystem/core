@@ -8,7 +8,7 @@ import { paginate, respondWithResource, toPagination } from "../utils";
 const index = async request => {
     const delegates = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .delegates.search({
+        .wallets.search(Contracts.Database.SearchScope.Wallets, {
             ...request.query,
             ...paginate(request),
         });
@@ -19,7 +19,7 @@ const index = async request => {
 const show = async request => {
     const delegate = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .delegates.findById(request.params.id);
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
@@ -31,7 +31,7 @@ const show = async request => {
 const search = async request => {
     const delegates = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .delegates.search({
+        .wallets.search(Contracts.Database.SearchScope.Wallets, {
             ...request.payload,
             ...request.query,
             ...paginate(request),
@@ -43,7 +43,7 @@ const search = async request => {
 const blocks = async request => {
     const delegate = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .delegates.findById(request.params.id);
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
@@ -59,7 +59,7 @@ const blocks = async request => {
 const voters = async request => {
     const delegate = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .delegates.findById(request.params.id);
+        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
     if (!delegate) {
         return Boom.notFound("Delegate not found");
@@ -67,8 +67,9 @@ const voters = async request => {
 
     const wallets = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findAllByVote(delegate.publicKey, {
+        .wallets.search(Contracts.Database.SearchScope.Wallets, {
             ...request.query,
+            ...{ vote: delegate.publicKey },
             ...paginate(request),
         });
 

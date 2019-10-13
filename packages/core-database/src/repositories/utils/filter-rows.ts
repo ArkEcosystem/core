@@ -1,5 +1,4 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-
 import { getProperty } from "./get-property";
 
 /**
@@ -9,7 +8,11 @@ import { getProperty } from "./get-property";
  * @param  {Object} filters
  * @return {Array}
  */
-export = <T = any>(rows: ReadonlyArray<T>, params: Database.IParameters, filters: Record<string, string[]>): T[] => {
+export = <T = any>(
+    rows: ReadonlyArray<T>,
+    params: Contracts.Database.Parameters,
+    filters: Record<string, string[]>,
+): T[] => {
     return rows.filter(item => {
         if (filters.hasOwnProperty("exact")) {
             for (const elem of filters.exact) {

@@ -1,33 +1,53 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import filterRows from "./utils/filter-rows";
-import limitRows from "./utils/limit-rows";
-import { sortEntries } from "./utils/sort-entries";
+import { searchEntries } from "./utils/search-entries";
+
+interface SearchContext<T = any> {
+    query: Record<string, string[]>;
+    entries: ReadonlyArray<T>;
+    defaultOrder: string[];
+}
+
+interface UnwrappedHtlcLock {
+    lockId: string;
+    senderPublicKey: string;
+    amount: Utils.BigNumber;
+    recipientId: string;
+    secretHash: string;
+    timestamp: number;
+    expirationType: number;
+    expirationValue: number;
+    vendorField: string;
+}
 
 export class WalletsBusinessRepository implements Contracts.Database.WalletsBusinessRepository {
     public constructor(private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) {}
 
-    public search<T>(scope: Database.SearchScope, params: Database.IParameters = {}): Database.IRowsPaginated<T> {
-        let searchContext: ISearchContext;
+    public search<T>(
+        scope: Contracts.Database.SearchScope,
+        params: Contracts.Database.Parameters = {},
+    ): Contracts.Database.RowsPaginated<T> {
+        let searchContext: SearchContext;
 
         switch (scope) {
-            case Database.SearchScope.Wallets: {
+            case Contracts.Database.SearchScope.Wallets: {
                 searchContext = this.searchWallets(params);
                 break;
             }
-            case Database.SearchScope.Delegates: {
+            case Contracts.Database.SearchScope.Delegates: {
                 searchContext = this.searchDelegates(params);
                 break;
             }
-            case Database.SearchScope.Locks: {
+            case Contracts.Database.SearchScope.Locks: {
                 searchContext = this.searchLocks(params);
                 break;
             }
-            case Database.SearchScope.Bridgechains: {
+            case Contracts.Database.SearchScope.Bridgechains: {
                 searchContext = this.searchBridgechains(params);
                 break;
             }
-            case Database.SearchScope.Businesses: {
+            case Contracts.Database.SearchScope.Businesses: {
                 searchContext = this.searchBusinesses(params);
                 break;
             }
@@ -36,20 +56,28 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
         return searchEntries(params, searchContext.query, searchContext.entries, searchContext.defaultOrder);
     }
 
-    public findById(scope: Database.SearchScope, id: string): State.IWallet {
-        const walletManager: State.IWalletManager = this.databaseServiceProvider().walletManager;
+    public findById(scope: Contracts.Database.SearchScope, id: string): Contracts.State.Wallet {
+        const walletRepository: Contracts.State.WalletRepository = this.databaseServiceProvider().walletRepository;
 
         switch (scope) {
-            case Database.SearchScope.Wallets: {
-                return walletManager.findByIndex(
-                    [State.WalletIndexes.Usernames, State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys],
+            case Contracts.Database.SearchScope.Wallets: {
+                return walletRepository.findByIndex(
+                    [
+                        Contracts.State.WalletIndexes.Usernames,
+                        Contracts.State.WalletIndexes.Addresses,
+                        Contracts.State.WalletIndexes.PublicKeys,
+                    ],
                     id,
                 );
             }
 
-            case Database.SearchScope.Delegates: {
-                const wallet: State.IWallet | undefined = walletManager.findByIndex(
-                    [State.WalletIndexes.Usernames, State.WalletIndexes.Addresses, State.WalletIndexes.PublicKeys],
+            case Contracts.Database.SearchScope.Delegates: {
+                const wallet: Contracts.State.Wallet | undefined = walletRepository.findByIndex(
+                    [
+                        Contracts.State.WalletIndexes.Usernames,
+                        Contracts.State.WalletIndexes.Addresses,
+                        Contracts.State.WalletIndexes.PublicKeys,
+                    ],
                     id,
                 );
 
@@ -64,15 +92,18 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
         return undefined;
     }
 
-    public count(scope: Database.SearchScope): number {
+    public count(scope: Contracts.Database.SearchScope): number {
         return this.search(scope, {}).count;
     }
 
-    public top(scope: Database.SearchScope, params: Database.IParameters = {}): Database.IRowsPaginated<State.IWallet> {
+    public top(
+        scope: Contracts.Database.SearchScope,
+        params: Contracts.Database.Parameters = {},
+    ): Contracts.Database.RowsPaginated<Contracts.State.Wallet> {
         return this.search(scope, { ...params, ...{ orderBy: "balance:desc" } });
     }
 
-    private searchWallets(params: Database.IParameters): ISearchContext<State.IWallet> {
+    private searchWallets(params: Contracts.Database.Parameters): SearchContext<Contracts.State.Wallet> {
         const query: Record<string, string[]> = {
             exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
             between: ["balance", "voteBalance", "lockedBalance"],
@@ -92,12 +123,12 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
 
         return {
             query,
-            entries: this.databaseServiceProvider().walletManager.allByAddress(),
+            entries: this.databaseServiceProvider().walletRepository.allByAddress(),
             defaultOrder: ["balance", "desc"],
         };
     }
 
-    private searchDelegates(params: Database.IParameters): ISearchContext<State.IWallet> {
+    private searchDelegates(params: Contracts.Database.Parameters): SearchContext<Contracts.State.Wallet> {
         const query: Record<string, string[]> = {
             exact: ["address", "publicKey"],
             like: ["username"],
@@ -114,34 +145,34 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
             delete params.usernames;
         }
 
-        let entries: ReadonlyArray<State.IWallet>;
+        let entries: ReadonlyArray<Contracts.State.Wallet>;
         switch (params.type) {
             case "resigned": {
                 entries = this.databaseServiceProvider()
-                    .walletManager.getIndex(State.WalletIndexes.Resignations)
+                    .walletRepository.getIndex(Contracts.State.WalletIndexes.Resignations)
                     .values();
                 break;
             }
             case "never-forged": {
                 entries = this.databaseServiceProvider()
-                    .walletManager.allByUsername()
+                    .walletRepository.allByUsername()
                     .filter(delegate => {
                         return delegate.getAttribute("delegate.producedBlocks") === 0;
                     });
                 break;
             }
             default: {
-                entries = this.databaseServiceProvider().walletManager.allByUsername();
+                entries = this.databaseServiceProvider().walletRepository.allByUsername();
                 break;
             }
         }
 
         const manipulators = {
-            approval: delegateCalculator.calculateApproval,
-            forgedTotal: delegateCalculator.calculateForgedTotal,
+            approval: AppUtils.delegateCalculator.calculateApproval,
+            forgedTotal: AppUtils.delegateCalculator.calculateForgedTotal,
         };
 
-        if (hasSomeProperty(params, Object.keys(manipulators))) {
+        if (AppUtils.hasSomeProperty(params, Object.keys(manipulators))) {
             entries = entries.map(delegate => {
                 for (const [prop, method] of Object.entries(manipulators)) {
                     if (params.hasOwnProperty(prop)) {
@@ -160,7 +191,7 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
         };
     }
 
-    private searchLocks(params: Database.IParameters = {}): ISearchContext<IUnwrappedHtlcLock> {
+    private searchLocks(params: Contracts.Database.Parameters = {}): SearchContext<UnwrappedHtlcLock> {
         const query: Record<string, string[]> = {
             exact: ["senderPublicKey", "lockId", "recipientId", "secretHash", "expirationType", "vendorField"],
             between: ["expirationValue", "amount", "timestamp"],
@@ -170,10 +201,10 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
             params.amount = "" + params.amount;
         }
 
-        const entries: IUnwrappedHtlcLock[] = this.databaseServiceProvider()
-            .walletManager.getIndex(State.WalletIndexes.Locks)
+        const entries: UnwrappedHtlcLock[] = this.databaseServiceProvider()
+            .walletRepository.getIndex(Contracts.State.WalletIndexes.Locks)
             .entries()
-            .reduce<IUnwrappedHtlcLock[]>((acc, [lockId, wallet]) => {
+            .reduce<UnwrappedHtlcLock[]>((acc, [lockId, wallet]) => {
                 const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
                 if (locks && locks[lockId]) {
                     const lock: Interfaces.IHtlcLock = locks[lockId];
@@ -201,10 +232,10 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
     }
 
     // TODO
-    private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
+    private searchBusinesses(params: Contracts.Database.Parameters = {}): SearchContext<any> {
         const query: Record<string, string[]> = {};
         const entries: any[] = this.databaseServiceProvider()
-            .walletManager.getIndex("businesses")
+            .walletRepository.getIndex("businesses")
             .values()
             .map(wallet => {
                 const business: Interfaces.IHtlcLocks = wallet.getAttribute("business");
@@ -220,11 +251,11 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
     }
 
     // TODO
-    private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
+    private searchBridgechains(params: Contracts.Database.Parameters = {}): SearchContext<any> {
         const query: Record<string, string[]> = {};
 
         const entries: any[][] = this.databaseServiceProvider()
-            .walletManager.getIndex("bridgechains")
+            .walletRepository.getIndex("bridgechains")
             .values()
             .map(wallet => {
                 return wallet.getAttribute("business.bridgechains");

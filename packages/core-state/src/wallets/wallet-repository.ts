@@ -8,7 +8,7 @@ import { WalletIndex } from "./wallet-index";
 
 // todo: review the implementation
 export class WalletRepository implements Contracts.State.WalletRepository {
-    private readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
+    protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 
     constructor() {
         this.reset();
@@ -35,6 +35,15 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             Contracts.State.WalletIndexes.Usernames,
             (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
                 if (wallet.isDelegate()) {
+                    index.set(wallet.getAttribute("delegate.username"), wallet);
+                }
+            },
+        );
+
+        this.registerIndex(
+            Contracts.State.WalletIndexes.Resignations,
+            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
+                if (wallet.isDelegate() && wallet.getAttribute("delegate.resigned")) {
                     index.set(wallet.getAttribute("delegate.username"), wallet);
                 }
             },
@@ -77,16 +86,20 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return this.indexes[name];
     }
 
+    public getIndexNames(): string[] {
+        return Object.keys(this.indexes);
+    }
+
     public allByAddress(): ReadonlyArray<Contracts.State.Wallet> {
-        return this.getIndex(Contracts.State.WalletIndexes.Addresses).all();
+        return this.getIndex(Contracts.State.WalletIndexes.Addresses).values();
     }
 
     public allByPublicKey(): ReadonlyArray<Contracts.State.Wallet> {
-        return this.getIndex(Contracts.State.WalletIndexes.PublicKeys).all();
+        return this.getIndex(Contracts.State.WalletIndexes.PublicKeys).values();
     }
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
-        return this.getIndex(Contracts.State.WalletIndexes.Usernames).all();
+        return this.getIndex(Contracts.State.WalletIndexes.Usernames).values();
     }
 
     public findById(id: string): Contracts.State.Wallet {

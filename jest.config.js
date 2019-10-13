@@ -1,6 +1,6 @@
 module.exports = {
     testEnvironment: "node",
-    bail: true,
+    bail: false,
     verbose: true,
     transform: {
         "^.+\\.tsx?$": "ts-jest",

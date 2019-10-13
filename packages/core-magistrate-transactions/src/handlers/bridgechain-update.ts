@@ -1,5 +1,4 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { app, Contracts } from "@arkecosystem/core-kernel";
 import {
     Enums,
     Interfaces as MagistrateInterfaces,
@@ -7,6 +6,7 @@ import {
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+
 import {
     BridgechainIsNotRegisteredError,
     BridgechainIsResignedError,
@@ -34,14 +34,17 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
         while (reader.hasNext()) {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                 const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
                     "business",
                 );
@@ -49,15 +52,15 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
                 const { bridgechainId, seedNodes } = transaction.asset.bridgechainUpdate;
                 businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
 
-                walletManager.reindex(wallet);
+                walletRepository.reindex(wallet);
             }
         }
     }
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        wallet: Contracts.State.Wallet,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (!wallet.hasAttribute("business")) {
             throw new BusinessIsNotRegisteredError();
@@ -83,28 +86,28 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             throw new BridgechainIsResignedError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateApplicationEvents.BridgechainUpdate, transaction.data);
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+        emitter.dispatch(MagistrateApplicationEvents.BridgechainUpdate, transaction.data);
     }
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.Connection,
+        processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         return true;
     }
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletRepository);
 
-        const wallet: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
@@ -115,29 +118,29 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
         bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
 
-        walletManager.reindex(wallet);
+        walletRepository.reindex(wallet);
     }
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
 
-        const connection: Database.IConnection = app.resolvePlugin<Database.IConnection>("database");
+        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>("database");
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
-        const updateTransactions: Database.IBootstrapTransaction[] = [];
+        const updateTransactions: Contracts.Database.IBootstrapTransaction[] = [];
         while (reader.hasNext()) {
             updateTransactions.push(...(await reader.read()));
         }
 
         if (updateTransactions.length > 1) {
-            const updateTransaction: Database.IBootstrapTransaction = updateTransactions.pop();
+            const updateTransaction: Contracts.Database.IBootstrapTransaction = updateTransactions.pop();
             const { bridgechainId, seedNodes } = updateTransaction.asset.bridgechainUpdate;
             const bridgechainAttributes: IBridgechainWalletAttributes = businessAttributes.bridgechains[bridgechainId];
             bridgechainAttributes.bridgechainAsset.seedNodes = seedNodes;
@@ -149,18 +152,18 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             const registrationIndex: number = Object.keys(businessAttributes.bridgechains).indexOf(bridgechainId);
 
             const bridgechainRegistration: MagistrateInterfaces.IBridgechainRegistrationAsset = (await app
-                .resolvePlugin<Database.IConnection>("database")
+                .get<Contracts.Database.Connection>("database")
                 .transactionsRepository.search({
                     parameters: [
                         {
                             field: "senderPublicKey",
                             value: sender.publicKey,
-                            operator: Database.SearchOperator.OP_EQ,
+                            operator: Contracts.Database.SearchOperator.OP_EQ,
                         },
                         {
                             field: "type",
                             value: Enums.MagistrateTransactionType.BridgechainRegistration,
-                            operator: Database.SearchOperator.OP_EQ,
+                            operator: Contracts.Database.SearchOperator.OP_EQ,
                         },
                     ],
                     orderBy: [
@@ -179,18 +182,18 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainRegistration.seedNodes;
         }
 
-        walletManager.reindex(sender);
+        walletRepository.reindex(sender);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 }

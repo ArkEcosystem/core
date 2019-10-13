@@ -1,10 +1,11 @@
-import { Logger } from "@arkecosystem/core-interfaces";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
+
+import { Logger } from "../contracts/kernel/log";
 
 export const isBlockChained = (
     previousBlock: Interfaces.IBlockData,
     nextBlock: Interfaces.IBlockData,
-    logger?: Logger.ILogger,
+    logger?: Logger,
 ): boolean => {
     const followsPrevious: boolean = nextBlock.previousBlock === previousBlock.id;
     const isPlusOne: boolean = nextBlock.height === previousBlock.height + 1;
@@ -34,7 +35,7 @@ export const isBlockChained = (
                 `${nextSlot} (derived from timestamp ${nextBlock.timestamp})`;
         }
 
-        logger.warn(`${messagePrefix}: ${messageDetail}`);
+        logger.warning(`${messagePrefix}: ${messageDetail}`);
     }
 
     return isChained;

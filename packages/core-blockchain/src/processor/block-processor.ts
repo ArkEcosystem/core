@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -47,11 +47,11 @@ export class BlockProcessor {
         }
 
         if (this.blockContainsIncompatibleTransactions(block)) {
-            return new IncompatibleTransactionsHandler(this.blockchain, block);
+            return this.app.resolve<IncompatibleTransactionsHandler>(IncompatibleTransactionsHandler).execute();
         }
 
         if (this.blockContainsOutOfOrderNonce(block)) {
-            return new NonceOutOfOrderHandler(this.blockchain, block);
+            return this.app.resolve<NonceOutOfOrderHandler>(NonceOutOfOrderHandler).execute();
         }
 
         const isValidGenerator: boolean = await validateGenerator(block);
@@ -79,16 +79,18 @@ export class BlockProcessor {
         if (block.verification.containsMultiSignatures) {
             try {
                 for (const transaction of block.transactions) {
-                    const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
-                        transaction.type,
-                        transaction.typeGroup,
+                    const handler: Handlers.TransactionHandler = await app
+                        .get<any>("transactionHandlerRegistry")
+                        .get(transaction.type, transaction.typeGroup);
+                    await handler.verify(
+                        transaction,
+                        app.get<any>(Container.Identifiers.DatabaseService).walletRepository,
                     );
-                    await handler.verify(transaction, this.blockchain.database.walletManager);
                 }
 
                 block.verification = block.verify();
             } catch (error) {
-                this.logger.warn(`Failed to verify block, because: ${error.message}`);
+                this.logger.warning(`Failed to verify block, because: ${error.message}`);
                 block.verification.verified = false;
             }
         }
@@ -162,11 +164,13 @@ export class BlockProcessor {
             const sender: string = data.senderPublicKey;
 
             if (nonceBySender[sender] === undefined) {
-                nonceBySender[sender] = this.blockchain.database.walletManager.getNonce(sender);
+                nonceBySender[sender] = app
+                    .get<any>(Container.Identifiers.DatabaseService)
+                    .walletRepository.getNonce(sender);
             }
 
             if (!nonceBySender[sender].plus(1).isEqualTo(data.nonce)) {
-                this.logger.warn(
+                this.logger.warning(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
                         `not accepted: invalid nonce order for sender ${sender}: ` +
                         `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +

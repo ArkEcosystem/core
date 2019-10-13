@@ -1,6 +1,7 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import assert = require("assert");
+import assert from "assert";
+
 import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "../errors";
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
@@ -18,11 +19,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const transactions = await connection.transactionsRepository.getRefundedHtlcLocks();
 
         for (const transaction of transactions) {
-            const refundWallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey); // sender is from the original lock
+            const refundWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey); // sender is from the original lock
             refundWallet.balance = refundWallet.balance.plus(transaction.amount);
         }
     }
@@ -45,12 +49,15 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         sender: Contracts.State.Wallet,
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
+        await this.performGenericWalletChecks(transaction, sender, databaseWalletRepository);
 
         // Specific HTLC refund checks
         const refundAsset: Interfaces.IHtlcRefundAsset = transaction.data.asset.refund;
         const lockId: string = refundAsset.lockTransactionId;
-        const lockWallet: State.IWallet = databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const lockWallet: Contracts.State.Wallet = databaseWalletRepository.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
@@ -77,8 +84,13 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     ): Promise<boolean> {
         const lockId: string = data.asset.refund.lockTransactionId;
 
-        const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-        const lockWallet: State.IWallet = databaseService.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+            Container.Identifiers.DatabaseService,
+        );
+        const lockWallet: Contracts.State.Wallet = databaseService.walletRepository.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             processor.pushError(
                 data,
@@ -122,7 +134,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         sender.nonce = data.nonce;
 
         const lockId: string = data.asset.refund.lockTransactionId;
-        const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
         assert(lockWallet && lockWallet.getAttribute("htlc.locks")[lockId]);
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
@@ -150,20 +165,22 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.verifyTransactionNonceRevert(transaction);
 
         sender.nonce = sender.nonce.minus(1);
 
         // TODO: not so good to call database from here, would need a better way
-        const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+        const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+            Container.Identifiers.DatabaseService,
+        );
 
         const lockId: string = transaction.data.asset.refund.lockTransactionId;
         const lockTransaction: Interfaces.ITransactionData = await databaseService.transactionsBusinessRepository.findById(
             lockId,
         );
-        const lockWallet: State.IWallet = walletManager.findByPublicKey(lockTransaction.senderPublicKey);
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
 
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);

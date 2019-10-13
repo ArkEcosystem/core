@@ -12,7 +12,7 @@ import { buildRateLimiter } from "./utils/build-rate-limiter";
 
 // todo: review the implementation
 @Container.injectable()
-export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
+export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public server: SocketCluster;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean;
@@ -90,7 +90,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
 
         if (this.config.networkStart) {
             this.coldStart = true;
-            this.logger.warn("Entering cold start because the relay is in genesis-start mode.");
+            this.logger.warning("Entering cold start because the relay is in genesis-start mode.");
             return;
         }
 
@@ -151,8 +151,8 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                         peerErrors[error] = [peer];
                     }
 
-                    this.emitter.emit("internal.p2p.disconnectPeer", { peer });
-                    this.emitter.emit(ApplicationEvents.PeerRemoved, peer);
+                    this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
+                    this.emitter.dispatch(Enums.Events.State.PeerRemoved, peer);
 
                     return undefined;
                 }
@@ -207,7 +207,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         return false;
     }
 
-    public async getRateLimitStatus(ip: string, endpoint?: string): Promise<P2P.IRateLimitStatus> {
+    public async getRateLimitStatus(ip: string, endpoint?: string): Promise<Contracts.P2P.IRateLimitStatus> {
         return {
             blocked: await this.rateLimiter.isBlocked(ip),
             exceededLimitOnEndpoint: await this.rateLimiter.hasExceededRateLimit(ip, endpoint),

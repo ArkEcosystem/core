@@ -13,7 +13,7 @@ export class NodeController extends Controller {
             const lastBlock = this.blockchain.getLastBlock();
             // todo: inject from container
             const networkHeight = app
-                .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+                .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                 .getNetworkHeight();
 
             return {
@@ -34,7 +34,7 @@ export class NodeController extends Controller {
             const lastBlock = this.blockchain.getLastBlock();
             // todo: inject from container
             const networkHeight = app
-                .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+                .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                 .getNetworkHeight();
 
             return {
@@ -103,7 +103,7 @@ export class NodeController extends Controller {
 
     public async debug(request: Hapi.Request, h) {
         const logPath: string = process.env.CORE_PATH_LOG;
-        const logFile: string = `${logPath}/${app.getName()}-current.log`;
+        const logFile: string = `${logPath}/${app.token()}-current.log`;
 
         if (!existsSync(logFile)) {
             return Boom.notFound(logFile);

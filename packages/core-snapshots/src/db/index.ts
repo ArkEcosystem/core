@@ -100,8 +100,10 @@ export class Database {
         if (meta.startHeight <= 1) {
             startRound = 1;
         } else {
-            const roundInfoPrev: Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight - 1);
-            const roundInfoStart: Shared.IRoundInfo = roundCalculator.calculateRound(meta.startHeight);
+            const roundInfoPrev: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(
+                meta.startHeight - 1,
+            );
+            const roundInfoStart: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(meta.startHeight);
 
             if (roundInfoPrev.round === roundInfoStart.round) {
                 // The lower snapshot contains this round, so skip it from this snapshot.
@@ -113,7 +115,7 @@ export class Database {
             }
         }
 
-        const roundInfoEnd: Shared.IRoundInfo = roundCalculator.calculateRound(meta.endHeight);
+        const roundInfoEnd: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(meta.endHeight);
 
         return {
             blocks: rawQuery(this.pgp, queries.blocks.heightRange, {

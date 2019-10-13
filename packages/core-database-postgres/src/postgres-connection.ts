@@ -131,7 +131,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
                 // Delete all rounds after the current round if there are still
                 // any left.
                 const lastBlockHeight: number = blocks[blocks.length - 1].height;
-                const { round } = roundCalculator.calculateRound(lastBlockHeight);
+                const { round } = Utils.roundCalculator.calculateRound(lastBlockHeight);
 
                 return t.batch([
                     this.transactionsRepository.deleteByBlockId(blockIds, t),
@@ -209,12 +209,12 @@ export class PostgresConnection implements Contracts.Database.Connection {
     }
 
     private async migrateTransactionsTableToAssetColumn(name: string, migration: pgPromise.QueryFile): Promise<void> {
-        const row: IMigration = await this.migrationsRepository.findByName(name);
+        const row: Migration = await this.migrationsRepository.findByName(name);
         if (row) {
             return;
         }
 
-        this.logger.warn(`Migrating transactions table to assets. This may take a while.`);
+        this.logger.warning(`Migrating transactions table to assets. This may take a while.`);
 
         await this.query.none(migration);
 

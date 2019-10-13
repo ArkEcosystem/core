@@ -1,24 +1,25 @@
-import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
 const index = async request => {
-    const businesses = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        ...request.query,
-        ...paginate(request),
-    });
+    const businesses = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Businesses, {
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(businesses, "business");
 };
 
 const show = async request => {
-    const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        businessId: request.params.id,
-    }).rows[0];
+    const business = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Businesses, {
+            businessId: request.params.id,
+        }).rows[0];
 
     if (!business) {
         return Boom.notFound("Business not found");
@@ -28,11 +29,13 @@ const show = async request => {
 };
 
 const search = async request => {
-    const businesses = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        ...request.payload,
-        ...request.query,
-        ...paginate(request),
-    });
+    const businesses = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Businesses, {
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(businesses, "business");
 };

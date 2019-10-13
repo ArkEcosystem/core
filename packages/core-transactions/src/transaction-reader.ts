@@ -1,9 +1,9 @@
-import { Database } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
 
 export class TransactionReader {
     public static async create(
-        connection: Database.IConnection,
+        connection: Contracts.Database.Connection,
         typeConstructor: Transactions.TransactionConstructor,
     ): Promise<TransactionReader> {
         const reader: TransactionReader = new TransactionReader(
@@ -20,13 +20,17 @@ export class TransactionReader {
     private index: number;
     private count: number;
 
-    private constructor(private connection: Database.IConnection, private type: number, private typeGroup: number) {}
+    private constructor(
+        private connection: Contracts.Database.Connection,
+        private type: number,
+        private typeGroup: number,
+    ) {}
 
     public hasNext(): boolean {
         return this.index < this.count;
     }
 
-    public async read(): Promise<Database.IBootstrapTransaction[]> {
+    public async read(): Promise<Contracts.Database.IBootstrapTransaction[]> {
         const transactions = await this.connection.transactionsRepository.getAssetsByType(
             this.type,
             this.typeGroup,

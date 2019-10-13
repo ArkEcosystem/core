@@ -13,7 +13,7 @@ export class EventListener {
     private readonly storage: Contracts.P2P.PeerStorage;
 
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
-    private readonly networkMonitor: Contracts.P2P.NetworkMonitor;
+    private readonly networkMonitor: Contracts.P2P.INetworkMonitor;
 
     public init() {
         this.emitter.listen("internal.p2p.disconnectPeer", ({ data }) => {

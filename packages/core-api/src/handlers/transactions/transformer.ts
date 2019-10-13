@@ -4,7 +4,6 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 // todo: review the implementation
 export const transformTransaction = (model, transform) => {
     const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-    const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
 
     const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromBytesUnsafe(
         model.serialized,
@@ -17,7 +16,9 @@ export const transformTransaction = (model, transform) => {
 
     const { data } = transaction;
 
-    const sender: string = databaseService.walletRepository.findByPublicKey(data.senderPublicKey).address;
+    const sender: string = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .walletRepository.findByPublicKey(data.senderPublicKey).address;
 
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
     const timestamp: number = data.version === 1 ? data.timestamp : model.timestamp;

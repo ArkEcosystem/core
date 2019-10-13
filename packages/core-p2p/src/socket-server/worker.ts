@@ -1,4 +1,4 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import SCWorker from "socketcluster/scworker";
 
 import { SocketErrors } from "../enums";
@@ -95,7 +95,7 @@ export class Worker extends SCWorker {
             return;
         }
 
-        const { data }: { data: P2P.IRateLimitStatus } = await this.sendToMasterAsync(
+        const { data }: { data: Contracts.P2P.IRateLimitStatus } = await this.sendToMasterAsync(
             "p2p.internal.getRateLimitStatus",
             {
                 data: {
@@ -132,6 +132,7 @@ export class Worker extends SCWorker {
 
             // Check that blockchain, tx-pool and p2p are ready
             const isAppReady: boolean = (await this.sendToMasterAsync("p2p.utils.isAppReady")).data.ready;
+
             if (!isAppReady) {
                 req.socket.terminate();
                 return;

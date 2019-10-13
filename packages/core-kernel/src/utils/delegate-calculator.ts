@@ -1,20 +1,22 @@
-import { Managers, Utils } from "@arkecosystem/crypto";
-
 import { Wallet, WalletDelegateAttributes } from "../contracts/state";
+import { BigNumber } from "../utils";
+import { calculate as calculateSupply } from "./supply-calculator";
+
+const toDecimal = (voteBalance: BigNumber, totalSupply: BigNumber): number => {
+    const decimals: number = 2;
+    const exponent: number = totalSupply.toString().length - voteBalance.toString().length + 4;
+
+    // @ts-ignore
+    const div = voteBalance.times(Math.pow(10, exponent)).dividedBy(totalSupply) / Math.pow(10, exponent - decimals);
+
+    return +Number(div).toFixed(2);
+};
 
 export const calculateApproval = (delegate: Wallet, height?: number): number => {
-    const BignumMod = Utils.BigNumber.clone({ DECIMAL_PLACES: 2 });
+    const totalSupply = BigNumber.make(calculateSupply(height));
+    const voteBalance = BigNumber.make(delegate.getAttribute<BigNumber>("delegate.voteBalance"));
 
-    const constants = Managers.configManager.getMilestone(height);
-    const totalSupply = new BignumMod(Managers.configManager.get("genesisBlock.totalAmount")).plus(
-        (height - constants.height) * constants.reward,
-    );
-    const voteBalance = new BignumMod(delegate.getAttribute<Utils.BigNumber>("delegate.voteBalance"));
-
-    return +voteBalance
-        .times(100)
-        .dividedBy(totalSupply)
-        .toFixed(2);
+    return toDecimal(voteBalance, totalSupply);
 };
 
 /**
@@ -26,8 +28,8 @@ export const calculateApproval = (delegate: Wallet, height?: number): number => 
  */
 export const calculateForgedTotal = (wallet: Wallet): string => {
     const delegate: WalletDelegateAttributes = wallet.getAttribute("delegate");
-    const forgedFees: Utils.BigNumber = Utils.BigNumber.make(delegate.forgedFees);
-    const forgedRewards: Utils.BigNumber = Utils.BigNumber.make(delegate.forgedRewards);
+    const forgedFees: BigNumber = BigNumber.make(delegate.forgedFees || 0);
+    const forgedRewards: BigNumber = BigNumber.make(delegate.forgedRewards || 0);
 
     return forgedFees.plus(forgedRewards).toFixed();
 };

@@ -1,4 +1,5 @@
 import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { Utils } from "@arkecosystem/crypto";
 
 import { Peer } from "./peer";
 import { isValidVersion, isWhitelisted } from "./utils";
@@ -73,7 +74,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         const peers: Contracts.P2P.Peer[] = this.storage.getPeers();
         for (const peer of peers) {
             if (!isValidVersion(peer)) {
-                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
             }
         }
     }

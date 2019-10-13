@@ -1,5 +1,4 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IProcessor } from "./processor";
 
 import { Processor } from "./processor";
 

@@ -1,5 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
     InvalidMultiSignatureError,
@@ -25,30 +25,33 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         return ["multiSignature"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
         while (reader.hasNext()) {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                let wallet: State.IWallet;
-                let multiSignature: State.IWalletMultiSignatureAttributes;
+                let wallet: Contracts.State.Wallet;
+                let multiSignature: Contracts.State.WalletMultiSignatureAttributes;
 
                 if (transaction.version === 1) {
                     multiSignature = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
-                    wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                    wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                     multiSignature.legacy = true;
                 } else {
                     multiSignature = transaction.asset.multiSignature;
-                    wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
+                    wallet = walletRepository.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
                 }
                 if (wallet.hasMultiSignature()) {
                     throw new MultiSignatureAlreadyRegisteredError();
                 }
 
                 wallet.setAttribute("multiSignature", multiSignature);
-                walletManager.reindex(wallet);
+                walletRepository.reindex(wallet);
             }
         }
     }

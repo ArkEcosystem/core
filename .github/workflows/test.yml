@@ -14,7 +14,7 @@ jobs:
 
         strategy:
             matrix:
-                node-version: [10.x, 12.x]
+                node-version: [12.x]
 
         steps:
             - uses: actions/checkout@v1
@@ -28,10 +28,8 @@ jobs:
               run: yarn test:unit:coverage --coverageDirectory .coverage/unit/ --maxWorkers=2
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-
     # integration:
     #     runs-on: ubuntu-latest
-
     #     services:
     #         postgres:
     #             image: postgres:10.8
@@ -42,11 +40,9 @@ jobs:
     #             ports:
     #                 - 5432:5432
     #             options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-
     #     strategy:
     #         matrix:
-    #             node-version: [10.x, 12.x]
-
+    #             node-version: [12.x]
     #     steps:
     #         - uses: actions/checkout@v1
     #         - name: Use Node.js ${{ matrix.node-version }}
@@ -65,21 +61,17 @@ jobs:
     #           run: yarn test:integration:coverage --coverageDirectory .coverage/integration/
     #         - name: Codecov
     #           run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-
     #           env:
     #               CORE_DB_DATABASE: ark_unitnet
     #               CORE_DB_USERNAME: ark
     #               POSTGRES_USER: ark
     #               POSTGRES_PASSWORD: password
     #               POSTGRES_DB: ark_unitnet
-
     # e2e:
     #     runs-on: ubuntu-latest
-
     #     strategy:
     #         matrix:
-    #             node-version: [10.x, 12.x]
-
+    #             node-version: [12.x]
     #     steps:
     #         - uses: actions/checkout@v1
     #         - name: Use Node.js ${{ matrix.node-version }}

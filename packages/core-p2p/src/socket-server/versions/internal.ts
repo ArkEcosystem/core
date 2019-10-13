@@ -68,21 +68,21 @@ export const getRateLimitStatus = async ({
     service,
     req,
 }: {
-    service: P2P.IPeerService;
+    service: PeerService;
     req: { data: { ip: string; endpoint?: string } };
-}): Promise<P2P.IRateLimitStatus> => {
-    return service.getMonitor().getRateLimitStatus(req.data.ip, req.data.endpoint);
+}): Promise<Contracts.P2P.IRateLimitStatus> => {
+    return service.networkMonitor.getRateLimitStatus(req.data.ip, req.data.endpoint);
 };
 
 export const isBlockedByRateLimit = async ({
     service,
     req,
 }: {
-    service: P2P.IPeerService;
+    service: PeerService;
     req: { data: { ip: string } };
 }): Promise<{ blocked: boolean }> => {
     return {
-        blocked: await service.getMonitor().isBlockedByRateLimit(req.data.ip),
+        blocked: await service.networkMonitor.isBlockedByRateLimit(req.data.ip),
     };
 };
 

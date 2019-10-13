@@ -1,24 +1,25 @@
-import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
 const index = async request => {
-    const locks = databaseService.wallets.search(Database.SearchScope.Locks, {
-        ...request.query,
-        ...paginate(request),
-    });
+    const locks = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Locks, {
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(locks, "lock");
 };
 
 const show = async request => {
-    const lock = databaseService.wallets.search(Database.SearchScope.Locks, {
-        lockId: request.params.id,
-    }).rows[0];
+    const lock = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Locks, {
+            lockId: request.params.id,
+        }).rows[0];
 
     if (!lock) {
         return Boom.notFound("Lock not found");
@@ -28,17 +29,21 @@ const show = async request => {
 };
 
 const search = async request => {
-    const locks = databaseService.wallets.search(Database.SearchScope.Locks, {
-        ...request.payload,
-        ...request.query,
-        ...paginate(request),
-    });
+    const locks = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Locks, {
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(locks, "lock");
 };
 
 const unlocked = async request => {
-    const transactions = await databaseService.transactionsBusinessRepository.findByHtlcLocks(request.payload.ids);
+    const transactions = await app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .transactionsBusinessRepository.findByHtlcLocks(request.payload.ids);
 
     return toPagination(
         {

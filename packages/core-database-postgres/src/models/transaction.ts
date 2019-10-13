@@ -54,7 +54,7 @@ export class Transaction extends Model {
         {
             name: "vendor_field",
             prop: "vendorField",
-            supportedOperators: [Database.SearchOperator.OP_LIKE],
+            supportedOperators: [Contracts.Database.SearchOperator.OP_LIKE],
             def: undefined,
         },
         {

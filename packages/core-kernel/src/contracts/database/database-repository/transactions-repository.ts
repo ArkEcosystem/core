@@ -1,9 +1,20 @@
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { Wallet } from "../../state/wallets";
 import { TransactionsPaginated } from "../business-repository";
-import { SearchOrderBy, SearchPaginate, SearchParameters } from "../search";
+import { SearchParameters } from "../search";
 import { Repository } from "./repository";
+
+export interface IBootstrapTransaction {
+    id: string;
+    version: number;
+    timestamp: number;
+    senderPublicKey: string;
+    recipientId: string;
+    fee: string;
+    amount: string;
+    vendorField: string;
+    asset: Interfaces.ITransactionAsset;
+}
 
 export interface TransactionsRepository extends Repository {
     findById(id: string): Promise<Interfaces.ITransactionData>;
@@ -67,5 +78,5 @@ export interface TransactionsRepository extends Repository {
 
     deleteByBlockId(blockIds: string[], db: any): Promise<void>;
 
-    search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
+    search(parameters: SearchParameters): Promise<TransactionsPaginated>;
 }

@@ -9,7 +9,7 @@ export abstract class BlockHandler {
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain: Contracts.Blockchain.Blockchain;
 
-    public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
+    public async execute(block?: Interfaces.IBlock): Promise<BlockProcessorResult> {
         this.blockchain.resetLastDownloadedBlock();
 
         return BlockProcessorResult.Rejected;

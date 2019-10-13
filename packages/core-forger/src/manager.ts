@@ -269,7 +269,7 @@ export class ForgerManager {
         if (!this.initialized) {
             this.printLoadedDelegates();
 
-            this.client.emitEvent(ApplicationEvents.ForgerStarted, {
+            this.client.emitEvent(Enums.Events.State.ForgerStarted, {
                 activeDelegates: this.delegates.map(delegate => delegate.publicKey),
             });
 

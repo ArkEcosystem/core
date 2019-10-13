@@ -1,6 +1,14 @@
 import { app, Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Errors } from "@arkecosystem/core-transactions";
-import { Crypto, Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import {
+    Crypto,
+    Enums,
+    Identities,
+    Interfaces,
+    Transactions,
+    Utils,
+    Errors as CryptoErrors,
+} from "@arkecosystem/crypto";
 
 // todo: review the implementation
 export class Wallet implements Contracts.State.Wallet {

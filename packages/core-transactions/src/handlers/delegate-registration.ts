@@ -36,7 +36,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         ];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const forgedBlocks = await connection.blocksRepository.getDelegatesForgedBlocks();
         const lastForgedBlocks = await connection.blocksRepository.getLastForgedBlocks();
 
@@ -46,8 +49,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-                wallet.setAttribute<State.IWalletDelegateAttributes>("delegate", {
+                const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+                wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
                     username: transaction.asset.delegate.username,
                     voteBalance: Utils.BigNumber.ZERO,
                     forgedFees: Utils.BigNumber.ZERO,
@@ -56,7 +59,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
                     rank: undefined,
                 });
 
-                walletManager.reindex(wallet);
+                walletRepository.reindex(wallet);
             }
         }
 

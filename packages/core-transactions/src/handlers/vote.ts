@@ -27,14 +27,17 @@ export class VoteTransactionHandler extends TransactionHandler {
         return ["vote"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
         while (reader.hasNext()) {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                 const vote = transaction.asset.votes[0];
                 const walletVote: string = wallet.getAttribute("vote");
 

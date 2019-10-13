@@ -18,9 +18,9 @@ export class Serializer {
         if (options.acceptLegacyVersion || isSupportedTansactionVersion(version)) {
             if (version === 1) {
                 return this.getBytesV1(transaction, options);
-            } else {
-                return this.serialize(TransactionTypeFactory.create(transaction), options);
             }
+
+            return this.serialize(TransactionTypeFactory.create(transaction), options);
         } else {
             throw new TransactionVersionError(version);
         }

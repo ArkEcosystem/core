@@ -1,5 +1,5 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { app, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Crypto, Interfaces, Managers, Utils, Transactions } from "@arkecosystem/crypto";
 import assert from "assert";
 
 // todo: review implementation and reduce the complexity of all methods as it is quite high
@@ -55,8 +55,8 @@ export class Memory {
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort(
                 (a, b) =>
-                    expirationCalculator.calculateTransactionExpiration(a.data, expirationContext) -
-                    expirationCalculator.calculateTransactionExpiration(b.data, expirationContext),
+                    AppUtils.expirationCalculator.calculateTransactionExpiration(a.data, expirationContext) -
+                    AppUtils.expirationCalculator.calculateTransactionExpiration(b.data, expirationContext),
             );
             this.byExpirationIsSorted = true;
         }
@@ -64,10 +64,10 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (expirationCalculator.calculateTransactionExpiration(
-                transaction.data,
-                expirationContext,
-            ) > currentHeight) {
+            if (
+                AppUtils.expirationCalculator.calculateTransactionExpiration(transaction.data, expirationContext) >
+                currentHeight
+            ) {
                 break;
             }
 
@@ -158,7 +158,7 @@ export class Memory {
             now: Crypto.Slots.getTime(),
             maxTransactionAge: this.maxTransactionAge,
         };
-        const expiration: number = expirationCalculator.calculateTransactionExpiration(
+        const expiration: number = AppUtils.expirationCalculator.calculateTransactionExpiration(
             transaction.data,
             expirationContext,
         );
@@ -296,11 +296,11 @@ export class Memory {
                 return 1;
             }
 
-            const expirationA: number = expirationCalculator.calculateTransactionExpiration(
+            const expirationA: number = AppUtils.expirationCalculator.calculateTransactionExpiration(
                 a.data,
                 expirationContext,
             );
-            const expirationB: number = expirationCalculator.calculateTransactionExpiration(
+            const expirationB: number = AppUtils.expirationCalculator.calculateTransactionExpiration(
                 b.data,
                 expirationContext,
             );
@@ -352,9 +352,6 @@ export class Memory {
     }
 
     private currentHeight(): number {
-        return app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastHeight();
+        return app.get<any>(Container.Identifiers.StateStore).getLastHeight();
     }
 }

@@ -34,7 +34,7 @@ export class TransactionsRepository extends Repository implements Contracts.Data
                     walletPublicKey = value.value;
                 }
 
-                return value.operator !== Database.SearchOperator.OP_CUSTOM;
+                return value.operator !== Contracts.Database.SearchOperator.OP_CUSTOM;
             });
 
             const [participants, rest] = AppUtils.partition(ops, op =>
@@ -233,27 +233,6 @@ export class TransactionsRepository extends Repository implements Contracts.Data
         return this.db.manyOrNone(queries.transactions.feeStatistics, { age, minFee });
     }
 
-<<<<<<< HEAD
-    public async findAllByWallet(
-        wallet: Contracts.State.Wallet,
-        paginate?: Contracts.Database.SearchPaginate,
-        orderBy?: Contracts.Database.SearchOrderBy[],
-    ): Promise<Contracts.Database.TransactionsPaginated> {
-        const selectQuery = this.query.select();
-        const selectQueryCount = this.query.select(this.query.count().as("cnt"));
-
-        for (const query of [selectQuery, selectQueryCount]) {
-            query
-                .from(this.query)
-                .where(this.query.sender_public_key.equals(wallet.publicKey))
-                .or(this.query.recipient_id.equals(wallet.address));
-        }
-
-        return this.findManyWithCount(selectQuery, selectQueryCount, paginate, orderBy);
-    }
-
-=======
->>>>>>> upstream/develop
     public getModel(): Transaction {
         return new Transaction(this.pgp);
     }

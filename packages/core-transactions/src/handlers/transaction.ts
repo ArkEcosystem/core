@@ -142,22 +142,25 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        sender: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        sender: Contracts.State.Wallet,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (
-            !databaseWalletManager.hasByPublicKey(sender.publicKey) &&
-            databaseWalletManager.findByAddress(sender.address).balance.isZero()
+            !databaseWalletRepository.hasByPublicKey(sender.publicKey) &&
+            databaseWalletRepository.findByAddress(sender.address).balance.isZero()
         ) {
             throw new ColdWalletError();
         }
 
-        return this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
+        return this.performGenericWalletChecks(transaction, sender, databaseWalletRepository);
     }
 
-    public async apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {
-        await this.applyToSender(transaction, walletManager);
-        await this.applyToRecipient(transaction, walletManager);
+    public async apply(
+        transaction: Interfaces.ITransaction,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
+        await this.applyToSender(transaction, walletRepository);
+        await this.applyToRecipient(transaction, walletRepository);
     }
 
     public async revert(

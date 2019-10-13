@@ -17,22 +17,12 @@ export const preparePlugins = config => [
         options: config.rateLimit,
     },
     {
-        plugin: require("hapi-pagination"),
+        plugin: require("./pagination"),
         options: {
-            meta: {
-                baseUri: "",
-            },
             query: {
                 limit: {
                     default: config.pagination.limit,
                 },
-            },
-            results: {
-                name: "data",
-            },
-            routes: {
-                include: config.pagination.include,
-                exclude: ["*"],
             },
         },
     },

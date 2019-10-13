@@ -1,24 +1,25 @@
-import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
 const index = async request => {
-    const bridgechains = databaseService.wallets.search(Database.SearchScope.Bridgechains, {
-        ...request.query,
-        ...paginate(request),
-    });
+    const bridgechains = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Bridgechains, {
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(bridgechains, "bridgechain");
 };
 
 const show = async request => {
-    const bridgechain = databaseService.wallets.search(Database.SearchScope.Bridgechains, {
-        bridgechainId: request.params.id,
-    }).rows[0];
+    const bridgechain = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Bridgechains, {
+            bridgechainId: request.params.id,
+        }).rows[0];
 
     if (!bridgechain) {
         return Boom.notFound("Bridgechain not found");
@@ -28,11 +29,13 @@ const show = async request => {
 };
 
 const search = async request => {
-    const bridgechains = databaseService.wallets.search(Database.SearchScope.Bridgechains, {
-        ...request.payload,
-        ...request.query,
-        ...paginate(request),
-    });
+    const bridgechains = app
+        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+        .wallets.search(Contracts.Database.SearchScope.Bridgechains, {
+            ...request.payload,
+            ...request.query,
+            ...paginate(request),
+        });
 
     return toPagination(bridgechains, "bridgechain");
 };

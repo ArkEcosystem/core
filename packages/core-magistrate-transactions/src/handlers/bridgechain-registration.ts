@@ -1,7 +1,8 @@
-import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
@@ -25,14 +26,17 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
         while (reader.hasNext()) {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                 const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
                     "business",
                 );
@@ -40,22 +44,22 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
                     businessAttributes.bridgechains = {};
                 }
 
-                const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletManager);
+                const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletRepository);
                 businessAttributes.bridgechains[bridgechainId.toFixed()] = {
                     bridgechainId,
                     bridgechainAsset: transaction.asset.bridgechainRegistration,
                 };
 
                 wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-                walletManager.reindex(wallet);
+                walletRepository.reindex(wallet);
             }
         }
     }
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        wallet: Contracts.State.Wallet,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
@@ -65,28 +69,28 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             throw new BusinessIsResignedError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateApplicationEvents.BridgechainRegistered, transaction.data);
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+        emitter.dispatch(MagistrateApplicationEvents.BridgechainRegistered, transaction.data);
     }
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.Connection,
+        processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         return true;
     }
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
@@ -94,23 +98,23 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             businessAttributes.bridgechains = {};
         }
 
-        const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletManager);
+        const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletRepository);
         businessAttributes.bridgechains[bridgechainId.toFixed()] = {
             bridgechainId,
             bridgechainAsset: transaction.data.asset.bridgechainRegistration,
         };
 
         sender.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-        walletManager.reindex(sender);
+        walletRepository.reindex(sender);
     }
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
@@ -118,22 +122,22 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         const bridgechainId: string = Object.keys(businessAttributes.bridgechains).pop();
         delete businessAttributes.bridgechains[bridgechainId];
 
-        walletManager.reindex(sender);
+        walletRepository.reindex(sender);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 
-    private getBridgechainId(walletManager: State.IWalletManager): Utils.BigNumber {
-        return Utils.BigNumber.make(walletManager.getIndex(MagistrateIndex.Bridgechains).values().length).plus(1);
+    private getBridgechainId(walletRepository: Contracts.State.WalletRepository): Utils.BigNumber {
+        return Utils.BigNumber.make(walletRepository.getIndex(MagistrateIndex.Bridgechains).values().length).plus(1);
     }
 }

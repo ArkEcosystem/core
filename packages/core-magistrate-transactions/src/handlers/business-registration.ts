@@ -1,7 +1,8 @@
-import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
@@ -30,48 +31,51 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
+    public async bootstrap(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+    ): Promise<void> {
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
 
         while (reader.hasNext()) {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
+                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                 const asset: IBusinessWalletAttributes = {
                     businessAsset: transaction.asset.businessRegistration,
-                    businessId: this.getBusinessId(walletManager),
+                    businessId: this.getBusinessId(walletRepository),
                 };
 
                 wallet.setAttribute<IBusinessWalletAttributes>("business", asset);
-                walletManager.reindex(wallet);
+                walletRepository.reindex(wallet);
             }
         }
     }
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        wallet: Contracts.State.Wallet,
+        databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (wallet.hasAttribute("business")) {
             throw new BusinessAlreadyRegisteredError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateApplicationEvents.BusinessRegistered, transaction.data);
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+        emitter.dispatch(MagistrateApplicationEvents.BusinessRegistered, transaction.data);
     }
 
     public async canEnterTransactionPool(
         data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
+        pool: Contracts.TransactionPool.Connection,
+        processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
+            const wallet: Contracts.State.Wallet = pool.walletRepository.findByPublicKey(data.senderPublicKey);
             processor.pushError(
                 data,
                 "ERR_PENDING",
@@ -84,45 +88,45 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, walletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         const businessAsset: IBusinessWalletAttributes = {
             businessAsset: transaction.data.asset.businessRegistration,
-            businessId: this.getBusinessId(walletManager),
+            businessId: this.getBusinessId(walletRepository),
         };
 
         sender.setAttribute<IBusinessWalletAttributes>("business", businessAsset);
-        walletManager.reindex(sender);
+        walletRepository.reindex(sender);
     }
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, walletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
         sender.forgetAttribute("business");
 
-        walletManager.forgetByIndex(MagistrateIndex.Businesses, sender.publicKey);
+        walletRepository.forgetByIndex(MagistrateIndex.Businesses, sender.publicKey);
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        walletRepository: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 
-    private getBusinessId(walletManager: State.IWalletManager): Utils.BigNumber {
-        return Utils.BigNumber.make(walletManager.getIndex(MagistrateIndex.Businesses).values().length).plus(1);
+    private getBusinessId(walletRepository: Contracts.State.WalletRepository): Utils.BigNumber {
+        return Utils.BigNumber.make(walletRepository.getIndex(MagistrateIndex.Businesses).values().length).plus(1);
     }
 }
