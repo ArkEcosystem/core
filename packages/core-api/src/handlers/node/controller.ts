@@ -1,9 +1,10 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import { spawnSync } from "child_process";
 import { existsSync } from "fs";
+
 import { Controller } from "../shared/controller";
 
 // todo: remove the abstract and use dependency injection if needed
@@ -53,7 +54,11 @@ export class NodeController extends Controller {
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const network = this.config.get("network");
-            const dynamicFees = app.get<any>("transactionPool.options").dynamicFees;
+            const dynamicFees = app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-transaction-pool")
+                .config()
+                .get<{ enabled?: boolean }>("dynamicFees");
 
             return {
                 data: {

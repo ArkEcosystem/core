@@ -1,9 +1,13 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
 export const getHeaders = () => {
     const headers = {
         version: app.version(),
-        port: app.get<any>("p2p.options").port,
+        port: app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-p2p")
+            .config()
+            .get<number>("port"),
         height: undefined,
     };
 

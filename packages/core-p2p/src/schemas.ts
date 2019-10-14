@@ -1,4 +1,4 @@
-import { app, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Providers } from "@arkecosystem/core-kernel";
 
 export const requestSchemas = {
     peer: {
@@ -44,7 +44,11 @@ export const requestSchemas = {
                     $ref: "transactions",
                     minItems: 1,
                     maxItems: app.isBound(Container.Identifiers.TransactionPoolService)
-                        ? app.get<any>("transactionPool.options").maxTransactionsPerRequest || 40
+                        ? app
+                              .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                              .get("@arkecosystem/core-p2p")
+                              .config()
+                              .get<number>("maxTransactionsPerRequest") || 40
                         : 40,
                 },
             },

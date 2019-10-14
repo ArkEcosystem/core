@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container, Providers } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -34,7 +34,13 @@ export const respondWithCollection = (data, transformer, transform = true): obje
 };
 
 export const respondWithCache = (data, h): any => {
-    if (!app.get<any>("api.options").get("plugins.cache.enabled")) {
+    if (
+        !app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-state")
+            .config()
+            .get<boolean>("plugins.cache.enabled")
+    ) {
         return data;
     }
 

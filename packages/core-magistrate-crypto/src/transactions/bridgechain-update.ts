@@ -1,6 +1,7 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import Long from "long";
+
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainUpdateAsset } from "../interfaces";
 import { seedNodesSchema } from "./utils/bridgechain-schemas";

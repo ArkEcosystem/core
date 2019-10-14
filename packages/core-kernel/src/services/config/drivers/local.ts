@@ -1,6 +1,7 @@
 import { dotenv, get, set } from "@arkecosystem/utils";
 import { existsSync, readFileSync } from "fs";
 import importFresh from "import-fresh";
+import { extname } from "path";
 
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
@@ -12,7 +13,6 @@ import {
 import { Identifiers, inject, injectable } from "../../../ioc";
 import { JsonObject, KeyValuePair, Primitive } from "../../../types";
 import { ConfigRepository } from "../repository";
-import { extname } from "path";
 
 /**
  * @export

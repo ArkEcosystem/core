@@ -1,4 +1,5 @@
 import { ErrorObject } from "ajv";
+
 import { Enums } from "..";
 import { BigNumber } from "../utils";
 

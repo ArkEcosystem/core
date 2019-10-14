@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import Long from "long";
+
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { Address } from "../../identities";
 import { ISerializeOptions } from "../../interfaces";

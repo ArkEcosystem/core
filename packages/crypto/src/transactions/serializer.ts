@@ -1,5 +1,6 @@
 import ByteBuffer from "bytebuffer";
 import Long from "long";
+
 import { Utils } from "..";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";

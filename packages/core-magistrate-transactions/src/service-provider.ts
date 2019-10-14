@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers, Enums } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
 
 import {
     BridgechainRegistrationTransactionHandler,

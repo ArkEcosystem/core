@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
@@ -102,7 +102,14 @@ export class StateStore implements Contracts.State.StateStore {
         }
 
         // Delete oldest block if size exceeds the maximum
-        if (this.lastBlocks.size > app.get<any>("state.options").storage.maxLastBlocks) {
+        if (
+            this.lastBlocks.size >
+            app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-state")
+                .config()
+                .get<number>("storage.maxLastBlocks")
+        ) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
 
@@ -190,7 +197,12 @@ export class StateStore implements Contracts.State.StateStore {
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
-        const limit = app.get<any>("state.options").storage.maxLastTransactionIds;
+        const limit = app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-state")
+            .config()
+            .get<number>("storage.maxLastTransactionIds");
+
         if (this.cachedTransactionIds.size > limit) {
             this.cachedTransactionIds = this.cachedTransactionIds.takeLast(limit);
         }

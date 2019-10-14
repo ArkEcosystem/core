@@ -20,7 +20,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         );
 
         this.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(connection);
-        this.app.bind("transactionPool.options").toConstantValue(this.config().all());
     }
 
     public async dispose(): Promise<void> {

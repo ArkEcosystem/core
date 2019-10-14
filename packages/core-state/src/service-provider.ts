@@ -16,7 +16,5 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.StateStore)
             .to(StateStore)
             .inSingletonScope();
-
-        this.app.bind("state.options").toConstantValue(this.config().all());
     }
 }

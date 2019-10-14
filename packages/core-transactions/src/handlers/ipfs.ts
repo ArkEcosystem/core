@@ -1,5 +1,6 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+
 import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 

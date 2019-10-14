@@ -6,8 +6,6 @@ import { Server } from "./server";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind("api.options").toConstantValue(this.config());
-
         if (this.config().get("server.http.enabled")) {
             await this.buildServer("http");
         }

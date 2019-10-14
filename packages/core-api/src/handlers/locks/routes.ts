@@ -1,4 +1,5 @@
 import Hapi from "@hapi/hapi";
+
 import { LocksController } from "./controller";
 import * as Schema from "./schema";
 

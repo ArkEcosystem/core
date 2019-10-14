@@ -97,7 +97,7 @@ export class Ext {
         const currentPage = query.page;
         const currentLimit = query.limit;
 
-        const { totalCount } = !!source.totalCount ? source : request;
+        const { totalCount } = source.totalCount ? source : request;
 
         let pageCount: number;
         if (totalCount) {

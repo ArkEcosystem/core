@@ -1,13 +1,7 @@
-import { app } from "@arkecosystem/core-kernel";
-
 import { RateLimiter } from "../rate-limiter";
 
-export const buildRateLimiter = options => {
-    if (!options || Object.keys(options).length === 0) {
-        options = app.get("p2p.options");
-    }
-
-    return new RateLimiter({
+export const buildRateLimiter = options =>
+    new RateLimiter({
         whitelist: [...options.whitelist, ...options.remoteAccess],
         configurations: {
             global: {
@@ -38,4 +32,3 @@ export const buildRateLimiter = options => {
             ],
         },
     });
-};

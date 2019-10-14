@@ -3,11 +3,11 @@ import { Errors } from "@arkecosystem/core-transactions";
 import {
     Crypto,
     Enums,
+    Errors as CryptoErrors,
     Identities,
     Interfaces,
     Transactions,
     Utils,
-    Errors as CryptoErrors,
 } from "@arkecosystem/crypto";
 
 // todo: review the implementation

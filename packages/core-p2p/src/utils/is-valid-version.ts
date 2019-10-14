@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import semver from "semver";
 
@@ -16,7 +16,11 @@ export const isValidVersion = (peer: Contracts.P2P.Peer): boolean => {
     if (p2p && Array.isArray(p2p.minimumVersions) && p2p.minimumVersions.length > 0) {
         minimumVersions = p2p.minimumVersions;
     } else {
-        minimumVersions = app.get<{ minimumVersions: string[] }>("p2p.options").minimumVersions;
+        minimumVersions = app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-p2p")
+            .config()
+            .get<string[]>("minimumVersions");
     }
 
     const includePrerelease: boolean = Managers.configManager.get("network.name") !== "mainnet";

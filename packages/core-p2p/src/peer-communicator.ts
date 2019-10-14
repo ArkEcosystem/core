@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
@@ -178,7 +178,11 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                     "Content-Type": "application/json",
                 },
             },
-            app.get<any>("p2p.options").getBlocksTimeout,
+            app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-p2p")
+                .config()
+                .get<number>("getBlocksTimeout"),
         );
 
         if (!peerBlocks) {

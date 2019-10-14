@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import dayjs, { Dayjs } from "dayjs";
 
 import { PeerVerificationResult } from "./peer-verifier";
@@ -6,7 +6,11 @@ import { PeerVerificationResult } from "./peer-verifier";
 // todo: review the implementation
 export class Peer implements Contracts.P2P.Peer {
     public readonly ports: Contracts.P2P.PeerPorts = {};
-    public readonly port: number = +app.get<any>("p2p.options").server.port;
+    public readonly port: number = +app
+        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+        .get("@arkecosystem/core-state")
+        .config()
+        .get<number>("server.port");
 
     public version: string;
     public latency: number;

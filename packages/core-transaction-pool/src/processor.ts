@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
@@ -93,7 +93,11 @@ export class Processor implements Contracts.TransactionPool.Processor {
     }
 
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
-        const { maxTransactionBytes } = app.get<any>("transactionPool.options");
+        const maxTransactionBytes = app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-transaction-pool")
+            .config()
+            .get<number>("maxTransactionBytes");
 
         for (const transaction of transactions) {
             const exists: boolean = await this.pool.has(transaction.id);
@@ -179,7 +183,11 @@ export class Processor implements Contracts.TransactionPool.Processor {
             blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
             currentHeight: lastHeight,
             now: Crypto.Slots.getTime(),
-            maxTransactionAge: app.get<any>("transactionPool.options").maxTransactionAge,
+            maxTransactionAge: app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-transaction-pool")
+                .config()
+                .get<number>("maxTransactionAge"),
         };
 
         const expiration: number = Utils.expirationCalculator.calculateTransactionExpiration(

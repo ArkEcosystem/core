@@ -10,10 +10,6 @@ import { startSocketServer } from "./socket-server";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind("p2p.options").toConstantValue(this.config().all());
-
-        this.app.log.info("Starting P2P Interface");
-
         this.registerServices();
 
         if (process.env.DISABLE_P2P_SERVER) {
@@ -35,8 +31,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async dispose(): Promise<void> {
-        this.app.log.info("Stopping P2P Interface");
-
         this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).stopServer();
     }
 

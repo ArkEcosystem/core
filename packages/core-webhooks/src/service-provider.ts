@@ -21,7 +21,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         startListeners(this.app);
 
         this.app.bind("webhooks").toConstantValue(await startServer(this.app, this.config().get("server")));
-        this.app.bind("webhooks.options").toConstantValue(this.config().all());
     }
 
     public async dispose(): Promise<void> {

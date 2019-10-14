@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 import { Peer } from "./peer";
@@ -25,6 +25,9 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage: Contracts.P2P.PeerStorage;
 
+    @Container.inject(Container.Identifiers.ServiceProviderRepository)
+    private readonly serviceProviderRepository: Providers.ServiceProviderRepository;
+
     public init() {
         this.emitter.listen("internal.milestone.changed", () => this.updatePeersAfterMilestoneChange());
     }
@@ -39,7 +42,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     }
 
     public validatePeerIp(peer, options: Contracts.P2P.AcceptNewPeerOptions = {}): boolean {
-        if (app.get<any>("p2p.options").disableDiscovery && !this.storage.hasPendingPeer(peer.ip)) {
+        if (this.getConfig("disableDiscovery") && !this.storage.hasPendingPeer(peer.ip)) {
             this.logger.warning(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
         }
@@ -48,19 +51,16 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return false;
         }
 
-        if (!isWhitelisted(app.get<any>("p2p.options").whitelist, peer.ip)) {
+        if (!isWhitelisted(this.getConfig("whitelist"), peer.ip)) {
             return false;
         }
 
-        if (
-            this.storage.getSameSubnetPeers(peer.ip).length >= app.get<any>("p2p.options").maxSameSubnetPeers &&
-            !options.seed
-        ) {
+        if (this.storage.getSameSubnetPeers(peer.ip).length >= this.getConfig("maxSameSubnetPeers") && !options.seed) {
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.warning(
-                    `Rejected ${peer.ip} because we are already at the ${
-                        app.get<any>("p2p.options").maxSameSubnetPeers
-                    } limit for peers sharing the same /24 subnet.`,
+                    `Rejected ${peer.ip} because we are already at the ${this.getConfig(
+                        "maxSameSubnetPeers",
+                    )} limit for peers sharing the same /24 subnet.`,
                 );
             }
 
@@ -89,7 +89,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            await this.communicator.ping(newPeer, app.get<any>("p2p.options").verifyTimeout);
+            await this.communicator.ping(newPeer, this.getConfig("verifyTimeout"));
 
             this.storage.setPeer(newPeer);
 
@@ -105,5 +105,12 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         }
 
         return;
+    }
+
+    private getConfig<T>(key: string): T {
+        return this.serviceProviderRepository
+            .get("@arkecosystem/core-p2p")
+            .config()
+            .get<T>(key);
     }
 }

@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container, Providers } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -9,7 +9,11 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;
 
-    const { dynamicFees } = app.get<any>("transactionPool.options");
+    const dynamicFees = app
+        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+        .get("@arkecosystem/core-transaction-pool")
+        .config()
+        .get<Record<string, any>>("dynamicFees");
 
     let broadcast: boolean;
     let enterPool: boolean;
@@ -18,7 +22,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
         const handler: Handlers.TransactionHandler = app
             .get<any>("transactionHandlerRegistry")
             .get(transaction.type, transaction.typeGroup);
-        const addonBytes: number = app.get<any>("transactionPool.options").dynamicFees.addonBytes[transaction.key];
+        const addonBytes: number = dynamicFees.addonBytes[transaction.key];
         const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee(
             transaction,
             addonBytes,

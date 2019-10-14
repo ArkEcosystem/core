@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { create, SCClientSocket } from "socketcluster-client";
 
 // todo: review the implementation
@@ -27,8 +27,16 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
             port: peer.port,
             hostname: peer.ip,
             ackTimeout: Math.max(
-                app.get<any>("p2p.options").getBlocksTimeout,
-                app.get<any>("p2p.options").verifyTimeout,
+                app
+                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                    .get("@arkecosystem/core-state")
+                    .config()
+                    .get<number>("getBlocksTimeout"),
+                app
+                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                    .get("@arkecosystem/core-state")
+                    .config()
+                    .get<number>("verifyTimeout"),
             ),
             perMessageDeflate: true,
         });

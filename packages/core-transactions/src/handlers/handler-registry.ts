@@ -1,7 +1,7 @@
 import { app, Container, Services } from "@arkecosystem/core-kernel";
 import { Enums, Errors, Transactions } from "@arkecosystem/crypto";
 
-import { InvalidTransactionTypeError, DeactivatedTransactionHandlerError } from "../errors";
+import { DeactivatedTransactionHandlerError, InvalidTransactionTypeError } from "../errors";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 import { DelegateResignationTransactionHandler } from "./delegate-resignation";
 import { HtlcClaimTransactionHandler } from "./htlc-claim";

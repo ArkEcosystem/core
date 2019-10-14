@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
@@ -83,7 +83,11 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
     > {
         return this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
             days,
-            app.get<any>("transactionPool.options").dynamicFees.minFeeBroadcast,
+            app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-state")
+                .config()
+                .get<number>("dynamicFees.minFeeBroadcast"),
         );
     }
 

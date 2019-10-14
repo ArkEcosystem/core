@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import { MissingCommonBlockError } from "../../errors";
@@ -66,7 +66,14 @@ export const postBlock = async ({ req }): Promise<void> => {
     );
 
     const block: Interfaces.IBlockData = req.data.block;
-    const fromForger: boolean = isWhitelisted(app.get<any>("p2p.options").remoteAccess, req.headers.remoteAddress);
+    const fromForger: boolean = isWhitelisted(
+        app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-p2p")
+            .config()
+            .get<string[]>("remoteAccess"),
+        req.headers.remoteAddress,
+    );
 
     if (!fromForger) {
         if (blockchain.pingBlock(block)) {

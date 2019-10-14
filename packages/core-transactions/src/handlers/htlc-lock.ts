@@ -1,8 +1,8 @@
 import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions, Utils, Enums } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 import { HtlcLockExpiredError } from "../errors";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references

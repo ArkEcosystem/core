@@ -47,23 +47,18 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public async bootstrap({ flags, plugins }: { flags: JsonObject; plugins?: JsonObject }): Promise<void> {
-        await this.registerEventDispatcher();
-
-        // todo: move into a bootstrapper
         this.bind<ConfigRepository>(Identifiers.ConfigRepository)
             .to(ConfigRepository)
             .inSingletonScope();
 
-        // todo: move into a bootstrapper
-        this.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
-
-        // todo: move into a bootstrapper
-        this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins);
-
-        // todo: move into a bootstrapper
         this.bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
             .to(ServiceProviderRepository)
             .inSingletonScope();
+
+        this.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
+        this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins);
+
+        await this.registerEventDispatcher();
 
         await this.bootstrapWith("app");
     }

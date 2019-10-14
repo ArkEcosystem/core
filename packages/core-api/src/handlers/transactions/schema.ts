@@ -62,8 +62,12 @@ export const store: object = {
             $ref: "transactions",
             minItems: 1,
             maxItems: 40,
-            // @fixme: the container is not available at the time this file is loaded
-            // maxItems: app.get<any>("transactionPool.options").maxTransactionsPerRequest,
+            // todo: the container is not available at the time this file is loaded
+            // maxItems: app
+            //     .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            //     .get("@arkecosystem/core-transaction-pool")
+            //     .config()
+            //     .get<number>("maxTransactionsPerRequest"),
         },
     },
 };

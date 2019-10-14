@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container, Providers } from "@arkecosystem/core-kernel";
 import SocketCluster from "socketcluster";
 
 import { SocketErrors } from "../enums";
@@ -29,8 +29,16 @@ export const startSocketServer = async (service: PeerService, config: Record<str
             // See https://github.com/SocketCluster/socketcluster/issues/506 about
             // details on how pingTimeout works.
             pingTimeout: Math.max(
-                app.get<any>("p2p.options").getBlocksTimeout,
-                app.get<any>("p2p.options").verifyTimeout,
+                app
+                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                    .get("@arkecosystem/core-p2p")
+                    .config()
+                    .get<number>("getBlocksTimeout"),
+                app
+                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                    .get("@arkecosystem/core-p2p")
+                    .config()
+                    .get<number>("verifyTimeout"),
             ),
             perMessageDeflate: true,
         },

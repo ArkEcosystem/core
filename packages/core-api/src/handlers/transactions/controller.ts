@@ -1,6 +1,6 @@
 import { app, Container, Contracts } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces } from "@arkecosystem/crypto";
 import { Handlers } from "@arkecosystem/core-transactions";
+import { Enums, Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 

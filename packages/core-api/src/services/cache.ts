@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container, Providers } from "@arkecosystem/core-kernel";
 import { Crypto } from "@arkecosystem/crypto";
 import Hapi, { ServerMethod } from "@hapi/hapi";
 
@@ -13,7 +13,7 @@ export class ServerCache {
     public method(name: string, method: ServerMethod, expiresIn: number, argsCallback?: any): this {
         let options = {};
 
-        if (app.get<any>("api.options").get("plugins.cache.enabled")) {
+        if (this.getConfig("plugins.cache.enabled")) {
             options = {
                 cache: {
                     expiresIn: expiresIn * 1000,
@@ -34,8 +34,16 @@ export class ServerCache {
     }
 
     private getCacheTimeout(): number | boolean {
-        const { generateTimeout } = app.get<any>("api.options").get("plugins.cache");
+        const { generateTimeout } = this.getConfig("plugins.cache");
 
         return JSON.parse(generateTimeout);
+    }
+
+    private getConfig<T>(key: string): T {
+        return app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-api")
+            .config()
+            .get(key);
     }
 }

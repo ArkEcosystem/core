@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import prettyMs from "pretty-ms";
@@ -38,7 +38,11 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     private readonly rateLimiter: RateLimiter;
 
     public constructor() {
-        this.config = app.get("p2p.options");
+        this.config = app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-p2p")
+            .config()
+            .all();
 
         this.rateLimiter = buildRateLimiter(this.config);
     }
@@ -129,7 +133,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         let max = peers.length;
 
         let unresponsivePeers = 0;
-        const pingDelay = fast ? 1500 : app.get<any>("p2p.options").verifyTimeout;
+        const pingDelay = fast ? 1500 : this.config.verifyTimeout;
 
         if (peerCount) {
             peers = Utils.shuffle(peers).slice(0, peerCount);
@@ -396,7 +400,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {
         const peers: Contracts.P2P.Peer[] = Utils.take(
             Utils.shuffle(this.storage.getPeers()),
-            app.get<any>("p2p.options").maxPeersBroadcast,
+            this.config.maxPeersBroadcast,
         );
 
         this.logger.debug(
@@ -478,7 +482,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
             return true;
         }
 
-        return Object.keys(this.storage.getPeers()).length >= app.get<any>("p2p.options").minimumNetworkReach;
+        return Object.keys(this.storage.getPeers()).length >= this.config.minimumNetworkReach;
     }
 
     private async populateSeedPeers(): Promise<any> {

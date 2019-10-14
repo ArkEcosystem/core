@@ -1,4 +1,4 @@
-import { app, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Providers } from "@arkecosystem/core-kernel";
 
 import { isWhitelisted } from "../../utils/is-whitelisted";
 import * as internalHandlers from "./internal";
@@ -21,7 +21,19 @@ export const getHandlers = (): { [key: string]: string[] } => ({
 export const log = ({ req }): void => app.log[req.data.level](req.data.message);
 
 export const isForgerAuthorized = ({ req }): { authorized: boolean } => ({
-    authorized: isWhitelisted(app.get<any>("p2p.options").remoteAccess, req.data.ip),
+    authorized: isWhitelisted(
+        app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-p2p")
+            .config()
+            .get<string[]>("remoteAccess"),
+        req.data.ip,
+    ),
 });
 
-export const getConfig = (): Record<string, any> => app.get<any>("p2p.options");
+export const getConfig = (): Record<string, any> =>
+    app
+        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+        .get("@arkecosystem/core-p2p")
+        .config()
+        .all();

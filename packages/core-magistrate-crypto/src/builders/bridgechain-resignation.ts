@@ -1,4 +1,5 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { MagistrateTransactionGroup, MagistrateTransactionType } from "../enums";
 import { BridgechainResignationTransaction } from "../transactions";
 

@@ -1,5 +1,6 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 
 const { schemas } = Transactions;

@@ -39,4 +39,4 @@ export const calculateTransactionExpiration = (
     const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
 
     return createdAtHeight + context.maxTransactionAge;
-}
+};

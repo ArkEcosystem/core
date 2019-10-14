@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 import { Blockchain } from "./blockchain";
@@ -277,7 +277,11 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     async rollbackDatabase() {
         logger.info("Trying to restore database integrity");
 
-        const { maxBlockRewind, steps } = app.get<any>("blockchain.options").databaseRollback;
+        const { maxBlockRewind, steps } = app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-blockchain")
+            .config()
+            .get<Record<string, number>>("databaseRollback");
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await blockchain.removeTopBlocks(steps);

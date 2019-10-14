@@ -1,4 +1,4 @@
-import { Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 
 import * as conditions from "./conditions";
 import { Database } from "./database";
@@ -47,7 +47,11 @@ export const startListeners = (app: Contracts.Kernel.Application): void => {
                         headers: {
                             Authorization: webhook.token,
                         },
-                        timeout: app.get<any>("webhooks.options").timeout,
+                        timeout: app
+                            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                            .get("@arkecosystem/core-webhooks")
+                            .config()
+                            .get("timeout"),
                     });
 
                     app.log.debug(
