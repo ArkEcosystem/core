@@ -1,6 +1,5 @@
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import dottie from "dottie";
 
 import { getProperty } from "./get-property";
 
@@ -29,16 +28,16 @@ export const sortEntries = <T>(
                 return iteratee(entry);
             }
 
-            if (dottie.exists(entry, iteratee)) {
-                return dottie.get(entry, iteratee);
+            if (AppUtils.has(entry, iteratee)) {
+                return AppUtils.get(entry, iteratee);
             }
 
             const delegateAttribute: string = `attributes.delegate.${iteratee}`;
-            if (dottie.exists(entry, delegateAttribute)) {
-                return dottie.get(entry, delegateAttribute);
+            if (AppUtils.has(entry, delegateAttribute)) {
+                return AppUtils.get(entry, delegateAttribute);
             }
 
-            return dottie.get(entry, `attributes.${iteratee}`);
+            return AppUtils.get(entry, `attributes.${iteratee}`);
         },
         [order],
     );

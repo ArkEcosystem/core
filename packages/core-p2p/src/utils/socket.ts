@@ -1,4 +1,4 @@
-import delay from "delay";
+import { Utils } from "@arkecosystem/core-kernel";
 import { SCClientSocket } from "socketcluster-client";
 
 import { SocketErrors } from "../enums";
@@ -19,7 +19,7 @@ export const socketEmit = async (
 
     // if socket is not connected, we give it 2 seconds
     for (let i = 0; i < 20 && socket.getState() !== socket.OPEN; i++) {
-        await delay(100);
+        await Utils.sleep(100);
     }
 
     if (socket.getState() !== socket.OPEN) {

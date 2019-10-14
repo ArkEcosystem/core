@@ -1,7 +1,8 @@
 import "jest-extended";
+
+import { sleep } from "@arkecosystem/utils";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { writeFileSync } from "fs";
-import delay from "delay";
 
 import { Watcher } from "@packages/core-kernel/src/services/config/watcher";
 import { Application } from "@packages/core-kernel/src/application";
@@ -35,7 +36,7 @@ describe("Watcher", () => {
 
         writeFileSync(`${configPath}/.env`, "old");
 
-        await delay(1000);
+        await sleep(1000);
 
         await watcher.start();
 
@@ -43,7 +44,7 @@ describe("Watcher", () => {
 
         writeFileSync(`${configPath}/.env`, "new");
 
-        await delay(1000);
+        await sleep(1000);
 
         expect(spyReboot).toHaveBeenCalled();
 

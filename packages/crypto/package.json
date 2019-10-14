@@ -43,9 +43,7 @@
         "ipaddr.js": "^1.9.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
-        "lodash.sumby": "^4.6.0",
         "long": "~3",
-        "tiny-glob": "^0.2.6",
         "wif": "^2.0.6"
     },
     "devDependencies": {
@@ -55,7 +53,6 @@
         "@types/bytebuffer": "^5.0.40",
         "@types/lodash.get": "^4.4.6",
         "@types/lodash.set": "^4.3.6",
-        "@types/lodash.sumby": "^4.6.6",
         "@types/wif": "^2.0.1",
         "rollup": "^1.17.0",
         "rollup-plugin-commonjs": "^10.0.1",

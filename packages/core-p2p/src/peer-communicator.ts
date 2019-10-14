@@ -91,12 +91,12 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                     let valid: boolean = false;
 
                     if (name.includes("core-api") || name.includes("core-wallet-api")) {
-                        const { body, status } = await Utils.httpie.get(
+                        const { data, statusCode } = await Utils.http.get(
                             `http://${peer.ip}:${plugin.port}/api/node/configuration`,
                         );
 
-                        if (status === 200) {
-                            if (body.data.nethash === Managers.configManager.get("network.nethash")) {
+                        if (statusCode === 200) {
+                            if (data.data.nethash === Managers.configManager.get("network.nethash")) {
                                 valid = true;
                             } else {
                                 this.logger.debug("Disconnecting from peer, because api returned a different nethash.");
@@ -104,8 +104,8 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                             }
                         }
                     } else {
-                        const { status } = await Utils.httpie.get(`http://${peer.ip}:${plugin.port}/`);
-                        valid = status === 200;
+                        const { statusCode } = await Utils.http.get(`http://${peer.ip}:${plugin.port}/`);
+                        valid = statusCode === 200;
                     }
 
                     if (valid) {

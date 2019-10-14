@@ -38,10 +38,10 @@ export const startListeners = (app: Contracts.Kernel.Application): void => {
 
             for (const webhook of webhooks) {
                 try {
-                    const { status } = await Utils.httpie.post(webhook.target, {
+                    const { statusCode } = await Utils.http.post(webhook.target, {
                         body: {
                             timestamp: +new Date(),
-                            data: payload,
+                            data: payload as any,
                             event: webhook.event,
                         },
                         headers: {
@@ -55,7 +55,7 @@ export const startListeners = (app: Contracts.Kernel.Application): void => {
                     });
 
                     app.log.debug(
-                        `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${status}].`,
+                        `Webhooks Job ${webhook.id} completed! Event [${webhook.event}] has been transmitted to [${webhook.target}] with a status of [${statusCode}].`,
                     );
                 } catch (error) {
                     app.log.error(`Webhooks Job ${webhook.id} failed: ${error.message}`);

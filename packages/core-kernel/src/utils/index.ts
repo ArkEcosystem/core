@@ -1,9 +1,6 @@
-import pluralize from "pluralize";
-
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
 import { calculateTransactionExpiration } from "./expiration-calculator";
 import { formatTimestamp } from "./format-timestamp";
-import { httpie, HttpieResponse } from "./httpie";
 import { isBlockChained } from "./is-block-chained";
 import { isWhitelisted } from "./is-whitelisted";
 import { calculateRound, isNewRound } from "./round-calculator";
@@ -17,4 +14,4 @@ export const expirationCalculator = { calculateTransactionExpiration };
 export const roundCalculator = { calculateRound, isNewRound };
 export const supplyCalculator = { calculate };
 
-export { formatTimestamp, httpie, HttpieResponse, isBlockChained, isWhitelisted, Plugins, pluralize };
+export { formatTimestamp, isBlockChained, isWhitelisted, Plugins };

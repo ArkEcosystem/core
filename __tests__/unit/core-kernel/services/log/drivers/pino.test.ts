@@ -1,9 +1,10 @@
 import "jest-extended";
 
+import { sleep } from "@arkecosystem/utils";
+
 import { Logger } from "@packages/core-kernel/src/contracts/kernel/log";
 import capcon from "capture-console";
 
-import delay from "delay";
 import { readdirSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { PinoLogger } from "@packages/core-kernel/src/services/log/drivers";
@@ -177,7 +178,8 @@ describe("Logger", () => {
 
         for (let i = 0; i < 3; i++) {
             logger.info(`Test ${i + 1}`);
-            await delay(1000);
+
+            await sleep(1000);
         }
 
         const files = readdirSync(app.logPath());

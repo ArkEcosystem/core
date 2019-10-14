@@ -1,5 +1,6 @@
 import "jest-extended";
-import delay from "delay";
+
+import { sleep } from "@arkecosystem/utils";
 
 import { Application } from "@packages/core-kernel/src/application";
 import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
@@ -122,7 +123,7 @@ describe("BootServiceProviders", () => {
 
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatchSync(State.BlockApplied);
 
-        await delay(500);
+        await sleep(500);
 
         expect(spyBoot).toHaveBeenCalled();
     });
@@ -144,7 +145,7 @@ describe("BootServiceProviders", () => {
 
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatchSync(State.BlockApplied);
 
-        await delay(500);
+        await sleep(500);
 
         expect(spyDispose).toHaveBeenCalled();
     });

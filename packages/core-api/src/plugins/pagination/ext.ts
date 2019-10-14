@@ -1,7 +1,7 @@
 // Based on https://github.com/fknop/hapi-pagination
 
+import { Utils } from "@arkecosystem/core-kernel";
 import Hoek from "@hapi/hoek";
-import { get } from "dottie";
 import Qs from "querystring";
 
 interface IRoute {
@@ -72,7 +72,7 @@ export class Ext {
             };
 
             setParam("page", 1);
-            setParam("limit", get(this.config, "query.limit.default", 100));
+            setParam("limit", Utils.get(this.config, "query.limit.default", 100));
         }
 
         return h.continue;

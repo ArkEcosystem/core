@@ -1,6 +1,8 @@
 import "jest-extended";
+
+import { sleep } from "@arkecosystem/utils";
+
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
-import delay from "delay";
 
 const dummyFunction = async () => {};
 
@@ -160,7 +162,7 @@ describe("MemoryQueue", () => {
 
         await driver.later(2000, dummyFunction);
 
-        await delay(2000);
+        await sleep(2000);
 
         expect(driver.size()).toBe(1);
     });
@@ -171,7 +173,7 @@ describe("MemoryQueue", () => {
 
         await driver.laterOn("balance", 2000, dummyFunction);
 
-        await delay(2000);
+        await sleep(2000);
 
         expect(driver.size()).toBe(0);
         expect(driver.size("balance")).toBe(1);

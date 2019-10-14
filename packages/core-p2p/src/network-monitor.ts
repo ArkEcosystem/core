@@ -1,6 +1,5 @@
 import { app, Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
-import delay from "delay";
 import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 
@@ -82,7 +81,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         }
 
         // Give time to cooldown rate limits after peer verifier finished.
-        await delay(1000);
+        await Utils.sleep(1000);
 
         this.initializing = false;
     }
@@ -370,7 +369,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
             let broadcastQuota: number = (maxHop - blockPing.count) / maxHop;
 
             if (diff < 500 && broadcastQuota > 0) {
-                await delay(500 - diff);
+                await Utils.sleep(500 - diff);
 
                 blockPing = blockchain.getBlockPing();
 
@@ -468,7 +467,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
         this.nextUpdateNetworkStatusScheduled = true;
 
-        await delay(nextUpdateInSeconds * 1000);
+        await Utils.sleep(nextUpdateInSeconds * 1000);
 
         this.nextUpdateNetworkStatusScheduled = false;
 

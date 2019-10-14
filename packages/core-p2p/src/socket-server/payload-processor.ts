@@ -1,6 +1,5 @@
 import { app, Utils } from "@arkecosystem/core-kernel";
 import sqlite3 from "better-sqlite3";
-import delay from "delay";
 import { ensureFileSync, existsSync, unlinkSync } from "fs-extra";
 import SocketCluster from "socketcluster";
 
@@ -100,7 +99,7 @@ class PayloadProcessor {
             await this.listener(payload.workerId, payload.req, () => {
                 //
             });
-            await delay(1); // 1ms delay allows the node to breathe
+            await Utils.sleep(1); // 1ms delay allows the node to breathe
             this.payloadQueue.shift();
             setImmediate(() => this.processPayloads());
         }

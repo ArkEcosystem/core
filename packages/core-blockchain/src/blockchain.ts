@@ -1,7 +1,6 @@
 import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
-import delay from "delay";
 
 import { BlockProcessor, BlockProcessorResult } from "./processor";
 import { stateMachine } from "./state-machine";
@@ -125,7 +124,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         }
 
         while (!this.state.started && !this.isStopped) {
-            await delay(1000);
+            await Utils.sleep(1000);
         }
 
         app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({

@@ -1,7 +1,6 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
 import { Interfaces } from "@arkecosystem/crypto";
-import delay from "delay";
 import socketCluster from "socketcluster-client";
 
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -119,7 +118,7 @@ export class Client {
                 }
             }
 
-            await delay(100);
+            await Utils.sleep(100);
         }
 
         this.logger.debug(
