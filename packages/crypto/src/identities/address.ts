@@ -1,5 +1,5 @@
 import { HashAlgorithms } from "../crypto";
-import { AddressNetworkError, PublicKeyError } from "../errors";
+import { PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
 import { Base58 } from "../utils/base58";
@@ -40,14 +40,18 @@ export class Address {
         return Base58.encodeCheck(buffer);
     }
 
-    public static toBuffer(address: string): Buffer {
+    public static toBuffer(address: string): { addressBuffer: Buffer, addressError?: string } {
         const buffer: Buffer = Base58.decodeCheck(address);
         const networkVersion: number = configManager.get("network.pubKeyHash");
-        if (buffer[0] !== networkVersion) {
-            throw new AddressNetworkError(networkVersion, buffer[0]);
+        const result: { addressBuffer: Buffer, addressError?: string } = {
+            addressBuffer: buffer,
         }
 
-        return buffer;
+        if (buffer[0] !== networkVersion) {
+            result.addressError = `Expected address network byte ${networkVersion}, but got ${buffer[0]}.`
+        }
+
+        return result;
     }
 
     public static validate(address: string, networkVersion?: number): boolean {

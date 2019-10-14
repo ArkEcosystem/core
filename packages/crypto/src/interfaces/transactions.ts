@@ -168,4 +168,12 @@ export interface ISerializeOptions {
     excludeSignature?: boolean;
     excludeSecondSignature?: boolean;
     excludeMultiSignature?: boolean;
+
+    // WORKAROUND: A handful of mainnet transactions have an invalid
+    // recipient. Due to a refactor of the Address network byte
+    // validation it is no longer trivially possible to handle them.
+    // If an invalid address is encountered during transfer serialization,
+    // this error field is used to bubble up the error and defer the
+    // `AddressNetworkByteError` until the actual id is available to call `isException`.
+    addressError?: string;
 }
