@@ -5,14 +5,7 @@ import dayjs from "dayjs";
 import partition from "lodash.partition";
 import { Transaction } from "../models";
 import { queries } from "../queries";
-import { Repository, TransformRowFromDb } from "./repository";
-
-const transformRowFromDb: TransformRowFromDb = (row) => {
-    if (row && row.vendorField) {
-        row.vendorField = row.vendorField.toString('utf8');
-    }
-    return row;
-}
+import { Repository } from "./repository";
 
 export class TransactionsRepository extends Repository implements Database.ITransactionsRepository {
     public async search(parameters: Database.ISearchParameters): Promise<Database.ITransactionsPaginated> {
@@ -131,11 +124,11 @@ export class TransactionsRepository extends Repository implements Database.ITran
             }
         }
 
-        return this.findAnyWithCount(selectQuery, selectQueryCount, parameters.paginate, parameters.orderBy, transformRowFromDb);
+        return this.findManyWithCount(selectQuery, selectQueryCount, parameters.paginate, parameters.orderBy);
     }
 
     public async findById(id: string): Promise<Interfaces.ITransactionData> {
-        return this.db.oneOrNone(queries.transactions.findById, { id }, transformRowFromDb);
+        return this.db.oneOrNone(queries.transactions.findById, { id });
     }
 
     public async findByBlockId(
@@ -146,7 +139,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
             serialized: Buffer;
         }>
     > {
-        return this.findAny(queries.transactions.findByBlock, { id }, transformRowFromDb);
+        return this.db.manyOrNone(queries.transactions.findByBlock, { id });
     }
 
     public async latestByBlock(
@@ -157,7 +150,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
             serialized: Buffer;
         }>
     > {
-        return this.findAny(queries.transactions.latestByBlock, { id }, transformRowFromDb);
+        return this.db.manyOrNone(queries.transactions.latestByBlock, { id });
     }
 
     public async latestByBlocks(
@@ -169,7 +162,7 @@ export class TransactionsRepository extends Repository implements Database.ITran
             serialized: Buffer;
         }>
     > {
-        return this.findAny(queries.transactions.latestByBlocks, { ids }, transformRowFromDb);
+        return this.db.manyOrNone(queries.transactions.latestByBlocks, { ids });
     }
 
     public async getCountOfType(type: number, typeGroup: number = Enums.TransactionTypeGroup.Core): Promise<any> {
@@ -177,35 +170,35 @@ export class TransactionsRepository extends Repository implements Database.ITran
     }
 
     public async getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<any> {
-        return this.findAny(queries.stateBuilder.assetsByType, { typeGroup, type, limit, offset }, transformRowFromDb);
+        return this.db.manyOrNone(queries.stateBuilder.assetsByType, { typeGroup, type, limit, offset });
     }
 
     public async getReceivedTransactions(): Promise<any> {
-        return this.findAny(queries.stateBuilder.receivedTransactions, undefined, transformRowFromDb);
+        return this.db.many(queries.stateBuilder.receivedTransactions);
     }
 
     public async getSentTransactions(): Promise<any> {
-        return this.findAny(queries.stateBuilder.sentTransactions, undefined, transformRowFromDb);
+        return this.db.many(queries.stateBuilder.sentTransactions);
     }
 
     public async forged(ids: string[]): Promise<Interfaces.ITransactionData[]> {
-        return this.findAny(queries.transactions.forged, { ids }, transformRowFromDb);
+        return this.db.manyOrNone(queries.transactions.forged, { ids });
     }
 
     public async getOpenHtlcLocks(): Promise<any> {
-        return this.findAny(queries.stateBuilder.openLocks, undefined, transformRowFromDb);
+        return this.db.manyOrNone(queries.stateBuilder.openLocks);
     }
 
     public async getRefundedHtlcLocks(): Promise<any> {
-        return this.findAny(queries.stateBuilder.refundedLocks, undefined, transformRowFromDb);
+        return this.db.manyOrNone(queries.stateBuilder.refundedLocks);
     }
 
     public async getClaimedHtlcLocks(): Promise<any> {
-        return this.findAny(queries.stateBuilder.claimedLocks, undefined, transformRowFromDb);
+        return this.db.manyOrNone(queries.stateBuilder.claimedLocks);
     }
 
     public async findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]> {
-        return this.findAny(queries.transactions.findByHtlcLocks, { ids: lockIds }, transformRowFromDb);
+        return this.db.manyOrNone(queries.transactions.findByHtlcLocks, { ids: lockIds });
     }
 
     public async statistics(): Promise<{
