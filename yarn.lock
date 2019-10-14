@@ -2232,11 +2232,6 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
   integrity sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==
 
-"@sindresorhus/tsconfig@^0.4.0":
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/@sindresorhus/tsconfig/-/tsconfig-0.4.0.tgz#de03022de75a26a48fe7596674f2cfaaa142371f"
-  integrity sha512-5b9KULv6SGKZ/Ka7EzLxcqcnD9WuZ1wm/RwfVw4UHr+HoMP7FRpvBKbQ0TIeBOCeSyE5zzPTjYmRgfZnJ3Ifxw==
-
 "@sinonjs/commons@^1", "@sinonjs/commons@^1.3.0", "@sinonjs/commons@^1.4.0":
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/@sinonjs/commons/-/commons-1.6.0.tgz#ec7670432ae9c8eb710400d112c201a362d83393"
