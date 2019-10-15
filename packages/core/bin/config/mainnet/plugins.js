@@ -1,6 +1,11 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
     "@arkecosystem/core-logger-pino": {},
+    "@arkecosystem/core-p2p": {
+        server: {
+            port: process.env.CORE_P2P_PORT || 4001,
+        },
+    },
     "@arkecosystem/core-state": {},
     "@arkecosystem/core-magistrate-transactions": {},
     "@arkecosystem/core-database-postgres": {
@@ -33,11 +38,6 @@ module.exports = {
                 htlcClaim: 0,
                 htlcRefund: 0,
             },
-        },
-    },
-    "@arkecosystem/core-p2p": {
-        server: {
-            port: process.env.CORE_P2P_PORT || 4001,
         },
     },
     "@arkecosystem/core-blockchain": {},
