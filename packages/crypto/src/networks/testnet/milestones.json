@@ -1,5 +1,4 @@
-[
-    {
+[{
         "height": 1,
         "reward": 0,
         "activeDelegates": 51,
@@ -26,7 +25,10 @@
             }
         },
         "vendorFieldLength": 64,
-        "multiPaymentLimit": 500,
+        "multiPaymentLimit": 500
+    },
+    {
+        "height": 2,
         "aip11": true
     },
     {

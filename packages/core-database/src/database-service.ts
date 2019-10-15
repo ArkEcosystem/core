@@ -44,10 +44,6 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async init(): Promise<void> {
-        if (process.env.CORE_ENV === "test") {
-            Managers.configManager.getMilestone().aip11 = false;
-        }
-
         this.emitter.dispatch(Enums.Events.State.StateStarting, this);
 
         app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).setGenesisBlock(
@@ -373,13 +369,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block);
-
-        if (block.height === 1 && process.env.CORE_ENV === "test") {
-            Managers.configManager.getMilestone().aip11 = true;
-        }
-
-        return lastBlock;
+        return Blocks.BlockFactory.fromData(block);
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
@@ -612,10 +602,6 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             this.logger.warning("No block found in database");
 
             lastBlock = await this.createGenesisBlock();
-
-            if (process.env.CORE_ENV === "test") {
-                Managers.configManager.getMilestone().aip11 = true;
-            }
         }
 
         this.configureState(lastBlock);
