@@ -1,6 +1,5 @@
 import { P2P } from "@arkecosystem/core-interfaces";
 import SCWorker from "socketcluster/scworker";
-import { SocketErrors } from "../enums";
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
@@ -27,14 +26,10 @@ export class Worker extends SCWorker {
     private handlePayload(ws, req) {
         ws.on("message", message => {
             try {
-                const InvalidMessagePayloadError: Error = this.createError(
-                    SocketErrors.InvalidMessagePayload,
-                    "The message contained an invalid payload",
-                );
                 if (message === "#2") {
                     const timeNow: number = new Date().getTime() / 1000;
                     if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                        throw InvalidMessagePayloadError;
+                        req.socket.terminate();
                     }
                     ws._lastPingTime = timeNow;
                 } else {
@@ -45,7 +40,7 @@ export class Worker extends SCWorker {
                         (typeof parsed.cid !== "number" &&
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
                     ) {
-                        throw InvalidMessagePayloadError;
+                        req.socket.terminate();
                     }
                 }
             } catch (error) {
@@ -81,7 +76,7 @@ export class Worker extends SCWorker {
 
         const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
         if (data.blocked || isBlacklisted) {
-            next(this.createError(SocketErrors.Forbidden, "Blocked due to rate limit or blacklisted."));
+            req.socket.destroy();
             return;
         }
 
@@ -105,12 +100,6 @@ export class Worker extends SCWorker {
         );
 
         if (data.exceededLimitOnEndpoint) {
-            if (data.blocked) {
-                // Global ban
-                req.socket.terminate();
-                return;
-            }
-
             req.socket.terminate();
             return;
         }
@@ -151,7 +140,7 @@ export class Worker extends SCWorker {
                     headers: req.data.headers,
                 });
             } else {
-                req.socket.disconnect(4400, "Bad Request");
+                req.socket.terminate();
                 return;
             }
 
@@ -189,13 +178,6 @@ export class Worker extends SCWorker {
                 (err, res) => (err ? reject(err) : resolve(res)),
             );
         });
-    }
-
-    private createError(name, message): Error {
-        const error: Error = new Error(message);
-        error.name = name;
-
-        return error;
     }
 }
 

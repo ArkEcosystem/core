@@ -99,5 +99,10 @@
             "163c355844ced31ea62c86aeba033a1ba75f8a9657729990e17b06cbdf31f68a",
             "ce3b901c5507993a282c36987cbf003769e962d721b70a9f550b9ac1654fcee7"
         ]
+    },
+    "negativeBalances": {
+        "03d0102c85624e5bdfef4a82faea7badded8bc0dc5e087bd71d75bb534641404a1": {
+            "8": "-200000000"
+        }
     }
 }

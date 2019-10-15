@@ -100,7 +100,7 @@ describe("Peer socket endpoint", () => {
                         data: {},
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "CoreValidationError");
+                ).rejects.toHaveProperty("name", "Error");
             });
         });
 
