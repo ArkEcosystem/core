@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-event-emitter",
-    "version": "2.6.0-next.0",
+    "version": "2.6.0-next.1",
     "description": "Event Manager for ARK Core",
     "license": "MIT",
     "contributors": [
