@@ -72,5 +72,9 @@
         "block": {
             "acceptExpiredTransactionTimestamps": false
         }
+    },
+    {
+        "height": 4006000,
+        "aip11": true
     }
 ]
