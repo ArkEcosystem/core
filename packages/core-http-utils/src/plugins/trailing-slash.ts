@@ -14,11 +14,14 @@ export const trailingSlash = {
             }
 
             try {
-                const path: string = request.path.replace(/\/+$/g, "");
-                const { res } = await wreck.request("head", path);
+                const { pathname, origin, search } = request.url;
 
-                if (res.statusCode < 400) {
-                    return h.redirect(request.url.search ? path + request.url.search : path).permanent();
+                const path: string = pathname.replace(/\/+$/g, "");
+
+                const { statusCode } = await wreck.request("head", path, { baseUrl: origin });
+
+                if (statusCode < 400) {
+                    return h.redirect(`${origin}${search ? path + search : path}`).permanent();
                 }
             } catch {
                 //
