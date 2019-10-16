@@ -33,8 +33,7 @@ export class PeersController extends Controller {
                     result = orderBy(result, state[orderByMapped[0]], orderByMapped[1] === "asc" ? "asc" : "desc");
                     break;
                 }
-                case "latency":
-                case "port": {
+                case "latency": {
                     result = orderBy(result, orderByMapped[0], orderByMapped[1] === "asc" ? "asc" : "desc");
                     break;
                 }
