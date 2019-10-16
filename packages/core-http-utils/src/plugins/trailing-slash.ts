@@ -1,5 +1,7 @@
 import wreck from "@hapi/wreck";
 
+const slashPattern: RegExp = new RegExp(/\/+$/g);
+
 export const trailingSlash = {
     name: "trailing-slash",
     version: "0.1.0",
@@ -13,12 +15,19 @@ export const trailingSlash = {
                 return h.continue;
             }
 
-            try {
-                const path: string = request.path.replace(/\/+$/g, "");
-                const { res } = await wreck.request("head", path);
+            const { pathname, origin, search } = request.url;
 
-                if (res.statusCode < 400) {
-                    return h.redirect(request.url.search ? path + request.url.search : path).permanent();
+            if (!slashPattern.test(pathname)) {
+                return h.continue;
+            }
+
+            try {
+                const path: string = pathname.replace(slashPattern, "");
+
+                const { statusCode } = await wreck.request("head", path, { baseUrl: origin });
+
+                if (statusCode < 400) {
+                    return h.redirect(`${origin}${search ? path + search : path}`).permanent();
                 }
             } catch {
                 //
