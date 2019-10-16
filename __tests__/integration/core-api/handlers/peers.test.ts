@@ -30,6 +30,8 @@ beforeAll(async () => {
             const peerMock = new Peer(mock.ip);
             (peerMock as any).port = mock.port;
             peerMock.version = mock.version;
+            peerMock.latency = mock.latency;
+            peerMock.state = { height: mock.height };
             return peerMock;
         })
         .reduce((result, mock) => ({ ...result, [mock.ip]: mock }), {});
