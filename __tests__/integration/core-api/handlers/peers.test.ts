@@ -1,7 +1,6 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
-import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { createStubPeer } from "../../../helpers/peers";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
