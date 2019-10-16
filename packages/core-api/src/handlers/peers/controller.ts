@@ -28,8 +28,6 @@ export class PeersController extends Controller {
             offset = 0;
         }
 
-        result = result.slice(offset, offset + limit);
-
         const orderBy: string = request.query.orderBy as string;
         if (orderBy) {
             const order = orderBy.split(":");
@@ -41,6 +39,8 @@ export class PeersController extends Controller {
                         : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
             }
         }
+
+        result = result.slice(offset, offset + limit);
 
         return super.toPagination({ rows: result, count }, "peer");
     }
