@@ -2,6 +2,7 @@ import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { createStubPeer } from "../../../helpers/peers";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
@@ -10,14 +11,18 @@ const peers = [
         ip: "1.0.0.99",
         port: 4001,
         version: "2.4.0-next.3",
-        height: 2,
+        state: {
+            height: 2,
+        },
         latency: 2,
     },
     {
         ip: "1.0.0.98",
         port: 4000,
         version: "2.4.0-next.1",
-        height: 1,
+        state: {
+            height: 1,
+        },
         latency: 1,
     },
 ];
@@ -26,14 +31,7 @@ beforeAll(async () => {
     await setUp();
 
     const peerMocks = peers
-        .map(mock => {
-            const peerMock = new Peer(mock.ip);
-            (peerMock as any).port = mock.port;
-            peerMock.version = mock.version;
-            peerMock.latency = mock.latency;
-            peerMock.state = { height: mock.height };
-            return peerMock;
-        })
+        .map(mock => createStubPeer({ ...mock }))
         .reduce((result, mock) => ({ ...result, [mock.ip]: mock }), {});
 
     for (const peerMock of Object.values(peerMocks)) {
