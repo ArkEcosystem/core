@@ -30,7 +30,11 @@ export class PeersController extends Controller {
                     break;
                 }
                 case "height": {
-                    result = orderBy(result, state[orderByMapped[0]], orderByMapped[1] === "asc" ? "asc" : "desc");
+                    result = orderBy(
+                        result,
+                        el => el.state[orderByMapped[0]],
+                        orderByMapped[1] === "asc" ? "asc" : "desc",
+                    );
                     break;
                 }
                 case "latency": {
