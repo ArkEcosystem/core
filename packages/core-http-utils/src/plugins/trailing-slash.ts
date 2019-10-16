@@ -13,9 +13,13 @@ export const trailingSlash = {
                 return h.continue;
             }
 
-            try {
-                const { pathname, origin, search } = request.url;
+            const { pathname, origin, search } = request.url;
 
+            if (!new RegExp(/\/+$/g).test(pathname)) {
+                return h.continue;
+            }
+
+            try {
                 const path: string = pathname.replace(/\/+$/g, "");
 
                 const { statusCode } = await wreck.request("head", path, { baseUrl: origin });
