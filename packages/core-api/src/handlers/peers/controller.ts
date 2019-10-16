@@ -29,7 +29,10 @@ export class PeersController extends Controller {
                             : result.sort((a, b) => semver.rcompare(a[orderByMapped[0]], b[orderByMapped[0]]));
                     break;
                 }
-                case "height":
+                case "height": {
+                    result = orderBy(result, state[orderByMapped[0]], orderByMapped[1] === "asc" ? "asc" : "desc");
+                    break;
+                }
                 case "latency":
                 case "port": {
                     result = orderBy(result, orderByMapped[0], orderByMapped[1] === "asc" ? "asc" : "desc");
