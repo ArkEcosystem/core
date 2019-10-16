@@ -19,7 +19,7 @@ export class PeersController extends Controller {
 
         const order: string = request.query.orderBy as string;
         if (order) {
-            const orderByMapped = orderBy.split(":").map(p => p.toLowerCase());
+            const orderByMapped = order.split(":").map(p => p.toLowerCase());
 
             switch (orderByMapped[0]) {
                 case "version": {
