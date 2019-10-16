@@ -1,4 +1,5 @@
 import { P2P } from "@arkecosystem/core-interfaces";
+import { orderBy } from "@arkecosystem/utils";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import semver from "semver";
@@ -19,13 +20,24 @@ export class PeersController extends Controller {
 
         const orderBy: string = request.query.orderBy as string;
         if (orderBy) {
-            const order = orderBy.split(":");
+            const order = orderBy.split(":").map(p => p.toLowerCase());
 
-            if (order[0] === "version") {
-                result =
-                    order[1].toUpperCase() === "ASC"
-                        ? result.sort((a, b) => semver.compare(a[order[0]], b[order[0]]))
-                        : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
+            switch (order[0]) {
+                case "version": {
+                    result =
+                        order[1] === "asc"
+                            ? result.sort((a, b) => semver.compare(a[order[0]], b[order[0]]))
+                            : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
+                    break;
+                }
+                case "height":
+                case "latency":
+                case "port": {
+                    result = orderBy(result, order[0], order[1] === "asc" ? "asc" : "desc");
+                    break;
+                }
+                default:
+                    break;
             }
         }
 
