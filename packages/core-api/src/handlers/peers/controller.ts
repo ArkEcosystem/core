@@ -9,36 +9,39 @@ export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const allPeers: P2P.IPeer[] = [...this.blockchain.p2p.getStorage().getPeers()];
 
-        let result = allPeers.sort((a, b) => a.latency - b.latency);
-        result = request.query.version
-            ? result.filter(peer => peer.version === (request.query as any).version)
-            : result;
+        let result = request.query.version
+            ? allPeers.filter(peer => peer.version === (request.query as any).version)
+            : allPeers;
 
         const count: number = result.length;
 
         result = result.slice(0, +request.query.limit || 100);
 
-        const orderBy: string = request.query.orderBy as string;
-        if (orderBy) {
-            const order = orderBy.split(":").map(p => p.toLowerCase());
+        const order: string = request.query.orderBy as string;
+        if (order) {
+            const orderByMapped = orderBy.split(":").map(p => p.toLowerCase());
 
-            switch (order[0]) {
+            switch (orderByMapped[0]) {
                 case "version": {
                     result =
-                        order[1] === "asc"
-                            ? result.sort((a, b) => semver.compare(a[order[0]], b[order[0]]))
-                            : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
+                        orderByMapped[1] === "asc"
+                            ? result.sort((a, b) => semver.compare(a[orderByMapped[0]], b[orderByMapped[0]]))
+                            : result.sort((a, b) => semver.rcompare(a[orderByMapped[0]], b[orderByMapped[0]]));
                     break;
                 }
                 case "height":
                 case "latency":
                 case "port": {
-                    result = orderBy(result, order[0], order[1] === "asc" ? "asc" : "desc");
+                    result = orderBy(result, orderByMapped[0], orderByMapped[1] === "asc" ? "asc" : "desc");
                     break;
                 }
-                default:
+                default: {
+                    result = result.sort((a, b) => a.latency - b.latency);
                     break;
+                }
             }
+        } else {
+            result = result.sort((a, b) => a.latency - b.latency);
         }
 
         return super.toPagination({ rows: result, count }, "peer");
