@@ -97,8 +97,8 @@ export class PeerProcessor implements P2P.IPeerProcessor {
 
             this.storage.setPeer(newPeer);
 
-            if (!options.lessVerbose) {
-                this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
+            if (!options.lessVerbose || process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port} (v${newPeer.version})`);
             }
 
             this.emitter.emit(ApplicationEvents.PeerAdded, newPeer);
