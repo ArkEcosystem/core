@@ -2887,13 +2887,6 @@
   dependencies:
     "@types/lodash" "*"
 
-"@types/lodash.fill@^3.4.6":
-  version "3.4.6"
-  resolved "https://registry.yarnpkg.com/@types/lodash.fill/-/lodash.fill-3.4.6.tgz#f9d23b632af90e123bbd8e8b26585095b5983534"
-  integrity sha512-1QFEsIejhgbsoxFj+jRwGB5kYpTCziFXFV4Ga5z97kbh24O8Pof3Rrh5RDB0LDeOJ/USCt0aeZrWt8LPDZwVVQ==
-  dependencies:
-    "@types/lodash" "*"
-
 "@types/lodash.flatten@^4.4.6":
   version "4.4.6"
   resolved "https://registry.yarnpkg.com/@types/lodash.flatten/-/lodash.flatten-4.4.6.tgz#b74c3267c87e44e603137d4621e8a9396b6551f5"
