@@ -1,7 +1,6 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
-import { createStubPeer } from "../../../helpers/peers";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
@@ -29,11 +28,16 @@ const peers = [
 beforeAll(async () => {
     await setUp();
 
-    const peerMocks = peers
-        .map(mock => createStubPeer({ ...mock }))
-        .reduce((result, mock) => ({ ...result, [mock.ip]: mock }), {});
+    const peerMocks = [...peers].map(mock => {
+        const peer: P2P.IPeer = new Peer(mock.ip);
+        (peer as any).port = mock.port;
 
-    for (const peerMock of Object.values(peerMocks)) {
+        delete mock.port;
+
+        return Object.assign(peer, mock);
+    });
+
+    for (const peerMock of peerMocks) {
         app.resolvePlugin("p2p")
             .getStorage()
             .setPeer(peerMock);
