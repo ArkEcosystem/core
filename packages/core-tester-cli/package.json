@@ -38,6 +38,7 @@
         "bip39": "^3.0.2",
         "clipboardy": "^2.1.0",
         "delay": "^4.3.0",
+        "lodash.chunk": "^4.2.0",
         "pino": "^5.12.6",
         "pino-pretty": "^3.2.0",
         "pluralize": "^8.0.0"
@@ -45,7 +46,7 @@
     "devDependencies": {
         "@types/bip39": "^2.4.2",
         "@types/clipboardy": "^2.0.1",
-        "@types/lodash.fill": "^3.4.6",
+        "@types/lodash.chunk": "^4.2.6",
         "@types/pino": "^5.20.0",
         "@types/pluralize": "^0.0.29"
     },

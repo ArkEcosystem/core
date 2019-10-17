@@ -3,6 +3,7 @@ import "jest-extended";
 import { container } from "./mocks/core-container";
 import { state } from "./mocks/state";
 
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
@@ -845,7 +846,7 @@ describe("Connection", () => {
 
             await connection.make();
 
-            container.app.resolvePlugin("event-emitter").emit("internal.stateBuilder.finished");
+            container.app.resolvePlugin("event-emitter").emit(ApplicationEvents.StateBuilderFinished);
 
             await delay(200);
 
@@ -880,7 +881,7 @@ describe("Connection", () => {
 
             await connection.make();
 
-            container.app.resolvePlugin("event-emitter").emit("internal.stateBuilder.finished");
+            container.app.resolvePlugin("event-emitter").emit(ApplicationEvents.StateBuilderFinished);
 
             await delay(200);
 
