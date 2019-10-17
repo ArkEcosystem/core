@@ -1,6 +1,7 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
+import { Peer } from "@arkecosystem/core-p2p/src/peer";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
@@ -29,7 +30,7 @@ beforeAll(async () => {
     await setUp();
 
     const peerMocks = [...peers].map(mock => {
-        const peer: P2P.IPeer = new Peer(mock.ip);
+        const peer = new Peer(mock.ip);
         (peer as any).port = mock.port;
 
         delete mock.port;
