@@ -1,6 +1,7 @@
 import { Identities, Managers, Types, Utils } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import delay from "delay";
+import chunk from "lodash.chunk";
 import { satoshiFlag } from "../flags";
 import { HttpClient } from "../http-client";
 import { logger } from "../logger";
@@ -158,7 +159,9 @@ export abstract class BaseCommand extends Command {
     }
 
     protected async broadcastTransactions(transactions) {
-        await this.sendTransaction(transactions);
+        for (const batch of chunk(transactions, 40)) {
+            await this.sendTransaction(batch);
+        }
 
         return this.awaitConfirmations(transactions);
     }
