@@ -6,7 +6,7 @@ import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
-import { TransactionFactory } from '../../../helpers';
+import { TransactionFactory } from "../../../helpers";
 import { BlockFactory as TestBlockFactory } from "../../../helpers/block-factory";
 import "../../../utils";
 import { blocks101to155 } from "../../../utils/fixtures/testnet/blocks101to155";
@@ -169,9 +169,7 @@ describe("State Storage", () => {
         });
 
         it("should return full blocks and block headers", () => {
-            const block = TestBlockFactory.createDummy(
-                TransactionFactory.transfer().create(10),
-            );
+            const block = TestBlockFactory.createDummy(TransactionFactory.transfer().create(10));
 
             stateStorage.setLastBlock(block);
 
@@ -342,7 +340,7 @@ describe("State Storage", () => {
             stateStorage.pushPingBlock(blocks2to100[5]);
 
             expect(loggerInfo).toHaveBeenCalledWith(
-                `Block ${blocks2to100[3].height.toLocaleString()} pinged blockchain 1 times`,
+                `Previous block ${blocks2to100[3].height.toLocaleString()} pinged blockchain 1 times`,
             );
             expect(stateStorage.blockPing).toBeObject();
             expect(stateStorage.blockPing.block).toBe(blocks2to100[5]);
