@@ -53,7 +53,7 @@ export class Connection implements TransactionPool.IConnection {
             this.memory.remember(transaction, true);
         }
 
-        this.emitter.once("internal.stateBuilder.finished", async () => {
+        this.emitter.once(ApplicationEvents.StateBuilderFinished, async () => {
             // Remove from the pool invalid entries found in `transactionsFromDisk`.
             await this.validateTransactions(transactionsFromDisk);
             await this.purgeExpired();
