@@ -27,6 +27,9 @@ export abstract class BaseCommand extends Command {
         secondPassphrase: flags.string({
             description: "second passphrase of initial wallet",
         }),
+        nonce: flags.integer({
+            description: "starting nonce",
+        }),
         number: flags.integer({
             description: "number of wallets",
             default: 1,
@@ -77,7 +80,10 @@ export abstract class BaseCommand extends Command {
         await this.setupConfiguration();
         await this.setupConfigurationForCrypto();
 
-        this.signer = new Signer(this.network);
+        if (flags.passphrase) {
+            const nonce = flags.nonce || (await this.getNonce(flags.passphrase));
+            this.signer = new Signer(this.network, nonce);
+        }
 
         return { args, flags };
     }
@@ -87,7 +93,7 @@ export abstract class BaseCommand extends Command {
 
         Managers.configManager.setFromPreset(flags.network as Types.NetworkName);
 
-        this.signer = new Signer(Managers.configManager.all().network.pubKeyHash);
+        this.signer = new Signer(Managers.configManager.all().network.pubKeyHash, flags.nonce);
 
         return { args, flags };
     }
@@ -225,5 +231,20 @@ export abstract class BaseCommand extends Command {
             this.constants.blocktime * Math.ceil(transactions.length / this.constants.block.maxTransactions);
 
         await delay(waitPerBlock * 1000);
+    }
+
+    private async getNonce(passphrase: string): Promise<string> {
+        const address: string = Identities.Address.fromPassphrase(passphrase);
+
+        try {
+            const { data } = await this.api.get(`wallets/${address}`);
+            return data.nonce
+                ? Utils.BigNumber.make(data.nonce)
+                      .plus(1)
+                      .toString()
+                : "1";
+        } catch (ex) {
+            return "1";
+        }
     }
 }
