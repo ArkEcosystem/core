@@ -8,7 +8,7 @@ import { utils } from "../utils";
 const peers = [
     {
         ip: "1.0.0.99",
-        port: 4001,
+        port: 4002,
         version: "2.4.0-next.3",
         state: {
             height: 2,
@@ -17,7 +17,7 @@ const peers = [
     },
     {
         ip: "1.0.0.98",
-        port: 4000,
+        port: 4002,
         version: "2.4.0-next.1",
         state: {
             height: 1,
