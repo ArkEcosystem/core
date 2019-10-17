@@ -16,6 +16,10 @@ export class BlockCommand extends BaseCommand {
             description: "number of blocks to generate",
             default: 1,
         }),
+        nonce: flags.integer({
+            description: "nonce to use for offline creation",
+            default: 1,
+        }),
         transactions: flags.integer({
             description: "number of transactions to generate",
             default: 0,
