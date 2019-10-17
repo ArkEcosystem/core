@@ -237,7 +237,9 @@ export class StateStore implements State.IStateStore {
     public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
         if (this.blockPing) {
             app.resolvePlugin<Logger.ILogger>("logger").info(
-                `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${this.blockPing.count} times`,
+                `Previous block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
+                    this.blockPing.count
+                } times`,
             );
         }
 
