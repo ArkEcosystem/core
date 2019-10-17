@@ -109,24 +109,6 @@ describe("API 2.0 - Peers", () => {
             expect(response.data.data[0].ip).toBe(peers[0].ip);
             expect(response.data.data[1].ip).toBe(peers[1].ip);
         });
-
-        it("should GET all the peers sorted by port,asc", async () => {
-            const response = await utils.request("GET", "peers", { orderBy: "port:asc" });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArrayOfSize(peers.length);
-            expect(response.data.data[0]).toBeObject();
-            expect(response.data.data[0].ip).toBe(peers[1].ip);
-            expect(response.data.data[1].ip).toBe(peers[0].ip);
-        });
-
-        it("should GET all the peers sorted by port,desc", async () => {
-            const response = await utils.request("GET", "peers", { orderBy: "port:desc" });
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArrayOfSize(peers.length);
-            expect(response.data.data[0]).toBeObject();
-            expect(response.data.data[0].ip).toBe(peers[0].ip);
-            expect(response.data.data[1].ip).toBe(peers[1].ip);
-        });
     });
 
     describe("GET /peers/:ip", () => {
