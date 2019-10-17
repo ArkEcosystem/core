@@ -257,7 +257,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
-        app.log.debug(JSON.stringify(this.errors));
+        if (Object.keys(this.errors).length > 0) {
+            app.log.debug(JSON.stringify(this.errors));
+        }
 
         app.log.info(`Received ${Utils.pluralize("transaction", this.transactions.length, true)} (${stats}).`);
     }

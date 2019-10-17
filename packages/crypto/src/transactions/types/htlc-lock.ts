@@ -37,7 +37,7 @@ export class HtlcLockTransaction extends Transaction {
         buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
         buffer.writeUint8(data.asset.lock.expiration.type);
         buffer.writeUint32(data.asset.lock.expiration.value);
-        buffer.append(Address.toBuffer(data.recipientId));
+        buffer.append(Address.toBuffer(data.recipientId).addressBuffer);
 
         return buffer;
     }

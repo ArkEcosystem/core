@@ -28,7 +28,7 @@ export class Validator {
     }
 
     public validateException<T = any>(schemaKeyRef: string | boolean | object, data: T): ISchemaValidationResult<T> {
-        const ajv = this.instantiateAjv({ allErrors: true });
+        const ajv = this.instantiateAjv({ allErrors: true, verbose: true });
 
         for (const schema of this.transactionSchemas.values()) {
             this.extendTransactionSchema(ajv, schema);

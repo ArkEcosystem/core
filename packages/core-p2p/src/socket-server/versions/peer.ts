@@ -123,15 +123,13 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Cont
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
     const reqBlockLimit: number = +req.data.blockLimit || 400;
-    const reqHeadersOnly = !!req.data.headersOnly;
-    const reqSerialized = !!req.data.serialized; // TODO: remove in 2.6 and only return serialized blocks
+    const reqHeadersOnly: boolean = !!req.data.headersOnly;
 
-    let blocks: Interfaces.IBlockData[] | Contracts.Database.DownloadBlock[];
-    if (reqSerialized) {
-        blocks = await database.getBlocksForDownload(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
-    } else {
-        blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
-    }
+    const blocks: Contracts.Database.DownloadBlock[] = await database.getBlocksForDownload(
+        reqBlockHeight,
+        reqBlockLimit,
+        reqHeadersOnly,
+    );
 
     app.log.info(
         `${mapAddr(req.headers.remoteAddress)} has downloaded ${Utils.pluralize(
@@ -141,5 +139,5 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Cont
         )} from height ${reqBlockHeight.toLocaleString()}`,
     );
 
-    return blocks || [];
+    return blocks;
 };

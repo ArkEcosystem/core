@@ -69,14 +69,6 @@ export const startSocketServer = async (service: PeerService, config: Record<str
                 return res(error);
             }
 
-            if (error.name === SocketErrors.Validation) {
-                return res(error);
-            }
-
-            if (error.name === SocketErrors.AppNotReady) {
-                return res(error);
-            }
-
             app.log.error(error.message);
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }

@@ -9,21 +9,40 @@ import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
     public static applySchema(data: IBlockData): IBlockData {
-        const { value, error } = validator.validate("block", data);
+        let result = validator.validate("block", data);
 
-        if (error) {
-            if (
-                isException(value) ||
-                data.transactions.some((transaction: ITransactionData) => isException(transaction))
-            ) {
-                // Validate again without bailing out on the first error to ensure that all properties get properly converted if necessary
-                validator.validateException("block", data);
+        if (!result.error) {
+            return result.value;
+        }
+
+        result = validator.validateException("block", data);
+
+        for (const err of result.errors) {
+            let fatal = false;
+
+            const match = err.dataPath.match(/\.transactions\[([0-9]+)\]/);
+            if (match === null) {
+                if (!isException(data)) {
+                    fatal = true;
+                }
             } else {
-                throw new BlockSchemaError(data.height, error);
+                const txIndex = match[1];
+                const tx = data.transactions[txIndex];
+                if (tx.id === undefined || !isException(tx)) {
+                    fatal = true;
+                }
+            }
+
+            if (fatal) {
+                throw new BlockSchemaError(
+                    data.height,
+                    `Invalid data${err.dataPath ? ' at ' + err.dataPath : ''}: ` +
+                    `${err.message}: ${JSON.stringify(err.data)}`
+                );
             }
         }
 
-        return value;
+        return result.value;
     }
 
     public static deserialize(hexString: string, headerOnly = false): IBlockData {

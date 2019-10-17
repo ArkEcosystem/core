@@ -67,19 +67,28 @@ export class StateBuilder {
         }
     }
 
-    private isGenesis(wallet: Contracts.State.Wallet): boolean {
-        return Managers.configManager
-            .get("genesisBlock.transactions")
-            .map((tx: Interfaces.ITransactionData) => tx.senderPublicKey)
-            .includes(wallet.publicKey);
-    }
-
     private verifyWalletsConsistency(): void {
-        for (const wallet of this.walletRepository.allByAddress()) {
-            if (wallet.balance.isLessThan(0) && !this.isGenesis(wallet)) {
-                this.logger.warning(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
+        const genesisPublicKeys: Record<string, true> = app
+            .config("genesisBlock.transactions")
+            .reduce((acc, curr) => Object.assign(acc, { [curr.senderPublicKey]: true }), {});
 
-                throw new Error("Non-genesis wallet with negative balance.");
+        for (const wallet of this.walletRepository.allByAddress()) {
+            if (wallet.balance.isLessThan(0) && !genesisPublicKeys[wallet.publicKey]) {
+                // Senders of whitelisted transactions that result in a negative balance,
+                // also need to be special treated during bootstrap. Therefore, specific
+                // senderPublicKey/nonce pairs are allowed to be negative.
+                // Example:
+                //          https://explorer.ark.io/transaction/608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e
+                //          Results in a negative balance (-2 ARK) from height 93478 to 187315
+                const negativeBalanceExceptions: Record<string, Record<string, string>> = app.config(
+                    "exceptions.negativeBalances",
+                    {},
+                );
+                const negativeBalances: Record<string, string> = negativeBalanceExceptions[wallet.publicKey] || {};
+                if (!wallet.balance.isEqualTo(negativeBalances[wallet.nonce.toString()] || 0)) {
+                    this.logger.warning(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
+                    throw new Error("Non-genesis wallet with negative balance.");
+                }
             }
 
             const voteBalance: Utils.BigNumber = wallet.getAttribute("delegate.voteBalance");

@@ -1,6 +1,7 @@
 import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
+import { get } from "dottie";
 import semver from "semver";
 
 import { Controller } from "../shared/controller";
@@ -20,7 +21,17 @@ export class PeersController extends Controller {
 
         const count: number = result.length;
 
-        result = result.slice(0, +request.query.limit || 100);
+        const limit: number = +request.query.limit || 100;
+
+        let offset: number = +get(request.query, "offset", 0);
+
+        if (offset <= 0 && +request.query.page > 1) {
+            offset = (+request.query.page - 1) * limit;
+        }
+
+        if (Number.isNaN(offset)) {
+            offset = 0;
+        }
 
         const orderBy: string = request.query.orderBy as string;
         if (orderBy) {
@@ -33,6 +44,8 @@ export class PeersController extends Controller {
                         : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
             }
         }
+
+        result = result.slice(offset, offset + limit);
 
         return super.toPagination({ rows: result, count }, "peer");
     }

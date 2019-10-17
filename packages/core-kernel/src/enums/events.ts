@@ -28,6 +28,7 @@ export enum State {
     RoundApplied = "round.applied",
     RoundCreated = "round.created",
     RoundMissed = "round.missed",
+    StateBuilderFinished = "stateBuilder.finished",
     StateStarting = "state.starting",
     StateStarted = "state.started",
     TransactionApplied = "transaction.applied",

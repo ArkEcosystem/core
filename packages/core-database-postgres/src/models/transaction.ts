@@ -54,7 +54,12 @@ export class Transaction extends Model {
         {
             name: "vendor_field",
             prop: "vendorField",
-            supportedOperators: [Contracts.Database.SearchOperator.OP_LIKE],
+            init: col => (col.value !== undefined ? Buffer.from(col.value, "utf8") : undefined),
+            supportedOperators: [
+                Contracts.Database.SearchOperator.OP_EQ,
+                Contracts.Database.SearchOperator.OP_IN,
+                Contracts.Database.SearchOperator.OP_LIKE,
+            ],
             def: undefined,
         },
         {

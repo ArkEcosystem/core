@@ -136,6 +136,28 @@ export class TransactionsController extends Controller {
         }
     }
 
+    public async schemas(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+        try {
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactionHandlers();
+            const schemasByType: Record<string, Record<string, any>> = {};
+
+            for (const handler of activatedTransactionHandlers) {
+                const constructor = handler.getConstructor();
+
+                const { type, typeGroup } = constructor;
+                if (schemasByType[typeGroup] === undefined) {
+                    schemasByType[typeGroup] = {};
+                }
+
+                schemasByType[typeGroup][type] = constructor.getSchema().properties;
+            }
+
+            return { data: schemasByType };
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
+    }
+
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             return {
