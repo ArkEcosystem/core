@@ -29,7 +29,7 @@ const peers = [
 beforeAll(async () => {
     await setUp();
 
-    const peerMocks = [...peers].map(mock => {
+    const peerMocks = JSON.parse(JSON.stringify(peers)).map(mock => {
         const peer = new Peer(mock.ip);
         (peer as any).port = mock.port;
 
