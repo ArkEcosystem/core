@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Utils } from "@arkecosystem/crypto";
@@ -43,7 +44,7 @@ export class StateBuilder {
 
         this.verifyWalletsConsistency();
 
-        this.emitter.emit("internal.stateBuilder.finished");
+        this.emitter.emit(ApplicationEvents.StateBuilderFinished);
     }
 
     private async buildBlockRewards(): Promise<void> {
