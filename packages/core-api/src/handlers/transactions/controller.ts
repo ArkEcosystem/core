@@ -138,7 +138,9 @@ export class TransactionsController extends Controller {
 
     public async schemas(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await Handlers.Registry.getActivatedTransactionHandlers();
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await app
+                .get<any>("transactionHandlerRegistry")
+                .getActivatedTransactionHandlers();
             const schemasByType: Record<string, Record<string, any>> = {};
 
             for (const handler of activatedTransactionHandlers) {

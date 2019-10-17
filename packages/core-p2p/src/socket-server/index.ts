@@ -1,7 +1,6 @@
 import { app, Container, Providers } from "@arkecosystem/core-kernel";
 import SocketCluster from "socketcluster";
 
-import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
 import { PeerService } from "../types";
 import { ServerError } from "./errors";

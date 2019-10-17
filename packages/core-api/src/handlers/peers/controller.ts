@@ -1,7 +1,6 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
-import { get } from "dottie";
 import semver from "semver";
 
 import { Controller } from "../shared/controller";
@@ -23,7 +22,7 @@ export class PeersController extends Controller {
 
         const limit: number = +request.query.limit || 100;
 
-        let offset: number = +get(request.query, "offset", 0);
+        let offset: number = +Utils.get(request.query, "offset", 0);
 
         if (offset <= 0 && +request.query.page > 1) {
             offset = (+request.query.page - 1) * limit;

@@ -1,5 +1,4 @@
 import { readdirSync } from "fs";
-import { loadQueryFile } from "../utils";
 
 import { loadQueryFile } from "../utils";
 
