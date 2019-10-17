@@ -4,6 +4,7 @@ import { Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-api/src/defaults";
 import { plugin } from "../../../../packages/core-api/src/plugin";
+import { defaults as defaultsPeer } from "../../../../packages/core-p2p/src/defaults";
 import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 
 import { delegates } from "../../../utils/fixtures";
@@ -41,6 +42,7 @@ const setUp = async () => {
     await databaseService.saveRound(round);
 
     app.register("pkg.api.opts", asValue({ ...defaults, ...options }));
+    app.register("pkg.p2p.opts", asValue(defaultsPeer));
 
     await registerWithContainer(plugin, options);
     await delay(1000); // give some more time for api server to be up
