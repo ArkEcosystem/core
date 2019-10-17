@@ -37,12 +37,13 @@ const setUp = async () => {
         ],
     });
 
+    app.register("pkg.p2p.opts", asValue(defaultsPeer));
+
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     await databaseService.buildWallets();
     await databaseService.saveRound(round);
 
     app.register("pkg.api.opts", asValue({ ...defaults, ...options }));
-    app.register("pkg.p2p.opts", asValue(defaultsPeer));
 
     await registerWithContainer(plugin, options);
     await delay(1000); // give some more time for api server to be up
