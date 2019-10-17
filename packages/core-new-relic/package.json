@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-new-relic",
-    "version": "2.6.0-next.1",
+    "version": "2.6.0-next.2",
     "description": "New Relic integration for ARK Core.",
     "license": "MIT",
     "contributors": [
@@ -18,7 +18,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.6.0-next.1",
+        "@arkecosystem/core-container": "^2.6.0-next.2",
         "newrelic": "^5.13.0"
     },
     "devDependencies": {
