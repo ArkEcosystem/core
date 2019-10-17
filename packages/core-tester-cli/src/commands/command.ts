@@ -75,7 +75,8 @@ export abstract class BaseCommand extends Command {
     protected async make(command): Promise<any> {
         const { args, flags } = this.parse(command);
 
-        this.api = new HttpClient(`${flags.host}:${flags.portAPI}/api/`);
+        const host = flags.host.startsWith("http") ? flags.host : `http://${flags.host}`;
+        this.api = new HttpClient(`${host}:${flags.portAPI}/api/`);
 
         await this.setupConfiguration();
         await this.setupConfigurationForCrypto();
@@ -230,7 +231,7 @@ export abstract class BaseCommand extends Command {
         const waitPerBlock =
             this.constants.blocktime * Math.ceil(transactions.length / this.constants.block.maxTransactions);
 
-        await delay(waitPerBlock * 1000);
+        await delay(waitPerBlock * 1200);
     }
 
     private async getNonce(passphrase: string): Promise<string> {
