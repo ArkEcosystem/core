@@ -301,7 +301,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         return { forked: true, blocksToRollback: Math.min(lastBlock.data.height - highestCommonHeight, 5000) };
     }
 
-    public async syncWithNetwork(
+    public async downloadBlocksFromHeight(
         fromBlockHeight: number,
         maxParallelDownloads: number = 25,
     ): Promise<Interfaces.IBlockData[]> {
@@ -350,7 +350,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         } catch (error) {
             this.logger.error(`Could not download blocks: ${error.message}`);
 
-            return this.syncWithNetwork(fromBlockHeight, Math.ceil(maxParallelDownloads / 2)); // retry with half the parallel downloads
+            return this.downloadBlocksFromHeight(fromBlockHeight, Math.ceil(maxParallelDownloads / 2)); // retry with half the parallel downloads
         }
     }
 
