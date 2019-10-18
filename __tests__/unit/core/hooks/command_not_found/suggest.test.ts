@@ -17,6 +17,7 @@ describe("init", () => {
 
         // @ts-ignore
         await init.call(
+            // @ts-ignore
             { warn },
             { id: "topic:command", config: { bin: "ark", commandIDs: ["topic:command1"], findTopic, runCommand } },
         );
@@ -32,6 +33,7 @@ describe("init", () => {
         await expect(
             // @ts-ignore
             init.call(
+                // @ts-ignore
                 { warn: jest.fn() },
                 {
                     id: "topic:command",

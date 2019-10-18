@@ -10,7 +10,7 @@ let messages;
 beforeEach(() => {
     messages = [];
 
-    jest.spyOn(process.stdout, "write").mockImplementation(val => messages.push(val.trim()));
+    jest.spyOn(process.stdout, "write").mockImplementation((value: string) => messages.push(value.trim()));
 });
 
 afterEach(() => jest.restoreAllMocks());

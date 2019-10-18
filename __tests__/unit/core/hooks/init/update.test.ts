@@ -56,6 +56,7 @@ describe.skip("Hooks > Init > Update", () => {
         // Act
         // @ts-ignore
         await init.call(
+            // @ts-ignore
             { warn, config },
             {
                 id: "non-update",
@@ -93,6 +94,7 @@ describe.skip("Hooks > Init > Update", () => {
         // Act
         // @ts-ignore
         await init.call(
+            // @ts-ignore
             { warn, config },
             {
                 id: "non-update",
