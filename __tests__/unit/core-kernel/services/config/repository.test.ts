@@ -19,4 +19,14 @@ describe("ConfigRepository", () => {
         expect(configRepository.get("key", "defaultValue")).toBe("defaultValue");
         expect(configRepository.has("key")).toBeFalse();
     });
+
+    it("should determine if all of the given values are present", () => {
+        configRepository.set("key1", "value");
+
+        expect(configRepository.hasAll(["key1", "key2"])).toBeFalse();
+
+        configRepository.set("key2", "value");
+
+        expect(configRepository.hasAll(["key1", "key2"])).toBeTrue();
+    });
 });

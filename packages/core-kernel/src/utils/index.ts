@@ -8,6 +8,7 @@ import { calculate } from "./supply-calculator";
 import * as Plugins from "./transform-plugins";
 
 export * from "@arkecosystem/utils";
+export * from "./expiration-calculator";
 
 export const delegateCalculator = { calculateApproval, calculateForgedTotal };
 export const expirationCalculator = { calculateTransactionExpiration };

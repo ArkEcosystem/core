@@ -28,8 +28,8 @@ export const calculateApproval = (delegate: Wallet, height?: number): number => 
  */
 export const calculateForgedTotal = (wallet: Wallet): string => {
     const delegate: WalletDelegateAttributes = wallet.getAttribute("delegate");
-    const forgedFees: BigNumber = BigNumber.make(delegate.forgedFees || 0);
-    const forgedRewards: BigNumber = BigNumber.make(delegate.forgedRewards || 0);
+    const forgedFees: BigNumber = BigNumber.make(delegate.forgedFees);
+    const forgedRewards: BigNumber = BigNumber.make(delegate.forgedRewards);
 
     return forgedFees.plus(forgedRewards).toFixed();
 };

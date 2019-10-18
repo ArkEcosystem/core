@@ -118,12 +118,16 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LocalConfigLoader
      */
     private loadCryptography(): void {
-        for (const key of ["genesisBlock", "exceptions", "milestones", "network"]) {
-            const config: KeyValuePair | undefined = this.loadFromLocation([`crypto/${key}.json`]);
+        const files: string[] = ["genesisBlock", "exceptions", "milestones", "network"];
 
-            if (config) {
-                this.configRepository.set(`crypto.${key}`, config);
+        for (const file of files) {
+            if (!existsSync(this.app.configPath(`crypto/${file}.json`))) {
+                return;
             }
+        }
+
+        for (const file of files) {
+            this.configRepository.set(`crypto.${file}`, this.loadFromLocation([`crypto/${file}.json`]));
         }
     }
 
@@ -133,7 +137,7 @@ export class LocalConfigLoader implements ConfigLoader {
      * @returns {KeyValuePair}
      * @memberof LocalConfigLoader
      */
-    private loadFromLocation(files: string[]): KeyValuePair | undefined {
+    private loadFromLocation(files: string[]): KeyValuePair {
         for (const file of files) {
             const fullPath: string = this.app.configPath(file);
 
@@ -143,7 +147,5 @@ export class LocalConfigLoader implements ConfigLoader {
                     : importFresh(fullPath);
             }
         }
-
-        return undefined;
     }
 }

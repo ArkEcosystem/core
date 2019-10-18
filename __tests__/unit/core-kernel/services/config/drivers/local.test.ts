@@ -1,5 +1,5 @@
 import "jest-extended";
-import { dirSync, setGracefulCleanup } from "tmp";
+import { resolve } from "path";
 
 import { LocalConfigLoader } from "@packages/core-kernel/src/services/config/drivers/local";
 import { Application } from "@packages/core-kernel/src/application";
@@ -12,15 +12,12 @@ import {
     EnvironmentConfigurationCannotBeLoaded,
 } from "@packages/core-kernel/src/exceptions/config";
 
-const configPath: string = dirSync().name;
-
 let app: Application;
 let container: interfaces.Container;
 let configLoader: LocalConfigLoader;
 
 beforeEach(() => {
     container = new Container();
-    container.snapshot();
 
     app = new Application(container);
     app.bind(Identifiers.ConfigRepository)
@@ -28,23 +25,52 @@ beforeEach(() => {
         .inSingletonScope();
     app.bind(Identifiers.EventDispatcherService).toConstantValue(new MemoryEventDispatcher());
     app.bind(Identifiers.ServiceProviderRepository).toConstantValue(new ServiceProviderRepository());
-    app.bind("path.config").toConstantValue(configPath);
+    app.bind(Identifiers.ConfigFlags).toConstantValue({});
+    app.bind(Identifiers.ConfigPlugins).toConstantValue({});
+
+    container.snapshot();
 
     configLoader = app.resolve<LocalConfigLoader>(LocalConfigLoader);
 });
 
-afterAll(() => setGracefulCleanup());
+afterEach(() => container.restore());
 
 describe("LocalConfigLoader", () => {
-    it(".loadConfiguration", async () => {
+    it("should throw if it fails to fail the application configuration", async () => {
+        app.rebind("path.config").toConstantValue("does-not-exist");
+
         await expect(configLoader.loadConfiguration()).rejects.toThrowError(
             new ApplicationConfigurationCannotBeLoaded(),
         );
     });
 
-    it(".loadEnvironmentVariables", async () => {
+    it("should throw if it fails to fail the environment variables", async () => {
+        app.rebind("path.config").toConstantValue("does-not-exist");
+
         await expect(configLoader.loadEnvironmentVariables()).rejects.toThrowError(
             new EnvironmentConfigurationCannotBeLoaded(),
         );
+    });
+
+    it("should load the application configuration without cryptography", async () => {
+        app.rebind("path.config").toConstantValue(resolve(__dirname, "../../../__stubs__/config"));
+
+        await configLoader.loadConfiguration();
+
+        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.genesisBlock")).toBeUndefined();
+        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.exceptions")).toBeUndefined();
+        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.milestones")).toBeUndefined();
+        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.network")).toBeUndefined();
+    });
+
+    it("should load the application configuration with cryptography", async () => {
+        app.rebind("path.config").toConstantValue(resolve(__dirname, "../../../__stubs__/config-with-crypto"));
+
+        await configLoader.loadConfiguration();
+
+        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.genesisBlock")).not.toBeUndefined();
+        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.exceptions")).not.toBeUndefined();
+        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.milestones")).not.toBeUndefined();
+        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.network")).not.toBeUndefined();
     });
 });

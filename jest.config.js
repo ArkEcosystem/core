@@ -1,6 +1,6 @@
 module.exports = {
     testEnvironment: "node",
-    bail: true,
+    bail: false,
     verbose: true,
     transform: {
         "^.+\\.tsx?$": "ts-jest",
@@ -14,7 +14,7 @@ module.exports = {
     collectCoverage: false,
     coverageDirectory: "<rootDir>/.coverage",
     collectCoverageFrom: [
-        "packages/core/src/**/{!(index|manager),}.ts",
+        "packages/core-kernel/src/**/{!(index|manager),}.ts",
         "!packages/**/src/**/contracts/**",
         "!packages/**/src/**/enums/**",
         "!packages/**/src/**/exceptions/**",

@@ -16,6 +16,9 @@ export const isBlockChained = (
 
     const isChained: boolean = followsPrevious && isPlusOne && isAfterPreviousSlot;
 
+    // todo: move this out, the function should only make
+    // a decision and return a boolean and not perform logging
+
     if (logger && !isChained) {
         const messagePrefix: string =
             `Block { height: ${nextBlock.height}, id: ${nextBlock.id}, ` +

@@ -18,13 +18,12 @@ export const calculateTransactionExpiration = (
         now: number;
         maxTransactionAge: number;
     },
-): number => {
+): number | undefined => {
     // We ignore transaction.expiration in v1 transactions because it is not signed
     // by the transaction creator.
     // TODO: check if ok
     if (transaction.version >= 2) {
-        // tslint:disable-next-line:no-null-keyword
-        return transaction.expiration || null;
+        return transaction.expiration || undefined;
     }
 
     // Since the user did not specify an expiration we set one by calculating

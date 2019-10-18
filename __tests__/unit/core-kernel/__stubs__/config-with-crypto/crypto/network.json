@@ -1,0 +1,18 @@
+{
+    "name": "unitnet",
+    "messagePrefix": "UNIT message:\n",
+    "bip32": {
+        "public": 70617039,
+        "private": 70615956
+    },
+    "pubKeyHash": 23,
+    "nethash": "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
+    "wif": 186,
+    "slip44": 1,
+    "aip20": 0,
+    "client": {
+        "token": "UARK",
+        "symbol": "UѦ",
+        "explorer": "http://uexplorer.ark.io"
+    }
+}
