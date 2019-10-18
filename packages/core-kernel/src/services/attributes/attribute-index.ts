@@ -6,14 +6,14 @@ type AttributeIndexKey = number | object | string;
 export class AttributeIndex {
     /**
      * @private
-     * @type {Record<string | number, unknown>}
+     * @type {Map<string | number, object>}
      * @memberof AttributeIndex
      */
-    private readonly attributes: Record<string | number, unknown> = {};
+    private readonly attributes: Map<string | number, object> = new Map<string | number, object>();
 
     /**
      * @private
-     * @type {WeakMap<object, unknown>}
+     * @type {WeakMap<object, object>}
      * @memberof AttributeIndex
      */
     private readonly attributesWeak: WeakMap<object, object> = new WeakMap<object, object>();
@@ -75,11 +75,7 @@ export class AttributeIndex {
     public get<T>(id: AttributeIndexKey, attribute: string, defaultValue?: T): T {
         this.assertKnown(attribute);
 
-        if (isObject(id)) {
-            return get(this.attributesWeak.get(id), attribute, defaultValue);
-        }
-
-        return get(this.attributes, `${id}.${attribute}`, defaultValue);
+        return get(this.getCollection(id), attribute, defaultValue);
     }
 
     /**
@@ -93,15 +89,13 @@ export class AttributeIndex {
     public set<T>(id: AttributeIndexKey, attribute: string, value: T): boolean {
         this.assertKnown(attribute);
 
-        if (isObject(id)) {
-            if (!this.attributesWeak.has(id)) {
-                this.attributesWeak.set(id, {});
-            }
+        const collection: any = isObject(id) ? this.attributesWeak : this.attributes;
 
-            set(this.attributesWeak.get(id), attribute, value);
-        } else {
-            set(this.attributes, `${id}.${attribute}`, value);
+        if (!collection.has(id)) {
+            collection.set(id, {});
         }
+
+        set(collection.get(id), attribute, value);
 
         return this.has(id, attribute);
     }
@@ -115,13 +109,17 @@ export class AttributeIndex {
     public forget(id: AttributeIndexKey, attribute: string): boolean {
         this.assertKnown(attribute);
 
-        if (isObject(id)) {
-            return unset(this.attributesWeak.get(id), attribute);
-        }
-
-        unset(this.attributes, `${id}.${attribute}`);
+        unset(this.getCollection(id), attribute);
 
         return this.has(id, attribute);
+    }
+
+    /**
+     * @returns {void}
+     * @memberof AttributeIndex
+     */
+    public flush(): void {
+        this.attributes.clear();
     }
 
     /**
@@ -133,11 +131,7 @@ export class AttributeIndex {
     public has(id: AttributeIndexKey, attribute: string): boolean {
         this.assertKnown(attribute);
 
-        if (isObject(id)) {
-            return has(this.attributesWeak.get(id), attribute);
-        }
-
-        return has(this.attributes, `${id}.${attribute}`);
+        return has(this.getCollection(id), attribute);
     }
 
     /**
@@ -151,5 +145,15 @@ export class AttributeIndex {
             true,
             `Tried to access an unknown attribute: ${attribute}`,
         );
+    }
+
+    /**
+     * @private
+     * @param {AttributeIndexKey} id
+     * @returns {object}
+     * @memberof AttributeIndex
+     */
+    private getCollection(id: AttributeIndexKey): object {
+        return isObject(id) ? this.attributesWeak.get(id) : this.attributes.get(id);
     }
 }
