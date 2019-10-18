@@ -2,7 +2,10 @@ import { strict } from "assert";
 
 import { injectable } from "../../ioc";
 import { AttributeIndex } from "./attribute-index";
-import { IndexOptions } from "./contracts";
+
+interface AttributeIndexOptions {
+    scope: string;
+}
 
 @injectable()
 export class AttributeService {
@@ -15,11 +18,11 @@ export class AttributeService {
 
     /**
      * @param {string} name
-     * @param {IndexOptions} options
+     * @param {AttributeIndexOptions} options
      * @returns {AttributeIndex}
      * @memberof AttributeService
      */
-    public get(name: string, options: IndexOptions = { scope: "default" }): AttributeIndex {
+    public get(name: string, options: AttributeIndexOptions = { scope: "default" }): AttributeIndex {
         const scope: Map<string, AttributeIndex> = this.scope(options.scope);
 
         strict.strictEqual(scope.has(name), true, `Tried to get an unknown index: ${name}`);
@@ -29,11 +32,11 @@ export class AttributeService {
 
     /**
      * @param {string} name
-     * @param {IndexOptions} options
+     * @param {AttributeIndexOptions} options
      * @returns {boolean}
      * @memberof AttributeService
      */
-    public set(name: string, options: IndexOptions = { scope: "default" }): boolean {
+    public set(name: string, options: AttributeIndexOptions = { scope: "default" }): boolean {
         const scope: Map<string, AttributeIndex> = this.scope(options.scope);
 
         strict.strictEqual(scope.has(name), false, `Tried to set a known index: ${name}`);
@@ -45,21 +48,21 @@ export class AttributeService {
 
     /**
      * @param {string} name
-     * @param {IndexOptions} options
+     * @param {AttributeIndexOptions} options
      * @returns {boolean}
      * @memberof AttributeService
      */
-    public forget(name: string, options: IndexOptions = { scope: "default" }): boolean {
+    public forget(name: string, options: AttributeIndexOptions = { scope: "default" }): boolean {
         return this.scope(options.scope).delete(name);
     }
 
     /**
      * @param {string} name
-     * @param {IndexOptions} options
+     * @param {AttributeIndexOptions} options
      * @returns {boolean}
      * @memberof AttributeService
      */
-    public has(name: string, options: IndexOptions = { scope: "default" }): boolean {
+    public has(name: string, options: AttributeIndexOptions = { scope: "default" }): boolean {
         return this.scope(options.scope).has(name);
     }
 

@@ -1,15 +1,22 @@
-import { get, has, set, unset } from "@arkecosystem/utils";
+import { get, has, isObject, set, unset } from "@arkecosystem/utils";
 import { strict } from "assert";
 
-import { Primitive } from "../../types";
+type AttributeIndexKey = number | object | string;
 
 export class AttributeIndex {
     /**
      * @private
-     * @type {Record<string, any>}
+     * @type {Record<string | number, unknown>}
      * @memberof AttributeIndex
      */
-    private readonly attributes: Record<string, Primitive> = {};
+    private readonly attributes: Record<string | number, unknown> = {};
+
+    /**
+     * @private
+     * @type {WeakMap<object, unknown>}
+     * @memberof AttributeIndex
+     */
+    private readonly attributesWeak: WeakMap<object, object> = new WeakMap<object, object>();
 
     /**
      * @private
@@ -65,8 +72,12 @@ export class AttributeIndex {
      * @returns {T}
      * @memberof AttributeIndex
      */
-    public get<T>(id: string, attribute: string, defaultValue?: T): T {
+    public get<T>(id: AttributeIndexKey, attribute: string, defaultValue?: T): T {
         this.assertKnown(attribute);
+
+        if (isObject(id)) {
+            return get(this.attributesWeak.get(id), attribute, defaultValue);
+        }
 
         return get(this.attributes, `${id}.${attribute}`, defaultValue);
     }
@@ -79,10 +90,18 @@ export class AttributeIndex {
      * @returns {boolean}
      * @memberof AttributeIndex
      */
-    public set<T>(id: string, attribute: string, value: T): boolean {
+    public set<T>(id: AttributeIndexKey, attribute: string, value: T): boolean {
         this.assertKnown(attribute);
 
-        set(this.attributes, `${id}.${attribute}`, value);
+        if (isObject(id)) {
+            if (!this.attributesWeak.has(id)) {
+                this.attributesWeak.set(id, {});
+            }
+
+            set(this.attributesWeak.get(id), attribute, value);
+        } else {
+            set(this.attributes, `${id}.${attribute}`, value);
+        }
 
         return this.has(id, attribute);
     }
@@ -93,8 +112,12 @@ export class AttributeIndex {
      * @returns {boolean}
      * @memberof AttributeIndex
      */
-    public forget(id: string, attribute: string): boolean {
+    public forget(id: AttributeIndexKey, attribute: string): boolean {
         this.assertKnown(attribute);
+
+        if (isObject(id)) {
+            return unset(this.attributesWeak.get(id), attribute);
+        }
 
         unset(this.attributes, `${id}.${attribute}`);
 
@@ -107,8 +130,12 @@ export class AttributeIndex {
      * @returns {boolean}
      * @memberof AttributeIndex
      */
-    public has(id: string, attribute: string): boolean {
+    public has(id: AttributeIndexKey, attribute: string): boolean {
         this.assertKnown(attribute);
+
+        if (isObject(id)) {
+            return has(this.attributesWeak.get(id), attribute);
+        }
 
         return has(this.attributes, `${id}.${attribute}`);
     }
