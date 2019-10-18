@@ -8,6 +8,12 @@ let indexes: AttributeService;
 beforeEach(() => (indexes = new AttributeService()));
 
 describe("AttributeService", () => {
+    it("should throw if the given index does not exist in the given scope", () => {
+        indexes.set("block", { scope: "queued" });
+
+        expect(() => indexes.get("block")).toThrow("Tried to get an unknown index: block");
+    });
+
     it("should return the given index", () => {
         indexes.set("block");
 
