@@ -1,5 +1,6 @@
 import { injectable } from "../ioc";
 import { ServiceProvider } from "./service-provider";
+import { InvalidArgumentException } from "../exceptions/logic";
 
 /**
  * @export
@@ -44,6 +45,15 @@ export class ServiceProviderRepository {
     private readonly deferredProviders: Set<string> = new Set<string>();
 
     /**
+     * All of the registered service provider aliases.
+     *
+     * @private
+     * @type {Map<string, string>}
+     * @memberof ServiceProviderRepository
+     */
+    private readonly aliases: Map<string, string> = new Map<string, string>();
+
+    /**
      * @returns {Array<[string, ServiceProvider]>}
      * @memberof ServiceProviderRepository
      */
@@ -65,7 +75,7 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public get(name: string): ServiceProvider {
-        return this.serviceProviders.get(name);
+        return this.serviceProviders.get(this.aliases.get(name) || name);
     }
 
     /**
@@ -75,6 +85,23 @@ export class ServiceProviderRepository {
      */
     public set(name: string, provider: ServiceProvider): void {
         this.serviceProviders.set(name, provider);
+    }
+
+    /**
+     * @param {string} name
+     * @param {string} alias
+     * @memberof ServiceProviderRepository
+     */
+    public alias(name: string, alias: string): void {
+        if (this.aliases.has(alias)) {
+            throw new InvalidArgumentException(`The alias [${alias}] is already in use.`);
+        }
+
+        if (!this.serviceProviders.has(name)) {
+            throw new InvalidArgumentException(`The service provider [${name}] is unknown.`);
+        }
+
+        this.aliases.set(alias, name);
     }
 
     /**

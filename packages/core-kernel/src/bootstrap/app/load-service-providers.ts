@@ -54,6 +54,12 @@ export class LoadServiceProviders implements Bootstrapper {
             serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, pkg.options));
 
             this.serviceProviderRepository.set(pkg.package, serviceProvider);
+
+            const alias: string | undefined = serviceProvider.alias();
+
+            if (alias) {
+                this.serviceProviderRepository.alias(pkg.package, alias);
+            }
         }
     }
 

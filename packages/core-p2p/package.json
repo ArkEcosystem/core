@@ -57,5 +57,10 @@
     },
     "publishConfig": {
         "access": "public"
+    },
+    "arkecosystem": {
+        "core": {
+            "alias": "p2p"
+        }
     }
 }

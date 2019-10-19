@@ -6,7 +6,7 @@ export const transformPeer = model => {
         ip: model.ip,
         port: +app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-p2p")
+            .get("p2p")
             .config()
             .get("server.port"),
         ports: model.ports,

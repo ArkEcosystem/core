@@ -56,7 +56,7 @@ export class NodeController extends Controller {
             const network = this.config.get("network");
             const dynamicFees = app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-transaction-pool")
+                .get("transactionPool")
                 .config()
                 .get<{ enabled?: boolean }>("dynamicFees");
 

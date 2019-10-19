@@ -45,5 +45,10 @@
     },
     "publishConfig": {
         "access": "public"
+    },
+    "arkecosystem": {
+        "core": {
+            "alias": "transactionPool"
+        }
     }
 }

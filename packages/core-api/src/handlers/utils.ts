@@ -37,7 +37,7 @@ export const respondWithCache = (data, h): any => {
     if (
         !app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-state")
+            .get("state")
             .config()
             .get<boolean>("plugins.cache.enabled")
     ) {

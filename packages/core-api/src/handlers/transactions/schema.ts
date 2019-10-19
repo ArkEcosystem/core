@@ -65,7 +65,7 @@ export const store: object = {
             // todo: the container is not available at the time this file is loaded
             // maxItems: app
             //     .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            //     .get("@arkecosystem/core-transaction-pool")
+            //     .get("transactionPool")
             //     .config()
             //     .get<number>("maxTransactionsPerRequest"),
         },

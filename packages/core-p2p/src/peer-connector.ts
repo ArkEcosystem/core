@@ -29,12 +29,12 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
             ackTimeout: Math.max(
                 app
                     .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                    .get("@arkecosystem/core-state")
+                    .get("p2p")
                     .config()
                     .get<number>("getBlocksTimeout"),
                 app
                     .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                    .get("@arkecosystem/core-state")
+                    .get("p2p")
                     .config()
                     .get<number>("verifyTimeout"),
             ),

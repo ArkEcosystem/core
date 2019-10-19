@@ -90,6 +90,18 @@ describe("ServiceProvider", () => {
         expect(app.resolve(StubServiceProvider).version()).toBeUndefined();
     });
 
+    it(".alias", () => {
+        const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
+
+        serviceProvider.setManifest(new PluginManifest().discover(resolve(__dirname, "../__stubs__/stub-plugin")));
+
+        expect(serviceProvider.alias()).toBe("some-alias");
+    });
+
+    it(".alias (no manifest)", () => {
+        expect(app.resolve(StubServiceProvider).alias()).toBeUndefined();
+    });
+
     it(".config", () => {
         app.bind(Identifiers.ConfigRepository)
             .to(ConfigRepository)

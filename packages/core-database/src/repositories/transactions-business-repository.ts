@@ -85,7 +85,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
             days,
             app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-state")
+                .get("state")
                 .config()
                 .get<number>("dynamicFees.minFeeBroadcast"),
         );

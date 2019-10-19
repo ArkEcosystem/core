@@ -31,6 +31,21 @@ describe("AttributeIndex", () => {
         expect(store.isBound("someAttribute")).toBeFalse();
     });
 
+    it("should remove all bound values when flushed", () => {
+        store.bind("someAttribute");
+
+        store.set("id1", "someAttribute", "value");
+        store.set("id2", "someAttribute", "value");
+
+        expect(store.has("id1", "someAttribute")).toBeTrue();
+        expect(store.has("id2", "someAttribute")).toBeTrue();
+
+        store.flush();
+
+        expect(store.has("id1", "someAttribute")).toBeFalse();
+        expect(store.has("id2", "someAttribute")).toBeFalse();
+    });
+
     describe.each([["number", 1], ["string", "stringKey"], ["reference", new UseByReference()]])(
         "works with numbers, strings and references as keys",
         (idType, id) => {

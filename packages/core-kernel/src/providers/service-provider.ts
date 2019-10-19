@@ -117,6 +117,20 @@ export abstract class ServiceProvider {
     }
 
     /**
+     * Get the alias of the service provider.
+     *
+     * @returns {string}
+     * @memberof ServiceProvider
+     */
+    public alias(): string | undefined {
+        if (this.packageManifest) {
+            return this.packageManifest.get("arkecosystem.core.alias");
+        }
+
+        return undefined;
+    }
+
+    /**
      * Get the configuration of the service provider.
      *
      * @returns {PluginConfiguration}

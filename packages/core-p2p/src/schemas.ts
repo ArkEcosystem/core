@@ -46,7 +46,7 @@ export const requestSchemas = {
                     maxItems: app.isBound(Container.Identifiers.TransactionPoolService)
                         ? app
                               .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                              .get("@arkecosystem/core-p2p")
+                              .get("transactionPool")
                               .config()
                               .get<number>("maxTransactionsPerRequest") || 40
                         : 40,

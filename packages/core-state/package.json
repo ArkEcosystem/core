@@ -32,5 +32,10 @@
     },
     "publishConfig": {
         "access": "public"
+    },
+    "arkecosystem": {
+        "core": {
+            "alias": "state"
+        }
     }
 }

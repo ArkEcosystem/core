@@ -1,5 +1,10 @@
 {
     "name": "stub-plugin",
     "version": "1.0.0",
-    "main": "dist/index"
+    "main": "dist/index",
+    "arkecosystem": {
+        "core": {
+            "alias": "some-alias"
+        }
+    }
 }

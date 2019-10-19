@@ -8,7 +8,7 @@ export class Peer implements Contracts.P2P.Peer {
     public readonly ports: Contracts.P2P.PeerPorts = {};
     public readonly port: number = +app
         .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-        .get("@arkecosystem/core-state")
+        .get("p2p")
         .config()
         .get<number>("server.port");
 

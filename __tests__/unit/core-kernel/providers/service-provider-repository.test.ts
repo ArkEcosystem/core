@@ -53,6 +53,34 @@ describe("ServiceProviderRepository", () => {
         expect(serviceProviderRepository.has("stub")).toBeTrue();
     });
 
+    describe(".alias", () => {
+        it("should throw if a service provider does not exist", () => {
+            expect(() => serviceProviderRepository.alias("name", "alias")).toThrow(
+                "The service provider [name] is unknown.",
+            );
+        });
+
+        it("should throw if an alias is already in use", () => {
+            serviceProviderRepository.set("name", new StubServiceProvider());
+
+            serviceProviderRepository.alias("name", "alias");
+
+            expect(() => serviceProviderRepository.alias("name", "alias")).toThrow(
+                "The alias [alias] is already in use.",
+            );
+        });
+
+        it("should create an alias", () => {
+            serviceProviderRepository.set("name", new StubServiceProvider());
+
+            expect(serviceProviderRepository.get("alias")).toBeUndefined();
+
+            serviceProviderRepository.alias("name", "alias");
+
+            expect(serviceProviderRepository.get("alias")).not.toBeUndefined();
+        });
+    });
+
     it(".loaded", () => {
         expect(serviceProviderRepository.loaded("stub")).toBeFalse();
 
