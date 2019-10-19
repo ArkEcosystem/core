@@ -622,10 +622,10 @@ export class DatabaseService implements Database.IDatabaseService {
             this.logger.warn("No block found in database");
 
             lastBlock = await this.createGenesisBlock();
+        }
 
-            if (process.env.CORE_ENV === "test") {
-                Managers.configManager.getMilestone().aip11 = true;
-            }
+        if (process.env.CORE_ENV === "test") {
+            Managers.configManager.getMilestone().aip11 = true;
         }
 
         this.configureState(lastBlock);
