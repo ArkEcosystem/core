@@ -30,7 +30,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
     }
 
     public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
+        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(): Promise<void> {
