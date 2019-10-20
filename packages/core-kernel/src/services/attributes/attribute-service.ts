@@ -57,6 +57,21 @@ export class AttributeService {
     }
 
     /**
+     * @param {string} [name]
+     * @returns {boolean}
+     * @memberof AttributeService
+     */
+    public flush(name?: string): boolean {
+        const scope: Map<string, Map<string, AttributeIndex>> | Map<string, AttributeIndex> = name
+            ? this.scope(name)
+            : this.scopes;
+
+        scope.clear();
+
+        return scope.size === 0;
+    }
+
+    /**
      * @param {string} name
      * @param {AttributeIndexOptions} options
      * @returns {boolean}
@@ -66,7 +81,13 @@ export class AttributeService {
         return this.scope(options.scope).has(name);
     }
 
-    private scope(name: string) {
+    /**
+     * @private
+     * @param {string} name
+     * @returns {Map<string, AttributeIndex>}
+     * @memberof AttributeService
+     */
+    private scope(name: string): Map<string, AttributeIndex> {
         if (this.scopes.has(name)) {
             return this.scopes.get(name);
         }

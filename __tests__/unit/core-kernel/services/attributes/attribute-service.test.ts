@@ -30,7 +30,7 @@ describe("AttributeService", () => {
         expect(() => indexes.set("block")).toThrow("Tried to set a known index: block");
     });
 
-    it("should forget the given index", () => {
+    it("should forget all attributes of the given index", () => {
         indexes.set("block");
 
         expect(indexes.get("block")).toBeInstanceOf(AttributeIndex);
@@ -40,5 +40,31 @@ describe("AttributeService", () => {
 
         expect(() => indexes.get("block")).toThrow("Tried to get an unknown index: block");
         expect(indexes.has("block")).toBeFalse();
+    });
+
+    it("should forget all indexes of the default scope", () => {
+        indexes.set("block");
+
+        expect(indexes.get("block")).toBeInstanceOf(AttributeIndex);
+        expect(indexes.has("block")).toBeTrue();
+
+        indexes.flush();
+
+        expect(() => indexes.get("block")).toThrow("Tried to get an unknown index: block");
+        expect(indexes.has("block")).toBeFalse();
+    });
+
+    it("should forget all attributes of the given scope", () => {
+        const opts: { scope: string } = { scope: "special" };
+
+        indexes.set("block", opts);
+
+        expect(indexes.get("block", opts)).toBeInstanceOf(AttributeIndex);
+        expect(indexes.has("block", opts)).toBeTrue();
+
+        indexes.flush("special");
+
+        expect(() => indexes.get("block", opts)).toThrow("Tried to get an unknown index: block");
+        expect(indexes.has("block", opts)).toBeFalse();
     });
 });

@@ -1,4 +1,4 @@
-import { get, has, isObject, set, unset } from "@arkecosystem/utils";
+import { get, has, isObject, set, unset, cloneDeep } from "@arkecosystem/utils";
 import { strict } from "assert";
 
 type AttributeIndexKey = number | object | string;
@@ -16,7 +16,7 @@ export class AttributeIndex {
      * @type {WeakMap<object, object>}
      * @memberof AttributeIndex
      */
-    private readonly attributesWeak: WeakMap<object, object> = new WeakMap<object, object>();
+    private attributesWeak: WeakMap<object, object> = new WeakMap<object, object>();
 
     /**
      * @private
@@ -101,25 +101,33 @@ export class AttributeIndex {
     }
 
     /**
-     * @param {string} id
-     * @param {string} attribute
+     * @param {AttributeIndexKey} id
+     * @param {string} [attribute]
      * @returns {boolean}
      * @memberof AttributeIndex
      */
-    public forget(id: AttributeIndexKey, attribute: string): boolean {
-        this.assertKnown(attribute);
+    public forget(id: AttributeIndexKey, attribute?: string): boolean {
+        if (attribute) {
+            this.assertKnown(attribute);
 
-        unset(this.getCollection(id), attribute);
+            unset(this.getCollection(id), attribute);
+        } else {
+            isObject(id) ? this.attributesWeak.delete(id) : this.attributes.delete(id);
+        }
 
         return this.has(id, attribute);
     }
 
     /**
-     * @returns {void}
+     * @returns {boolean}
      * @memberof AttributeIndex
      */
-    public flush(): void {
+    public flush(): boolean {
         this.attributes.clear();
+
+        this.attributesWeak = new WeakMap<object, object>();
+
+        return this.attributes.size === 0;
     }
 
     /**
@@ -128,10 +136,34 @@ export class AttributeIndex {
      * @returns {boolean}
      * @memberof AttributeIndex
      */
-    public has(id: AttributeIndexKey, attribute: string): boolean {
-        this.assertKnown(attribute);
+    public has(id: AttributeIndexKey, attribute?: string): boolean {
+        if (attribute) {
+            this.assertKnown(attribute);
 
-        return has(this.getCollection(id), attribute);
+            return has(this.getCollection(id), attribute);
+        }
+
+        if (isObject(id)) {
+            return this.attributesWeak.has(id);
+        }
+
+        return this.attributes.has(id);
+    }
+
+    /**
+     * @param {AttributeIndexKey} from
+     * @param {AttributeIndexKey} to
+     * @returns {void}
+     * @memberof AttributeIndex
+     */
+    public clone(from: AttributeIndexKey, to: AttributeIndexKey): void {
+        if (!this.attributes.has(from as string) && !this.attributesWeak.has(from as object)) {
+            return undefined;
+        }
+
+        const collection = cloneDeep(this.getCollection(from));
+
+        isObject(to) ? this.attributesWeak.set(to, collection) : this.attributes.set(to, collection);
     }
 
     /**

@@ -10,7 +10,7 @@ import { WalletIndex } from "./wallet-index";
 export class WalletRepository implements Contracts.State.WalletRepository {
     protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 
-    constructor() {
+    public constructor() {
         this.reset();
 
         this.registerIndex(

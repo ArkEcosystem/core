@@ -79,6 +79,64 @@ describe("AttributeIndex", () => {
                     expect(store.get(id, "collection.key3")).toBe("value3");
                 });
 
+                it("should forget the given ID", () => {
+                    store.bind("someAttribute");
+
+                    store.set(id, "someAttribute", "value");
+
+                    expect(store.has(id, "someAttribute")).toBeTrue();
+
+                    store.forget(id, "someAttribute");
+
+                    expect(store.has(id, "someAttribute")).toBeFalse();
+                });
+
+                it("should forget the given attribute", () => {
+                    store.bind("someAttribute");
+
+                    store.set(id, "someAttribute", "value");
+
+                    expect(store.has(id, "someAttribute")).toBeTrue();
+
+                    store.forget(id, "someAttribute");
+
+                    expect(store.has(id, "someAttribute")).toBeFalse();
+                });
+
+                it("should clone the attributes", () => {
+                    store.bind("someAttribute");
+
+                    expect(store.has(id, "someAttribute")).toBeFalse();
+                    expect(store.has("cloneKey", "someAttribute")).toBeFalse();
+
+                    store.set(id, "someAttribute", "value");
+
+                    expect(store.has(id, "someAttribute")).toBeTrue();
+
+                    store.clone(id, "cloneKey");
+
+                    expect(store.has(id, "someAttribute")).toBeTrue();
+                    expect(store.has("cloneKey", "someAttribute")).toBeTrue();
+                });
+
+                it("should forget all attributes", () => {
+                    store.bind("someAttribute");
+
+                    expect(store.has(id, "someAttribute")).toBeFalse();
+                    expect(store.has("cloneKey", "someAttribute")).toBeFalse();
+
+                    store.set(id, "someAttribute", "value");
+                    store.set("cloneKey", "someAttribute", "value");
+
+                    expect(store.has(id, "someAttribute")).toBeTrue();
+                    expect(store.has("cloneKey", "someAttribute")).toBeTrue();
+
+                    store.flush();
+
+                    expect(store.has(id, "someAttribute")).toBeFalse();
+                    expect(store.has("cloneKey", "someAttribute")).toBeFalse();
+                });
+
                 it("should throw if an attribute is tried to be set on an unknown attribute", () => {
                     expect(() => store.set(id, "someAttribute", "value")).toThrow(
                         "Tried to access an unknown attribute: someAttribute",
