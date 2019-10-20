@@ -237,7 +237,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             }
         } else {
             if (empty) {
-                logger.info("No new block found on this peer");
+                logger.info(`Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`);
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock)}`);
