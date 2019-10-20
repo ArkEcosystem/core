@@ -172,7 +172,7 @@ export class RegisterServiceProviders implements Bootstrapper {
     private shouldBeIncluded(name: string): boolean {
         const includes: string[] = this.app
             .get<ConfigRepository>(Identifiers.ConfigRepository)
-            .get<string[]>("include", []);
+            .get<string[]>("app.pluginOptions.include", []);
 
         return includes.length > 0 ? includes.includes(name) : true;
     }
@@ -186,7 +186,7 @@ export class RegisterServiceProviders implements Bootstrapper {
     private shouldBeExcluded(name: string): boolean {
         const excludes: string[] = this.app
             .get<ConfigRepository>(Identifiers.ConfigRepository)
-            .get<string[]>("exclude", []);
+            .get<string[]>("app.pluginOptions.exclude", []);
 
         return excludes.length > 0 ? excludes.includes(name) : false;
     }
