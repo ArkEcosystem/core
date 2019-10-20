@@ -167,6 +167,7 @@ describe("API 2.0 - Wallets", () => {
                             type: j % 2 === 0 ? 1 : 2,
                             value: 100 * (j + 1),
                         },
+                        timestamp: 0,
                     };
                 }
 
