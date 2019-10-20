@@ -177,6 +177,10 @@ export abstract class ServiceProvider {
      * @memberof ServiceProvider
      */
     public dependencies(): Kernel.PluginDependency[] {
+        if (this.packageManifest) {
+            return this.packageManifest.get("arkecosystem.core.dependencies", []);
+        }
+
         return [];
     }
 
@@ -207,6 +211,10 @@ export abstract class ServiceProvider {
      * @memberof ServiceProvider
      */
     public async required(): Promise<boolean> {
+        if (this.packageManifest) {
+            return this.packageManifest.get("arkecosystem.core.required", false);
+        }
+
         return false;
     }
 }

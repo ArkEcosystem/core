@@ -126,6 +126,14 @@ describe("ServiceProvider", () => {
     });
 
     it(".dependencies", () => {
+        const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
+
+        serviceProvider.setManifest(new PluginManifest().discover(resolve(__dirname, "../__stubs__/stub-plugin")));
+
+        expect(serviceProvider.dependencies()).toEqual([{ name: "some-dependency" }]);
+    });
+
+    it(".dependencies (no manifest)", () => {
         expect(app.resolve(StubServiceProvider).dependencies()).toEqual([]);
     });
 
@@ -137,7 +145,15 @@ describe("ServiceProvider", () => {
         await expect(app.resolve(StubServiceProvider).disableWhen()).resolves.toBeFalse();
     });
 
-    it(".required", async () => {
-        await expect(app.resolve(StubServiceProvider).required()).resolves.toBeFalse();
+    it(".required", () => {
+        const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
+
+        serviceProvider.setManifest(new PluginManifest().discover(resolve(__dirname, "../__stubs__/stub-plugin")));
+
+        expect(serviceProvider.required()).resolves.toBeTrue();
+    });
+
+    it(".required (no manifest)", () => {
+        expect(app.resolve(StubServiceProvider).required()).resolves.toBeFalse();
     });
 });

@@ -74,7 +74,7 @@ describe("RegisterServiceProviders", () => {
             .to(ConfigRepository)
             .inSingletonScope();
 
-        app.get<ConfigRepository>(Identifiers.ConfigRepository).set("include", ["stub-other"]);
+        app.get<ConfigRepository>(Identifiers.ConfigRepository).set("app.pluginOptions.include", ["stub-other"]);
 
         const serviceProvider: ServiceProvider = new StubServiceProvider();
         const spyRegister = jest.spyOn(serviceProvider, "register");
@@ -90,7 +90,7 @@ describe("RegisterServiceProviders", () => {
             .to(ConfigRepository)
             .inSingletonScope();
 
-        app.get<ConfigRepository>(Identifiers.ConfigRepository).set("exclude", ["stub"]);
+        app.get<ConfigRepository>(Identifiers.ConfigRepository).set("app.pluginOptions.exclude", ["stub"]);
 
         const serviceProvider: ServiceProvider = new StubServiceProvider();
         const spyRegister = jest.spyOn(serviceProvider, "register");

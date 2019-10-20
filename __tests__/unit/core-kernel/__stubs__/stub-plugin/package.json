@@ -4,7 +4,11 @@
     "main": "dist/index",
     "arkecosystem": {
         "core": {
-            "alias": "some-alias"
+            "required": true,
+            "alias": "some-alias",
+            "dependencies": [{
+                "name": "some-dependency"
+            }]
         }
     }
 }

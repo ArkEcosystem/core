@@ -1,6 +1,6 @@
 import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Utils } from "@arkecosystem/crypto";
+import { Utils, Managers } from "@arkecosystem/crypto";
 
 // todo: review the implementation
 export class StateBuilder {
@@ -68,8 +68,8 @@ export class StateBuilder {
     }
 
     private verifyWalletsConsistency(): void {
-        const genesisPublicKeys: Record<string, true> = app
-            .config("genesisBlock.transactions")
+        const genesisPublicKeys: Record<string, true> = Managers.configManager
+            .get("genesisBlock.transactions")
             .reduce((acc, curr) => Object.assign(acc, { [curr.senderPublicKey]: true }), {});
 
         for (const wallet of this.walletRepository.allByAddress()) {
