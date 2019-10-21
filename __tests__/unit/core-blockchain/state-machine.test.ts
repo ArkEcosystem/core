@@ -372,7 +372,7 @@ describe("State Machine", () => {
                 jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([]);
                 // tslint:disable-next-line: await-promise
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "NOBLOCK");
-                expect(loggerInfo).toHaveBeenCalledWith("No new block found on this peer");
+                expect(loggerInfo).toHaveBeenCalledWith("Could not download any blocks from any peer from height 2");
             });
         });
 
