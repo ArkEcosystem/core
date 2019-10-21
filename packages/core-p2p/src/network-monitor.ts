@@ -24,6 +24,18 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
     private initializing: boolean = true;
     private coldStart: boolean = false;
 
+    /**
+     * If downloading some chunk fails but nevertheless we manage to download higher chunks,
+     * then they are stored here for later retrieval.
+     */
+    private downloadedChunksCache: { [key: string]: Interfaces.IBlockData[] } = {};
+
+    /**
+     * Maximum number of entries to keep in `downloadedChunksCache`.
+     * At 400 blocks per chunk, 100 chunks would amount to 40k blocks.
+     */
+    private downloadedChunksCacheMax: number = 100;
+
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 
@@ -345,6 +357,15 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + chunkSize}]`;
 
             downloadJobs.push(async () => {
+                if (this.downloadedChunksCache[height] !== undefined) {
+                    downloadResults[i] = this.downloadedChunksCache[height];
+                    // Remove it from the cache so that it does not get served many times
+                    // from the cache. In case of network reorganization or downloading
+                    // flawed chunks we want to re-download from another peer.
+                    delete this.downloadedChunksCache[height];
+                    return;
+                }
+
                 let blocks: Interfaces.IBlockData[];
                 let peer: P2P.IPeer;
                 // As a first peer to try, pick such a peer that different jobs use different peers.
@@ -399,12 +420,22 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         let downloadedBlocks: Interfaces.IBlockData[] = [];
 
-        for (let i = 0; i < chunksToDownload; i++) {
+        let i;
+
+        for (i = 0; i < chunksToDownload; i++) {
             if (downloadResults[i] === undefined) {
                 this.logger.error(firstFailureMessage);
                 break;
             }
             downloadedBlocks = [...downloadedBlocks, ...downloadResults[i]];
+        }
+
+        // Save any downloaded chunks that are higher than a failed chunk for later reuse.
+        for (i++; i < chunksToDownload; i++) {
+            if (downloadResults[i] !== undefined &&
+                Object.keys(this.downloadedChunksCache).length <= this.downloadedChunksCacheMax) {
+                this.downloadedChunksCache[fromBlockHeight + chunkSize * i] = downloadResults[i];
+            }
         }
 
         return downloadedBlocks;

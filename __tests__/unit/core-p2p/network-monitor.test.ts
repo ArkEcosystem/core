@@ -318,7 +318,8 @@ describe("NetworkMonitor", () => {
         });
 
         it("should handle when getPeerBlocks throws", async () => {
-            communicator.getPeerBlocks = jest.fn().mockImplementation(mockedGetPeerBlocks);
+            const mockFn = jest.fn().mockImplementation(mockedGetPeerBlocks);
+            communicator.getPeerBlocks = mockFn;
 
             const numPeers = 5;
 
@@ -338,12 +339,40 @@ describe("NetworkMonitor", () => {
             }
 
             const chunksToDownloadBeforeThrow = 2;
-            const fromHeight = throwInDownloadAtHeight - 1 - chunksToDownloadBeforeThrow * downloadChunkSize;
+            let fromHeight = throwInDownloadAtHeight - 1 - chunksToDownloadBeforeThrow * downloadChunkSize;
 
-            const downloadedBlocks = await monitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
-            const expectedBlocks = expectedBlocksFromHeight(fromHeight).slice(0, chunksToDownloadBeforeThrow * downloadChunkSize);
+            let downloadedBlocks = await monitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
+            let expectedBlocks = expectedBlocksFromHeight(fromHeight).slice(0, chunksToDownloadBeforeThrow * downloadChunkSize);
 
             expect(downloadedBlocks).toEqual(expectedBlocks);
+
+            expect(mockFn.mock.calls.length).toEqual(numPeers);
+            for (let i = 0; i < numPeers; i++) {
+                expect(mockFn.mock.calls[i][1].fromBlockHeight).toEqual(fromHeight + i * downloadChunkSize);
+            }
+
+            // See that the downloaded higher 2 chunks would be returned from the cache.
+
+            mockFn.mock.calls = [];
+
+            fromHeight = throwInDownloadAtHeight - 1 + downloadChunkSize;
+
+            downloadedBlocks = await monitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
+            expectedBlocks = expectedBlocksFromHeight(fromHeight).slice(0, numPeers * downloadChunkSize);
+
+            expect(downloadedBlocks).toEqual(expectedBlocks);
+
+            const numFailedChunks = 1;
+            const numCachedChunks = numPeers - chunksToDownloadBeforeThrow - numFailedChunks;
+
+            expect(mockFn.mock.calls.length).toEqual(numPeers - numCachedChunks);
+            for (let i = 0; i < numPeers - numCachedChunks; i++) {
+                expect(
+                    mockFn.mock.calls[i][1].fromBlockHeight
+                ).toEqual(
+                    fromHeight + (i + numCachedChunks) * downloadChunkSize
+                );
+            }
         });
 
         it("should still download blocks from 1 peer if network height === our height", async () => {
