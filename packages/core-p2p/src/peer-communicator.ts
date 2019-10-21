@@ -94,21 +94,27 @@ export class PeerCommunicator {
                 try {
                     let valid: boolean = false;
 
+                    const peerHostPort = `${peer.ip}:${plugin.port}`;
+
                     if (name.includes("core-api") || name.includes("core-wallet-api")) {
                         const { data, statusCode } = await Utils.http.get(
-                            `http://${peer.ip}:${plugin.port}/api/node/configuration`,
+                            `http://${peerHostPort}/api/node/configuration`,
                         );
 
                         if (statusCode === 200) {
-                            if (data.data.nethash === Managers.configManager.get("network.nethash")) {
+                            const ourNethash = Managers.configManager.get("network.nethash");
+                            const hisNethash = data.data.nethash;
+                            if (ourNethash === hisNethash) {
                                 valid = true;
                             } else {
-                                this.logger.debug("Disconnecting from peer, because api returned a different nethash.");
+                                this.logger.warning(
+                                    `Disconnecting from ${peerHostPort}: ` +
+                                    `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`);
                                 this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
                             }
                         }
                     } else {
-                        const { statusCode } = await Utils.http.get(`http://${peer.ip}:${plugin.port}/`);
+                        const { statusCode } = await Utils.http.get(`http://${peerHostPort}/`);
                         valid = statusCode === 200;
                     }
 
