@@ -311,7 +311,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             return [];
         }
 
-        const peersNotForked: P2P.IPeer[] = peersAll.filter(peer => !peer.isForked());
+        const peersNotForked: P2P.IPeer[] = shuffle(peersAll.filter(peer => !peer.isForked()));
 
         if (peersNotForked.length === 0) {
             this.logger.error(
@@ -347,8 +347,15 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             downloadJobs.push(async () => {
                 let blocks: Interfaces.IBlockData[];
                 let peer: P2P.IPeer;
+                // As a first peer to try, pick such a peer that different jobs use different peers.
+                // If that peer fails then pick randomly from the remaining peers that have not
+                // been first-attempt for any job.
+                const peersToTry = [
+                    peersNotForked[i],
+                    ...shuffle(peersNotForked.slice(chunksToDownload))
+                ];
 
-                for (peer of shuffle(peersNotForked)) {
+                for (peer of peersToTry) {
                     blocks = await this.communicator.downloadBlocks(peer, height);
 
                     if (blocks.length === chunkSize || (isLastChunk && blocks.length > 0)) {
@@ -368,8 +375,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                 someJobFailed = true;
 
                 throw new Error(
-                    `Could not download blocks ${blocksRange} from any peer. ` +
-                    `Last attempt returned ${blocks.length} block(s) from peer ${peer.ip}.`
+                    `Could not download blocks ${blocksRange} from any of ${peersToTry.length} ` +
+                    `peer(s). Last attempt returned ${blocks.length} block(s) from peer ${peer.ip}.`
                 );
             });
 
