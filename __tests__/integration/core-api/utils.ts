@@ -139,9 +139,12 @@ class Helpers {
         expect(lock).toHaveProperty("recipientId");
         expect(lock).toHaveProperty("amount");
         expect(lock).toHaveProperty("secretHash");
-        expect(lock).toHaveProperty("timestamp");
         expect(lock).toHaveProperty("expirationType");
         expect(lock).toHaveProperty("expirationValue");
+        expect(lock.timestamp).toBeObject();
+        expect(lock.timestamp.epoch).toBeNumber();
+        expect(lock.timestamp.unix).toBeNumber();
+        expect(lock.timestamp.human).toBeString();
     }
 
     public async createTransaction() {
