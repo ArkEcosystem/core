@@ -313,7 +313,7 @@ describe("State Machine", () => {
             });
 
             it("should dispatch DOWNLOADED if new blocks downloaded are chained", async () => {
-                jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([
+                jest.spyOn(getMonitor, "downloadBlocksFromHeight").mockReturnValue([
                     {
                         numberOfTransactions: 2,
                         previousBlock: genesisBlock.id,
@@ -348,7 +348,7 @@ describe("State Machine", () => {
                 blockchain.queue.idle = () => true;
                 blockchain.queue.length = () => 0;
 
-                jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([downloadedBlock]);
+                jest.spyOn(getMonitor, "downloadBlocksFromHeight").mockReturnValue([downloadedBlock]);
                 // tslint:disable-next-line: await-promise
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "NOBLOCK");
 
@@ -369,7 +369,7 @@ describe("State Machine", () => {
             });
 
             it("should dispatch NOBLOCK if new blocks downloaded are empty", async () => {
-                jest.spyOn(getMonitor, "syncWithNetwork").mockReturnValue([]);
+                jest.spyOn(getMonitor, "downloadBlocksFromHeight").mockReturnValue([]);
                 // tslint:disable-next-line: await-promise
                 await expect(() => actionMap.downloadBlocks()).toDispatch(blockchain, "NOBLOCK");
                 expect(loggerInfo).toHaveBeenCalledWith("No new block found on this peer");

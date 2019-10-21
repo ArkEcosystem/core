@@ -220,7 +220,7 @@ describe("NetworkMonitor", () => {
         });
     });
 
-    describe("syncWithNetwork", () => {
+    describe("downloadBlocksFromHeight", () => {
         it("should download blocks from 1 peer", async () => {
             const mockBlock = { id: "123456" };
 
@@ -239,7 +239,7 @@ describe("NetworkMonitor", () => {
                 }),
             );
 
-            expect(await monitor.syncWithNetwork(1)).toEqual([mockBlock]);
+            expect(await monitor.downloadBlocksFromHeight(1)).toEqual([mockBlock]);
         });
 
         it("should download blocks in parallel from 25 peers max", async () => {
@@ -266,7 +266,7 @@ describe("NetworkMonitor", () => {
             for (let i = 0; i < 25; i++) {
                 expectedBlocks.push({ id: `11${1 + i * 400}` });
             }
-            expect(await monitor.syncWithNetwork(1)).toEqual(expectedBlocks);
+            expect(await monitor.downloadBlocksFromHeight(1)).toEqual(expectedBlocks);
         });
 
         it("should download blocks in parallel from all peers if less than 25 peers", async () => {
@@ -293,7 +293,7 @@ describe("NetworkMonitor", () => {
             for (let i = 0; i < 18; i++) {
                 expectedBlocks.push({ id: `11${1 + i * 400}` });
             }
-            expect(await monitor.syncWithNetwork(1)).toEqual(expectedBlocks);
+            expect(await monitor.downloadBlocksFromHeight(1)).toEqual(expectedBlocks);
         });
 
         it("should download blocks in parallel until median network height and no more", async () => {
@@ -320,7 +320,7 @@ describe("NetworkMonitor", () => {
             for (let i = 0; i < 4; i++) {
                 expectedBlocks.push({ id: `11${1 + i * 400}` });
             }
-            expect(await monitor.syncWithNetwork(1)).toEqual(expectedBlocks);
+            expect(await monitor.downloadBlocksFromHeight(1)).toEqual(expectedBlocks);
         });
 
         it("should handle when getPeerBlocks throws (can be peer timeout or wrong response)", async () => {
@@ -348,7 +348,7 @@ describe("NetworkMonitor", () => {
             for (let i = 0; i < 5; i++) {
                 expectedBlocks.push({ id: `11${1 + i * 400}` });
             }
-            expect(await monitor.syncWithNetwork(1)).toEqual(expectedBlocks);
+            expect(await monitor.downloadBlocksFromHeight(1)).toEqual(expectedBlocks);
         });
 
         it("should still download blocks from 1 peer if network height === our height", async () => {
@@ -369,7 +369,7 @@ describe("NetworkMonitor", () => {
                 }),
             );
 
-            expect(await monitor.syncWithNetwork(20)).toEqual([mockBlock]);
+            expect(await monitor.downloadBlocksFromHeight(20)).toEqual([mockBlock]);
         });
     });
 
