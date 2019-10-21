@@ -1,4 +1,4 @@
-import { get, has, isObject, set, unset, cloneDeep } from "@arkecosystem/utils";
+import { cloneDeep, get, has, isObject, set, unset } from "@arkecosystem/utils";
 import { strict } from "assert";
 
 type AttributeIndexKey = number | object | string;
@@ -153,17 +153,22 @@ export class AttributeIndex {
     /**
      * @param {AttributeIndexKey} from
      * @param {AttributeIndexKey} to
-     * @returns {void}
+     * @returns {boolean}
      * @memberof AttributeIndex
      */
-    public clone(from: AttributeIndexKey, to: AttributeIndexKey): void {
-        if (!this.attributes.has(from as string) && !this.attributesWeak.has(from as object)) {
+    public clone(from: AttributeIndexKey, to: AttributeIndexKey): boolean {
+        const hasPrimitiveKey: boolean = this.attributes.has(from as string);
+        const hasObjectKey: boolean = this.attributesWeak.has(from as object);
+
+        if (!hasPrimitiveKey && !hasObjectKey) {
             return undefined;
         }
 
-        const collection = cloneDeep(this.getCollection(from));
+        const collection: object = cloneDeep(this.getCollection(from));
 
         isObject(to) ? this.attributesWeak.set(to, collection) : this.attributes.set(to, collection);
+
+        return this.has(to);
     }
 
     /**

@@ -84,11 +84,11 @@ describe("AttributeIndex", () => {
 
                     store.set(id, "someAttribute", "value");
 
-                    expect(store.has(id, "someAttribute")).toBeTrue();
+                    expect(store.has(id)).toBeTrue();
 
-                    store.forget(id, "someAttribute");
+                    store.forget(id);
 
-                    expect(store.has(id, "someAttribute")).toBeFalse();
+                    expect(store.has(id)).toBeFalse();
                 });
 
                 it("should forget the given attribute", () => {
@@ -103,20 +103,38 @@ describe("AttributeIndex", () => {
                     expect(store.has(id, "someAttribute")).toBeFalse();
                 });
 
-                it("should clone the attributes", () => {
-                    store.bind("someAttribute");
+                describe(".clone", () => {
+                    it("should clone the attributes from an object key to a primitive key", () => {
+                        store.bind("someAttribute");
 
-                    expect(store.has(id, "someAttribute")).toBeFalse();
-                    expect(store.has("cloneKey", "someAttribute")).toBeFalse();
+                        expect(store.has(id, "someAttribute")).toBeFalse();
+                        expect(store.has("cloneKey", "someAttribute")).toBeFalse();
 
-                    store.set(id, "someAttribute", "value");
+                        store.set(id, "someAttribute", "value");
 
-                    expect(store.has(id, "someAttribute")).toBeTrue();
+                        expect(store.has(id, "someAttribute")).toBeTrue();
 
-                    store.clone(id, "cloneKey");
+                        expect(store.clone(id, "cloneKey")).toBeTrue();
 
-                    expect(store.has(id, "someAttribute")).toBeTrue();
-                    expect(store.has("cloneKey", "someAttribute")).toBeTrue();
+                        expect(store.has(id, "someAttribute")).toBeTrue();
+                        expect(store.has("cloneKey", "someAttribute")).toBeTrue();
+                    });
+
+                    it("should clone the attributes from an object key to an object key", () => {
+                        const id2: UseByReference = new UseByReference();
+
+                        store.bind("someAttribute");
+                        store.set(id, "someAttribute", "value");
+
+                        expect(store.clone(id, id2)).toBeTrue();
+
+                        expect(store.has(id, "someAttribute")).toBeTrue();
+                        expect(store.has(id2, "someAttribute")).toBeTrue();
+                    });
+
+                    it("should return undefined if the given ID does not exist", () => {
+                        expect(store.clone(id, "cloneKey")).toBeUndefined();
+                    });
                 });
 
                 it("should forget all attributes", () => {
@@ -155,18 +173,6 @@ describe("AttributeIndex", () => {
                     expect(() => store.forget(id, "anotherAttribute")).toThrow(
                         "Tried to access an unknown attribute: anotherAttribute",
                     );
-                });
-
-                it("should forget the given attribute", () => {
-                    store.bind("someAttribute");
-
-                    store.set(id, "someAttribute", "value");
-
-                    expect(store.has(id, "someAttribute")).toBeTrue();
-
-                    store.forget(id, "someAttribute");
-
-                    expect(store.has(id, "someAttribute")).toBeFalse();
                 });
 
                 it("should throw if an attribute is tried to be checked on an unknown attribute", () => {
