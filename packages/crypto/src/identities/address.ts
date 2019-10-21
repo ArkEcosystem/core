@@ -40,15 +40,15 @@ export class Address {
         return Base58.encodeCheck(buffer);
     }
 
-    public static toBuffer(address: string): { addressBuffer: Buffer, addressError?: string } {
+    public static toBuffer(address: string): { addressBuffer: Buffer; addressError?: string } {
         const buffer: Buffer = Base58.decodeCheck(address);
         const networkVersion: number = configManager.get("network.pubKeyHash");
-        const result: { addressBuffer: Buffer, addressError?: string } = {
+        const result: { addressBuffer: Buffer; addressError?: string } = {
             addressBuffer: buffer,
-        }
+        };
 
         if (buffer[0] !== networkVersion) {
-            result.addressError = `Expected address network byte ${networkVersion}, but got ${buffer[0]}.`
+            result.addressError = `Expected address network byte ${networkVersion}, but got ${buffer[0]}.`;
         }
 
         return result;

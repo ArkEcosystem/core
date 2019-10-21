@@ -36,8 +36,8 @@ export class Block implements IBlock {
             if (fatal) {
                 throw new BlockSchemaError(
                     data.height,
-                    `Invalid data${err.dataPath ? ' at ' + err.dataPath : ''}: ` +
-                    `${err.message}: ${JSON.stringify(err.data)}`
+                    `Invalid data${err.dataPath ? " at " + err.dataPath : ""}: ` +
+                        `${err.message}: ${JSON.stringify(err.data)}`,
                 );
             }
         }

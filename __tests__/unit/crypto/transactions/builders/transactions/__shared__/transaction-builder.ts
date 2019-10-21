@@ -30,7 +30,7 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 let data;
 
                 beforeEach(() => {
-                    nonce = Utils.BigNumber.make(0)
+                    nonce = Utils.BigNumber.make(0);
 
                     data = {
                         id: "02d0d835266297f15c192be2636eb3fbc30b39b87fc583ff112062ef8dae1a1f",
@@ -204,7 +204,10 @@ export const transactionBuilder = <T extends TransactionBuilder<T>>(provider: ()
                 const spyMultiSign = jest.spyOn(Signer, "multiSign").mockImplementationOnce(jest.fn());
 
                 const builder = provider();
-                builder.senderPublicKey(identity.publicKey).network(23).multiSignWithWif(0, identitySecond.bip39, undefined);
+                builder
+                    .senderPublicKey(identity.publicKey)
+                    .network(23)
+                    .multiSignWithWif(0, identitySecond.bip39, undefined);
 
                 expect(spyKeys).toHaveBeenCalledWith(identitySecond.bip39, {
                     wif: 186,

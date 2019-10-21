@@ -1,6 +1,6 @@
 import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Utils, Managers } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 
 // todo: review the implementation
 export class StateBuilder {

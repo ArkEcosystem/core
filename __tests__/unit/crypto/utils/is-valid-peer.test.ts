@@ -38,11 +38,11 @@ describe("isValidPeer", () => {
         // getting local addresses
         for (const iface of Object.keys(interfaces)) {
             interfaces[iface].some(iface => (addresses as any).push(iface.address));
-        };
+        }
 
         for (const ipAddress of addresses) {
             expect(isValidPeer({ ip: ipAddress })).toBeFalse();
-        };
+        }
     });
 
     it("should be ok", () => {

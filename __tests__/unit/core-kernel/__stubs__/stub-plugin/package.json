@@ -6,9 +6,11 @@
         "core": {
             "required": true,
             "alias": "some-alias",
-            "dependencies": [{
-                "name": "some-dependency"
-            }]
+            "dependencies": [
+                {
+                    "name": "some-dependency"
+                }
+            ]
         }
     }
 }

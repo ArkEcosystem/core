@@ -1,6 +1,6 @@
+import { InvalidArgumentException } from "../exceptions/logic";
 import { injectable } from "../ioc";
 import { ServiceProvider } from "./service-provider";
-import { InvalidArgumentException } from "../exceptions/logic";
 
 /**
  * @export

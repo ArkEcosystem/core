@@ -1,8 +1,8 @@
 import { HashAlgorithms } from "../crypto";
-import { AddressNetworkError } from '../errors';
+import { AddressNetworkError } from "../errors";
 import { ISerializeOptions, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
-import { isException } from '../utils';
+import { isException } from "../utils";
 import { Serializer } from "./serializer";
 import { TransactionTypeFactory } from "./types/factory";
 
@@ -26,7 +26,7 @@ export class Utils {
         // `AddressNetworkByteError` until the actual id is available to call
         // `isException`.
         if (options && options.addressError && !isException({ id })) {
-            throw new AddressNetworkError(options.addressError)
+            throw new AddressNetworkError(options.addressError);
         }
 
         // Apply fix for broken type 1 and 4 transactions, which were
