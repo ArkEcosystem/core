@@ -18,7 +18,7 @@ expect.extend({
         let error: string;
 
         try {
-            const { body } = await got.post(`http://localhost:4003/api/v2/transactions`, {
+            const { body } = await got.post(`http://localhost:4003/api/transactions`, {
                 body: JSON.stringify({ transactions: [transaction] }),
             });
 
@@ -49,7 +49,7 @@ expect.extend({
 
         try {
             for (const tx of transactions) {
-                const { body } = await got.post(`http://localhost:4003/api/v2/transactions`, {
+                const { body } = await got.post(`http://localhost:4003/api/transactions`, {
                     body: JSON.stringify({ transactions: [tx] }),
                 });
 

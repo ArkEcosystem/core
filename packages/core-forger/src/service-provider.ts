@@ -1,6 +1,6 @@
 import { Providers } from "@arkecosystem/core-kernel";
 
-import { ForgerManager } from "./manager";
+import { ForgerManager } from "./forger-manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {

@@ -78,6 +78,7 @@ export class WalletState {
 
         if (roundInfo) {
             delegateWallets = delegateWallets.slice(0, roundInfo.maxDelegates);
+
             for (const delegate of delegateWallets) {
                 delegate.setAttribute("delegate.round", roundInfo.round);
             }

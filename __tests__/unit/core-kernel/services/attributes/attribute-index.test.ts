@@ -31,25 +31,35 @@ describe("AttributeIndex", () => {
         expect(store.isBound("someAttribute")).toBeFalse();
     });
 
-    it("should remove all bound values when flushed", () => {
+    it("should forget all attributes", () => {
+        const instance: UseByReference = new UseByReference();
+
         store.bind("someAttribute");
 
-        store.set("id1", "someAttribute", "value");
-        store.set("id2", "someAttribute", "value");
+        store.set("stringKey", "someAttribute", "value");
+        store.set(instance, "someAttribute", "value");
 
-        expect(store.has("id1", "someAttribute")).toBeTrue();
-        expect(store.has("id2", "someAttribute")).toBeTrue();
+        expect(store.has("stringKey", "someAttribute")).toBeTrue();
+        expect(store.has(instance, "someAttribute")).toBeTrue();
 
         store.flush();
 
-        expect(store.has("id1", "someAttribute")).toBeFalse();
-        expect(store.has("id2", "someAttribute")).toBeFalse();
+        expect(store.has("stringKey", "someAttribute")).toBeFalse();
+        expect(store.has(instance, "someAttribute")).toBeFalse();
     });
 
     describe.each([["number", 1], ["string", "stringKey"], ["reference", new UseByReference()]])(
         "works with numbers, strings and references as keys",
         (idType, id) => {
             describe(`using a ${idType} as key`, () => {
+                it("should get all attribute", () => {
+                    store.bind("someAttribute");
+
+                    store.set(id, "someAttribute", "value");
+
+                    expect(store.all(id)).toEqual({ someAttribute: "value" });
+                });
+
                 it("should get the given attribute", () => {
                     store.bind("someAttribute");
 

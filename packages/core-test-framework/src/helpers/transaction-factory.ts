@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import {
     Builders as MagistrateBuilders,
     Interfaces as MagistrateInterfaces,
@@ -159,14 +159,16 @@ export class TransactionFactory {
 
     public static getNonce(publicKey: string): Utils.BigNumber {
         try {
-            return app.get<Contracts.Database.DatabaseService>("database").walletRepository.getNonce(publicKey);
+            return app
+                .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+                .walletRepository.getNonce(publicKey);
         } catch {
             return Utils.BigNumber.ZERO;
         }
     }
 
     private builder: any;
-    private network: Types.NetworkName = "testnet";
+    private network: Types.NetworkName = "unitnet";
     private nonce: Utils.BigNumber;
     private fee: Utils.BigNumber;
     private timestamp: number;
@@ -297,6 +299,10 @@ export class TransactionFactory {
     private sign<T>(quantity: number, method: string): T[] {
         Managers.configManager.setFromPreset(this.network);
 
+        // // ensure we use aip11
+        // Managers.configManager.getMilestone().aip11 = true;
+        // this.builder.data.version = 2;
+
         if (!this.senderPublicKey) {
             this.senderPublicKey = Identities.PublicKey.fromPassphrase(this.passphrase);
         }
@@ -359,13 +365,13 @@ export class TransactionFactory {
                 }
             }
 
-            const testnet: boolean = ["unitnet", "testnet"].includes(Managers.configManager.get("network.name"));
+            const isDevelop: boolean = ["unitnet", "testnet"].includes(Managers.configManager.get("network.name"));
 
             if (sign) {
                 const aip11: boolean = Managers.configManager.getMilestone().aip11;
                 if (this.builder.data.version === 1 && aip11) {
                     Managers.configManager.getMilestone().aip11 = false;
-                } else if (testnet) {
+                } else if (isDevelop) {
                     Managers.configManager.getMilestone().aip11 = true;
                 }
 
@@ -378,7 +384,7 @@ export class TransactionFactory {
 
             const transaction = this.builder[method]();
 
-            if (testnet) {
+            if (isDevelop) {
                 Managers.configManager.getMilestone().aip11 = true;
             }
 

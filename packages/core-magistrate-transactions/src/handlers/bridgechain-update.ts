@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import {
     Enums,
     Interfaces as MagistrateInterfaces,
@@ -132,7 +132,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             "business",
         );
 
-        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>("database");
+        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>(Container.Identifiers.DatabaseService);
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
         const updateTransactions: Contracts.Database.IBootstrapTransaction[] = [];
         while (reader.hasNext()) {
@@ -152,7 +152,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             const registrationIndex: number = Object.keys(businessAttributes.bridgechains).indexOf(bridgechainId);
 
             const bridgechainRegistration: MagistrateInterfaces.IBridgechainRegistrationAsset = (await app
-                .get<Contracts.Database.Connection>("database")
+                .get<Contracts.Database.Connection>(Container.Identifiers.DatabaseService)
                 .transactionsRepository.search({
                     parameters: [
                         {

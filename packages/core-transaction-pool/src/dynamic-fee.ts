@@ -5,7 +5,7 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { DynamicFeeMatch } from "./interfaces";
 
 // todo: review implementation and better method name that indicates what it does
-export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): DynamicFeeMatch => {
+export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): Promise<DynamicFeeMatch> => {
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;
 
@@ -19,9 +19,10 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): Dynamic
     let enterPool: boolean;
 
     if (dynamicFees.enabled) {
-        const handler: Handlers.TransactionHandler = app
+        const handler: Handlers.TransactionHandler = await app
             .get<any>("transactionHandlerRegistry")
             .get(transaction.type, transaction.typeGroup);
+
         const addonBytes: number = dynamicFees.addonBytes[transaction.key];
         const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee(
             transaction,

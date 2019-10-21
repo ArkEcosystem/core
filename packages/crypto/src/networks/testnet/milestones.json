@@ -26,10 +26,7 @@
             }
         },
         "vendorFieldLength": 64,
-        "multiPaymentLimit": 500
-    },
-    {
-        "height": 2,
+        "multiPaymentLimit": 500,
         "aip11": true
     },
     {

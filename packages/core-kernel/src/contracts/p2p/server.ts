@@ -1,18 +1,22 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { Wallet } from "../state";
+import { Wallet, WalletDelegateAttributes } from "../state";
 
 export interface Response<T> {
     data: T;
+}
+
+export interface DelegateWallet extends Wallet {
+    delegate: WalletDelegateAttributes;
 }
 
 export interface CurrentRound {
     current: number;
     reward: string;
     timestamp: number;
-    delegates: Wallet[];
-    currentForger: Wallet;
-    nextForger: Wallet;
+    delegates: DelegateWallet[];
+    currentForger: DelegateWallet;
+    nextForger: DelegateWallet;
     lastBlock: Interfaces.IBlockData;
     canForge: boolean;
 }

@@ -12,33 +12,19 @@ import { bridgechainIndexer, businessIndexer, MagistrateIndex } from "./wallet-m
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        const walletRepository = this.app.get<any>(Container.Identifiers.DatabaseService).walletRepository;
-
         this.app
-            .get<Contracts.Kernel.Events.EventDispatcher>("event-emitter")
-            .listenOnce(Enums.Events.State.StateStarting, () => {
-                walletRepository.registerIndex(MagistrateIndex.Businesses, businessIndexer);
-                walletRepository.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
+            .get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService)
+            .listenOnce(Enums.Events.State.StateStarting, ({ data }: { data: Contracts.Database.DatabaseService }) => {
+                data.walletRepository.registerIndex(MagistrateIndex.Businesses, businessIndexer);
+                data.walletRepository.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
             });
 
-        this.app
-            .get<any>("transactionHandlerRegistry")
-            .registerTransactionHandler(BusinessRegistrationTransactionHandler);
-
-        this.app
-            .get<any>("transactionHandlerRegistry")
-            .registerTransactionHandler(BusinessResignationTransactionHandler);
-
-        this.app.get<any>("transactionHandlerRegistry").registerTransactionHandler(BusinessUpdateTransactionHandler);
-
-        this.app
-            .get<any>("transactionHandlerRegistry")
-            .registerTransactionHandler(BridgechainRegistrationTransactionHandler);
-
-        this.app
-            .get<any>("transactionHandlerRegistry")
-            .registerTransactionHandler(BridgechainResignationTransactionHandler);
-
-        this.app.get<any>("transactionHandlerRegistry").registerTransactionHandler(BridgechainUpdateTransactionHandler);
+        const transactionHandlerRegistry = this.app.get<any>("transactionHandlerRegistry");
+        transactionHandlerRegistry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
+        transactionHandlerRegistry.registerTransactionHandler(BusinessResignationTransactionHandler);
+        transactionHandlerRegistry.registerTransactionHandler(BusinessUpdateTransactionHandler);
+        transactionHandlerRegistry.registerTransactionHandler(BridgechainRegistrationTransactionHandler);
+        transactionHandlerRegistry.registerTransactionHandler(BridgechainResignationTransactionHandler);
+        transactionHandlerRegistry.registerTransactionHandler(BridgechainUpdateTransactionHandler);
     }
 }

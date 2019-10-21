@@ -17,7 +17,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: Contracts.TransactionPool.Connection) {}
+    constructor(private readonly pool: Contracts.TransactionPool.Connection) { }
 
     public async validate(
         transactions: Interfaces.ITransactionData[],
@@ -195,7 +195,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
             expirationContext,
         );
 
-        if (expiration !== null && expiration <= lastHeight + 1) {
+        if (expiration !== undefined && expiration <= lastHeight + 1) {
             this.pushError(
                 transaction,
                 "ERR_EXPIRED",

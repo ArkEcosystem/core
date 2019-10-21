@@ -1,3 +1,4 @@
+// import { app, Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Contracts } from "@arkecosystem/core-kernel";
 
 export class WalletIndex implements Contracts.State.WalletIndex {
@@ -41,5 +42,15 @@ export class WalletIndex implements Contracts.State.WalletIndex {
 
     public clear(): void {
         this.walletIndex = {};
+    }
+
+    public clone(): Contracts.State.WalletIndex {
+        const walletIndex = new WalletIndex(this.indexer);
+
+        for (const [key, value] of Object.entries(this.walletIndex)) {
+            walletIndex.set(key, value.clone());
+        }
+
+        return walletIndex;
     }
 }

@@ -50,6 +50,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
             for (const transaction of transactions) {
                 const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+
                 wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
                     username: transaction.asset.delegate.username,
                     voteBalance: Utils.BigNumber.ZERO,

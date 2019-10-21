@@ -65,6 +65,15 @@ export class AttributeIndex {
     }
 
     /**
+     * @param {AttributeIndexKey} id
+     * @returns {object}
+     * @memberof AttributeIndex
+     */
+    public all(id: AttributeIndexKey): object {
+        return this.getCollection(id);
+    }
+
+    /**
      * @template T
      * @param {string} id
      * @param {string} attribute

@@ -1,6 +1,5 @@
 import { app, Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Wallets } from "@arkecosystem/core-state";
 import { Blocks, Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { Client } from "./client";
@@ -199,7 +198,7 @@ export class ForgerManager {
 
         this.logger.debug(
             `Received ${AppUtils.pluralize("transaction", transactions.length, true)} from the pool containing ${
-                response.poolSize
+            response.poolSize
             }`,
         );
 
@@ -258,13 +257,11 @@ export class ForgerManager {
     private async loadRound(): Promise<void> {
         this.round = await this.client.getRound();
 
-        this.usernames = this.round.delegates
-            .map(delegate => Object.assign(new Wallets.Wallet(delegate.address), delegate))
-            .reduce(
-                (acc, delegate) =>
-                    Object.assign(acc, { [delegate.publicKey]: delegate.getAttribute("delegate.username") }),
-                {},
-            );
+        this.usernames = this.round.delegates.reduce(
+            (acc, wallet) =>
+                Object.assign(acc, { [wallet.publicKey]: wallet.delegate.username }),
+            {},
+        );
 
         if (!this.initialized) {
             this.printLoadedDelegates();

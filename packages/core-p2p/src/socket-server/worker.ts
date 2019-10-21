@@ -150,7 +150,6 @@ export class Worker extends SCWorker {
             // which is like this { endpoint, data, headers }
             req.data.headers.remoteAddress = req.socket.remoteAddress;
         } catch (e) {
-            console.log(e);
             this.log(e.message, "error");
 
             req.socket.terminate();

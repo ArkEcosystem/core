@@ -9,6 +9,7 @@ import {
     Transactions,
     Utils,
 } from "@arkecosystem/crypto";
+import { cloneDeep } from "@arkecosystem/utils";
 
 // todo: review the implementation
 export class Wallet implements Contracts.State.Wallet {
@@ -23,32 +24,39 @@ export class Wallet implements Contracts.State.Wallet {
         this.nonce = Utils.BigNumber.ZERO;
     }
 
+    public getAttributes() {
+        return app
+            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+            .get("wallet")
+            .all(this);
+    }
+
     public getAttribute<T>(key: string, defaultValue?: T): T {
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
-            .get<T>(this.address, key, defaultValue);
+            .get<T>(this, key, defaultValue);
     }
 
     public setAttribute<T = any>(key: string, value: T): boolean {
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
-            .set<T>(this.address, key, value);
+            .set<T>(this, key, value);
     }
 
     public forgetAttribute(key: string): boolean {
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
-            .forget(this.address, key);
+            .forget(this, key);
     }
 
     public hasAttribute(key: string): boolean {
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
-            .has(this.address, key);
+            .has(this, key);
     }
 
     public isDelegate(): boolean {
@@ -68,10 +76,12 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public canBePurged(): boolean {
-        const hasAttributes: boolean =
-            Object.keys(
-                app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService).get("wallet"),
-            ).length > 0;
+        const attributes = app
+            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+            .get("wallet")
+            .all(this);
+
+        const hasAttributes: boolean = !!attributes && Object.keys(attributes).length > 0;
         const lockedBalance = this.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
 
         return this.balance.isZero() && lockedBalance.isZero() && !hasAttributes;
@@ -282,6 +292,15 @@ export class Wallet implements Contracts.State.Wallet {
         }
 
         return audit;
+    }
+
+    public clone(): Contracts.State.Wallet {
+        const clonedWallet = cloneDeep(this);
+        app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+            .get("wallet")
+            .clone(this, clonedWallet);
+
+        return clonedWallet;
     }
 
     public toString(): string {

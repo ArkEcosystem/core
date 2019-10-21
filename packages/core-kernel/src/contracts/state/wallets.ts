@@ -11,6 +11,7 @@ export interface WalletIndex {
     values(): ReadonlyArray<Wallet>;
     keys(): string[];
     clear(): void;
+    clone(): WalletIndex;
 }
 
 export type WalletIndexer = (index: WalletIndex, wallet: Wallet) => void;
@@ -46,6 +47,8 @@ export interface Wallet {
     hasMultiSignature(): boolean;
 
     canBePurged(): boolean;
+
+    clone(): Wallet;
 
     verifySignatures(
         transaction: Interfaces.ITransactionData,

@@ -120,7 +120,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         blockchainMachine.state = stateStorage;
 
         try {
-            const block: Interfaces.IBlock = await database.getLastBlock();
+            const block: Interfaces.IBlock = stateStorage.getLastBlock();
 
             if (!database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");

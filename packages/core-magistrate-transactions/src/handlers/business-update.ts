@@ -1,4 +1,4 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { app, Contracts, Container } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
@@ -109,7 +109,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             IBusinessWalletAttributes
         >("business").businessAsset;
 
-        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>("database");
+        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>(Container.Identifiers.DatabaseService);
         let reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
         const updateTransactions: Contracts.Database.IBootstrapTransaction[] = [];
         while (reader.hasNext()) {

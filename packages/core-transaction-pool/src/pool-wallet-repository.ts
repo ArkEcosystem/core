@@ -2,10 +2,9 @@ import { app, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
-import clonedeep from "lodash.clonedeep";
 
 // todo: review the implementation
-export class WalletRepository extends Wallets.WalletRepository {
+export class PoolWalletRepository extends Wallets.WalletRepository {
     public constructor() {
         super();
 
@@ -25,7 +24,7 @@ export class WalletRepository extends Wallets.WalletRepository {
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
             this.reindex(
-                clonedeep(app.get<any>(Container.Identifiers.DatabaseService).walletRepository.findByAddress(address)),
+                app.get<any>(Container.Identifiers.DatabaseService).walletRepository.findByAddress(address).clone(),
             );
         }
 
@@ -54,5 +53,11 @@ export class WalletRepository extends Wallets.WalletRepository {
             .get<any>("transactionHandlerRegistry")
             .get(transaction.type, transaction.typeGroup);
         return handler.revertForSender(transaction, this);
+    }
+
+    public reset(): void {
+        for (const walletIndex of Object.values(this.indexes)) {
+            walletIndex.clear();
+        }
     }
 }

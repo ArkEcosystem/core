@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, app, Services, Container } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
@@ -143,8 +143,19 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return this.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
     }
 
-    public findByIndex(indexName: string, key: string): Contracts.State.Wallet | undefined {
-        return this.getIndex(indexName).get(key);
+    public findByIndex(index: string | string[], key: string): Contracts.State.Wallet | undefined {
+        if (!Array.isArray(index)) {
+            index = [index];
+        }
+
+        for (const name of index) {
+            const index = this.getIndex(name);
+            if (index.has(key)) {
+                return index.get(key);
+            }
+        }
+
+        return undefined;
     }
 
     public has(key: string): boolean {
@@ -194,7 +205,19 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     public forgetByIndex(indexName: string, key: string): void {
-        this.getIndex(indexName).forget(key);
+        const index: Contracts.State.WalletIndex = this.getIndex(indexName);
+
+        // TODO: revise this implementation, ideally we forget all attributes
+        // once the last index drops the wallet
+        if (indexName === Contracts.State.WalletIndexes.Addresses) {
+            const wallet: Contracts.State.Wallet = index.get(key);
+            // // todo: inject this instead of using direct access
+            app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
+                .get("wallet")
+                .forget(wallet);
+        }
+
+        index.forget(key);
     }
 
     public index(wallets: ReadonlyArray<Contracts.State.Wallet>): void {

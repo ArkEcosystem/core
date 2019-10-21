@@ -1,7 +1,8 @@
-import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities } from "@arkecosystem/crypto";
 
 import { WalletRepository } from "./wallet-repository";
+import { Wallet } from './wallet';
 
 export class TempWalletRepository extends WalletRepository {
     public constructor(private readonly walletRepository: Contracts.State.WalletRepository) {
@@ -14,12 +15,12 @@ export class TempWalletRepository extends WalletRepository {
                 continue;
             }
 
-            this.indexes[index] = Utils.cloneDeep(walletRepository.getIndex(index));
+            this.indexes[index] = walletRepository.getIndex(index).clone();
         }
     }
 
     public reindex(wallet: Contracts.State.Wallet): void {
-        super.reindex(Utils.cloneDeep(wallet));
+        super.reindex(wallet.clone());
     }
 
     public findByAddress(address: string): Contracts.State.Wallet {
@@ -47,7 +48,11 @@ export class TempWalletRepository extends WalletRepository {
         const index: Contracts.State.WalletIndex = this.getIndex(indexName);
         if (!index.has(key)) {
             const parentIndex: Contracts.State.WalletIndex = this.walletRepository.getIndex(indexName);
-            index.set(key, Utils.cloneDeep(parentIndex.get(key)));
+            if (parentIndex.has(key)) {
+                index.set(key, parentIndex.get(key).clone());
+            } else if (indexName === Contracts.State.WalletIndexes.Addresses) {
+                index.set(key, new Wallet(key));
+            }
         }
 
         return index.get(key);
@@ -63,5 +68,11 @@ export class TempWalletRepository extends WalletRepository {
 
     public hasByUsername(username: string): boolean {
         return this.walletRepository.hasByUsername(username);
+    }
+
+    public reset(): void {
+        for (const walletIndex of Object.values(this.indexes)) {
+            walletIndex.clear();
+        }
     }
 }

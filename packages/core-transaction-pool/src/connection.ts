@@ -9,7 +9,7 @@ import { TransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
 import { Storage } from "./storage";
-import { WalletRepository } from "./wallet-repository";
+import { PoolWalletRepository } from "./pool-wallet-repository";
 
 // todo: migrate to make use of ioc
 // todo: review the implementation
@@ -19,7 +19,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     // @todo: make this private, requires some bigger changes to tests
     public options: Record<string, any>;
     // @todo: make this private, requires some bigger changes to tests
-    public walletRepository: WalletRepository;
+    public walletRepository: PoolWalletRepository;
     private readonly memory: Memory;
     private readonly storage: Storage;
     private readonly loggedAllowedSenders: string[] = [];
@@ -38,7 +38,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         storage,
     }: {
         options: Record<string, any>;
-        walletRepository: WalletRepository;
+        walletRepository: PoolWalletRepository;
         memory: Memory;
         storage: Storage;
     }) {
@@ -514,7 +514,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
                 validTransactions.push(transaction);
             } catch (error) {
+                console.error(error.stack);
                 this.removeTransactionById(transaction.id);
+
                 this.logger.error(
                     `Removed ${transaction.id} before forging because it is no longer valid: ${error.message}`,
                 );

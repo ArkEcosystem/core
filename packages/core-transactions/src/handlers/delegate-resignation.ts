@@ -1,4 +1,4 @@
-import { app, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
@@ -56,7 +56,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         }
 
         const delegates: ReadonlyArray<Contracts.State.Wallet> = app
-            .get<Contracts.Database.DatabaseService>("database")
+            .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
             .walletRepository.allByUsername();
         let requiredDelegates: number = Managers.configManager.getMilestone().activeDelegates + 1;
         for (const delegate of delegates) {

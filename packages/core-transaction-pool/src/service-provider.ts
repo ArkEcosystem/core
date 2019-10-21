@@ -4,7 +4,7 @@ import { Connection } from "./connection";
 import { ConnectionManager } from "./manager";
 import { Memory } from "./memory";
 import { Storage } from "./storage";
-import { WalletRepository } from "./wallet-repository";
+import { PoolWalletRepository } from "./pool-wallet-repository";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -13,7 +13,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         const connection = await new ConnectionManager().createConnection(
             new Connection({
                 options: this.config().all(),
-                walletRepository: new WalletRepository(),
+                walletRepository: new PoolWalletRepository(),
                 memory: new Memory(this.config().get("maxTransactionAge")),
                 storage: new Storage(),
             }),

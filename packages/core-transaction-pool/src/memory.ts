@@ -32,7 +32,7 @@ export class Memory {
         removed: new Set(),
     };
 
-    public constructor(private readonly maxTransactionAge: number) {}
+    public constructor(private readonly maxTransactionAge: number) { }
 
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
@@ -162,7 +162,7 @@ export class Memory {
             transaction.data,
             expirationContext,
         );
-        if (expiration !== null) {
+        if (expiration !== undefined) {
             this.byExpiration.push(transaction);
             this.byExpirationIsSorted = false;
         }
@@ -305,7 +305,7 @@ export class Memory {
                 expirationContext,
             );
 
-            if (expirationA !== null && expirationB !== null) {
+            if (expirationA !== undefined && expirationB !== undefined) {
                 return expirationA - expirationB;
             }
 

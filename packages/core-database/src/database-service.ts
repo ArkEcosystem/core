@@ -44,6 +44,10 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async init(): Promise<void> {
+        if (process.env.CORE_ENV === "test") {
+            Managers.configManager.getMilestone().aip11 = false;
+        }
+
         this.emitter.dispatch(Enums.Events.State.StateStarting, this);
 
         app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).setGenesisBlock(
@@ -163,19 +167,17 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates || delegates.length === 0) {
-            delegates = (await this.connection.roundsRepository.findById(round)).map(({ publicKey, balance }) =>
-                Object.assign(new Wallets.Wallet(Identities.Address.fromPublicKey(publicKey)), {
-                    publicKey,
-                    attributes: {
-                        delegate: {
-                            voteBalance: Utils.BigNumber.make(balance),
-                            username: this.walletRepository
-                                .findByPublicKey(publicKey)
-                                .getAttribute("delegate.username"),
-                        },
+            delegates = (await this.connection.roundsRepository.findById(round)).map(({ publicKey, balance }) => {
+                const wallet = new Wallets.Wallet(Identities.Address.fromPublicKey(publicKey));
+                wallet.publicKey = publicKey;
+                wallet.setAttribute("delegate", {
+                    delegate: {
+                        voteBalance: Utils.BigNumber.make(balance),
+                        username: this.walletRepository.findByPublicKey(publicKey).getAttribute("delegate.username"),
                     },
-                }),
-            );
+                });
+                return wallet;
+            });
         }
 
         for (const delegate of delegates) {
@@ -185,7 +187,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         const seedSource: string = round.toString();
         let currentSeed: Buffer = Crypto.HashAlgorithms.sha256(seedSource);
 
-        delegates = AppUtils.cloneDeep(delegates);
+        delegates = delegates.map(delegate => delegate.clone());
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
             for (let x = 0; x < 4 && i < delCount; i++, x++) {
                 const newIndex = currentSeed[x] % delCount;
@@ -369,7 +371,13 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        return Blocks.BlockFactory.fromData(block);
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block);
+
+        if (block.height === 1 && process.env.CORE_ENV === "test") {
+            Managers.configManager.getMilestone().aip11 = true;
+        }
+
+        return lastBlock;
     }
 
     public async getCommonBlocks(ids: string[]): Promise<Interfaces.IBlockData[]> {
@@ -600,8 +608,11 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         if (!lastBlock) {
             this.logger.warning("No block found in database");
-
             lastBlock = await this.createGenesisBlock();
+        }
+
+        if (process.env.CORE_ENV === "test") {
+            Managers.configManager.getMilestone().aip11 = true;
         }
 
         this.configureState(lastBlock);
