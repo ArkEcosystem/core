@@ -391,6 +391,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         let firstFailureMessage: string;
 
         try {
+            // Convert the array of AsyncFunction to an array of Promise by calling the functions.
             await Promise.all(downloadJobs.map(f => f()));
         } catch (error) {
             firstFailureMessage = error.message;
