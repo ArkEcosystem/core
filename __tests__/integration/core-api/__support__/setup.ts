@@ -4,6 +4,7 @@ import { Utils } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-api/src/defaults";
 import { plugin } from "../../../../packages/core-api/src/plugin";
+import { defaults as defaultsPeer } from "../../../../packages/core-p2p/src/defaults";
 import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 
 import { delegates } from "../../../utils/fixtures";
@@ -35,6 +36,8 @@ const setUp = async () => {
             "@arkecosystem/core-api",
         ],
     });
+
+    app.register("pkg.p2p.opts", asValue(defaultsPeer));
 
     const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
     await databaseService.buildWallets();
