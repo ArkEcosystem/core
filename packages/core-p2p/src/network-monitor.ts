@@ -342,7 +342,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         for (let i = 0; i < chunksToDownload; i++) {
             const height: number = fromBlockHeight + chunkSize * i;
             const isLastChunk: boolean = i === chunksToDownload - 1;
-            const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + 1 + chunkSize}]`;
+            const blocksRange: string = `[${height + 1}, ${isLastChunk ? ".." : height + chunkSize}]`;
 
             downloadJobs.push(async () => {
                 let blocks: Interfaces.IBlockData[];
