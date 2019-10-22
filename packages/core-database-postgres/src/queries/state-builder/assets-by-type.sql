@@ -7,8 +7,9 @@ SELECT transactions.sender_public_key,
        transactions.amount,
        transactions.recipient_id,
        transactions.block_id,
-       blocks.height,
-       blocks.generator_public_key
+       blocks.height as "blockHeight",
+       blocks.generator_public_key as "blockGeneratorPublicKey",
+       blocks.reward as "blockReward"
 FROM transactions, blocks
 WHERE 
     transactions.block_id = blocks.id

@@ -14,8 +14,9 @@ export interface IBootstrapTransaction {
     vendorField: string;
     asset: Interfaces.ITransactionAsset;
     blockId: string;
-    generatorPublicKey: string;
-    height: number;
+    blockGeneratorPublicKey: string;
+    blockHeight: number;
+    blockReward: string;
 }
 
 export interface ITransactionsRepository extends IRepository {
