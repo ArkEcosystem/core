@@ -51,11 +51,7 @@ class TransactionRegistry {
             throw new TransactionAlreadyRegisteredError(constructor.name);
         }
 
-        if (
-            Array.from(this.transactionTypes.values()).some(
-                registeredConstructor => registeredConstructor.key === constructor.key,
-            )
-        ) {
+        if (Array.from(this.transactionTypes.values()).some(({ key }) => key === constructor.key)) {
             throw new TransactionKeyAlreadyRegisteredError(constructor.key);
         }
 
