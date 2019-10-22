@@ -215,7 +215,9 @@ describe("API 2.0 - Locks", () => {
 
             const lock = response.data.data[0];
             api.expectLock(lock);
-            expect(lock.timestamp).toBe(5000);
+            expect(lock.timestamp.unix).toBe(1490106200);
+            expect(lock.timestamp.epoch).toBe(5000);
+            expect(lock.timestamp.human).toBe("2017-03-21T14:23:20.000Z");
         });
     });
 

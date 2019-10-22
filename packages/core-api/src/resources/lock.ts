@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Utils } from "@arkecosystem/core-kernel";
 
 import { Resource } from "../interfaces";
 
@@ -26,6 +26,7 @@ export class LockResource implements Resource {
         return {
             ...resource,
             amount: resource.amount.toFixed(),
+            timestamp: Utils.formatTimestamp(resource.timestamp),
         };
     }
 }
