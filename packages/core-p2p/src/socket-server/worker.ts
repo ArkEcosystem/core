@@ -29,7 +29,7 @@ export class Worker extends SCWorker {
                 if (message === "#2") {
                     const timeNow: number = new Date().getTime() / 1000;
                     if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                        req.socket.terminate();
+                        ws.terminate();
                     }
                     ws._lastPingTime = timeNow;
                 } else {
@@ -40,7 +40,7 @@ export class Worker extends SCWorker {
                         (typeof parsed.cid !== "number" &&
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
                     ) {
-                        req.socket.terminate();
+                        ws.terminate();
                     }
                 }
             } catch (error) {
