@@ -58,6 +58,12 @@ export class Worker extends SCWorker {
     }
 
     private handlePayload(ws, req) {
+        ws.on("ping", () => {
+            ws.terminate();
+        });
+        ws.on("pong", () => {
+            ws.terminate();
+        });
         ws.on("message", message => {
             try {
                 const InvalidMessagePayloadError: Error = this.createError(
