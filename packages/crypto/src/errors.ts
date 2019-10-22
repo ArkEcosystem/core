@@ -106,6 +106,12 @@ export class TransactionAlreadyRegisteredError extends CryptoError {
     }
 }
 
+export class TransactionKeyAlreadyRegisteredError extends CryptoError {
+    constructor(name: string) {
+        super(`Transaction key ${name} is already registered.`);
+    }
+}
+
 export class CoreTransactionTypeGroupImmutableError extends CryptoError {
     constructor() {
         super(`The Core transaction type group is immutable.`);
