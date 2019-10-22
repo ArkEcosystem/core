@@ -2,6 +2,7 @@ import { TransactionTypeGroup } from "../enums";
 import {
     CoreTransactionTypeGroupImmutableError,
     TransactionAlreadyRegisteredError,
+    TransactionKeyAlreadyRegisteredError,
     UnkownTransactionError,
 } from "../errors";
 import { validator } from "../validation";
@@ -48,6 +49,10 @@ class TransactionRegistry {
         const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
         if (this.transactionTypes.has(internalType)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
+        }
+
+        if (Array.from(this.transactionTypes.values()).some(({ key }) => key === constructor.key)) {
+            throw new TransactionKeyAlreadyRegisteredError(constructor.key);
         }
 
         this.transactionTypes.set(internalType, constructor);
