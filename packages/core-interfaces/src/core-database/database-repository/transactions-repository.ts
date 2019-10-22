@@ -13,6 +13,10 @@ export interface IBootstrapTransaction {
     amount: string;
     vendorField: string;
     asset: Interfaces.ITransactionAsset;
+    blockId: string;
+    blockGeneratorPublicKey: string;
+    blockHeight: number;
+    blockReward: string;
 }
 
 export interface ITransactionsRepository extends IRepository {
