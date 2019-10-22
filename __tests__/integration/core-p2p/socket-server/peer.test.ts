@@ -19,6 +19,8 @@ let server: SocketCluster;
 let socket;
 let connect;
 let emit;
+let ping;
+let pong;
 let send;
 
 const headers = {
@@ -53,6 +55,9 @@ beforeAll(async () => {
         });
 
     send = data => socket.send(data);
+
+    ping = () => socket.transport.socket.ping();
+    pong = () => socket.transport.socket.pong();
 
     jest.spyOn(processor, "validateAndAcceptPeer").mockImplementation(jest.fn());
 });
@@ -168,6 +173,28 @@ describe("Peer socket endpoint", () => {
                 send("#2");
                 await delay(1000);
 
+                expect(socket.state).toBe("closed");
+            });
+
+            it("should disconnect the client if it sends a ping frame", async () => {
+                connect();
+                await delay(1000);
+
+                expect(socket.state).toBe("open");
+
+                ping();
+                await delay(500);
+                expect(socket.state).toBe("closed");
+            });
+
+            it("should disconnect the client if it sends a pong frame", async () => {
+                connect();
+                await delay(1000);
+
+                expect(socket.state).toBe("open");
+
+                pong();
+                await delay(500);
                 expect(socket.state).toBe("closed");
             });
         });
