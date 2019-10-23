@@ -219,7 +219,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["id", "name", "website"],
+            exact: ["businessId", "name", "website"],
         };
 
         const entries: any[] = this.databaseServiceProvider()
@@ -228,7 +228,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             .map(wallet => {
                 const business: any = wallet.getAttribute("business");
                 return {
-                    id: business.businessId,
+                    businessId: business.businessId,
                     ...business.businessAsset,
                 };
             });
@@ -242,7 +242,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["id", "businessId", "name", "genesishash"],
+            exact: ["bridgechainId", "businessId", "name", "genesishash"],
         };
 
         const entries: any[] = this.databaseServiceProvider()
@@ -253,7 +253,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                 const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
                 for (const bridgechain of Object.values(bridgechains)) {
                     acc.push({
-                        id: bridgechain.bridgechainId,
+                        bridgechainId: bridgechain.bridgechainId,
                         businessId: business.businessId,
                         ...bridgechain.bridgechainAsset,
                     });
