@@ -597,6 +597,16 @@ export class DatabaseService implements Database.IDatabaseService {
         let lastBlock: Interfaces.IBlock;
         let tries = 5;
 
+        // Ensure the config manager is initialized, before attempting to call `fromData`
+        // which otherwise uses potentially wrong milestones.
+        let lastHeight: number = 1;
+        const latest: Interfaces.IBlockData = await this.connection.blocksRepository.latest();
+        if (latest) {
+            lastHeight = latest.height;
+        }
+
+        Managers.configManager.setHeight(lastHeight);
+
         const getLastBlock = async (): Promise<Interfaces.IBlock> => {
             try {
                 return await this.getLastBlock();
