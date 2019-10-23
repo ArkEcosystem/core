@@ -48,8 +48,16 @@ export class Wallet implements State.IWallet {
         this.setAttribute(key, undefined);
     }
 
+    public isBusiness(): boolean {
+        return !!this.getAttribute("business");
+    }
+
     public isDelegate(): boolean {
         return !!this.getAttribute("delegate");
+    }
+
+    public hasBridgechains(): boolean {
+        return !!this.getAttribute("business.bridgechains");
     }
 
     public hasVoted(): boolean {
