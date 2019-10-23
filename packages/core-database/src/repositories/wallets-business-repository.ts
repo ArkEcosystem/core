@@ -236,7 +236,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return {
             query,
             entries,
-            defaultOrder: ["id", "asc"],
+            defaultOrder: ["name", "asc"],
         };
     }
 
@@ -264,7 +264,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return {
             query,
             entries,
-            defaultOrder: ["id", "asc"],
+            defaultOrder: ["name", "asc"],
         };
     }
 }
