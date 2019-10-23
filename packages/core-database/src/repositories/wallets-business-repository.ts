@@ -217,22 +217,26 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    // TODO
     private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
-        const query: Record<string, string[]> = {};
+        const query: Record<string, string[]> = {
+            exact: ["id", "name", "website"],
+        };
+
         const entries: any[] = this.databaseServiceProvider()
             .walletManager.getIndex("businesses")
             .values()
             .map(wallet => {
-                const business: Interfaces.IHtlcLocks = wallet.getAttribute("business");
-                return business;
-            })
-            .filter(business => !!business);
+                const business: any = wallet.getAttribute("business");
+                return {
+                    id: business.businessId,
+                    ...business.businessAsset,
+                };
+            });
 
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["id", "asc"],
         };
     }
 

@@ -6,7 +6,7 @@ export const index: object = {
         ...pagination,
         ...{
             orderBy: Joi.string(),
-            businessId: Joi.number()
+            id: Joi.number()
                 .integer()
                 .min(1),
         },
@@ -29,7 +29,7 @@ export const search: object = {
         },
     },
     payload: {
-        businessId: Joi.number()
+        id: Joi.number()
             .integer()
             .min(1),
     },

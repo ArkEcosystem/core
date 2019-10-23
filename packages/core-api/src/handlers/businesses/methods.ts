@@ -17,7 +17,7 @@ const index = async request => {
 
 const show = async request => {
     const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        businessId: request.params.id,
+        id: request.params.id,
     }).rows[0];
 
     if (!business) {
