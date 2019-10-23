@@ -7,6 +7,7 @@ import { DatabaseEvent } from "./events";
 import { BlockRepository } from "./repositories/block-repository";
 import { RoundRepository } from "./repositories/round-repository";
 import { TransactionRepository } from "./repositories/transaction-repository";
+import { Block } from "./models";
 
 // TODO: maybe we should introduce `BlockLike`, `TransactionLike`, `RoundLke` interfaces to remove the need to cast
 @Container.injectable()
@@ -188,7 +189,7 @@ export class DatabaseService {
 
         delegates = delegates.map(delegate => delegate.clone());
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-            for (let x = 0; x < 4 && i < delCount; i++, x++) {
+            for (let x = 0; x < 4 && i < delCount; i++ , x++) {
                 const newIndex = currentSeed[x] % delCount;
                 const b = delegates[newIndex];
                 delegates[newIndex] = delegates[i];
@@ -575,6 +576,16 @@ export class DatabaseService {
     private async initializeLastBlock(): Promise<void> {
         let lastBlock: Interfaces.IBlock | undefined;
         let tries = 5;
+
+        // Ensure the config manager is initialized, before attempting to call `fromData`
+        // which otherwise uses potentially wrong milestones.
+        let lastHeight: number = 1;
+        const latest: Interfaces.IBlockData | undefined = await this.blockRepository.findLatest();
+        if (latest) {
+            lastHeight = latest.height;
+        }
+
+        Managers.configManager.setHeight(lastHeight);
 
         const getLastBlock = async (): Promise<Interfaces.IBlock | undefined> => {
             try {
