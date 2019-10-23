@@ -36,10 +36,10 @@ describe("Configuration", () => {
         const milestones = devnet.milestones.sort((a, b) => a.height - b.height);
         configManager.setHeight(milestones[0].height);
 
-        const lastVersions = milestones.find(milestone => !!milestone.p2p && !!milestone.p2p.minimumVersions);
+        const lastMilestone = milestones.find(milestone => !!milestone.p2p && !!milestone.p2p.minimumVersions);
 
-        if (lastVersions && !!configManager.getMilestone().p2p) {
-            expect(configManager.getMilestone().p2p.minimumVersions).toEqual(lastVersions);
+        if (lastMilestone && lastMilestone.p2p && configManager.getMilestone().p2p) {
+            expect(configManager.getMilestone().p2p.minimumVersions).toEqual(lastMilestone.p2p.minimumVersions);
         }
     });
 
