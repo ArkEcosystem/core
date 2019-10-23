@@ -245,18 +245,21 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             exact: ["id", "businessId", "name", "genesishash"],
         };
 
-        const entries: any[][] = this.databaseServiceProvider()
+        const entries: any[] = this.databaseServiceProvider()
             .walletManager.getIndex("bridgechains")
             .values()
-            .map(wallet => {
-                const business = wallet.getAttribute("business");
-                const bridgechain = wallet.getAttribute("business.bridgechains");
-                return {
-                    id: bridgechain.bridgechainId,
-                    businessId: business.businessId,
-                    ...bridgechain.bridgechainAsset
-                };
-            });
+            .reduce((acc, wallet) => {
+                const business: any = wallet.getAttribute("business");
+                const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
+                for (const bridgechain of Object.values(bridgechains)) {
+                    acc.push({
+                        id: bridgechain.bridgechainId,
+                        businessId: business.businessId,
+                        ...bridgechain.bridgechainAsset,
+                    });
+                }
+                return acc;
+            }, []);
 
         return {
             query,
