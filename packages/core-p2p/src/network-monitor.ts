@@ -368,6 +368,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
                 let blocks: Interfaces.IBlockData[];
                 let peer: P2P.IPeer;
+                let peerPrint: string;
+
                 // As a first peer to try, pick such a peer that different jobs use different peers.
                 // If that peer fails then pick randomly from the remaining peers that have not
                 // been first-attempt for any job.
@@ -377,15 +379,22 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                 ];
 
                 for (peer of peersToTry) {
-                    blocks = await this.communicator.downloadBlocks(peer, height);
+                    peerPrint = `${peer.ip}:${peer.port}`;
+                    try {
+                        blocks = await this.communicator.getPeerBlocks(peer, { fromBlockHeight: height });
 
-                    if (blocks.length === chunkSize || (isLastChunk && blocks.length > 0)) {
-                        this.logger.debug(
-                            `Downloaded blocks ${blocksRange} (${blocks.length}) ` +
-                            `from ${peer.ip}:${peer.port}`
+                        if (blocks.length === chunkSize || (isLastChunk && blocks.length > 0)) {
+                            this.logger.debug(
+                                `Downloaded blocks ${blocksRange} (${blocks.length}) ` +
+                                `from ${peerPrint}`
+                            );
+                            downloadResults[i] = blocks;
+                            return;
+                        }
+                    } catch (error) {
+                        this.logger.info(
+                            `Failed to download blocks ${blocksRange} from ${peerPrint}: ${error.message}`
                         );
-                        downloadResults[i] = blocks;
-                        return;
                     }
 
                     if (someJobFailed) {
@@ -397,7 +406,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
                 throw new Error(
                     `Could not download blocks ${blocksRange} from any of ${peersToTry.length} ` +
-                    `peer(s). Last attempt returned ${blocks.length} block(s) from peer ${peer.ip}.`
+                    `peer(s). Last attempt returned ${blocks.length} block(s) from peer ${peerPrint}.`
                 );
             });
 
