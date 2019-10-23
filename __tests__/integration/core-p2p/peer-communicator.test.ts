@@ -5,7 +5,6 @@ import { eventEmitter } from "./mocks/core-container";
 import { P2P } from "@arkecosystem/core-interfaces";
 import { Transactions } from "@arkecosystem/crypto";
 import { getPeerConfig } from "../../../packages/core-p2p/src/socket-server/utils/get-peer-config";
-import { BlockFactory } from "../../helpers";
 import { createPeerService, createStubPeer } from "../../helpers/peers";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { genesisBlock } from "../../utils/config/unitnet/genesisBlock";
