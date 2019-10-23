@@ -29,9 +29,7 @@ export interface IWallet {
     setAttribute<T = any>(key: string, value: T): void;
     forgetAttribute(key: string): void;
 
-    isBusiness(): boolean;
     isDelegate(): boolean;
-    hasBridgechains(): boolean;
     hasVoted(): boolean;
     hasSecondSignature(): boolean;
     hasMultiSignature(): boolean;
