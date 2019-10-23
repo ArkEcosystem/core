@@ -33,11 +33,10 @@ describe("Configuration", () => {
     });
 
     it('should build milestones without concatenating the "minimumVersions" array', () => {
-        configManager.setHeight(4006000);
+        const milestones = devnet.milestones.sort((a, b) => a.height - b.height);
+        configManager.setHeight(milestones[0].height);
 
-        const lastVersions = devnet.milestones
-            .sort((a, b) => a.height - b.height)
-            .find(milestone => !!milestone.p2p && !!milestone.p2p.minimumVersions);
+        const lastVersions = milestones.find(milestone => !!milestone.p2p && !!milestone.p2p.minimumVersions);
 
         if (lastVersions && !!configManager.getMilestone().p2p) {
             expect(configManager.getMilestone().p2p.minimumVersions).toEqual(lastVersions);
