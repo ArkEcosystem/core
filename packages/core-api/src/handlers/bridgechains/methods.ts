@@ -17,7 +17,7 @@ const index = async request => {
 
 const show = async request => {
     const bridgechain = databaseService.wallets.search(Database.SearchScope.Bridgechains, {
-        bridgechainId: request.params.id,
+        id: request.params.id,
     }).rows[0];
 
     if (!bridgechain) {

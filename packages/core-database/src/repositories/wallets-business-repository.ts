@@ -240,22 +240,28 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         };
     }
 
-    // TODO
     private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
-        const query: Record<string, string[]> = {};
+        const query: Record<string, string[]> = {
+            exact: ["id", "businessId", "name", "genesishash"],
+        };
 
         const entries: any[][] = this.databaseServiceProvider()
             .walletManager.getIndex("bridgechains")
             .values()
             .map(wallet => {
-                return wallet.getAttribute("business.bridgechains");
-            })
-            .filter(bridgchain => !!bridgchain);
+                const business = wallet.getAttribute("business");
+                const bridgechain = wallet.getAttribute("business.bridgechains");
+                return {
+                    id: bridgechain.bridgechainId,
+                    businessId: business.businessId,
+                    ...bridgechain.bridgechainAsset
+                };
+            });
 
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["id", "asc"],
         };
     }
 }
