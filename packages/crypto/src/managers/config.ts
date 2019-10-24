@@ -100,8 +100,12 @@ export class ConfigManager {
 
         let lastMerged = 0;
 
+        const overwriteMerge = (dest, source, options) => source;
+
         while (lastMerged < this.milestones.length - 1) {
-            this.milestones[lastMerged + 1] = deepmerge(this.milestones[lastMerged], this.milestones[lastMerged + 1]);
+            this.milestones[lastMerged + 1] = deepmerge(this.milestones[lastMerged], this.milestones[lastMerged + 1], {
+                arrayMerge: overwriteMerge,
+            });
             lastMerged++;
         }
     }
