@@ -1,4 +1,4 @@
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
@@ -38,7 +38,7 @@ describe("Transaction Forging - Bridgechain update", () => {
 
             // Updating a bridgechain
             let bridgechainUpdate = TransactionFactory.bridgechainUpdate({
-                bridgechainId: Utils.BigNumber.ONE,
+                bridgechainId: 1,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
             })
                 .withPassphrase(secrets[0])
@@ -49,7 +49,7 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainUpdate.id).toBeForged();
 
             // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.bridgechainResignation("1")
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(1)
                 .withPassphrase(secrets[0])
                 .createOne();
             await expect(bridgechainResignation).toBeAccepted();
@@ -58,7 +58,7 @@ describe("Transaction Forging - Bridgechain update", () => {
 
             // Updating a bridgechain after resignation
             bridgechainUpdate = TransactionFactory.bridgechainUpdate({
-                bridgechainId: Utils.BigNumber.ONE,
+                bridgechainId: 1,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
             })
                 .withPassphrase(secrets[0])
@@ -124,7 +124,7 @@ describe("Transaction Forging - Bridgechain update", () => {
 
             // Update a bridgechian
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
-                bridgechainId: Utils.BigNumber.make("2"),
+                bridgechainId: 2,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
             })
                 .withPassphrase(passphrase)
@@ -208,7 +208,7 @@ describe("Transaction Forging - Bridgechain update", () => {
 
             // Update a bridgechian
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
-                bridgechainId: Utils.BigNumber.make("3"),
+                bridgechainId: 3,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
             })
                 .withSenderPublicKey(multiSigPublicKey)

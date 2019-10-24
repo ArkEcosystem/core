@@ -11,7 +11,7 @@ export const businessIndexer = (index: State.IWalletIndex, wallet: Wallets.Walle
     if (wallet.hasAttribute("business")) {
         const business: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>("business");
         if (business !== undefined && !business.resigned) {
-            index.set(business.businessId.toFixed(), wallet);
+            index.set(business.businessId.toString(), wallet);
         }
     }
 };

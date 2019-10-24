@@ -102,7 +102,7 @@ describe("Business registration handler", () => {
 
             const wallet = walletManager.findByIndex(
                 MagistrateIndex.Businesses,
-                senderWallet.getAttribute<IBusinessWalletAttributes>("business").businessId.toFixed(),
+                senderWallet.getAttribute<IBusinessWalletAttributes>("business").businessId.toString(),
             );
 
             expect(wallet).toStrictEqual(senderWallet);
@@ -112,7 +112,7 @@ describe("Business registration handler", () => {
     describe("revertForSender", () => {
         it("should not fail", async () => {
             senderWallet.setAttribute<IBusinessWalletAttributes>("business", {
-                businessId: Utils.BigNumber.ONE,
+                businessId: 1,
                 businessAsset: businessRegistrationAsset1,
             });
             senderWallet.nonce = Utils.BigNumber.make(1);
@@ -127,7 +127,7 @@ describe("Business registration handler", () => {
 
         it("should be undefined", async () => {
             senderWallet.setAttribute<IBusinessWalletAttributes>("business", {
-                businessId: Utils.BigNumber.ONE,
+                businessId: 1,
                 businessAsset: businessRegistrationAsset1,
             });
             senderWallet.nonce = Utils.BigNumber.make(1);

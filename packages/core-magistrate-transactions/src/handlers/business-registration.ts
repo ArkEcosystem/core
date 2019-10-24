@@ -1,7 +1,7 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
@@ -122,7 +122,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 
-    private getBusinessId(walletManager: State.IWalletManager): Utils.BigNumber {
-        return Utils.BigNumber.make(walletManager.getIndex(MagistrateIndex.Businesses).values().length).plus(1);
+    private getBusinessId(walletManager: State.IWalletManager): number {
+        return walletManager.getIndex(MagistrateIndex.Businesses).values().length + 1;
     }
 }
