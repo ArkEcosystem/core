@@ -1,12 +1,12 @@
 {
     "name": "unitnet",
-    "messagePrefix": "UNIT message:\n",
+    "messagePrefix": "unitnet message:\n",
     "bip32": {
         "public": 70617039,
         "private": 70615956
     },
     "pubKeyHash": 23,
-    "nethash": "a63b5a3858afbca23edefac885be74d59f1a26985548a4082f4f479e74fcc348",
+    "nethash": "c7d8b69da7de617e62703097d4c16dece7c261cf24fb37f966cb7c8779b236d2",
     "wif": 186,
     "slip44": 1,
     "aip20": 0,

@@ -20,7 +20,7 @@ export class Wallet implements Contracts.State.Wallet {
 
     private readonly attributes: Services.Attributes.AttributeMap;
 
-    public constructor (address: string) {
+    public constructor(address: string) {
         this.address = address;
         this.balance = Utils.BigNumber.ZERO;
         this.nonce = Utils.BigNumber.ZERO;
@@ -70,9 +70,16 @@ export class Wallet implements Contracts.State.Wallet {
         const attributes: object = this.attributes.all();
 
         const hasAttributes: boolean = !!attributes && Object.keys(attributes).length > 0;
-        const lockedBalance = this.getAttribute("htlc.lockedBalance");
 
-        return this.balance.isZero() && lockedBalance.isZero() && !hasAttributes;
+        if (this.hasAttribute("htlc.lockedBalance")) {
+            const lockedBalance: AppUtils.BigNumber = this.getAttribute("htlc.lockedBalance");
+
+            if (!lockedBalance.isZero()) {
+                return false;
+            }
+        }
+
+        return this.balance.isZero() && !hasAttributes;
     }
 
     public applyBlock(block: Interfaces.IBlockData): boolean {

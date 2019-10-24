@@ -29,7 +29,8 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
 
-            const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
+            const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
+
             locks[transaction.id] = {
                 amount: Utils.BigNumber.make(transaction.amount),
                 recipientId: transaction.recipientId,
@@ -37,6 +38,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
                 vendorField: transaction.vendorField ? transaction.vendorField : undefined,
                 ...transaction.asset.lock,
             };
+
             wallet.setAttribute("htlc.locks", locks);
 
             const lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance");
@@ -102,9 +104,8 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             walletRepository.findByPublicKey(AppUtils.assert.defined(transaction.data.senderPublicKey)),
         );
 
-        const locks: Interfaces.IHtlcLocks | undefined = sender.getAttribute("htlc.locks");
-        // @ts-ignore
-        locks[transaction.id] = {
+        const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks", {});
+        locks[transaction.id!] = {
             amount: transaction.data.amount,
             recipientId: transaction.data.recipientId,
             timestamp: transaction.timestamp,
@@ -113,7 +114,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         };
         sender.setAttribute("htlc.locks", locks);
 
-        const lockedBalance: Utils.BigNumber = sender.getAttribute("htlc.lockedBalance");
+        const lockedBalance: Utils.BigNumber = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         sender.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.data.amount));
 
         walletRepository.reindex(sender);
@@ -141,10 +142,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

@@ -32,6 +32,7 @@ describe("GenerateCommand", () => {
             "--token=myn",
             "--symbol=my",
             "--explorer=myex.io",
+            "--distribute",
         ]);
 
         expect(existsSync).toHaveBeenCalledWith(configCore);
@@ -70,6 +71,7 @@ describe("GenerateCommand", () => {
                 "--token=myn",
                 "--symbol=my",
                 "--explorer=myex.io",
+                "--distribute",
             ]),
         ).rejects.toThrow(`${configCore} already exists.`);
 
@@ -97,6 +99,7 @@ describe("GenerateCommand", () => {
                 "--token=myn",
                 "--symbol=my",
                 "--explorer=myex.io",
+                "--distribute",
             ]),
         ).rejects.toThrow(`${configCrypto} already exists.`);
 
@@ -138,6 +141,7 @@ describe("GenerateCommand", () => {
             "myn",
             "my",
             "myex.io",
+            true,
             false,
         ]);
 
@@ -165,6 +169,7 @@ describe("GenerateCommand", () => {
             "myn",
             "my",
             "myex.io",
+            true,
             true,
         ]);
 

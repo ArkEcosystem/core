@@ -20,7 +20,7 @@ export class WalletState {
         if (delegates.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${delegates.length}. ` +
-                `This indicates an issue with the genesis block & delegates.`,
+                    `This indicates an issue with the genesis block & delegates.`,
             );
         }
 
@@ -33,13 +33,18 @@ export class WalletState {
     public buildVoteBalances(): void {
         for (const voter of this.walletRepository.allByPublicKey()) {
             if (voter.hasVoted()) {
-                const delegate: Contracts.State.Wallet = AppUtils.assert.defined(
-                    this.walletRepository.findByPublicKey(voter.getAttribute<string>("vote")),
+                const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+                    voter.getAttribute("vote"),
                 );
 
                 const voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
-                const lockedBalance = voter.getAttribute("htlc.lockedBalance");
-                delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance).plus(lockedBalance));
+
+                if (voter.hasAttribute("htlc.lockedBalance")) {
+                    delegate.setAttribute(
+                        "delegate.voteBalance",
+                        voteBalance.plus(voter.balance).plus(voter.getAttribute("htlc.lockedBalance")),
+                    );
+                }
             }
         }
     }

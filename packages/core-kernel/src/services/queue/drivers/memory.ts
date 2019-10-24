@@ -1,8 +1,8 @@
-import { assert } from "@packages/core-kernel/src/utils";
 import PQueue from "p-queue";
 
 import { Queue } from "../../../contracts/kernel/queue";
 import { injectable } from "../../../ioc";
+import { assert } from "../../../utils";
 
 /**
  * @export

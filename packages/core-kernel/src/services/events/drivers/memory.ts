@@ -1,9 +1,9 @@
-import { assert } from "@packages/core-kernel/src/utils";
 import mm from "micromatch";
 
 import { EventDispatcher as EventDispatcherContract } from "../../../contracts/kernel/events";
 import { injectable } from "../../../ioc";
 import { EventListener, EventName } from "../../../types/events";
+import { assert } from "../../../utils";
 
 /**
  * @export

@@ -1,4 +1,3 @@
-import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import { generateMnemonic } from "bip39";
@@ -11,13 +10,20 @@ import { abort } from "../../common/cli";
 import { TaskService } from "../../common/task.service";
 import { CommandFlags } from "../../types";
 
+interface Wallet {
+    address: string;
+    passphrase: string;
+    keys: Interfaces.IKeyPair;
+    username: string | undefined;
+}
+
 // todo: review implementation - nOS previously reported some issues
 export class GenerateCommand extends Command {
     public static description = "Generates a new network configuration";
 
     public static examples: string[] = [
         `Generates a new network configuration
-$ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --blocktime=9 --maxTxPerBlock=122 --maxBlockPayload=123444 --rewardHeight=23000 --rewardAmount=66000 --pubKeyHash=168 --wif=27 --token=myn --symbol=my --explorer=myex.io
+$ ark network:generate --network=mynet7 --premine=120000000000 --delegates=47 --blocktime=9 --maxTxPerBlock=122 --maxBlockPayload=123444 --rewardHeight=23000 --rewardAmount=66000 --pubKeyHash=168 --wif=27 --token=myn --symbol=my --explorer=myex.io
 `,
     ];
 
@@ -68,6 +74,10 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         explorer: flags.string({
             description: "the explorer url that should be used",
         }),
+        distribute: flags.boolean({
+            description: "distribute the premine evenly between all delegates",
+            default: false,
+        }),
     };
 
     public async run(): Promise<void> {
@@ -77,7 +87,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
             return this.generateNetwork(flags);
         }
 
-        const stringFlags = ["network", "premine", "token", "symbol", "explorer"];
+        const stringFlags: string[] = ["network", "premine", "token", "symbol", "explorer"];
         const response = await prompts(
             Object.keys(GenerateCommand.flags)
                 .map(
@@ -108,8 +118,8 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
     }
 
     private async generateNetwork(flags: CommandFlags): Promise<void> {
-        const coreConfigDest = resolve(__dirname, `../../../bin/config/${flags.network}`);
-        const cryptoConfigDest = resolve(__dirname, `../../../../crypto/src/networks/${flags.network}`);
+        const coreConfigDest: string = resolve(__dirname, `../../../bin/config/${flags.network}`);
+        const cryptoConfigDest: string = resolve(__dirname, `../../../../crypto/src/networks/${flags.network}`);
 
         const delegates: any[] = this.generateCoreDelegates(flags.delegates, flags.pubKeyHash);
 
@@ -128,59 +138,70 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         });
 
         tasks.add("Generate crypto network configuration", async () => {
-            const genesisWallet = this.createWallet(flags.pubKeyHash);
             const genesisBlock = this.generateCryptoGenesisBlock(
-                genesisWallet,
+                this.createWallet(flags.pubKeyHash),
                 delegates,
                 flags.pubKeyHash,
                 flags.premine,
+                flags.distribute,
             );
 
-            const network = this.generateCryptoNetwork(
-                flags.network,
-                flags.pubKeyHash,
-                genesisBlock.payloadHash,
-                flags.wif,
-                flags.token,
-                flags.symbol,
-                flags.explorer,
+            writeJSONSync(
+                resolve(cryptoConfigDest, "network.json"),
+                this.generateCryptoNetwork(
+                    flags.network,
+                    flags.pubKeyHash,
+                    genesisBlock.payloadHash,
+                    flags.wif,
+                    flags.token,
+                    flags.symbol,
+                    flags.explorer,
+                ),
+                { spaces: 4 },
             );
 
-            const milestones = this.generateCryptoMilestones(
-                flags.delegates,
-                flags.blocktime,
-                flags.maxTxPerBlock,
-                flags.maxBlockPayload,
-                flags.rewardHeight,
-                flags.rewardAmount,
+            writeJSONSync(
+                resolve(cryptoConfigDest, "milestones.json"),
+                this.generateCryptoMilestones(
+                    flags.delegates,
+                    flags.blocktime,
+                    flags.maxTxPerBlock,
+                    flags.maxBlockPayload,
+                    flags.rewardHeight,
+                    flags.rewardAmount,
+                ),
+                { spaces: 4 },
             );
 
-            writeJSONSync(resolve(cryptoConfigDest, "network.json"), network, { spaces: 2 });
-            writeJSONSync(resolve(cryptoConfigDest, "milestones.json"), milestones, { spaces: 2 });
-            writeJSONSync(resolve(cryptoConfigDest, "genesisBlock.json"), genesisBlock, { spaces: 2 });
+            writeJSONSync(resolve(cryptoConfigDest, "genesisBlock.json"), genesisBlock, { spaces: 4 });
+
             writeJSONSync(resolve(cryptoConfigDest, "exceptions.json"), {});
 
-            const indexFile = [
-                'import exceptions from "./exceptions.json";',
-                'import genesisBlock from "./genesisBlock.json";',
-                'import milestones from "./milestones.json";',
-                'import network from "./network.json";',
-                "",
-                `export const ${flags.network} = { exceptions, genesisBlock, milestones, network };`,
-            ];
-            writeFileSync(resolve(cryptoConfigDest, "index.ts"), indexFile.join("\n"));
+            writeFileSync(
+                resolve(cryptoConfigDest, "index.ts"),
+                [
+                    'import exceptions from "./exceptions.json";',
+                    'import genesisBlock from "./genesisBlock.json";',
+                    'import milestones from "./milestones.json";',
+                    'import network from "./network.json";',
+                    "",
+                    `export const ${flags.network} = { exceptions, genesisBlock, milestones, network };`,
+                    "",
+                ].join("\n"),
+            );
         });
 
         tasks.add("Generate core network configuration", async () => {
-            writeJSONSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 2 });
+            writeJSONSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 4 });
+
             writeJSONSync(
                 resolve(coreConfigDest, "delegates.json"),
-                {
-                    secrets: delegates.map(d => AppUtils.assert.defined(d.passphrase)),
-                },
-                { spaces: 2 },
+                { secrets: delegates.map(d => d.passphrase) },
+                { spaces: 4 },
             );
+
             copyFileSync(resolve(coreConfigDest, "../testnet/.env"), resolve(coreConfigDest, ".env"));
+
             copyFileSync(resolve(coreConfigDest, "../testnet/app.js"), resolve(coreConfigDest, "app.js"));
         });
 
@@ -219,8 +240,8 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
     private generateCryptoMilestones(
         activeDelegates: number,
         blocktime: number,
-        maxTxPerBlock: number,
-        maxBlockPayload: number,
+        maxTransactions: number,
+        maxPayload: number,
         rewardHeight: number,
         rewardAmount: number,
     ) {
@@ -232,8 +253,8 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
                 blocktime,
                 block: {
                     version: 0,
-                    maxTransactions: maxTxPerBlock,
-                    maxPayload: maxBlockPayload,
+                    maxTransactions,
+                    maxPayload,
                 },
                 epoch: "2017-03-21T13:00:00.000Z",
                 fees: {
@@ -244,62 +265,81 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
                         vote: 100000000,
                         multiSignature: 500000000,
                         ipfs: 500000000,
-                        multiPayment: 0,
+                        multiPayment: 10000000,
                         delegateResignation: 2500000000,
+                        htlcLock: 10000000,
+                        htlcClaim: 0,
+                        htlcRefund: 0,
                     },
                 },
                 vendorFieldLength: 64,
+                multiPaymentLimit: 500,
                 aip11: true,
             },
             {
                 height: rewardHeight,
                 reward: rewardAmount,
             },
+            {
+                height: 100000,
+                vendorFieldLength: 255,
+            },
+            {
+                height: 4000000,
+                block: {
+                    idFullSha256: true,
+                },
+            },
         ];
     }
 
-    private generateCryptoGenesisBlock(genesisWallet, delegates, pubKeyHash: number, totalPremine: string) {
-        const premineWallet = this.createWallet(pubKeyHash);
+    private generateCryptoGenesisBlock(
+        genesisWallet,
+        delegates,
+        pubKeyHash: number,
+        totalPremine: string,
+        distribute: number,
+    ) {
+        const premineWallet: Wallet = this.createWallet(pubKeyHash);
 
-        const transactions = [
-            ...this.buildDelegateTransactions(delegates),
-            this.createTransferTransaction(premineWallet, genesisWallet, totalPremine),
-        ];
+        let transactions = [];
 
-        const genesisBlock = this.createGenesisBlock(premineWallet.keys, transactions, 0);
+        if (distribute) {
+            transactions = transactions.concat(
+                ...this.createTransferTransactions(premineWallet, delegates, totalPremine, pubKeyHash),
+            );
+        } else {
+            transactions = transactions.concat(
+                this.createTransferTransaction(premineWallet, genesisWallet, totalPremine, pubKeyHash),
+            );
+        }
 
-        return genesisBlock;
+        transactions = transactions.concat(
+            ...this.buildDelegateTransactions(delegates, pubKeyHash),
+            ...this.buildVoteTransactions(delegates, pubKeyHash),
+        );
+
+        return this.createGenesisBlock(premineWallet.keys, transactions, 0);
     }
 
-    private generateCoreDelegates(activeDelegates: number, pubKeyHash: number) {
-        const wallets: {
-            address: string;
-            passphrase: string;
-            keys: Interfaces.IKeyPair;
-            username: string | undefined;
-        }[] = [];
+    private generateCoreDelegates(activeDelegates: number, pubKeyHash: number): Wallet[] {
+        const wallets: Wallet[] = [];
         for (let i = 0; i < activeDelegates; i++) {
-            const delegateWallet = this.createWallet(pubKeyHash);
-            if (delegateWallet) {
-                delegateWallet.username = `genesis_${i + 1}`;
+            const delegateWallet: Wallet = this.createWallet(pubKeyHash);
+            delegateWallet.username = `genesis_${i + 1}`;
 
-                wallets.push(delegateWallet);
-            }
+            wallets.push(delegateWallet);
         }
 
         return wallets;
     }
 
-    private createWallet(
-        pubKeyHash: number,
-    ): {
-        address: string;
-        passphrase: string;
-        keys: Interfaces.IKeyPair;
-        username: string | undefined;
-    } {
-        const passphrase = generateMnemonic();
-        const keys = Identities.Keys.fromPassphrase(passphrase);
+    private createWallet(pubKeyHash: number, passphrase?: string): Wallet {
+        if (!passphrase) {
+            passphrase = generateMnemonic();
+        }
+
+        const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(passphrase);
 
         return {
             address: Identities.Address.fromPublicKey(keys.publicKey, pubKeyHash),
@@ -309,29 +349,61 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         };
     }
 
-    private buildDelegateTransactions(delegatesWallets) {
-        return delegatesWallets.map(w => {
-            const { data: transaction } = Transactions.BuilderFactory.delegateRegistration()
-                .usernameAsset(w.username)
-                .fee(`${25 * 10e8}`)
-                .sign(w.passphrase);
-
-            return this.formatGenesisTransaction(transaction, w);
-        });
+    private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string, pubKeyHash: number): any {
+        return this.formatGenesisTransaction(
+            Transactions.BuilderFactory.transfer()
+                .network(pubKeyHash)
+                .recipientId(recipient.address)
+                .amount(amount)
+                .sign(sender.passphrase).data,
+            sender,
+        );
     }
 
-    private createTransferTransaction(senderWallet, receiverWallet, amount) {
-        const { data: transaction } = Transactions.BuilderFactory.transfer()
-            .recipientId(receiverWallet.address)
-            .amount(amount)
-            .sign(senderWallet.passphrase);
+    private createTransferTransactions(
+        sender: Wallet,
+        recipients: Wallet[],
+        totalPremine: string,
+        pubKeyHash: number,
+    ): any {
+        const amount: string = Utils.BigNumber.make(totalPremine)
+            .dividedBy(recipients.length)
+            .toString();
 
-        return this.formatGenesisTransaction(transaction, senderWallet);
+        return recipients.map((recipientWallet: Wallet) =>
+            this.createTransferTransaction(sender, recipientWallet, amount, pubKeyHash),
+        );
     }
 
-    private formatGenesisTransaction(transaction, wallet) {
+    private buildDelegateTransactions(senders: Wallet[], pubKeyHash: number) {
+        return senders.map((sender: Wallet) =>
+            this.formatGenesisTransaction(
+                Transactions.BuilderFactory.delegateRegistration()
+                    .network(pubKeyHash)
+                    .usernameAsset(sender.username!)
+                    .fee(`${25 * 1e8}`)
+                    .sign(sender.passphrase).data,
+                sender,
+            ),
+        );
+    }
+
+    private buildVoteTransactions(senders: Wallet[], pubKeyHash: number) {
+        return senders.map((sender: Wallet) =>
+            this.formatGenesisTransaction(
+                Transactions.BuilderFactory.vote()
+                    .network(pubKeyHash)
+                    .votesAsset([`+${sender.keys.publicKey}`])
+                    .fee(`${1 * 1e8}`)
+                    .sign(sender.passphrase).data,
+                sender,
+            ),
+        );
+    }
+
+    private formatGenesisTransaction(transaction, wallet: Wallet) {
         Object.assign(transaction, {
-            fee: 0,
+            fee: "0",
             timestamp: 0,
         });
         transaction.signature = Transactions.Signer.sign(transaction, wallet.keys);
@@ -340,7 +412,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         return transaction;
     }
 
-    private createGenesisBlock(keys, transactions, timestamp) {
+    private createGenesisBlock(keys: Interfaces.IKeyPair, transactions, timestamp: number) {
         transactions = transactions.sort((a, b) => {
             if (a.type === b.type) {
                 return a.amount - b.amount;
@@ -350,31 +422,33 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         });
 
         let payloadLength = 0;
-        let totalFee = 0;
-        let totalAmount = Utils.BigNumber.ZERO;
+        let totalFee: Utils.BigNumber = Utils.BigNumber.ZERO;
+        let totalAmount: Utils.BigNumber = Utils.BigNumber.ZERO;
         const allBytes: Buffer[] = [];
 
         for (const transaction of transactions) {
-            const bytes: Buffer = AppUtils.assert.defined(Transactions.Serializer.getBytes(transaction));
+            const bytes: Buffer = Transactions.Serializer.getBytes(transaction);
 
             allBytes.push(bytes);
+
             payloadLength += bytes.length;
-            totalFee += transaction.fee;
-            totalAmount = totalAmount.plus(new Utils.BigNumber(transaction.amount));
+            totalFee = totalFee.plus(transaction.fee);
+            totalAmount = totalAmount.plus(Utils.BigNumber.make(transaction.amount));
         }
 
-        const payloadHash = Crypto.HashAlgorithms.sha256(Buffer.concat(allBytes));
+        const payloadHash: Buffer = Crypto.HashAlgorithms.sha256(Buffer.concat(allBytes));
 
         const block: any = {
             version: 0,
             totalAmount: totalAmount.toString(),
-            totalFee,
-            reward: 0,
+            totalFee: totalFee.toString(),
+            reward: "0",
             payloadHash: payloadHash.toString("hex"),
             timestamp,
             numberOfTransactions: transactions.length,
             payloadLength,
             previousBlock: null,
+            // @ts-ignore
             generatorPublicKey: keys.publicKey.toString("hex"),
             transactions,
             height: 1,
@@ -389,9 +463,10 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         return block;
     }
 
-    private getBlockId(block) {
-        const hash = this.getHash(block);
-        const blockBuffer = Buffer.alloc(8);
+    private getBlockId(block): string {
+        const hash: Buffer = this.getHash(block);
+        const blockBuffer: Buffer = Buffer.alloc(8);
+
         for (let i = 0; i < 8; i++) {
             blockBuffer[i] = hash[7 - i];
         }
@@ -399,15 +474,15 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         return Utils.BigNumber.make(`0x${blockBuffer.toString("hex")}`).toString();
     }
 
-    private signBlock(block, keys) {
+    private signBlock(block, keys: Interfaces.IKeyPair): string {
         return Crypto.Hash.signECDSA(this.getHash(block), keys);
     }
 
-    private getHash(block) {
+    private getHash(block): Buffer {
         return Crypto.HashAlgorithms.sha256(this.getBytes(block));
     }
 
-    private getBytes(genesisBlock) {
+    private getBytes(genesisBlock): Buffer {
         const size = 4 + 4 + 4 + 8 + 4 + 4 + 8 + 8 + 4 + 4 + 4 + 32 + 32 + 64;
 
         const byteBuffer = new ByteBuffer(size, true);
@@ -426,22 +501,17 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
 
         byteBuffer.writeInt(genesisBlock.payloadLength);
 
-        const payloadHashBuffer = Buffer.from(genesisBlock.payloadHash, "hex");
-        for (const payloadHashByte of payloadHashBuffer) {
+        for (const payloadHashByte of Buffer.from(genesisBlock.payloadHash, "hex")) {
             byteBuffer.writeByte(payloadHashByte);
         }
 
-        const generatorPublicKeyBuffer = Buffer.from(genesisBlock.generatorPublicKey, "hex");
-
-        for (const generatorByte of generatorPublicKeyBuffer) {
+        for (const generatorByte of Buffer.from(genesisBlock.generatorPublicKey, "hex")) {
             byteBuffer.writeByte(generatorByte);
         }
 
         /* istanbul ignore next */
         if (genesisBlock.blockSignature) {
-            const blockSignatureBuffer = Buffer.from(genesisBlock.blockSignature, "hex");
-
-            for (const blockSignatureByte of blockSignatureBuffer) {
+            for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
                 byteBuffer.writeByte(blockSignatureByte);
             }
         }

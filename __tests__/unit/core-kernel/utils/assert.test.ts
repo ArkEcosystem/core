@@ -1,10 +1,11 @@
 import { assert } from "@packages/core-kernel/src/utils/assert";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
-import { genesisBlock } from "@packages/core-test-framework/src/utils/fixtures/blocks";
 
 Managers.configManager.setFromPreset("unitnet");
 
-const block: Interfaces.IBlock = Blocks.BlockFactory.fromData(genesisBlock, { deserializeTransactionsUnchecked: true });
+const block: Interfaces.IBlock = Blocks.BlockFactory.fromData(Managers.configManager.get("genesisBlock"), {
+    deserializeTransactionsUnchecked: true,
+});
 
 describe("Assertions", () => {
     it(".defined", () => {

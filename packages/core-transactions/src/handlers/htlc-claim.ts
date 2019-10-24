@@ -201,14 +201,16 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             await databaseService.transactionsBusinessRepository.findById(lockId),
         );
 
-        const lockWallet: Contracts.State.Wallet = AppUtils.assert.defined(lockTransaction.senderPublicKey);
-
-        const recipientWallet: Contracts.State.Wallet = AppUtils.assert.defined(lockTransaction.recipientId);
-
+        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
+            AppUtils.assert.defined(lockTransaction.recipientId),
+        );
         recipientWallet.balance = recipientWallet.balance.minus(lockTransaction.amount).plus(data.fee);
+
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(lockTransaction.senderPublicKey),
+        );
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
-
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
         locks[lockTransaction.id!] = {
@@ -227,10 +229,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

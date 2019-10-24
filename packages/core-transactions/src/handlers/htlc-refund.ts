@@ -195,10 +195,11 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
             AppUtils.assert.defined(lockTransaction.senderPublicKey),
         );
-
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
+
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
+
         const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks", {});
 
         if (locks) {
@@ -217,10 +218,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }
