@@ -69,13 +69,12 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         for (const block of forgedBlocks) {
             const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.generatorPublicKey);
 
-            const delegate: Contracts.State.WalletDelegateAttributes = wallet.getAttribute("delegate");
-
             // Genesis wallet is empty
-            if (!delegate) {
+            if (!wallet.hasAttribute("delegate")) {
                 continue;
             }
 
+            const delegate: Contracts.State.WalletDelegateAttributes = wallet.getAttribute("delegate");
             delegate.forgedFees = delegate.forgedFees.plus(block.totalFees);
             delegate.forgedRewards = delegate.forgedRewards.plus(block.totalRewards);
             delegate.producedBlocks += +block.totalProduced;
@@ -206,9 +205,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             AppUtils.assert.defined(transaction.data.senderPublicKey),
         );
 
-        const username: string = sender.getAttribute("delegate.username");
+        walletRepository.forgetByUsername(sender.getAttribute("delegate.username"));
 
-        walletRepository.forgetByUsername(username);
         sender.forgetAttribute("delegate");
     }
 

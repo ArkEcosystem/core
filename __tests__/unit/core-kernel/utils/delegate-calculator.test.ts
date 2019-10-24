@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { app } from "@arkecosystem/core-kernel";
+import { app, Container, Services } from "@arkecosystem/core-kernel";
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { AttributeService } from "@packages/core-kernel/src/services/attributes";
 import { Wallet } from "@packages/core-state/src/wallets";
@@ -16,15 +16,12 @@ beforeAll(() => {
         .to(AttributeService)
         .inSingletonScope();
 
-    app.get<AttributeService>(Identifiers.AttributeService).set("wallet");
+    app.bind<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .to(Services.Attributes.AttributeSet)
+        .inSingletonScope();
 
-    app.get<AttributeService>(Identifiers.AttributeService)
-        .get("wallet")
-        .bind("delegate");
-
-    app.get<AttributeService>(Identifiers.AttributeService)
-        .get("wallet")
-        .bind("delegate.voteBalance");
+    app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate");
+    app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate.voteBalance");
 
     Managers.configManager.set("genesisBlock.totalAmount", 1000000 * 1e8);
 });

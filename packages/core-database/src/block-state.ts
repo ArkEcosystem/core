@@ -52,7 +52,10 @@ export class BlockState {
                 const votedDelegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                     delegate.getAttribute<string>("vote"),
                 );
-                const voteBalance: Utils.BigNumber = votedDelegate.getAttribute("delegate.voteBalance");
+                const voteBalance: Utils.BigNumber = votedDelegate.getAttribute(
+                    "delegate.voteBalance",
+                    Utils.BigNumber.ZERO,
+                );
                 votedDelegate.setAttribute("delegate.voteBalance", voteBalance.plus(increase));
             }
         } catch (error) {
@@ -93,7 +96,10 @@ export class BlockState {
                 const votedDelegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                     delegate.getAttribute<string>("vote"),
                 );
-                const voteBalance: Utils.BigNumber = votedDelegate.getAttribute("delegate.voteBalance");
+                const voteBalance: Utils.BigNumber = votedDelegate.getAttribute(
+                    "delegate.voteBalance",
+                    Utils.BigNumber.ZERO,
+                );
                 votedDelegate.setAttribute("delegate.voteBalance", voteBalance.minus(decrease));
             }
         } catch (error) {
@@ -126,7 +132,11 @@ export class BlockState {
         await transactionHandler.apply(transaction, this.walletRepository);
 
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.data.recipientId);
+        let recipient: Contracts.State.Wallet | undefined;
+
+        if (this.walletRepository.hasByAddress(transaction.data.recipientId)) {
+            recipient = this.walletRepository.findByAddress(transaction.data.recipientId);
+        }
 
         this.applyVoteBalances(sender, recipient, transaction.data, lockWallet, lockTransaction);
     }
@@ -287,13 +297,17 @@ export class BlockState {
                 // go through all payments and update recipients delegates vote balance
                 for (const { recipientId, amount } of transaction.asset.payments) {
                     const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(recipientId);
-                    const vote = recipientWallet.getAttribute("vote");
-                    if (vote) {
-                        const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote);
+
+                    if (recipientWallet.hasAttribute("vote")) {
+                        const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+                            recipientWallet.getAttribute("vote"),
+                        );
+
                         const voteBalance: Utils.BigNumber = delegate.getAttribute(
                             "delegate.voteBalance",
                             Utils.BigNumber.ZERO,
                         );
+
                         delegate.setAttribute(
                             "delegate.voteBalance",
                             revert ? voteBalance.minus(amount) : voteBalance.plus(amount),

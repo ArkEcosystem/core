@@ -34,9 +34,13 @@ export class TransactionFactory {
     }
 
     public static delegateRegistration(username?: string): TransactionFactory {
-        return new TransactionFactory(
-            Transactions.BuilderFactory.delegateRegistration().usernameAsset(AppUtils.assert.defined(username)),
-        );
+        const builder = Transactions.BuilderFactory.delegateRegistration();
+
+        if (username) {
+            builder.usernameAsset(username);
+        }
+
+        return new TransactionFactory(builder);
     }
 
     public static delegateResignation(): TransactionFactory {

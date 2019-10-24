@@ -23,11 +23,6 @@ export class TransactionHandlerRegistry {
         TransactionHandler
     > = new Map();
 
-    // @ts-ignore
-    private readonly attributes: Services.Attributes.AttributeIndex = app
-        .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-        .get("wallet");
-
     public constructor() {
         this.registerTransactionHandler(TransferTransactionHandler);
         this.registerTransactionHandler(SecondSignatureTransactionHandler);
@@ -102,7 +97,7 @@ export class TransactionHandlerRegistry {
         }
 
         for (const attribute of service.walletAttributes()) {
-            this.attributes.bind(attribute);
+            app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set(attribute);
         }
 
         this.registeredTransactionHandlers.set(internalType, service);
@@ -128,7 +123,7 @@ export class TransactionHandlerRegistry {
         }
 
         for (const attribute of service.walletAttributes()) {
-            this.attributes.unbind(attribute);
+            app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).forget(attribute);
         }
 
         Transactions.TransactionRegistry.deregisterTransactionType(transactionConstructor);

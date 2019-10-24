@@ -2,9 +2,10 @@ import { strictEqual } from "assert";
 
 import { injectable } from "../../ioc";
 import { assert } from "../../utils";
-import { AttributeIndex } from "./attribute-index";
+import { AttributeMap } from "./attribute-map";
+import { AttributeSet } from "./attribute-set";
 
-interface AttributeIndexOptions {
+interface AttributeMapOptions {
     scope: string;
 }
 
@@ -12,44 +13,49 @@ interface AttributeIndexOptions {
 export class AttributeService {
     /**
      * @private
-     * @type {Map<string, AttributeIndex>}
+     * @type {Map<string, Map<string, AttributeMap>>}
      * @memberof AttributeService
      */
-    private readonly scopes: Map<string, Map<string, AttributeIndex>> = new Map<string, Map<string, AttributeIndex>>();
+    private readonly scopes: Map<string, Map<string, AttributeMap>> = new Map<string, Map<string, AttributeMap>>();
 
     /**
      * @param {string} name
-     * @param {AttributeIndexOptions} options
-     * @returns {AttributeIndex}
+     * @param {AttributeMapOptions} [options={ scope: "default" }]
+     * @returns {AttributeMap}
      * @memberof AttributeService
      */
-    public get(name: string, options: AttributeIndexOptions = { scope: "default" }): AttributeIndex {
-        return assert.defined(this.scope(options.scope).get(name), `Tried to get an unknown index: ${name}`);
+    public get(name: string, options: AttributeMapOptions = { scope: "default" }): AttributeMap {
+        return assert.defined(this.scope(options.scope).get(name), `Unknown index: ${name}`);
     }
 
     /**
      * @param {string} name
-     * @param {AttributeIndexOptions} options
+     * @param {AttributeSet} knownAttributes
+     * @param {AttributeMapOptions} [options={ scope: "default" }]
      * @returns {boolean}
      * @memberof AttributeService
      */
-    public set(name: string, options: AttributeIndexOptions = { scope: "default" }): boolean {
-        const scope: Map<string, AttributeIndex> = this.scope(options.scope);
+    public set(
+        name: string,
+        knownAttributes: AttributeSet,
+        options: AttributeMapOptions = { scope: "default" },
+    ): boolean {
+        const scope: Map<string, AttributeMap> = this.scope(options.scope);
 
-        strictEqual(scope.has(name), false, `Tried to set a known index: ${name}`);
+        strictEqual(scope.has(name), false, `Duplicate index: ${name}`);
 
-        scope.set(name, new AttributeIndex());
+        scope.set(name, new AttributeMap(knownAttributes));
 
         return scope.has(name);
     }
 
     /**
      * @param {string} name
-     * @param {AttributeIndexOptions} options
+     * @param {AttributeMapOptions} [options={ scope: "default" }]
      * @returns {boolean}
      * @memberof AttributeService
      */
-    public forget(name: string, options: AttributeIndexOptions = { scope: "default" }): boolean {
+    public forget(name: string, options: AttributeMapOptions = { scope: "default" }): boolean {
         return this.scope(options.scope).delete(name);
     }
 
@@ -59,7 +65,7 @@ export class AttributeService {
      * @memberof AttributeService
      */
     public flush(name?: string): boolean {
-        const scope: Map<string, Map<string, AttributeIndex>> | Map<string, AttributeIndex> = name
+        const scope: Map<string, Map<string, AttributeMap>> | Map<string, AttributeMap> = name
             ? this.scope(name)
             : this.scopes;
 
@@ -70,23 +76,23 @@ export class AttributeService {
 
     /**
      * @param {string} name
-     * @param {AttributeIndexOptions} options
+     * @param {AttributeMapOptions} [options={ scope: "default" }]
      * @returns {boolean}
      * @memberof AttributeService
      */
-    public has(name: string, options: AttributeIndexOptions = { scope: "default" }): boolean {
+    public has(name: string, options: AttributeMapOptions = { scope: "default" }): boolean {
         return this.scope(options.scope).has(name);
     }
 
     /**
      * @private
      * @param {string} name
-     * @returns {Map<string, AttributeIndex>}
+     * @returns {Map<string, AttributeMap>}
      * @memberof AttributeService
      */
-    private scope(name: string): Map<string, AttributeIndex> {
+    private scope(name: string): Map<string, AttributeMap> {
         if (!this.scopes.has(name)) {
-            this.scopes.set(name, new Map<string, AttributeIndex>());
+            this.scopes.set(name, new Map<string, AttributeMap>());
         }
 
         return assert.defined(this.scopes.get(name));

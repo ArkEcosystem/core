@@ -18,74 +18,56 @@ export class Wallet implements Contracts.State.Wallet {
     public balance: Utils.BigNumber;
     public nonce: Utils.BigNumber;
 
+    private readonly attributes: Services.Attributes.AttributeMap;
+
     public constructor (address: string) {
         this.address = address;
         this.balance = Utils.BigNumber.ZERO;
         this.nonce = Utils.BigNumber.ZERO;
 
+        this.attributes = new Services.Attributes.AttributeMap(
+            app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
+        );
     }
 
     public getAttributes() {
-        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
-        return app
-            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-            .get("wallet")
-            .all(this);
+        return this.attributes.all();
     }
 
     public getAttribute<T>(key: string, defaultValue?: T): T {
-        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
-        return app
-            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-            .get("wallet")
-            .get<T>(this, key, defaultValue);
+        return this.attributes.get<T>(key, defaultValue);
     }
 
     public setAttribute<T = any>(key: string, value: T): boolean {
-        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
-        return app
-            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-            .get("wallet")
-            .set<T>(this, key, value);
+        return this.attributes.set<T>(key, value);
     }
 
     public forgetAttribute(key: string): boolean {
-        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
-        return app
-            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-            .get("wallet")
-            .forget(this, key);
+        return this.attributes.forget(key);
     }
 
     public hasAttribute(key: string): boolean {
-        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
-        return app
-            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-            .get("wallet")
-            .has(this, key);
+        return this.attributes.has(key);
     }
 
     public isDelegate(): boolean {
-        return !!this.getAttribute("delegate");
+        return this.hasAttribute("delegate");
     }
 
     public hasVoted(): boolean {
-        return !!this.getAttribute("vote");
+        return this.hasAttribute("vote");
     }
 
     public hasSecondSignature(): boolean {
-        return !!this.getAttribute("secondPublicKey");
+        return this.hasAttribute("secondPublicKey");
     }
 
     public hasMultiSignature(): boolean {
-        return !!this.getAttribute("multiSignature");
+        return this.hasAttribute("multiSignature");
     }
 
     public canBePurged(): boolean {
-        const attributes: object = app
-            .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-            .get("wallet")
-            .all(this);
+        const attributes: object = this.attributes.all();
 
         const hasAttributes: boolean = !!attributes && Object.keys(attributes).length > 0;
         const lockedBalance = this.getAttribute("htlc.lockedBalance");
@@ -101,7 +83,6 @@ export class Wallet implements Contracts.State.Wallet {
             this.balance = this.balance.plus(block.reward).plus(block.totalFee);
 
             const delegate: Contracts.State.WalletDelegateAttributes = this.getAttribute("delegate");
-
             delegate.producedBlocks++;
             delegate.forgedFees = delegate.forgedFees.plus(block.totalFee);
             delegate.forgedRewards = delegate.forgedRewards.plus(block.reward);
@@ -193,8 +174,8 @@ export class Wallet implements Contracts.State.Wallet {
      * Throw an exception if it is not.
      */
     public verifyTransactionNonceApply(transaction: Interfaces.ITransaction): void {
-        const version: number = AppUtils.assert.defined(transaction.data.version);
-        const nonce: AppUtils.BigNumber = AppUtils.assert.defined(transaction.data.nonce);
+        const version: number = transaction.data.version || 1;
+        const nonce: AppUtils.BigNumber = transaction.data.nonce || AppUtils.BigNumber.ZERO;
 
         if (version > 1 && !this.nonce.plus(1).isEqualTo(nonce)) {
             throw new Errors.UnexpectedNonceError(nonce, this, false);
@@ -207,8 +188,8 @@ export class Wallet implements Contracts.State.Wallet {
      * Throw an exception if it is not.
      */
     public verifyTransactionNonceRevert(transaction: Interfaces.ITransaction): void {
-        const version: number = AppUtils.assert.defined(transaction.data.version);
-        const nonce: AppUtils.BigNumber = AppUtils.assert.defined(transaction.data.nonce);
+        const version: number = transaction.data.version || 1;
+        const nonce: AppUtils.BigNumber = transaction.data.nonce || AppUtils.BigNumber.ZERO;
 
         if (version > 1 && !this.nonce.isEqualTo(nonce)) {
             throw new Errors.UnexpectedNonceError(nonce, this, true);
@@ -319,13 +300,7 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public clone(): Contracts.State.Wallet {
-        const clonedWallet: Contracts.State.Wallet = cloneDeep(this);
-
-        app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-            .get("wallet")
-            .clone(this, clonedWallet);
-
-        return clonedWallet;
+        return cloneDeep(this);
     }
 
     public toString(): string {

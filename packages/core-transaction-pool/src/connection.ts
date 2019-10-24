@@ -456,6 +456,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 .get(transaction.type, transaction.typeGroup);
             await handler.applyToSender(transaction, this.walletRepository);
         } catch (error) {
+            console.log(error);
             this.logger.error(error.message);
 
             this.memory.forget(AppUtils.assert.defined(transaction.id));

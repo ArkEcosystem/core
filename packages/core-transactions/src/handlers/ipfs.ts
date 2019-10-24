@@ -37,8 +37,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
                     wallet.setAttribute("ipfs", { hashes: {} });
                 }
 
-                const ipfsHashes: Contracts.State.WalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
-                ipfsHashes[Utils.assert.defined<string>(transaction.asset.ipfs)] = true;
+                wallet.getAttribute("ipfs.hashes", {})[Utils.assert.defined<string>(transaction.asset.ipfs)] = true;
             }
         }
     }
@@ -82,8 +81,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
             sender.setAttribute("ipfs", { hashes: {} });
         }
 
-        const ipfsHashes: Contracts.State.WalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
-        ipfsHashes[Utils.assert.defined<string>(transaction.data.asset!.ipfs)] = true;
+        sender.getAttribute("ipfs.hashes", {})[Utils.assert.defined<string>(transaction.data.asset!.ipfs)] = true;
 
         walletRepository.reindex(sender);
     }
@@ -98,8 +96,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
             Utils.assert.defined(transaction.data.senderPublicKey),
         );
 
-        const ipfsHashes: Contracts.State.WalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
-        delete ipfsHashes[Utils.assert.defined<string>(transaction.data.asset!.ipfs)];
+        delete sender.getAttribute("ipfs.hashes", {})[Utils.assert.defined<string>(transaction.data.asset!.ipfs)];
 
         walletRepository.reindex(sender);
     }

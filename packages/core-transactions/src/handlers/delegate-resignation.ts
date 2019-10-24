@@ -65,7 +65,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
                 break;
             }
 
-            if (delegate.getAttribute("delegate.resigned")) {
+            if (delegate.hasAttribute("delegate.resigned")) {
                 continue;
             }
 

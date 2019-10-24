@@ -59,11 +59,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
-        if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
 
-        const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks")[lockId];
+        const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks", {})[lockId];
         const lastBlock: Interfaces.IBlock = AppUtils.assert.defined(
             app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
         );
@@ -97,7 +97,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
-        if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             processor.pushError(
                 data,
                 "ERR_HTLCLOCKNOTFOUND",
@@ -150,7 +150,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         strict(lockWallet && lockWallet.getAttribute("htlc.locks")[lockId]);
 
-        const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
+        const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks", {});
 
         const recipientId: string = AppUtils.assert.defined(locks[lockId].recipientId);
 

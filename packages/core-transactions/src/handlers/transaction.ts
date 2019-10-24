@@ -101,9 +101,7 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
                 throw new UnexpectedSecondSignatureError();
             }
 
-            const secondPublicKey: string = dbSender.getAttribute("secondPublicKey");
-
-            if (!Transactions.Verifier.verifySecondSignature(data, secondPublicKey)) {
+            if (!Transactions.Verifier.verifySecondSignature(data, dbSender.getAttribute("secondPublicKey"))) {
                 throw new InvalidSecondSignatureError();
             }
         } else if (data.secondSignature || data.signSignature) {

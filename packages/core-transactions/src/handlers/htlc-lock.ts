@@ -129,10 +129,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             AppUtils.assert.defined(transaction.data.senderPublicKey),
         );
 
-        const lockedBalance: Utils.BigNumber = sender.getAttribute("htlc.lockedBalance");
+        const lockedBalance: Utils.BigNumber = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
 
-        const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks");
+        const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks", {});
         delete locks[AppUtils.assert.defined<string>(transaction.id)];
 
         walletRepository.reindex(sender);

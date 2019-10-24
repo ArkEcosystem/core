@@ -40,7 +40,12 @@ export class VoteTransactionHandler extends TransactionHandler {
                 const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
 
                 const vote: string = Utils.assert.defined<string[]>(transaction.asset.votes)[0];
-                const walletVote: string = wallet.getAttribute("vote");
+
+                let walletVote: string | undefined;
+
+                if (wallet.hasAttribute("vote")) {
+                    walletVote = wallet.getAttribute("vote");
+                }
 
                 if (vote.startsWith("+")) {
                     if (walletVote) {
@@ -72,7 +77,11 @@ export class VoteTransactionHandler extends TransactionHandler {
 
         const vote: string = Utils.assert.defined<string[]>(data.asset!.votes)[0];
 
-        const walletVote: string = wallet.getAttribute("vote");
+        let walletVote: string | undefined;
+
+        if (wallet.hasAttribute("vote")) {
+            walletVote = wallet.getAttribute("vote");
+        }
 
         if (vote.startsWith("+")) {
             if (walletVote) {

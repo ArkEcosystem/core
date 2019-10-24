@@ -66,7 +66,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             throw new WalletIsNotBusinessError();
         }
 
-        if (wallet.getAttribute<boolean>("business.resigned") === true) {
+        if (wallet.hasAttribute("business.resigned")) {
             throw new BusinessIsResignedError();
         }
 

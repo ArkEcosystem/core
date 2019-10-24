@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
@@ -43,7 +43,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         this.registerIndex(
             Contracts.State.WalletIndexes.Resignations,
             (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-                if (wallet.isDelegate() && wallet.getAttribute("delegate.resigned")) {
+                if (wallet.isDelegate() && wallet.hasAttribute("delegate.resigned")) {
                     index.set(wallet.getAttribute("delegate.username"), wallet);
                 }
             },
@@ -52,8 +52,9 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         this.registerIndex(
             Contracts.State.WalletIndexes.Locks,
             (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-                const locks = wallet.getAttribute("htlc.locks");
-                if (locks) {
+                if (wallet.hasAttribute("htlc.locks")) {
+                    const locks: object = wallet.getAttribute("htlc.locks");
+
                     for (const lockId of Object.keys(locks)) {
                         index.set(lockId, wallet);
                     }
@@ -204,20 +205,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     public forgetByIndex(indexName: string, key: string): void {
-        const index: Contracts.State.WalletIndex = this.getIndex(indexName);
-
-        // TODO: revise this implementation, ideally we forget all attributes
-        // once the last index drops the wallet
-        if (indexName === Contracts.State.WalletIndexes.Addresses) {
-            // todo: inject this instead of using direct access
-            AppUtils.assert
-                .defined<Services.Attributes.AttributeIndex>(
-                    app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService).get("wallet"),
-                )
-                .forget(AppUtils.assert.defined(index.get(key)));
-        }
-
-        index.forget(key);
+        this.getIndex(indexName).forget(key);
     }
 
     public index(wallets: ReadonlyArray<Contracts.State.Wallet>): void {

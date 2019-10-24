@@ -746,9 +746,9 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         const delegates: Contracts.State.Wallet[] = tempWalletState.loadActiveDelegateList(roundInfo);
 
         for (const delegate of tempWalletRepository.allByUsername()) {
-            const delegateWallet: Contracts.State.Wallet = this.walletRepository.findByUsername(delegate.getAttribute("delegate.username"));
-
-            delegateWallet.setAttribute("delegate.rank", delegate.getAttribute("delegate.rank"));
+            this.walletRepository
+                .findByUsername(delegate.getAttribute("delegate.username"))
+                .setAttribute("delegate.rank", delegate.getAttribute("delegate.rank"));
         }
 
         return delegates;

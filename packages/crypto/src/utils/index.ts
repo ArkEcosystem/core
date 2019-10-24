@@ -25,7 +25,7 @@ export const formatSatoshi = (amount: BigNumber): string => {
  */
 export const isException = (id: number | string | undefined): boolean => {
     if (!id) {
-        throw new Error(`The given ID [${id}] is empty.`);
+        return false;
     }
 
     const network: number = configManager.get("network.pubKeyHash");

@@ -156,9 +156,7 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
             case "never-forged": {
                 entries = this.databaseServiceProvider()
                     .walletRepository.allByUsername()
-                    .filter(delegate => {
-                        return delegate.getAttribute("delegate.producedBlocks") === 0;
-                    });
+                    .filter(delegate => delegate.getAttribute("delegate.producedBlocks", 0) === 0);
                 break;
             }
             default: {
@@ -205,7 +203,8 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
             .walletRepository.getIndex(Contracts.State.WalletIndexes.Locks)
             .entries()
             .reduce<UnwrappedHtlcLock[]>((acc, [lockId, wallet]) => {
-                const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
+                const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
+
                 if (locks && locks[lockId]) {
                     const lock: Interfaces.IHtlcLock = locks[lockId];
                     acc.push({
@@ -237,10 +236,7 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
         const entries: any[] = this.databaseServiceProvider()
             .walletRepository.getIndex("businesses")
             .values()
-            .map(wallet => {
-                const business: Interfaces.IHtlcLocks = wallet.getAttribute("business");
-                return business;
-            })
+            .map(wallet => wallet.getAttribute("business", null))
             .filter(business => !!business);
 
         return {
@@ -257,9 +253,7 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
         const entries: any[][] = this.databaseServiceProvider()
             .walletRepository.getIndex("bridgechains")
             .values()
-            .map(wallet => {
-                return wallet.getAttribute("business.bridgechains");
-            })
+            .map(wallet => wallet.getAttribute("business.bridgechains", null))
             .filter(bridgchain => !!bridgchain);
 
         return {

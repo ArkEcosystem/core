@@ -50,4 +50,6 @@ export const Identifiers: Record<string, symbol> = {
     PeerNetworkMonitor: Symbol.for("Peer<NetworkMonitor>"),
     PeerProcessor: Symbol.for("Peer<Processor>"),
     PeerStorage: Symbol.for("Peer<Storage>"),
+    // Transactions - @todo: better names that won't clash
+    WalletAttributes: Symbol.for("Wallet<Attributes>"),
 };
