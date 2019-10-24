@@ -1,4 +1,4 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Enums,
     Interfaces as MagistrateInterfaces,
@@ -45,12 +45,15 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
 
             for (const transaction of transactions) {
                 const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+
                 const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
                     "business",
                 );
 
                 const { bridgechainId, seedNodes } = transaction.asset.bridgechainUpdate;
-                businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
+                Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains)[
+                    bridgechainId
+                ].bridgechainAsset.seedNodes = seedNodes;
 
                 walletRepository.reindex(wallet);
             }
@@ -73,10 +76,13 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
-        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
-            transaction.data.asset.bridgechainUpdate;
-        const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
+
+        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset = Utils.assert.defined(
+            transaction.data.asset!.bridgechainUpdate,
+        );
+        const bridgechainAttributes: IBridgechainWalletAttributes = Utils.assert.defined<
+            Record<string, IBridgechainWalletAttributes>
+        >(businessAttributes.bridgechains)[bridgechainUpdate.bridgechainId.toFixed()];
 
         if (!bridgechainAttributes) {
             throw new BridgechainIsNotRegisteredError();
@@ -107,15 +113,21 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
-        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
-            transaction.data.asset.bridgechainUpdate;
 
-        const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
+        const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset = Utils.assert.defined(
+            transaction.data.asset!.bridgechainUpdate,
+        );
+
+        const bridgechainAttributes: IBridgechainWalletAttributes = Utils.assert.defined<
+            Record<string, IBridgechainWalletAttributes>
+        >(businessAttributes.bridgechains)[bridgechainUpdate.bridgechainId.toFixed()];
         bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
 
         walletRepository.reindex(wallet);
@@ -127,12 +139,17 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
 
-        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>(Container.Identifiers.DatabaseService);
+        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>(
+            Container.Identifiers.DatabaseService,
+        );
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
         const updateTransactions: Contracts.Database.IBootstrapTransaction[] = [];
         while (reader.hasNext()) {
@@ -140,18 +157,27 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         }
 
         if (updateTransactions.length > 1) {
-            const updateTransaction: Contracts.Database.IBootstrapTransaction = updateTransactions.pop();
-            const { bridgechainId, seedNodes } = updateTransaction.asset.bridgechainUpdate;
-            const bridgechainAttributes: IBridgechainWalletAttributes = businessAttributes.bridgechains[bridgechainId];
+            const updateTransaction: Contracts.Database.IBootstrapTransaction = Utils.assert.defined(
+                updateTransactions.pop(),
+            );
+
+            const { bridgechainId, seedNodes } = Utils.assert.defined(updateTransaction.asset.bridgechainUpdate);
+            const bridgechainAttributes: IBridgechainWalletAttributes = Utils.assert.defined<
+                Record<string, IBridgechainWalletAttributes>
+            >(businessAttributes.bridgechains)[bridgechainId];
             bridgechainAttributes.bridgechainAsset.seedNodes = seedNodes;
         } else {
             // There are equally many bridgechain registrations as bridgechains a wallet posseses in the database.
             // By getting the index of the bridgechainId we can use it as an offset to get
             // the actual registration transaction.
-            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId.toFixed();
-            const registrationIndex: number = Object.keys(businessAttributes.bridgechains).indexOf(bridgechainId);
+            const bridgechainId: string = Utils.assert
+                .defined<Utils.BigNumber>(transaction.data.asset!.bridgechainUpdate!.bridgechainId)
+                .toFixed();
+            const registrationIndex: number = Object.keys(
+                Utils.assert.defined(businessAttributes.bridgechains),
+            ).indexOf(bridgechainId);
 
-            const bridgechainRegistration: MagistrateInterfaces.IBridgechainRegistrationAsset = (await app
+            const transactions = await app
                 .get<Contracts.Database.Connection>(Container.Identifiers.DatabaseService)
                 .transactionsRepository.search({
                     parameters: [
@@ -176,9 +202,17 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
                         limit: 1,
                         offset: registrationIndex,
                     },
-                })).rows[0].asset.bridgechainRegistration;
+                });
 
-            const bridgechainAttributes: IBridgechainWalletAttributes = businessAttributes.bridgechains[bridgechainId];
+            const firstRow = transactions.rows[0];
+
+            const bridgechainRegistration: MagistrateInterfaces.IBridgechainRegistrationAsset = Utils.assert.defined(
+                firstRow.asset!.bridgechainRegistration,
+            );
+
+            const bridgechainAttributes: IBridgechainWalletAttributes = Utils.assert.defined<
+                Record<string, IBridgechainWalletAttributes>
+            >(businessAttributes.bridgechains)[bridgechainId];
             bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainRegistration.seedNodes;
         }
 

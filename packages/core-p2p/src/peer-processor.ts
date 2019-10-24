@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 import { Peer } from "./peer";
@@ -8,25 +8,25 @@ import { isValidVersion, isWhitelisted } from "./utils";
 @Container.injectable()
 export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     public server: any;
-    public nextUpdateNetworkStatusScheduled: boolean;
+    public nextUpdateNetworkStatusScheduled: boolean = false;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Log.Logger;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher;
+    private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerCommunicator)
-    private readonly communicator: Contracts.P2P.PeerCommunicator;
+    private readonly communicator!: Contracts.P2P.PeerCommunicator;
 
     @Container.inject(Container.Identifiers.PeerConnector)
-    private readonly connector: Contracts.P2P.PeerConnector;
+    private readonly connector!: Contracts.P2P.PeerConnector;
 
     @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly storage: Contracts.P2P.PeerStorage;
+    private readonly storage!: Contracts.P2P.PeerStorage;
 
     @Container.inject(Container.Identifiers.ServiceProviderRepository)
-    private readonly serviceProviderRepository: Providers.ServiceProviderRepository;
+    private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
 
     public init() {
         this.emitter.listen("internal.milestone.changed", () => this.updatePeersAfterMilestoneChange());
@@ -51,11 +51,13 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return false;
         }
 
-        if (!isWhitelisted(this.getConfig("whitelist"), peer.ip)) {
+        if (!isWhitelisted(this.getConfig("whitelist") || [], peer.ip)) {
             return false;
         }
 
-        if (this.storage.getSameSubnetPeers(peer.ip).length >= this.getConfig("maxSameSubnetPeers") && !options.seed) {
+        const maxSameSubnetPeers: number = AppUtils.assert.defined(this.getConfig("maxSameSubnetPeers"));
+
+        if (this.storage.getSameSubnetPeers(peer.ip).length >= maxSameSubnetPeers && !options.seed) {
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.warning(
                     `Rejected ${peer.ip} because we are already at the ${this.getConfig(
@@ -89,7 +91,9 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            await this.communicator.ping(newPeer, this.getConfig("verifyTimeout"));
+            const verifyTimeout: number = AppUtils.assert.defined(this.getConfig("verifyTimeout"));
+
+            await this.communicator.ping(newPeer, verifyTimeout);
 
             this.storage.setPeer(newPeer);
 
@@ -107,7 +111,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         return;
     }
 
-    private getConfig<T>(key: string): T {
+    private getConfig<T>(key: string): T | undefined {
         return this.serviceProviderRepository
             .get("@arkecosystem/core-p2p")
             .config()

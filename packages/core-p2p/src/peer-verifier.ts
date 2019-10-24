@@ -121,7 +121,7 @@ export class PeerVerifier {
         }
 
         try {
-            const ownBlock: Interfaces.IBlock = app
+            const ownBlock: Interfaces.IBlock | undefined = app
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocks()
                 .find(block => block.data.height === blockHeader.height);
@@ -131,8 +131,8 @@ export class PeerVerifier {
                 return true;
             }
 
-            const claimedBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blockHeader);
-            if (claimedBlock.verifySignature()) {
+            const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockHeader);
+            if (claimedBlock && claimedBlock.verifySignature()) {
                 return true;
             }
 
@@ -151,9 +151,15 @@ export class PeerVerifier {
     }
 
     private ourHeight(): number {
-        const height: number = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
+        let height: number | undefined;
 
-        assert(Number.isInteger(height), `Couldn't derive our chain height: ${height}`);
+        try {
+            height = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
+
+            assert(Number.isInteger(height));
+        } catch (error) {
+            throw new Error(`Couldn't derive our chain height: ${height}`);
+        }
 
         return height;
     }
@@ -235,7 +241,7 @@ export class PeerVerifier {
         claimedHeight: number,
         ourHeight: number,
         deadline: number,
-    ): Promise<number> {
+    ): Promise<number | undefined> {
         // The highest common block is in the interval [1, min(claimed height, our height)].
         // Search in that interval using an 8-ary search. Compared to binary search this
         // will do more comparisons. However, comparisons are practically for free while
@@ -246,7 +252,7 @@ export class PeerVerifier {
 
         const nAry = 8;
 
-        const probe = async (heightsToProbe: number[]): Promise<number> => {
+        const probe = async (heightsToProbe: number[]): Promise<number | undefined> => {
             const ourBlocks = await this.database.getBlocksByHeight(heightsToProbe);
 
             assert.strictEqual(ourBlocks.length, heightsToProbe.length);
@@ -255,8 +261,10 @@ export class PeerVerifier {
             const probesHeightById = {};
 
             for (const b of ourBlocks) {
-                probesIdByHeight[b.height] = b.id;
-                probesHeightById[b.id] = b.height;
+                const id: string = Utils.assert.defined(b.id);
+
+                probesIdByHeight[b.height] = id;
+                probesHeightById[id] = b.height;
             }
 
             // Make sure getBlocksByHeight() returned a block for every height we asked.
@@ -391,7 +399,7 @@ export class PeerVerifier {
         const delegatesByPublicKey = {} as Record<string, Contracts.State.Wallet>;
 
         for (const delegate of delegates) {
-            delegatesByPublicKey[delegate.publicKey] = delegate;
+            delegatesByPublicKey[Utils.assert.defined<string>(delegate.publicKey)] = delegate;
         }
 
         return delegatesByPublicKey;
@@ -474,7 +482,8 @@ export class PeerVerifier {
             return true;
         }
 
-        const block = Blocks.BlockFactory.fromData(blockData);
+        const block: Interfaces.IBlock = Utils.assert.defined(Blocks.BlockFactory.fromData(blockData));
+
         if (!block.verifySignature()) {
             this.log(
                 Severity.DEBUG_EXTRA,

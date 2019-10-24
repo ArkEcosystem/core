@@ -22,13 +22,15 @@ export class HtlcClaimTransaction extends Transaction {
         return configManager.getMilestone().aip11 && super.verify();
     }
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
         const buffer: ByteBuffer = new ByteBuffer(32 + 32, true);
 
-        buffer.append(Buffer.from(data.asset.claim.lockTransactionId, "hex"));
-        buffer.writeString(data.asset.claim.unlockSecret);
+        if (data.asset && data.asset.claim) {
+            buffer.append(Buffer.from(data.asset.claim.lockTransactionId, "hex"));
+            buffer.writeString(data.asset.claim.unlockSecret);
+        }
 
         return buffer;
     }

@@ -45,7 +45,17 @@ class TransactionRegistry {
 
     public registerTransactionType(constructor: TransactionConstructor): void {
         const { typeGroup, type } = constructor;
-        const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
+
+        if (typeof type === "undefined" || typeof typeGroup === "undefined") {
+            throw new Error();
+        }
+
+        const internalType: InternalTransactionType | undefined = InternalTransactionType.from(type, typeGroup);
+
+        if (!internalType) {
+            throw new Error();
+        }
+
         if (this.transactionTypes.has(internalType)) {
             throw new TransactionAlreadyRegisteredError(constructor.name);
         }
@@ -56,7 +66,16 @@ class TransactionRegistry {
 
     public deregisterTransactionType(constructor: TransactionConstructor): void {
         const { typeGroup, type } = constructor;
-        const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
+
+        if (typeof type === "undefined" || typeof typeGroup === "undefined") {
+            throw new Error();
+        }
+
+        const internalType: InternalTransactionType | undefined = InternalTransactionType.from(type, typeGroup);
+
+        if (!internalType) {
+            throw new Error();
+        }
 
         if (!this.transactionTypes.has(internalType)) {
             throw new UnkownTransactionError(internalType.toString());
@@ -67,7 +86,11 @@ class TransactionRegistry {
         }
 
         const schema = this.transactionTypes.get(internalType);
-        this.updateSchemas(schema, true);
+
+        if (schema) {
+            this.updateSchemas(schema, true);
+        }
+
         this.transactionTypes.delete(internalType);
     }
 

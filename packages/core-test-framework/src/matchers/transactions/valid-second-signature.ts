@@ -12,7 +12,7 @@ declare global {
 
 expect.extend({
     toHaveValidSecondSignature: (actual, expected) => {
-        let verified: boolean;
+        let verified: boolean = false;
         try {
             verified = Transactions.Verifier.verifySecondSignature(actual, expected.publicKey);
         } catch {}

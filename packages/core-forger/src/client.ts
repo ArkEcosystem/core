@@ -9,11 +9,12 @@ import { RelayHost } from "./interfaces";
 // todo: review the implementation and make use of ioc
 @Container.injectable()
 export class Client {
-    public hosts: RelayHost[];
+    public hosts: RelayHost[] = [];
+    // @ts-ignore
     private host: RelayHost;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Log.Logger;
 
     init(hosts: RelayHost[]) {
         this.hosts = hosts.map(host => {
@@ -93,7 +94,7 @@ export class Client {
 
         const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
 
-        const host: RelayHost = this.hosts.find(item =>
+        const host: RelayHost | undefined = this.hosts.find(item =>
             allowedHosts.some(allowedHost => item.hostname.includes(allowedHost)),
         );
 
@@ -112,7 +113,7 @@ export class Client {
     public async selectHost(): Promise<void> {
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
-                if (host.socket.getState() === host.socket.OPEN) {
+                if (host.socket && host.socket.getState() === host.socket.OPEN) {
                     this.host = host;
                     return;
                 }
@@ -134,7 +135,7 @@ export class Client {
         try {
             const response: Contracts.P2P.Response<T> = await socketEmit(
                 this.host.hostname,
-                this.host.socket,
+                Utils.assert.defined(this.host.socket),
                 event,
                 data,
                 {

@@ -6,7 +6,7 @@ import { ensureFileSync } from "fs-extra";
 // todo: review the implementation
 export class Storage {
     private readonly table: string = "pool";
-    private database: BetterSqlite3.Database;
+    private database!: BetterSqlite3.Database;
 
     public connect(file: string) {
         ensureFileSync(file);
@@ -24,7 +24,6 @@ export class Storage {
 
     public disconnect(): void {
         this.database.close();
-        this.database = undefined;
     }
 
     public bulkAdd(data: Interfaces.ITransaction[]): void {

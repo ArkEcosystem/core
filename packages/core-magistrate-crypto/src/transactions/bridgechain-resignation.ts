@@ -1,3 +1,4 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import Long from "long";
@@ -43,7 +44,9 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const bridgechainResignationAsset = data.asset.bridgechainResignation as IBridgechainResignationAsset;
+        const bridgechainResignationAsset: IBridgechainResignationAsset = AppUtils.assert.defined(
+            data.asset!.bridgechainResignation,
+        );
         const buffer: ByteBuffer = new ByteBuffer(8, true);
         buffer.writeUint64(Long.fromString(bridgechainResignationAsset.bridgechainId.toString()));
 

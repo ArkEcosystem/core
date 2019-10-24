@@ -2,7 +2,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import SCWorker from "socketcluster/scworker";
 
 export class Worker extends SCWorker {
-    private config: Record<string, any>;
+    private config: Record<string, any> = {};
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
@@ -53,6 +53,7 @@ export class Worker extends SCWorker {
         const { data } = await this.sendToMasterAsync("p2p.utils.getHandlers");
 
         for (const [version, handlers] of Object.entries(data)) {
+            // @ts-ignore
             for (const handler of Object.values(handlers)) {
                 // @ts-ignore
                 socket.on(`p2p.${version}.${handler}`, async (data, res) => {

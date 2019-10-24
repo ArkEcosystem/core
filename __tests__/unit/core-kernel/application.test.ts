@@ -14,6 +14,14 @@ class StubClass {}
 
 class StubServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}
+
+    public name(): string {
+        return "name";
+    }
+
+    public version(): string {
+        return "version";
+    }
 }
 
 let app: Application;

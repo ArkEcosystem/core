@@ -27,6 +27,10 @@ export class Keys {
             network = configManager.get("network");
         }
 
+        if (!network) {
+            throw new Error();
+        }
+
         const { version, compressed, privateKey } = wif.decode(wifKey, network.wif);
 
         if (version !== network.wif) {

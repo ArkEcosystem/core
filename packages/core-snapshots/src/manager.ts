@@ -8,7 +8,7 @@ import { backupTransactionsToJSON, exportTable, importTable, verifyTable } from 
 import * as utils from "./utils";
 
 export class SnapshotManager {
-    public database: Database;
+    public database!: Database;
 
     public constructor(readonly options) {}
 

@@ -15,7 +15,7 @@ export class Schedule {
      * @memberof BlockJob
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @returns {CronJob}

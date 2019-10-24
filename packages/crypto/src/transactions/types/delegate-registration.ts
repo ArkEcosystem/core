@@ -17,15 +17,20 @@ export class DelegateRegistrationTransaction extends Transaction {
 
     protected static defaultStaticFee: BigNumber = BigNumber.make("2500000000");
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
-        const delegateBytes: Buffer = Buffer.from(data.asset.delegate.username, "utf8");
-        const buffer: ByteBuffer = new ByteBuffer(delegateBytes.length, true);
 
-        buffer.writeByte(delegateBytes.length);
-        buffer.append(delegateBytes, "hex");
+        if (data.asset && data.asset.delegate) {
+            const delegateBytes: Buffer = Buffer.from(data.asset.delegate.username, "utf8");
+            const buffer: ByteBuffer = new ByteBuffer(delegateBytes.length, true);
 
-        return buffer;
+            buffer.writeByte(delegateBytes.length);
+            buffer.append(delegateBytes, "hex");
+
+            return buffer;
+        }
+
+        return undefined;
     }
 
     public deserialize(buf: ByteBuffer): void {

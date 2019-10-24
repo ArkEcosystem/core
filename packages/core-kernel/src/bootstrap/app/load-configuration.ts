@@ -18,7 +18,7 @@ export class LoadConfiguration implements Bootstrapper {
      * @memberof Local
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @returns {Promise<void>}

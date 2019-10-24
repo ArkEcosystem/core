@@ -12,27 +12,27 @@ import { buildRateLimiter } from "./utils/build-rate-limiter";
 // todo: review the implementation
 @Container.injectable()
 export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
-    public server: SocketCluster;
+    public server: SocketCluster | undefined;
     public config: any;
-    public nextUpdateNetworkStatusScheduled: boolean;
+    public nextUpdateNetworkStatusScheduled: boolean | undefined;
     private coldStart: boolean = false;
 
     private initializing = true;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Log.Logger;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher;
+    private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerCommunicator)
-    private readonly communicator: Contracts.P2P.PeerCommunicator;
+    private readonly communicator!: Contracts.P2P.PeerCommunicator;
 
     @Container.inject(Container.Identifiers.PeerProcessor)
-    private readonly processor: Contracts.P2P.PeerProcessor;
+    private readonly processor!: Contracts.P2P.PeerProcessor;
 
     @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly storage: Contracts.P2P.PeerStorage;
+    private readonly storage!: Contracts.P2P.PeerStorage;
 
     private readonly rateLimiter: RateLimiter;
 
@@ -47,6 +47,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     }
 
     public getServer(): SocketCluster {
+        // @ts-ignore
         return this.server;
     }
 
@@ -144,7 +145,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         await Promise.all(
             peers.map(async peer => {
                 try {
-                    await this.communicator.ping(peer, pingDelay, forcePing);
+                    return await this.communicator.ping(peer, pingDelay, forcePing);
                 } catch (error) {
                     unresponsivePeers++;
 
@@ -193,7 +194,14 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                 .map(peers =>
                     Utils.shuffle(peers)
                         .slice(0, maxPeersPerPeer)
-                        .reduce((acc, curr: Contracts.P2P.Peer) => ({ ...acc, ...{ [curr.ip]: curr } }), {}),
+                        .reduce(
+                            // @ts-ignore
+                            (acc, curr: Contracts.P2P.Peer) => ({
+                                ...acc,
+                                ...{ [Utils.assert.defined<string>(curr.ip)]: curr },
+                            }),
+                            {},
+                        ),
                 )
                 .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
         );
@@ -234,7 +242,12 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
             .getPeers()
             .filter(peer => peer.state.height)
             .map(peer => peer.state.height)
-            .sort((a, b) => a - b);
+            .sort((a, b) => {
+                const heightA: number = Utils.assert.defined(a);
+                const heightB: number = Utils.assert.defined(b);
+
+                return heightA - heightB;
+            });
 
         return medians[Math.floor(medians.length / 2)] || 0;
     }
@@ -253,8 +266,9 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public async checkNetworkHealth(): Promise<Contracts.P2P.NetworkStatus> {
         await this.cleansePeers({ forcePing: true });
 
-        const lastBlock = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock();
-
+        const lastBlock: Interfaces.IBlock = Utils.assert.defined(
+            app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
+        );
         const allPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
 
         if (!allPeers.length) {
@@ -330,7 +344,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                             Utils.sample(peersFiltered),
                         ]; // 2 "fallback" peers to download from if 1st one failed
 
-                        let blocks: Interfaces.IBlockData[];
+                        let blocks: Interfaces.IBlockData[] = [];
                         for (const peerToDownloadFrom of peersToTry) {
                             blocks = await this.communicator.downloadBlocks(peerToDownloadFrom, height);
 
@@ -430,7 +444,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         Promise.all(
             peers.map(async peer => {
                 try {
-                    await this.communicator.pingPorts(peer);
+                    return await this.communicator.pingPorts(peer);
                 } catch (error) {
                     return undefined;
                 }
@@ -497,6 +511,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         });
 
         return Promise.all(
+            // @ts-ignore
             Object.values(peers).map((peer: Contracts.P2P.Peer) => {
                 this.storage.forgetPeer(peer);
 

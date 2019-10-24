@@ -1,4 +1,5 @@
-import { Crypto, Identities, Transactions, Utils } from "@arkecosystem/crypto";
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import Command, { flags } from "@oclif/command";
 import { generateMnemonic } from "bip39";
 import ByteBuffer from "bytebuffer";
@@ -110,7 +111,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         const coreConfigDest = resolve(__dirname, `../../../bin/config/${flags.network}`);
         const cryptoConfigDest = resolve(__dirname, `../../../../crypto/src/networks/${flags.network}`);
 
-        const delegates = this.generateCoreDelegates(flags.delegates, flags.pubKeyHash);
+        const delegates: any[] = this.generateCoreDelegates(flags.delegates, flags.pubKeyHash);
 
         const tasks: TaskService = new TaskService();
         tasks.add("Prepare directories", async () => {
@@ -174,7 +175,9 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
             writeJSONSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 2 });
             writeJSONSync(
                 resolve(coreConfigDest, "delegates.json"),
-                { secrets: delegates.map(d => d.passphrase) },
+                {
+                    secrets: delegates.map(d => AppUtils.assert.defined(d.passphrase)),
+                },
                 { spaces: 2 },
             );
             copyFileSync(resolve(coreConfigDest, "../testnet/.env"), resolve(coreConfigDest, ".env"));
@@ -269,17 +272,32 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
     }
 
     private generateCoreDelegates(activeDelegates: number, pubKeyHash: number) {
-        const wallets = [];
+        const wallets: {
+            address: string;
+            passphrase: string;
+            keys: Interfaces.IKeyPair;
+            username: string | undefined;
+        }[] = [];
         for (let i = 0; i < activeDelegates; i++) {
             const delegateWallet = this.createWallet(pubKeyHash);
-            delegateWallet.username = `genesis_${i + 1}`;
-            wallets.push(delegateWallet);
+            if (delegateWallet) {
+                delegateWallet.username = `genesis_${i + 1}`;
+
+                wallets.push(delegateWallet);
+            }
         }
 
         return wallets;
     }
 
-    private createWallet(pubKeyHash: number) {
+    private createWallet(
+        pubKeyHash: number,
+    ): {
+        address: string;
+        passphrase: string;
+        keys: Interfaces.IKeyPair;
+        username: string | undefined;
+    } {
         const passphrase = generateMnemonic();
         const keys = Identities.Keys.fromPassphrase(passphrase);
 
@@ -334,10 +352,11 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         let payloadLength = 0;
         let totalFee = 0;
         let totalAmount = Utils.BigNumber.ZERO;
-        const allBytes = [];
+        const allBytes: Buffer[] = [];
 
         for (const transaction of transactions) {
-            const bytes = Transactions.Serializer.getBytes(transaction);
+            const bytes: Buffer = AppUtils.assert.defined(Transactions.Serializer.getBytes(transaction));
+
             allBytes.push(bytes);
             payloadLength += bytes.length;
             totalFee += transaction.fee;
@@ -346,7 +365,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
 
         const payloadHash = Crypto.HashAlgorithms.sha256(Buffer.concat(allBytes));
 
-        const block = {
+        const block: any = {
             version: 0,
             totalAmount: totalAmount.toString(),
             totalFee,

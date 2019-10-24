@@ -24,7 +24,7 @@ export class PinoLogger implements Logger {
      * @memberof PinoLogger
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @private
@@ -32,7 +32,7 @@ export class PinoLogger implements Logger {
      * @memberof PinoLogger
      */
     @inject(Identifiers.ConfigRepository)
-    private readonly configRepository: ConfigRepository;
+    private readonly configRepository!: ConfigRepository;
 
     /**
      * @private
@@ -55,14 +55,14 @@ export class PinoLogger implements Logger {
      * @type {WriteStream}
      * @memberof PinoLogger
      */
-    private fileStream: WriteStream;
+    private fileStream!: WriteStream;
 
     /**
      * @private
      * @type {pino.Logger}
      * @memberof PinoLogger
      */
-    private logger: pino.Logger;
+    private logger!: pino.Logger;
 
     /**
      * @private

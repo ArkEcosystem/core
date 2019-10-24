@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
@@ -36,6 +36,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
 
             for (const transaction of transactions) {
                 const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+
                 wallet.setAttribute("business.resigned", true);
                 walletRepository.reindex(wallet);
             }
@@ -69,6 +70,7 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     ): Promise<boolean> {
         if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             const wallet: Contracts.State.Wallet = pool.walletRepository.findByPublicKey(data.senderPublicKey);
+
             processor.pushError(
                 data,
                 "ERR_PENDING",
@@ -85,7 +87,10 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         sender.setAttribute("business.resigned", true);
         walletRepository.reindex(sender);
     }
@@ -96,7 +101,10 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         sender.forgetAttribute("business.resigned");
         walletRepository.reindex(sender);
     }

@@ -80,10 +80,9 @@ export class StateBuilder {
                 // Example:
                 //          https://explorer.ark.io/transaction/608c7aeba0895da4517496590896eb325a0b5d367e1b186b1c07d7651a568b9e
                 //          Results in a negative balance (-2 ARK) from height 93478 to 187315
-                const negativeBalanceExceptions: Record<string, Record<string, string>> = app.config(
-                    "exceptions.negativeBalances",
-                    {},
-                );
+                const negativeBalanceExceptions: Record<string, Record<string, string>> =
+                    Managers.configManager.get("exceptions.negativeBalances") || {};
+
                 const negativeBalances: Record<string, string> = negativeBalanceExceptions[wallet.publicKey] || {};
                 if (!wallet.balance.isEqualTo(negativeBalances[wallet.nonce.toString()] || 0)) {
                     this.logger.warning(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);

@@ -13,12 +13,20 @@ export class WIF {
             network = configManager.get("network");
         }
 
+        if (!network) {
+            throw new Error();
+        }
+
         return wif.encode(network.wif, Buffer.from(keys.privateKey, "hex"), keys.compressed);
     }
 
     public static fromKeys(keys: IKeyPair, network?: Network): string {
         if (!network) {
             network = configManager.get("network");
+        }
+
+        if (!network) {
+            throw new Error();
         }
 
         return wif.encode(network.wif, Buffer.from(keys.privateKey, "hex"), keys.compressed);

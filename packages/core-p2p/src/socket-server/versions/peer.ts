@@ -15,7 +15,12 @@ export const getPeers = ({ service }: { service: PeerService }): Contracts.P2P.P
     return service.storage
         .getPeers()
         .map(peer => peer.toBroadcast())
-        .sort((a, b) => a.latency - b.latency);
+        .sort((a, b) => {
+            const latencyA: number = Utils.assert.defined(a.latency);
+            const latencyB: number = Utils.assert.defined(b.latency);
+
+            return latencyA - latencyB;
+        });
 };
 
 export const getCommonBlocks = async ({
@@ -71,7 +76,7 @@ export const postBlock = async ({ req }): Promise<void> => {
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
             .get("@arkecosystem/core-p2p")
             .config()
-            .get<string[]>("remoteAccess"),
+            .get<string[]>("remoteAccess", []) || [],
         req.headers.remoteAddress,
     );
 

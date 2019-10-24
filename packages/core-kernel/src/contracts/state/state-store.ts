@@ -32,7 +32,7 @@ export interface StateStore {
     /**
      * Get the genesis block.
      */
-    getGenesisBlock(): Interfaces.IBlock | undefined;
+    getGenesisBlock(): Interfaces.IBlock;
 
     /**
      * Sets the genesis block.
@@ -43,7 +43,7 @@ export interface StateStore {
     /**
      * Get the last block.
      */
-    getLastBlock(): Interfaces.IBlock | undefined;
+    getLastBlock(): Interfaces.IBlock;
 
     /**
      * Sets the last block.

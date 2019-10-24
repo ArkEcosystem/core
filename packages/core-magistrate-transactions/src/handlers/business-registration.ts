@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
@@ -42,6 +42,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
 
             for (const transaction of transactions) {
                 const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+
                 const asset: IBusinessWalletAttributes = {
                     businessAsset: transaction.asset.businessRegistration,
                     businessId: this.getBusinessId(walletRepository),
@@ -76,6 +77,7 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     ): Promise<boolean> {
         if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
             const wallet: Contracts.State.Wallet = pool.walletRepository.findByPublicKey(data.senderPublicKey);
+
             processor.pushError(
                 data,
                 "ERR_PENDING",
@@ -92,9 +94,12 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         const businessAsset: IBusinessWalletAttributes = {
-            businessAsset: transaction.data.asset.businessRegistration,
+            businessAsset: AppUtils.assert.defined(transaction.data.asset!.businessRegistration),
             businessId: this.getBusinessId(walletRepository),
         };
 
@@ -108,10 +113,13 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         sender.forgetAttribute("business");
 
-        walletRepository.forgetByIndex(MagistrateIndex.Businesses, sender.publicKey);
+        walletRepository.forgetByIndex(MagistrateIndex.Businesses, AppUtils.assert.defined(sender.publicKey));
     }
 
     public async applyToRecipient(

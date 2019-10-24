@@ -11,7 +11,7 @@ export interface PeerConnector {
 
     emit(peer: Peer, event: string, data: any): void;
 
-    getError(peer: Peer): string;
+    getError(peer: Peer): string | undefined;
     setError(peer: Peer, error: string): void;
     hasError(peer: Peer, error: string): boolean;
     forgetError(peer: Peer): void;

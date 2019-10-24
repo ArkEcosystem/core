@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { randomBytes } from "crypto";
 
@@ -80,9 +80,14 @@ export const startServer = async (app: Contracts.Kernel.Application, config): Pr
                 return Boom.notFound();
             }
 
-            const webhook: Webhook = {
-                ...app.get<Database>("webhooks.db").findById(request.params.id),
-            };
+            const webhook: Webhook | undefined = Utils.cloneDeep(
+                app.get<Database>("webhooks.db").findById(request.params.id),
+            );
+
+            if (!webhook) {
+                return Boom.badImplementation();
+            }
+
             delete webhook.token;
 
             return utils.respondWithResource(webhook);

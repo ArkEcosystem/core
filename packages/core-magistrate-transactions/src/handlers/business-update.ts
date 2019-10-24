@@ -1,4 +1,4 @@
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
@@ -87,11 +87,16 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
             IBusinessWalletAttributes
         >("business").businessAsset;
-        const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.data.asset.businessUpdate;
+        const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = Utils.assert.defined(
+            transaction.data.asset!.businessUpdate,
+        );
 
         sender.setAttribute("business.businessAsset", {
             ...businessWalletAsset,
@@ -104,12 +109,18 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         let businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
             IBusinessWalletAttributes
         >("business").businessAsset;
 
-        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>(Container.Identifiers.DatabaseService);
+        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>(
+            Container.Identifiers.DatabaseService,
+        );
         let reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
         const updateTransactions: Contracts.Database.IBootstrapTransaction[] = [];
         while (reader.hasNext()) {
@@ -117,7 +128,9 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         }
 
         if (updateTransactions.length > 0) {
-            const updateTransaction: Contracts.Database.IBootstrapTransaction = updateTransactions.pop();
+            const updateTransaction: Contracts.Database.IBootstrapTransaction = Utils.assert.defined(
+                updateTransactions.pop(),
+            );
             const previousUpdate: MagistrateInterfaces.IBusinessUpdateAsset = updateTransaction.asset.businessUpdate;
 
             businessWalletAsset = {
@@ -131,7 +144,10 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
                 registerTransactions.push(...(await reader.read()));
             }
 
-            const registerTransaction: Contracts.Database.IBootstrapTransaction = registerTransactions.pop();
+            const registerTransaction: Contracts.Database.IBootstrapTransaction = Utils.assert.defined(
+                registerTransactions.pop(),
+            );
+
             const previousRegistration: MagistrateInterfaces.IBusinessRegistrationAsset =
                 registerTransaction.asset.businessRegistration;
             businessWalletAsset = {

@@ -82,7 +82,7 @@ export const importTable = async (table, options) => {
               .pipe(gunzip)
               .pipe(decodeStream);
 
-    let values = [];
+    let values: any[] = [];
     let prevData;
     let counter = 0;
     const saveData = async data => {

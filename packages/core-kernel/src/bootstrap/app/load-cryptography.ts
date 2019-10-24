@@ -3,6 +3,7 @@ import { Interfaces, Managers } from "@arkecosystem/crypto";
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { ConfigRepository } from "../../services/config";
+import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
 
 /**
@@ -20,7 +21,7 @@ export class LoadCryptography implements Bootstrapper {
      * @memberof Local
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * The application configuration.
@@ -30,7 +31,7 @@ export class LoadCryptography implements Bootstrapper {
      * @memberof LoadCryptography
      */
     @inject(Identifiers.ConfigRepository)
-    private readonly configRepository: ConfigRepository;
+    private readonly configRepository!: ConfigRepository;
 
     /**
      * @returns {Promise<void>}
@@ -46,7 +47,9 @@ export class LoadCryptography implements Bootstrapper {
             ? this.fromConfigRepository()
             : this.fromPreset();
 
-        this.app.bind<Interfaces.NetworkConfig>(Identifiers.Crypto).toConstantValue(Managers.configManager.all());
+        this.app
+            .bind<Interfaces.NetworkConfig>(Identifiers.Crypto)
+            .toConstantValue(assert.defined(Managers.configManager.all()));
     }
 
     /**

@@ -1,7 +1,7 @@
 import { Interfaces } from "@arkecosystem/crypto";
 import got from "got";
 
-export { };
+export {};
 
 declare global {
     namespace jest {
@@ -24,10 +24,11 @@ expect.extend({
             const parsedBody = JSON.parse(body);
 
             pass = parsedBody.errors !== undefined && parsedBody.data.invalid.includes(transaction.id);
-        } catch (e) { } // tslint:disable-line
+        } catch (e) {} // tslint:disable-line
 
         return {
             pass,
+            // @ts-ignore
             message: () => `expected ${transaction.id} ${this.isNot ? "not" : ""} to be rejected, but: ${response}`,
         };
     },

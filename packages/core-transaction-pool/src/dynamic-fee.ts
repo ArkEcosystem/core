@@ -1,4 +1,4 @@
-import { app, Container, Providers } from "@arkecosystem/core-kernel";
+import { app, Container, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -7,13 +7,15 @@ import { DynamicFeeMatch } from "./interfaces";
 // todo: review implementation and better method name that indicates what it does
 export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): Promise<DynamicFeeMatch> => {
     const fee: Utils.BigNumber = transaction.data.fee;
-    const id: string = transaction.id;
+    const id: string | undefined = AppUtils.assert.defined(transaction.id);
 
-    const dynamicFees = app
-        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-        .get("@arkecosystem/core-transaction-pool")
-        .config()
-        .get<Record<string, any>>("dynamicFees");
+    const dynamicFees: Record<string, any> = AppUtils.assert.defined(
+        app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-transaction-pool")
+            .config()
+            .get<Record<string, any>>("dynamicFees"),
+    );
 
     let broadcast: boolean;
     let enterPool: boolean;

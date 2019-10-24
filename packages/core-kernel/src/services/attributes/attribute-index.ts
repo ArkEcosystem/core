@@ -1,5 +1,7 @@
 import { cloneDeep, get, has, isObject, set, unset } from "@arkecosystem/utils";
-import { strict } from "assert";
+import { strictEqual } from "assert";
+
+import { assert } from "../../utils";
 
 type AttributeIndexKey = number | object | string;
 
@@ -81,7 +83,7 @@ export class AttributeIndex {
      * @returns {T}
      * @memberof AttributeIndex
      */
-    public get<T>(id: AttributeIndexKey, attribute: string, defaultValue?: T): T {
+    public get<T>(id: AttributeIndexKey, attribute: string, defaultValue?: T): T | undefined {
         this.assertKnown(attribute);
 
         return get(this.getCollection(id), attribute, defaultValue);
@@ -95,16 +97,18 @@ export class AttributeIndex {
      * @returns {boolean}
      * @memberof AttributeIndex
      */
-    public set<T>(id: AttributeIndexKey, attribute: string, value: T): boolean {
-        this.assertKnown(attribute);
-
+    public set<T>(id: AttributeIndexKey, attribute?: string, value?: T): boolean {
         const collection: any = isObject(id) ? this.attributesWeak : this.attributes;
 
         if (!collection.has(id)) {
             collection.set(id, {});
         }
 
-        set(collection.get(id), attribute, value);
+        if (attribute) {
+            this.assertKnown(attribute);
+
+            set(collection.get(id), attribute, value);
+        }
 
         return this.has(id, attribute);
     }
@@ -149,7 +153,11 @@ export class AttributeIndex {
         if (attribute) {
             this.assertKnown(attribute);
 
-            return has(this.getCollection(id), attribute);
+            try {
+                return has(this.getCollection(id), attribute);
+            } catch {
+                return false;
+            }
         }
 
         if (isObject(id)) {
@@ -170,10 +178,14 @@ export class AttributeIndex {
         const hasObjectKey: boolean = this.attributesWeak.has(from as object);
 
         if (!hasPrimitiveKey && !hasObjectKey) {
-            return undefined;
+            return false;
         }
 
-        const collection: object = cloneDeep(this.getCollection(from));
+        const collection: object | undefined = cloneDeep(this.getCollection(from));
+
+        if (!collection) {
+            return false;
+        }
 
         isObject(to) ? this.attributesWeak.set(to, collection) : this.attributes.set(to, collection);
 
@@ -186,11 +198,7 @@ export class AttributeIndex {
      * @memberof AttributeIndex
      */
     private assertKnown(attribute: string): void {
-        strict.strictEqual(
-            this.knownAttributes.has(attribute),
-            true,
-            `Tried to access an unknown attribute: ${attribute}`,
-        );
+        strictEqual(this.knownAttributes.has(attribute), true, `Tried to access an unknown attribute: ${attribute}`);
     }
 
     /**
@@ -200,6 +208,6 @@ export class AttributeIndex {
      * @memberof AttributeIndex
      */
     private getCollection(id: AttributeIndexKey): object {
-        return isObject(id) ? this.attributesWeak.get(id) : this.attributes.get(id);
+        return assert.defined(isObject(id) ? this.attributesWeak.get(id) : this.attributes.get(id));
     }
 }

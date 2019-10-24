@@ -24,6 +24,7 @@ expect.extend({
 
         return {
             pass,
+            // @ts-ignore
             message: () => `expected ${id} ${this.isNot ? "not" : ""} to be forged`,
         };
     },

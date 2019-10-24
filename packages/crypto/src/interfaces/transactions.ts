@@ -4,8 +4,8 @@ import { Enums } from "..";
 import { BigNumber } from "../utils";
 
 export interface ITransaction {
-    readonly id: string;
-    readonly typeGroup: number;
+    readonly id: string | undefined;
+    readonly typeGroup: number | undefined;
     readonly type: number;
     readonly verified: boolean;
     readonly key: string;
@@ -17,7 +17,7 @@ export interface ITransaction {
     serialized: Buffer;
     timestamp: number;
 
-    serialize(options?: ISerializeOptions): ByteBuffer;
+    serialize(options?: ISerializeOptions): ByteBuffer | undefined;
     deserialize(buf: ByteBuffer): void;
 
     verify(): boolean;
@@ -47,32 +47,32 @@ export interface ITransactionAsset {
 }
 
 export interface ITransactionData {
-    version?: number;
-    network?: number;
+    version?: number | undefined;
+    network?: number | undefined;
 
-    typeGroup?: number;
+    typeGroup?: number | undefined;
     type: number;
     timestamp: number;
-    nonce?: BigNumber;
-    senderPublicKey: string;
+    nonce?: BigNumber | undefined;
+    senderPublicKey: string | undefined;
 
     fee: BigNumber;
     amount: BigNumber;
 
-    expiration?: number;
-    recipientId?: string;
+    expiration?: number | undefined;
+    recipientId?: string | undefined;
 
-    asset?: ITransactionAsset;
-    vendorField?: string;
+    asset?: ITransactionAsset | undefined;
+    vendorField?: string | undefined;
 
-    id?: string;
-    signature?: string;
-    secondSignature?: string;
-    signSignature?: string;
-    signatures?: string[];
+    id?: string | undefined;
+    signature?: string | undefined;
+    secondSignature?: string | undefined;
+    signSignature?: string | undefined;
+    signatures?: string[] | undefined;
 
-    blockId?: string;
-    sequence?: number;
+    blockId?: string | undefined;
+    sequence?: number | undefined;
 }
 
 export interface ITransactionJson {
@@ -93,7 +93,7 @@ export interface ITransactionJson {
     recipientId?: string;
 
     asset?: ITransactionAsset;
-    vendorField?: string;
+    vendorField?: string | undefined;
 
     id?: string;
     signature?: string;
@@ -108,9 +108,9 @@ export interface ITransactionJson {
 }
 
 export interface ISchemaValidationResult<T = any> {
-    value: T;
+    value: T | undefined;
     error: any;
-    errors?: ErrorObject[];
+    errors?: ErrorObject[] | undefined;
 }
 
 export interface IMultiPaymentItem {
@@ -148,9 +148,9 @@ export interface IHtlcRefundAsset {
 
 export interface IHtlcLock extends IHtlcLockAsset {
     amount: BigNumber;
-    recipientId: string;
+    recipientId: string | undefined;
     timestamp: number;
-    vendorField: string;
+    vendorField: string | undefined;
 }
 
 export type IHtlcLocks = Record<string, IHtlcLock>;

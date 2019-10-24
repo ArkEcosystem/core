@@ -1,6 +1,7 @@
 import { Kernel } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
 import { JsonObject } from "../types";
+import { assert } from "../utils";
 import { PluginConfiguration } from "./plugin-configuration";
 import { PluginManifest } from "./plugin-manifest";
 
@@ -19,7 +20,7 @@ export abstract class ServiceProvider {
      * @memberof Manager
      */
     @inject(Identifiers.Application)
-    protected readonly app: Kernel.Application;
+    protected readonly app!: Kernel.Application;
 
     /**
      * The application instance.
@@ -28,7 +29,7 @@ export abstract class ServiceProvider {
      * @type {PluginConfiguration}
      * @memberof ServiceProvider
      */
-    private packageConfiguration: PluginConfiguration;
+    private packageConfiguration: PluginConfiguration | undefined;
 
     /**
      * The loaded manifest.
@@ -37,7 +38,7 @@ export abstract class ServiceProvider {
      * @type {PluginManifest}
      * @memberof PluginManifest
      */
-    private packageManifest: PluginManifest;
+    private packageManifest: PluginManifest | undefined;
 
     /**
      * Register the service provider.
@@ -75,7 +76,7 @@ export abstract class ServiceProvider {
      * @memberof ServiceProvider
      */
     public manifest(): PluginManifest {
-        return this.packageManifest;
+        return assert.defined(this.packageManifest);
     }
 
     /**
@@ -137,7 +138,7 @@ export abstract class ServiceProvider {
      * @memberof ServiceProvider
      */
     public config(): PluginConfiguration {
-        return this.packageConfiguration;
+        return assert.defined(this.packageConfiguration);
     }
 
     /**

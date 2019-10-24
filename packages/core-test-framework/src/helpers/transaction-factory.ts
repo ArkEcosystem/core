@@ -1,4 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Builders as MagistrateBuilders,
     Interfaces as MagistrateInterfaces,
@@ -34,7 +34,9 @@ export class TransactionFactory {
     }
 
     public static delegateRegistration(username?: string): TransactionFactory {
-        return new TransactionFactory(Transactions.BuilderFactory.delegateRegistration().usernameAsset(username));
+        return new TransactionFactory(
+            Transactions.BuilderFactory.delegateRegistration().usernameAsset(AppUtils.assert.defined(username)),
+        );
     }
 
     public static delegateResignation(): TransactionFactory {
@@ -58,7 +60,7 @@ export class TransactionFactory {
     }
 
     public static multiSignature(participants?: string[], min?: number): TransactionFactory {
-        let passphrases: string[];
+        let passphrases: string[] | undefined;
         if (!participants) {
             passphrases = [secrets[0], secrets[1], secrets[2]];
         }
@@ -168,17 +170,17 @@ export class TransactionFactory {
     }
 
     private builder: any;
-    private network: Types.NetworkName = "unitnet";
-    private nonce: Utils.BigNumber;
-    private fee: Utils.BigNumber;
-    private timestamp: number;
+    private network: Types.NetworkName = "testnet";
+    private nonce: Utils.BigNumber | undefined;
+    private fee: Utils.BigNumber | undefined;
+    private timestamp: number | undefined;
     private passphrase: string = defaultPassphrase;
-    private secondPassphrase: string;
-    private passphraseList: string[];
-    private passphrasePairs: IPassphrasePair[];
-    private version: number;
-    private senderPublicKey: string;
-    private expiration: number;
+    private secondPassphrase: string | undefined;
+    private passphraseList: string[] | undefined;
+    private passphrasePairs: IPassphrasePair[] | undefined;
+    private version: number | undefined;
+    private senderPublicKey: string | undefined;
+    private expiration: number | undefined;
 
     public constructor(builder) {
         this.builder = builder;
@@ -280,7 +282,7 @@ export class TransactionFactory {
             return this.nonce;
         }
 
-        return TransactionFactory.getNonce(this.senderPublicKey);
+        return TransactionFactory.getNonce(AppUtils.assert.defined(this.senderPublicKey));
     }
 
     private make<T>(quantity = 1, method: string): T[] {

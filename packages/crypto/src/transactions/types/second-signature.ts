@@ -17,11 +17,13 @@ export class SecondSignatureRegistrationTransaction extends Transaction {
 
     protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(33, true);
 
-        buffer.append(data.asset.signature.publicKey, "hex");
+        if (data.asset && data.asset.signature) {
+            buffer.append(data.asset.signature.publicKey, "hex");
+        }
 
         return buffer;
     }

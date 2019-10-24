@@ -1,20 +1,22 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 
 import { Connection } from "./connection";
 import { ConnectionManager } from "./manager";
 import { Memory } from "./memory";
-import { Storage } from "./storage";
 import { PoolWalletRepository } from "./pool-wallet-repository";
+import { Storage } from "./storage";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.log.info("Connecting to transaction pool");
 
+        const maxTransactionAge: number = Utils.assert.defined(this.config().get("maxTransactionAge"));
+
         const connection = await new ConnectionManager().createConnection(
             new Connection({
                 options: this.config().all(),
                 walletRepository: new PoolWalletRepository(),
-                memory: new Memory(this.config().get("maxTransactionAge")),
+                memory: new Memory(maxTransactionAge),
                 storage: new Storage(),
             }),
         );

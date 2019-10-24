@@ -17,9 +17,9 @@ export interface Peer {
     readonly ip: string;
     readonly ports: PeerPorts;
 
-    version: string;
+    version: string | undefined;
+    latency: number | undefined;
 
-    latency: number;
     state: PeerState;
     plugins: PeerPlugins;
     lastPinged: Dayjs | undefined;
@@ -35,14 +35,14 @@ export interface Peer {
 export interface PeerBroadcast {
     ip: string;
     ports: PeerPorts;
-    version: string;
-    height: number;
-    latency: number;
+    version: string | undefined;
+    height: number | undefined;
+    latency: number | undefined;
 }
 
 export interface PeerState {
-    height: number;
-    forgingAllowed: boolean;
-    currentSlot: number;
+    height: number | undefined;
+    forgingAllowed: boolean | undefined;
+    currentSlot: number | undefined;
     header: Record<string, any>; // @todo: rename, those are block headers but the name is horrible
 }

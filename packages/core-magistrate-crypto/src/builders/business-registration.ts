@@ -16,9 +16,12 @@ export class BusinessRegistrationBuilder extends Transactions.TransactionBuilder
     }
 
     public businessRegistrationAsset(businessAsset: IBusinessRegistrationAsset): BusinessRegistrationBuilder {
-        this.data.asset.businessRegistration = {
-            ...businessAsset,
-        };
+        if (this.data.asset && this.data.asset.businessRegistration) {
+            this.data.asset.businessRegistration = {
+                ...businessAsset,
+            };
+        }
+
         return this;
     }
 

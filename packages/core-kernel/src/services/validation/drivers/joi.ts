@@ -18,7 +18,7 @@ export class JoiValidator implements Validator {
      * @type {JsonObject}
      * @memberof JoiValidator
      */
-    private data: JsonObject;
+    private data!: JsonObject;
 
     /**
      * The validated data.
@@ -103,7 +103,7 @@ export class JoiValidator implements Validator {
      * @returns {JsonObject}
      * @memberof Validator
      */
-    public valid(): JsonObject {
+    public valid(): JsonObject | undefined {
         return this.resultValue;
     }
 
@@ -116,8 +116,14 @@ export class JoiValidator implements Validator {
     public invalid(): JsonObject {
         const errors: JsonObject = {};
 
+        if (!this.resultError) {
+            return errors;
+        }
+
         for (const error of this.resultError) {
-            errors[error.context.key] = error.context.value;
+            if (error.context && error.context.key) {
+                errors[error.context.key] = error.context.value;
+            }
         }
 
         return errors;
@@ -141,6 +147,10 @@ export class JoiValidator implements Validator {
      */
     private groupErrors(attribute: string): Record<string, string[]> {
         const errors: Record<string, string[]> = {};
+
+        if (!this.resultError) {
+            return errors;
+        }
 
         for (const error of this.resultError) {
             const errorKey: string | number = error.path[0];

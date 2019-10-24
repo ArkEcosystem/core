@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import {
@@ -37,8 +37,9 @@ export class VoteTransactionHandler extends TransactionHandler {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-                const vote = transaction.asset.votes[0];
+                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+
+                const vote: string = Utils.assert.defined<string[]>(transaction.asset.votes)[0];
                 const walletVote: string = wallet.getAttribute("vote");
 
                 if (vote.startsWith("+")) {
@@ -68,7 +69,9 @@ export class VoteTransactionHandler extends TransactionHandler {
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
-        const vote: string = data.asset.votes[0];
+
+        const vote: string = Utils.assert.defined<string[]>(data.asset!.votes)[0];
+
         const walletVote: string = wallet.getAttribute("vote");
 
         if (vote.startsWith("+")) {
@@ -98,7 +101,7 @@ export class VoteTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
-        const vote: string = transaction.data.asset.votes[0];
+        const vote: string = Utils.assert.defined<string[]>(transaction.data.asset!.votes)[0];
 
         emitter.dispatch(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
             delegate: vote,
@@ -124,8 +127,11 @@ export class VoteTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        const vote: string = transaction.data.asset.votes[0];
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
+        const vote: string = Utils.assert.defined<string[]>(transaction.data.asset!.votes)[0];
 
         if (vote.startsWith("+")) {
             sender.setAttribute("vote", vote.slice(1));
@@ -140,8 +146,11 @@ export class VoteTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
-        const vote: string = transaction.data.asset.votes[0];
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
+        const vote: string = Utils.assert.defined<string[]>(transaction.data.asset!.votes)[0];
 
         if (vote.startsWith("+")) {
             sender.forgetAttribute("vote");

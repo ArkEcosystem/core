@@ -10,14 +10,14 @@ export class ConnectionManager {
         Contracts.TransactionPool.Connection
     >();
 
-    public connection(name = "default"): Contracts.TransactionPool.Connection {
+    public connection(name = "default"): Contracts.TransactionPool.Connection | undefined {
         return this.connections.get(name);
     }
 
     public async createConnection(
         connection: Contracts.TransactionPool.Connection,
         name = "default",
-    ): Promise<Contracts.TransactionPool.Connection> {
+    ): Promise<Contracts.TransactionPool.Connection | undefined> {
         this.connections.set(name, await this.factory.make(connection));
 
         return this.connection(name);

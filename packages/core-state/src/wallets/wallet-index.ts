@@ -28,7 +28,7 @@ export class WalletIndex implements Contracts.State.WalletIndex {
         return !!this.walletIndex[key];
     }
 
-    public get(key: string): Contracts.State.Wallet | undefined {
+    public get(key: string): Contracts.State.Wallet {
         return this.walletIndex[key];
     }
 

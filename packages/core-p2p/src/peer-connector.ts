@@ -12,7 +12,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
     }
 
     public connection(peer: Contracts.P2P.Peer): SCClientSocket {
-        return this.connections.get(peer.ip);
+        return Utils.assert.defined(this.connections.get(peer.ip));
     }
 
     public connect(peer: Contracts.P2P.Peer): SCClientSocket {
@@ -27,23 +27,27 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
             port: peer.port,
             hostname: peer.ip,
             ackTimeout: Math.max(
-                app
-                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                    .get("p2p")
-                    .config()
-                    .get<number>("getBlocksTimeout"),
-                app
-                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                    .get("p2p")
-                    .config()
-                    .get<number>("verifyTimeout"),
+                Utils.assert.defined(
+                    app
+                        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                        .get("p2p")
+                        .config()
+                        .get<number>("getBlocksTimeout"),
+                ),
+                Utils.assert.defined(
+                    app
+                        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                        .get("p2p")
+                        .config()
+                        .get<number>("verifyTimeout"),
+                ),
             ),
             perMessageDeflate: true,
         });
 
         this.connections.set(peer.ip, connection);
 
-        this.connection(peer).on("error", () => this.disconnect(peer));
+        connection.on("error", () => this.disconnect(peer));
 
         return connection;
     }
@@ -62,7 +66,7 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
         this.connection(peer).on(event, data);
     }
 
-    public getError(peer: Contracts.P2P.Peer): string {
+    public getError(peer: Contracts.P2P.Peer): string | undefined {
         return this.errors.get(peer.ip);
     }
 

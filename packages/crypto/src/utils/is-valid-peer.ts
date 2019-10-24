@@ -29,11 +29,13 @@ const sanitizeRemoteAddress = (ip: string): string | undefined => {
 };
 
 export const isValidPeer = (peer: { ip: string; status?: string | number }): boolean => {
-    peer.ip = sanitizeRemoteAddress(peer.ip);
+    const sanitizedAddress: string | undefined = sanitizeRemoteAddress(peer.ip);
 
-    if (!peer.ip) {
+    if (!sanitizedAddress) {
         return false;
     }
+
+    peer.ip = sanitizedAddress;
 
     if (isLocalHost(peer.ip)) {
         return false;

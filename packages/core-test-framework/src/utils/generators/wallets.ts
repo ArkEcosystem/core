@@ -9,7 +9,7 @@ export const generateWallets = (network, quantity = 10) => {
 
     Managers.configManager.setFromPreset(network);
 
-    const wallets = [];
+    const wallets: { address: string; passphrase: string; publicKey: string }[] = [];
     for (let i = 0; i < quantity; i++) {
         const passphrase: string = generateMnemonic();
         const publicKey: string = Identities.PublicKey.fromPassphrase(passphrase);

@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
 
 export class TransactionReader {
@@ -8,17 +8,19 @@ export class TransactionReader {
     ): Promise<TransactionReader> {
         const reader: TransactionReader = new TransactionReader(
             connection,
-            typeConstructor.type,
-            typeConstructor.typeGroup,
+            Utils.assert.defined(typeConstructor.type),
+            Utils.assert.defined(typeConstructor.typeGroup),
         );
+
         await reader.init();
+
         return reader;
     }
 
     public bufferSize: number = 1000000000;
 
-    private index: number;
-    private count: number;
+    private index: number = 0;
+    private count: number = 0;
 
     private constructor(
         private connection: Contracts.Database.Connection,

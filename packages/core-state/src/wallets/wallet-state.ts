@@ -5,7 +5,7 @@ import { Utils } from "@arkecosystem/crypto";
 // todo: review the implementation
 @Container.injectable()
 export class WalletState {
-    private walletRepository: Contracts.State.WalletRepository;
+    private walletRepository!: Contracts.State.WalletRepository;
 
     public init(walletRepository: Contracts.State.WalletRepository): this {
         this.walletRepository = walletRepository;
@@ -20,7 +20,7 @@ export class WalletState {
         if (delegates.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${delegates.length}. ` +
-                    `This indicates an issue with the genesis block & delegates.`,
+                `This indicates an issue with the genesis block & delegates.`,
             );
         }
 
@@ -33,11 +33,12 @@ export class WalletState {
     public buildVoteBalances(): void {
         for (const voter of this.walletRepository.allByPublicKey()) {
             if (voter.hasVoted()) {
-                const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
-                    voter.getAttribute<string>("vote"),
+                const delegate: Contracts.State.Wallet = AppUtils.assert.defined(
+                    this.walletRepository.findByPublicKey(voter.getAttribute<string>("vote")),
                 );
+
                 const voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
-                const lockedBalance = voter.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+                const lockedBalance = voter.getAttribute("htlc.lockedBalance");
                 delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance).plus(lockedBalance));
             }
         }
@@ -55,7 +56,10 @@ export class WalletState {
 
                 const diff = voteBalanceB.comparedTo(voteBalanceA);
                 if (diff === 0) {
-                    if (a.publicKey === b.publicKey) {
+                    const publicKeyA: string = AppUtils.assert.defined(a.publicKey);
+                    const publicKeyB: string = AppUtils.assert.defined(b.publicKey);
+
+                    if (publicKeyA === publicKeyB) {
                         throw new Error(
                             `The balance and public key of both delegates are identical! Delegate "${a.getAttribute(
                                 "delegate.username",
@@ -63,7 +67,7 @@ export class WalletState {
                         );
                     }
 
-                    return a.publicKey.localeCompare(b.publicKey, "en");
+                    return publicKeyA.localeCompare(publicKeyB, "en");
                 }
 
                 return diff;

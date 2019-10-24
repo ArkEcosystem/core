@@ -17,13 +17,17 @@ export class VoteTransaction extends Transaction {
 
     protected static defaultStaticFee: BigNumber = BigNumber.make("100000000");
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(24, true);
 
-        const voteBytes = data.asset.votes.map(vote => (vote.startsWith("+") ? "01" : "00") + vote.slice(1)).join("");
-        buffer.writeByte(data.asset.votes.length);
-        buffer.append(voteBytes, "hex");
+        if (data.asset && data.asset.votes) {
+            const voteBytes = data.asset.votes
+                .map(vote => (vote.startsWith("+") ? "01" : "00") + vote.slice(1))
+                .join("");
+            buffer.writeByte(data.asset.votes.length);
+            buffer.append(voteBytes, "hex");
+        }
 
         return buffer;
     }
@@ -34,9 +38,12 @@ export class VoteTransaction extends Transaction {
         data.asset = { votes: [] };
 
         for (let i = 0; i < votelength; i++) {
-            let vote = buf.readBytes(34).toString("hex");
+            let vote: string = buf.readBytes(34).toString("hex");
             vote = (vote[1] === "1" ? "+" : "-") + vote.slice(2);
-            data.asset.votes.push(vote);
+
+            if (data.asset && data.asset.votes) {
+                data.asset.votes.push(vote);
+            }
         }
     }
 }

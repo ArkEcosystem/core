@@ -43,10 +43,12 @@ export const getCurrentRound = async (): Promise<Contracts.P2P.CurrentRound> => 
 
     const blockTime = Managers.configManager.getMilestone(height).blocktime;
     const reward = Managers.configManager.getMilestone(height).reward;
-    const delegates: Contracts.P2P.DelegateWallet[] = (await databaseService.getActiveDelegates(roundInfo)).map(wallet => ({
-        ...wallet,
-        delegate: wallet.getAttribute("delegate"),
-    }));
+    const delegates: Contracts.P2P.DelegateWallet[] = (await databaseService.getActiveDelegates(roundInfo)).map(
+        wallet => ({
+            ...wallet,
+            delegate: wallet.getAttribute("delegate"),
+        }),
+    );
 
     const timestamp = Crypto.Slots.getTime();
     const blockTimestamp = Crypto.Slots.getSlotNumber(timestamp) * blockTime;

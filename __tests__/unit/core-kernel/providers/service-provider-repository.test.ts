@@ -73,7 +73,7 @@ describe("ServiceProviderRepository", () => {
         it("should create an alias", () => {
             serviceProviderRepository.set("name", new StubServiceProvider());
 
-            expect(serviceProviderRepository.get("alias")).toBeUndefined();
+            expect(() => serviceProviderRepository.get("alias")).toThrow();
 
             serviceProviderRepository.alias("name", "alias");
 

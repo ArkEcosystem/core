@@ -23,7 +23,11 @@ export const formatSatoshi = (amount: BigNumber): string => {
 /**
  * Check if the given block or transaction id is an exception.
  */
-export const isException = (blockOrTransaction: { id?: string }): boolean => {
+export const isException = (id: number | string | undefined): boolean => {
+    if (!id) {
+        throw new Error(`The given ID [${id}] is empty.`);
+    }
+
     const network: number = configManager.get("network.pubKeyHash");
 
     if (!whitelistedBlockAndTransactionIds || currentNetwork !== network) {
@@ -35,7 +39,7 @@ export const isException = (blockOrTransaction: { id?: string }): boolean => {
         ].reduce((acc, curr) => Object.assign(acc, { [curr]: true }), {});
     }
 
-    return !!whitelistedBlockAndTransactionIds[blockOrTransaction.id];
+    return !!whitelistedBlockAndTransactionIds[id];
 };
 
 export const isGenesisTransaction = (id: string): boolean => {

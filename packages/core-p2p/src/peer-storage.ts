@@ -16,7 +16,7 @@ export class PeerStorage implements Contracts.P2P.PeerStorage {
     }
 
     public getPeer(ip: string): Contracts.P2P.Peer {
-        return this.peers.get(ip);
+        return Utils.assert.defined(this.peers.get(ip));
     }
 
     public setPeer(peer: Contracts.P2P.Peer): void {
@@ -40,7 +40,7 @@ export class PeerStorage implements Contracts.P2P.PeerStorage {
     }
 
     public getPendingPeer(ip: string): Contracts.P2P.Peer {
-        return this.peersPending.get(ip);
+        return Utils.assert.defined(this.peersPending.get(ip));
     }
 
     public setPendingPeer(peer: Contracts.P2P.Peer): void {

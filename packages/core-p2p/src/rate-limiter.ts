@@ -1,3 +1,4 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import { RateLimiterMemory, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 
 export interface RateLimiterConfiguration {
@@ -42,7 +43,7 @@ export class RateLimiter {
             await this.global.consume(ip);
 
             if (endpoint && this.endpoints.has(endpoint)) {
-                await this.endpoints.get(endpoint).consume(ip);
+                await Utils.assert.defined<RateLimiterMemory>(this.endpoints.get(endpoint)).consume(ip);
             }
         } catch {
             return true;

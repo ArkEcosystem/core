@@ -13,7 +13,12 @@ export class PeersController extends Controller {
             .get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage)
             .getPeers();
 
-        let result = allPeers.sort((a, b) => a.latency - b.latency);
+        let result = allPeers.sort((a, b) => {
+            const latencyA: number = Utils.assert.defined(a.latency);
+            const latencyB: number = Utils.assert.defined(b.latency);
+
+            return latencyA - latencyB;
+        });
         result = request.query.version
             ? result.filter(peer => peer.version === (request.query as any).version)
             : result;
@@ -22,7 +27,7 @@ export class PeersController extends Controller {
 
         const limit: number = +request.query.limit || 100;
 
-        let offset: number = +Utils.get(request.query, "offset", 0);
+        let offset: number = +(Utils.get(request.query, "offset", 0) || 0);
 
         if (offset <= 0 && +request.query.page > 1) {
             offset = (+request.query.page - 1) * limit;
@@ -56,7 +61,7 @@ export class PeersController extends Controller {
                 .get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage)
                 .getPeers();
 
-            const peer: Contracts.P2P.Peer = peers.find(p => p.ip === request.params.ip);
+            const peer: Contracts.P2P.Peer | undefined = peers.find(p => p.ip === request.params.ip);
 
             if (!peer) {
                 return Boom.notFound("Peer not found");

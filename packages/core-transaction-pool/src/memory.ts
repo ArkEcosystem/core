@@ -32,7 +32,7 @@ export class Memory {
         removed: new Set(),
     };
 
-    public constructor(private readonly maxTransactionAge: number) { }
+    public constructor(private readonly maxTransactionAge: number) {}
 
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
@@ -53,21 +53,29 @@ export class Memory {
         };
 
         if (!this.byExpirationIsSorted) {
-            this.byExpiration.sort(
-                (a, b) =>
-                    AppUtils.expirationCalculator.calculateTransactionExpiration(a.data, expirationContext) -
+            this.byExpiration.sort((a, b) => {
+                const expirationA: number = AppUtils.assert.defined(
+                    AppUtils.expirationCalculator.calculateTransactionExpiration(a.data, expirationContext),
+                );
+
+                const expirationB: number = AppUtils.assert.defined(
                     AppUtils.expirationCalculator.calculateTransactionExpiration(b.data, expirationContext),
-            );
+                );
+
+                return expirationA - expirationB;
+            });
+
             this.byExpirationIsSorted = true;
         }
 
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            if (
-                AppUtils.expirationCalculator.calculateTransactionExpiration(transaction.data, expirationContext) >
-                currentHeight
-            ) {
+            const expiration: number = AppUtils.assert.defined(
+                AppUtils.expirationCalculator.calculateTransactionExpiration(transaction.data, expirationContext),
+            );
+
+            if (expiration > currentHeight) {
                 break;
             }
 
@@ -100,16 +108,15 @@ export class Memory {
     }
 
     public getByType(type: number, typeGroup: number): Set<Interfaces.ITransaction> {
-        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
-            type,
-            typeGroup,
+        const internalType: Transactions.InternalTransactionType = AppUtils.assert.defined(
+            Transactions.InternalTransactionType.from(type, typeGroup),
         );
 
         if (this.byType.has(internalType)) {
-            return this.byType.get(internalType);
+            return this.byType.get(internalType) as Set<Interfaces.ITransaction>;
         }
 
-        return new Set();
+        return new Set<Interfaces.ITransaction>();
     }
 
     public getBySender(senderPublicKey: string): Set<Interfaces.ITransaction> {
@@ -121,14 +128,17 @@ export class Memory {
     }
 
     public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
-        assert.strictEqual(this.byId[transaction.id], undefined);
+        const id: string = AppUtils.assert.defined(transaction.id);
+
+        assert.strictEqual(this.byId[id], undefined);
 
         this.all.push(transaction);
         this.allIsSorted = false;
 
-        this.byId[transaction.id] = transaction;
+        this.byId[id] = transaction;
 
-        const sender: string = transaction.data.senderPublicKey;
+        const sender: string = AppUtils.assert.defined(transaction.data.senderPublicKey);
+
         const { type, typeGroup } = transaction;
 
         if (this.bySender[sender] === undefined) {
@@ -139,13 +149,13 @@ export class Memory {
             this.bySender[sender].add(transaction);
         }
 
-        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
-            type,
-            typeGroup,
+        const internalType: Transactions.InternalTransactionType = AppUtils.assert.defined(
+            Transactions.InternalTransactionType.from(type, typeGroup),
         );
+
         if (this.byType.has(internalType)) {
             // Append to existing transaction ids for this type.
-            this.byType.get(internalType).add(transaction);
+            AppUtils.assert.defined<Set<Interfaces.ITransaction>>(this.byType.get(internalType)).add(transaction);
         } else {
             // First transaction of this type, create a new Set.
             this.byType.set(internalType, new Set([transaction]));
@@ -158,7 +168,7 @@ export class Memory {
             now: Crypto.Slots.getTime(),
             maxTransactionAge: this.maxTransactionAge,
         };
-        const expiration: number = AppUtils.expirationCalculator.calculateTransactionExpiration(
+        const expiration: number | undefined = AppUtils.expirationCalculator.calculateTransactionExpiration(
             transaction.data,
             expirationContext,
         );
@@ -168,13 +178,13 @@ export class Memory {
         }
 
         if (!databaseReady) {
-            if (this.dirty.removed.has(transaction.id)) {
+            if (this.dirty.removed.has(id)) {
                 // If the transaction has been already in the pool and has been removed
                 // and the removal has not propagated to disk yet, just wipe it from the
                 // list of removed transactions, so that the old copy stays on disk.
-                this.dirty.removed.delete(transaction.id);
+                this.dirty.removed.delete(id);
             } else {
-                this.dirty.added.add(transaction.id);
+                this.dirty.added.add(id);
             }
         }
     }
@@ -185,7 +195,7 @@ export class Memory {
         }
 
         if (senderPublicKey === undefined) {
-            senderPublicKey = this.byId[id].data.senderPublicKey;
+            senderPublicKey = AppUtils.assert.defined(this.byId[id].data.senderPublicKey);
         }
 
         const transaction: Interfaces.ITransaction = this.byId[id];
@@ -197,17 +207,20 @@ export class Memory {
             this.byExpiration.splice(i, 1);
         }
 
-        this.bySender[senderPublicKey].delete(transaction);
-        if (this.bySender[senderPublicKey].size === 0) {
-            delete this.bySender[senderPublicKey];
+        this.bySender[senderPublicKey!].delete(transaction);
+        if (this.bySender[senderPublicKey!].size === 0) {
+            delete this.bySender[senderPublicKey!];
         }
 
-        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
-            type,
-            typeGroup,
+        const internalType: Transactions.InternalTransactionType = AppUtils.assert.defined(
+            Transactions.InternalTransactionType.from(type, typeGroup),
         );
-        this.byType.get(internalType).delete(transaction);
-        if (this.byType.get(internalType).size === 0) {
+
+        const transactions: Set<Interfaces.ITransaction> = AppUtils.assert.defined(this.byType.get(internalType));
+
+        transactions.delete(transaction);
+
+        if (transactions.size === 0) {
             this.byType.delete(internalType);
         }
 
@@ -296,11 +309,11 @@ export class Memory {
                 return 1;
             }
 
-            const expirationA: number = AppUtils.expirationCalculator.calculateTransactionExpiration(
+            const expirationA: number | undefined = AppUtils.expirationCalculator.calculateTransactionExpiration(
                 a.data,
                 expirationContext,
             );
-            const expirationB: number = AppUtils.expirationCalculator.calculateTransactionExpiration(
+            const expirationB: number | undefined = AppUtils.expirationCalculator.calculateTransactionExpiration(
                 b.data,
                 expirationContext,
             );
@@ -316,11 +329,12 @@ export class Memory {
         for (let i = 0; i < this.all.length; i++) {
             const transaction: Interfaces.ITransaction = this.all[i];
 
-            if (transaction.data.version < 2) {
+            if (transaction.data.version && transaction.data.version < 2) {
                 continue;
             }
 
-            const sender: string = transaction.data.senderPublicKey;
+            const sender: string = AppUtils.assert.defined(transaction.data.senderPublicKey);
+
             if (indexBySender[sender] === undefined) {
                 indexBySender[sender] = [];
             }
@@ -330,9 +344,14 @@ export class Memory {
 
             for (let j = 0; j < indexBySender[sender].length - 1; j++) {
                 const prevIndex: number = indexBySender[sender][j];
-                if (this.all[i].data.nonce.isLessThan(this.all[prevIndex].data.nonce)) {
+
+                const currNonce: AppUtils.BigNumber = AppUtils.assert.defined(this.all[i].data.nonce);
+                const prevNonce: AppUtils.BigNumber = AppUtils.assert.defined(this.all[prevIndex].data.nonce);
+
+                if (currNonce.isLessThan(prevNonce)) {
                     const newIndex = i + 1 + nMoved;
                     this.all.splice(newIndex, 0, this.all[prevIndex]);
+                    // @ts-ignore - we can't assign undefined to this array, check for an alternative
                     this.all[prevIndex] = undefined;
 
                     indexBySender[sender][j] = newIndex;

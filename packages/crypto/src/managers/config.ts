@@ -9,13 +9,13 @@ import * as networks from "../networks";
 import { NetworkName } from "../types";
 
 export class ConfigManager {
-    private config: NetworkConfig;
-    private height: number;
-    private milestone: IMilestone;
-    private milestones: Record<string, any>;
+    private config: NetworkConfig | undefined;
+    private height: number | undefined;
+    private milestone: IMilestone | undefined;
+    private milestones: Record<string, any> | undefined;
 
     constructor() {
-        this.setConfig(networks.devnet);
+        this.setConfig((networks.devnet as unknown) as NetworkConfig);
     }
 
     public setConfig(config: NetworkConfig): void {
@@ -38,11 +38,15 @@ export class ConfigManager {
         return networks[network.toLowerCase()];
     }
 
-    public all(): NetworkConfig {
+    public all(): NetworkConfig | undefined {
         return this.config;
     }
 
     public set<T = any>(key: string, value: T): void {
+        if (!this.config) {
+            throw new Error();
+        }
+
         set(this.config, key, value);
     }
 
@@ -54,16 +58,25 @@ export class ConfigManager {
         this.height = value;
     }
 
-    public getHeight(): number {
+    public getHeight(): number | undefined {
         return this.height;
     }
 
     public isNewMilestone(height?: number): boolean {
         height = height || this.height;
+
+        if (!this.milestones) {
+            throw new Error();
+        }
+
         return this.milestones.some(milestone => milestone.height === height);
     }
 
     public getMilestone(height?: number): { [key: string]: any } {
+        if (!this.milestone || !this.milestones) {
+            throw new Error();
+        }
+
         if (!height && this.height) {
             height = this.height;
         }
@@ -93,6 +106,10 @@ export class ConfigManager {
     }
 
     private buildConstants(): void {
+        if (!this.config) {
+            throw new Error();
+        }
+
         this.milestones = this.config.milestones.sort((a, b) => a.height - b.height);
         this.milestone = {
             index: 0,
@@ -108,6 +125,10 @@ export class ConfigManager {
     }
 
     private validateMilestones(): void {
+        if (!this.config) {
+            throw new Error();
+        }
+
         const delegateMilestones = this.config.milestones
             .sort((a, b) => a.height - b.height)
             .filter(milestone => milestone.activeDelegates);

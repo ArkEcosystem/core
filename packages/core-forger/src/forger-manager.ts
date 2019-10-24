@@ -10,24 +10,24 @@ import { HostNoResponseError, RelayCommunicationError } from "./errors";
 @Container.injectable()
 export class ForgerManager {
     @Container.inject(Container.Identifiers.Application)
-    private readonly app: Contracts.Kernel.Application;
+    private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Log.Logger;
 
-    private client: Client;
-    private delegates: Delegate[];
-    private usernames: { [key: string]: string };
-    private isStopped: boolean;
-    private round: Contracts.P2P.CurrentRound;
-    private initialized: boolean;
+    private client!: Client;
+    private delegates: Delegate[] = [];
+    private usernames: { [key: string]: string } = {};
+    private isStopped: boolean = false;
+    private round: Contracts.P2P.CurrentRound | undefined;
+    private initialized: boolean = false;
 
     init(options) {
         this.client = this.app.resolve<Client>(Client);
         this.client.init(options.hosts);
     }
 
-    public async startForging(bip38: string, password: string): Promise<void> {
+    public async startForging(bip38?: string, password?: string): Promise<void> {
         const secrets = app.config("delegates").secrets;
 
         if (!bip38 && (!secrets || !secrets.length || !Array.isArray(secrets))) {
@@ -50,12 +50,12 @@ export class ForgerManager {
             return;
         }
 
-        let timeout: number;
+        let timeout: number = 2000;
         try {
             await this.loadRound();
+
             timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
         } catch (error) {
-            timeout = 2000;
             this.logger.warning("Waiting for a responsive host.");
         } finally {
             this.checkLater(timeout);
@@ -75,20 +75,24 @@ export class ForgerManager {
 
             await this.loadRound();
 
-            if (!this.round.canForge) {
+            const currentRound: Contracts.P2P.CurrentRound = AppUtils.assert.defined(this.round);
+
+            if (!currentRound.canForge) {
                 // basically looping until we lock at beginning of next slot
                 return this.checkLater(200);
             }
 
-            const delegate: Delegate = this.isActiveDelegate(this.round.currentForger.publicKey);
+            const delegate: Delegate | undefined = this.isActiveDelegate(
+                AppUtils.assert.defined(currentRound.currentForger.publicKey),
+            );
 
             if (!delegate) {
-                if (this.isActiveDelegate(this.round.nextForger.publicKey)) {
-                    const username = this.usernames[this.round.nextForger.publicKey];
+                const nextForger: string = AppUtils.assert.defined(currentRound.nextForger.publicKey);
 
-                    this.logger.info(
-                        `Next forging delegate ${username} (${this.round.nextForger.publicKey}) is active on this node.`,
-                    );
+                if (this.isActiveDelegate(nextForger)) {
+                    const username = this.usernames[nextForger];
+
+                    this.logger.info(`Next forging delegate ${username} (${nextForger}) is active on this node.`);
 
                     await this.client.syncWithNetwork();
                 }
@@ -98,14 +102,14 @@ export class ForgerManager {
 
             const networkState: Contracts.P2P.NetworkState = await this.client.getNetworkState();
 
-            if (networkState.nodeHeight !== this.round.lastBlock.height) {
+            if (networkState.nodeHeight !== currentRound.lastBlock.height) {
                 this.logger.warning(
-                    `The NetworkState height (${networkState.nodeHeight}) and round height (${this.round.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`,
+                    `The NetworkState height (${networkState.nodeHeight}) and round height (${currentRound.lastBlock.height}) are out of sync. This indicates delayed blocks on the network.`,
                 );
             }
 
             if (this.isForgingAllowed(networkState, delegate)) {
-                await this.forgeNewBlock(delegate, this.round, networkState);
+                await this.forgeNewBlock(delegate, currentRound, networkState);
             }
 
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
@@ -117,11 +121,13 @@ export class ForgerManager {
                     this.logger.warning(error.message);
                 }
             } else {
+                const currentRound: Contracts.P2P.CurrentRound = AppUtils.assert.defined(this.round);
+
                 this.logger.error(error.stack);
 
-                if (!AppUtils.isEmpty(this.round)) {
+                if (!AppUtils.isEmpty(currentRound)) {
                     this.logger.info(
-                        `Round: ${this.round.current.toLocaleString()}, height: ${this.round.lastBlock.height.toLocaleString()}`,
+                        `Round: ${currentRound.current.toLocaleString()}, height: ${currentRound.lastBlock.height.toLocaleString()}`,
                     );
                 }
 
@@ -138,27 +144,31 @@ export class ForgerManager {
         round: Contracts.P2P.CurrentRound,
         networkState: Contracts.P2P.NetworkState,
     ): Promise<void> {
-        Managers.configManager.setHeight(networkState.nodeHeight);
+        Managers.configManager.setHeight(AppUtils.assert.defined(networkState.nodeHeight));
 
         const transactions: Interfaces.ITransactionData[] = await this.getTransactionsForForging();
 
-        const block: Interfaces.IBlock = delegate.forge(transactions, {
-            previousBlock: {
-                id: networkState.lastBlockId,
-                idHex: Managers.configManager.getMilestone().block.idFullSha256
-                    ? networkState.lastBlockId
-                    : Blocks.Block.toBytesHex(networkState.lastBlockId),
-                height: networkState.nodeHeight,
-            },
-            timestamp: round.timestamp,
-            reward: round.reward,
-        });
+        const block: Interfaces.IBlock = AppUtils.assert.defined(
+            delegate.forge(transactions, {
+                previousBlock: {
+                    id: networkState.lastBlockId,
+                    idHex: Managers.configManager.getMilestone().block.idFullSha256
+                        ? networkState.lastBlockId
+                        : Blocks.Block.toBytesHex(networkState.lastBlockId),
+                    height: networkState.nodeHeight,
+                },
+                timestamp: round.timestamp,
+                reward: round.reward,
+            }),
+        );
 
         const minimumMs = 2000;
         const timeLeftInMs: number = Crypto.Slots.getTimeInMsUntilNextSlot();
         const currentSlot: number = Crypto.Slots.getSlotNumber();
         const roundSlot: number = Crypto.Slots.getSlotNumber(round.timestamp);
-        const prettyName = `${this.usernames[delegate.publicKey]} (${delegate.publicKey})`;
+        const prettyName = `${this.usernames[AppUtils.assert.defined<string>(delegate.publicKey)]} (${
+            delegate.publicKey
+        })`;
 
         if (timeLeftInMs >= minimumMs && currentSlot === roundSlot) {
             this.logger.info(`Forged new block ${block.data.id} by delegate ${prettyName}`);
@@ -198,7 +208,7 @@ export class ForgerManager {
 
         this.logger.debug(
             `Received ${AppUtils.pluralize("transaction", transactions.length, true)} from the pool containing ${
-            response.poolSize
+                response.poolSize
             }`,
         );
 
@@ -231,7 +241,7 @@ export class ForgerManager {
 
             for (const overHeightBlockHeader of overHeightBlockHeaders) {
                 if (overHeightBlockHeader.generatorPublicKey === delegate.publicKey) {
-                    const username: string = this.usernames[delegate.publicKey];
+                    const username: string = this.usernames[AppUtils.assert.defined<string>(delegate.publicKey)];
 
                     this.logger.warning(
                         `Possible double forging delegate: ${username} (${delegate.publicKey}) - Block: ${overHeightBlockHeader.id}.`,
@@ -259,13 +269,14 @@ export class ForgerManager {
 
         this.usernames = this.round.delegates.reduce(
             (acc, wallet) =>
-                Object.assign(acc, { [wallet.publicKey]: wallet.delegate.username }),
+                Object.assign(acc, { [AppUtils.assert.defined<string>(wallet.publicKey)]: wallet.delegate.username }),
             {},
         );
 
         if (!this.initialized) {
             this.printLoadedDelegates();
 
+            // @ts-ignore
             this.client.emitEvent(Enums.Events.State.ForgerStarted, {
                 activeDelegates: this.delegates.map(delegate => delegate.publicKey),
             });
@@ -282,19 +293,23 @@ export class ForgerManager {
 
     private printLoadedDelegates(): void {
         const activeDelegates: Delegate[] = this.delegates.filter(delegate =>
-            this.usernames.hasOwnProperty(delegate.publicKey),
+            this.usernames.hasOwnProperty(AppUtils.assert.defined(delegate.publicKey)),
         );
 
         if (activeDelegates.length > 0) {
             this.logger.info(
                 `Loaded ${AppUtils.pluralize("active delegate", activeDelegates.length, true)}: ${activeDelegates
-                    .map(({ publicKey }) => `${this.usernames[publicKey]} (${publicKey})`)
+                    .map(({ publicKey }) => {
+                        publicKey = AppUtils.assert.defined<string>(publicKey);
+
+                        return `${this.usernames[publicKey]} (${publicKey})`;
+                    })
                     .join(", ")}`,
             );
         }
 
         if (this.delegates.length > activeDelegates.length) {
-            const inactiveDelegates: string[] = this.delegates
+            const inactiveDelegates: (string | undefined)[] = this.delegates
                 .filter(delegate => !activeDelegates.includes(delegate))
                 .map(delegate => delegate.publicKey);
 

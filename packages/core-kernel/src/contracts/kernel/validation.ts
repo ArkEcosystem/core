@@ -52,7 +52,7 @@ export interface Validator {
      * @returns {JsonObject}
      * @memberof Validator
      */
-    valid(): JsonObject;
+    valid(): JsonObject | undefined;
 
     /**
      * Returns the data which was invalid.

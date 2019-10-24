@@ -60,6 +60,12 @@ describe("AttributeIndex", () => {
                     expect(store.all(id)).toEqual({ someAttribute: "value" });
                 });
 
+                it("should throw if the collection is not defined", () => {
+                    store.bind("someAttribute");
+
+                    expect(() => store.all(id)).toThrow();
+                });
+
                 it("should get the given attribute", () => {
                     store.bind("someAttribute");
 
@@ -143,7 +149,7 @@ describe("AttributeIndex", () => {
                     });
 
                     it("should return undefined if the given ID does not exist", () => {
-                        expect(store.clone(id, "cloneKey")).toBeUndefined();
+                        expect(store.clone(id, "cloneKey")).toBeFalse();
                     });
                 });
 

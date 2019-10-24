@@ -27,12 +27,14 @@ class Deserializer {
 
         this.deserializeSignatures(data, buffer);
 
-        if (options.acceptLegacyVersion || isSupportedTansactionVersion(data.version)) {
-            if (data.version === 1) {
-                this.applyV1Compatibility(data);
+        if (data.version) {
+            if (options.acceptLegacyVersion || isSupportedTansactionVersion(data.version)) {
+                if (data.version === 1) {
+                    this.applyV1Compatibility(data);
+                }
+            } else {
+                throw new TransactionVersionError(data.version);
             }
-        } else {
-            throw new TransactionVersionError(data.version);
         }
 
         instance.serialized = buffer.flip().toBuffer();
@@ -197,9 +199,13 @@ class Deserializer {
         transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
         transaction.typeGroup = TransactionTypeGroup.Core;
 
-        if (transaction.type === TransactionType.Vote) {
+        if (transaction.type === TransactionType.Vote && transaction.senderPublicKey) {
             transaction.recipientId = Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
-        } else if (transaction.type === TransactionType.MultiSignature) {
+        } else if (
+            transaction.type === TransactionType.MultiSignature &&
+            transaction.asset &&
+            transaction.asset.multiSignatureLegacy
+        ) {
             transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
                 k.startsWith("+") ? k : `+${k}`,
             );

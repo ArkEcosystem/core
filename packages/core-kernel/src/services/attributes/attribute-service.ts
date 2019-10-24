@@ -1,6 +1,7 @@
-import { strict } from "assert";
+import { strictEqual } from "assert";
 
 import { injectable } from "../../ioc";
+import { assert } from "../../utils";
 import { AttributeIndex } from "./attribute-index";
 
 interface AttributeIndexOptions {
@@ -23,11 +24,7 @@ export class AttributeService {
      * @memberof AttributeService
      */
     public get(name: string, options: AttributeIndexOptions = { scope: "default" }): AttributeIndex {
-        const scope: Map<string, AttributeIndex> = this.scope(options.scope);
-
-        strict.strictEqual(scope.has(name), true, `Tried to get an unknown index: ${name}`);
-
-        return scope.get(name);
+        return assert.defined(this.scope(options.scope).get(name), `Tried to get an unknown index: ${name}`);
     }
 
     /**
@@ -39,7 +36,7 @@ export class AttributeService {
     public set(name: string, options: AttributeIndexOptions = { scope: "default" }): boolean {
         const scope: Map<string, AttributeIndex> = this.scope(options.scope);
 
-        strict.strictEqual(scope.has(name), false, `Tried to set a known index: ${name}`);
+        strictEqual(scope.has(name), false, `Tried to set a known index: ${name}`);
 
         scope.set(name, new AttributeIndex());
 
@@ -88,12 +85,10 @@ export class AttributeService {
      * @memberof AttributeService
      */
     private scope(name: string): Map<string, AttributeIndex> {
-        if (this.scopes.has(name)) {
-            return this.scopes.get(name);
+        if (!this.scopes.has(name)) {
+            this.scopes.set(name, new Map<string, AttributeIndex>());
         }
 
-        this.scopes.set(name, new Map<string, AttributeIndex>());
-
-        return this.scopes.get(name);
+        return assert.defined(this.scopes.get(name));
     }
 }

@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import dayjs, { Dayjs } from "dayjs";
 
 import { PeerVerificationResult } from "./peer-verifier";
@@ -6,14 +6,10 @@ import { PeerVerificationResult } from "./peer-verifier";
 // todo: review the implementation
 export class Peer implements Contracts.P2P.Peer {
     public readonly ports: Contracts.P2P.PeerPorts = {};
-    public readonly port: number = +app
-        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-        .get("p2p")
-        .config()
-        .get<number>("server.port");
+    public port: number;
 
-    public version: string;
-    public latency: number;
+    public version: string | undefined;
+    public latency: number | undefined;
     public lastPinged: Dayjs | undefined;
     public verificationResult: PeerVerificationResult | undefined;
 
@@ -26,7 +22,18 @@ export class Peer implements Contracts.P2P.Peer {
 
     public plugins: Contracts.P2P.PeerPlugins = {};
 
-    constructor(readonly ip: string) {}
+    constructor(readonly ip: string) {
+        const config: Providers.PluginConfiguration = Utils.assert.defined(
+            app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("p2p")
+                .config(),
+        );
+
+        const port: number = Utils.assert.defined(config.get<number>("server.port"));
+
+        this.port = port;
+    }
 
     get url(): string {
         return `${this.port % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.port}`;
@@ -37,7 +44,7 @@ export class Peer implements Contracts.P2P.Peer {
     }
 
     public isForked(): boolean {
-        return this.isVerified() && this.verificationResult.forked;
+        return !!(this.isVerified() && this.verificationResult && this.verificationResult.forked);
     }
 
     public recentlyPinged(): boolean {

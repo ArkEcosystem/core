@@ -3,6 +3,7 @@ import { Identifiers, inject, injectable } from "../../ioc";
 import { PluginConfiguration, PluginManifest, ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { ConfigRepository } from "../../services/config";
 import { JsonObject } from "../../types";
+import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
 
 interface PluginEntry {
@@ -25,7 +26,7 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof Local
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @private
@@ -33,7 +34,7 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof RegisterBasePaths
      */
     @inject(Identifiers.ConfigRepository)
-    private readonly configRepository: ConfigRepository;
+    private readonly configRepository!: ConfigRepository;
 
     /**
      * @private
@@ -41,24 +42,26 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof RegisterBasePaths
      */
     @inject(Identifiers.ServiceProviderRepository)
-    private readonly serviceProviderRepository: ServiceProviderRepository;
+    private readonly serviceProviderRepository!: ServiceProviderRepository;
 
     /**
      * @returns {Promise<void>}
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        for (const pkg of this.configRepository.get<Array<PluginEntry>>("app.plugins")) {
-            const serviceProvider: ServiceProvider = this.app.resolve(require(pkg.package).ServiceProvider);
-            serviceProvider.setManifest(this.app.resolve(PluginManifest).discover(pkg.package));
-            serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, pkg.options));
+        const plugins: PluginEntry[] = assert.defined(this.configRepository.get<PluginEntry[]>("app.plugins"));
 
-            this.serviceProviderRepository.set(pkg.package, serviceProvider);
+        for (const plugin of plugins) {
+            const serviceProvider: ServiceProvider = this.app.resolve(require(plugin.package).ServiceProvider);
+            serviceProvider.setManifest(this.app.resolve(PluginManifest).discover(plugin.package));
+            serviceProvider.setConfig(this.discoverConfiguration(serviceProvider, plugin.options));
+
+            this.serviceProviderRepository.set(plugin.package, serviceProvider);
 
             const alias: string | undefined = serviceProvider.alias();
 
             if (alias) {
-                this.serviceProviderRepository.alias(pkg.package, alias);
+                this.serviceProviderRepository.alias(plugin.package, alias);
             }
         }
     }
@@ -73,18 +76,19 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof LoadServiceProviders
      */
     private discoverConfiguration(serviceProvider: ServiceProvider, options: JsonObject): PluginConfiguration {
+        const serviceProviderName: string = assert.defined(serviceProvider.name());
         const hasDefaults: boolean = Object.keys(serviceProvider.configDefaults()).length > 0;
 
         if (hasDefaults) {
             return this.app
                 .resolve(PluginConfiguration)
-                .from(serviceProvider.name(), serviceProvider.configDefaults())
+                .from(serviceProviderName, serviceProvider.configDefaults())
                 .merge(options);
         }
 
         return this.app
             .resolve(PluginConfiguration)
-            .discover(serviceProvider.name())
+            .discover(serviceProviderName)
             .merge(options);
     }
 }

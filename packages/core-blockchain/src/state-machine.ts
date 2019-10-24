@@ -211,7 +211,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         const empty: boolean = !blocks || blocks.length === 0;
         const chained: boolean =
-            !empty && (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0]) || Utils.isException(blocks[0]));
+            !empty && (AppUtils.isBlockChained(lastDownloadedBlock, blocks[0]) || Utils.isException(blocks[0].id));
 
         if (chained) {
             logger.info(
@@ -277,11 +277,15 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     async rollbackDatabase() {
         logger.info("Trying to restore database integrity");
 
-        const { maxBlockRewind, steps } = app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-blockchain")
-            .config()
-            .get<Record<string, number>>("databaseRollback");
+        const config =
+            app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-blockchain")
+                .config()
+                .get<Record<string, number>>("databaseRollback") || {};
+
+        const maxBlockRewind: number = AppUtils.assert.defined(config.maxBlockRewind);
+        const steps: number = AppUtils.assert.defined(config.steps);
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await blockchain.removeTopBlocks(steps);

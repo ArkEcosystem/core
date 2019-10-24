@@ -23,7 +23,7 @@ export interface Application {
     /**
      * Bootstrap the application with the given configuration.
      */
-    bootstrap(config: JsonObject): Promise<void>;
+    bootstrap({ flags, plugins }: { flags: JsonObject; plugins?: JsonObject }): Promise<void>;
 
     /**
      * Boot the application.
@@ -38,7 +38,7 @@ export interface Application {
     /**
      * Get or set the specified configuration value.
      */
-    config<T = any>(key: string, value?: T): T;
+    config<T = any>(key: string, value?: T): T | undefined;
 
     /**
      * Get the namespace number of the application.

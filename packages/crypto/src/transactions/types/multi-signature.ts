@@ -25,11 +25,13 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
     public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {
         const staticFee = super.staticFee(feeContext);
 
-        const data: ITransactionData = feeContext.data;
-        if (data) {
+        const data: ITransactionData | undefined = feeContext.data;
+        if (data && data.asset && data.asset.multiSignature) {
             if (data.version === 2) {
                 return staticFee.times(data.asset.multiSignature.publicKeys.length + 1);
-            } else {
+            }
+
+            if (data.asset.multiSignatureLegacy) {
                 return staticFee.times(data.asset.multiSignatureLegacy.keysgroup.length + 1);
             }
         }
@@ -40,35 +42,44 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
     protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
 
     public verify(): boolean {
-        return isException(this.data) || (configManager.getMilestone().aip11 && super.verify());
+        return isException(this.data.id) || (configManager.getMilestone().aip11 && super.verify());
     }
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        let buffer: ByteBuffer;
+        if (!data.asset) {
+            return undefined;
+        }
+
+        let buffer: ByteBuffer | undefined;
+
         if (data.version === 2) {
-            const { min, publicKeys } = data.asset.multiSignature;
-            buffer = new ByteBuffer(2 + publicKeys.length * 33);
+            if (data.asset.multiSignature) {
+                const { min, publicKeys } = data.asset.multiSignature;
+                buffer = new ByteBuffer(2 + publicKeys.length * 33);
 
-            buffer.writeUint8(min);
-            buffer.writeUint8(publicKeys.length);
+                buffer.writeUint8(min);
+                buffer.writeUint8(publicKeys.length);
 
-            for (const publicKey of publicKeys) {
-                buffer.append(publicKey, "hex");
+                for (const publicKey of publicKeys) {
+                    buffer.append(publicKey, "hex");
+                }
             }
         } else {
-            // Legacy
-            const joined: string = data.asset.multiSignatureLegacy.keysgroup
-                .map(k => (k.startsWith("+") ? k.slice(1) : k))
-                .join("");
-            const keysgroupBuffer: Buffer = Buffer.from(joined, "hex");
+            if (data.asset.multiSignatureLegacy) {
+                // Legacy
+                const joined: string = data.asset.multiSignatureLegacy.keysgroup
+                    .map(k => (k.startsWith("+") ? k.slice(1) : k))
+                    .join("");
+                const keysgroupBuffer: Buffer = Buffer.from(joined, "hex");
 
-            buffer = new ByteBuffer(keysgroupBuffer.length + 3, true);
-            buffer.writeByte(data.asset.multiSignatureLegacy.min);
-            buffer.writeByte(data.asset.multiSignatureLegacy.keysgroup.length);
-            buffer.writeByte(data.asset.multiSignatureLegacy.lifetime);
-            buffer.append(keysgroupBuffer, "hex");
+                buffer = new ByteBuffer(keysgroupBuffer.length + 3, true);
+                buffer.writeByte(data.asset.multiSignatureLegacy.min);
+                buffer.writeByte(data.asset.multiSignatureLegacy.keysgroup.length);
+                buffer.writeByte(data.asset.multiSignatureLegacy.lifetime);
+                buffer.append(keysgroupBuffer, "hex");
+            }
         }
 
         return buffer;

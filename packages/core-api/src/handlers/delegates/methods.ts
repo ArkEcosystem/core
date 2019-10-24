@@ -45,7 +45,7 @@ const blocks = async request => {
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
         .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
-    if (!delegate) {
+    if (!delegate || !delegate.publicKey) {
         return Boom.notFound("Delegate not found");
     }
 

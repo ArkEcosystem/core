@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Errors } from "@arkecosystem/core-transactions";
 import {
     Crypto,
@@ -18,13 +18,15 @@ export class Wallet implements Contracts.State.Wallet {
     public balance: Utils.BigNumber;
     public nonce: Utils.BigNumber;
 
-    public constructor(address: string) {
+    public constructor (address: string) {
         this.address = address;
         this.balance = Utils.BigNumber.ZERO;
         this.nonce = Utils.BigNumber.ZERO;
+
     }
 
     public getAttributes() {
+        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
@@ -32,6 +34,7 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public getAttribute<T>(key: string, defaultValue?: T): T {
+        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
@@ -39,6 +42,7 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public setAttribute<T = any>(key: string, value: T): boolean {
+        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
@@ -46,6 +50,7 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public forgetAttribute(key: string): boolean {
+        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
@@ -53,6 +58,7 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public hasAttribute(key: string): boolean {
+        // @ts-ignore - todo: this will potentially return undefined but it will break a lot of typings
         return app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
@@ -76,13 +82,13 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public canBePurged(): boolean {
-        const attributes = app
+        const attributes: object = app
             .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
             .all(this);
 
         const hasAttributes: boolean = !!attributes && Object.keys(attributes).length > 0;
-        const lockedBalance = this.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        const lockedBalance = this.getAttribute("htlc.lockedBalance");
 
         return this.balance.isZero() && lockedBalance.isZero() && !hasAttributes;
     }
@@ -150,28 +156,31 @@ export class Wallet implements Contracts.State.Wallet {
         const publicKeyIndexes: { [index: number]: boolean } = {};
         let verified: boolean = false;
         let verifiedSignatures: number = 0;
-        for (let i = 0; i < signatures.length; i++) {
-            const signature: string = signatures[i];
-            const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
 
-            if (!publicKeyIndexes[publicKeyIndex]) {
-                publicKeyIndexes[publicKeyIndex] = true;
-            } else {
-                throw new CryptoErrors.DuplicateParticipantInMultiSignatureError();
-            }
+        if (signatures) {
+            for (let i = 0; i < signatures.length; i++) {
+                const signature: string = signatures[i];
+                const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
 
-            const partialSignature: string = signature.slice(2, 130);
-            const publicKey: string = publicKeys[publicKeyIndex];
+                if (!publicKeyIndexes[publicKeyIndex]) {
+                    publicKeyIndexes[publicKeyIndex] = true;
+                } else {
+                    throw new CryptoErrors.DuplicateParticipantInMultiSignatureError();
+                }
 
-            if (Crypto.Hash.verifySchnorr(hash, partialSignature, publicKey)) {
-                verifiedSignatures++;
-            }
+                const partialSignature: string = signature.slice(2, 130);
+                const publicKey: string = publicKeys[publicKeyIndex];
 
-            if (verifiedSignatures === min) {
-                verified = true;
-                break;
-            } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
-                break;
+                if (Crypto.Hash.verifySchnorr(hash, partialSignature, publicKey)) {
+                    verifiedSignatures++;
+                }
+
+                if (verifiedSignatures === min) {
+                    verified = true;
+                    break;
+                } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
+                    break;
+                }
             }
         }
 
@@ -184,8 +193,11 @@ export class Wallet implements Contracts.State.Wallet {
      * Throw an exception if it is not.
      */
     public verifyTransactionNonceApply(transaction: Interfaces.ITransaction): void {
-        if (transaction.data.version > 1 && !this.nonce.plus(1).isEqualTo(transaction.data.nonce)) {
-            throw new Errors.UnexpectedNonceError(transaction.data.nonce, this, false);
+        const version: number = AppUtils.assert.defined(transaction.data.version);
+        const nonce: AppUtils.BigNumber = AppUtils.assert.defined(transaction.data.nonce);
+
+        if (version > 1 && !this.nonce.plus(1).isEqualTo(nonce)) {
+            throw new Errors.UnexpectedNonceError(nonce, this, false);
         }
     }
 
@@ -195,13 +207,16 @@ export class Wallet implements Contracts.State.Wallet {
      * Throw an exception if it is not.
      */
     public verifyTransactionNonceRevert(transaction: Interfaces.ITransaction): void {
-        if (transaction.data.version > 1 && !this.nonce.isEqualTo(transaction.data.nonce)) {
-            throw new Errors.UnexpectedNonceError(transaction.data.nonce, this, true);
+        const version: number = AppUtils.assert.defined(transaction.data.version);
+        const nonce: AppUtils.BigNumber = AppUtils.assert.defined(transaction.data.nonce);
+
+        if (version > 1 && !this.nonce.isEqualTo(nonce)) {
+            throw new Errors.UnexpectedNonceError(nonce, this, true);
         }
     }
 
     public auditApply(transaction: Interfaces.ITransactionData): any[] {
-        const audit = [];
+        const audit: any[] = [];
 
         const delegate: Contracts.State.WalletDelegateAttributes = this.getAttribute("delegate");
         const secondPublicKey: string = this.getAttribute("secondPublicKey");
@@ -228,8 +243,10 @@ export class Wallet implements Contracts.State.Wallet {
                 });
             }
         }
-
-        if (transaction.version > 1 && !this.nonce.plus(1).isEqualTo(transaction.nonce)) {
+        if (
+            AppUtils.assert.defined<number>(transaction.version) > 1 &&
+            !this.nonce.plus(1).isEqualTo(AppUtils.assert.defined(transaction.nonce))
+        ) {
             audit.push({
                 "Invalid Nonce": transaction.nonce,
                 "Wallet Nonce": this.nonce,
@@ -238,6 +255,8 @@ export class Wallet implements Contracts.State.Wallet {
 
         const typeGroup: number = transaction.typeGroup || Enums.TransactionTypeGroup.Core;
         if (typeGroup === Enums.TransactionTypeGroup.Core) {
+            const asset: Interfaces.ITransactionAsset = AppUtils.assert.defined(transaction.asset);
+
             if (transaction.type === Enums.TransactionType.Transfer) {
                 audit.push({ Transfer: true });
             }
@@ -247,7 +266,7 @@ export class Wallet implements Contracts.State.Wallet {
             }
 
             if (transaction.type === Enums.TransactionType.DelegateRegistration) {
-                const username = transaction.asset.delegate.username;
+                const username = asset.delegate!.username;
                 audit.push({ "Current username": delegate.username });
                 audit.push({ "New username": username });
             }
@@ -258,20 +277,25 @@ export class Wallet implements Contracts.State.Wallet {
 
             if (transaction.type === Enums.TransactionType.Vote) {
                 audit.push({ "Current vote": this.getAttribute("vote") });
-                audit.push({ "New vote": transaction.asset.votes[0] });
+                audit.push({ "New vote": asset.votes![0] });
             }
 
             if (transaction.type === Enums.TransactionType.MultiSignature) {
-                const keysgroup = transaction.asset.multisignature.keysgroup;
+                const keysgroup = asset.multisignature.keysgroup || [];
+
                 audit.push({ "Multisignature not yet registered": !multiSignature });
+
                 audit.push({
-                    "Multisignature enough keys": keysgroup.length >= transaction.asset.multiSignature.min,
+                    "Multisignature enough keys": keysgroup.length >= asset.multiSignature!.min,
                 });
+
                 audit.push({
-                    "Multisignature all keys signed": keysgroup.length === transaction.signatures.length,
+                    "Multisignature all keys signed":
+                        keysgroup.length === AppUtils.assert.defined<string[]>(transaction.signatures).length,
                 });
+
                 audit.push({
-                    "Multisignature verification": this.verifySignatures(transaction, transaction.asset.multiSignature),
+                    "Multisignature verification": this.verifySignatures(transaction, asset.multiSignature),
                 });
             }
 
@@ -280,7 +304,7 @@ export class Wallet implements Contracts.State.Wallet {
             }
 
             if (transaction.type === Enums.TransactionType.MultiPayment) {
-                const amount = transaction.asset.payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
+                const amount = asset.payments!.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
                 audit.push({ "Multipayment remaining amount": amount });
             }
 
@@ -295,7 +319,8 @@ export class Wallet implements Contracts.State.Wallet {
     }
 
     public clone(): Contracts.State.Wallet {
-        const clonedWallet = cloneDeep(this);
+        const clonedWallet: Contracts.State.Wallet = cloneDeep(this);
+
         app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
             .get("wallet")
             .clone(this, clonedWallet);

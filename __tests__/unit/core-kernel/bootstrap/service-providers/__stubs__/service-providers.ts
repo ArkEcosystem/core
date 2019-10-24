@@ -142,6 +142,14 @@ export class FaultyBootServiceProvider extends ServiceProvider {
     public async boot(): Promise<void> {
         throw new Error("Boot Error");
     }
+
+    public name(): string {
+        return "stub";
+    }
+
+    public version(): string {
+        return "version";
+    }
 }
 
 export class RequiredFaultyBootServiceProvider extends ServiceProvider {
@@ -162,6 +170,14 @@ export class RequiredFaultyBootServiceProvider extends ServiceProvider {
 
 export class DeferredServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}
+
+    public name(): string {
+        return "stub";
+    }
+
+    public version(): string {
+        return "version";
+    }
 
     public async enableWhen(): Promise<boolean> {
         return !!process.env.DEFFERED_ENABLE;

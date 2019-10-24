@@ -48,6 +48,7 @@ $ ark core:run --launchMode=seed
     public async run(): Promise<void> {
         const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
+        // @ts-ignore
         await app.bootstrap({
             ...getConfigValue(flags, "app", "cli.core.run"),
             ...{

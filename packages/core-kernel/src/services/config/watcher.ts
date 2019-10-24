@@ -40,7 +40,7 @@ export class Watcher {
      * @memberof Manager
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @private

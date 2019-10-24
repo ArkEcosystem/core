@@ -1,5 +1,6 @@
 import { InvalidArgumentException } from "../../exceptions/logic";
 import { injectable } from "../../ioc";
+import { assert } from "../../utils";
 import { Action } from "./action";
 
 /**
@@ -50,7 +51,7 @@ export class Actions {
     public get(name: string): Action {
         this.throwIfActionIsMissing(name);
 
-        return this.actions.get(name);
+        return assert.defined(this.actions.get(name));
     }
 
     /**
@@ -69,7 +70,7 @@ export class Actions {
 
         let result: T | undefined;
         try {
-            result = await this.actions.get(name).execute<T>(args);
+            result = await this.get(name).execute<T>(args);
         } catch {
             await this.callHooks("error", name);
         }
@@ -89,7 +90,7 @@ export class Actions {
      * @memberof Actions
      */
     private async callHooks(type: string, action: string): Promise<void> {
-        const hooks: Set<Function> = this.actions.get(action).hooks(type);
+        const hooks: Set<Function> = this.get(action).hooks(type);
 
         if (!hooks.size) {
             return;

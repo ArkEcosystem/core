@@ -17,7 +17,10 @@ export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegi
     }
 
     public usernameAsset(username: string): DelegateRegistrationBuilder {
-        this.data.asset.delegate.username = username;
+        if (this.data.asset && this.data.asset.delegate) {
+            this.data.asset.delegate.username = username;
+        }
+
         return this;
     }
 

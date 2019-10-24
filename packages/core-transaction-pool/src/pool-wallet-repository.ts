@@ -1,4 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
@@ -24,7 +24,10 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
             this.reindex(
-                app.get<any>(Container.Identifiers.DatabaseService).walletRepository.findByAddress(address).clone(),
+                app
+                    .get<any>(Container.Identifiers.DatabaseService)
+                    .walletRepository.findByAddress(address)
+                    .clone(),
             );
         }
 
@@ -37,10 +40,14 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
     }
 
     public async throwIfCannotBeApplied(transaction: Interfaces.ITransaction): Promise<void> {
-        const sender: Contracts.State.Wallet = this.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = this.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         const handler: Handlers.TransactionHandler = await app
             .get<any>("transactionHandlerRegistry")
             .get(transaction.type, transaction.typeGroup);
+
         return handler.throwIfCannotBeApplied(
             transaction,
             sender,

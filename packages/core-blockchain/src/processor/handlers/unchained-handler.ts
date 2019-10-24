@@ -26,7 +26,7 @@ class BlockNotReadyCounter {
 
         if (this.id !== id) {
             this.reset();
-            this.id = id;
+            this.id = Utils.assert.defined(id);
         }
 
         this.attempts += 1;
@@ -51,12 +51,12 @@ export class UnchainedHandler extends BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Log.Logger;
 
     @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchain: Contracts.Blockchain.Blockchain;
+    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    private isValidGenerator: boolean;
+    private isValidGenerator: boolean = false;
 
     // todo: remove the need for this method
     public init(isValidGenerator: boolean): this {

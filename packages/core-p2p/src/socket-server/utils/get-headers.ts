@@ -1,7 +1,11 @@
 import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
 export const getHeaders = () => {
-    const headers = {
+    const headers: {
+        version: string | undefined;
+        port: number | undefined;
+        height: number | undefined;
+    } = {
         version: app.version(),
         port: app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)

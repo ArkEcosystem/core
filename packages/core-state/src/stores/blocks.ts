@@ -7,33 +7,33 @@ import assert from "assert";
 export class BlockStore {
     private readonly byId: Utils.CappedMap<string, Interfaces.IBlockData>;
     private readonly byHeight: Utils.CappedMap<number, Interfaces.IBlockData>;
-    private lastBlock: Interfaces.IBlock;
+    private lastBlock: Interfaces.IBlock | undefined;
 
     public constructor(maxSize: number) {
         this.byId = new Utils.CappedMap<string, Interfaces.IBlockData>(maxSize);
         this.byHeight = new Utils.CappedMap<number, Interfaces.IBlockData>(maxSize);
     }
 
-    public get(key: string | number): Interfaces.IBlockData {
+    public get(key: string | number): Interfaces.IBlockData | undefined {
         return typeof key === "string" ? this.byId.get(key) : this.byHeight.get(key);
     }
 
     public set(value: Interfaces.IBlock): void {
-        const lastBlock: Interfaces.IBlock = this.last();
+        const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.last());
 
         assert.strictEqual(value.data.height, lastBlock ? lastBlock.data.height + 1 : 1);
 
-        this.byId.set(value.data.id, value.data);
+        this.byId.set(Utils.assert.defined(value.data.id), value.data);
         this.byHeight.set(value.data.height, value.data);
         this.lastBlock = value;
     }
 
     public has(value: Interfaces.IBlockData): boolean {
-        return this.byId.has(value.id) || this.byHeight.has(value.height);
+        return this.byId.has(Utils.assert.defined(value.id)) || this.byHeight.has(value.height);
     }
 
     public delete(value: Interfaces.IBlockData): void {
-        this.byId.delete(value.id);
+        this.byId.delete(Utils.assert.defined(value.id));
         this.byHeight.delete(value.height);
     }
 
@@ -47,7 +47,7 @@ export class BlockStore {
         this.byHeight.resize(maxSize);
     }
 
-    public last(): Interfaces.IBlock {
+    public last(): Interfaces.IBlock | undefined {
         return this.lastBlock;
     }
 

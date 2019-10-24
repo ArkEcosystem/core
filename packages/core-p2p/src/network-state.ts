@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import { NetworkStateStatus } from "./enums";
@@ -21,8 +21,8 @@ class QuorumDetails implements Contracts.P2P.QuorumDetails {
 
 // todo: review the implementation
 export class NetworkState implements Contracts.P2P.NetworkState {
-    public nodeHeight: number;
-    public lastBlockId: string;
+    public nodeHeight: number | undefined;
+    public lastBlockId: string | undefined;
     private quorumDetails: QuorumDetails;
 
     public constructor(readonly status: NetworkStateStatus, lastBlock?: Interfaces.IBlock) {
@@ -109,7 +109,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
     }
 
     private update(peer: Contracts.P2P.Peer, currentSlot: number): void {
-        if (peer.state.height > this.nodeHeight) {
+        if (Utils.assert.defined<number>(peer.state.height) > Utils.assert.defined<number>(this.nodeHeight)) {
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;
             this.quorumDetails.peersOverHeightBlockHeaders[peer.state.header.id] = peer.state.header;

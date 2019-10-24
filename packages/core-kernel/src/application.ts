@@ -56,7 +56,7 @@ export class Application implements Contracts.Kernel.Application {
             .inSingletonScope();
 
         this.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
-        this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins);
+        this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins || {});
 
         await this.registerEventDispatcher();
 
@@ -90,7 +90,7 @@ export class Application implements Contracts.Kernel.Application {
      * @returns {T}
      * @memberof Application
      */
-    public config<T = any>(key: string, value?: T): T {
+    public config<T = any>(key: string, value?: T): T | undefined {
         const config: ConfigRepository = this.get<ConfigRepository>(Identifiers.ConfigRepository);
 
         if (value) {

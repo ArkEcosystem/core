@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
@@ -56,14 +56,14 @@ export class StateStore implements Contracts.State.StateStore {
      * Get the last block height.
      */
     public getLastHeight(): number {
-        return this.getLastBlock().data.height;
+        return Utils.assert.defined<Interfaces.IBlock>(this.getLastBlock()).data.height;
     }
 
     /**
      * Get the genesis block.
      */
-    public getGenesisBlock(): Interfaces.IBlock | undefined {
-        return this.genesisBlock;
+    public getGenesisBlock(): Interfaces.IBlock {
+        return Utils.assert.defined(this.genesisBlock);
     }
 
     /**
@@ -76,9 +76,8 @@ export class StateStore implements Contracts.State.StateStore {
     /**
      * Get the last block.
      */
-    public getLastBlock(): Interfaces.IBlock | undefined {
-        // @ts-ignore
-        return this.lastBlocks.last() || undefined;
+    public getLastBlock(): Interfaces.IBlock {
+        return Utils.assert.defined(this.lastBlocks.last());
     }
 
     /**
@@ -102,14 +101,15 @@ export class StateStore implements Contracts.State.StateStore {
         }
 
         // Delete oldest block if size exceeds the maximum
-        if (
-            this.lastBlocks.size >
+        const maxLastBlocks: number = Utils.assert.defined(
             app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-state")
+                .get("state")
                 .config()
-                .get<number>("storage.maxLastBlocks")
-        ) {
+                .get<number>("storage.maxLastBlocks"),
+        );
+
+        if (this.lastBlocks.size > maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
 
@@ -141,7 +141,7 @@ export class StateStore implements Contracts.State.StateStore {
         return this.lastBlocks
             .valueSeq()
             .reverse()
-            .map(b => b.data.id)
+            .map(b => Utils.assert.defined<string>(b.data.id))
             .toArray();
     }
 
@@ -151,11 +151,11 @@ export class StateStore implements Contracts.State.StateStore {
      * @param {Number} end
      */
     public getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[] {
-        end = end || start;
+        const tail: number = Utils.assert.defined(end || start);
 
         const blocks = this.lastBlocks
             .valueSeq()
-            .filter(block => block.data.height >= start && block.data.height <= end);
+            .filter(block => block.data.height >= start && block.data.height <= tail);
 
         return this.mapToBlockData(blocks, headersOnly).toArray() as Interfaces.IBlockData[];
     }
@@ -171,7 +171,7 @@ export class StateStore implements Contracts.State.StateStore {
         }
 
         return this.getLastBlocksData(true)
-            .filter(block => idsHash[block.id])
+            .filter(block => idsHash[Utils.assert.defined<string>(block.id)])
             .toArray() as Interfaces.IBlockData[];
     }
 
@@ -183,28 +183,32 @@ export class StateStore implements Contracts.State.StateStore {
     ): { added: Interfaces.ITransactionData[]; notAdded: Interfaces.ITransactionData[] } {
         const notAdded: Interfaces.ITransactionData[] = [];
         const added: Interfaces.ITransactionData[] = transactions.filter(tx => {
-            if (this.cachedTransactionIds.has(tx.id)) {
+            if (this.cachedTransactionIds.has(Utils.assert.defined(tx.id))) {
                 notAdded.push(tx);
+
                 return false;
             }
+
             return true;
         });
 
         this.cachedTransactionIds = this.cachedTransactionIds.withMutations(cache => {
             for (const tx of added) {
-                cache.add(tx.id);
+                cache.add(Utils.assert.defined(tx.id));
             }
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
-        const limit = app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-state")
-            .config()
-            .get<number>("storage.maxLastTransactionIds");
+        const maxLastTransactionIds: number = Utils.assert.defined(
+            app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-state")
+                .config()
+                .get<number>("storage.maxLastTransactionIds"),
+        );
 
-        if (this.cachedTransactionIds.size > limit) {
-            this.cachedTransactionIds = this.cachedTransactionIds.takeLast(limit);
+        if (this.cachedTransactionIds.size > maxLastTransactionIds) {
+            this.cachedTransactionIds = this.cachedTransactionIds.takeLast(maxLastTransactionIds);
         }
 
         return { added, notAdded };

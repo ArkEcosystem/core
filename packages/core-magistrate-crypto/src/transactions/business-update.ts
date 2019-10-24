@@ -1,3 +1,4 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
@@ -55,18 +56,19 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
 
     public serialize(): ByteBuffer {
         const { data } = this;
-        const businessUpdateAsset = data.asset.businessUpdate as IBusinessUpdateAsset;
 
-        let businessName: Buffer;
+        const businessUpdateAsset: IBusinessUpdateAsset = AppUtils.assert.defined(data.asset!.businessUpdate);
+
+        let businessName: Buffer | undefined;
         let businessNameLength: number = 0;
 
-        let businessWebsite: Buffer;
+        let businessWebsite: Buffer | undefined;
         let businessWebsiteLength: number = 0;
 
-        let businessVat: Buffer;
+        let businessVat: Buffer | undefined;
         let businessVatLength: number = 0;
 
-        let businessRepository: Buffer;
+        let businessRepository: Buffer | undefined;
         let businessRepositoryLength: number = 0;
 
         if (businessUpdateAsset.name) {
@@ -95,22 +97,22 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
         );
 
         buffer.writeByte(businessNameLength);
-        if (businessNameLength !== 0) {
+        if (businessName && businessNameLength !== 0) {
             buffer.append(businessName);
         }
 
         buffer.writeByte(businessWebsiteLength);
-        if (businessWebsiteLength !== 0) {
+        if (businessWebsite && businessWebsiteLength !== 0) {
             buffer.append(businessWebsite);
         }
 
         buffer.writeByte(businessVatLength);
-        if (businessVatLength !== 0) {
+        if (businessVat && businessVatLength !== 0) {
             buffer.append(businessVat);
         }
 
         buffer.writeByte(businessRepositoryLength);
-        if (businessRepositoryLength !== 0) {
+        if (businessRepository && businessRepositoryLength !== 0) {
             buffer.append(businessRepository);
         }
 

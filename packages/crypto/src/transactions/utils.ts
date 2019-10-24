@@ -25,7 +25,7 @@ export class Utils {
         // during transfer serialization, the error is bubbled up to defer the
         // `AddressNetworkByteError` until the actual id is available to call
         // `isException`.
-        if (options && options.addressError && !isException({ id })) {
+        if (options && options.addressError && !isException(id)) {
             throw new AddressNetworkError(options.addressError);
         }
 

@@ -65,7 +65,7 @@ export const flagsSnapshot: Record<string, object> = {
 };
 
 export const flagsToStrings = (flags: CommandFlags, ignoreKeys: string[] = []): string => {
-    const mappedFlags = [];
+    const mappedFlags: string[] = [];
 
     for (const [key, value] of Object.entries(flags)) {
         if (!ignoreKeys.includes(key) && value !== undefined) {

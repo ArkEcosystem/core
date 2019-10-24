@@ -11,7 +11,7 @@ const encodeBlock = block => {
     return Blocks.Block.serialize(blockCamelized, true);
 };
 
-const decodeBlock = (buffer: Buffer) => {
+const decodeBlock = (buffer: Buffer | Uint8Array) => {
     const block = Blocks.Block.deserialize(buffer.toString("hex"), true);
     // @ts-ignore - @todo: remove ts-ignore
     block.totalAmount = block.totalAmount.toFixed();
@@ -35,7 +35,7 @@ const encodeTransaction = transaction => {
     ]);
 };
 
-const decodeTransaction = (buffer: Buffer) => {
+const decodeTransaction = (buffer: Buffer | Uint8Array) => {
     const [id, blockId, sequence, timestamp, serialized] = decode(buffer);
 
     const transaction: any = Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data;
@@ -67,7 +67,7 @@ const encodeRound = round => {
     return encode([round.public_key || round.publicKey, round.balance, round.round]);
 };
 
-const decodeRound = (buffer: Buffer) => {
+const decodeRound = (buffer: Buffer | Uint8Array) => {
     const [publicKey, balance, round] = decode(buffer);
 
     return decamelizeKeys({

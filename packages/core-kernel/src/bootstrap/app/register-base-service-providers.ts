@@ -18,7 +18,7 @@ export class RegisterBaseServiceProviders implements Bootstrapper {
      * @memberof Local
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @param {Kernel.Application} app

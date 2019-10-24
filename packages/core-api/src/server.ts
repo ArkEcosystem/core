@@ -12,7 +12,7 @@ export class Server {
      * @memberof Server
      */
     @Container.inject(Container.Identifiers.Application)
-    private readonly app: Contracts.Kernel.Application;
+    private readonly app!: Contracts.Kernel.Application;
 
     /**
      * @private
@@ -26,7 +26,7 @@ export class Server {
      * @type {string}
      * @memberof Server
      */
-    private name: string;
+    private name!: string;
 
     /**
      * @param {string} name

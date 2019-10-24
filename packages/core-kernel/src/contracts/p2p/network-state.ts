@@ -1,8 +1,8 @@
 export interface NetworkState {
     readonly status: any;
 
-    nodeHeight: number;
-    lastBlockId: string;
+    nodeHeight: number | undefined;
+    lastBlockId: string | undefined;
 
     // static analyze(monitor: NetworkMonitor, storage: PeerStorage): NetworkState;
     // static parse(data: any): NetworkState;

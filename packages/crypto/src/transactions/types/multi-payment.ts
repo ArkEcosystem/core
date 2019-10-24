@@ -29,18 +29,22 @@ export class MultiPaymentTransaction extends Transaction {
         return true;
     }
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        const buffer: ByteBuffer = new ByteBuffer(2 + data.asset.payments.length * 29, true);
-        buffer.writeUint16(data.asset.payments.length);
+        if (data.asset && data.asset.payments) {
+            const buffer: ByteBuffer = new ByteBuffer(2 + data.asset.payments.length * 29, true);
+            buffer.writeUint16(data.asset.payments.length);
 
-        for (const p of data.asset.payments) {
-            buffer.writeUint64(Long.fromString(p.amount.toString()));
-            buffer.append(Base58.decodeCheck(p.recipientId));
+            for (const p of data.asset.payments) {
+                buffer.writeUint64(Long.fromString(p.amount.toString()));
+                buffer.append(Base58.decodeCheck(p.recipientId));
+            }
+
+            return buffer;
         }
 
-        return buffer;
+        return undefined;
     }
 
     public deserialize(buf: ByteBuffer): void {

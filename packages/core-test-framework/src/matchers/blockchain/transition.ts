@@ -18,6 +18,7 @@ expect.extend({
             // FIXME isNot is necessary to write the right message
             // @see https://facebook.github.io/jest/docs/en/expect.html#expectextendmatchers
             message: () =>
+                // @ts-ignore
                 `Expected machine to ${this.isNot ? "not" : ""} transition to "${transition.to}" from "${
                     transition.from
                 }" on "${transition.on}"`,

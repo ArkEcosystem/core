@@ -1,7 +1,7 @@
 import { Kernel } from "../contracts";
 import { DriverCannotBeResolved } from "../exceptions/container";
 import { Identifiers, inject, injectable } from "../ioc";
-import { pascalCase } from "../utils";
+import { assert, pascalCase } from "../utils";
 
 /**
  * @export
@@ -19,7 +19,7 @@ export abstract class Manager<T> {
      * @memberof Manager
      */
     @inject(Identifiers.Application)
-    protected readonly app: Kernel.Application;
+    protected readonly app!: Kernel.Application;
 
     /**
      * @private
@@ -52,7 +52,7 @@ export abstract class Manager<T> {
      * @memberof Manager
      */
     public async boot(): Promise<void> {
-        await this.createDriver(this.defaultDriver);
+        await this.createDriver(assert.defined(this.defaultDriver));
     }
 
     /**
@@ -63,13 +63,15 @@ export abstract class Manager<T> {
      * @memberof Manager
      */
     public driver(name?: string): T {
-        name = name || this.defaultDriver;
+        name = assert.defined<string>(name || this.defaultDriver);
 
-        if (!this.drivers.has(name)) {
+        const driver: T | undefined = this.drivers.get(name);
+
+        if (!driver) {
             throw new DriverCannotBeResolved(name);
         }
 
-        return this.drivers.get(name);
+        return driver;
     }
 
     /**

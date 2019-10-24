@@ -36,10 +36,11 @@ export interface Wallet {
     auditApply(transaction: Interfaces.ITransactionData): any[];
     toString(): string;
 
-    hasAttribute(key: string): boolean;
+    getAttributes();
     getAttribute<T = any>(key: string, defaultValue?: T): T;
-    setAttribute<T = any>(key: string, value: T): void;
-    forgetAttribute(key: string): void;
+    setAttribute<T = any>(key: string, value: T): boolean;
+    forgetAttribute(key: string): boolean;
+    hasAttribute(key: string): boolean;
 
     isDelegate(): boolean;
     hasVoted(): boolean;
@@ -117,7 +118,7 @@ export interface WalletRepository {
 
     findByUsername(username: string): Wallet;
 
-    findByIndex(index: string | string[], key: string): Wallet | undefined;
+    findByIndex(index: string | string[], key: string): Wallet;
 
     getNonce(publicKey: string): Utils.BigNumber;
 

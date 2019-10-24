@@ -26,7 +26,7 @@ export const isForgerAuthorized = ({ req }): { authorized: boolean } => ({
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
             .get("@arkecosystem/core-p2p")
             .config()
-            .get<string[]>("remoteAccess"),
+            .get<string[]>("remoteAccess", []) || [],
         req.data.ip,
     ),
 });

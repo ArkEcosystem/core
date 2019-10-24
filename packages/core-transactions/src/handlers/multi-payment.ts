@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { InsufficientBalanceError } from "../errors";
@@ -29,8 +29,11 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             const transactions = await reader.read();
             for (const transaction of transactions) {
                 const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-                for (const payment of transaction.asset.payments) {
+
+                const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.asset.payments);
+                for (const payment of payments) {
                     const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
+
                     recipient.balance = recipient.balance.plus(payment.amount);
                     sender.balance = sender.balance.minus(payment.amount);
                 }
@@ -47,10 +50,8 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         wallet: Contracts.State.Wallet,
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const totalPaymentsAmount = transaction.data.asset.payments.reduce(
-            (a, p) => a.plus(p.amount),
-            Utils.BigNumber.ZERO,
-        );
+        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+        const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
 
         if (
             wallet.balance
@@ -78,11 +79,14 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const totalPaymentsAmount = transaction.data.asset.payments.reduce(
-            (a, p) => a.plus(p.amount),
-            Utils.BigNumber.ZERO,
+        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+
+        const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
         );
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+
         sender.balance = sender.balance.minus(totalPaymentsAmount);
     }
 
@@ -92,11 +96,13 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const totalPaymentsAmount = transaction.data.asset.payments.reduce(
-            (a, p) => a.plus(p.amount),
-            Utils.BigNumber.ZERO,
+        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+
+        const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
         );
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+
         sender.balance = sender.balance.plus(totalPaymentsAmount);
     }
 
@@ -104,8 +110,11 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        for (const payment of transaction.data.asset.payments) {
+        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+
+        for (const payment of payments) {
             const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
+
             recipient.balance = recipient.balance.plus(payment.amount);
         }
     }
@@ -114,8 +123,11 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        for (const payment of transaction.data.asset.payments) {
+        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+
+        for (const payment of payments) {
             const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
+
             recipient.balance = recipient.balance.minus(payment.amount);
         }
     }

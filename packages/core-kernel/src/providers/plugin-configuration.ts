@@ -17,7 +17,7 @@ export class PluginConfiguration {
      * @memberof RegisterBasePaths
      */
     @inject(Identifiers.ConfigRepository)
-    private readonly configRepository: ConfigRepository;
+    private readonly configRepository!: ConfigRepository;
 
     /**
      * The loaded items.
@@ -91,7 +91,7 @@ export class PluginConfiguration {
      * @returns {T}
      * @memberof PluginConfiguration
      */
-    public get<T>(key?: string, defaultValue?: T): T {
+    public get<T>(key: string, defaultValue?: T): T | undefined {
         if (!this.has(key)) {
             return defaultValue;
         }
@@ -150,6 +150,6 @@ export class PluginConfiguration {
             return;
         }
 
-        this.merge(this.configRepository.get(`app.pluginOptions.${name}`));
+        this.merge(this.configRepository.get(`app.pluginOptions.${name}`) || {});
     }
 }

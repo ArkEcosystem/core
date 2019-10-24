@@ -18,6 +18,7 @@ expect.extend({
         const calls = dispatcher.dispatch.mock.calls;
         const pass = calls && calls[0] ? Object.is(calls[0][0], expected) : false;
 
+        // @ts-ignore
         const messageStr = `Expected "${expected}" to ${this.isNot ? "not" : ""} be dispatched, received ${
             calls && calls[0] ? calls[0][0] : ""
         }`;

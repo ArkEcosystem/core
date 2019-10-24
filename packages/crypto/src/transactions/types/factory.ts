@@ -16,8 +16,13 @@ export class TransactionTypeFactory {
         return instance;
     }
 
-    public static get(type: number, typeGroup?: number): TransactionConstructor {
-        const internalType: InternalTransactionType = InternalTransactionType.from(type, typeGroup);
+    public static get(type: number, typeGroup?: number): TransactionConstructor | undefined {
+        const internalType: InternalTransactionType | undefined = InternalTransactionType.from(type, typeGroup);
+
+        if (!internalType) {
+            throw new Error();
+        }
+
         if (this.transactionTypes.has(internalType)) {
             return this.transactionTypes.get(internalType);
         }

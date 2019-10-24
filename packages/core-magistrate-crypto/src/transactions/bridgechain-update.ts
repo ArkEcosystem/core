@@ -1,3 +1,4 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import Long from "long";
@@ -43,7 +44,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const bridgechainUpdateAsset = data.asset.bridgechainUpdate as IBridgechainUpdateAsset;
+        const bridgechainUpdateAsset: IBridgechainUpdateAsset = AppUtils.assert.defined(data.asset!.bridgechainUpdate);
 
         let seedNodesBuffersLength = 0;
         const seedNodesBuffers: Buffer[] = [];

@@ -13,6 +13,7 @@ import { Identifiers, inject, injectable } from "../../ioc";
 import { PluginConfiguration, ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
+import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
 
 // todo: review the implementation
@@ -31,7 +32,7 @@ export class RegisterServiceProviders implements Bootstrapper {
      * @memberof Local
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @returns {Promise<void>}
@@ -43,9 +44,11 @@ export class RegisterServiceProviders implements Bootstrapper {
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
+            const serviceProviderName: string = assert.defined(serviceProvider.name());
+
             try {
                 // Shall we include the plugin?
-                if (!this.shouldBeIncluded(serviceProvider.name()) || this.shouldBeExcluded(serviceProvider.name())) {
+                if (!this.shouldBeIncluded(serviceProviderName) || this.shouldBeExcluded(serviceProviderName)) {
                     continue;
                 }
 
@@ -62,10 +65,10 @@ export class RegisterServiceProviders implements Bootstrapper {
                 const isRequired: boolean = await serviceProvider.required();
 
                 if (isRequired) {
-                    throw new ServiceProviderCannotBeRegistered(serviceProvider.name(), error.message);
+                    throw new ServiceProviderCannotBeRegistered(serviceProviderName, error.message);
                 }
 
-                serviceProviders.fail(serviceProvider.name());
+                serviceProviders.fail(serviceProviderName);
             }
         }
     }
@@ -82,17 +85,17 @@ export class RegisterServiceProviders implements Bootstrapper {
         if (Object.keys(configSchema).length > 0) {
             const config: PluginConfiguration = serviceProvider.config();
 
-            const validator: Kernel.Validation.Validator = this.app
-                .get<ValidationManager>(Identifiers.ValidationManager)
-                .driver();
+            const validator: Kernel.Validation.Validator = assert.defined(
+                this.app.get<ValidationManager>(Identifiers.ValidationManager).driver(),
+            );
 
             validator.validate(config.all(), configSchema);
 
             if (validator.fails()) {
-                throw new InvalidPluginConfiguration(serviceProvider.name(), validator.errors());
+                throw new InvalidPluginConfiguration(assert.defined(serviceProvider.name()), validator.errors());
             }
 
-            serviceProvider.setConfig(config.merge(validator.valid()));
+            serviceProvider.setConfig(config.merge(validator.valid() || {}));
         }
     }
 
@@ -112,11 +115,13 @@ export class RegisterServiceProviders implements Bootstrapper {
 
             const isRequired: boolean = typeof required === "function" ? await required() : !!required;
 
+            const serviceProviderName: string = assert.defined(serviceProvider.name());
+
             if (!serviceProviders.has(name)) {
                 // The dependency is necessary for this package to function. We'll output an error and terminate the process.
                 if (isRequired) {
                     const error: RequiredDependencyCannotBeFound = new RequiredDependencyCannotBeFound(
-                        serviceProvider.name(),
+                        serviceProviderName,
                         name,
                     );
 
@@ -125,20 +130,20 @@ export class RegisterServiceProviders implements Bootstrapper {
 
                 // The dependency is optional for this package to function. We'll only output a warning.
                 const error: OptionalDependencyCannotBeFound = new OptionalDependencyCannotBeFound(
-                    serviceProvider.name(),
+                    serviceProviderName,
                     name,
                 );
 
                 this.app.log.warning(error.message);
 
-                serviceProviders.fail(serviceProvider.name());
+                serviceProviders.fail(serviceProviderName);
 
                 return false;
             }
 
             /* istanbul ignore else */
             if (constraint) {
-                const version: string = serviceProviders.get(name).version();
+                const version: string = assert.defined(serviceProviders.get(name).version());
 
                 /* istanbul ignore else */
                 if (!semver.satisfies(version, constraint)) {
@@ -154,7 +159,7 @@ export class RegisterServiceProviders implements Bootstrapper {
 
                     this.app.log.warning(error.message);
 
-                    serviceProviders.fail(serviceProvider.name());
+                    serviceProviders.fail(serviceProviderName);
                 }
             }
         }
@@ -169,11 +174,11 @@ export class RegisterServiceProviders implements Bootstrapper {
      * @memberof RegisterServiceProviders
      */
     private shouldBeIncluded(name: string): boolean {
-        const includes: string[] = this.app
+        const includes: string[] | undefined = this.app
             .get<ConfigRepository>(Identifiers.ConfigRepository)
             .get<string[]>("app.pluginOptions.include", []);
 
-        return includes.length > 0 ? includes.includes(name) : true;
+        return includes && includes.length > 0 ? includes.includes(name) : true;
     }
 
     /**
@@ -183,10 +188,10 @@ export class RegisterServiceProviders implements Bootstrapper {
      * @memberof RegisterServiceProviders
      */
     private shouldBeExcluded(name: string): boolean {
-        const excludes: string[] = this.app
+        const excludes: string[] | undefined = this.app
             .get<ConfigRepository>(Identifiers.ConfigRepository)
             .get<string[]>("app.pluginOptions.exclude", []);
 
-        return excludes.length > 0 ? excludes.includes(name) : false;
+        return excludes && excludes.length > 0 ? excludes.includes(name) : false;
     }
 }

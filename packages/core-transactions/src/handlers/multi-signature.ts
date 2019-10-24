@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
@@ -43,9 +43,10 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
                     wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                     multiSignature.legacy = true;
                 } else {
-                    multiSignature = transaction.asset.multiSignature;
+                    multiSignature = AppUtils.assert.defined(transaction.asset.multiSignature);
                     wallet = walletRepository.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
                 }
+
                 if (wallet.hasMultiSignature()) {
                     throw new MultiSignatureAlreadyRegisteredError();
                 }
@@ -70,27 +71,29 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        if (Utils.isException(data)) {
+        if (Utils.isException(data.id)) {
             return;
         }
 
-        const { publicKeys, min } = data.asset.multiSignature;
+        const { publicKeys, min } = AppUtils.assert.defined(data.asset!.multiSignature);
         if (min < 1 || min > publicKeys.length || min > 16) {
             throw new MultiSignatureMinimumKeysError();
         }
 
-        if (publicKeys.length !== data.signatures.length) {
+        if (publicKeys.length !== AppUtils.assert.defined<string[]>(data.signatures).length) {
             throw new MultiSignatureKeyCountMismatchError();
         }
 
-        const multiSigAddress: string = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
+        const multiSigAddress: string = Identities.Address.fromMultiSignatureAsset(
+            AppUtils.assert.defined(data.asset!.multiSignature),
+        );
         const recipientWallet: Contracts.State.Wallet = databaseWalletRepository.findByAddress(multiSigAddress);
 
         if (recipientWallet.hasMultiSignature()) {
             throw new MultiSignatureAlreadyRegisteredError();
         }
 
-        if (!wallet.verifySignatures(data, data.asset.multiSignature)) {
+        if (!wallet.verifySignatures(data, AppUtils.assert.defined(data.asset!.multiSignature))) {
             throw new InvalidMultiSignatureError();
         }
 
@@ -116,10 +119,14 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         await super.applyToSender(transaction, walletRepository);
 
         // Create the multi sig wallet
-        if (transaction.data.version >= 2) {
+        if (transaction.data.version && transaction.data.version >= 2) {
             walletRepository
-                .findByAddress(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
-                .setAttribute("multiSignature", transaction.data.asset.multiSignature);
+                .findByAddress(
+                    Identities.Address.fromMultiSignatureAsset(
+                        AppUtils.assert.defined(transaction.data.asset!.multiSignature),
+                    ),
+                )
+                .setAttribute("multiSignature", AppUtils.assert.defined(transaction.data.asset!.multiSignature));
         }
     }
 
@@ -138,11 +145,12 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        if (data.version >= 2) {
+        if (data.version && data.version >= 2) {
             const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
-                Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
+                Identities.Address.fromMultiSignatureAsset(AppUtils.assert.defined(data.asset!.multiSignature)),
             );
-            recipientWallet.setAttribute("multiSignature", transaction.data.asset.multiSignature);
+
+            recipientWallet.setAttribute("multiSignature", AppUtils.assert.defined(data.asset!.multiSignature));
         }
     }
 
@@ -152,9 +160,9 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        if (data.version >= 2) {
+        if (data.version && data.version >= 2) {
             const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
-                Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
+                Identities.Address.fromMultiSignatureAsset(AppUtils.assert.defined(data.asset!.multiSignature)),
             );
 
             recipientWallet.forgetAttribute("multiSignature");

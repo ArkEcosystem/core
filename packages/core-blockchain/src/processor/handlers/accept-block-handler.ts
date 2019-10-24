@@ -8,16 +8,16 @@ import { BlockHandler } from "./block-handler";
 @Container.injectable()
 export class AcceptBlockHandler extends BlockHandler {
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Log.Logger;
 
     @Container.inject(Container.Identifiers.StateStore)
-    protected readonly state: Contracts.State.StateStore;
+    protected readonly state!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database: Contracts.Database.DatabaseService;
+    protected readonly database!: Contracts.Database.DatabaseService;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    protected readonly transactionPool: Contracts.TransactionPool.Connection;
+    protected readonly transactionPool!: Contracts.TransactionPool.Connection;
 
     public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         try {

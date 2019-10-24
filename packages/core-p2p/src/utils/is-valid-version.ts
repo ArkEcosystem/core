@@ -4,6 +4,10 @@ import semver from "semver";
 
 // todo: review the implementation
 export const isValidVersion = (peer: Contracts.P2P.Peer): boolean => {
+    if (!peer.version) {
+        return false;
+    }
+
     if (!semver.valid(peer.version)) {
         return false;
     }
@@ -16,15 +20,17 @@ export const isValidVersion = (peer: Contracts.P2P.Peer): boolean => {
     if (p2p && Array.isArray(p2p.minimumVersions) && p2p.minimumVersions.length > 0) {
         minimumVersions = p2p.minimumVersions;
     } else {
-        minimumVersions = app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-p2p")
-            .config()
-            .get<string[]>("minimumVersions");
+        minimumVersions =
+            app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-p2p")
+                .config()
+                .get<string[]>("minimumVersions") || [];
     }
 
     const includePrerelease: boolean = Managers.configManager.get("network.name") !== "mainnet";
     return minimumVersions.some((minimumVersion: string) =>
+        // @ts-ignore - check why the peer.version errors even though we exit early
         semver.satisfies(peer.version, minimumVersion, { includePrerelease }),
     );
 };

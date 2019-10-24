@@ -1,3 +1,4 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import Command from "@oclif/command";
 import { ProcessDescription } from "@typeskrift/foreman";
 import Table from "cli-table3";
@@ -19,7 +20,7 @@ export abstract class AbstractStatusCommand extends Command {
         abortMissingProcess(processName);
 
         renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {
-            const app: ProcessDescription = processManager.describe(processName);
+            const app: ProcessDescription = Utils.assert.defined(processManager.describe(processName));
 
             // @ts-ignore
             table.push([

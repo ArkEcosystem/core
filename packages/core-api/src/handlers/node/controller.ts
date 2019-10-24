@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -54,11 +54,13 @@ export class NodeController extends Controller {
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const network = this.config.get("network");
-            const dynamicFees = app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("transactionPool")
-                .config()
-                .get<{ enabled?: boolean }>("dynamicFees");
+            const dynamicFees: Record<string, any> = Utils.assert.defined(
+                app
+                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                    .get("transactionPool")
+                    .config()
+                    .get<{ enabled?: boolean }>("dynamicFees"),
+            );
 
             return {
                 data: {
@@ -107,7 +109,7 @@ export class NodeController extends Controller {
     }
 
     public async debug(request: Hapi.Request, h) {
-        const logPath: string = process.env.CORE_PATH_LOG;
+        const logPath: string | undefined = Utils.assert.defined(process.env.CORE_PATH_LOG);
         const logFile: string = `${logPath}/${app.token()}-current.log`;
 
         if (!existsSync(logFile)) {

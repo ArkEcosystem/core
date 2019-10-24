@@ -17,7 +17,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: Contracts.TransactionPool.Connection) { }
+    constructor(private readonly pool: Contracts.TransactionPool.Connection) {}
 
     public async validate(
         transactions: Interfaces.ITransactionData[],
@@ -56,13 +56,15 @@ export class Processor implements Contracts.TransactionPool.Processor {
     }
 
     public pushError(transaction: Interfaces.ITransactionData, type: string, message: string): void {
-        if (!this.errors[transaction.id]) {
-            this.errors[transaction.id] = [];
+        const id: string = Utils.assert.defined(transaction.id);
+
+        if (!this.errors[id]) {
+            this.errors[id] = [];
         }
 
-        this.errors[transaction.id].push({ type, message });
+        this.errors[id].push({ type, message });
 
-        this.invalid.set(transaction.id, transaction);
+        this.invalid.set(id, transaction);
     }
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
@@ -73,7 +75,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
         this.transactions = added;
 
         for (const transaction of notAdded) {
-            if (!this.errors[transaction.id]) {
+            if (!this.errors[Utils.assert.defined<string>(transaction.id)]) {
                 this.pushError(transaction, "ERR_DUPLICATE", "Already in cache.");
             }
         }
@@ -85,7 +87,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
         for (const id of forgedIdsSet) {
-            this.pushError(this.accept.get(id).data, "ERR_FORGED", "Already forged.");
+            const tx: Interfaces.ITransaction = Utils.assert.defined(this.accept.get(id));
+
+            this.pushError(tx.data, "ERR_FORGED", "Already forged.");
 
             this.accept.delete(id);
             this.broadcast.delete(id);
@@ -93,28 +97,31 @@ export class Processor implements Contracts.TransactionPool.Processor {
     }
 
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
-        const maxTransactionBytes = app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-transaction-pool")
-            .config()
-            .get<number>("maxTransactionBytes");
+        const maxTransactionBytes: number = Utils.assert.defined(
+            app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-transaction-pool")
+                .config()
+                .get<number>("maxTransactionBytes"),
+        );
 
         for (const transaction of transactions) {
-            const exists: boolean = await this.pool.has(transaction.id);
+            const id: string = Utils.assert.defined(transaction.id);
+            const exists: boolean = await this.pool.has(id);
 
             if (exists) {
-                this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
+                this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${id}`);
             } else if (JSON.stringify(transaction).length > maxTransactionBytes) {
                 this.pushError(
                     transaction,
                     "ERR_TOO_LARGE",
-                    `Transaction ${transaction.id} is larger than ${maxTransactionBytes} bytes.`,
+                    `Transaction ${id} is larger than ${maxTransactionBytes} bytes.`,
                 );
-            } else if (await this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
-                this.excess.push(transaction.id);
+            } else if (await this.pool.hasExceededMaxTransactions(Utils.assert.defined(transaction.senderPublicKey))) {
+                this.excess.push(id);
             } else if (await this.validateTransaction(transaction)) {
                 try {
-                    const receivedId: string = transaction.id;
+                    const receivedId: string = id;
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
@@ -131,12 +138,14 @@ export class Processor implements Contracts.TransactionPool.Processor {
                                     "The fee is too low to broadcast and accept the transaction",
                                 );
                             } else {
+                                const id: string = Utils.assert.defined(transactionInstance.data.id);
+
                                 if (dynamicFee.enterPool) {
-                                    this.accept.set(transactionInstance.data.id, transactionInstance);
+                                    this.accept.set(id, transactionInstance);
                                 }
 
                                 if (dynamicFee.broadcast) {
-                                    this.broadcast.set(transactionInstance.data.id, transactionInstance);
+                                    this.broadcast.set(id, transactionInstance);
                                 }
                             }
                         } catch (error) {
@@ -183,14 +192,16 @@ export class Processor implements Contracts.TransactionPool.Processor {
             blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
             currentHeight: lastHeight,
             now: Crypto.Slots.getTime(),
-            maxTransactionAge: app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-transaction-pool")
-                .config()
-                .get<number>("maxTransactionAge"),
+            maxTransactionAge: Utils.assert.defined<number>(
+                app
+                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                    .get("@arkecosystem/core-transaction-pool")
+                    .config()
+                    .get<number>("maxTransactionAge"),
+            ),
         };
 
-        const expiration: number = Utils.expirationCalculator.calculateTransactionExpiration(
+        const expiration: number | undefined = Utils.expirationCalculator.calculateTransactionExpiration(
             transaction,
             expirationContext,
         );
@@ -242,13 +253,16 @@ export class Processor implements Contracts.TransactionPool.Processor {
         const { notAdded }: TransactionsProcessed = await this.pool.addTransactions(Array.from(this.accept.values()));
 
         for (const item of notAdded) {
-            this.accept.delete(item.transaction.id);
+            const transaction: Interfaces.ITransaction = Utils.assert.defined(item.transaction);
+            const id: string = Utils.assert.defined(transaction.id);
+
+            this.accept.delete(id);
 
             if (item.type !== "ERR_POOL_FULL") {
-                this.broadcast.delete(item.transaction.id);
+                this.broadcast.delete(id);
             }
 
-            this.pushError(item.transaction.data, item.type, item.message);
+            this.pushError(transaction.data, Utils.assert.defined(item.type), Utils.assert.defined(item.message));
         }
     }
 

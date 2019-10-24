@@ -30,7 +30,7 @@ export class Git implements Source {
     }
 
     private getName(value: string): string {
-        return Utils.parseGitUrl(value).repo;
+        return Utils.assert.defined<{ repo: string }>(Utils.parseGitUrl(value)).repo;
     }
 
     private getTargetPath(value: string): string {

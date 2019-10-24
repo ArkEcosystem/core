@@ -1,11 +1,11 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
-import { IBusinessWalletAttributes } from "../interfaces";
+import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-manager";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -37,6 +37,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
             for (const transaction of transactions) {
                 const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+
                 const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
                     "business",
                 );
@@ -90,7 +91,10 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
@@ -101,7 +105,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletRepository);
         businessAttributes.bridgechains[bridgechainId.toFixed()] = {
             bridgechainId,
-            bridgechainAsset: transaction.data.asset.bridgechainRegistration,
+            bridgechainAsset: AppUtils.assert.defined(transaction.data.asset!.bridgechainRegistration),
         };
 
         sender.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
@@ -114,13 +118,21 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
 
-        const bridgechainId: string = Object.keys(businessAttributes.bridgechains).pop();
-        delete businessAttributes.bridgechains[bridgechainId];
+        const bridgechains: Record<string, IBridgechainWalletAttributes> = AppUtils.assert.defined(
+            businessAttributes.bridgechains,
+        );
+
+        const bridgechainId: string = AppUtils.assert.defined(Object.keys(bridgechains).pop());
+
+        delete bridgechains[bridgechainId];
 
         walletRepository.reindex(sender);
     }

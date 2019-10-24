@@ -1,4 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
@@ -86,7 +86,9 @@ export class TransactionsController extends Controller {
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const transaction: Interfaces.ITransaction = await this.transactionPool.getTransaction(request.params.id);
+            const transaction: Interfaces.ITransaction | undefined = await this.transactionPool.getTransaction(
+                request.params.id,
+            );
 
             if (!transaction) {
                 return Boom.notFound("Transaction not found");
@@ -121,7 +123,10 @@ export class TransactionsController extends Controller {
             for (const handler of activatedTransactionHandlers) {
                 const constructor = handler.getConstructor();
 
-                const { type, typeGroup, key } = constructor;
+                const type: number = Utils.assert.defined(constructor.type);
+                const typeGroup: number = Utils.assert.defined(constructor.typeGroup);
+                const key: string = Utils.assert.defined(constructor.key);
+
                 const groupName: string | number = Enums.TransactionTypeGroup[typeGroup] || typeGroup;
                 if (typeGroups[groupName] === undefined) {
                     typeGroups[groupName] = {};
@@ -146,7 +151,9 @@ export class TransactionsController extends Controller {
             for (const handler of activatedTransactionHandlers) {
                 const constructor = handler.getConstructor();
 
-                const { type, typeGroup } = constructor;
+                const type: number = Utils.assert.defined(constructor.type);
+                const typeGroup: number = Utils.assert.defined(constructor.typeGroup);
+
                 if (schemasByType[typeGroup] === undefined) {
                     schemasByType[typeGroup] = {};
                 }

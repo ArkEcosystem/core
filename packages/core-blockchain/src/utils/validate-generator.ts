@@ -13,9 +13,11 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
     const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
     const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 
-    const generatorUsername: string = database.walletRepository
-        .findByPublicKey(block.data.generatorPublicKey)
-        .getAttribute("delegate.username");
+    const generatorWallet: Contracts.State.Wallet = database.walletRepository.findByPublicKey(
+        block.data.generatorPublicKey,
+    );
+
+    const generatorUsername: string = generatorWallet.getAttribute("delegate.username");
 
     if (!forgingDelegate) {
         logger.debug(
@@ -24,9 +26,10 @@ export const validateGenerator = async (block: Interfaces.IBlock): Promise<boole
             }) is allowed to forge block ${block.data.height.toLocaleString()}`,
         );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
-        const forgingUsername: string = database.walletRepository
-            .findByPublicKey(forgingDelegate.publicKey)
-            .getAttribute("delegate.username");
+        const forgingWallet: Contracts.State.Wallet = database.walletRepository.findByPublicKey(
+            Utils.assert.defined(forgingDelegate.publicKey),
+        );
+        const forgingUsername: string = forgingWallet.getAttribute("delegate.username");
 
         logger.warning(
             `Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey})`,

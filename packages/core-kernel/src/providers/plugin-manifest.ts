@@ -16,7 +16,7 @@ export class PluginManifest {
      * @type {PackageJson}
      * @memberof PluginManifest
      */
-    private manifest: PackageJson;
+    private manifest!: PackageJson;
 
     /**
      * Get the manifest for the given package.
@@ -41,7 +41,7 @@ export class PluginManifest {
      * @memberof PluginManifest
      */
     public get<T>(key: string, defaultValue?: T): T {
-        return get(this.manifest, key, defaultValue);
+        return get(this.manifest, key, defaultValue) as T;
     }
 
     /**

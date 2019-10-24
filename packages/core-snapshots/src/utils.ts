@@ -16,14 +16,14 @@ export const copySnapshot = (sourceFolder, destFolder) => {
 
     const paths = {
         source: {
-            blocks: this.getFilePath("blocks", sourceFolder),
-            transactions: this.getFilePath("transactions", sourceFolder),
-            rounds: this.getFilePath("rounds", sourceFolder),
+            blocks: getFilePath("blocks", sourceFolder),
+            transactions: getFilePath("transactions", sourceFolder),
+            rounds: getFilePath("rounds", sourceFolder),
         },
         dest: {
-            blocks: this.getFilePath("blocks", destFolder),
-            transactions: this.getFilePath("transactions", destFolder),
-            rounds: this.getFilePath("rounds", destFolder),
+            blocks: getFilePath("blocks", destFolder),
+            transactions: getFilePath("transactions", destFolder),
+            rounds: getFilePath("rounds", destFolder),
         },
     };
 
@@ -44,9 +44,19 @@ export const copySnapshot = (sourceFolder, destFolder) => {
     copyFileSync(paths.source.rounds, paths.dest.rounds);
 };
 
+export const readMetaJSON = folder => {
+    const metaFileInfo = getFilePath("meta.json", folder);
+
+    if (!existsSync(metaFileInfo)) {
+        app.terminate("Meta file meta.json not found. Exiting");
+    }
+
+    return readJSONSync(metaFileInfo);
+};
+
 export const calcRecordCount = (table, currentCount, sourceFolder) => {
     if (sourceFolder) {
-        const snapshotInfo = this.readMetaJSON(sourceFolder);
+        const snapshotInfo = readMetaJSON(sourceFolder);
         return +snapshotInfo[table].count + currentCount;
     }
 
@@ -55,7 +65,7 @@ export const calcRecordCount = (table, currentCount, sourceFolder) => {
 
 export const calcStartHeight = (table, currentHeight, sourceFolder) => {
     if (sourceFolder) {
-        const snapshotInfo = this.readMetaJSON(sourceFolder);
+        const snapshotInfo = readMetaJSON(sourceFolder);
         return +snapshotInfo[table].startHeight;
     }
 
@@ -63,7 +73,7 @@ export const calcStartHeight = (table, currentHeight, sourceFolder) => {
 };
 
 export const getSnapshotInfo = folder => {
-    const snapshotInfo = this.readMetaJSON(folder);
+    const snapshotInfo = readMetaJSON(folder);
     return {
         startHeight: +snapshotInfo.blocks.startHeight,
         endHeight: +snapshotInfo.blocks.endHeight,
@@ -73,16 +83,6 @@ export const getSnapshotInfo = folder => {
         rounds: snapshotInfo.rounds,
         skipCompression: snapshotInfo.skipCompression,
     };
-};
-
-export const readMetaJSON = folder => {
-    const metaFileInfo = this.getFilePath("meta.json", folder);
-
-    if (!existsSync(metaFileInfo)) {
-        app.terminate("Meta file meta.json not found. Exiting");
-    }
-
-    return readJSONSync(metaFileInfo);
 };
 
 export const setSnapshotInfo = (options, lastBlock) => {
@@ -96,7 +96,7 @@ export const setSnapshotInfo = (options, lastBlock) => {
     meta.folder = `${meta.startHeight}-${meta.endHeight}`;
 
     if (options.blocks) {
-        const oldMeta = this.getSnapshotInfo(options.blocks);
+        const oldMeta = getSnapshotInfo(options.blocks);
         meta.startHeight = oldMeta.endHeight + 1;
         meta.folder = `${oldMeta.startHeight}-${meta.endHeight}`;
     }

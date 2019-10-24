@@ -1,3 +1,4 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
@@ -42,18 +43,20 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const businessRegistrationAsset = data.asset.businessRegistration as IBusinessRegistrationAsset;
+        const businessRegistrationAsset: IBusinessRegistrationAsset = AppUtils.assert.defined(
+            data.asset!.businessRegistration,
+        );
         const businessName: Buffer = Buffer.from(businessRegistrationAsset.name, "utf8");
         const businessWebsite: Buffer = Buffer.from(businessRegistrationAsset.website, "utf8");
 
-        let businessVat: Buffer;
+        let businessVat: Buffer | undefined;
         let businessVatLength: number = 0;
         if (businessRegistrationAsset.vat) {
             businessVat = Buffer.from(businessRegistrationAsset.vat, "utf8");
             businessVatLength = businessVat.length;
         }
 
-        let businessRepo: Buffer;
+        let businessRepo: Buffer | undefined;
         let businessRepoLength: number = 0;
         if (businessRegistrationAsset.repository) {
             businessRepo = Buffer.from(businessRegistrationAsset.repository, "utf8");

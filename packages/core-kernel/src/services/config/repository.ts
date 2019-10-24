@@ -38,7 +38,7 @@ export class ConfigRepository {
      * @returns {T}
      * @memberof ConfigRepository
      */
-    public get<T>(key: string, defaultValue?: T): T {
+    public get<T>(key: string, defaultValue?: T): T | undefined {
         return get(this.items, key, defaultValue);
     }
 

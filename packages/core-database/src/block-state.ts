@@ -120,7 +120,7 @@ export class BlockState {
         ) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             lockWallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
-            lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
+            lockTransaction = lockWallet.getAttribute("htlc.locks")[lockId];
         }
 
         await transactionHandler.apply(transaction, this.walletRepository);
@@ -150,7 +150,7 @@ export class BlockState {
         ) {
             const lockId = transaction.data.asset.claim.lockTransactionId;
             lockWallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
-            lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
+            lockTransaction = lockWallet.getAttribute("htlc.locks")[lockId];
         }
 
         // Revert vote balance updates
@@ -203,7 +203,7 @@ export class BlockState {
         ) {
             const vote: string = transaction.asset.votes[0];
             const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(vote.substr(1));
-            let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+            let voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
 
             if (vote.startsWith("+")) {
                 voteBalance = revert
@@ -224,11 +224,11 @@ export class BlockState {
                 );
                 const amount =
                     transaction.type === Enums.TransactionType.MultiPayment &&
-                    transaction.typeGroup === Enums.TransactionTypeGroup.Core
+                        transaction.typeGroup === Enums.TransactionTypeGroup.Core
                         ? transaction.asset.payments.reduce(
-                              (prev, curr) => prev.plus(curr.amount),
-                              Utils.BigNumber.ZERO,
-                          )
+                            (prev, curr) => prev.plus(curr.amount),
+                            Utils.BigNumber.ZERO,
+                        )
                         : transaction.amount;
                 const total: Utils.BigNumber = amount.plus(transaction.fee);
 

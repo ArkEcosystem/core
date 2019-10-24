@@ -1,3 +1,4 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
@@ -59,7 +60,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const bridgechainRegistrationAsset: IBridgechainRegistrationAsset = data.asset.bridgechainRegistration;
+        const bridgechainRegistrationAsset: IBridgechainRegistrationAsset = AppUtils.assert.defined(
+            data.asset!.bridgechainRegistration,
+        );
         const seedNodes: string[] = bridgechainRegistrationAsset.seedNodes;
         const seedNodesBuffers: Buffer[] = [];
         const bridgechainName: Buffer = Buffer.from(bridgechainRegistrationAsset.name, "utf8");

@@ -1,3 +1,4 @@
+import { assert } from "@packages/core-kernel/src/utils";
 import mm from "micromatch";
 
 import { EventDispatcher as EventDispatcherContract } from "../../../contracts/kernel/events";
@@ -63,8 +64,12 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
      * @param {EventListener} [listener]
      * @memberof MemoryEventDispatcher
      */
-    public forget(event: EventName, listener?: EventListener): void {
-        listener ? this.getListenersByEvent(event).delete(listener) : this.listeners.delete(event);
+    public forget(event: EventName, listener?: EventListener): boolean {
+        if (event && listener) {
+            return this.getListenersByEvent(event).delete(listener);
+        }
+
+        return this.listeners.delete(event);
     }
 
     /**
@@ -90,7 +95,7 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
      * @memberof MemoryEventDispatcher
      */
     public getListeners(event?: EventName): EventListener[] {
-        return [...this.getListenersByPattern(event).values()];
+        return [...this.getListenersByPattern(event || "*").values()];
     }
 
     /**
@@ -216,7 +221,7 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
             this.listeners.set(name, new Set<EventListener>());
         }
 
-        return this.listeners.get(name);
+        return assert.defined(this.listeners.get(name));
     }
 
     /**
@@ -231,13 +236,13 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
 
         let eventListeners: EventListener[] = [];
         if (this.listeners.has("*")) {
-            eventListeners = eventListeners.concat(Array.from(this.getListenersByEvent("*")));
+            eventListeners = eventListeners.concat(Array.from(this.getListenersByEvent("*") || []));
         }
 
         for (const match of matches) {
-            const matchListeners: Set<EventListener> = this.getListenersByEvent(match);
+            const matchListeners: Set<EventListener> | undefined = this.getListenersByEvent(match);
 
-            if (matchListeners.size > 0) {
+            if (matchListeners && matchListeners.size > 0) {
                 eventListeners = eventListeners.concat(Array.from(matchListeners));
             }
         }

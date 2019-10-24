@@ -25,7 +25,7 @@ const top = async request => {
 };
 
 const show = async request => {
-    const wallet = app
+    const wallet: Contracts.State.Wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
         .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
@@ -37,7 +37,7 @@ const show = async request => {
 };
 
 const transactions = async request => {
-    const wallet = app
+    const wallet: Contracts.State.Wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
         .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
@@ -66,11 +66,11 @@ const transactions = async request => {
 };
 
 const transactionsSent = async request => {
-    const wallet = app
+    const wallet: Contracts.State.Wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
         .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
-    if (!wallet) {
+    if (!wallet || !wallet.publicKey) {
         return Boom.notFound("Wallet not found");
     }
 
@@ -89,7 +89,7 @@ const transactionsSent = async request => {
 };
 
 const transactionsReceived = async request => {
-    const wallet = app
+    const wallet: Contracts.State.Wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
         .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
@@ -112,11 +112,11 @@ const transactionsReceived = async request => {
 };
 
 const votes = async request => {
-    const wallet = app
+    const wallet: Contracts.State.Wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
         .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 
-    if (!wallet) {
+    if (!wallet || !wallet.publicKey) {
         return Boom.notFound("Wallet not found");
     }
 
@@ -134,7 +134,7 @@ const votes = async request => {
 };
 
 const locks = async request => {
-    const wallet = app
+    const wallet: Contracts.State.Wallet = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
         .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
 

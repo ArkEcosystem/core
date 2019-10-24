@@ -38,6 +38,7 @@ expect.extend({
         return {
             pass,
             message: () =>
+                // @ts-ignore
                 `expected ${transaction.id} ${this.isNot ? "not" : ""} to be accepted ${
                     error ? "(error: " + error + ")" : ""
                 }`,
@@ -45,7 +46,7 @@ expect.extend({
     },
     toBeAllAccepted: async transactions => {
         let pass = true;
-        let error: string;
+        let error: string | undefined;
 
         try {
             for (const tx of transactions) {
@@ -68,6 +69,7 @@ expect.extend({
         return {
             pass,
             message: () =>
+                // @ts-ignore
                 `expected transactions ${this.isNot ? "not" : ""} to be accepted ${
                     error ? "(error: " + error + ")" : ""
                 }`,

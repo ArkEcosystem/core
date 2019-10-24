@@ -28,16 +28,22 @@ export class HtlcLockTransaction extends Transaction {
         return true;
     }
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
         const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 1 + 4 + 21, true);
 
         buffer.writeUint64(Long.fromString(data.amount.toString()));
-        buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
-        buffer.writeUint8(data.asset.lock.expiration.type);
-        buffer.writeUint32(data.asset.lock.expiration.value);
-        buffer.append(Address.toBuffer(data.recipientId).addressBuffer);
+
+        if (data.asset && data.asset.lock) {
+            buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
+            buffer.writeUint8(data.asset.lock.expiration.type);
+            buffer.writeUint32(data.asset.lock.expiration.value);
+        }
+
+        if (data.recipientId) {
+            buffer.append(Address.toBuffer(data.recipientId).addressBuffer);
+        }
 
         return buffer;
     }

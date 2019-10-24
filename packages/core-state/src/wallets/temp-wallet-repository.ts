@@ -1,8 +1,8 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Identities } from "@arkecosystem/crypto";
 
+import { Wallet } from "./wallet";
 import { WalletRepository } from "./wallet-repository";
-import { Wallet } from './wallet';
 
 export class TempWalletRepository extends WalletRepository {
     public constructor(private readonly walletRepository: Contracts.State.WalletRepository) {
@@ -32,6 +32,7 @@ export class TempWalletRepository extends WalletRepository {
         if (!this.walletRepository.hasByPublicKey(publicKey)) {
             const wallet: Contracts.State.Wallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
             wallet.publicKey = publicKey;
+
             this.reindex(wallet);
 
             return wallet;
@@ -46,16 +47,18 @@ export class TempWalletRepository extends WalletRepository {
 
     public findByIndex(indexName: string, key: string): Contracts.State.Wallet {
         const index: Contracts.State.WalletIndex = this.getIndex(indexName);
+
         if (!index.has(key)) {
             const parentIndex: Contracts.State.WalletIndex = this.walletRepository.getIndex(indexName);
+
             if (parentIndex.has(key)) {
-                index.set(key, parentIndex.get(key).clone());
+                index.set(key, Utils.assert.defined<Contracts.State.Wallet>(parentIndex.get(key)).clone());
             } else if (indexName === Contracts.State.WalletIndexes.Addresses) {
                 index.set(key, new Wallet(key));
             }
         }
 
-        return index.get(key);
+        return Utils.assert.defined(index.get(key));
     }
 
     public hasByAddress(address: string): boolean {

@@ -1,4 +1,4 @@
-import { app, Container, Providers } from "@arkecosystem/core-kernel";
+import { app, Container, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto } from "@arkecosystem/crypto";
 import Hapi, { ServerMethod } from "@hapi/hapi";
 
@@ -34,12 +34,12 @@ export class ServerCache {
     }
 
     private getCacheTimeout(): number | boolean {
-        const { generateTimeout } = this.getConfig("plugins.cache");
+        const config: { generateTimeout: number } = Utils.assert.defined(this.getConfig<any>("plugins.cache"));
 
-        return JSON.parse(generateTimeout);
+        return JSON.parse(`${config.generateTimeout}`);
     }
 
-    private getConfig<T>(key: string): T {
+    private getConfig<T>(key: string): T | undefined {
         return app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
             .get("@arkecosystem/core-api")

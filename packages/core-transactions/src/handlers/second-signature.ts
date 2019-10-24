@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { NotSupportedForMultiSignatureWalletError, SecondSignatureAlreadyRegisteredError } from "../errors";
@@ -30,8 +30,13 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-                wallet.setAttribute("secondPublicKey", transaction.asset.signature.publicKey);
+                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+                    Utils.assert.defined(transaction.senderPublicKey),
+                );
+
+                const asset: { signature: { publicKey: string } } = Utils.assert.defined(transaction.asset);
+
+                wallet.setAttribute("secondPublicKey", Utils.assert.defined(asset.signature.publicKey));
             }
         }
     }
@@ -49,7 +54,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
             throw new SecondSignatureAlreadyRegisteredError();
         }
 
-        if (databaseWalletRepository.findByPublicKey(transaction.data.senderPublicKey).hasMultiSignature()) {
+        const senderWallet: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
+        if (senderWallet.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
         }
 
@@ -74,9 +83,13 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        walletRepository
-            .findByPublicKey(transaction.data.senderPublicKey)
-            .setAttribute("secondPublicKey", transaction.data.asset.signature.publicKey);
+        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
+        const asset: { signature: { publicKey: string } } = Utils.assert.defined(transaction.data.asset);
+
+        senderWallet.setAttribute("secondPublicKey", Utils.assert.defined(asset.signature.publicKey));
     }
 
     public async revertForSender(
@@ -85,7 +98,9 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        walletRepository.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("secondPublicKey");
+        walletRepository
+            .findByPublicKey(Utils.assert.defined(transaction.data.senderPublicKey))
+            .forgetAttribute("secondPublicKey");
     }
 
     public async applyToRecipient(

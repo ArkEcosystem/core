@@ -10,7 +10,7 @@ import { Webhook } from "./interfaces";
 @Container.injectable()
 export class Database {
     @Container.inject(Container.Identifiers.Application)
-    private readonly app: Contracts.Kernel.Application;
+    private readonly app!: Contracts.Kernel.Application;
 
     private database: lowdb.LowdbSync<any>;
 
@@ -33,7 +33,7 @@ export class Database {
         return !!this.findById(id);
     }
 
-    public findById(id: string): Webhook {
+    public findById(id: string): Webhook | undefined {
         try {
             return this.database
                 .get("webhooks")
@@ -51,7 +51,7 @@ export class Database {
             .value();
     }
 
-    public create(data: Webhook): Webhook {
+    public create(data: Webhook): Webhook | undefined {
         data.id = uuidv4();
 
         this.database

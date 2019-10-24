@@ -6,6 +6,7 @@ import { resolve } from "path";
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { ConfigRepository } from "../../services/config";
+import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
 
 /**
@@ -23,7 +24,7 @@ export class RegisterBasePaths implements Bootstrapper {
      * @memberof Local
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @private
@@ -31,7 +32,7 @@ export class RegisterBasePaths implements Bootstrapper {
      * @memberof RegisterBasePaths
      */
     @inject(Identifiers.ConfigRepository)
-    private readonly configRepository: ConfigRepository;
+    private readonly configRepository!: ConfigRepository;
 
     /**
      * @returns {Promise<void>}
@@ -41,14 +42,14 @@ export class RegisterBasePaths implements Bootstrapper {
         const paths: Array<[string, string]> = Object.entries(envPaths(this.app.token(), { suffix: "core" }));
 
         for (let [type, path] of paths) {
-            const processPath: string | null = process.env[`CORE_PATH_${type.toUpperCase()}`];
+            const processPath: string | undefined = process.env[`CORE_PATH_${type.toUpperCase()}`];
 
             if (processPath) {
-                path = processPath;
+                path = assert.defined(processPath);
             }
 
             if (this.configRepository.has(`app.flags.paths.${type}`)) {
-                path = this.configRepository.get(`app.flags.paths.${type}`);
+                path = assert.defined(this.configRepository.get(`app.flags.paths.${type}`));
             }
 
             path = resolve(expandTilde(path));
@@ -57,7 +58,9 @@ export class RegisterBasePaths implements Bootstrapper {
 
             set(process.env, `CORE_PATH_${type.toUpperCase()}`, path);
 
-            this.app[camelCase(`use_${type}_path`)](path);
+            const pathMethod: string = assert.defined(camelCase(`use_${type}_path`));
+
+            this.app[pathMethod](path);
 
             this.app.rebind<string>(`path.${type}`).toConstantValue(path);
         }

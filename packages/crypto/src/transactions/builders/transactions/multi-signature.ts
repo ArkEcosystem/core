@@ -18,25 +18,31 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
     }
 
     public participant(publicKey: string): MultiSignatureBuilder {
-        const { publicKeys }: IMultiSignatureAsset = this.data.asset.multiSignature;
+        if (this.data.asset && this.data.asset.multiSignature) {
+            const { publicKeys }: IMultiSignatureAsset = this.data.asset.multiSignature;
 
-        if (publicKeys.length <= 16) {
-            publicKeys.push(publicKey);
-            this.data.fee = MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
+            if (publicKeys.length <= 16) {
+                publicKeys.push(publicKey);
+                this.data.fee = MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
+            }
         }
 
         return this;
     }
 
     public min(min: number): MultiSignatureBuilder {
-        this.data.asset.multiSignature.min = min;
+        if (this.data.asset && this.data.asset.multiSignature) {
+            this.data.asset.multiSignature.min = min;
+        }
 
         return this;
     }
 
     public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
-        this.data.asset.multiSignature = multiSignature;
-        this.data.fee = MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
+        if (this.data.asset && this.data.asset.multiSignature) {
+            this.data.asset.multiSignature = multiSignature;
+            this.data.fee = MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
+        }
 
         return this;
     }

@@ -8,7 +8,7 @@ import { Utils } from "./utils";
 
 export class Verifier {
     public static verify(data: ITransactionData): boolean {
-        if (isException(data)) {
+        if (isException(data.id)) {
             return true;
         }
 
@@ -20,7 +20,7 @@ export class Verifier {
     }
 
     public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
-        const secondSignature: string = transaction.secondSignature || transaction.signSignature;
+        const secondSignature: string | undefined = transaction.secondSignature || transaction.signSignature;
 
         if (!secondSignature) {
             return false;
@@ -33,7 +33,7 @@ export class Verifier {
     public static verifyHash(data: ITransactionData): boolean {
         const { signature, senderPublicKey } = data;
 
-        if (!signature) {
+        if (!signature || !senderPublicKey) {
             return false;
         }
 
@@ -46,7 +46,14 @@ export class Verifier {
     }
 
     public static verifySchema(data: ITransactionData, strict = true): ISchemaValidationResult {
-        const { $id } = TransactionTypeFactory.get(data.type, data.typeGroup).getSchema();
+        const transactionType = TransactionTypeFactory.get(data.type, data.typeGroup);
+
+        if (!transactionType) {
+            throw new Error();
+        }
+
+        const { $id } = transactionType.getSchema();
+
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 

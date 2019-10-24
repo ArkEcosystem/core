@@ -1,3 +1,4 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Identities, Interfaces, Types, Utils } from "@arkecosystem/crypto";
 import forge from "node-forge";
 import wif from "wif";
@@ -25,13 +26,15 @@ export class Delegate {
     public network: Types.NetworkType;
     public keySize: number;
     public iterations: number;
-    public keys: Interfaces.IKeyPair;
-    public publicKey: string;
-    public address: string;
-    public otpSecret: string;
+
+    public keys: Interfaces.IKeyPair | undefined;
+    public publicKey: string | undefined;
+    public address: string | undefined;
+
+    public otpSecret: string | undefined;
     public bip38: boolean = false;
-    public otp: string;
-    public encryptedKeys: string;
+    public otp: string | undefined;
+    public encryptedKeys: string | undefined;
 
     constructor(passphrase: string, network: Types.NetworkType, password?: string) {
         this.network = network;
@@ -40,7 +43,7 @@ export class Delegate {
 
         if (Crypto.bip38.verify(passphrase)) {
             try {
-                this.keys = Delegate.decryptPassphrase(passphrase, network, password);
+                this.keys = Delegate.decryptPassphrase(passphrase, network, AppUtils.assert.defined(password));
                 this.publicKey = this.keys.publicKey;
                 this.address = Identities.Address.fromPublicKey(this.keys.publicKey, network.pubKeyHash);
                 this.otpSecret = forge.random.getBytesSync(128);
@@ -60,7 +63,7 @@ export class Delegate {
     }
 
     public encryptKeysWithOtp(): void {
-        const wifKey: string = Identities.WIF.fromKeys(this.keys, this.network);
+        const wifKey: string = Identities.WIF.fromKeys(AppUtils.assert.defined(this.keys), this.network);
 
         this.keys = undefined;
         this.otp = forge.random.getBytesSync(16);
@@ -68,7 +71,10 @@ export class Delegate {
     }
 
     public decryptKeysWithOtp(): void {
-        const wifKey: string = this.decryptDataWithOtp(this.encryptedKeys, this.otp);
+        const wifKey: string = this.decryptDataWithOtp(
+            AppUtils.assert.defined(this.encryptedKeys),
+            AppUtils.assert.defined(this.otp),
+        );
 
         this.keys = Identities.Keys.fromWIF(wifKey, this.network);
         this.otp = undefined;
@@ -88,32 +94,37 @@ export class Delegate {
 
             const payloadBuffers: Buffer[] = [];
             for (const transaction of transactions) {
+                const id: string = AppUtils.assert.defined(transaction.id);
+
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
                 transactionData.fee = transactionData.fee.plus(transaction.fee);
-                payloadBuffers.push(Buffer.from(transaction.id, "hex"));
+
+                payloadBuffers.push(Buffer.from(id, "hex"));
             }
 
             if (this.bip38) {
                 this.decryptKeysWithOtp();
             }
 
-            const block: Interfaces.IBlock = Blocks.BlockFactory.make(
-                {
-                    version: 0,
-                    generatorPublicKey: this.publicKey,
-                    timestamp: options.timestamp,
-                    previousBlock: options.previousBlock.id,
-                    previousBlockHex: options.previousBlock.idHex,
-                    height: options.previousBlock.height + 1,
-                    numberOfTransactions: transactions.length,
-                    totalAmount: transactionData.amount,
-                    totalFee: transactionData.fee,
-                    reward: options.reward,
-                    payloadLength: 32 * transactions.length,
-                    payloadHash: Crypto.HashAlgorithms.sha256(payloadBuffers).toString("hex"),
-                    transactions,
-                },
-                this.keys,
+            const block: Interfaces.IBlock = AppUtils.assert.defined(
+                Blocks.BlockFactory.make(
+                    {
+                        version: 0,
+                        generatorPublicKey: this.publicKey,
+                        timestamp: options.timestamp,
+                        previousBlock: options.previousBlock.id,
+                        previousBlockHex: options.previousBlock.idHex,
+                        height: options.previousBlock.height + 1,
+                        numberOfTransactions: transactions.length,
+                        totalAmount: transactionData.amount,
+                        totalFee: transactionData.fee,
+                        reward: options.reward,
+                        payloadLength: 32 * transactions.length,
+                        payloadHash: Crypto.HashAlgorithms.sha256(payloadBuffers).toString("hex"),
+                        transactions,
+                    },
+                    AppUtils.assert.defined(this.keys),
+                ),
             );
 
             if (this.bip38) {
@@ -129,7 +140,7 @@ export class Delegate {
     private encryptDataWithOtp(content: string, password: string): string {
         const cipher: forge.cipher.BlockCipher = forge.cipher.createCipher(
             "AES-CBC",
-            forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
+            forge.pkcs5.pbkdf2(password, AppUtils.assert.defined(this.otpSecret), this.iterations, this.keySize),
         );
         cipher.start({ iv: this.otp });
         cipher.update(forge.util.createBuffer(content));
@@ -141,7 +152,7 @@ export class Delegate {
     private decryptDataWithOtp(cipherText: string, password: string): string {
         const decipher: forge.cipher.BlockCipher = forge.cipher.createDecipher(
             "AES-CBC",
-            forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
+            forge.pkcs5.pbkdf2(password, AppUtils.assert.defined(this.otpSecret), this.iterations, this.keySize),
         );
         decipher.start({ iv: this.otp });
         decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)));

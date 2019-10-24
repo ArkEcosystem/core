@@ -23,9 +23,12 @@ export class BusinessUpdateBuilder extends Transactions.TransactionBuilder<Busin
     }
 
     public businessUpdateAsset(businessAsset: IBusinessUpdateAsset): BusinessUpdateBuilder {
-        this.data.asset.businessUpdate = {
-            ...businessAsset,
-        };
+        if (this.data.asset && this.data.asset.businessUpdate) {
+            this.data.asset.businessUpdate = {
+                ...businessAsset,
+            };
+        }
+
         return this;
     }
 

@@ -13,7 +13,7 @@ const strictTransaction = {
     additionalProperties: false,
 };
 
-export const transactionBaseSchema = {
+export const transactionBaseSchema: Record<string, any> = {
     $id: undefined,
     type: "object",
     if: { properties: { version: { anyOf: [{ type: "null" }, { const: 1 }] } } },

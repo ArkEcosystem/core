@@ -1,3 +1,4 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import Command from "@oclif/command";
 import clear from "clear";
 import Tail from "nodejs-tail";
@@ -16,9 +17,9 @@ export abstract class AbstractLogCommand extends Command {
 
         abortMissingProcess(processName);
 
-        const { pm2_env } = processManager.describe(processName);
+        const proc: Record<string, any> = Utils.assert.defined(processManager.describe(processName));
 
-        const file = flags.error ? pm2_env.pm_err_log_path : pm2_env.pm_out_log_path;
+        const file = flags.error ? proc.pm2_env.pm_err_log_path : proc.pm2_env.pm_out_log_path;
 
         clear();
 

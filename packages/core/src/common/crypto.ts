@@ -7,7 +7,7 @@ import { abort } from "./cli";
 import { getPaths } from "./env";
 
 // todo: review the implementation
-export const buildBIP38 = async (flags: CommandFlags): Promise<Record<string, string>> => {
+export const buildBIP38 = async (flags: CommandFlags): Promise<Record<string, string | undefined>> => {
     if (flags.bip39) {
         return { bip38: undefined, password: undefined };
     }

@@ -11,27 +11,29 @@ const { BlockFactory } = Blocks;
 @Container.injectable()
 export class Blockchain implements Contracts.Blockchain.Blockchain {
     // todo: make this private
-    public isStopped: boolean;
+    public isStopped: boolean = true;
     // todo: make this private
     public options: any;
     // todo: make this private and use a queue instance from core-kernel
+    // @ts-ignore
     public queue: async.AsyncQueue<any>;
     // todo: make this private
+    // @ts-ignore
     protected blockProcessor: BlockProcessor;
     // todo: add type
     private actions: any;
 
     // todo: make this private, only protected because of replay
     @Container.inject(Container.Identifiers.StateStore)
-    protected readonly state: Contracts.State.StateStore;
+    protected readonly state!: Contracts.State.StateStore;
 
     // todo: make this private, only protected because of replay
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database: Contracts.Database.DatabaseService;
+    protected readonly database!: Contracts.Database.DatabaseService;
 
     // todo: make this private, only protected because of replay
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    protected readonly transactionPool: Contracts.TransactionPool.Connection;
+    protected readonly transactionPool!: Contracts.TransactionPool.Connection;
 
     /**
      * Create a new blockchain manager instance.
@@ -53,7 +55,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
-                return this.processBlocks(blockList.blocks.map(b => Blocks.BlockFactory.fromData(b)), cb);
+                return this.processBlocks(
+                    blockList.blocks.map(b => Utils.assert.defined(Blocks.BlockFactory.fromData(b))),
+                    cb,
+                );
             } catch (error) {
                 app.log.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
@@ -236,9 +241,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         // divide blocks received into chunks depending on number of transactions
         // this is to avoid blocking the application when processing "heavy" blocks
-        let currentBlocksChunk = [];
+        let currentBlocksChunk: any[] = [];
         let currentTransactionsCount = 0;
-        for (const block of blocks) {
+        for (let block of blocks) {
+            block = Utils.assert.defined(block);
+
             currentBlocksChunk.push(block);
             currentTransactionsCount += block.numberOfTransactions;
 
@@ -265,16 +272,18 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     public async removeBlocks(nblocks: number): Promise<void> {
         this.clearAndStopQueue();
 
+        const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.state.getLastBlock());
+
         // If the current chain height is H and we will be removing blocks [N, H],
         // then blocksToRemove[] will contain blocks [N - 1, H - 1].
         const blocksToRemove: Interfaces.IBlockData[] = await this.database.getBlocks(
-            this.state.getLastBlock().data.height - nblocks,
+            lastBlock.data.height - nblocks,
             nblocks,
         );
 
         const removedBlocks: Interfaces.IBlockData[] = [];
         const revertLastBlock = async () => {
-            const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
+            const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.state.getLastBlock());
 
             await this.database.revertBlock(lastBlock);
             removedBlocks.push(lastBlock.data);
@@ -287,7 +296,15 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
                 newLastBlock = app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
             } else {
-                newLastBlock = BlockFactory.fromData(blocksToRemove.pop(), { deserializeTransactionsUnchecked: true });
+                const tempNewLastBlockData: Interfaces.IBlockData = Utils.assert.defined(blocksToRemove.pop());
+
+                const tempNewLastBlock: Interfaces.IBlock = Utils.assert.defined(
+                    BlockFactory.fromData(tempNewLastBlockData, {
+                        deserializeTransactionsUnchecked: true,
+                    }),
+                );
+
+                newLastBlock = tempNewLastBlock;
             }
 
             this.state.setLastBlock(newLastBlock);
@@ -299,13 +316,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 return;
             }
 
-            app.log.info(`Undoing block ${this.state.getLastBlock().data.height.toLocaleString()}`);
+            const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.state.getLastBlock());
+
+            app.log.info(`Undoing block ${lastBlock.data.height.toLocaleString()}`);
 
             await revertLastBlock();
             await __removeBlocks(numberOfBlocks - 1);
         };
-
-        const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
         if (nblocks >= lastBlock.data.height) {
             nblocks = lastBlock.data.height - 1;
@@ -355,12 +372,12 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      */
     public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
-        let lastProcessResult: BlockProcessorResult;
+        let lastProcessResult: BlockProcessorResult | undefined;
 
         if (
             blocks[0] &&
             !Utils.isBlockChained(this.getLastBlock().data, blocks[0].data, app.log) &&
-            !CryptoUtils.isException(blocks[0].data)
+            !CryptoUtils.isException(blocks[0].data.id)
         ) {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
@@ -485,14 +502,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Get the last block of the blockchain.
      */
     public getLastBlock(): Interfaces.IBlock {
-        return this.state.getLastBlock();
+        return Utils.assert.defined(this.state.getLastBlock());
     }
 
     /**
      * Get the last height of the blockchain.
      */
     public getLastHeight(): number {
-        return this.state.getLastBlock().data.height;
+        return this.getLastBlock().data.height;
     }
 
     /**

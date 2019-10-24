@@ -23,15 +23,19 @@ export class IpfsTransaction extends Transaction {
         return configManager.getMilestone().aip11 && super.verify();
     }
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        const ipfsBuffer: Buffer = base58.decode(data.asset.ipfs);
-        const buffer: ByteBuffer = new ByteBuffer(ipfsBuffer.length, true);
+        if (data.asset) {
+            const ipfsBuffer: Buffer = base58.decode(data.asset.ipfs);
+            const buffer: ByteBuffer = new ByteBuffer(ipfsBuffer.length, true);
 
-        buffer.append(ipfsBuffer, "hex");
+            buffer.append(ipfsBuffer, "hex");
 
-        return buffer;
+            return buffer;
+        }
+
+        return undefined;
     }
 
     public deserialize(buf: ByteBuffer): void {

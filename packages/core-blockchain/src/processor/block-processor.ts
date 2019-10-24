@@ -23,22 +23,22 @@ export enum BlockProcessorResult {
 @Container.injectable()
 export class BlockProcessor {
     @Container.inject(Container.Identifiers.Application)
-    private readonly app: Contracts.Kernel.Application;
+    private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Log.Logger;
 
     @Container.inject(Container.Identifiers.BlockchainService)
-    private readonly blockchain: Contracts.Blockchain.Blockchain;
+    private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database: Contracts.Database.DatabaseService;
+    protected readonly database!: Contracts.Database.DatabaseService;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    protected readonly transactionPool: Contracts.TransactionPool.Connection;
+    protected readonly transactionPool!: Contracts.TransactionPool.Connection;
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
-        if (Utils.isException(block.data)) {
+        if (Utils.isException(block.data.id)) {
             return this.app.resolve<ExceptionHandler>(ExceptionHandler).execute(block);
         }
 
@@ -114,7 +114,7 @@ export class BlockProcessor {
     private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
             const forgedIds: string[] = await this.database.getForgedTransactionsIds(
-                block.transactions.map(tx => tx.id),
+                block.transactions.map(tx => AppUtils.assert.defined(tx.id)),
             );
 
             if (forgedIds.length > 0) {
@@ -157,11 +157,11 @@ export class BlockProcessor {
         for (const transaction of block.transactions) {
             const data = transaction.data;
 
-            if (data.version < 2) {
+            if (data.version && data.version < 2) {
                 break;
             }
 
-            const sender: string = data.senderPublicKey;
+            const sender: string = AppUtils.assert.defined(data.senderPublicKey);
 
             if (nonceBySender[sender] === undefined) {
                 nonceBySender[sender] = app
@@ -169,17 +169,19 @@ export class BlockProcessor {
                     .walletRepository.getNonce(sender);
             }
 
-            if (!nonceBySender[sender].plus(1).isEqualTo(data.nonce)) {
+            const nonce: AppUtils.BigNumber = AppUtils.assert.defined(data.nonce);
+
+            if (!nonceBySender[sender].plus(1).isEqualTo(nonce)) {
                 this.logger.warning(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
                         `not accepted: invalid nonce order for sender ${sender}: ` +
                         `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
-                        `transaction ${data.id} has nonce ${data.nonce.toFixed()}.`,
+                        `transaction ${data.id} has nonce ${nonce.toFixed()}.`,
                 );
                 return true;
             }
 
-            nonceBySender[sender] = data.nonce;
+            nonceBySender[sender] = nonce;
         }
 
         return false;

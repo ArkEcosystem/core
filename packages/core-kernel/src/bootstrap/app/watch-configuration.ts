@@ -18,7 +18,7 @@ export class WatchConfiguration implements Bootstrapper {
      * @memberof WatchConfiguration
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @returns {Promise<void>}

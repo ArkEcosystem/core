@@ -10,8 +10,10 @@ import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
 } from "../../../exceptions/config";
+import { FileException } from "../../../exceptions/filesystem";
 import { Identifiers, inject, injectable } from "../../../ioc";
 import { JsonObject, KeyValuePair, Primitive } from "../../../types";
+import { assert } from "../../../utils";
 import { ConfigRepository } from "../repository";
 
 /**
@@ -29,7 +31,7 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LocalConfigLoader
      */
     @inject(Identifiers.Application)
-    protected readonly app: Application;
+    protected readonly app!: Application;
 
     /**
      * The application configuration.
@@ -39,7 +41,7 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LoadCryptography
      */
     @inject(Identifiers.ConfigRepository)
-    private readonly configRepository: ConfigRepository;
+    private readonly configRepository!: ConfigRepository;
 
     /**
      * @returns {Promise<void>}
@@ -142,10 +144,14 @@ export class LocalConfigLoader implements ConfigLoader {
             const fullPath: string = this.app.configPath(file);
 
             if (existsSync(fullPath)) {
-                return extname(fullPath) === ".json"
-                    ? JSON.parse(readFileSync(fullPath).toString())
-                    : importFresh(fullPath);
+                return assert.defined(
+                    extname(fullPath) === ".json"
+                        ? JSON.parse(readFileSync(fullPath).toString())
+                        : importFresh(fullPath),
+                );
             }
         }
+
+        throw new FileException(`Failed to discovery any files matching [${files}.join(",")].`);
     }
 }

@@ -3,6 +3,7 @@ import { Events } from "../../enums";
 import { ServiceProviderCannotBeBooted } from "../../exceptions/plugins";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { ServiceProviderRepository } from "../../providers";
+import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
 
 // todo: review the implementation
@@ -21,7 +22,7 @@ export class BootServiceProviders implements Bootstrapper {
      * @memberof Local
      */
     @inject(Identifiers.Application)
-    private readonly app: Application;
+    private readonly app!: Application;
 
     /**
      * @returns {Promise<void>}
@@ -33,6 +34,8 @@ export class BootServiceProviders implements Bootstrapper {
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
+            const serviceProviderName: string = assert.defined(serviceProvider.name());
+
             if (await serviceProvider.enableWhen()) {
                 try {
                     await serviceProviders.boot(name);
@@ -40,10 +43,10 @@ export class BootServiceProviders implements Bootstrapper {
                     const isRequired: boolean = await serviceProvider.required();
 
                     if (isRequired) {
-                        throw new ServiceProviderCannotBeBooted(serviceProvider.name(), error.message);
+                        throw new ServiceProviderCannotBeBooted(serviceProviderName, error.message);
                     }
 
-                    serviceProviders.fail(serviceProvider.name());
+                    serviceProviders.fail(serviceProviderName);
                 }
             } else {
                 serviceProviders.defer(name);

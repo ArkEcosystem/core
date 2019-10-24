@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { isRecipientOnActiveNetwork } from "../utils";
@@ -26,7 +26,8 @@ export class TransferTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getReceivedTransactions();
 
         for (const transaction of transactions) {
-            const wallet = walletRepository.findByAddress(transaction.recipientId);
+            const wallet: Contracts.State.Wallet = walletRepository.findByAddress(transaction.recipientId);
+
             wallet.balance = wallet.balance.plus(transaction.amount);
         }
     }
@@ -52,7 +53,9 @@ export class TransferTransactionHandler extends TransactionHandler {
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        if (!isRecipientOnActiveNetwork(data)) {
+        const recipientId: string = Utils.assert.defined(data.recipientId);
+
+        if (!isRecipientOnActiveNetwork(recipientId)) {
             processor.pushError(
                 data,
                 "ERR_INVALID_RECIPIENT",
@@ -70,7 +73,10 @@ export class TransferTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
+        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(
+            Utils.assert.defined(transaction.data.recipientId),
+        );
+
         recipient.balance = recipient.balance.plus(transaction.data.amount);
     }
 
@@ -78,7 +84,10 @@ export class TransferTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
+        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(
+            Utils.assert.defined(transaction.data.recipientId),
+        );
+
         recipient.balance = recipient.balance.minus(transaction.data.amount);
     }
 }

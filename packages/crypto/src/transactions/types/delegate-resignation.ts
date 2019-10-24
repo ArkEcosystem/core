@@ -22,7 +22,7 @@ export class DelegateResignationTransaction extends Transaction {
         return configManager.getMilestone().aip11 && super.verify();
     }
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         return new ByteBuffer(0);
     }
 

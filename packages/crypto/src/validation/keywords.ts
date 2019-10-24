@@ -28,6 +28,7 @@ const maxBytes = (ajv: Ajv) => {
 
 const transactionType = (ajv: Ajv) => {
     ajv.addKeyword("transactionType", {
+        // @ts-ignore
         compile(schema) {
             return (data, dataPath, parentObject: ITransactionData) => {
                 // Impose dynamic multipayment limit based on milestone

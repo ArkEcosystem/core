@@ -15,7 +15,10 @@ export class BridgechainResignationBuilder extends Transactions.TransactionBuild
     }
 
     public businessResignationAsset(bridgechainId: string | Utils.BigNumber): BridgechainResignationBuilder {
-        this.data.asset.bridgechainResignation.bridgechainId = bridgechainId;
+        if (this.data.asset && this.data.asset.bridgechainResignation) {
+            this.data.asset.bridgechainResignation.bridgechainId = bridgechainId;
+        }
+
         return this;
     }
 

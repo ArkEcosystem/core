@@ -22,12 +22,14 @@ export class HtlcRefundTransaction extends Transaction {
         return configManager.getMilestone().aip11 && super.verify();
     }
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
         const buffer: ByteBuffer = new ByteBuffer(32, true);
 
-        buffer.append(Buffer.from(data.asset.refund.lockTransactionId, "hex"));
+        if (data.asset && data.asset.refund) {
+            buffer.append(Buffer.from(data.asset.refund.lockTransactionId, "hex"));
+        }
 
         return buffer;
     }

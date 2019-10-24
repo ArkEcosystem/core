@@ -19,7 +19,10 @@ export class VoteBuilder extends TransactionBuilder<VoteBuilder> {
     }
 
     public votesAsset(votes: string[]): VoteBuilder {
-        this.data.asset.votes = votes;
+        if (this.data.asset && this.data.asset.votes) {
+            this.data.asset.votes = votes;
+        }
+
         return this;
     }
 

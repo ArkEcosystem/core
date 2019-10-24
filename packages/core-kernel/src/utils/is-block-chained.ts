@@ -25,7 +25,7 @@ export const isBlockChained = (
             `previousBlock: ${nextBlock.previousBlock} } is not chained to the ` +
             `previous block { height: ${previousBlock.height}, id: ${previousBlock.id} }`;
 
-        let messageDetail: string;
+        let messageDetail: string | undefined;
 
         if (!followsPrevious) {
             messageDetail = `previous block id mismatch`;

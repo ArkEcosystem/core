@@ -8,7 +8,7 @@ import { Source } from "./contracts";
 
 export class NPM implements Source {
     private readonly dataPath: string;
-    private readonly tempPath: string;
+    private readonly tempPath: string | undefined;
 
     public constructor({ data, temp }: { data: string; temp?: string }) {
         this.dataPath = `${data}/plugins`;

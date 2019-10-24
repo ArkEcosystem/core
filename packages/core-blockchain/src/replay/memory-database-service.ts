@@ -5,7 +5,9 @@ import { Interfaces } from "@arkecosystem/crypto";
 // todo: review the implementation
 export class MemoryDatabaseService extends DatabaseService {
     public constructor(public walletRepository: Contracts.State.WalletRepository) {
+        // @ts-ignore
         super(undefined, undefined, undefined, undefined, undefined, undefined);
+
         this.blocksInCurrentRound = [];
     }
 
@@ -26,6 +28,7 @@ export class MemoryDatabaseService extends DatabaseService {
     }
 
     public async getBlock(id: string): Promise<Interfaces.IBlock> {
+        // @ts-ignore
         return undefined;
     }
 }

@@ -1,4 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -26,7 +26,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const transactions = await connection.transactionsRepository.getRefundedHtlcLocks();
 
         for (const transaction of transactions) {
-            const refundWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey); // sender is from the original lock
+            // sender is from the original lock
+            const refundWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+
             refundWallet.balance = refundWallet.balance.plus(transaction.amount);
         }
     }
@@ -52,20 +54,21 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         await this.performGenericWalletChecks(transaction, sender, databaseWalletRepository);
 
         // Specific HTLC refund checks
-        const refundAsset: Interfaces.IHtlcRefundAsset = transaction.data.asset.refund;
+        const refundAsset: Interfaces.IHtlcRefundAsset = AppUtils.assert.defined(transaction.data.asset!.refund);
         const lockId: string = refundAsset.lockTransactionId;
         const lockWallet: Contracts.State.Wallet = databaseWalletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
-        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
 
         const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks")[lockId];
-        const lastBlock: Interfaces.IBlock = app
-            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-            .getLastBlock();
+        const lastBlock: Interfaces.IBlock = AppUtils.assert.defined(
+            app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
+        );
+
         const lastBlockEpochTimestamp: number = lastBlock.data.timestamp;
         const expiration: Interfaces.IHtlcExpiration = lock.expiration;
         if (
@@ -82,16 +85,18 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        const lockId: string = data.asset.refund.lockTransactionId;
+        const lockId: string = AppUtils.assert.defined(data.asset!.refund!.lockTransactionId);
 
         const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
             Container.Identifiers.DatabaseService,
         );
+
         const lockWallet: Contracts.State.Wallet = databaseService.walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
-        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
+
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
             processor.pushError(
                 data,
                 "ERR_HTLCLOCKNOTFOUND",
@@ -104,9 +109,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             await pool.getTransactionsByType(Enums.TransactionType.HtlcRefund),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
-        const alreadyHasPendingRefund: boolean = htlcRefundsInpool.some(
-            transaction => transaction.asset.claim.lockTransactionId === lockId,
-        );
+        const alreadyHasPendingRefund: boolean = htlcRefundsInpool.some(transaction => {
+            return AppUtils.assert.defined(transaction.asset!.claim!.lockTransactionId) === lockId;
+        });
 
         if (alreadyHasPendingRefund) {
             processor.pushError(data, "ERR_PENDING", `HtlcRefund for "${lockId}" already in the pool`);
@@ -120,10 +125,13 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        );
+
         const data: Interfaces.ITransactionData = transaction.data;
 
-        if (Utils.isException(data)) {
+        if (Utils.isException(data.id)) {
             app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
@@ -131,13 +139,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         sender.verifyTransactionNonceApply(transaction);
 
-        sender.nonce = data.nonce;
+        sender.nonce = AppUtils.assert.defined(data.nonce);
 
-        const lockId: string = data.asset.refund.lockTransactionId;
+        const lockId: string = AppUtils.assert.defined(data.asset!.refund!.lockTransactionId);
         const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
+
         assert(lockWallet && lockWallet.getAttribute("htlc.locks")[lockId]);
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
@@ -165,7 +174,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        );
 
         sender.verifyTransactionNonceRevert(transaction);
 
@@ -176,23 +187,29 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             Container.Identifiers.DatabaseService,
         );
 
-        const lockId: string = transaction.data.asset.refund.lockTransactionId;
-        const lockTransaction: Interfaces.ITransactionData = await databaseService.transactionsBusinessRepository.findById(
-            lockId,
+        const lockId: string = AppUtils.assert.defined(transaction.data.asset!.refund!.lockTransactionId);
+        const lockTransaction: Interfaces.ITransactionData = AppUtils.assert.defined(
+            await databaseService.transactionsBusinessRepository.findById(lockId),
         );
-        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
+
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            AppUtils.assert.defined(lockTransaction.senderPublicKey),
+        );
 
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
-        const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
-        locks[lockTransaction.id] = {
-            amount: lockTransaction.amount,
-            recipientId: lockTransaction.recipientId,
-            timestamp: lockTransaction.timestamp,
-            vendorField: lockTransaction.vendorField ? lockTransaction.vendorField : undefined,
-            ...lockTransaction.asset.lock,
-        };
+        const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks");
+
+        if (locks) {
+            locks[lockTransaction.id!] = {
+                amount: lockTransaction.amount,
+                recipientId: lockTransaction.recipientId,
+                timestamp: lockTransaction.timestamp,
+                vendorField: lockTransaction.vendorField,
+                ...AppUtils.assert.defined(lockTransaction.asset!.lock),
+            };
+        }
 
         walletRepository.reindex(lockWallet);
     }
@@ -200,10 +217,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

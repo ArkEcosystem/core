@@ -28,9 +28,9 @@ export class TopCommand extends Command {
     public async run(): Promise<void> {
         const { flags } = await parseWithNetwork(this.parse(TopCommand));
 
-        const processes: ProcessDescription[] = processManager
-            .list()
-            .filter((p: ProcessDescription) => p.name.startsWith(flags.token));
+        const processes: ProcessDescription[] = (processManager.list() || []).filter((p: ProcessDescription) =>
+            p.name.startsWith(flags.token),
+        );
 
         if (!processes || !Object.keys(processes).length) {
             abort("No processes are running.");

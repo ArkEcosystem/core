@@ -154,7 +154,7 @@ describe("Transaction", () => {
         });
 
         it("should throw when getting garbage", () => {
-            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(InvalidTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(TypeError);
             expect(() => TransactionFactory.fromBytes(Buffer.from("garbage"))).toThrow(InvalidTransactionBytesError);
             expect(() => TransactionFactory.fromHex(undefined)).toThrow(InvalidTransactionBytesError);
             expect(() => TransactionFactory.fromHex("affe")).toThrow(InvalidTransactionBytesError);

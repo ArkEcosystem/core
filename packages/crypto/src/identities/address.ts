@@ -15,12 +15,16 @@ export class Address {
             throw new PublicKeyError(publicKey);
         }
 
+        const buffer: Buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
+        const payload: Buffer = Buffer.alloc(21);
+
         if (!networkVersion) {
             networkVersion = configManager.get("network.pubKeyHash");
         }
 
-        const buffer: Buffer = HashAlgorithms.ripemd160(Buffer.from(publicKey, "hex"));
-        const payload: Buffer = Buffer.alloc(21);
+        if (!networkVersion) {
+            throw new Error();
+        }
 
         payload.writeUInt8(networkVersion, 0);
         buffer.copy(payload, 1);

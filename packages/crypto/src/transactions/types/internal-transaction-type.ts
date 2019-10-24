@@ -1,7 +1,7 @@
 import { TransactionTypeGroup } from "../../enums";
 
 export class InternalTransactionType {
-    public static from(type: number, typeGroup?: number): InternalTransactionType {
+    public static from(type: number, typeGroup?: number): InternalTransactionType | undefined {
         if (typeGroup === undefined) {
             typeGroup = TransactionTypeGroup.Core;
         }

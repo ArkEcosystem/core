@@ -1,5 +1,6 @@
 import { InvalidArgumentException } from "../exceptions/logic";
 import { injectable } from "../ioc";
+import { assert } from "../utils";
 import { ServiceProvider } from "./service-provider";
 
 /**
@@ -75,7 +76,7 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public get(name: string): ServiceProvider {
-        return this.serviceProviders.get(this.aliases.get(name) || name);
+        return assert.defined(this.serviceProviders.get(this.aliases.get(name) || name));
     }
 
     /**
@@ -172,7 +173,7 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public async register(name: string): Promise<void> {
-        await this.serviceProviders.get(name).register();
+        await this.get(name).register();
     }
 
     /**
@@ -183,7 +184,7 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public async boot(name: string): Promise<void> {
-        await this.serviceProviders.get(name).boot();
+        await this.get(name).boot();
 
         this.loadedProviders.add(name);
         this.failedProviders.delete(name);
@@ -198,7 +199,7 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public async dispose(name: string): Promise<void> {
-        await this.serviceProviders.get(name).dispose();
+        await this.get(name).dispose();
 
         this.loadedProviders.delete(name);
         this.failedProviders.delete(name);

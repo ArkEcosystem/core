@@ -1,4 +1,4 @@
-import { app, Contracts, Enums, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
@@ -32,6 +32,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
             for (const transaction of transactions) {
                 const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+
                 wallet.setAttribute("delegate.resigned", true);
                 walletRepository.reindex(wallet);
             }
@@ -106,7 +107,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        walletRepository.findByPublicKey(transaction.data.senderPublicKey).setAttribute("delegate.resigned", true);
+        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Utils.assert.defined(transaction.data.senderPublicKey),
+        );
+
+        senderWallet.setAttribute("delegate.resigned", true);
     }
 
     public async revertForSender(
@@ -115,7 +120,9 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        walletRepository.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("delegate.resigned");
+        walletRepository
+            .findByPublicKey(Utils.assert.defined(transaction.data.senderPublicKey))
+            .forgetAttribute("delegate.resigned");
     }
 
     public async applyToRecipient(

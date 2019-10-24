@@ -19,14 +19,16 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
     }
 
     public addPayment(recipientId: string, amount: string): MultiPaymentBuilder {
-        if (this.data.asset.payments.length >= 500) {
-            throw new MaximumPaymentCountExceededError(this.data.asset.payments.length + 1);
-        }
+        if (this.data.asset && this.data.asset.payments) {
+            if (this.data.asset.payments.length >= 500) {
+                throw new MaximumPaymentCountExceededError(this.data.asset.payments.length + 1);
+            }
 
-        this.data.asset.payments.push({
-            amount: BigNumber.make(amount),
-            recipientId,
-        });
+            this.data.asset.payments.push({
+                amount: BigNumber.make(amount),
+                recipientId,
+            });
+        }
 
         return this;
     }

@@ -1,8 +1,12 @@
 import { Managers, Utils } from "@arkecosystem/crypto";
 
+import { assert } from "./assert";
+
 // todo: review the implementation
 export const calculate = (height: number): string => {
-    const { genesisBlock, milestones } = Managers.configManager.all();
+    const config: Record<string, any> = assert.defined(Managers.configManager.all());
+
+    const { genesisBlock, milestones } = config;
 
     const totalAmount: Utils.BigNumber = Utils.BigNumber.make(genesisBlock.totalAmount);
 

@@ -22,7 +22,7 @@ interface UnwrappedHtlcLock {
 }
 
 export class WalletsBusinessRepository implements Contracts.Database.WalletsBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) {}
+    public constructor (private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) { }
 
     public search<T>(
         scope: Contracts.Database.SearchScope,
@@ -72,7 +72,7 @@ export class WalletsBusinessRepository implements Contracts.Database.WalletsBusi
             }
 
             case Contracts.Database.SearchScope.Delegates: {
-                const wallet: Contracts.State.Wallet | undefined = walletRepository.findByIndex(
+                const wallet: Contracts.State.Wallet = walletRepository.findByIndex(
                     [
                         Contracts.State.WalletIndexes.Usernames,
                         Contracts.State.WalletIndexes.Addresses,

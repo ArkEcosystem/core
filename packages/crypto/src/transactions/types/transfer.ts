@@ -23,16 +23,21 @@ export class TransferTransaction extends Transaction {
         return true;
     }
 
-    public serialize(options?: ISerializeOptions): ByteBuffer {
+    public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(24, true);
         buffer.writeUint64(Long.fromString(data.amount.toString()));
         buffer.writeUint32(data.expiration || 0);
 
-        const { addressBuffer, addressError } = Address.toBuffer(data.recipientId);
-        options.addressError = addressError;
+        if (data.recipientId) {
+            const { addressBuffer, addressError } = Address.toBuffer(data.recipientId);
 
-        buffer.append(addressBuffer);
+            if (options) {
+                options.addressError = addressError;
+            }
+
+            buffer.append(addressBuffer);
+        }
 
         return buffer;
     }

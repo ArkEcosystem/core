@@ -21,6 +21,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
+        "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "bytebuffer": "^5.0.1",
         "long": "~3"

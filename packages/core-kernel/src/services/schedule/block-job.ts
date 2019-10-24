@@ -18,7 +18,7 @@ export class BlockJob implements Job {
      * @memberof BlockJob
      */
     @inject(Identifiers.EventDispatcherService)
-    private readonly events: EventDispatcher;
+    private readonly events!: EventDispatcher;
 
     /**
      * @private

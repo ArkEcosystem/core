@@ -1,3 +1,4 @@
+import { assert } from "@packages/core-kernel/src/utils";
 import PQueue from "p-queue";
 
 import { Queue } from "../../../contracts/kernel/queue";
@@ -22,7 +23,7 @@ export class MemoryQueue implements Queue {
      * @type {string}
      * @memberof MemoryQueue
      */
-    private defaultQueue = "default";
+    private defaultQueue: string = "default";
 
     /**
      * Start the queue.
@@ -189,6 +190,6 @@ export class MemoryQueue implements Queue {
             this.queues.set(name, new PQueue({ autoStart: false }));
         }
 
-        return this.queues.get(name);
+        return assert.defined(this.queues.get(name));
     }
 }

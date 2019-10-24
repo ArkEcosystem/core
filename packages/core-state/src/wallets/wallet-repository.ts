@@ -1,4 +1,4 @@
-import { Contracts, app, Services, Container } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
@@ -104,14 +104,14 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     public findById(id: string): Contracts.State.Wallet {
         for (const index of Object.values(this.indexes)) {
-            const wallet: Contracts.State.Wallet = index.get(id);
+            const wallet: Contracts.State.Wallet | undefined = index.get(id);
 
             if (wallet) {
                 return wallet;
             }
         }
 
-        return undefined;
+        throw new Error(`A wallet with the ID [${id}] does not exist.`);
     }
 
     public findByAddress(address: string): Contracts.State.Wallet {
@@ -121,41 +121,40 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             index.set(address, new Wallet(address));
         }
 
-        return index.get(address);
+        return AppUtils.assert.defined(index.get(address));
     }
 
     public findByPublicKey(publicKey: string): Contracts.State.Wallet {
         const index: Contracts.State.WalletIndex = this.getIndex(Contracts.State.WalletIndexes.PublicKeys);
 
         if (publicKey && !index.has(publicKey)) {
-            const address: string = Identities.Address.fromPublicKey(publicKey);
-
-            const wallet: Contracts.State.Wallet = this.findByAddress(address);
+            const wallet: Contracts.State.Wallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
             wallet.publicKey = publicKey;
 
             index.set(publicKey, wallet);
         }
 
-        return index.get(publicKey);
+        return AppUtils.assert.defined(index.get(publicKey));
     }
 
     public findByUsername(username: string): Contracts.State.Wallet {
         return this.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
     }
 
-    public findByIndex(index: string | string[], key: string): Contracts.State.Wallet | undefined {
+    public findByIndex(index: string | string[], key: string): Contracts.State.Wallet {
         if (!Array.isArray(index)) {
             index = [index];
         }
 
         for (const name of index) {
-            const index = this.getIndex(name);
+            const index: Contracts.State.WalletIndex = this.getIndex(name);
+
             if (index.has(key)) {
-                return index.get(key);
+                return AppUtils.assert.defined(index.get(key));
             }
         }
 
-        return undefined;
+        throw new Error(`A wallet with the ID [${key}] does not exist in the [${index.join(",")}] index.`);
     }
 
     public has(key: string): boolean {
@@ -210,11 +209,12 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         // TODO: revise this implementation, ideally we forget all attributes
         // once the last index drops the wallet
         if (indexName === Contracts.State.WalletIndexes.Addresses) {
-            const wallet: Contracts.State.Wallet = index.get(key);
-            // // todo: inject this instead of using direct access
-            app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
-                .get("wallet")
-                .forget(wallet);
+            // todo: inject this instead of using direct access
+            AppUtils.assert
+                .defined<Services.Attributes.AttributeIndex>(
+                    app.get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService).get("wallet"),
+                )
+                .forget(AppUtils.assert.defined(index.get(key)));
         }
 
         index.forget(key);

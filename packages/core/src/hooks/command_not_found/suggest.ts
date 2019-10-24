@@ -15,7 +15,7 @@ const closest = (commandIDs: string[], cmd: string) => {
 export const init: Hook<"init"> = async function({ id, config }) {
     const commandIDs: string[] = config.commandIDs;
 
-    if (!commandIDs || !commandIDs.length) {
+    if (!commandIDs || !commandIDs.length || !id) {
         return;
     }
 

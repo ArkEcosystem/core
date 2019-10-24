@@ -22,7 +22,7 @@ export const calculateTransactionExpiration = (
     // We ignore transaction.expiration in v1 transactions because it is not signed
     // by the transaction creator.
     // TODO: check if ok
-    if (transaction.version >= 2) {
+    if (transaction.version && transaction.version >= 2) {
         return transaction.expiration || undefined;
     }
 

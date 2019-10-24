@@ -14,13 +14,13 @@ import { isValidVersion, socketEmit } from "./utils";
 @Container.injectable()
 export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Log.Logger;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher;
+    private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerConnector)
-    private readonly connector: Contracts.P2P.PeerConnector;
+    private readonly connector!: Contracts.P2P.PeerConnector;
 
     public async downloadBlocks(peer: Contracts.P2P.Peer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
         this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);

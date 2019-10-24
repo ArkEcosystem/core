@@ -31,4 +31,9 @@ module.exports = {
     // },
     watchman: false,
     setupFilesAfterEnv: ["jest-extended"],
+    globals: {
+        "ts-jest": {
+            tsConfig: "tsconfig.test.json",
+        },
+    },
 };

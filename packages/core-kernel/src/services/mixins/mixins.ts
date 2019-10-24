@@ -1,5 +1,6 @@
 import { injectable } from "../../ioc";
 import { Constructor } from "../../types/container";
+import { assert } from "../../utils";
 
 @injectable()
 export class MixinService {
@@ -15,7 +16,7 @@ export class MixinService {
      * @returns {Function}
      * @memberof MixinService
      */
-    public get(name: string): Function {
+    public get(name: string): Function | undefined {
         return this.mixins.get(name);
     }
 
@@ -58,12 +59,12 @@ export class MixinService {
             names = [names];
         }
 
-        let macroValue: Constructor<T> = this.mixins.get(names[0])(value);
+        let macroValue: Constructor<T> = assert.defined<Function>(this.mixins.get(names[0]))(value);
 
         names.shift();
 
         for (const name of names) {
-            macroValue = this.mixins.get(name)(macroValue);
+            macroValue = assert.defined<Function>(this.mixins.get(name))(macroValue);
         }
 
         return macroValue;

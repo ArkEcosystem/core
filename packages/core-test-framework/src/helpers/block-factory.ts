@@ -4,8 +4,9 @@ import { Interfaces, Networks, Utils } from "@arkecosystem/crypto";
 import { delegates, genesisBlock } from "../utils/fixtures";
 
 export class BlockFactory {
-    public static createDummy(transactions: Interfaces.ITransactionData[] = []): Interfaces.IBlock {
+    public static createDummy(transactions: Interfaces.ITransactionData[] = []): Interfaces.IBlock | undefined {
         const delegate = new Delegate(delegates[0].passphrase, Networks.unitnet.network);
+
         return delegate.forge(transactions, {
             timestamp: 12345689,
             previousBlock: {

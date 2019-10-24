@@ -29,6 +29,10 @@ export class HDWallet {
      * Get key pair from the given node.
      */
     public static getKeys(node: BIP32Interface): IKeyPair {
+        if (!node.privateKey) {
+            throw new Error();
+        }
+
         return {
             publicKey: node.publicKey.toString("hex"),
             privateKey: node.privateKey.toString("hex"),

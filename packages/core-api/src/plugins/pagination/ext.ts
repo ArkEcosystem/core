@@ -99,12 +99,12 @@ export class Ext {
 
         const { totalCount } = source.totalCount ? source : request;
 
-        let pageCount: number;
+        let pageCount: number = 1;
         if (totalCount) {
             pageCount = Math.trunc(totalCount / currentLimit) + (totalCount % currentLimit === 0 ? 0 : 1);
         }
 
-        const getUri = (page: number | null): string =>
+        const getUri = (page: number | null): string | null =>
             // tslint:disable-next-line: no-null-keyword
             page ? baseUri + Qs.stringify(Hoek.applyToDefaults({ ...query, ...request.orig.query }, { page })) : null;
 

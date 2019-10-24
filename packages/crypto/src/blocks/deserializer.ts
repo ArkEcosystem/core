@@ -91,7 +91,7 @@ class Deserializer {
         buf: ByteBuffer,
         deserializeTransactionsUnchecked: boolean = false,
     ): ITransaction[] {
-        const transactionLengths = [];
+        const transactionLengths: number[] = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
             transactionLengths.push(buf.readUint32());

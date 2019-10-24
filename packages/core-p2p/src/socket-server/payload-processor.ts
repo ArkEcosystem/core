@@ -111,7 +111,7 @@ class PayloadProcessor {
             const payloadsFromDB = this.payloadDatabase
                 .prepare(`SELECT id, payload FROM payloads LIMIT ${payloadsFree}`)
                 .all();
-            const payloadIds = [];
+            const payloadIds: { id: number }[] = [];
             for (const row of payloadsFromDB) {
                 this.payloadQueue.push(JSON.parse(row.payload));
                 payloadIds.push({ id: row.id });

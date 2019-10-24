@@ -1,4 +1,4 @@
-import { app, Container, Services } from "@arkecosystem/core-kernel";
+import { app, Container, Services, Utils } from "@arkecosystem/core-kernel";
 import { Enums, Errors, Transactions } from "@arkecosystem/crypto";
 
 import { DeactivatedTransactionHandlerError, InvalidTransactionTypeError } from "../errors";
@@ -23,6 +23,7 @@ export class TransactionHandlerRegistry {
         TransactionHandler
     > = new Map();
 
+    // @ts-ignore
     private readonly attributes: Services.Attributes.AttributeIndex = app
         .get<Services.Attributes.AttributeService>(Container.Identifiers.AttributeService)
         .get("wallet");
@@ -46,15 +47,19 @@ export class TransactionHandlerRegistry {
     }
 
     public async get(type: number, typeGroup?: number): Promise<TransactionHandler> {
-        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
-            type,
-            typeGroup,
+        const internalType: Transactions.InternalTransactionType = Utils.assert.defined(
+            Transactions.InternalTransactionType.from(type, typeGroup),
         );
+
         if (this.registeredTransactionHandlers.has(internalType)) {
-            const handler: TransactionHandler = this.registeredTransactionHandlers.get(internalType);
+            const handler: TransactionHandler = Utils.assert.defined(
+                this.registeredTransactionHandlers.get(internalType),
+            );
+
             if (!(await handler.isActivated())) {
                 throw new DeactivatedTransactionHandlerError(internalType);
             }
+
             return handler;
         }
 
@@ -76,16 +81,18 @@ export class TransactionHandlerRegistry {
     public registerTransactionHandler(constructor: TransactionHandlerConstructor) {
         const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
-        const { typeGroup, type } = transactionConstructor;
+
+        const type: number = Utils.assert.defined(transactionConstructor.type);
+        const typeGroup: number = Utils.assert.defined(transactionConstructor.typeGroup);
 
         for (const dependency of service.dependencies()) {
             this.registerTransactionHandler(dependency);
         }
 
-        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
-            type,
-            typeGroup,
+        const internalType: Transactions.InternalTransactionType = Utils.assert.defined(
+            Transactions.InternalTransactionType.from(type, typeGroup),
         );
+
         if (this.registeredTransactionHandlers.has(internalType)) {
             return;
         }
@@ -104,16 +111,18 @@ export class TransactionHandlerRegistry {
     public deregisterTransactionHandler(constructor: TransactionHandlerConstructor): void {
         const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
-        const { typeGroup, type } = transactionConstructor;
+
+        const type: number = Utils.assert.defined(transactionConstructor.type);
+        const typeGroup: number = Utils.assert.defined(transactionConstructor.typeGroup);
 
         if (typeGroup === Enums.TransactionTypeGroup.Core || typeGroup === undefined) {
             throw new Errors.CoreTransactionTypeGroupImmutableError();
         }
 
-        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
-            type,
-            typeGroup,
+        const internalType: Transactions.InternalTransactionType = Utils.assert.defined(
+            Transactions.InternalTransactionType.from(type, typeGroup),
         );
+
         if (!this.registeredTransactionHandlers.has(internalType)) {
             throw new InvalidTransactionTypeError(internalType.toString());
         }

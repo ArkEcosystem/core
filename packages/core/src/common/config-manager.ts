@@ -5,6 +5,7 @@ import { getRegistryChannel } from "./update";
 // todo: review the implementation
 export class ConfigManager {
     private config;
+    // @ts-ignore
     private file: string;
 
     public setup(config: Record<string, any>) {

@@ -8,7 +8,7 @@ import { deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
-    public static applySchema(data: IBlockData): IBlockData {
+    public static applySchema(data: IBlockData): IBlockData | undefined {
         let result = validator.validate("block", data);
 
         if (!result.error) {
@@ -17,19 +17,27 @@ export class Block implements IBlock {
 
         result = validator.validateException("block", data);
 
+        if (!result.errors) {
+            return result.value;
+        }
+
         for (const err of result.errors) {
             let fatal = false;
 
             const match = err.dataPath.match(/\.transactions\[([0-9]+)\]/);
             if (match === null) {
-                if (!isException(data)) {
+                if (!isException(data.id)) {
                     fatal = true;
                 }
             } else {
                 const txIndex = match[1];
-                const tx = data.transactions[txIndex];
-                if (tx.id === undefined || !isException(tx)) {
-                    fatal = true;
+
+                if (data.transactions) {
+                    const tx = data.transactions[txIndex];
+
+                    if (tx.id === undefined || !isException(tx.id)) {
+                        fatal = true;
+                    }
                 }
             }
 
@@ -89,6 +97,7 @@ export class Block implements IBlock {
         return constants.block.idFullSha256 ? idHex : BigNumber.make(`0x${idHex}`).toString();
     }
 
+    // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined
     public serialized: string;
     public data: IBlockData;
     public transactions: ITransaction[];
@@ -99,7 +108,11 @@ export class Block implements IBlock {
 
         // TODO genesis block calculated id is wrong for some reason
         if (this.data.height === 1) {
-            this.applyGenesisBlockFix(id || data.id);
+            if (id) {
+                this.applyGenesisBlockFix(id);
+            } else if (data.id) {
+                this.applyGenesisBlockFix(data.id);
+            }
         }
 
         // fix on real timestamp, this is overloading transaction
@@ -118,7 +131,7 @@ export class Block implements IBlock {
 
         // Order of transactions messed up in mainnet V1
         const { wrongTransactionOrder } = configManager.get("exceptions");
-        if (wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
+        if (this.data.id && wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
             const fixedOrderIds = wrongTransactionOrder[this.data.id];
 
             this.transactions = fixedOrderIds.map((id: string) =>
@@ -137,6 +150,10 @@ export class Block implements IBlock {
     public verifySignature(): boolean {
         const bytes: Buffer = Block.serialize(this.data, false);
         const hash: Buffer = HashAlgorithms.sha256(bytes);
+
+        if (!this.data.blockSignature) {
+            throw new Error();
+        }
 
         return Hash.verifyECDSA(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
@@ -216,13 +233,21 @@ export class Block implements IBlock {
 
             const payloadBuffers: Buffer[] = [];
             for (const transaction of this.transactions) {
+                if (!transaction.data || !transaction.data.id) {
+                    throw new Error();
+                }
+
                 const bytes: Buffer = Buffer.from(transaction.data.id, "hex");
 
                 if (appliedTransactions[transaction.data.id]) {
                     result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
                 }
 
-                if (transaction.data.expiration > 0 && transaction.data.expiration <= this.data.height) {
+                if (
+                    transaction.data.expiration &&
+                    transaction.data.expiration > 0 &&
+                    transaction.data.expiration <= this.data.height
+                ) {
                     const isException =
                         configManager.get("network.name") === "devnet" && constants.ignoreExpiredTransactions;
                     if (!isException) {

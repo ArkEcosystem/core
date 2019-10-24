@@ -33,7 +33,7 @@ const transactions = async request => {
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
         .blocksBusinessRepository.findByIdOrHeight(request.params.id);
 
-    if (!block) {
+    if (!block || !block.id) {
         return Boom.notFound("Block not found");
     }
 
