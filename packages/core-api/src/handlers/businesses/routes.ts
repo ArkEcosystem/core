@@ -27,9 +27,9 @@ export const registerRoutes = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/businesses/{id}/bridgechains",
-        handler: controller.show,
+        handler: controller.bridgechains,
         options: {
-            validate: Schema.show,
+            validate: Schema.bridgechains,
         },
     });
 
