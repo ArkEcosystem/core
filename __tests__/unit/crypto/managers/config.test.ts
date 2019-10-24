@@ -32,6 +32,17 @@ describe("Configuration", () => {
         expect(configManager.getMilestones()).toEqual(devnet.milestones);
     });
 
+    it('should build milestones without concatenating the "minimumVersions" array', () => {
+        const milestones = devnet.milestones.sort((a, b) => a.height - b.height);
+        configManager.setHeight(milestones[0].height);
+
+        const lastMilestone = milestones.find(milestone => !!milestone.p2p && !!milestone.p2p.minimumVersions);
+
+        if (lastMilestone && lastMilestone.p2p && configManager.getMilestone().p2p) {
+            expect(configManager.getMilestone().p2p.minimumVersions).toEqual(lastMilestone.p2p.minimumVersions);
+        }
+    });
+
     it("should get milestone for height", () => {
         expect(configManager.getMilestone(21600)).toEqual(devnet.milestones[2]);
     });
