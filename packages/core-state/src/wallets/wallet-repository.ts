@@ -463,39 +463,52 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         };
     }
 
-    // TODO
     private searchBusinesses(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
-        const query: Record<string, string[]> = {};
+        const query: Record<string, string[]> = {
+            exact: ["businessId", "name", "website"],
+        };
+
         const entries: any[] = this.getIndex("businesses")
             .values()
             .map(wallet => {
-                const business: Interfaces.IHtlcLocks = wallet.getAttribute("business");
-                return business;
-            })
-            .filter(business => !!business);
+                const business: any = wallet.getAttribute("business");
+                return {
+                    businessId: business.businessId,
+                    ...business.businessAsset,
+                };
+            });
 
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["name", "asc"],
         };
     }
 
-    // TODO
     private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
-        const query: Record<string, string[]> = {};
+        const query: Record<string, string[]> = {
+            exact: ["bridgechainId", "businessId", "name", "genesishash"],
+        };
 
-        const entries: any[][] = this.getIndex("bridgechains")
+        const entries: any[] = this.getIndex("bridgechains")
             .values()
-            .map(wallet => {
-                return wallet.getAttribute("business.bridgechains");
-            })
-            .filter(bridgchain => !!bridgchain);
+            .reduce((acc: any, wallet) => {
+                const business: any = wallet.getAttribute("business");
+                const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
+                for (const bridgechain of Object.values(bridgechains)) {
+                    acc.push({
+                        bridgechainId: bridgechain.bridgechainId,
+                        businessId: business.businessId,
+                        ...bridgechain.bridgechainAsset,
+                    });
+                }
+                return acc;
+            }, []);
 
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["name", "asc"],
         };
     }
 }

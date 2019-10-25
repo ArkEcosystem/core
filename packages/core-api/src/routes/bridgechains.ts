@@ -17,6 +17,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: Joi.string(),
+                        businessId: Joi.number()
+                            .integer()
+                            .min(1),
                         bridgechainId: Joi.number()
                             .integer()
                             .min(1),
