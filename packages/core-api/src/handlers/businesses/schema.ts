@@ -21,6 +21,20 @@ export const show: object = {
     },
 };
 
+export const bridgechains: object = {
+    params: {
+        id: Joi.number()
+            .integer()
+            .min(1),
+    },
+    query: {
+        ...pagination,
+        ...{
+            orderBy: Joi.string(),
+        },
+    },
+};
+
 export const search: object = {
     query: {
         ...pagination,
