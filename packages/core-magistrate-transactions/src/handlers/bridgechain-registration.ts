@@ -66,12 +66,10 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         }
 
         const { data }: Interfaces.ITransaction = transaction;
-        const bridgechains: IBridgechainWalletAttributes[] = Object.values(
-            wallet.getAttribute("business.bridgechains"),
-        );
+        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
 
         if (
-            bridgechains.find(bridgechain => {
+            Object.values(bridgechains).find(bridgechain => {
                 return bridgechain.bridgechainAsset.name === data.asset.bridgechainRegistration.name;
             })
         ) {
