@@ -70,7 +70,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
         if (
             bridgechains &&
-            Object.values(bridgechains).find(bridgechain => {
+            Object.values(bridgechains).some(bridgechain => {
                 return bridgechain.bridgechainAsset.name === data.asset.bridgechainRegistration.name;
             })
         ) {
