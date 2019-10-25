@@ -27,6 +27,24 @@ const show = async request => {
     return respondWithResource(business, "business");
 };
 
+const bridgechains = async request => {
+    const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
+        businessId: request.params.id,
+    });
+
+    if (!business) {
+        return Boom.notFound("Business not found");
+    }
+
+    const bridgechains = databaseService.wallets.search(Database.SearchScope.Bridgechains, {
+        businessId: request.params.id,
+        ...request.query,
+        ...paginate(request),
+    });
+
+    return toPagination(bridgechains, "bridgechain");
+};
+
 const search = async request => {
     const businesses = databaseService.wallets.search(Database.SearchScope.Businesses, {
         ...request.payload,
@@ -44,6 +62,11 @@ export const registerMethods = server => {
             ...paginate(request),
         }))
         .method("v2.businesses.show", show, 8, request => ({ id: request.params.id }))
+        .method("v2.businesses.bridgechains", bridgechains, 8, request => ({
+            id: request.params.id,
+            ...request.query,
+            ...paginate(request),
+        }))
         .method("v2.businesses.search", search, 30, request => ({
             ...request.payload,
             ...request.query,

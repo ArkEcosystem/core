@@ -25,6 +25,17 @@ export class BusinessController extends Controller {
         }
     }
 
+    public async bridgechains(request: Hapi.Request, h: Hapi.ResponseToolkit) {
+        try {
+            // @ts-ignore
+            const data = await request.server.methods.v2.businesses.bridgechains(request);
+
+            return super.respondWithCache(data, h);
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
+    }
+
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             // @ts-ignore
