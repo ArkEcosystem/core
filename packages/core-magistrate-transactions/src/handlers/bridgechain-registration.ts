@@ -1,7 +1,7 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BridgechainAlreadyRegisteredError, BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
@@ -40,8 +40,8 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
                     businessAttributes.bridgechains = {};
                 }
 
-                const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletManager);
-                businessAttributes.bridgechains[bridgechainId.toFixed()] = {
+                const bridgechainId: number = this.getBridgechainId(walletManager);
+                businessAttributes.bridgechains[bridgechainId.toString()] = {
                     bridgechainId,
                     bridgechainAsset: transaction.asset.bridgechainRegistration,
                 };
@@ -105,8 +105,8 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             businessAttributes.bridgechains = {};
         }
 
-        const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletManager);
-        businessAttributes.bridgechains[bridgechainId.toFixed()] = {
+        const bridgechainId: number = this.getBridgechainId(walletManager);
+        businessAttributes.bridgechains[bridgechainId.toString()] = {
             bridgechainId,
             bridgechainAsset: transaction.data.asset.bridgechainRegistration,
         };
@@ -144,7 +144,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 
-    private getBridgechainId(walletManager: State.IWalletManager): Utils.BigNumber {
-        return Utils.BigNumber.make(walletManager.getIndex(MagistrateIndex.Bridgechains).values().length).plus(1);
+    private getBridgechainId(walletManager: State.IWalletManager): number {
+        return walletManager.getIndex(MagistrateIndex.Bridgechains).values().length + 1;
     }
 }

@@ -198,7 +198,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.lastDownloadedBlock || stateStorage.getLastBlock().data;
         const blocks: Interfaces.IBlockData[] = await blockchain.p2p
             .getMonitor()
-            .syncWithNetwork(lastDownloadedBlock.height);
+            .downloadBlocksFromHeight(lastDownloadedBlock.height);
 
         if (blockchain.isStopped) {
             return;
@@ -237,7 +237,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             }
         } else {
             if (empty) {
-                logger.info(`Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`);
+                logger.info(
+                    `Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`,
+                );
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock)}`);
