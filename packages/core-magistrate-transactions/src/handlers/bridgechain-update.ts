@@ -47,7 +47,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
                 );
 
                 const { bridgechainId, seedNodes } = transaction.asset.bridgechainUpdate;
-                businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
+                businessAttributes.bridgechains[bridgechainId.toString()].bridgechainAsset.seedNodes = seedNodes;
 
                 walletManager.reindex(wallet);
             }
@@ -73,7 +73,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
             transaction.data.asset.bridgechainUpdate;
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
+            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toString()];
 
         if (!bridgechainAttributes) {
             throw new BridgechainIsNotRegisteredError();
@@ -112,7 +112,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             transaction.data.asset.bridgechainUpdate;
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
+            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toString()];
         bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
 
         walletManager.reindex(wallet);
@@ -129,7 +129,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             "business",
         );
 
-        const connection: Database.IConnection = app.resolvePlugin<Database.IConnection>("database");
+        const connection: Database.IConnection = app.resolvePlugin<Database.IDatabaseService>("database").connection;
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
         const updateTransactions: Database.IBootstrapTransaction[] = [];
         while (reader.hasNext()) {
@@ -139,17 +139,19 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         if (updateTransactions.length > 1) {
             const updateTransaction: Database.IBootstrapTransaction = updateTransactions.pop();
             const { bridgechainId, seedNodes } = updateTransaction.asset.bridgechainUpdate;
-            const bridgechainAttributes: IBridgechainWalletAttributes = businessAttributes.bridgechains[bridgechainId];
+            const bridgechainAttributes: IBridgechainWalletAttributes =
+                businessAttributes.bridgechains[bridgechainId.toString()];
             bridgechainAttributes.bridgechainAsset.seedNodes = seedNodes;
         } else {
             // There are equally many bridgechain registrations as bridgechains a wallet posseses in the database.
             // By getting the index of the bridgechainId we can use it as an offset to get
             // the actual registration transaction.
-            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId.toFixed();
+            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId.toString();
             const registrationIndex: number = Object.keys(businessAttributes.bridgechains).indexOf(bridgechainId);
 
             const bridgechainRegistration: MagistrateInterfaces.IBridgechainRegistrationAsset = (await app
-                .resolvePlugin<Database.IConnection>("database")
+                .resolvePlugin<Database.IDatabaseService>("database")
+                .connection
                 .transactionsRepository.search({
                     parameters: [
                         {

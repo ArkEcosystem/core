@@ -4,7 +4,7 @@ import {
     Builders as MagistrateBuilders,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Managers, Transactions } from "@arkecosystem/crypto";
 
 let builder: MagistrateBuilders.BridgechainUpdateBuilder;
 
@@ -21,7 +21,7 @@ describe("Bridgechain update builder", () => {
         it("should be true", () => {
             const actual = builder
                 .bridgechainUpdateAsset({
-                    bridgechainId: Utils.BigNumber.ONE,
+                    bridgechainId: 1,
                     seedNodes: ["192.168.1.0", "131.107.0.89"],
                 })
                 .sign("passphrase");

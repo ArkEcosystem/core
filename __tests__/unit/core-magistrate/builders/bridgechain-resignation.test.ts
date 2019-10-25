@@ -17,7 +17,7 @@ describe("Bridgechain resignation builder", () => {
     });
     describe("should test verification", () => {
         it("should be true", () => {
-            const actual = builder.businessResignationAsset("1").sign("passphrase");
+            const actual = builder.businessResignationAsset(1).sign("passphrase");
             expect(actual.build().verified).toBeTrue();
             expect(actual.verify()).toBeTrue();
         });

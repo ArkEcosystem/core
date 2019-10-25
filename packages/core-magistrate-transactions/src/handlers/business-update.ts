@@ -105,7 +105,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             IBusinessWalletAttributes
         >("business").businessAsset;
 
-        const connection: Database.IConnection = app.resolvePlugin<Database.IConnection>("database");
+        const connection: Database.IConnection = app.resolvePlugin<Database.IDatabaseService>("database").connection;
         let reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
         const updateTransactions: Database.IBootstrapTransaction[] = [];
         while (reader.hasNext()) {

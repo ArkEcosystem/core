@@ -157,7 +157,7 @@ describe("API 2.0 - Transactions", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
             expect(response.data.data).toEqual({
-                Core: {
+                1: {
                     Transfer: 0,
                     SecondSignature: 1,
                     DelegateRegistration: 2,

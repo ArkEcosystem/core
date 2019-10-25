@@ -37,14 +37,14 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Bridgechain resignation
-            let bridgechainResignation = TransactionFactory.bridgechainResignation("1")
+            let bridgechainResignation = TransactionFactory.bridgechainResignation(1)
                 .withPassphrase(secrets[0])
                 .createOne();
             await expect(bridgechainResignation).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(bridgechainResignation.id).toBeForged();
 
-            bridgechainResignation = TransactionFactory.bridgechainResignation("1")
+            bridgechainResignation = TransactionFactory.bridgechainResignation(1)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -179,7 +179,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.bridgechainResignation("3")
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(3)
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();

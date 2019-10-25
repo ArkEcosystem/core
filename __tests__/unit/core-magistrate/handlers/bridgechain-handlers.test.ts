@@ -136,10 +136,8 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
 
                 expect(
-                    senderWallet
-                        .getAttribute<IBusinessWalletAttributes>("business")
-                        .bridgechains["1"].bridgechainId.toFixed(),
-                ).toBe("1");
+                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains["1"].bridgechainId,
+                ).toBe(1);
 
                 bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
                 await expect(
@@ -147,13 +145,11 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
 
                 expect(
-                    senderWallet
-                        .getAttribute<IBusinessWalletAttributes>("business")
-                        .bridgechains["2"].bridgechainId.toFixed(),
-                ).toBe("2");
+                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains["2"].bridgechainId,
+                ).toBe(2);
 
                 const bridgechainResignation = bridgechainResignationBuilder
-                    .businessResignationAsset("2")
+                    .businessResignationAsset(2)
                     .fee("50000000")
                     .nonce("4")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
@@ -184,10 +180,8 @@ describe("should test marketplace transaction handlers", () => {
                     await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
 
                     expect(
-                        senderWallet
-                            .getAttribute<IBusinessWalletAttributes>("business")
-                            .bridgechains[1].bridgechainId.toFixed(),
-                    ).toEqual("1");
+                        senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[1].bridgechainId,
+                    ).toEqual(1);
                 });
             });
         });
