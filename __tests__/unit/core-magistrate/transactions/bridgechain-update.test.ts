@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Managers, Transactions } from "@arkecosystem/crypto";
 import { checkCommonFields } from "../helper";
 
 let builder: MagistrateBuilders.BridgechainUpdateBuilder;
@@ -20,7 +20,7 @@ describe("Bridgechain update ser/deser", () => {
         const businessResignation = builder
             .network(23)
             .bridgechainUpdateAsset({
-                bridgechainId: Utils.BigNumber.ONE,
+                bridgechainId: 1,
                 seedNodes: ["74.125.224.72"],
             })
             .sign("passphrase")

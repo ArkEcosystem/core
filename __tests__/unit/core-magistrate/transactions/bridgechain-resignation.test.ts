@@ -18,7 +18,7 @@ describe("Bridgechain registration transaction", () => {
     describe("Ser/deser", () => {
         it("should ser/deserialize giving back original fields", () => {
             const bridgechainResignation = builder
-                .businessResignationAsset("1")
+                .businessResignationAsset(1)
                 .network(23)
                 .sign("passphrase")
                 .getStruct();
@@ -40,21 +40,21 @@ describe("Bridgechain registration transaction", () => {
         });
 
         it("should not throw any error", () => {
-            const bridgechainRegistration = builder.businessResignationAsset("1").sign("passphrase");
+            const bridgechainRegistration = builder.businessResignationAsset(1).sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
         it("should not throw any error", () => {
-            const bridgechainRegistration = builder.businessResignationAsset("1").sign("passphrase");
+            const bridgechainRegistration = builder.businessResignationAsset(1).sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
         it("should fail because invalid asset", () => {
-            const bridgechainRegistration = builder.businessResignationAsset("a").sign("passphrase");
+            const bridgechainRegistration = builder.businessResignationAsset(0).sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).not.toBeUndefined();
