@@ -129,7 +129,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             "business",
         );
 
-        const connection: Database.IConnection = app.resolvePlugin<Database.IConnection>("database");
+        const connection: Database.IConnection = app.resolvePlugin<Database.IDatabaseService>("database").connection;
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
         const updateTransactions: Database.IBootstrapTransaction[] = [];
         while (reader.hasNext()) {
@@ -150,7 +150,8 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             const registrationIndex: number = Object.keys(businessAttributes.bridgechains).indexOf(bridgechainId);
 
             const bridgechainRegistration: MagistrateInterfaces.IBridgechainRegistrationAsset = (await app
-                .resolvePlugin<Database.IConnection>("database")
+                .resolvePlugin<Database.IDatabaseService>("database")
+                .connection
                 .transactionsRepository.search({
                     parameters: [
                         {
