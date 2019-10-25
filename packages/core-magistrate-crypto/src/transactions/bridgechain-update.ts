@@ -28,7 +28,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                             type: "object",
                             required: ["bridgechainId", "seedNodes"],
                             properties: {
-                                bridgechainId: { bignumber: { minimum: 1 } },
+                                bridgechainId: { type: "integer", minimum: 1 },
                                 seedNodes: seedNodesSchema,
                             },
                         },
@@ -55,7 +55,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         const buffer: ByteBuffer = new ByteBuffer(64 + seedNodesBuffersLength + 1 + seedNodes.length, true);
-        buffer.writeUint64(Long.fromString(bridgechainUpdateAsset.bridgechainId.toFixed()));
+        buffer.writeUint64(Long.fromInt(bridgechainUpdateAsset.bridgechainId));
 
         buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {
@@ -68,7 +68,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        const bridgechainId: Utils.BigNumber = Utils.BigNumber.make(buf.readUint64().toString());
+        const bridgechainId: number = Number(buf.readUint64().toString());
 
         const seedNodes: string[] = [];
         const seedNodesLength: number = buf.readUint8();

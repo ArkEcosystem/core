@@ -1,5 +1,3 @@
-import { Utils } from "@arkecosystem/crypto";
-
 export interface IBusinessRegistrationAsset {
     name: string;
     website: string;
@@ -22,10 +20,10 @@ export interface IBridgechainRegistrationAsset {
 }
 
 export interface IBridgechainUpdateAsset {
-    bridgechainId: Utils.BigNumber;
+    bridgechainId: number;
     seedNodes: string[];
 }
 
 export interface IBridgechainResignationAsset {
-    bridgechainId: Utils.BigNumber;
+    bridgechainId: number;
 }
