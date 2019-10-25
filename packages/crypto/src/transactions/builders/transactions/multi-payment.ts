@@ -1,5 +1,6 @@
 import { MaximumPaymentCountExceededError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
+import { configManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
 import { MultiPaymentTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
@@ -19,7 +20,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
     }
 
     public addPayment(recipientId: string, amount: string): MultiPaymentBuilder {
-        if (this.data.asset.payments.length >= 500) {
+        if (this.data.asset.payments.length >= (configManager.getMilestone().multiPaymentLimit || 500)) {
             throw new MaximumPaymentCountExceededError(this.data.asset.payments.length + 1);
         }
 
