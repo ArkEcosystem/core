@@ -69,6 +69,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
 
         if (
+            bridgechains &&
             Object.values(bridgechains).find(bridgechain => {
                 return bridgechain.bridgechainAsset.name === data.asset.bridgechainRegistration.name;
             })
