@@ -6,6 +6,9 @@ export const index: object = {
         ...pagination,
         ...{
             orderBy: Joi.string(),
+            businessId: Joi.number()
+                .integer()
+                .min(1),
             bridgechainId: Joi.number()
                 .integer()
                 .min(1),
