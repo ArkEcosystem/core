@@ -1,7 +1,10 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
+import {
+    Enums,
+    Interfaces as MagistrateInterfaces,
+    Transactions as MagistrateTransactions,
+} from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
@@ -74,6 +77,27 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
+        const { businessId }: { businessId: number } = data.asset.businessUpdate.businessId;
+
+        const businessUpdatesForIdInPool: Interfaces.ITransactionData[] = Array.from(
+            await pool.getTransactionsByType(
+                Enums.MagistrateTransactionType.BusinessUpdate,
+                Enums.MagistrateTransactionGroup,
+            ),
+        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+
+        const containsBusinessUpdatesForSameIdInPool: boolean = businessUpdatesForIdInPool.some(
+            transaction => transaction.asset.businessUpdate.businessId === businessId,
+        );
+        if (containsBusinessUpdatesForSameIdInPool) {
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Business Update for businessId "${businessId}" already in the pool`,
+            );
+            return false;
+        }
+
         return true;
     }
 
