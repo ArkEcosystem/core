@@ -204,7 +204,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
                 stateStorage.lastDownloadedBlock || stateStorage.getLastBlock().data;
             const blocks: Interfaces.IBlockData[] = await app
                 .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-                .syncWithNetwork(lastDownloadedBlock.height);
+                .downloadBlocksFromHeight(lastDownloadedBlock.height);
 
             if (blockchain.isStopped) {
                 return;

@@ -7,7 +7,6 @@ import { DatabaseEvent } from "./events";
 import { BlockRepository } from "./repositories/block-repository";
 import { RoundRepository } from "./repositories/round-repository";
 import { TransactionRepository } from "./repositories/transaction-repository";
-import { Block } from "./models";
 
 // TODO: maybe we should introduce `BlockLike`, `TransactionLike`, `RoundLke` interfaces to remove the need to cast
 @Container.injectable()
