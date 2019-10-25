@@ -4,5 +4,5 @@ export enum MagistrateApplicationEvents {
     BusinessUpdate = "business.updated",
     BridgechainRegistered = "bridgechain.registered",
     BridgechainResigned = "bridgechain.resigned",
-    BridgechainUpdate = "business.updated",
+    BridgechainUpdate = "bridgechain.updated",
 }
