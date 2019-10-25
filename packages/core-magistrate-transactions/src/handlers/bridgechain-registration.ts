@@ -2,9 +2,9 @@ import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/co
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
+import { BridgechainAlreadyRegisteredError, BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
-import { IBusinessWalletAttributes } from "../interfaces";
+import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-manager";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
@@ -63,6 +63,19 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
         if (wallet.getAttribute<boolean>("business.resigned") === true) {
             throw new BusinessIsResignedError();
+        }
+
+        const { data }: Interfaces.ITransaction = transaction;
+        const bridgechains: IBridgechainWalletAttributes[] = Object.values(
+            wallet.getAttribute("business.bridgechains"),
+        );
+
+        if (
+            bridgechains.find(bridgechain => {
+                return bridgechain.bridgechainAsset.name === data.asset.bridgechainRegistration.name;
+            })
+        ) {
+            throw new BridgechainAlreadyRegisteredError();
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
