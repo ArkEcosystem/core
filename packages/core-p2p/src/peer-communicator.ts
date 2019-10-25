@@ -17,22 +17,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
     constructor(private readonly connector: P2P.IPeerConnector) {}
 
-    public async downloadBlocks(peer: P2P.IPeer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
-        this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
-
-        let blocks: Interfaces.IBlockData[];
-        try {
-            blocks = await this.getPeerBlocks(peer, { fromBlockHeight });
-        } catch {
-            this.logger.debug(
-                `Failed to download blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}.`,
-            );
-            blocks = [];
-        }
-
-        return blocks;
-    }
-
     public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlockJson) {
         return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
     }
