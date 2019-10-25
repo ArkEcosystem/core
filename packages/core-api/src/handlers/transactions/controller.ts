@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Enums, Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
@@ -115,12 +115,11 @@ export class TransactionsController extends Controller {
                 const constructor = handler.getConstructor();
 
                 const { type, typeGroup, key } = constructor;
-                const groupName: string | number = Enums.TransactionTypeGroup[typeGroup] || typeGroup;
-                if (typeGroups[groupName] === undefined) {
-                    typeGroups[groupName] = {};
+                if (typeGroups[typeGroup] === undefined) {
+                    typeGroups[typeGroup] = {};
                 }
 
-                typeGroups[groupName][key[0].toUpperCase() + key.slice(1)] = type;
+                typeGroups[typeGroup][key[0].toUpperCase() + key.slice(1)] = type;
             }
 
             return { data: typeGroups };
