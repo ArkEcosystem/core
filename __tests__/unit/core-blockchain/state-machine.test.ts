@@ -381,8 +381,8 @@ describe("State Machine", () => {
                 const loggerInfo = jest.spyOn(logger, "info");
 
                 const methodsCalled = [
-                    // @ts-ignore
-                    jest.spyOn(blockchain.transactionPool, "buildWallets").mockReturnValue(true),
+                    // // @ts-ignore
+                    // jest.spyOn(blockchain.transactionPool, "buildWallets").mockReturnValue(true),
                     // @ts-ignore
                     jest.spyOn(getMonitor, "refreshPeersAfterFork").mockReturnValue(true),
                     jest.spyOn(blockchain, "clearAndStopQueue"),

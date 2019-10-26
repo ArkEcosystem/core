@@ -72,9 +72,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                     const peerHostPort = `${peer.ip}:${plugin.port}`;
 
                     if (name.includes("core-api") || name.includes("core-wallet-api")) {
-                        const { body, status } = await httpie.get(
-                            `http://${peerHostPort}/api/node/configuration`,
-                        );
+                        const { body, status } = await httpie.get(`http://${peerHostPort}/api/node/configuration`);
 
                         if (status === 200) {
                             const ourNethash = Managers.configManager.get("network.nethash");
@@ -84,7 +82,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                             } else {
                                 this.logger.warn(
                                     `Disconnecting from ${peerHostPort}: ` +
-                                    `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`);
+                                        `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
+                                );
                                 this.emitter.emit("internal.p2p.disconnectPeer", { peer });
                             }
                         }

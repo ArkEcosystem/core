@@ -122,7 +122,7 @@ describe("Transaction Forging - Bridgechain update", () => {
             await support.snoozeForBlock(1);
             await expect(bridgechainRegistration.id).toBeForged();
 
-            // Update a bridgechian
+            // Update a bridgechain
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
                 bridgechainId: 2,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -206,7 +206,7 @@ describe("Transaction Forging - Bridgechain update", () => {
             await support.snoozeForBlock(1);
             await expect(bridgechainRegistration.id).toBeForged();
 
-            // Update a bridgechian
+            // Update a bridgechain
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
                 bridgechainId: 3,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],

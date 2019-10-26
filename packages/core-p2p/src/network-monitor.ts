@@ -328,7 +328,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         if (peersNotForked.length === 0) {
             this.logger.error(
                 `Could not download blocks: We have ${peersAll.length} peer(s) but all ` +
-                `of them are on a different chain than us`
+                    `of them are on a different chain than us`,
             );
             return [];
         }
@@ -346,8 +346,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         // We must return an uninterrupted sequence of blocks, starting from `fromBlockHeight`,
         // with sequential heights, without gaps.
 
-        let downloadJobs = [];
-        let downloadResults = [];
+        const downloadJobs = [];
+        const downloadResults = [];
         let someJobFailed: boolean = false;
         let chunksHumanReadable: string = "";
 
@@ -373,10 +373,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                 // As a first peer to try, pick such a peer that different jobs use different peers.
                 // If that peer fails then pick randomly from the remaining peers that have not
                 // been first-attempt for any job.
-                const peersToTry = [
-                    peersNotForked[i],
-                    ...shuffle(peersNotForked.slice(chunksToDownload))
-                ];
+                const peersToTry = [peersNotForked[i], ...shuffle(peersNotForked.slice(chunksToDownload))];
 
                 for (peer of peersToTry) {
                     peerPrint = `${peer.ip}:${peer.port}`;
@@ -385,15 +382,14 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
                         if (blocks.length === chunkSize || (isLastChunk && blocks.length > 0)) {
                             this.logger.debug(
-                                `Downloaded blocks ${blocksRange} (${blocks.length}) ` +
-                                `from ${peerPrint}`
+                                `Downloaded blocks ${blocksRange} (${blocks.length}) ` + `from ${peerPrint}`,
                             );
                             downloadResults[i] = blocks;
                             return;
                         }
                     } catch (error) {
                         this.logger.info(
-                            `Failed to download blocks ${blocksRange} from ${peerPrint}: ${error.message}`
+                            `Failed to download blocks ${blocksRange} from ${peerPrint}: ${error.message}`,
                         );
                     }
 
@@ -406,7 +402,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
                 throw new Error(
                     `Could not download blocks ${blocksRange} from any of ${peersToTry.length} ` +
-                    `peer(s). Last attempt returned ${blocks.length} block(s) from peer ${peerPrint}.`
+                        `peer(s). Last attempt returned ${blocks.length} block(s) from peer ${peerPrint}.`,
                 );
             });
 
@@ -441,8 +437,10 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         // Save any downloaded chunks that are higher than a failed chunk for later reuse.
         for (i++; i < chunksToDownload; i++) {
-            if (downloadResults[i] !== undefined &&
-                Object.keys(this.downloadedChunksCache).length <= this.downloadedChunksCacheMax) {
+            if (
+                downloadResults[i] !== undefined &&
+                Object.keys(this.downloadedChunksCache).length <= this.downloadedChunksCacheMax
+            ) {
                 this.downloadedChunksCache[fromBlockHeight + chunkSize * i] = downloadResults[i];
             }
         }

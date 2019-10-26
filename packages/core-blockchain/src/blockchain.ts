@@ -299,16 +299,15 @@ export class Blockchain implements blockchain.IBlockchain {
         );
 
         const removedBlocks: Interfaces.IBlockData[] = [];
+        const removedTransactions: Interfaces.ITransaction[] = [];
+
         const revertLastBlock = async () => {
             // tslint:disable-next-line:no-shadowed-variable
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
             await this.database.revertBlock(lastBlock);
             removedBlocks.push(lastBlock.data);
-
-            if (this.transactionPool) {
-                await this.transactionPool.addTransactions(lastBlock.transactions);
-            }
+            removedTransactions.push(...[...lastBlock.transactions].reverse());
 
             let newLastBlock: Interfaces.IBlock;
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
@@ -351,6 +350,10 @@ export class Blockchain implements blockchain.IBlockchain {
 
         await this.database.deleteBlocks(removedBlocks);
 
+        if (this.transactionPool) {
+            await this.transactionPool.replay(removedTransactions.reverse());
+        }
+
         this.queue.resume();
     }
 
@@ -386,9 +389,11 @@ export class Blockchain implements blockchain.IBlockchain {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
 
-        if (blocks[0] &&
+        if (
+            blocks[0] &&
             !isBlockChained(this.getLastBlock().data, blocks[0].data, logger) &&
-            !Utils.isException(blocks[0].data)) {
+            !Utils.isException(blocks[0].data)
+        ) {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
             this.resetLastDownloadedBlock();

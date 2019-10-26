@@ -37,8 +37,8 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration.id).toBeForged();
         });
 
-        it("should broadcast, accept and forge it again [Signed with 1 Passphrase]", async () => {
-            // Registering a bridgechain again
+        it("should reject bridgechain registration, because bridgechain with same name is already registered [Signed with 1 Passphrase]", async () => {
+            // Bridgechain registration
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
                 name: "cryptoProject",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -48,9 +48,9 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .withPassphrase(secrets[0])
                 .createOne();
 
-            await expect(bridgechainRegistration).toBeAccepted();
+            await expect(bridgechainRegistration).toBeRejected();
             await support.snoozeForBlock(1);
-            await expect(bridgechainRegistration.id).toBeForged();
+            await expect(bridgechainRegistration.id).not.toBeForged();
         });
 
         it("should reject bridgechain registration, because business resigned [Signed with 1 Passphrase]", async () => {
@@ -63,7 +63,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await support.snoozeForBlock(1);
             await expect(businessResignation.id).toBeForged();
 
-            // Bridgechain resignation
+            // Bridgechain registration
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
                 name: "cryptoProject",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -73,7 +73,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .withPassphrase(secrets[0])
                 .createOne();
 
-            expect(bridgechainRegistration).toBeRejected();
+            await expect(bridgechainRegistration).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(bridgechainRegistration.id).not.toBeForged();
         });

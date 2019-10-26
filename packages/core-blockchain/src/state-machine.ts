@@ -237,7 +237,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             }
         } else {
             if (empty) {
-                logger.info(`Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`);
+                logger.info(
+                    `Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`,
+                );
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock)}`);
@@ -268,7 +270,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         logger.info(`Removed ${pluralize("block", blocksToRemove, true)}`);
 
-        await blockchain.transactionPool.buildWallets();
         await blockchain.p2p.getMonitor().refreshPeersAfterFork();
 
         blockchain.dispatch("SUCCESS");
