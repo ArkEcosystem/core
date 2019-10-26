@@ -15,7 +15,7 @@ export class BusinessIsNotRegisteredError extends Errors.TransactionError {
 
 export class WalletIsNotBusinessError extends Errors.TransactionError {
     constructor() {
-        super(`Failed to apply bridgechain transaction, because wallet is not a business.`);
+        super(`Failed to apply transaction, because wallet is not a business.`);
     }
 }
 
