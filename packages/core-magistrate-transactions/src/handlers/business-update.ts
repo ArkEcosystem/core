@@ -77,27 +77,15 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        const { businessId }: { businessId: number } = data.asset.businessUpdate.businessId;
-
-        const businessUpdatesForIdInPool: Interfaces.ITransactionData[] = Array.from(
-            await pool.getTransactionsByType(
-                Enums.MagistrateTransactionType.BusinessUpdate,
-                Enums.MagistrateTransactionGroup,
-            ),
-        ).map((memTx: Interfaces.ITransaction) => memTx.data);
-
-        const containsBusinessUpdatesForSameIdInPool: boolean = businessUpdatesForIdInPool.some(
-            transaction => transaction.asset.businessUpdate.businessId === businessId,
-        );
-        if (containsBusinessUpdatesForSameIdInPool) {
+        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+            const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Business Update for businessId "${businessId}" already in the pool`,
+                `Business update for "${wallet.getAttribute("business")}" already in the pool`,
             );
             return false;
         }
-
         return true;
     }
 

@@ -95,16 +95,16 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        const { bridgechainId }: { bridgechainId: number } = data.asset.bridgechainUpdate.bridgechainId;
+        const { bridgechainId }: { bridgechainId: number } = data.asset.bridgechainUpdate;
 
-        const bridgechainUpdatesForIdInPool: Interfaces.ITransactionData[] = Array.from(
+        const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
             await pool.getTransactionsByType(
                 Enums.MagistrateTransactionType.BridgechainUpdate,
                 Enums.MagistrateTransactionGroup,
             ),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
-        const containsBridgechainUpdatesForSameIdInPool: boolean = bridgechainUpdatesForIdInPool.some(
+        const containsBridgechainUpdatesForSameIdInPool: boolean = bridgechainUpdatesInPool.some(
             transaction => transaction.asset.bridgechainUpdate.bridgechainId === bridgechainId,
         );
         if (containsBridgechainUpdatesForSameIdInPool) {
