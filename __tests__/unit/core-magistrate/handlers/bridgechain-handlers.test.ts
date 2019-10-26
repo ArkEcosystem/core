@@ -6,6 +6,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import {
+    BridgechainAlreadyRegisteredError,
     BridgechainIsResignedError,
     WalletIsNotBusinessError,
 } from "../../../../packages/core-magistrate-transactions/src/errors";
@@ -14,7 +15,10 @@ import {
     BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
 } from "../../../../packages/core-magistrate-transactions/src/handlers";
-import { IBusinessWalletAttributes } from "../../../../packages/core-magistrate-transactions/src/interfaces";
+import {
+    IBridgechainWalletAttributes,
+    IBusinessWalletAttributes,
+} from "../../../../packages/core-magistrate-transactions/src/interfaces";
 import {
     bridgechainIndexer,
     businessIndexer,
@@ -27,7 +31,7 @@ let bridgechainRegistrationHandler: Handlers.TransactionHandler;
 let bridgechainResignationHandler: Handlers.TransactionHandler;
 
 let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;
-let bridgechianRegistrationBuilder: MagistrateBuilders.BridgechainRegistrationBuilder;
+let bridgechainRegistrationBuilder: MagistrateBuilders.BridgechainRegistrationBuilder;
 let bridgechainResignationBuilder: MagistrateBuilders.BridgechainResignationBuilder;
 
 let senderWallet: Wallets.Wallet;
@@ -46,7 +50,7 @@ describe("should test marketplace transaction handlers", () => {
         bridgechainResignationHandler = new BridgechainResignationTransactionHandler();
 
         businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
-        bridgechianRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder();
+        bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder();
         bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
@@ -61,7 +65,7 @@ describe("should test marketplace transaction handlers", () => {
 
     describe("Bridgechain registration handler", () => {
         it("should fail, because business is not registered", async () => {
-            const actual = bridgechianRegistrationBuilder
+            const actual = bridgechainRegistrationBuilder
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                 .fee("50000000")
                 .nonce("1")
@@ -86,7 +90,7 @@ describe("should test marketplace transaction handlers", () => {
             });
 
             it("should pass because business is registered", async () => {
-                const actual = bridgechianRegistrationBuilder
+                const actual = bridgechainRegistrationBuilder
                     .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                     .fee("50000000")
                     .nonce("2")
@@ -97,18 +101,17 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
             });
 
-            it("should not throw after multiple bridgechain registrations", async () => {
-                const actual = bridgechianRegistrationBuilder
+            it("should throw because bridgechain is already registered", async () => {
+                const actual = bridgechainRegistrationBuilder
                     .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                     .fee("50000000")
                     .nonce("2")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
                 await bridgechainRegistrationHandler.applyToSender(actual.build(), walletManager);
 
-                actual.nonce("3");
                 await expect(
                     bridgechainRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-                ).toResolve();
+                ).rejects.toThrowError(BridgechainAlreadyRegisteredError);
             });
         });
 
@@ -123,7 +126,7 @@ describe("should test marketplace transaction handlers", () => {
             });
 
             it("should pass, because business is registered", async () => {
-                const bridgechainRegistration = bridgechianRegistrationBuilder
+                const bridgechainRegistration = bridgechainRegistrationBuilder
                     .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                     .fee("50000000")
                     .nonce("2")
@@ -166,22 +169,32 @@ describe("should test marketplace transaction handlers", () => {
 
             describe("revert for sender", () => {
                 it("should be correct", async () => {
-                    const bridgechainRegistration = bridgechianRegistrationBuilder
-                        .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
+                    const bridgechainRegistration = bridgechainRegistrationBuilder
+                        .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                         .fee("50000000")
                         .nonce("2")
                         .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
                     await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
-                    bridgechainRegistration.nonce("3");
-                    const bridgechainRegistrationBuild = bridgechainRegistration.build();
-                    await bridgechainRegistrationHandler.applyToSender(bridgechainRegistrationBuild, walletManager);
-                    await bridgechainRegistrationHandler.revertForSender(bridgechainRegistrationBuild, walletManager);
-                    await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
 
-                    expect(
-                        senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[1].bridgechainId,
-                    ).toEqual(1);
+                    const bridgechainRegistration2 = bridgechainRegistrationBuilder
+                        .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
+                        .fee("50000000")
+                        .nonce("3")
+                        .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+                    await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration2.build(), walletManager);
+                    await bridgechainRegistrationHandler.revertForSender(
+                        bridgechainRegistration2.build(),
+                        walletManager,
+                    );
+
+                    const bridgechains: Record<string, IBridgechainWalletAttributes> = senderWallet.getAttribute(
+                        "business.bridgechains",
+                    );
+
+                    expect(Object.keys(bridgechains).length).toEqual(1);
+                    expect(bridgechains["1"].bridgechainId).toEqual(1);
                 });
             });
         });

@@ -21,18 +21,24 @@ export class WalletIsNotBusinessError extends Errors.TransactionError {
 
 export class BusinessIsResignedError extends Errors.TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because business is resigned`);
+        super(`Failed to apply transaction, because business is resigned.`);
+    }
+}
+
+export class BridgechainAlreadyRegisteredError extends Errors.TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because bridgechain is already registered.`);
     }
 }
 
 export class BridgechainIsNotRegisteredError extends Errors.TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because bridgechain is not registered error.`);
+        super(`Failed to apply transaction, because bridgechain is not registered.`);
     }
 }
 
 export class BridgechainIsResignedError extends Errors.TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because bridgechain is resigned error.`);
+        super(`Failed to apply transaction, because bridgechain is resigned.`);
     }
 }

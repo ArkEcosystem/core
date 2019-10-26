@@ -151,8 +151,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
 
             const bridgechainRegistration: MagistrateInterfaces.IBridgechainRegistrationAsset = (await app
                 .resolvePlugin<Database.IDatabaseService>("database")
-                .connection
-                .transactionsRepository.search({
+                .connection.transactionsRepository.search({
                     parameters: [
                         {
                             field: "senderPublicKey",

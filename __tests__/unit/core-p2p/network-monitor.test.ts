@@ -226,7 +226,7 @@ describe("NetworkMonitor", () => {
 
         const throwInDownloadAtHeight = 50000;
 
-        const expectedBlocksFromHeight = (height) => {
+        const expectedBlocksFromHeight = height => {
             const blocks = [];
             for (let i = 0; i < maxParallelDownloads * downloadChunkSize; i++) {
                 blocks.push({ height: height + 1 + i });
@@ -342,7 +342,10 @@ describe("NetworkMonitor", () => {
             let fromHeight = throwInDownloadAtHeight - 1 - chunksToDownloadBeforeThrow * downloadChunkSize;
 
             let downloadedBlocks = await monitor.downloadBlocksFromHeight(fromHeight, maxParallelDownloads);
-            let expectedBlocks = expectedBlocksFromHeight(fromHeight).slice(0, chunksToDownloadBeforeThrow * downloadChunkSize);
+            let expectedBlocks = expectedBlocksFromHeight(fromHeight).slice(
+                0,
+                chunksToDownloadBeforeThrow * downloadChunkSize,
+            );
 
             expect(downloadedBlocks).toEqual(expectedBlocks);
 
@@ -367,10 +370,8 @@ describe("NetworkMonitor", () => {
 
             expect(mockFn.mock.calls.length).toEqual(numPeers - numCachedChunks);
             for (let i = 0; i < numPeers - numCachedChunks; i++) {
-                expect(
-                    mockFn.mock.calls[i][1].fromBlockHeight
-                ).toEqual(
-                    fromHeight + (i + numCachedChunks) * downloadChunkSize
+                expect(mockFn.mock.calls[i][1].fromBlockHeight).toEqual(
+                    fromHeight + (i + numCachedChunks) * downloadChunkSize,
                 );
             }
         });

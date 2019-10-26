@@ -23,7 +23,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
     }
 
     public walletAttributes(): ReadonlyArray<string> {
-        return ["business.bridgechians.bridgechian.resigned"];
+        return ["business.bridgechains.bridgechain.resigned"];
     }
 
     public async isActivated(): Promise<boolean> {
