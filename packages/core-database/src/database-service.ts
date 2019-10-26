@@ -429,7 +429,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         await this.revertRound(block.data.height);
-        this.walletManager.revertBlock(block);
+        await this.walletManager.revertBlock(block);
 
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 

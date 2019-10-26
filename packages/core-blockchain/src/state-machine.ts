@@ -270,7 +270,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
         logger.info(`Removed ${pluralize("block", blocksToRemove, true)}`);
 
-        await blockchain.transactionPool.buildWallets();
         await blockchain.p2p.getMonitor().refreshPeersAfterFork();
 
         blockchain.dispatch("SUCCESS");
