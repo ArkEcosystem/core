@@ -48,7 +48,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .withPassphrase(secrets[0])
                 .createOne();
 
-            expect(bridgechainRegistration).toBeRejected();
+            await expect(bridgechainRegistration).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(bridgechainRegistration.id).not.toBeForged();
         });
@@ -73,7 +73,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .withPassphrase(secrets[0])
                 .createOne();
 
-            expect(bridgechainRegistration).toBeRejected();
+            await expect(bridgechainRegistration).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(bridgechainRegistration.id).not.toBeForged();
         });
