@@ -24,6 +24,7 @@ export interface IConnection {
     }>;
     acceptChainedBlock(block: Interfaces.IBlock): Promise<void>;
     buildWallets(): Promise<void>;
+    replay(transactions: Interfaces.ITransaction[]): Promise<void>;
     flush(): void;
     getTransaction(id: string): Promise<Interfaces.ITransaction>;
     getTransactionIdsForForging(start: number, size: number): Promise<string[]>;
