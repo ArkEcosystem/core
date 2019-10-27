@@ -3,7 +3,7 @@ import ByteBuffer from "bytebuffer";
 import Long from "long";
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainUpdateAsset } from "../interfaces";
-import { bridgechainSchema } from "./utils/bridgechain-schema";
+import { seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -27,7 +27,10 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                         bridgechainUpdate: {
                             type: "object",
                             required: ["bridgechainId", "seedNodes"],
-                            properties: bridgechainSchema,
+                            properties: {
+                                bridgechainId: { type: "integer", minimum: 1 },
+                                seedNodes: seedNodesSchema,
+                            },
                         },
                     },
                 },
