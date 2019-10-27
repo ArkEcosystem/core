@@ -28,8 +28,15 @@ describe("Transaction Forging - Business resignation", () => {
                 .createOne();
 
             await expect(businessResignation).toBeAccepted();
+
+            const businessResignation2 = TransactionFactory.businessResignation()
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(businessResignation2).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(businessResignation.id).toBeForged();
+            await expect(businessResignation2.id).not.toBeForged();
 
             // Reject a second resignation
             businessResignation = TransactionFactory.businessResignation()

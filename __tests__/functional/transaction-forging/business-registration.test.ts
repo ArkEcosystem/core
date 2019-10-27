@@ -30,8 +30,18 @@ describe("Transaction Forging - Business registration", () => {
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
+
+            const businessRegistration2 = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "ark.io",
+            })
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(businessRegistration2).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
+            await expect(businessRegistration2.id).not.toBeForged();
         });
 
         it("should be rejected, because wallet is already a business [Signed with 1 Passphrase]", async () => {
