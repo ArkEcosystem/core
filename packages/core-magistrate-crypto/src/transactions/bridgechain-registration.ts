@@ -30,9 +30,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                             additionalProperties: false,
                             properties: {
                                 name: {
-                                    type: "string",
-                                    minLength: 1,
-                                    maxLength: 40,
+                                    $ref: "genericName",
                                 },
                                 seedNodes: seedNodesSchema,
                                 genesisHash: {
