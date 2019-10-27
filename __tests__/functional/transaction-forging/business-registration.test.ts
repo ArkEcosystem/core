@@ -4,7 +4,7 @@ import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
-const { passphrase } = support.passphrases;
+const { passphrase, secondPassphrase } = support.passphrases;
 
 beforeAll(support.setUp);
 afterAll(support.tearDown);
@@ -30,18 +30,8 @@ describe("Transaction Forging - Business registration", () => {
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-
-            const businessRegistration2 = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "ark.io",
-            })
-                .withPassphrase(passphrase)
-                .createOne();
-
-            await expect(businessRegistration2).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
-            await expect(businessRegistration2.id).not.toBeForged();
         });
 
         it("should be rejected, because wallet is already a business [Signed with 1 Passphrase]", async () => {
@@ -56,6 +46,29 @@ describe("Transaction Forging - Business registration", () => {
             await expect(businessRegistration).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(businessRegistration.id).not.toBeForged();
+        });
+
+        it("should be rejected, because pool does not allow multiple business registrations [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "ark.io",
+            })
+                .withPassphrase(passphrase)
+                .createOne();
+
+            // Registering a business again
+            const businessRegistration2 = TransactionFactory.businessRegistration({
+                name: "ark2",
+                website: "ark.io",
+            })
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect([businessRegistration, businessRegistration2]).not.toBeAllAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
+            await expect(businessRegistration2.id).not.toBeForged();
         });
     });
 
