@@ -117,6 +117,10 @@ export class Connection implements TransactionPool.IConnection {
         return;
     }
 
+    public async replay(transactions: Interfaces.ITransaction[]): Promise<void> {
+        return;
+    }
+
     public purgeByPublicKey(senderPublicKey: string): void {
         return;
     }
