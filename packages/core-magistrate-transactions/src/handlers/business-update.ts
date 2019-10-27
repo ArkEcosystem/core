@@ -1,6 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import {
+    Enums,
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
@@ -76,7 +77,14 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+        const businessUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
+            await pool.getTransactionsByType(
+                Enums.MagistrateTransactionType.BusinessUpdate,
+                Enums.MagistrateTransactionGroup,
+            ),
+        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+
+        if (businessUpdatesInPool.some(update => update.senderPublicKey === data.senderPublicKey)) {
             const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
             processor.pushError(
                 data,
@@ -85,6 +93,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             );
             return false;
         }
+
         return true;
     }
 

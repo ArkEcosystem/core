@@ -104,14 +104,17 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             ),
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
-        const containsBridgechainUpdatesForSameIdInPool: boolean = bridgechainUpdatesInPool.some(
-            transaction => transaction.asset.bridgechainUpdate.bridgechainId === bridgechainId,
-        );
-        if (containsBridgechainUpdatesForSameIdInPool) {
+        if (
+            bridgechainUpdatesInPool.some(
+                update =>
+                    update.senderPublicKey === data.senderPublicKey &&
+                    update.asset.bridgechainUpdate.bridgechainId === bridgechainId,
+            )
+        ) {
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Bridgechain Update for bridgechainId "${bridgechainId}" already in the pool`,
+                `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
             );
             return false;
         }
