@@ -36,9 +36,6 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                 },
                                 seedNodes: seedNodesSchema,
                                 genesisHash: {
-                                    type: "string",
-                                    minLength: 64,
-                                    maxLength: 64,
                                     $ref: "transactionId",
                                 },
                                 bridgechainRepository: {
