@@ -63,7 +63,13 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+        if (
+            await pool.senderHasTransactionsOfType(
+                data.senderPublicKey,
+                Enums.MagistrateTransactionType.BusinessResignation,
+                Enums.MagistrateTransactionGroup,
+            )
+        ) {
             const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
             processor.pushError(
                 data,
