@@ -2,7 +2,7 @@ import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainRegistrationAsset } from "../interfaces";
-import { bridgechainSchema } from "./utils/bridgechain-schema";
+import { seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -28,7 +28,25 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                             type: "object",
                             required: ["name", "seedNodes", "genesisHash", "bridgechainRepository"],
                             additionalProperties: false,
-                            properties: bridgechainSchema,
+                            properties: {
+                                name: {
+                                    type: "string",
+                                    minLength: 1,
+                                    maxLength: 40,
+                                },
+                                seedNodes: seedNodesSchema,
+                                genesisHash: {
+                                    type: "string",
+                                    minLength: 64,
+                                    maxLength: 64,
+                                    $ref: "transactionId",
+                                },
+                                bridgechainRepository: {
+                                    type: "string",
+                                    minLength: 1,
+                                    maxLength: 100,
+                                },
+                            },
                         },
                     },
                 },
