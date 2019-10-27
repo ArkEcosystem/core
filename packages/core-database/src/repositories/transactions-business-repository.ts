@@ -186,7 +186,7 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     private parseSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.ISearchParameters {
         const databaseService: Database.IDatabaseService = this.databaseServiceProvider();
 
-        if (params.type && params.typeGroup === undefined) {
+        if (params.type !== undefined && params.typeGroup === undefined) {
             params.typeGroup = Enums.TransactionTypeGroup.Core;
         }
 
