@@ -45,8 +45,19 @@ describe("Transaction Forging - Bridgechain update", () => {
                 .createOne();
 
             await expect(bridgechainUpdate).toBeAccepted();
+
+            const bridgechainUpdate2 = TransactionFactory.bridgechainUpdate({
+                bridgechainId: 1,
+                seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(bridgechainUpdate2).toBeRejected();
+
             await support.snoozeForBlock(1);
             await expect(bridgechainUpdate.id).toBeForged();
+            await expect(bridgechainUpdate2.id).not.toBeForged();
 
             // Bridgechain resignation
             const bridgechainResignation = TransactionFactory.bridgechainResignation(1)

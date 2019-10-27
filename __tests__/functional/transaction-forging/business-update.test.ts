@@ -30,11 +30,21 @@ describe("Transaction Forging - Business update", () => {
                 .createOne();
 
             await expect(businessUpdate).toBeAccepted();
+
+            const businessUpdate2 = TransactionFactory.businessUpdate({
+                name: "ark3",
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(businessUpdate2).toBeRejected();
+
             await support.snoozeForBlock(1);
             await expect(businessUpdate.id).toBeForged();
+            await expect(businessUpdate2.id).not.toBeForged();
         });
 
-        it("should broadcast, accept and forge it ", async () => {
+        it("should broadcast, accept and forge it", async () => {
             // Resigning a business
             const businessResignation = TransactionFactory.businessResignation()
                 .withPassphrase(secrets[0])
@@ -124,7 +134,7 @@ describe("Transaction Forging - Business update", () => {
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
 
-            expect(businessUpdate).toBeRejected();
+            await expect(businessUpdate).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(businessUpdate.id).not.toBeForged();
         });
@@ -215,7 +225,7 @@ describe("Transaction Forging - Business update", () => {
                 .withPassphraseList(passphrases)
                 .createOne();
 
-            expect(businessUpdate).toBeRejected();
+            await expect(businessUpdate).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(businessUpdate.id).not.toBeForged();
         });
