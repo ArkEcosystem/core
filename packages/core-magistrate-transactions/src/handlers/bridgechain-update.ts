@@ -8,7 +8,7 @@ import {
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
-    BridgechainIsNotRegisteredError,
+    BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
@@ -76,7 +76,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toString()];
 
         if (!bridgechainAttributes) {
-            throw new BridgechainIsNotRegisteredError();
+            throw new BridgechainIsNotRegisteredByWalletError();
         }
 
         if (bridgechainAttributes.resigned) {
