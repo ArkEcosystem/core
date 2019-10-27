@@ -121,7 +121,9 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
     }
 
     public async findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]> {
-        return this.mapBlocksToTransactions(await this.databaseServiceProvider().connection.transactionsRepository.findByHtlcLocks(lockIds));
+        return this.mapBlocksToTransactions(
+            await this.databaseServiceProvider().connection.transactionsRepository.findByHtlcLocks(lockIds),
+        );
     }
 
     private getPublicKeyFromAddress(senderId: string): string {
@@ -183,6 +185,10 @@ export class TransactionsBusinessRepository implements Database.ITransactionsBus
 
     private parseSearchParameters(params: any, sequenceOrder: "asc" | "desc" = "desc"): Database.ISearchParameters {
         const databaseService: Database.IDatabaseService = this.databaseServiceProvider();
+
+        if (params.type && params.typeGroup === undefined) {
+            params.typeGroup = Enums.TransactionTypeGroup.Core;
+        }
 
         if (params.senderId) {
             const senderPublicKey = this.getPublicKeyFromAddress(params.senderId);
