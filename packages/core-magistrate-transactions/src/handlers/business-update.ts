@@ -77,14 +77,13 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        const businessUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
-            await pool.getTransactionsByType(
+        if (
+            await pool.senderHasTransactionsOfType(
+                data.senderPublicKey,
                 Enums.MagistrateTransactionType.BusinessUpdate,
                 Enums.MagistrateTransactionGroup,
-            ),
-        ).map((memTx: Interfaces.ITransaction) => memTx.data);
-
-        if (businessUpdatesInPool.some(update => update.senderPublicKey === data.senderPublicKey)) {
+            )
+        ) {
             const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
             processor.pushError(
                 data,
