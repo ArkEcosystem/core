@@ -7,7 +7,7 @@ import * as support from "./__support__";
 beforeAll(support.setUp);
 afterAll(support.tearDown);
 
-describe("Transaction Forging - Bridgechain registration", () => {
+describe("Transaction Forging - Bridgechain resignation", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Business registration
@@ -94,7 +94,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             const secondPassphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 150 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 200 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 

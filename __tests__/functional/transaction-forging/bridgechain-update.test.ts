@@ -173,16 +173,6 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainUpdate).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(bridgechainUpdate.id).toBeForged();
-
-            // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.bridgechainResignation(3)
-                .withPassphrase(passphrase)
-                .withSecondPassphrase(secondPassphrase)
-                .createOne();
-
-            await expect(bridgechainResignation).toBeAccepted();
-            await support.snoozeForBlock(1);
-            await expect(bridgechainResignation.id).toBeForged();
         });
     });
 
@@ -267,16 +257,6 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainUpdate).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(bridgechainUpdate.id).toBeForged();
-
-            // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.bridgechainResignation(4)
-                .withSenderPublicKey(multiSigPublicKey)
-                .withPassphraseList(passphrases)
-                .createOne();
-
-            await expect(bridgechainResignation).toBeAccepted();
-            await support.snoozeForBlock(1);
-            await expect(bridgechainResignation.id).toBeForged();
         });
     });
 });
