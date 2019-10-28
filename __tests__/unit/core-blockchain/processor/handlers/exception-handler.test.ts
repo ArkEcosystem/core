@@ -18,13 +18,13 @@ describe("Exception handler", () => {
             // @ts-ignore
             jest.spyOn(blockchain.database, "getBlock").mockReturnValueOnce(true);
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.Rejected);
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.Rejected);
         });
 
         it("should accept if block has not already been forged", async () => {
             const handler = new ExceptionHandler(blockchain as any, BlockFactory.fromData(blocks2to100[0]));
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.Accepted);
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.Accepted);
         });
     });
 });

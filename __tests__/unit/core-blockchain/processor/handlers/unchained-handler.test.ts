@@ -25,7 +25,7 @@ describe("Exception handler", () => {
 
             const handler = new UnchainedHandler(blockchain as any, sameBlockDifferentId, true);
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.Rollback);
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.Rollback);
         });
 
         it("should log that blocks are being discarded when discarding blocks with height > current + 1", async () => {
@@ -36,7 +36,7 @@ describe("Exception handler", () => {
 
             const handler = new UnchainedHandler(blockchain as any, BlockFactory.fromData(blocks2to100[5]), true);
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             expect(loggerDebug).toHaveBeenCalledWith("Discarded 5 chunks of downloaded blocks.");
         });
     });
