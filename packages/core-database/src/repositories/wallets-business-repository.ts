@@ -255,7 +255,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                     const bridgechain: any = bridgechains[bridgechainId];
 
                     acc.push({
-                        bridgechainId,
+                        bridgechainId: bridgechain.bridgechainId,
                         businessId: business.businessId,
                         ...bridgechain.bridgechainAsset,
                     });
