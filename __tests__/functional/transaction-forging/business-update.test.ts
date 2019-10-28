@@ -55,6 +55,56 @@ describe("Transaction Forging - Business update", () => {
             await support.snoozeForBlock(1);
             await expect(businessUpdate.id).not.toBeForged();
         });
+
+        it("should be rejected, because updated business name contains unicode control characters [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark-ecosystem",
+                website: "ark.io",
+            })
+                .withPassphrase(secrets[3])
+                .createOne();
+
+            await expect(businessRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
+
+            // Updating a business
+            const businessUpdate = TransactionFactory.businessUpdate({
+                name: "\u0000ark",
+            })
+                .withPassphrase(secrets[3])
+                .createOne();
+
+            expect(businessUpdate).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessUpdate.id).not.toBeForged();
+        });
+
+        it("should be rejected, because updated business name contains disallowed characters [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "ark.io",
+            })
+                .withPassphrase(secrets[4])
+                .createOne();
+
+            await expect(businessRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
+
+            // Updating a business
+            const businessUpdate = TransactionFactory.businessUpdate({
+                name: "ark:)",
+            })
+                .withPassphrase(secrets[4])
+                .createOne();
+
+            expect(businessUpdate).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessUpdate.id).not.toBeForged();
+        });
     });
 
     describe("Signed with 2 Passphases", () => {
