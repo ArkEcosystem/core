@@ -47,6 +47,34 @@ describe("Transaction Forging - Business registration", () => {
             await support.snoozeForBlock(1);
             await expect(businessRegistration.id).not.toBeForged();
         });
+
+        it("should be rejected, because name business contains unicode control characters [Signed with 1 Passphrase]", async () => {
+            // Registering a business with unicode control characters in its name
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "\u0000ark",
+                website: "ark.io",
+            })
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(businessRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).not.toBeForged();
+        });
+
+        it("should be rejected, because business name contains disallowed characters [Signed with 1 Passphrase]", async () => {
+            // Registering a business with disallowed characters in its name
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark+",
+                website: "ark.io",
+            })
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(businessRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).not.toBeForged();
+        });
     });
 
     describe("Signed with 2 Passphrases", () => {
