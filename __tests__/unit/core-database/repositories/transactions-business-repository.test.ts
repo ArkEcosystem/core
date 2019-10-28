@@ -506,14 +506,14 @@ describe("Transactions Business Repository", () => {
                             value: Enums.TransactionType.Transfer,
                         },
                         {
-                            field: "typeGroup",
-                            operator: expect.anything(),
-                            value: Enums.TransactionTypeGroup.Core,
-                        },
-                        {
                             field: "id",
                             operator: expect.anything(),
                             value: "id",
+                        },
+                        {
+                            field: "typeGroup",
+                            operator: expect.anything(),
+                            value: Enums.TransactionTypeGroup.Core,
                         },
                     ],
                 }),
