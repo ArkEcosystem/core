@@ -4,8 +4,6 @@ import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
-const { passphrase } = support.passphrases;
-
 beforeAll(support.setUp);
 afterAll(support.tearDown);
 
