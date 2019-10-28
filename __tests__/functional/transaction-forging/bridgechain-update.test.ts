@@ -99,6 +99,7 @@ describe("Transaction Forging - Bridgechain update", () => {
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
             })
                 .withPassphrase(secrets[0])
+                .withNonce(bridgechainUpdate.nonce.plus(1))
                 .createOne();
 
             await expect([bridgechainUpdate, bridgechainUpdate2]).not.toBeAllAccepted();

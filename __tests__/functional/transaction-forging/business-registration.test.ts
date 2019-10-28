@@ -63,6 +63,7 @@ describe("Transaction Forging - Business registration", () => {
                 website: "ark.io",
             })
                 .withPassphrase(passphrase)
+                .withNonce(businessRegistration.nonce.plus(1))
                 .createOne();
 
             await expect([businessRegistration, businessRegistration2]).not.toBeAllAccepted();

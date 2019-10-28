@@ -77,6 +77,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
 
             const bridgechainResignation2 = TransactionFactory.bridgechainResignation(2)
                 .withPassphrase(secrets[0])
+                .withNonce(bridgechainResignation.nonce.plus(1))
                 .createOne();
 
             await expect([bridgechainResignation, bridgechainResignation2]).not.toBeAllAccepted();

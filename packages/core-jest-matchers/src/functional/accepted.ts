@@ -9,6 +9,7 @@ declare global {
         interface Matchers<R> {
             toBeAccepted(): Promise<R>;
             toBeAllAccepted(): Promise<R>;
+            toBeEachAccepted(): Promise<R>;
         }
     }
 }

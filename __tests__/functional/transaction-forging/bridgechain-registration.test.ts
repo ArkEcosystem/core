@@ -55,6 +55,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 bridgechainRepository: "somerepository",
             })
                 .withPassphrase(secrets[0])
+                .withNonce(bridgechainRegistration.nonce.plus(1))
                 .createOne();
 
             await expect([bridgechainRegistration, bridgechainRegistration2]).not.toBeAllAccepted();
