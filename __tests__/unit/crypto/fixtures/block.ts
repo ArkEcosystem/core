@@ -131,6 +131,8 @@ export const dummyBlock = {
     ],
 };
 
+export const dummyBlockSize = 1291;
+
 export const dummyBlock2 = {
     data: dummyBlock,
     serialized:

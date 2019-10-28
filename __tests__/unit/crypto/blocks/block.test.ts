@@ -11,7 +11,7 @@ import * as networks from "../../../../packages/crypto/src/networks";
 import { testnet } from "../../../../packages/crypto/src/networks";
 import { NetworkName } from "../../../../packages/crypto/src/types";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
-import { dummyBlock, dummyBlock2 } from "../fixtures/block";
+import { dummyBlock, dummyBlockSize, dummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -133,15 +133,29 @@ describe("Block", () => {
                 block: {
                     version: 0,
                     maxTransactions: 200,
-                    maxPayload: 0,
+                    maxPayload: dummyBlockSize - 1,
                 },
                 reward: 200000000,
                 vendorFieldLength: 64,
             }));
-            const block = BlockFactory.fromData(dummyBlock);
+            let block = BlockFactory.fromData(dummyBlock);
 
             expect(block.verification.verified).toBeFalse();
-            expect(block.verification.errors).toContain("Payload is too large");
+            expect(block.verification.errors[0]).toContain("Payload is too large");
+
+            jest.spyOn(configManager, "getMilestone").mockImplementation(height => ({
+                block: {
+                    version: 0,
+                    maxTransactions: 200,
+                    maxPayload: dummyBlockSize,
+                },
+                reward: 200000000,
+                vendorFieldLength: 64,
+            }));
+            block = BlockFactory.fromData(dummyBlock);
+
+            expect(block.verification.verified).toBeTrue();
+            expect(block.verification.errors).toBeEmpty();
 
             jest.restoreAllMocks();
         });
