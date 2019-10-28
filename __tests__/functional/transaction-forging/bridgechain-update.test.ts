@@ -163,7 +163,7 @@ describe("Transaction Forging - Bridgechain update", () => {
 
             // Update a bridgechain
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
-                bridgechainId: 2,
+                bridgechainId: 3,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
             })
                 .withPassphrase(passphrase)
@@ -173,6 +173,16 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainUpdate).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(bridgechainUpdate.id).toBeForged();
+
+            // Bridgechain resignation
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(3)
+                .withPassphrase(passphrase)
+                .withSecondPassphrase(secondPassphrase)
+                .createOne();
+
+            await expect(bridgechainResignation).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainResignation.id).toBeForged();
         });
     });
 
@@ -247,7 +257,7 @@ describe("Transaction Forging - Bridgechain update", () => {
 
             // Update a bridgechain
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
-                bridgechainId: 3,
+                bridgechainId: 4,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
             })
                 .withSenderPublicKey(multiSigPublicKey)
@@ -257,6 +267,16 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainUpdate).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(bridgechainUpdate.id).toBeForged();
+
+            // Bridgechain resignation
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(4)
+                .withSenderPublicKey(multiSigPublicKey)
+                .withPassphraseList(passphrases)
+                .createOne();
+
+            await expect(bridgechainResignation).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainResignation.id).toBeForged();
         });
     });
 });
