@@ -23,7 +23,7 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
         const limit: number = configManager.getMilestone().multiPaymentLimit || 500;
 
         if (this.data.asset.payments.length > limit) {
-            throw new MaximumPaymentCountExceededError(this.data.asset.payments.length + 1);
+            throw new MaximumPaymentCountExceededError(limit);
         }
 
         this.data.asset.payments.push({
