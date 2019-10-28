@@ -88,6 +88,32 @@ describe("Transaction Forging - Business update", () => {
             await expect(businessUpdate.id).toBeForged();
             await expect(businessUpdate2.id).not.toBeForged();
         });
+
+        it("should reject business update, because updated business name contains unicode control characters [Signed with 1 Passphrase]", async () => {
+            // Updating a business
+            const businessUpdate = TransactionFactory.businessUpdate({
+                name: "\u0000ark",
+            })
+                .withPassphrase(secrets[1])
+                .createOne();
+
+            expect(businessUpdate).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessUpdate.id).not.toBeForged();
+        });
+
+        it("should reject business update, because updated business name contains disallowed characters [Signed with 1 Passphrase]", async () => {
+            // Updating a business
+            const businessUpdate = TransactionFactory.businessUpdate({
+                name: "ark:)",
+            })
+                .withPassphrase(secrets[1])
+                .createOne();
+
+            expect(businessUpdate).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessUpdate.id).not.toBeForged();
+        });
     });
 
     describe("Signed with 2 Passphases", () => {
