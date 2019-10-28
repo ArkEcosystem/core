@@ -44,7 +44,33 @@ expect.extend({
                 }`,
         };
     },
-    toBeAllAccepted: async transactions => {
+    toBeAllAccepted: async (transactions: Interfaces.ITransactionData[]) => {
+        let pass: boolean = false;
+        let error: string;
+
+        try {
+            const { body } = await got.post(`http://localhost:4003/api/v2/transactions`, {
+                body: JSON.stringify({ transactions }),
+            });
+
+            const parsedBody = JSON.parse(body);
+            pass = parsedBody.errors === undefined;
+
+            error = JSON.stringify(parsedBody.errors);
+        } catch (e) {
+            error = e.message;
+            console.error(error);
+        }
+
+        return {
+            pass,
+            message: () =>
+                `expected all transactions ${this.isNot ? "not" : ""} to be accepted ${
+                    error ? "(error: " + error + ")" : ""
+                }`,
+        };
+    },
+    toBeEachAccepted: async transactions => {
         let pass: boolean = true;
         let error: string;
 
