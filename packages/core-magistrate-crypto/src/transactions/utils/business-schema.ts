@@ -1,8 +1,6 @@
 export const businessSchema = {
     name: {
-        type: "string",
-        minLength: 1,
-        maxLength: 40,
+        $ref: "genericName",
     },
     website: {
         type: "string",

@@ -37,10 +37,69 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration.id).toBeForged();
         });
 
+        it("should reject bridgechain registration, because bridgechain registration with same name is already in the pool [Signed with 1 Passphrase]", async () => {
+            // Registering a bridgechain
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+                name: "cryptoProject2",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainRepository: "somerepository",
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            const bridgechainRegistration2 = TransactionFactory.bridgechainRegistration({
+                name: "cryptoProject2",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainRepository: "somerepository",
+            })
+                .withPassphrase(secrets[0])
+                .withNonce(bridgechainRegistration.nonce.plus(1))
+                .createOne();
+
+            await expect([bridgechainRegistration, bridgechainRegistration2]).not.toBeAllAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).toBeForged();
+            await expect(bridgechainRegistration2.id).not.toBeForged();
+        });
+
         it("should reject bridgechain registration, because bridgechain with same name is already registered [Signed with 1 Passphrase]", async () => {
             // Bridgechain registration
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
                 name: "cryptoProject",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainRepository: "somerepository",
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(bridgechainRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).not.toBeForged();
+        });
+
+        it("should reject bridgechain registration, because bridgechain name contains unicode control characters [Signed with 1 Passphrase]", async () => {
+            // Bridgechain registration
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+                name: "\u0008mybridgechain",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainRepository: "somerepository",
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(bridgechainRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).not.toBeForged();
+        });
+
+        it("should reject bridgechain registration, because bridgechain name contains disallowed characters [Signed with 1 Passphrase]", async () => {
+            // Bridgechain registration
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+                name: "mybridgech@in",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 bridgechainRepository: "somerepository",

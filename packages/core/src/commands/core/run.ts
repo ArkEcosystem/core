@@ -43,12 +43,12 @@ $ ark core:run --launchMode=seed
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RunCommand);
+        const { flags, paths } = await this.parseWithNetwork(RunCommand);
 
         await this.buildApplication(
             app,
             flags,
-            deepmerge(getCliConfig(flags), {
+            deepmerge(getCliConfig(flags, paths), {
                 exclude: [],
                 options: {
                     "@arkecosystem/core-p2p": this.buildPeerOptions(flags),

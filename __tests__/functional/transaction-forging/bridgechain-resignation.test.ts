@@ -7,7 +7,7 @@ import * as support from "./__support__";
 beforeAll(support.setUp);
 afterAll(support.tearDown);
 
-describe("Transaction Forging - Bridgechain registration", () => {
+describe("Transaction Forging - Bridgechain resignation", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Business registration
@@ -37,20 +37,53 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Bridgechain resignation
-            let bridgechainResignation = TransactionFactory.bridgechainResignation(1)
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(1)
                 .withPassphrase(secrets[0])
                 .createOne();
+
             await expect(bridgechainResignation).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(bridgechainResignation.id).toBeForged();
+        });
 
-            bridgechainResignation = TransactionFactory.bridgechainResignation(1)
+        it("should reject bridgechain resignation, because bridgechain resigned [Signed with 1 Passphrase]", async () => {
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(1)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             expect(bridgechainResignation).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(bridgechainResignation.id).not.toBeForged();
+        });
+
+        it("should reject bridgechain resignation, because bridgechain resignation for same bridgechain is already in the pool [Signed with 1 Passphrase]", async () => {
+            // Bridgechain registration
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+                name: "cryptoProject2",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainRepository: "www.repository.com/myorg/myrepo",
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(bridgechainRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).toBeForged();
+
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(2)
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            const bridgechainResignation2 = TransactionFactory.bridgechainResignation(2)
+                .withPassphrase(secrets[0])
+                .withNonce(bridgechainResignation.nonce.plus(1))
+                .createOne();
+
+            await expect([bridgechainResignation, bridgechainResignation2]).not.toBeAllAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainResignation.id).toBeForged();
+            await expect(bridgechainResignation2.id).not.toBeForged();
         });
     });
 
@@ -61,7 +94,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             const secondPassphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 150 * 1e8)
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 200 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -105,6 +138,16 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(bridgechainRegistration.id).toBeForged();
+
+            // Bridgechain resignation
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(3)
+                .withPassphrase(passphrase)
+                .withSecondPassphrase(secondPassphrase)
+                .createOne();
+
+            await expect(bridgechainResignation).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainResignation.id).toBeForged();
         });
     });
 
@@ -179,7 +222,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.bridgechainResignation(3)
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(4)
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();

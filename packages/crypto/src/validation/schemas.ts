@@ -51,6 +51,11 @@ export const schemas = {
         ],
     },
 
+    genericName: {
+        $id: "genericName",
+        allOf: [{ type: "string", pattern: "^[a-zA-Z0-9_-]+$" }, { minLength: 1, maxLength: 40 }],
+    },
+
     blockHeader: {
         $id: "blockHeader",
         type: "object",

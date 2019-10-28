@@ -23,22 +23,13 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Resigning a business
-            let businessResignation = TransactionFactory.businessResignation()
+            const businessResignation = TransactionFactory.businessResignation()
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessResignation).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(businessResignation.id).toBeForged();
-
-            // Reject a second resignation
-            businessResignation = TransactionFactory.businessResignation()
-                .withPassphrase(secrets[0])
-                .createOne();
-
-            await expect(businessResignation).toBeRejected();
-            await support.snoozeForBlock(1);
-            await expect(businessResignation.id).not.toBeForged();
 
             // Reject a new registration
             businessRegistration = TransactionFactory.businessRegistration({
@@ -51,6 +42,44 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessRegistration).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(businessRegistration.id).not.toBeForged();
+        });
+
+        it("should reject business resignation, because business resigned [Signed with 1 Passphrase]", async () => {
+            const businessResignation = TransactionFactory.businessResignation()
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(businessResignation).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessResignation.id).not.toBeForged();
+        });
+
+        it("should reject business resignation, because business resignation is already in the pool [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "ark.io",
+            })
+                .withPassphrase(secrets[1])
+                .createOne();
+
+            await expect(businessRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
+
+            const businessResignation = TransactionFactory.businessResignation()
+                .withPassphrase(secrets[1])
+                .createOne();
+
+            const businessResignation2 = TransactionFactory.businessResignation()
+                .withPassphrase(secrets[1])
+                .withNonce(businessResignation.nonce.plus(1))
+                .createOne();
+
+            await expect([businessResignation, businessResignation2]).not.toBeAllAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessResignation.id).toBeForged();
+            await expect(businessResignation2.id).not.toBeForged();
         });
     });
 
