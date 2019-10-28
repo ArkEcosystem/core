@@ -4,7 +4,7 @@ import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
-const { passphrase, secondPassphrase } = support.passphrases;
+const { passphrase } = support.passphrases;
 
 beforeAll(support.setUp);
 afterAll(support.tearDown);
@@ -12,21 +12,12 @@ afterAll(support.tearDown);
 describe("Transaction Forging - Business registration", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
-            // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
-                .withPassphrase(secrets[0])
-                .createOne();
-
-            await expect(initialFunds).toBeAccepted();
-            await support.snoozeForBlock(1);
-            await expect(initialFunds.id).toBeForged();
-
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
                 website: "ark.io",
             })
-                .withPassphrase(passphrase)
+                .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
@@ -40,7 +31,7 @@ describe("Transaction Forging - Business registration", () => {
                 name: "ark",
                 website: "ark.io",
             })
-                .withPassphrase(passphrase)
+                .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessRegistration).toBeRejected();
@@ -54,7 +45,7 @@ describe("Transaction Forging - Business registration", () => {
                 name: "ark",
                 website: "ark.io",
             })
-                .withPassphrase(secondPassphrase)
+                .withPassphrase(secrets[1])
                 .createOne();
 
             // Registering a business again
@@ -62,7 +53,7 @@ describe("Transaction Forging - Business registration", () => {
                 name: "ark2",
                 website: "ark.io",
             })
-                .withPassphrase(secondPassphrase)
+                .withPassphrase(secrets[1])
                 .withNonce(businessRegistration.nonce.plus(1))
                 .createOne();
 
