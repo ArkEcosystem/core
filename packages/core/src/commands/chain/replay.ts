@@ -21,9 +21,9 @@ export class ReplayCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(ReplayCommand);
+        const { flags, paths } = await this.parseWithNetwork(ReplayCommand);
 
-        await setUpLite(flags);
+        await setUpLite(flags, paths);
 
         if (!app.has("blockchain")) {
             this.error("The @arkecosystem/core-blockchain plugin is not installed.");

@@ -8,7 +8,7 @@ import {
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import {
-    BridgechainIsNotRegisteredError,
+    BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
@@ -76,7 +76,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toString()];
 
         if (!bridgechainAttributes) {
-            throw new BridgechainIsNotRegisteredError();
+            throw new BridgechainIsNotRegisteredByWalletError();
         }
 
         if (bridgechainAttributes.resigned) {
@@ -95,6 +95,30 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
+        const { bridgechainId }: { bridgechainId: number } = data.asset.bridgechainUpdate;
+
+        const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
+            await pool.getTransactionsByType(
+                Enums.MagistrateTransactionType.BridgechainUpdate,
+                Enums.MagistrateTransactionGroup,
+            ),
+        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+
+        if (
+            bridgechainUpdatesInPool.some(
+                update =>
+                    update.senderPublicKey === data.senderPublicKey &&
+                    update.asset.bridgechainUpdate.bridgechainId === bridgechainId,
+            )
+        ) {
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
+            );
+            return false;
+        }
+
         return true;
     }
 

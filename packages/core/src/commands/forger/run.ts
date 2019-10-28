@@ -26,12 +26,12 @@ $ ark forger:run --bip38="..." --password="..."
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RunCommand);
+        const { flags, paths } = await this.parseWithNetwork(RunCommand);
 
         await this.buildApplication(
             app,
             flags,
-            deepmerge(getCliConfig(flags), {
+            deepmerge(getCliConfig(flags, paths), {
                 include: [
                     "@arkecosystem/core-event-emitter",
                     "@arkecosystem/core-config",
