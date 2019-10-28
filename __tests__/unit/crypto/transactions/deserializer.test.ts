@@ -321,14 +321,17 @@ describe("Transaction serializer / deserializer", () => {
                 .fee("50000000")
                 .network(23);
 
-            for (let i = 0; i < 501; i++) {
+            for (let i = 0; i < 500; i++) {
                 multiPayment.addPayment(Address.fromPassphrase(`recipient-${i}`), "1");
             }
 
             expect(() => multiPayment.addPayment(Address.fromPassphrase("recipient501"), "1")).toThrow(
                 Errors.MaximumPaymentCountExceededError,
             );
-            expect(() => multiPayment.sign("dummy passphrase").build()).toThrow();
+
+            const transaction = multiPayment.sign("dummy passphrase").build();
+            expect(transaction.verify()).toBeTrue();
+            expect(TransactionFactory.fromBytes(transaction.serialized, true).verify()).toBeTrue();
         });
     });
 
