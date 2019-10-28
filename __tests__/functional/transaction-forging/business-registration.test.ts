@@ -4,7 +4,7 @@ import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
-const { passphrase } = support.passphrases;
+const { passphrase, secondPassphrase } = support.passphrases;
 
 beforeAll(support.setUp);
 afterAll(support.tearDown);
@@ -48,13 +48,13 @@ describe("Transaction Forging - Business registration", () => {
             await expect(businessRegistration.id).not.toBeForged();
         });
 
-        it("should be rejected, because pool does not allow multiple business registrations [Signed with 1 Passphrase]", async () => {
+        it("should be rejected, because business registration is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
                 website: "ark.io",
             })
-                .withPassphrase(passphrase)
+                .withPassphrase(secondPassphrase)
                 .createOne();
 
             // Registering a business again
@@ -62,7 +62,7 @@ describe("Transaction Forging - Business registration", () => {
                 name: "ark2",
                 website: "ark.io",
             })
-                .withPassphrase(passphrase)
+                .withPassphrase(secondPassphrase)
                 .withNonce(businessRegistration.nonce.plus(1))
                 .createOne();
 
