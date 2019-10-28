@@ -95,6 +95,30 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
+        const { bridgechainId }: { bridgechainId: number } = data.asset.bridgechainUpdate;
+
+        const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
+            await pool.getTransactionsByType(
+                Enums.MagistrateTransactionType.BridgechainUpdate,
+                Enums.MagistrateTransactionGroup,
+            ),
+        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+
+        if (
+            bridgechainUpdatesInPool.some(
+                update =>
+                    update.senderPublicKey === data.senderPublicKey &&
+                    update.asset.bridgechainUpdate.bridgechainId === bridgechainId,
+            )
+        ) {
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
+            );
+            return false;
+        }
+
         return true;
     }
 
