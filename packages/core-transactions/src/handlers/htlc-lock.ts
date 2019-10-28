@@ -28,7 +28,9 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
                 amount: Utils.BigNumber.make(transaction.amount),
                 recipientId: transaction.recipientId,
                 timestamp: transaction.timestamp,
-                vendorField: transaction.vendorField ? transaction.vendorField : undefined,
+                vendorField: transaction.vendorField
+                    ? Buffer.from(transaction.vendorField, "hex").toString("utf8")
+                    : undefined,
                 ...transaction.asset.lock,
             };
             wallet.setAttribute("htlc.locks", locks);

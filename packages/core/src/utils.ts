@@ -1,5 +1,6 @@
 import Table from "cli-table3";
 import dottie from "dottie";
+import envPaths from "env-paths";
 import envfile from "envfile";
 import { writeFileSync } from "fs-extra";
 import { existsSync } from "fs-extra";
@@ -31,8 +32,12 @@ export const updateEnvironmentVariables = (envFile: string, variables: Environme
     writeFileSync(envFile, envfile.stringifySync(env));
 };
 
-export const getCliConfig = (options: Record<string, any>, defaultValue = {}): Record<string, any> => {
-    const configPath: string = `${process.env.CORE_PATH_CONFIG}/app.js`;
+export const getCliConfig = (
+    options: Record<string, any>,
+    paths: envPaths.Paths,
+    defaultValue = {},
+): Record<string, any> => {
+    const configPath: string = `${paths.config}/app.js`;
     if (!existsSync(configPath)) {
         return defaultValue;
     }

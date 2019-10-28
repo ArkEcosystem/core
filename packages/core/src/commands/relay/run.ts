@@ -42,12 +42,12 @@ $ ark relay:run --launchMode=seed
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RunCommand);
+        const { flags, paths } = await this.parseWithNetwork(RunCommand);
 
         await super.buildApplication(
             app,
             flags,
-            deepmerge(getCliConfig(flags), {
+            deepmerge(getCliConfig(flags, paths), {
                 exclude: ["@arkecosystem/core-forger"],
                 options: {
                     "@arkecosystem/core-p2p": this.buildPeerOptions(flags),
