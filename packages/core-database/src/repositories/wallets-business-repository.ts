@@ -219,7 +219,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["businessId", "name", "website"],
+            exact: ["businessId", "vat"],
+            like: ["name", "repository", "website"],
         };
 
         const entries: any[] = this.databaseServiceProvider()
