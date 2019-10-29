@@ -174,11 +174,11 @@ describe("Business registration transaction", () => {
                 expect(error).not.toBeUndefined();
             });
 
-            it("should fail duo to website length to long (max 50 chars)", () => {
+            it("should fail due to website length being too long (max 80 chars)", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "business",
-                        website: "http://" + "w".repeat(51),
+                        website: "http://" + "w".repeat(81),
                     })
                     .network(23)
                     .sign("passphrase");
@@ -233,12 +233,12 @@ describe("Business registration transaction", () => {
                 expect(error).not.toBeUndefined();
             });
 
-            it("should fail because max repository length is 50", () => {
+            it("should fail because max repository length is 80", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "ark",
                         website: "https://ark.io",
-                        repository: "http://" + "a".repeat(51),
+                        repository: "http://" + "a".repeat(81),
                     })
                     .network(23)
                     .sign("passphrase");
