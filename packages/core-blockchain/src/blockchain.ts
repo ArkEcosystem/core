@@ -353,8 +353,6 @@ export class Blockchain implements blockchain.IBlockchain {
         if (this.transactionPool) {
             await this.transactionPool.replay(removedTransactions.reverse());
         }
-
-        this.queue.resume();
     }
 
     /**
@@ -400,12 +398,17 @@ export class Blockchain implements blockchain.IBlockchain {
             return callback();
         }
 
+        let forkBlock: Interfaces.IBlock;
         for (const block of blocks) {
             lastProcessResult = await this.blockProcessor.process(block);
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(block);
             } else {
+                if (lastProcessResult === BlockProcessorResult.Rollback) {
+                    forkBlock = block;
+                }
+
                 break; // if one block is not accepted, the other ones won't be chained anyway
             }
         }
@@ -453,6 +456,8 @@ export class Blockchain implements blockchain.IBlockchain {
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
                 this.p2p.getMonitor().broadcastBlock(currentBlock);
             }
+        } else if (forkBlock) {
+            this.forkBlock(forkBlock);
         }
 
         return callback(acceptedBlocks);
@@ -480,6 +485,8 @@ export class Blockchain implements blockchain.IBlockchain {
      */
     public forkBlock(block: Interfaces.IBlock, numberOfBlockToRollback?: number): void {
         this.state.forkedBlock = block;
+
+        this.clearAndStopQueue();
 
         if (numberOfBlockToRollback) {
             this.state.numberOfBlocksToRollback = numberOfBlockToRollback;

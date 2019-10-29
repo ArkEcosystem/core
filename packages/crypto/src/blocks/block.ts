@@ -186,7 +186,11 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block timestamp");
             }
 
-            let size: number = 0;
+            const size: number = Serializer.size(this);
+            if (size > constants.block.maxPayload) {
+                result.errors.push(`Payload is too large: ${size} > ${constants.block.maxPayload}`);
+            }
+
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
@@ -243,7 +247,6 @@ export class Block implements IBlock {
 
                 totalAmount = totalAmount.plus(transaction.data.amount);
                 totalFee = totalFee.plus(transaction.data.fee);
-                size += bytes.length;
 
                 payloadBuffers.push(bytes);
             }
@@ -254,10 +257,6 @@ export class Block implements IBlock {
 
             if (!totalFee.isEqualTo(block.totalFee)) {
                 result.errors.push("Invalid total fee");
-            }
-
-            if (size > constants.block.maxPayload) {
-                result.errors.push("Payload is too large");
             }
 
             if (HashAlgorithms.sha256(payloadBuffers).toString("hex") !== block.payloadHash) {

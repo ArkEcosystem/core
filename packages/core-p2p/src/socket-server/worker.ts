@@ -121,7 +121,6 @@ export class Worker extends SCWorker {
             // Check that blockchain, tx-pool and p2p are ready
             const isAppReady: boolean = (await this.sendToMasterAsync("p2p.utils.isAppReady")).data.ready;
             if (!isAppReady) {
-                req.socket.terminate();
                 return;
             }
 
@@ -138,6 +137,8 @@ export class Worker extends SCWorker {
                 this.sendToMasterAsync("p2p.internal.acceptNewPeer", {
                     data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
+                }).catch(ex => {
+                    this.log(`Failed to accept new peer: ${ex.message}`, "debug");
                 });
             } else {
                 req.socket.terminate();

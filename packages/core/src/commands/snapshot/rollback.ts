@@ -19,9 +19,9 @@ export class RollbackCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(RollbackCommand);
+        const { flags, paths } = await this.parseWithNetwork(RollbackCommand);
 
-        await setUpLite(flags);
+        await setUpLite(flags, paths);
 
         if (!app.has("snapshots")) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");

@@ -394,7 +394,8 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                     }
 
                     if (someJobFailed) {
-                        throw new Error(`Prematurely canceled due to another job failure.`);
+                        this.logger.info(`Prematurely canceled due to another job failure.`);
+                        return;
                     }
                 }
 

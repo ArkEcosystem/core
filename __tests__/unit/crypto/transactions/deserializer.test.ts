@@ -321,11 +321,11 @@ describe("Transaction serializer / deserializer", () => {
                 .fee("50000000")
                 .network(23);
 
-            for (let i = 0; i < 500; i++) {
+            for (let i = 0; i < configManager.getMilestone().multiPaymentLimit; i++) {
                 multiPayment.addPayment(Address.fromPassphrase(`recipient-${i}`), "1");
             }
 
-            expect(() => multiPayment.addPayment(Address.fromPassphrase("recipient501"), "1")).toThrow(
+            expect(() => multiPayment.addPayment(Address.fromPassphrase("recipientBad"), "1")).toThrow(
                 Errors.MaximumPaymentCountExceededError,
             );
 

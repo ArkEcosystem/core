@@ -23,7 +23,7 @@
             }
         },
         "vendorFieldLength": 64,
-        "multiPaymentLimit": 500
+        "multiPaymentLimit": 256
     },
     {
         "height": 75600,

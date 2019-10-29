@@ -258,7 +258,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async startForkRecovery() {
         logger.info("Starting fork recovery");
-
         blockchain.clearAndStopQueue();
 
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
@@ -273,6 +272,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         await blockchain.p2p.getMonitor().refreshPeersAfterFork();
 
         blockchain.dispatch("SUCCESS");
+        blockchain.queue.resume();
     },
 
     async rollbackDatabase() {
