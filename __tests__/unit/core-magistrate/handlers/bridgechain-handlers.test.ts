@@ -81,7 +81,7 @@ describe("should test marketplace transaction handlers", () => {
                 const businessRegistration = businessRegistrationBuilder
                     .businessRegistrationAsset({
                         name: "businessName",
-                        website: "www.website.com",
+                        website: "http://www.website.com",
                     })
                     .fee("50000000")
                     .nonce("1")

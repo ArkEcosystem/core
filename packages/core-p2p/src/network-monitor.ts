@@ -394,7 +394,9 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                     }
 
                     if (someJobFailed) {
-                        this.logger.info(`Prematurely canceled due to another job failure.`);
+                        this.logger.info(
+                            `Giving up on trying to download blocks ${blocksRange}: ` + `another download job failed`,
+                        );
                         return;
                     }
                 }
