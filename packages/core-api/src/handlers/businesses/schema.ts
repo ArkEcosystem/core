@@ -46,5 +46,13 @@ export const search: object = {
         businessId: Joi.number()
             .integer()
             .min(1),
+        name: Joi.string()
+            .regex(/^[a-zA-Z0-9_-]+$/)
+            .max(40),
+        website: Joi.string().max(50),
+        vat: Joi.string()
+            .alphanum()
+            .max(15),
+        repository: Joi.string().max(50),
     },
 };
