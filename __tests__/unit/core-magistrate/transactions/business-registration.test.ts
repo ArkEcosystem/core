@@ -178,7 +178,7 @@ describe("Business registration transaction", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "business",
-                        website: "w".repeat(51),
+                        website: "http://" + "w".repeat(51),
                     })
                     .network(23)
                     .sign("passphrase");
@@ -224,7 +224,7 @@ describe("Business registration transaction", () => {
                     .businessRegistrationAsset({
                         name: "ark",
                         website: "https://ark.io",
-                        repository: "a".repeat(51),
+                        repository: "http://" + "a".repeat(51),
                     })
                     .network(23)
                     .sign("passphrase");

@@ -161,7 +161,7 @@ describe("Bridgechain registration transaction", () => {
                     .bridgechainRegistrationAsset({
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
-                        bridgechainRepository: "a".repeat(101),
+                        bridgechainRepository: "http://" + "a".repeat(101),
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
                     })
                     .sign("passphrase");
