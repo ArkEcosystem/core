@@ -56,6 +56,11 @@ export const schemas = {
         allOf: [{ type: "string", pattern: "^[a-zA-Z0-9_-]+$" }, { minLength: 1, maxLength: 40 }],
     },
 
+    uri: {
+        $id: "uri",
+        allOf: [{ type: "string" }, { format: "uri" }, { minLength: 4, maxLength: 50 }],
+    },
+
     blockHeader: {
         $id: "blockHeader",
         type: "object",
