@@ -13,6 +13,24 @@ const publicKey = "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df
 const balance = 245098000000000;
 const address2 = "AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD";
 
+const validIdentifiers = {
+    username,
+    address,
+    publicKey,
+};
+
+const invalidIdentifiers = [
+    "invalid-username",
+    "invalidUsername",
+    "longAndInvalidUsername",
+    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc__",
+    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc___",
+    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc____",
+    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxx",
+    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxxx",
+    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxxxx",
+];
+
 beforeAll(async () => await setUp());
 afterAll(async () => await tearDown());
 
@@ -56,14 +74,22 @@ describe("API 2.0 - Wallets", () => {
     });
 
     describe("GET /wallets/:id", () => {
-        it("should GET a wallet by the given identifier", async () => {
-            const response = await utils.request("GET", `wallets/${address}`);
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeObject();
+        it("should GET a wallet by the given valid identifier", async () => {
+            for (const [identifier, value] of Object.entries(validIdentifiers)) {
+                const response = await utils.request("GET", `wallets/${value}`);
+                expect(response).toBeSuccessfulResponse();
+                expect(response.data.data).toBeObject();
 
-            const wallet = response.data.data;
-            utils.expectWallet(wallet);
-            expect(wallet.address).toBe(address);
+                const wallet = response.data.data;
+                utils.expectWallet(wallet);
+                expect(wallet[identifier]).toBe(value);
+            }
+        });
+
+        it("should fail to GET a wallet by the given invalid identifier", async () => {
+            for (const value of invalidIdentifiers) {
+                utils.expectError(await utils.request("GET", `wallets/${value}`), 422);
+            }
         });
 
         describe("when requesting an unknown address", () => {
