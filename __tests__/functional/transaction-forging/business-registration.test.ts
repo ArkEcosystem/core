@@ -88,6 +88,35 @@ describe("Transaction Forging - Business registration", () => {
             await expect(businessRegistration.id).toBeForged();
             await expect(businessRegistration2.id).not.toBeForged();
         });
+
+        it("should be rejected, because website is not valid uri [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "ark.io",
+            })
+                .withPassphrase(secrets[2])
+                .createOne();
+
+            await expect(businessRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).not.toBeForged();
+        });
+
+        it("should be rejected, because repository is not valid uri [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "https://ark.io",
+                repository: "http//ark.io/repo",
+            })
+                .withPassphrase(secrets[3])
+                .createOne();
+
+            await expect(businessRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).not.toBeForged();
+        });
     });
 
     describe("Signed with 2 Passphrases", () => {

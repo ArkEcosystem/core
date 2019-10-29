@@ -136,6 +136,31 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await support.snoozeForBlock(1);
             await expect(bridgechainRegistration.id).not.toBeForged();
         });
+
+        it("should reject bridgechain registration, because bridgechainRepository is invalid uri [Signed with 1 Passphrase]", async () => {
+            // Business resignation
+            const businessResignation = TransactionFactory.businessResignation()
+                .withPassphrase(secrets[5])
+                .createOne();
+
+            await expect(businessResignation).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessResignation.id).toBeForged();
+
+            // Bridgechain registration
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+                name: "cryptoProject",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainRepository: "repository.com/myorg/myrepo",
+            })
+                .withPassphrase(secrets[5])
+                .createOne();
+
+            await expect(bridgechainRegistration).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).not.toBeForged();
+        });
     });
 
     describe("Signed with 2 Passphrases", () => {
