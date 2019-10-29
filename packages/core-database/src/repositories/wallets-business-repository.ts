@@ -247,17 +247,20 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
         const entries: any[] = this.databaseServiceProvider()
             .walletManager.getIndex("bridgechains")
-            .values()
-            .reduce((acc, wallet) => {
+            .entries()
+            .reduce((acc, [bridgechainId, wallet]) => {
                 const business: any = wallet.getAttribute("business");
                 const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
-                for (const bridgechain of Object.values(bridgechains)) {
+                if (bridgechains && bridgechains[bridgechainId]) {
+                    const bridgechain: any = bridgechains[bridgechainId];
+
                     acc.push({
                         bridgechainId: bridgechain.bridgechainId,
                         businessId: business.businessId,
                         ...bridgechain.bridgechainAsset,
                     });
                 }
+
                 return acc;
             }, []);
 
