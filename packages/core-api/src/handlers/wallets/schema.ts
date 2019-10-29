@@ -1,6 +1,7 @@
 import Joi from "@hapi/joi";
 import { blockId } from "../shared/schemas/block-id";
 import { pagination } from "../shared/schemas/pagination";
+import { walletId } from "../shared/schemas/wallet-id";
 
 const address: object = Joi.string()
     .alphanum()
@@ -37,13 +38,13 @@ export const index: object = {
 
 export const show: object = {
     params: {
-        id: Joi.string(),
+        id: walletId,
     },
 };
 
 export const transactions: object = {
     params: {
-        id: Joi.string(),
+        id: walletId,
     },
     query: {
         ...pagination,
@@ -82,7 +83,7 @@ export const transactions: object = {
 
 export const transactionsSent: object = {
     params: {
-        id: Joi.string(),
+        id: walletId,
     },
     query: {
         ...pagination,
@@ -124,7 +125,7 @@ export const transactionsSent: object = {
 
 export const transactionsReceived: object = {
     params: {
-        id: Joi.string(),
+        id: walletId,
     },
     query: {
         ...pagination,
@@ -169,7 +170,7 @@ export const transactionsReceived: object = {
 
 export const votes: object = {
     params: {
-        id: Joi.string(),
+        id: walletId,
     },
     query: {
         ...pagination,
@@ -181,7 +182,7 @@ export const votes: object = {
 
 export const locks: object = {
     params: {
-        id: Joi.string(),
+        id: walletId,
     },
     query: {
         ...pagination,
