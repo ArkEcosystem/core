@@ -35,5 +35,16 @@ export const search: object = {
         bridgechainId: Joi.number()
             .integer()
             .min(1),
+        bridgechainRepository: Joi.string().max(80),
+        businessId: Joi.number()
+            .integer()
+            .min(1),
+        genesisHash: Joi.string()
+            .hex()
+            .length(64),
+        name: Joi.string()
+            .regex(/^[a-zA-Z0-9_-]+$/)
+            .max(40),
+        seedNodes: Joi.string().ip(),
     },
 };
