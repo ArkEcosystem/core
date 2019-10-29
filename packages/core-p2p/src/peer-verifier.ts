@@ -4,6 +4,7 @@ import { Database, Logger, P2P, Shared, State } from "@arkecosystem/core-interfa
 import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
+import pluralize from "pluralize";
 import { inspect } from "util";
 import { Severity } from "./enums";
 
@@ -171,7 +172,7 @@ export class PeerVerifier {
             const blocksAhead = claimedHeight - ourHeight;
             this.log(
                 Severity.DEBUG_EXTRA,
-                `peer's claimed chain is ${blocksAhead} block(s) higher than ` +
+                `peer's claimed chain is ${pluralize("block", blocksAhead, true)} higher than ` +
                     `ours (our height ${ourHeight}, his claimed height ${claimedHeight})`,
             );
 
@@ -202,7 +203,7 @@ export class PeerVerifier {
                     Severity.DEBUG_EXTRA,
                     `success: peer's latest block ` +
                         `(height=${claimedHeight}, id=${claimedState.header.id}) is part of our chain. ` +
-                        `Peer is ${ourHeight - claimedHeight} block(s) behind us.`,
+                        `Peer is ${pluralize("block", ourHeight - claimedHeight, true)} behind us.`,
                 );
             }
             return true;
