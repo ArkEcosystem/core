@@ -138,14 +138,17 @@ describe("Transaction Forging - Bridgechain registration", () => {
         });
 
         it("should reject bridgechain registration, because bridgechainRepository is invalid uri [Signed with 1 Passphrase]", async () => {
-            // Business resignation
-            const businessResignation = TransactionFactory.businessResignation()
+            // Business registration
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "arkecosystem",
+                website: "https://ark.io",
+            })
                 .withPassphrase(secrets[5])
                 .createOne();
 
-            await expect(businessResignation).toBeAccepted();
+            await expect(businessRegistration).toBeAccepted();
             await support.snoozeForBlock(1);
-            await expect(businessResignation.id).toBeForged();
+            await expect(businessRegistration.id).toBeForged();
 
             // Bridgechain registration
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
