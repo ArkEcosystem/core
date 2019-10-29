@@ -121,7 +121,7 @@ export class Worker extends SCWorker {
             // Check that blockchain, tx-pool and p2p are ready
             const isAppReady: boolean = (await this.sendToMasterAsync("p2p.utils.isAppReady")).data.ready;
             if (!isAppReady) {
-                next();
+                next(new Error("App is not ready."));
                 return;
             }
 
