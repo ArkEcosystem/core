@@ -61,18 +61,15 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
     });
 
     // Create a timeout promise so that if socket server is not ready in 10 seconds, it rejects
-    const timeoutPromise = new Promise((resolve, reject) => {
-        const id = setTimeout(() => {
-            clearTimeout(id);
-            reject("Socket server failed to setup in 10 seconds.");
-        }, 10000);
-    });
+    const timeout: NodeJS.Timeout = setTimeout(() => {
+        throw new Error("Socket server failed to setup in 10 seconds.");
+    }, 10000);
 
-    const serverReadyPromise = new Promise((resolve, reject) => {
-        server.on("ready", () => resolve(server));
-    });
+    const serverReadyPromise = await new Promise(resolve => server.on("ready", () => resolve(server)));
+
+    clearTimeout(timeout);
 
     payloadProcessor.inject(server);
 
-    return Promise.race([serverReadyPromise, timeoutPromise]);
+    return serverReadyPromise;
 };
