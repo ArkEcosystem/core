@@ -13,7 +13,7 @@ describe("Transaction Forging - Business update", () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -60,7 +60,7 @@ describe("Transaction Forging - Business update", () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[1])
                 .createOne();
@@ -143,7 +143,7 @@ describe("Transaction Forging - Business update", () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -234,7 +234,7 @@ describe("Transaction Forging - Business update", () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)

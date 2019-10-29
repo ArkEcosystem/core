@@ -48,13 +48,13 @@ export const businessUpdateAsset1: IBusinessUpdateAsset = {
 
 export const businessUpdateAsset2: IBusinessUpdateAsset = {
     name: "ark",
-    website: "www.ark.io",
+    website: "https://www.ark.io",
     vat: "1234567890",
 };
 
 export const businessUpdateAsset3: IBusinessUpdateAsset = {
     name: "ark",
-    website: "www.ark.io",
+    website: "https://www.ark.io",
     vat: "1234567890",
     repository: "arkecosystem.com/repo",
 };

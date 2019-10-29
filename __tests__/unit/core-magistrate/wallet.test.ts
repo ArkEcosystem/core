@@ -11,7 +11,7 @@ describe("should test wallet", () => {
             businessId: 1,
             businessAsset: {
                 name: "google",
-                website: "www.google.com",
+                website: "https://www.google.com",
             },
             resigned: false,
             bridgechains: {

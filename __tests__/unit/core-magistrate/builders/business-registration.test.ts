@@ -22,7 +22,7 @@ describe("Business registration builder", () => {
             const actual = builder
                 .businessRegistrationAsset({
                     name: "businessName",
-                    website: "www.website.com",
+                    website: "http://www.website.com",
                 })
                 .sign("passphrase");
 
@@ -34,7 +34,7 @@ describe("Business registration builder", () => {
             const actual = builder
                 .businessRegistrationAsset({
                     name: "businessName",
-                    website: "www.website.com",
+                    website: "http://www.website.com",
                 })
                 .sign("passphrase")
                 .secondSign("second passphrase");
@@ -48,7 +48,7 @@ describe("Business registration builder", () => {
                 .nonce("3")
                 .businessRegistrationAsset({
                     name: "businessName",
-                    website: "www.website.com",
+                    website: "http://www.website.com",
                     vat: "1234567890",
                     repository: "www.repository.com/google",
                 })

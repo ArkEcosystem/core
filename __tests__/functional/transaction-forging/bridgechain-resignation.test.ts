@@ -13,7 +13,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             // Business registration
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -114,7 +114,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "arkecosystem",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -196,7 +196,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)

@@ -137,7 +137,7 @@ describe("Business registration transaction", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "",
-                        website: "www.google.com",
+                        website: "https://www.google.com",
                     })
                     .network(23)
                     .sign("passphrase");
@@ -150,7 +150,7 @@ describe("Business registration transaction", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "a".repeat(41),
-                        website: "www.google.com",
+                        website: "https://www.google.com",
                     })
                     .network(23)
                     .sign("passphrase");
@@ -193,7 +193,7 @@ describe("Business registration transaction", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "google",
-                        website: "www.google.com",
+                        website: "https://www.google.com",
                         vat: "1234567",
                     })
                     .network(23)
@@ -207,7 +207,7 @@ describe("Business registration transaction", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "google",
-                        website: "www.google.com",
+                        website: "https://www.google.com",
                         vat: "1".repeat(16),
                     })
                     .network(23)
@@ -223,7 +223,7 @@ describe("Business registration transaction", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "ark",
-                        website: "ark.io",
+                        website: "https://ark.io",
                         repository: "a".repeat(51),
                     })
                     .network(23)
