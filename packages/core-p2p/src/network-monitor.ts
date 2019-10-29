@@ -327,7 +327,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
         if (peersNotForked.length === 0) {
             this.logger.error(
-                `Could not download blocks: We have ${peersAll.length} peer(s) but all ` +
+                `Could not download blocks: We have ${pluralize("peer", peersAll.length, true)} but all ` +
                     `of them are on a different chain than us`,
             );
             return [];
@@ -395,8 +395,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
 
                     if (someJobFailed) {
                         this.logger.info(
-                            `Giving up on trying to download blocks ${blocksRange}: ` +
-                            `another download job failed`
+                            `Giving up on trying to download blocks ${blocksRange}: ` + `another download job failed`,
                         );
                         return;
                     }
@@ -405,8 +404,11 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
                 someJobFailed = true;
 
                 throw new Error(
-                    `Could not download blocks ${blocksRange} from any of ${peersToTry.length} ` +
-                        `peer(s). Last attempt returned ${blocks.length} block(s) from peer ${peerPrint}.`,
+                    `Could not download blocks ${blocksRange} from any of ${pluralize(
+                        "peer",
+                        peersToTry.length,
+                        true,
+                    )}. ` + `Last attempt returned ${pluralize("block", blocks.length, true)} from peer ${peerPrint}.`,
                 );
             });
 
