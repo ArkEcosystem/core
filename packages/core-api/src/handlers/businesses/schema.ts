@@ -47,7 +47,7 @@ export const search: object = {
             .integer()
             .min(1),
         name: Joi.string()
-            .pattern(/^[a-zA-Z0-9_-]+$/)
+            .regex(/^[a-zA-Z0-9_-]+$/)
             .max(40),
         website: Joi.string().max(50),
         vat: Joi.string()
