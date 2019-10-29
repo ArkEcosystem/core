@@ -127,8 +127,8 @@ export class MissingMilestoneFeeError extends CryptoError {
 }
 
 export class MaximumPaymentCountExceededError extends CryptoError {
-    constructor(given: number) {
-        super(`Expected a maximum of 500 payments, but got ${given}.`);
+    constructor(limit: number) {
+        super(`Number of payments exceeded the allowed maximum of ${limit}.`);
     }
 }
 
