@@ -161,11 +161,11 @@ describe("Business registration transaction", () => {
         });
 
         describe("should test edge cases for website", () => {
-            it("should fail duo to website length to short (at least 4 chars)", () => {
+            it("should fail due to invalid uri", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({
                         name: "business",
-                        website: "a.a",
+                        website: "somewebsite.com",
                     })
                     .network(23)
                     .sign("passphrase");
@@ -219,6 +219,20 @@ describe("Business registration transaction", () => {
         });
 
         describe("should test edge cases for repository", () => {
+            it("should fail due to invalid uri", () => {
+                const businessRegistration = builder
+                    .businessRegistrationAsset({
+                        name: "ark",
+                        website: "https://ark.io",
+                        repository: "my-awesome-repo.com",
+                    })
+                    .network(23)
+                    .sign("passphrase");
+
+                const { error } = Ajv.validator.validate(transactionSchema, businessRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
             it("should fail because max repository length is 50", () => {
                 const businessRegistration = builder
                     .businessRegistrationAsset({

@@ -169,6 +169,20 @@ describe("Bridgechain registration transaction", () => {
                 const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
                 expect(error).not.toBeUndefined();
             });
+
+            it("should fail due to invalid uri", () => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        bridgechainRepository: "some.repository",
+                        seedNodes: ["74.125.224.72", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).not.toBeUndefined();
+            });
         });
 
         describe("should test edge cases for seedNodes", () => {
