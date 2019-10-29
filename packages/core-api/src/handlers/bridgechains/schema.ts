@@ -45,6 +45,10 @@ export const search: object = {
         name: Joi.string()
             .regex(/^[a-zA-Z0-9_-]+$/)
             .max(40),
-        seedNodes: Joi.string().ip(),
+        seedNodes: Joi.array()
+            .unique()
+            .min(1)
+            .max(10)
+            .items(Joi.string().ip()),
     },
 };

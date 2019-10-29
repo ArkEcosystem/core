@@ -244,7 +244,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
     private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
             exact: ["bridgechainId", "businessId", "genesisHash"],
-            like: ["bridgechainRepository", "name", "seedNodes"],
+            like: ["bridgechainRepository", "name"],
+            every: ["seedNodes"],
         };
 
         const entries: any[] = this.databaseServiceProvider()
