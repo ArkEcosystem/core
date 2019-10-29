@@ -30,10 +30,10 @@ export const socketEmit = async (
         socket.emit(event, req, (err, val) => (err ? reject(err) : resolve(val))),
     );
 
-    let timeoutInterval: NodeJS.Timeout;
+    let timeoutHandle: NodeJS.Timeout;
     const timeoutPromiseFn = (_, reject) => {
-        timeoutInterval = setTimeout(() => {
-            clearTimeout(timeoutInterval);
+        timeoutHandle = setTimeout(() => {
+            clearTimeout(timeoutHandle);
 
             const error = new Error(`Socket emit "${event}" : timed out (${timeout}ms)`);
             error.name = SocketErrors.Timeout;
@@ -46,7 +46,7 @@ export const socketEmit = async (
         timeout ? [socketEmitPromise, new Promise(timeoutPromiseFn)] : [socketEmitPromise],
     );
 
-    clearTimeout(timeoutInterval);
+    clearTimeout(timeoutHandle);
 
     return response;
 };
