@@ -26,16 +26,18 @@ export const socketEmit = async (
         throw error;
     }
 
-    let timeoutInterval: NodeJS.Timeout;
     const socketEmitPromise = new Promise((resolve, reject) =>
         socket.emit(event, req, (err, val) => (err ? reject(err) : resolve(val))),
     );
 
-    const timeoutPromiseFn = (resolve, reject) => {
+    let timeoutInterval: NodeJS.Timeout;
+    const timeoutPromiseFn = (_, reject) => {
         timeoutInterval = setTimeout(() => {
             clearTimeout(timeoutInterval);
+
             const error = new Error(`Socket emit "${event}" : timed out (${timeout}ms)`);
             error.name = SocketErrors.Timeout;
+
             reject(error);
         }, timeout);
     };
