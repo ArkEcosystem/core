@@ -99,7 +99,7 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should fail to GET all the sent transactions for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/transactions/sent"), 404);
+            utils.expectError(await utils.request("GET", "wallets/fake_address/transactions/sent"), 404);
         });
     });
 
@@ -113,7 +113,7 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should fail to GET all the received transactions for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/transactions/received"), 404);
+            utils.expectError(await utils.request("GET", "wallets/fake_address/transactions/received"), 404);
         });
     });
 
@@ -127,7 +127,7 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should fail to GET all the votes for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/votes"), 404);
+            utils.expectError(await utils.request("GET", "wallets/fake_address/votes"), 404);
         });
     });
 
@@ -186,7 +186,7 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should fail to GET locks for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/locks"), 404);
+            utils.expectError(await utils.request("GET", "wallets/fake_address/locks"), 404);
         });
 
         it("should GET all locks for the given wallet in the given order", async () => {
