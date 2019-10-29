@@ -1,6 +1,7 @@
 import { Container as container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { createContainer, Resolver } from "awilix";
 import delay from "delay";
+import logProcessErrors from "log-process-errors";
 import semver from "semver";
 import { configManager } from "./config";
 import { Environment } from "./environment";
@@ -34,6 +35,11 @@ export class Container implements container.IContainer {
         variables: Record<string, any>,
         options: Record<string, any> = {},
     ): Promise<void> {
+        if (process.env.CORE_LOG_PROCESS_ERRORS_ENABLED) {
+            // just log stuff, don't kill the process on unhandled promises/exceptions
+            logProcessErrors({ exitOn: [] });
+        }
+
         // Register any exit signal handling
         this.registerExitHandler(["SIGINT", "exit"]);
 
