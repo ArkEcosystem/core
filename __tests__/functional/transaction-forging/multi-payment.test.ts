@@ -104,7 +104,7 @@ describe("Transaction Forging - Multipayment", () => {
         });
 
         const transaction = factory.createOne();
-        expect(transaction.asset.payments.length).toBe(501);
+        expect(transaction.asset.payments.length).toBe(Managers.configManager.getMilestone().multiPaymentLimit + 1);
 
         await expect(transaction).not.toBeAccepted();
         await support.snoozeForBlock(1);
