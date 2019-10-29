@@ -23,12 +23,13 @@ export enum BlockProcessorResult {
     Accepted,
     DiscardedButCanBeBroadcasted,
     Rejected,
+    Rollback,
 }
 
 export class BlockProcessor {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
 
-    public constructor(private readonly blockchain: Blockchain) { }
+    public constructor(private readonly blockchain: Blockchain) {}
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         return (await this.getHandler(block)).execute();
@@ -91,7 +92,7 @@ export class BlockProcessor {
         if (!verified) {
             this.logger.warn(
                 `Block ${block.data.height.toLocaleString()} (${
-                block.data.id
+                    block.data.id
                 }) disregarded because verification failed`,
             );
 
@@ -163,9 +164,9 @@ export class BlockProcessor {
             if (!nonceBySender[sender].plus(1).isEqualTo(data.nonce)) {
                 this.logger.warn(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
-                    `not accepted: invalid nonce order for sender ${sender}: ` +
-                    `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
-                    `transaction ${data.id} has nonce ${data.nonce.toFixed()}.`,
+                        `not accepted: invalid nonce order for sender ${sender}: ` +
+                        `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
+                        `transaction ${data.id} has nonce ${data.nonce.toFixed()}.`,
                 );
                 return true;
             }

@@ -74,16 +74,15 @@ export class UnchainedHandler extends BlockHandler {
                 const delegates: State.IWallet[] = await app.resolvePlugin("database").getActiveDelegates(roundInfo);
 
                 if (delegates.some(delegate => delegate.publicKey === this.block.data.generatorPublicKey)) {
-                    this.blockchain.forkBlock(this.block);
+                    return BlockProcessorResult.Rollback;
                 }
 
                 return BlockProcessorResult.Rejected;
             }
 
             case UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts: {
-                this.blockchain.forkBlock(this.block, 5000); // TODO: find a better heuristic based on peer information
-
-                return BlockProcessorResult.DiscardedButCanBeBroadcasted;
+                this.blockchain.state.numberOfBlocksToRollback = 5000; // TODO: find a better heuristic based on peer information
+                return BlockProcessorResult.Rollback;
             }
 
             case UnchainedBlockStatus.GeneratorMismatch:

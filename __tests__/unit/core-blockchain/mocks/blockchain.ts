@@ -8,7 +8,13 @@ const genesisBlock: Interfaces.IBlock = Blocks.BlockFactory.fromJson(Managers.co
 Managers.configManager.getMilestone().aip11 = false;
 
 export const blockchain = {
-    queue: { length: () => 0, push: () => undefined, clear: () => undefined, idle: () => undefined },
+    queue: {
+        length: () => 0,
+        push: () => undefined,
+        clear: () => undefined,
+        idle: () => undefined,
+        resume: () => undefined,
+    },
     isStopped: false,
 
     setWakeUp: () => undefined,
