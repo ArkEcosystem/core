@@ -37,9 +37,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                     $ref: "transactionId",
                                 },
                                 bridgechainRepository: {
-                                    type: "string",
-                                    minLength: 1,
-                                    maxLength: 100,
+                                    $ref: "uri",
                                 },
                             },
                         },

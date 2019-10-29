@@ -3,9 +3,7 @@ export const businessSchema = {
         $ref: "genericName",
     },
     website: {
-        type: "string",
-        minLength: 4,
-        maxLength: 50,
+        $ref: "uri",
     },
     vat: {
         type: "string",
@@ -14,8 +12,6 @@ export const businessSchema = {
         $ref: "alphanumeric",
     },
     repository: {
-        type: "string",
-        minLength: 11,
-        maxLength: 50,
+        $ref: "uri",
     },
 };
