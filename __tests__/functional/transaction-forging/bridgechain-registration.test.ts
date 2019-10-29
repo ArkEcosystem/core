@@ -27,7 +27,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "cryptoProject",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -43,7 +43,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "cryptoProject2",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -52,7 +52,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "cryptoProject2",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
                 .withNonce(bridgechainRegistration.nonce.plus(1))
@@ -70,7 +70,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "cryptoProject",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -86,7 +86,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "\u0008mybridgechain",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -102,7 +102,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "mybridgech@in",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -127,7 +127,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "cryptoProject",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -180,7 +180,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "cryptoProject",
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -252,7 +252,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 name: "cryptoProject",
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                bridgechainRepository: "somerepository",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)

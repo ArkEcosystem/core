@@ -31,13 +31,13 @@ export const businessRegistrationAsset3: IBusinessRegistrationAsset = {
     name: "arkecosystem",
     website: "https://ark.io",
     vat: "123456789",
-    repository: "arkecosystem.com/repo",
+    repository: "http://www.repository.com/myorg/myrepo",
 };
 
 export const businessRegistrationAsset4: IBusinessRegistrationAsset = {
     name: "arkecosystemARK",
     website: "https://ark.io",
-    repository: "arkecosystem.com/repo",
+    repository: "http://www.repository.com/myorg/myrepo",
 };
 
 // Business update
@@ -56,7 +56,7 @@ export const businessUpdateAsset3: IBusinessUpdateAsset = {
     name: "ark",
     website: "https://www.ark.io",
     vat: "1234567890",
-    repository: "arkecosystem.com/repo",
+    repository: "http://www.repository.com/myorg/myrepo",
 };
 
 // Bridgechain registration assets
@@ -64,14 +64,14 @@ export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     name: "arkecosystem1",
     seedNodes: ["74.125.224.71", "74.125.224.72", "64.233.173.193", "2001:4860:4860::8888", "2001:4860:4860::8844"],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    bridgechainRepository: "arkecosystem1.com/repo",
+    bridgechainRepository: "http://www.repository.com/myorg/myrepo",
 };
 
 export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {
     name: "arkecosystem2",
     seedNodes: ["131.107.0.89"],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-    bridgechainRepository: "arkecosystem2.com/repo",
+    bridgechainRepository: "http://www.repository.com/myorg/myrepo",
 };
 
 export const bridgechainRegistrationAssetBad: IBridgechainRegistrationAsset = {

@@ -50,7 +50,7 @@ describe("Business registration builder", () => {
                     name: "businessName",
                     website: "http://www.website.com",
                     vat: "1234567890",
-                    repository: "www.repository.com/google",
+                    repository: "http://www.repository.com/myorg/myrepo",
                 })
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
             expect(actual.build().verified).toBeTrue();
