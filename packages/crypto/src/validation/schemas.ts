@@ -58,7 +58,7 @@ export const schemas = {
 
     uri: {
         $id: "uri",
-        allOf: [{ type: "string" }, { format: "uri" }, { minLength: 4, maxLength: 50 }],
+        allOf: [{ format: "uri" }, { minLength: 4, maxLength: 80 }],
     },
 
     blockHeader: {
