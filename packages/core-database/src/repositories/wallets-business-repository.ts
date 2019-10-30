@@ -213,7 +213,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["lockId", "asc"],
         };
     }
 
