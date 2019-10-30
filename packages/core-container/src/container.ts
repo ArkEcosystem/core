@@ -1,6 +1,7 @@
 import { Container as container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { createContainer, Resolver } from "awilix";
 import delay from "delay";
+import logProcessErrors from "log-process-errors";
 import semver from "semver";
 import { configManager } from "./config";
 import { Environment } from "./environment";
@@ -48,6 +49,11 @@ export class Container implements container.IContainer {
         // Register the environment variables
         const environment: Environment = new Environment(variables);
         environment.setUp();
+
+        if (process.env.CORE_LOG_PROCESS_ERRORS_ENABLED) {
+            // just log stuff, don't kill the process on unhandled promises/exceptions
+            logProcessErrors({ exitOn: [] });
+        }
 
         // Mainly used for testing environments!
         if (options.skipPlugins) {
