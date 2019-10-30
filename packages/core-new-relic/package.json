@@ -19,7 +19,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-container": "^2.6.0-next.3",
-        "newrelic": "^5.13.0"
+        "newrelic": "^6.0.0"
     },
     "devDependencies": {
         "@types/newrelic": "^5.11.0"

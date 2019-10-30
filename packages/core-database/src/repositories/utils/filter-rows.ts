@@ -68,6 +68,23 @@ export = <T = any>(rows: ReadonlyArray<T>, params: Database.IParameters, filters
             }
         }
 
+        if (filters.hasOwnProperty("every")) {
+            for (const elem of filters.every) {
+                if (params[elem] && getProperty(item, elem)) {
+                    if (Array.isArray(item[elem])) {
+                        if (Array.isArray(params[elem])) {
+                            // @ts-ignore
+                            return params[elem].every(a => item[elem].includes(a));
+                        } else {
+                            throw new Error('Filtering by "every" requires an Array');
+                        }
+                    } else {
+                        throw new Error("Property must be an array");
+                    }
+                }
+            }
+        }
+
         // NOTE: it was used to filter by `votes`, but that field was rejected and
         // replaced by `vote`. This filter is kept here just in case
         if (filters.hasOwnProperty("any")) {
