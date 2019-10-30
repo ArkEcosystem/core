@@ -140,9 +140,7 @@ export class Client {
 
             return response.data;
         } catch (error) {
-            if (error.message !== "App is not ready.") {
-                throw new RelayCommunicationError(`${this.host.hostname}:${this.host.port}<${event}>`, error.message);
-            }
+            throw new RelayCommunicationError(`${this.host.hostname}:${this.host.port}<${event}>`, error.message);
         }
     }
 }
