@@ -36,6 +36,8 @@ beforeAll(async () => {
 
     const { service, processor } = createPeerService();
 
+    jest.setTimeout(10000);
+
     server = await startSocketServer(service, { server: { port: 4007, workers: 1 } });
     await delay(1000);
 
@@ -65,6 +67,8 @@ beforeAll(async () => {
 afterAll(() => {
     socket.destroy();
     server.destroy();
+
+    jest.setTimeout(5000);
 });
 
 describe("Peer socket endpoint", () => {
@@ -105,7 +109,7 @@ describe("Peer socket endpoint", () => {
                         data: {},
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "Error");
+                ).rejects.toHaveProperty("name", "BadConnectionError");
             });
         });
 
@@ -262,7 +266,7 @@ describe("Peer socket endpoint", () => {
                 }),
             ).toResolve();
 
-            await delay(1000);
+            await delay(4000);
 
             await expect(
                 emit("p2p.peer.postBlock", {

@@ -26,6 +26,9 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             // details on how pingTimeout works.
             pingTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
             perMessageDeflate: true,
+            // we set maxPayload value to 2MB as currently the largest data going through is a block
+            // and (for now, TODO use milestone value ?) blocks are not larger than 2MB
+            maxPayload: 2 * 1024 * 1024,
         },
         ...config.server,
     });
