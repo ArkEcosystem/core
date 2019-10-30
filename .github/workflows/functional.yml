@@ -14,7 +14,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -56,7 +56,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -98,7 +98,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -140,7 +140,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -182,7 +182,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -224,7 +224,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -266,7 +266,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -308,7 +308,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -350,7 +350,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -392,7 +392,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -434,7 +434,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -476,7 +476,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -518,7 +518,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -560,7 +560,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -602,7 +602,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -644,7 +644,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
@@ -686,7 +686,7 @@ jobs:
 
         services:
             postgres:
-                image: postgres:10.8
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password
