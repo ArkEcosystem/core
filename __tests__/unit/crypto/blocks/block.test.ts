@@ -10,7 +10,7 @@ import { configManager } from "../../../../packages/crypto/src/managers";
 import * as networks from "../../../../packages/crypto/src/networks";
 import { testnet } from "../../../../packages/crypto/src/networks";
 import { NetworkName } from "../../../../packages/crypto/src/types";
-import { TransactionFactory } from "../../../../packages/core-test-framework/src/helpers/transaction-factory";
+import { TransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
 import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;

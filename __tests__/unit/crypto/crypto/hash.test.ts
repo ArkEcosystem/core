@@ -3,8 +3,8 @@ import "jest-extended";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory } from "../../../../packages/core-test-framework/src/helpers/transaction-factory";
-import { identity } from "../../../../packages/core-test-framework/src/utils/identities";
+import { TransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
+import { identity } from "@packages/core-test-framework/src/utils/identities";
 
 const transaction = TransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
     .withVersion(2)

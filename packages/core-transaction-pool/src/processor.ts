@@ -149,7 +149,6 @@ export class Processor implements Contracts.TransactionPool.Processor {
                                 }
                             }
                         } catch (error) {
-                            console.log(error)
                             this.pushError(transaction, "ERR_APPLY", error.message);
                         }
                     } else {

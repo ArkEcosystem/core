@@ -1,0 +1,13 @@
+{
+    "version": 1,
+    "network": 23,
+    "type": 0,
+    "timestamp": 0,
+    "senderPublicKey": "03485dd4f27e970c5812d3ae99df15d1be0cdb05de6b9dfca5d4316b88b4a2206d",
+    "fee": "0",
+    "amount": "300000000000000",
+    "expiration": 0,
+    "recipientId": "ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo",
+    "signature": "30440220367158b94ab965ec44efd8824a0970ab1b1a0c789e60520473e564cd83bf1663022067e077e4e6af809687230b418a6274a124540748d1d451d4ed6b342cf7246950",
+    "id": "77d99a5103cf72256654a4ddfce7bba5e4e9c867f160e68065fc355750317719"
+}

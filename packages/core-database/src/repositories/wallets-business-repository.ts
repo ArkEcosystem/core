@@ -22,7 +22,7 @@ interface UnwrappedHtlcLock {
 }
 
 export class WalletsBusinessRepository implements Contracts.Database.WalletsBusinessRepository {
-    public constructor (private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) { }
+    public constructor(private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) {}
 
     public search<T>(
         scope: Contracts.Database.SearchScope,

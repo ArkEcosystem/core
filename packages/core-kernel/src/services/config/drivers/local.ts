@@ -55,6 +55,7 @@ export class LocalConfigLoader implements ConfigLoader {
                 set(process.env, key, value);
             }
         } catch {
+            // todo: should we throw or just output a warning?
             throw new EnvironmentConfigurationCannotBeLoaded();
         }
     }

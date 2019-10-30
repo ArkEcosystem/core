@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { configManager } from "../../../../packages/crypto/src/managers/config";
 import { Message } from "../../../../packages/crypto/src/crypto/message";
-import { identity } from "../../../../packages/core-test-framework/src/utils/identities";
+import { identity } from "@packages/core-test-framework/src/utils/identities";
 
 const signedMessageEntries: any = [
     ["publicKey", identity.publicKey],

@@ -3,7 +3,7 @@ import "jest-extended";
 import { app, Utils as AppUtils, Contracts, Container } from "@arkecosystem/core-kernel";
 import { Crypto, Managers, Utils, Identities } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
-import { secrets } from "../../../../packages/core-test-framework/src/utils/config/delegates.json";
+import { secrets } from "@packages/core-test-framework/src/utils/config/delegates.json";
 import { resolve } from "path";
 
 jest.setTimeout(1200000);
@@ -52,7 +52,7 @@ export const setUp = async (): Promise<void> => {
 
                 wallet.setAttribute("delegate", {
                     username: `genesis_${i + 1}`,
-                    voteBalance: Utils.BigNumber.make("245098000000000"),
+                    voteBalance: Utils.BigNumber.make("300000000000000"),
                     forgedFees: Utils.BigNumber.ZERO,
                     forgedRewards: Utils.BigNumber.ZERO,
                     producedBlocks: 0,

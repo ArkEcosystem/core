@@ -13,8 +13,8 @@ const toDecimal = (voteBalance: BigNumber, totalSupply: BigNumber): number => {
 };
 
 export const calculateApproval = (delegate: Wallet, height: number = 1): number => {
-    const totalSupply = BigNumber.make(calculateSupply(height));
-    const voteBalance = BigNumber.make(delegate.getAttribute<BigNumber>("delegate.voteBalance"));
+    const totalSupply: BigNumber = BigNumber.make(calculateSupply(height));
+    const voteBalance: BigNumber = delegate.getAttribute("delegate.voteBalance");
 
     return toDecimal(voteBalance, totalSupply);
 };

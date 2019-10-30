@@ -74,7 +74,7 @@ export class NodeController extends Controller {
                     symbol: network.client.symbol,
                     explorer: network.client.explorer,
                     version: network.pubKeyHash,
-                    ports: super.toResource(this.config, "ports"),
+                    ports: super.toResource(this.configRepository, "ports"),
                     constants: this.config.getMilestone(this.blockchain.getLastHeight()),
                     transactionPool: {
                         dynamicFees: dynamicFees.enabled ? dynamicFees : { enabled: false },

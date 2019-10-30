@@ -13,8 +13,8 @@ export = <T = any>(
     rows: ReadonlyArray<T>,
     params: Contracts.Database.Parameters,
     filters: Record<string, string[]>,
-): T[] => {
-    return rows.filter(item => {
+): T[] =>
+    rows.filter(item => {
         if (filters.hasOwnProperty("exact")) {
             for (const elem of filters.exact) {
                 if (params[elem] && getProperty(item, elem) !== params[elem]) {
@@ -92,4 +92,3 @@ export = <T = any>(
 
         return true;
     });
-};

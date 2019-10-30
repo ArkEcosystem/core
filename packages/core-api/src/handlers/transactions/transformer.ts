@@ -16,9 +16,9 @@ export const transformTransaction = (model, transform) => {
 
     const { data } = transaction;
 
-    const sender: Contracts.State.Wallet = app
+    const sender: string = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .walletRepository.findByPublicKey(Utils.assert.defined(data.senderPublicKey));
+        .walletRepository.findByPublicKey(Utils.assert.defined(data.senderPublicKey)).address;
 
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
     const timestamp: number = data.version === 1 ? data.timestamp : model.timestamp;
@@ -34,7 +34,7 @@ export const transformTransaction = (model, transform) => {
         fee: data.fee.toFixed(),
         sender,
         senderPublicKey: data.senderPublicKey,
-        recipient: data.recipientId || sender.address,
+        recipient: data.recipientId || sender,
         signature: data.signature,
         signSignature: data.signSignature || data.secondSignature,
         signatures: data.signatures,

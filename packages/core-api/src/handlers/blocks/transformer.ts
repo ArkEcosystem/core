@@ -37,7 +37,9 @@ export const transformBlock = (model, transform) => {
             length: model.payloadLength,
         },
         generator: {
-            username: generator.getAttribute("delegate.username"),
+            username: generator.hasAttribute("delegate.username")
+                ? generator.getAttribute("delegate.username")
+                : undefined,
             address: generator.address,
             publicKey: generator.publicKey,
         },

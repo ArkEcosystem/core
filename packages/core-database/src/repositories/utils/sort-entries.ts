@@ -32,9 +32,14 @@ export const sortEntries = <T>(
                 return AppUtils.get(entry, iteratee);
             }
 
-            const delegateAttribute: string = `attributes.delegate.${iteratee}`;
-            if (AppUtils.has(entry, delegateAttribute)) {
-                return AppUtils.get(entry, delegateAttribute);
+            try {
+                const delegateAttribute: string = `delegate.${iteratee}`;
+
+                if ((entry as any).has(delegateAttribute)) {
+                    return AppUtils.get(entry, delegateAttribute);
+                }
+            } catch {
+                // Unknown attribute was tried to be accessed
             }
 
             return AppUtils.get(entry, `attributes.${iteratee}`);

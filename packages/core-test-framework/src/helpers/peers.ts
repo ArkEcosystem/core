@@ -11,17 +11,4 @@ export const createStubPeer = (stub): Contracts.P2P.Peer => {
     return Object.assign(peer, stub);
 };
 
-// export const createPeerService = () => {
-//     const service = makePeerService({});
-
-//     return {
-//         service,
-//         storage: service.getStorage(),
-//         processor: service.getProcessor(),
-//         connector: service.getConnector(),
-//         communicator: service.getCommunicator(),
-//         monitor: service.getMonitor(),
-//     };
-// };
-
 export const stubPeer: Contracts.P2P.Peer = createStubPeer({ ip: "1.2.3.4", port: 4000 });

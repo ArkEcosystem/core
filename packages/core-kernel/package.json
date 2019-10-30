@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "@arkecosystem/utils": "^1.1.0",
+        "@arkecosystem/utils": "^1.1.6",
         "@hapi/joi": "^16.1.7",
         "chalk": "^2.4.2",
         "cron": "^1.7.2",
@@ -40,14 +40,14 @@
         "pump": "^3.0.0",
         "readable-stream": "^3.4.0",
         "reflect-metadata": "^0.1.13",
-        "rotating-file-stream": "^1.4.4",
+        "rotating-file-stream": "^1.4.6",
         "semver": "^6.3.0",
         "split2": "^3.1.1",
         "type-fest": "^0.8.1"
     },
     "devDependencies": {
         "@types/cron": "^1.7.1",
-        "@types/fs-extra": "^8.0.0",
+        "@types/fs-extra": "^8.0.1",
         "@types/got": "^9.6.7",
         "@types/log-process-errors": "^4.1.0",
         "@types/pino": "^5.20.0",

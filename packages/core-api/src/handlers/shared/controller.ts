@@ -1,4 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { app, Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
@@ -16,6 +16,10 @@ import {
 export class Controller {
     // todo: remove
     protected readonly config = Managers.configManager;
+    // todo: inject from container
+    protected readonly configRepository = app.get<Services.Config.ConfigRepository>(
+        Container.Identifiers.ConfigRepository,
+    );
     // todo: inject from container
     protected readonly blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
     // todo: inject from container

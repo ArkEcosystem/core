@@ -493,7 +493,9 @@ export class Application implements Contracts.Kernel.Application {
         for (const serviceProvider of serviceProviders.reverse()) {
             this.log.debug(`Disposing ${serviceProvider.name()}...`);
 
-            await serviceProvider.dispose();
+            try {
+                await serviceProvider.dispose();
+            } catch {}
         }
     }
 

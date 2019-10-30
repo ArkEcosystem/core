@@ -4,7 +4,7 @@ import { TransactionVersionError } from "../../../../packages/crypto/src/errors"
 import { Keys } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Signer } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory } from "../../../../packages/core-test-framework/src/helpers/transaction-factory";
+import { TransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
 
 describe("Signer", () => {
     describe("sign", () => {

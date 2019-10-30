@@ -17,7 +17,7 @@
         "test:debug": "cross-env CORE_ENV=test node --inspect-brk ./node_modules/.bin/jest --runInBand",
         "test:watch": "cross-env CORE_ENV=test jest --runInBand --watch",
         "test:watch:all": "cross-env CORE_ENV=test jest --runInBand --watchAll",
-        "test:unit": "cross-env jest __tests__/unit/**",
+        "test:unit": "cross-env jest __tests__/unit/** --forceExit",
         "test:unit:coverage": "cross-env jest __tests__/unit --coverage --coveragePathIgnorePatterns='/(defaults.ts|index.ts)$'",
         "test:unit:debug": "cross-env node --inspect-brk ./node_modules/.bin/jest __tests__/unit",
         "test:unit:watch": "cross-env jest __tests__/unit --watch",

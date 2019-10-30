@@ -2,15 +2,15 @@
 # yarn lockfile v1
 
 
-"@arkecosystem/utils@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-1.1.0.tgz#b06677292df0423ef46b89c97aac9448bdde4282"
-  integrity sha512-VJisVRZnUzaoIp7NoQ1L73hQRBltHU/aa5feRv/3ssPOW6V5SKV+9a9zJ8hvuCQC7b4L4/rYbiZq2kRnLt8G7Q==
+"@arkecosystem/utils@^1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@arkecosystem/utils/-/utils-1.1.6.tgz#8cc5831b0915151ec20f3edf2494c64858d28004"
+  integrity sha512-O9tAW7e0XAAqitdyBHyvCHlpwpuXfDlqt68zsLE4jWpiOa3g/1PVX0abZQDn4pEEfSoaDzAp00iJv2EkXMLpEg==
   dependencies:
     "@hapi/bourne" "^1.3.2"
     fast-copy "^2.0.3"
     fast-deep-equal "^2.0.1"
-    fast-sort "^1.5.6"
+    fast-sort "^1.6.0"
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.5.5":
   version "7.5.5"
@@ -2404,7 +2404,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/fs-extra@^8.0.0":
+"@types/fs-extra@^8.0.0", "@types/fs-extra@^8.0.1":
   version "8.0.1"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-8.0.1.tgz#a2378d6e7e8afea1564e44aafa2e207dadf77686"
   integrity sha512-J00cVDALmi/hJOYsunyT52Hva5TnJeKP5yd1r+mH/ZU0mbYZflR0Z5kw5kITtKTRYMhm1JMClOFYdHnQszEvqw==
@@ -5530,7 +5530,7 @@ fast-safe-stringify@^2.0.7:
   resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.7.tgz#124aa885899261f68aedb42a7c080de9da608743"
   integrity sha512-Utm6CdzT+6xsDk2m8S6uL8VHxNwI6Jub+e9NYTcAms28T84pTa25GJQV9j0CY0N1rM8hK4x6grpF2BQf+2qwVA==
 
-fast-sort@^1.5.6:
+fast-sort@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/fast-sort/-/fast-sort-1.6.0.tgz#68c6d94ce309ead19d562014159902c80c68d0a0"
   integrity sha512-sjV6dxWdHs14cef7GzJgCWSOagw57cUBYMey+seWeOsU0HgMf2g4Wkdflv65X/8E4UWptUcq9EZ3YqSXUnUy9Q==
@@ -10318,10 +10318,10 @@ rollup@^1.17.0:
     "@types/node" "*"
     acorn "^7.1.0"
 
-rotating-file-stream@^1.4.4:
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/rotating-file-stream/-/rotating-file-stream-1.4.4.tgz#395914051c257d198a2db04cc630cb9f77087f18"
-  integrity sha512-AApEU3nLetgH5ghthiwoo3StYRme2E20mOqycqSy2rTp6j7bskrV90enJX39UdlkZVcE/ZEBvaac7iOnjo1rbw==
+rotating-file-stream@^1.4.6:
+  version "1.4.6"
+  resolved "https://registry.yarnpkg.com/rotating-file-stream/-/rotating-file-stream-1.4.6.tgz#42725b951835f6c3b5c16f8f6126e65758ef1d61"
+  integrity sha512-QS7vGxBK6sGc1mCqlmAuwV4J0fmmVCKaUgMvKbkTueZr4jdkXN3bSpTEOQxtdtAVEzi1aUqdHzwIQ0ejNn+CQg==
 
 rsvp@^4.8.4:
   version "4.8.5"

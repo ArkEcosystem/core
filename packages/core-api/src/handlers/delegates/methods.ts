@@ -4,11 +4,29 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
+const findWallet = (id: string): Contracts.State.Wallet | Boom<null> => {
+    let wallet: Contracts.State.Wallet | undefined;
+
+    try {
+        wallet = app
+            .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+            .wallets.findById(Contracts.Database.SearchScope.Wallets, id);
+    } catch (error) {
+        return Boom.notFound("Delegate not found");
+    }
+
+    if (!wallet.hasAttribute("delegate.username")) {
+        return Boom.notFound("Delegate not found");
+    }
+
+    return wallet;
+};
+
 // todo: rework to make use of injection rather then manual resolving
 const index = async request => {
     const delegates = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.search(Contracts.Database.SearchScope.Wallets, {
+        .wallets.search(Contracts.Database.SearchScope.Delegates, {
             ...request.query,
             ...paginate(request),
         });
@@ -17,12 +35,10 @@ const index = async request => {
 };
 
 const show = async request => {
-    const delegate = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
+    const delegate: Contracts.State.Wallet | Boom<null> = findWallet(request.params.id);
 
-    if (!delegate) {
-        return Boom.notFound("Delegate not found");
+    if (delegate instanceof Boom) {
+        return delegate;
     }
 
     return respondWithResource(delegate, "delegate");
@@ -31,7 +47,7 @@ const show = async request => {
 const search = async request => {
     const delegates = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.search(Contracts.Database.SearchScope.Wallets, {
+        .wallets.search(Contracts.Database.SearchScope.Delegates, {
             ...request.payload,
             ...request.query,
             ...paginate(request),
@@ -41,28 +57,24 @@ const search = async request => {
 };
 
 const blocks = async request => {
-    const delegate = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
+    const delegate: Contracts.State.Wallet | Boom<null> = findWallet(request.params.id);
 
-    if (!delegate || !delegate.publicKey) {
-        return Boom.notFound("Delegate not found");
+    if (delegate instanceof Boom) {
+        return delegate;
     }
 
     const rows = await app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .blocksBusinessRepository.findAllByGenerator(delegate.publicKey, paginate(request));
+        .blocksBusinessRepository.findAllByGenerator(delegate.publicKey!, paginate(request));
 
     return toPagination(rows, "block", request.query.transform);
 };
 
 const voters = async request => {
-    const delegate = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
+    const delegate: Contracts.State.Wallet | Boom<null> = findWallet(request.params.id);
 
-    if (!delegate) {
-        return Boom.notFound("Delegate not found");
+    if (delegate instanceof Boom) {
+        return delegate;
     }
 
     const wallets = app

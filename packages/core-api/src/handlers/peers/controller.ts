@@ -8,66 +8,69 @@ import { Controller } from "../shared/controller";
 // todo: remove the abstract and use dependency injection if needed
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        // todo: inject from container
-        const allPeers: Contracts.P2P.Peer[] = app
-            .get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage)
-            .getPeers();
+        try {
+            // todo: inject from container
+            const allPeers: Contracts.P2P.Peer[] = app
+                .get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage)
+                .getPeers();
 
-        let result = allPeers.sort((a, b) => {
-            const latencyA: number = Utils.assert.defined(a.latency);
-            const latencyB: number = Utils.assert.defined(b.latency);
+            let result = allPeers.sort((a, b) => {
+                const latencyA: number = Utils.assert.defined(a.latency);
+                const latencyB: number = Utils.assert.defined(b.latency);
 
-            return latencyA - latencyB;
-        });
-        result = request.query.version
-            ? result.filter(peer => peer.version === (request.query as any).version)
-            : result;
+                return latencyA - latencyB;
+            });
 
-        const count: number = result.length;
+            result = request.query.version
+                ? result.filter(peer => peer.version === (request.query as any).version)
+                : result;
 
-        const limit: number = +request.query.limit || 100;
+            const count: number = result.length;
 
-        let offset: number = +(Utils.get(request.query, "offset", 0) || 0);
+            const limit: number = +request.query.limit || 100;
 
-        if (offset <= 0 && +request.query.page > 1) {
-            offset = (+request.query.page - 1) * limit;
-        }
+            let offset: number = +(Utils.get(request.query, "offset", 0) || 0);
 
-        if (Number.isNaN(offset)) {
-            offset = 0;
-        }
-
-        const orderBy: string = request.query.orderBy as string;
-        if (orderBy) {
-            const order = orderBy.split(":");
-
-            if (order[0] === "version") {
-                result =
-                    order[1].toUpperCase() === "ASC"
-                        ? result.sort((a, b) => semver.compare(a[order[0]], b[order[0]]))
-                        : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
+            if (offset <= 0 && +request.query.page > 1) {
+                offset = (+request.query.page - 1) * limit;
             }
+
+            if (Number.isNaN(offset)) {
+                offset = 0;
+            }
+
+            const orderBy: string = request.query.orderBy as string;
+            if (orderBy) {
+                const order = orderBy.split(":");
+
+                if (order[0] === "version") {
+                    result =
+                        order[1].toLowerCase() === "asc"
+                            ? result.sort((a, b) => semver.compare(a[order[0]], b[order[0]]))
+                            : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
+                }
+            }
+
+            result = result.slice(offset, offset + limit);
+
+            return super.toPagination({ rows: result, count }, "peer");
+        } catch (error) {
+            return Boom.badImplementation(error);
         }
-
-        result = result.slice(offset, offset + limit);
-
-        return super.toPagination({ rows: result, count }, "peer");
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             // todo: inject from container
-            const peers: Contracts.P2P.Peer[] = app
-                .get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage)
-                .getPeers();
+            const storage: Contracts.P2P.PeerStorage = app.get<Contracts.P2P.PeerStorage>(
+                Container.Identifiers.PeerStorage,
+            );
 
-            const peer: Contracts.P2P.Peer | undefined = peers.find(p => p.ip === request.params.ip);
-
-            if (!peer) {
+            if (!storage.hasPeer(request.params.ip)) {
                 return Boom.notFound("Peer not found");
             }
 
-            return super.respondWithResource(peer, "peer");
+            return super.respondWithResource(storage.getPeer(request.params.ip), "peer");
         } catch (error) {
             return Boom.badImplementation(error);
         }

@@ -6,7 +6,7 @@ import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
 import { Keys } from "@arkecosystem/crypto/src/identities";
 import { BuilderFactory, Utils as TransactionUtils, Verifier } from "@arkecosystem/crypto/src/transactions";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionFactory } from "../../../../packages/core-test-framework/src/helpers/transaction-factory";
+import { TransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
 import { createRandomTx } from "./__support__";
 
 describe("Verifier", () => {

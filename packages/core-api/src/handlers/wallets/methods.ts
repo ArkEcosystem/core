@@ -4,6 +4,20 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
+const findWallet = (id: string): Contracts.State.Wallet | Boom<null> => {
+    let wallet: Contracts.State.Wallet | undefined;
+
+    try {
+        wallet = app
+            .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+            .wallets.findById(Contracts.Database.SearchScope.Wallets, id);
+    } catch (error) {
+        return Boom.notFound("Wallet not found");
+    }
+
+    return wallet;
+};
+
 // todo: rework to make use of injection rather then manual resolving
 const index = async request => {
     const wallets = app
@@ -19,30 +33,18 @@ const index = async request => {
 const top = async request => {
     const wallets = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.top(paginate(request));
+        .wallets.top(Contracts.Database.SearchScope.Wallets, paginate(request));
 
     return toPagination(wallets, "wallet");
 };
 
-const show = async request => {
-    const wallet: Contracts.State.Wallet = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
-
-    if (!wallet) {
-        return Boom.notFound("Wallet not found");
-    }
-
-    return respondWithResource(wallet, "wallet");
-};
+const show = async request => respondWithResource(findWallet(request.params.id), "wallet");
 
 const transactions = async request => {
-    const wallet: Contracts.State.Wallet = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
+    const wallet: Contracts.State.Wallet | Boom<null> = findWallet(request.params.id);
 
-    if (!wallet) {
-        return Boom.notFound("Wallet not found");
+    if (wallet instanceof Boom) {
+        return wallet;
     }
 
     // Overwrite parameters for special wallet treatment inside transaction repository
@@ -66,12 +68,10 @@ const transactions = async request => {
 };
 
 const transactionsSent = async request => {
-    const wallet: Contracts.State.Wallet = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
+    const wallet: Contracts.State.Wallet | Boom<null> = findWallet(request.params.id);
 
-    if (!wallet || !wallet.publicKey) {
-        return Boom.notFound("Wallet not found");
+    if (wallet instanceof Boom) {
+        return wallet;
     }
 
     // NOTE: We unset this value because it otherwise will produce a faulty SQL query
@@ -79,7 +79,7 @@ const transactionsSent = async request => {
 
     const rows = await app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .transactionsBusinessRepository.findAllBySender(wallet.publicKey, {
+        .transactionsBusinessRepository.findAllBySender(wallet.publicKey!, {
             ...request.query,
             ...request.params,
             ...paginate(request),
@@ -89,12 +89,10 @@ const transactionsSent = async request => {
 };
 
 const transactionsReceived = async request => {
-    const wallet: Contracts.State.Wallet = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
+    const wallet: Contracts.State.Wallet | Boom<null> = findWallet(request.params.id);
 
-    if (!wallet) {
-        return Boom.notFound("Wallet not found");
+    if (wallet instanceof Boom) {
+        return wallet;
     }
 
     // NOTE: We unset this value because it otherwise will produce a faulty SQL query
@@ -112,12 +110,10 @@ const transactionsReceived = async request => {
 };
 
 const votes = async request => {
-    const wallet: Contracts.State.Wallet = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
+    const wallet: Contracts.State.Wallet | Boom<null> = findWallet(request.params.id);
 
-    if (!wallet || !wallet.publicKey) {
-        return Boom.notFound("Wallet not found");
+    if (wallet instanceof Boom) {
+        return wallet;
     }
 
     // NOTE: We unset this value because it otherwise will produce a faulty SQL query
@@ -125,7 +121,7 @@ const votes = async request => {
 
     const rows = await app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .transactionsBusinessRepository.allVotesBySender(wallet.publicKey, {
+        .transactionsBusinessRepository.allVotesBySender(wallet.publicKey!, {
             ...request.params,
             ...paginate(request),
         });
@@ -134,12 +130,10 @@ const votes = async request => {
 };
 
 const locks = async request => {
-    const wallet: Contracts.State.Wallet = app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .wallets.findById(Contracts.Database.SearchScope.Wallets, request.params.id);
+    const wallet: Contracts.State.Wallet | Boom<null> = findWallet(request.params.id);
 
-    if (!wallet) {
-        return Boom.notFound("Wallet not found");
+    if (wallet instanceof Boom) {
+        return wallet;
     }
 
     // Sorry, cold wallets

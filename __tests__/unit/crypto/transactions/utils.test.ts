@@ -15,7 +15,7 @@ import {
     TransactionFactory,
     Utils as TransactionUtils,
 } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory as TestTransactionFactory } from "../../../../packages/core-test-framework/src/helpers/transaction-factory";
+import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
 let transactionData: ITransactionData;

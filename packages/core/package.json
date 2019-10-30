@@ -33,16 +33,20 @@
         "forger:devnet": "cross-env CORE_PATH_CONFIG=./bin/config/devnet yarn ark forger:run --network=devnet",
         "forger:mainnet": "cross-env CORE_PATH_CONFIG=./bin/config/mainnet yarn ark forger:run --network=mainnet",
         "forger:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark forger:run --env=test --network=testnet",
+        "forger:unitnet": "cross-env CORE_PATH_CONFIG=./bin/config/unitnet yarn ark forger:run --env=test --network=unitnet",
         "full:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark core:run --networkStart --env=test --network=testnet",
+        "full:unitnet": "cross-env CORE_PATH_CONFIG=./bin/config/unitnet yarn ark core:run --networkStart --env=test --network=unitnet",
         "prepack": "../../node_modules/.bin/oclif-dev manifest && npm shrinkwrap",
         "postpack": "rm -f oclif.manifest.json",
         "prepublishOnly": "yarn build",
         "relay:devnet": "cross-env CORE_PATH_CONFIG=./bin/config/devnet yarn ark relay:run --network=devnet",
         "relay:mainnet": "cross-env CORE_PATH_CONFIG=./bin/config/mainnet yarn ark relay:run --network=mainnet",
         "relay:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark relay:run --env=test --network=testnet",
+        "relay:unitnet": "cross-env CORE_PATH_CONFIG=./bin/config/unitnet yarn ark relay:run --env=test --network=unitnet",
         "start:devnet": "cross-env CORE_PATH_CONFIG=./bin/config/devnet yarn ark core:run --network=devnet",
         "start:mainnet": "cross-env CORE_PATH_CONFIG=./bin/config/mainnet yarn ark core:run --network=mainnet",
-        "start:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark core:run --env=test --network=testnet"
+        "start:testnet": "cross-env CORE_PATH_CONFIG=./bin/config/testnet yarn ark core:run --env=test --network=testnet",
+        "start:unitnet": "cross-env CORE_PATH_CONFIG=./bin/config/unitnet yarn ark core:run --env=test --network=unitnet"
     },
     "dependencies": {
         "@arkecosystem/core-api": "^3.0.0-next.0",
