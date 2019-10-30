@@ -14,8 +14,7 @@ import SocketCluster from "socketcluster";
 import { IPeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { RateLimiter } from "./rate-limiter";
-import { checkDNS, checkNTP } from "./utils";
-import { buildRateLimiter } from "./utils/build-rate-limiter";
+import { buildRateLimiter, checkDNS, checkNTP } from "./utils";
 
 export class NetworkMonitor implements P2P.INetworkMonitor {
     public server: SocketCluster;

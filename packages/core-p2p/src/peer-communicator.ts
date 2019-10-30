@@ -3,19 +3,30 @@ import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
 import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
+import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { IPeerConfig, IPeerPingResponse } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
+import { RateLimiter } from "./rate-limiter";
 import { replySchemas } from "./schemas";
-import { isValidVersion, socketEmit } from "./utils";
+import { buildRateLimiter, isValidVersion, socketEmit } from "./utils";
 
 export class PeerCommunicator implements P2P.IPeerCommunicator {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private outgoingRateLimiter: RateLimiter;
 
-    constructor(private readonly connector: P2P.IPeerConnector) {}
+    constructor(private readonly connector: P2P.IPeerConnector) {
+        this.outgoingRateLimiter = buildRateLimiter({
+            // White listing anybody here means we would not throttle ourselves when sending
+            // them requests, ie we could spam them.
+            whitelist: [],
+            remoteAccess: [],
+            rateLimit: app.resolveOptions("p2p").rateLimit
+        });
+    }
 
     public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlockJson) {
         return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
@@ -213,6 +224,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number) {
+        await this.throttle(peer, event);
+
         let response;
         try {
             this.connector.forgetError(peer);
@@ -243,6 +256,16 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
 
         return response.data;
+    }
+
+    private async throttle(peer: P2P.IPeer, event: string): Promise<void> {
+        const msBeforeReCheck = 1000;
+        while (await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event)) {
+            this.logger.debug(
+                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`
+            );
+            await delay(msBeforeReCheck);
+        }
     }
 
     private handleSocketError(peer: P2P.IPeer, event: string, error: Error): void {
