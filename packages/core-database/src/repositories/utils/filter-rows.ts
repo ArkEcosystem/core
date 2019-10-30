@@ -74,7 +74,7 @@ export = <T = any>(rows: ReadonlyArray<T>, params: Database.IParameters, filters
                     if (Array.isArray(item[elem])) {
                         if (Array.isArray(params[elem])) {
                             // @ts-ignore
-                            return params[elem].every(a => item[elem].indexOf(a) > -1);
+                            return params[elem].every(a => item[elem].includes(a));
                         } else {
                             throw new Error('Filtering by "every" requires an Array');
                         }
