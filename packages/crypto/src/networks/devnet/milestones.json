@@ -81,6 +81,9 @@
     },
     {
         "height": 4006000,
-        "aip11": true
+        "aip11": true,
+        "p2p": {
+            "minimumVersions": ["^2.6 || ^2.6.0-next.4"]
+        }
     }
 ]
