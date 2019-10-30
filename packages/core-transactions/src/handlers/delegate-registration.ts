@@ -25,6 +25,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return [
             "delegate",
             "delegate.lastBlock",
+            "delegate.producedBlocks",
             "delegate.rank",
             "delegate.round",
             "delegate.username",
