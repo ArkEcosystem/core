@@ -9,6 +9,13 @@ on:
         types: [ready_for_review, synchronize, opened]
 
 jobs:
+    env:
+        CORE_DB_DATABASE: ark_unitnet
+        CORE_DB_USERNAME: ark
+        POSTGRES_USER: ark
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: ark_unitnet
+
     basic:
         runs-on: ubuntu-latest
 
@@ -49,12 +56,6 @@ jobs:
               run: yarn test __tests__/functional/transaction-forging/transfer.test.ts
             - name: Vote
               run: yarn test __tests__/functional/transaction-forging/vote.test.ts
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
 
     aip11:
         runs-on: ubuntu-latest
@@ -102,12 +103,6 @@ jobs:
               run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts
             - name: Multi Signature Registration
               run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
 
     magistrate:
         runs-on: ubuntu-latest
@@ -153,9 +148,3 @@ jobs:
               run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts
             - name: Business Update
               run: yarn test __tests__/functional/transaction-forging/business-update.test.ts
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
