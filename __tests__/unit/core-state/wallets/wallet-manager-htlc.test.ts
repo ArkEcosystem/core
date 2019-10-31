@@ -38,6 +38,7 @@ describe("Wallet Manager", () => {
 
         beforeEach(() => {
             walletManager = new WalletManager();
+            (database as any).walletManager = walletManager;
 
             lockWallet = new Wallet(Identities.Address.fromPublicKey(lockKeys.publicKey, 23));
             lockWallet.publicKey = lockKeys.publicKey;
@@ -304,6 +305,7 @@ describe("Wallet Manager", () => {
 
         beforeEach(() => {
             walletManager = new WalletManager();
+            (database as any).walletManager = walletManager;
 
             lockWallet = new Wallet(Identities.Address.fromPublicKey(lockKeys.publicKey, 23));
             lockWallet.publicKey = lockKeys.publicKey;
@@ -379,6 +381,7 @@ describe("Wallet Manager", () => {
                     expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
                         Utils.BigNumber.ZERO,
                     );
+                    expect(lockWallet.getAttribute("htlc.locks", {})[lockTransaction.id]).toBeFalsy();
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
                     expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
                         initialDelegateWalletBalance.plus(lockWallet.balance),
@@ -402,6 +405,7 @@ describe("Wallet Manager", () => {
                     expect(lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO)).toEqual(
                         Utils.BigNumber.make(amount),
                     );
+                    expect(lockWallet.getAttribute("htlc.locks")[lockTransaction.id]).toBeTruthy();
                     expect(delegate.balance).toEqual(initialDelegateWalletBalance);
                     expect(delegate.getAttribute("delegate.voteBalance")).toEqual(
                         initialDelegateWalletBalance
