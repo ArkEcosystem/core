@@ -339,7 +339,7 @@ describe("Transaction serializer / deserializer", () => {
                 BuilderFactory.multiPayment()
                     .fee("50000000")
                     .addPayment("DBzGiUk8UVjB2dKCfGRixknB7Ki3Zhqthp", "1555")
-                    .addPayment("DBzGiUk8UVjB2dKCfGRixknB7Ki3Zhqthp", "1555")
+                    .addPayment("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", "1555")
                     .sign("dummy passphrase")
                     .build(),
             ).toThrow(InvalidTransactionBytesError);
