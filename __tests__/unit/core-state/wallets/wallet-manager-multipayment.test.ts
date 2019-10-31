@@ -3,6 +3,23 @@ import { State } from "@arkecosystem/core-interfaces";
 import { Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 
+jest.mock("@arkecosystem/core-container", () => {
+    return {
+        app: {
+            resolvePlugin: name => {
+                switch (name) {
+                    case "database":
+                        return {
+                            walletManager,
+                        };
+                    default:
+                        return {};
+                }
+            },
+        },
+    };
+});
+
 let walletManager: State.IWalletManager;
 
 beforeAll(() => {
