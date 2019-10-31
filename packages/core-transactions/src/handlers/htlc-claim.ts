@@ -51,7 +51,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         // Specific HTLC claim checks
         const claimAsset: Interfaces.IHtlcClaimAsset = transaction.data.asset.claim;
         const lockId: string = claimAsset.lockTransactionId;
-        const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+
+        const dbWalletManager: State.IWalletManager = app.resolvePlugin<Database.IDatabaseService>("database")
+            .walletManager;
+
+        const lockWallet: State.IWallet = dbWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }
