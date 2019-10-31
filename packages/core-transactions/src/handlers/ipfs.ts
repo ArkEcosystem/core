@@ -1,5 +1,6 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { IpfsHashAlreadyExists } from "../errors";
 import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -41,14 +42,14 @@ export class IpfsTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
         // TODO implement unique ipfs hash on blockchain (not just on wallet)
-        // if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
-        //     throw new IpfsHashAlreadyExists();
-        // }
+        if (wallet.hasAttribute("ipfs") && wallet.getAttribute("ipfs.hashes")[transaction.data.asset.ipfs]) {
+            throw new IpfsHashAlreadyExists();
+        }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
     }
 
     public async canEnterTransactionPool(

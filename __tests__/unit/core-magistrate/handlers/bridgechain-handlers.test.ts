@@ -26,6 +26,23 @@ import {
 } from "../../../../packages/core-magistrate-transactions/src/wallet-manager";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, businessRegistrationAsset1 } from "../helper";
 
+jest.mock("@arkecosystem/core-container", () => {
+    return {
+        app: {
+            resolvePlugin: name => {
+                switch (name) {
+                    case "database":
+                        return {
+                            walletManager,
+                        };
+                    default:
+                        return {};
+                }
+            },
+        },
+    };
+});
+
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let bridgechainRegistrationHandler: Handlers.TransactionHandler;
 let bridgechainResignationHandler: Handlers.TransactionHandler;

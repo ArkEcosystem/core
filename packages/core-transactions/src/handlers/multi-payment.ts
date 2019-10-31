@@ -41,7 +41,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
         const totalPaymentsAmount = transaction.data.asset.payments.reduce(
             (a, p) => a.plus(p.amount),
@@ -57,7 +57,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             throw new InsufficientBalanceError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
     }
 
     public async canEnterTransactionPool(

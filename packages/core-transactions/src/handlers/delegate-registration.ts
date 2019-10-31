@@ -86,11 +86,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        const sender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+        const sender: State.IWallet = walletManager.findByPublicKey(data.senderPublicKey);
         if (sender.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
         }
@@ -104,11 +104,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             throw new WalletIsAlreadyDelegateError();
         }
 
-        if (databaseWalletManager.findByUsername(username)) {
+        if (walletManager.findByUsername(username)) {
             throw new WalletUsernameAlreadyRegisteredError(username);
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {

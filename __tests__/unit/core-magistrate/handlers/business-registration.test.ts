@@ -14,6 +14,23 @@ import { BusinessRegistrationTransactionHandler } from "../../../../packages/cor
 import { IBusinessWalletAttributes } from "../../../../packages/core-magistrate-transactions/src/interfaces";
 import { businessRegistrationAsset1 } from "../helper";
 
+jest.mock("@arkecosystem/core-container", () => {
+    return {
+        app: {
+            resolvePlugin: name => {
+                switch (name) {
+                    case "database":
+                        return {
+                            walletManager,
+                        };
+                    default:
+                        return {};
+                }
+            },
+        },
+    };
+});
+
 let businessRegistrationHandler: Handlers.TransactionHandler;
 
 let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;

@@ -41,7 +41,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
         if (!wallet.isDelegate()) {
             throw new WalletNotADelegateError();
@@ -71,7 +71,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             throw new NotEnoughDelegatesError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
