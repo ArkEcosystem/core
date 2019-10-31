@@ -5,7 +5,7 @@ export interface IPeerConnector {
     all(): SCClientSocket[];
     connection(peer: IPeer): SCClientSocket;
 
-    connect(peer: IPeer): SCClientSocket;
+    connect(peer: IPeer, maxPayload?: number): SCClientSocket;
     disconnect(peer: IPeer): void;
 
     emit(peer: IPeer, event: string, data: any): void;
