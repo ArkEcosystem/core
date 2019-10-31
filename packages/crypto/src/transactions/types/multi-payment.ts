@@ -37,7 +37,7 @@ export class MultiPaymentTransaction extends Transaction {
             buffer.writeUint64(Long.fromString(payment.amount.toString()));
 
             const { addressBuffer, addressError } = Address.toBuffer(payment.recipientId);
-            options.addressError = addressError;
+            options.addressError = addressError || options.addressError;
 
             buffer.append(addressBuffer);
         }
