@@ -12,6 +12,7 @@ import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     InvalidSecondSignatureError,
+    IpfsHashAlreadyExists,
     LegacyMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
@@ -797,6 +798,14 @@ describe("Ipfs", () => {
 
             await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
                 InsufficientBalanceError,
+            );
+        });
+
+        it("should throw if hash already exists", async () => {
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).toResolve();
+            await expect(handler.apply(instance, walletManager)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(instance, senderWallet, walletManager)).rejects.toThrow(
+                IpfsHashAlreadyExists,
             );
         });
     });
