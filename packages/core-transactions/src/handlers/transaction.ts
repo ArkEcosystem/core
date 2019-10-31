@@ -1,6 +1,7 @@
 // tslint:disable:max-classes-per-file
 // tslint:disable:member-ordering
 
+import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -86,9 +87,12 @@ export abstract class TransactionHandler implements ITransactionHandler {
             throw new SenderWalletMismatchError();
         }
 
+        const dbWalletManager: State.IWalletManager = app.resolvePlugin<Database.IDatabaseService>("database")
+            .walletManager;
+
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = walletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: State.IWallet = dbWalletManager.findByPublicKey(data.senderPublicKey);
 
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
@@ -117,7 +121,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const dbSender: State.IWallet = dbWalletManager.findByPublicKey(transaction.data.senderPublicKey);
 
             if (dbSender.getAttribute("multiSignature").legacy) {
                 throw new LegacyMultiSignatureError();
