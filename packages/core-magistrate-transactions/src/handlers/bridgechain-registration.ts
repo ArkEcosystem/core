@@ -55,7 +55,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
@@ -77,7 +77,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             throw new BridgechainAlreadyRegisteredError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {

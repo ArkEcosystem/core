@@ -63,7 +63,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
     protected async performGenericWalletChecks(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -88,7 +88,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasSecondSignature()) {
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(data.senderPublicKey);
+            const dbSender: State.IWallet = walletManager.findByPublicKey(data.senderPublicKey);
 
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
@@ -117,7 +117,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
         if (sender.hasMultiSignature()) {
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: State.IWallet = databaseWalletManager.findByPublicKey(transaction.data.senderPublicKey);
+            const dbSender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
             if (dbSender.getAttribute("multiSignature").legacy) {
                 throw new LegacyMultiSignatureError();
@@ -138,16 +138,16 @@ export abstract class TransactionHandler implements ITransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
         if (
-            !databaseWalletManager.hasByPublicKey(sender.publicKey) &&
-            databaseWalletManager.findByAddress(sender.address).balance.isZero()
+            !walletManager.hasByPublicKey(sender.publicKey) &&
+            walletManager.findByAddress(sender.address).balance.isZero()
         ) {
             throw new ColdWalletError();
         }
 
-        return this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
+        return this.performGenericWalletChecks(transaction, sender, walletManager);
     }
 
     public async apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void> {

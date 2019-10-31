@@ -32,9 +32,9 @@ export class TransferTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
-        return super.throwIfCannotBeApplied(transaction, sender, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, sender, walletManager);
     }
 
     public hasVendorField(): boolean {

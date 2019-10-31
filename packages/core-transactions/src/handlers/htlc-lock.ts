@@ -54,7 +54,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
         const lock: Interfaces.IHtlcLockAsset = transaction.data.asset.lock;
         const lastBlock: Interfaces.IBlock = app
@@ -80,7 +80,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             throw new HtlcLockExpiredError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
     }
 
     public async canEnterTransactionPool(

@@ -44,14 +44,14 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void> {
-        await this.performGenericWalletChecks(transaction, sender, databaseWalletManager);
+        await this.performGenericWalletChecks(transaction, sender, walletManager);
 
         // Specific HTLC refund checks
         const refundAsset: Interfaces.IHtlcRefundAsset = transaction.data.asset.refund;
         const lockId: string = refundAsset.lockTransactionId;
-        const lockWallet: State.IWallet = databaseWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+        const lockWallet: State.IWallet = walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
             throw new HtlcLockTransactionNotFoundError();
         }

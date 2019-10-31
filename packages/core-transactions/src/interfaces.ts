@@ -20,7 +20,7 @@ export interface ITransactionHandler {
     throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: State.IWallet,
-        databaseWalletManager: State.IWalletManager,
+        walletManager: State.IWalletManager,
     ): Promise<void>;
     apply(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void>;
     revert(transaction: Interfaces.ITransaction, walletManager: State.IWalletManager): Promise<void>;
