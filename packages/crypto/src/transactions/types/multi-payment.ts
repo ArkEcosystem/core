@@ -4,7 +4,6 @@ import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { Address } from "../../identities";
 import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
 import { configManager } from "../../managers";
-import { Base58 } from "../../utils/base58";
 import { BigNumber } from "../../utils/bignum";
 import * as schemas from "./schemas";
 import { Transaction } from "./transaction";
@@ -34,9 +33,13 @@ export class MultiPaymentTransaction extends Transaction {
         const buffer: ByteBuffer = new ByteBuffer(2 + data.asset.payments.length * 29, true);
         buffer.writeUint16(data.asset.payments.length);
 
-        for (const p of data.asset.payments) {
-            buffer.writeUint64(Long.fromString(p.amount.toString()));
-            buffer.append(Base58.decodeCheck(p.recipientId));
+        for (const payment of data.asset.payments) {
+            buffer.writeUint64(Long.fromString(payment.amount.toString()));
+
+            const { addressBuffer, addressError } = Address.toBuffer(payment.recipientId);
+            options.addressError = addressError || options.addressError;
+
+            buffer.append(addressBuffer);
         }
 
         return buffer;
