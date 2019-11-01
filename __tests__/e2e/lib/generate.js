@@ -11,7 +11,7 @@ const exec = util.promisify(require("child_process").exec);
  * @return {void}
  */
 module.exports = options => {
-    console.log("[generate-files] Start");
+    console.log("Start");
 
     new GenerateManager(options).generate();
 };
@@ -47,7 +47,7 @@ class GenerateManager {
     }
 
     async copyCore() {
-        console.log("[generate-files] Copying core into each node folder...");
+        console.log("Copying core into each node folder...");
 
         await Promise.all(
             this.nodes.map(node => {
@@ -60,7 +60,7 @@ class GenerateManager {
             }),
         );
 
-        console.log("[generate-files] Core copy done");
+        console.log("Core copy done");
     }
 
     async createFiles() {
@@ -75,7 +75,7 @@ class GenerateManager {
             to: distNginxPath,
             files: ["docker-compose.yml", "nginx.conf"],
         }, ]);
-        console.log(`[generate-files] Files copy done for nginx`);
+        console.log(`Files copy done for nginx`);
 
         const thisNetworkPath = path.join(this.coreRootPath, `packages/core/bin/config/${this.network}`);
         const thisDockerPath = path.join(this.rootPath, "lib/config/docker");
@@ -89,7 +89,7 @@ class GenerateManager {
 
             await exec(`mkdir ${distDockerPath}`);
 
-            const arkScript = index > 0 ? "ark.sh" : "ark-network-start.sh";
+            const arkScript = "ark-network-start.sh"; // launch all nodes in "network start" mode so they wait for peers before forging
 
             copyFiles([{
                     from: thisDockerPath,
@@ -119,6 +119,10 @@ class GenerateManager {
 
             fs.writeFileSync(path.join(distNodePath, "ark.sh"), arkDistScriptUpdated);
 
+            // make ark.sh and entrypoint.sh executable
+            await exec(`chmod +x ${path.join(distNodePath, "ark.sh")}`);
+            await exec(`chmod +x ${path.join(distDockerPath, "entrypoint.sh")}`);
+
             // need to rework delegates.json to distribute them among the nodes
             const nodeDelegates = Object.assign({}, delegates);
             const chunkSize = Math.ceil(delegates.secrets.length / this.nodes.length);
@@ -137,7 +141,7 @@ class GenerateManager {
 
             fs.writeFileSync(path.join(distCoreNetworkPath, "plugins.js"), pluginsFixed);
 
-            console.log(`[generate-files] Files copy done for ${node}`);
+            console.log(`Files copy done for ${node}`);
         }
 
         copyFiles([{
@@ -145,8 +149,10 @@ class GenerateManager {
             to: path.join(this.rootPath, "dist"),
             files: ["docker-init.sh", "docker-start.sh"],
         }, ]);
+        // make files executable
+        await exec(`chmod +x ${path.join(this.rootPath, "dist", "docker*")}`);
 
-        console.log(`[generate-files] Docker files copy done`);
+        console.log(`Docker files copy done`);
 
         function copyFiles(filesToCopy) {
             for (const copyParams of filesToCopy) {
