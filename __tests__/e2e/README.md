@@ -22,16 +22,11 @@ Now to run the tests locally, you need to have Docker installed. Then, run this 
 
 You can now run the configured tests like this :
 
-    bin/e2e generate -c 3
-    chmod +x dist/docker*
-    chmod +x dist/node0/docker/testnet-e2e/entrypoint.sh
-    chmod +x dist/node1/docker/testnet-e2e/entrypoint.sh
-    chmod +x dist/node2/docker/testnet-e2e/entrypoint.sh
-    chmod +x dist/node0/ark.sh
-    chmod +x dist/node1/ark.sh
-    chmod +x dist/node2/ark.sh
-    cd dist && ./docker-init.sh && ./docker-start.sh && cd ..
-    bin/e2e run-tests -s scenario1
+```bash
+bin/e2e generate -c 3 # 3 nodes, you can generate up to 10
+bin/e2e docker # or to see output: cd dist && ./docker-init.sh && ./docker-start.sh && cd ..
+bin/e2e run-tests # by default the main "scenario1" is run, see -s option for custom scenario
+```
 
 This will generate the 3 nodes on testnet and run the tests defined in `scenario1`. (it can take some time depending on your machine resources)
 

@@ -15,12 +15,12 @@ const exec = util.promisify(require("child_process").exec);
  * @return {void}
  */
 module.exports = async options => {
-    console.log("[test-runner] Start");
+    console.log("Start");
 
-    await new TestRunner(options).runTests();
+    await new Runner(options).runTests();
 };
 
-class TestRunner {
+class Runner {
     /**
      * Create a new test runner instance.
      * @param  {Object} options
@@ -35,6 +35,7 @@ class TestRunner {
         this.startTime = Date.now();
         this.timeLimit = options.timeLimit ? options.timeLimit * 60 * 1000 : 0; // convert timeLimit minutes to millisec
         this.sync = !!options.sync; // full sync mode
+        this.justLaunchNetwork = !!options.justLaunchNetwork;
 
         if (!["testnet", "devnet", "mainnet"].includes(options.network)) {
             throw new Error("Base network should be one of testnet, devnet, mainnet");
@@ -43,20 +44,25 @@ class TestRunner {
     }
 
     async runTests() {
-        console.log("[test-runner] Waiting for node0 to be up on docker...");
+        console.log("Waiting for node0 to be up on docker...");
         // wait for ark_node0 to be up + lerna.ok file to exist in dist/e2net/node0/
         await this.waitForNodesDocker(1800);
 
         // get the IP of all nodes to populate peers.json of each node
-        console.log("[test-runner] Getting nodes info...");
+        console.log("Getting nodes info...");
         await this.getNodesInfo();
         console.log(JSON.stringify(this.nodes, null, 2));
 
         // launch the other nodes
-        console.log("[test-runner] Launching nodes...");
+        console.log("Launching nodes...");
         await this.launchNodes();
 
-        console.log("[test-runner] Executing tests...");
+        if (this.justLaunchNetwork) {
+            console.log("Network was launched successfully !");
+            return;
+        }
+
+        console.log("Executing tests...");
         const executeResult = await this.execute();
 
         // write test results to a file
@@ -97,13 +103,12 @@ class TestRunner {
 
     async launchNodes() {
         for (let nodeNumber in this.nodes) {
-            console.log(`[test-runner] Launching node${nodeNumber}...`);
+            console.log(`Launching node${nodeNumber}...`);
             const nodeInfos = this.nodes[nodeNumber];
 
             // we configure for every node one peer being the last node we started
-            console.log(`[test-runner] Updating node${nodeNumber} peer list...`);
-            const IPPreviousNode = nodeNumber > 0 ? this.nodes[nodeNumber - 1].IP : this.nodes[0].IP; // node0 will have himself as peer, no problem
-            const peers = { list: [{ ip: IPPreviousNode, port: 4000 }] };
+            console.log(`Updating node${nodeNumber} peer list...`);
+            const peers = { list: this.nodes.map(node => ({ ip: node.IP, port: 4000})) };
             fs.writeFile(
                 `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/${this.network}/peers.json`,
                 JSON.stringify(peers, null, 2),
@@ -121,10 +126,8 @@ class TestRunner {
             if (this.skipLastNode && nodeNumber === this.nodes.length - 1) {
                 return;
             }
-            // now launch the node, with --network-start for node0
-            console.log(`[test-runner] Launching node${nodeNumber}...`);
-            const networkStart = nodeNumber > 0 ? "" : "--network-start ";
-            console.log(networkStart);
+            // now launch the node
+            console.log(`Launching node${nodeNumber}...`);
             const commandLaunch = `docker ps --format "{{.Names}}" | grep ${nodeInfos.name}_ark | xargs -I {} sh -c 'docker exec -d {} bash ark.sh'`;
             console.log(`Executing: ${commandLaunch}`);
             await exec(commandLaunch);
@@ -182,7 +185,7 @@ class TestRunner {
             // we are synced
             return true;
         } else {
-            console.log(`[test-runner] Not synced : heights are ${nodesHeight.join()}`);
+            console.log(`Not synced : heights are ${nodesHeight.join()}`);
         }
 
         await delay(20 * 1000);
@@ -218,7 +221,7 @@ class TestRunner {
 
         if (blockHeight > lastBlockHeight) {
             // new block !
-            console.log(`[test-runner] New block : ${blockHeight}`);
+            console.log(`New block : ${blockHeight}`);
             const thingsToExecute = configuredBlockHeights.filter(key => key > lastBlockHeight && key <= blockHeight);
 
             if (Math.max(...configuredBlockHeights) < blockHeight) {
@@ -233,14 +236,14 @@ class TestRunner {
                 if (testsPaths) {
                     testsPaths.forEach(testPath => {
                         // now use Jest to launch the tests
-                        console.log(`[test-runner] Executing test ${testPath} for block ${blockHeight}`);
+                        console.log(`Executing test ${testPath} for block ${blockHeight}`);
                         this.runJestTest(testPath);
                     });
                 }
 
                 if (actionsPaths) {
                     actionsPaths.forEach(actionPath => {
-                        console.log(`[test-runner] Executing action ${actionPath} for block ${blockHeight}`);
+                        console.log(`Executing action ${actionPath} for block ${blockHeight}`);
                         this.executeAction(actionPath);
                     });
                 }
@@ -268,13 +271,13 @@ class TestRunner {
 
         jest.runCLI(options, options.projects)
             .then(success => {
-                console.log(`[test-runner] Test ${path} was run successfully`);
+                console.log(`Test ${path} was run successfully`);
                 this.testResults.push(success.results);
 
                 this.failedTestSuites += success.results.numFailedTestSuites;
             })
             .catch(failure => {
-                console.error(`[test-runner] Error running test ${path} : ${failure}`);
+                console.error(`Error running test ${path} : ${failure}`);
             });
     }
 
