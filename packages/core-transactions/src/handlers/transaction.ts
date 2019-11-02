@@ -15,7 +15,7 @@ import {
     UnexpectedMultiSignatureError,
     UnexpectedSecondSignatureError,
 } from "../errors";
-import { ITransactionHandler } from "../interfaces";
+import { IDynamicFeeContext, ITransactionHandler } from "../interfaces";
 
 export type TransactionHandlerConstructor = new () => TransactionHandler;
 
@@ -46,11 +46,7 @@ export abstract class TransactionHandler implements ITransactionHandler {
 
     public abstract async isActivated(): Promise<boolean>;
 
-    public dynamicFee(
-        transaction: Interfaces.ITransaction,
-        addonBytes: number,
-        satoshiPerByte: number,
-    ): Utils.BigNumber {
+    public dynamicFee({ addonBytes, satoshiPerByte, transaction }: IDynamicFeeContext): Utils.BigNumber {
         addonBytes = addonBytes || 0;
 
         if (satoshiPerByte <= 0) {

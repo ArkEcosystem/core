@@ -5,7 +5,7 @@ import {
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
     BridgechainIsNotRegisteredError,
     BridgechainIsResignedError,
@@ -15,8 +15,9 @@ import {
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
-export class BridgechainResignationTransactionHandler extends Handlers.TransactionHandler {
+export class BridgechainResignationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainResignationTransaction;
     }
@@ -27,10 +28,6 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
 
     public walletAttributes(): ReadonlyArray<string> {
         return ["business.bridgechains.bridgechain.resigned"];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {

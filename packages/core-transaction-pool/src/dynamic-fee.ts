@@ -1,5 +1,5 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Logger, State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { IDynamicFeeMatch } from "./interfaces";
@@ -10,6 +10,10 @@ export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): P
     const id: string = transaction.id;
 
     const { dynamicFees } = app.resolveOptions("transaction-pool");
+    const height: number = app
+        .resolvePlugin<State.IStateService>("state")
+        .getStore()
+        .getLastHeight();
 
     let broadcast: boolean;
     let enterPool: boolean;
@@ -20,11 +24,12 @@ export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): P
             transaction.typeGroup,
         );
         const addonBytes: number = app.resolveOptions("transaction-pool").dynamicFees.addonBytes[transaction.key];
-        const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee(
+        const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee({
             transaction,
             addonBytes,
-            dynamicFees.minFeeBroadcast,
-        );
+            satoshiPerByte: dynamicFees.minFeeBroadcast,
+            height,
+        });
 
         if (fee.isGreaterThanEqual(minFeeBroadcast)) {
             broadcast = true;
@@ -44,7 +49,12 @@ export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): P
             );
         }
 
-        const minFeePool: Utils.BigNumber = handler.dynamicFee(transaction, addonBytes, dynamicFees.minFeePool);
+        const minFeePool: Utils.BigNumber = handler.dynamicFee({
+            transaction,
+            addonBytes,
+            satoshiPerByte: dynamicFees.minFeePool,
+            height,
+        });
 
         if (fee.isGreaterThanEqual(minFeePool)) {
             enterPool = true;

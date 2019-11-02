@@ -44,4 +44,12 @@ describe("Registry test", () => {
             Handlers.Registry.get(Enums.MagistrateTransactionType.BridgechainUpdate, Enums.MagistrateTransactionGroup);
         }).not.toThrowError();
     });
+
+    it("should return static fee for dynamic fee", () => {
+        for (const handler of Handlers.Registry.getAll().filter(
+            handler => handler.getConstructor().typeGroup === Enums.MagistrateTransactionGroup,
+        )) {
+            expect(handler.dynamicFee({} as any)).toEqual(handler.getConstructor().staticFee({} as any));
+        }
+    });
 });

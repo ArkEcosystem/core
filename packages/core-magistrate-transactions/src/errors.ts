@@ -48,3 +48,9 @@ export class BridgechainIsResignedError extends Errors.TransactionError {
         super(`Failed to apply transaction, because bridgechain is resigned.`);
     }
 }
+
+export class InvalidFeeError extends Errors.TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because fee is invalid.`);
+    }
+}
