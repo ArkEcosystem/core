@@ -1,4 +1,5 @@
 SELECT
+    type_group,
     type,
     AVG(fee)::int8 as "avg",
     MIN(fee)::int8 as "min",
@@ -9,6 +10,6 @@ FROM
 WHERE
     transactions.timestamp >= ${age} AND fee >= ${minFee}
 GROUP BY
-    type
+    type_group, type
 ORDER BY
-    type
+    type_group, type
