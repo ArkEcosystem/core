@@ -58,22 +58,29 @@ describe("dynamic fees", () => {
 
         const handler = await Handlers.Registry.get(transactions.dummy1.type);
         transactions.dynamicFeeNormalDummy1.data.fee = handler
-            .dynamicFee(transactions.dynamicFeeNormalDummy1, addonBytes, dynamicFeeConfig.minFeeBroadcast)
+            .dynamicFee({
+                transaction: transactions.dynamicFeeNormalDummy1,
+                addonBytes,
+                satoshiPerByte: dynamicFeeConfig.minFeeBroadcast,
+                height: 1,
+            })
             .plus(100);
 
         await expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1)).resolves.toHaveProperty("broadcast", true);
 
         // testing with transaction fee === min fee for transaction broadcast
-        transactions.dummy3.data.fee = handler.dynamicFee(
-            transactions.dummy3,
+        transactions.dummy3.data.fee = handler.dynamicFee({
+            transaction: transactions.dummy3,
             addonBytes,
-            dynamicFeeConfig.minFeeBroadcast,
-        );
-        transactions.dummy4.data.fee = handler.dynamicFee(
-            transactions.dummy4,
+            satoshiPerByte: dynamicFeeConfig.minFeeBroadcast,
+            height: 1,
+        });
+        transactions.dummy4.data.fee = handler.dynamicFee({
+            transaction: transactions.dummy4,
             addonBytes,
-            dynamicFeeConfig.minFeeBroadcast,
-        );
+            satoshiPerByte: dynamicFeeConfig.minFeeBroadcast,
+            height: 1,
+        });
         await expect(dynamicFeeMatcher(transactions.dummy3)).resolves.toHaveProperty("broadcast", true);
         await expect(dynamicFeeMatcher(transactions.dummy4)).resolves.toHaveProperty("broadcast", true);
     });
@@ -89,22 +96,29 @@ describe("dynamic fees", () => {
         await expect(dynamicFeeMatcher(transactions.dummy2)).resolves.toHaveProperty("enterPool", true);
 
         transactions.dynamicFeeNormalDummy1.data.fee = handler
-            .dynamicFee(transactions.dynamicFeeNormalDummy1, addonBytes, dynamicFeeConfig.minFeePool)
+            .dynamicFee({
+                transaction: transactions.dynamicFeeNormalDummy1,
+                addonBytes,
+                satoshiPerByte: dynamicFeeConfig.minFeePool,
+                height: 1,
+            })
             .plus(100);
 
         await expect(dynamicFeeMatcher(transactions.dynamicFeeNormalDummy1)).resolves.toHaveProperty("enterPool", true);
 
         // testing with transaction fee === min fee for transaction enter pool
-        transactions.dummy3.data.fee = handler.dynamicFee(
-            transactions.dummy3,
+        transactions.dummy3.data.fee = handler.dynamicFee({
+            transaction: transactions.dummy3,
             addonBytes,
-            dynamicFeeConfig.minFeeBroadcast,
-        );
-        transactions.dummy4.data.fee = handler.dynamicFee(
-            transactions.dummy4,
+            satoshiPerByte: dynamicFeeConfig.minFeeBroadcast,
+            height: 1,
+        });
+        transactions.dummy4.data.fee = handler.dynamicFee({
+            transaction: transactions.dummy4,
             addonBytes,
-            dynamicFeeConfig.minFeeBroadcast,
-        );
+            satoshiPerByte: dynamicFeeConfig.minFeeBroadcast,
+            height: 1,
+        });
         await expect(dynamicFeeMatcher(transactions.dummy3)).resolves.toHaveProperty("enterPool", true);
         await expect(dynamicFeeMatcher(transactions.dummy4)).resolves.toHaveProperty("enterPool", true);
     });

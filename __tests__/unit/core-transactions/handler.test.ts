@@ -285,15 +285,15 @@ describe("General Tests", () => {
             const addonBytes = 137;
             const handler = await Handlers.Registry.get(transaction.type);
 
-            expect(handler.dynamicFee(transaction, addonBytes, 3)).toEqual(
+            expect(handler.dynamicFee({ transaction, addonBytes, satoshiPerByte: 3, height: 1 })).toEqual(
                 Utils.BigNumber.make(137 + transaction.serialized.length / 2).times(3),
             );
 
-            expect(handler.dynamicFee(transaction, addonBytes, 6)).toEqual(
+            expect(handler.dynamicFee({ transaction, addonBytes, satoshiPerByte: 6, height: 1 })).toEqual(
                 Utils.BigNumber.make(137 + transaction.serialized.length / 2).times(6),
             );
 
-            expect(handler.dynamicFee(transaction, 0, 9)).toEqual(
+            expect(handler.dynamicFee({ transaction, addonBytes: 0, satoshiPerByte: 9, height: 1 })).toEqual(
                 Utils.BigNumber.make(transaction.serialized.length / 2).times(9),
             );
         });
@@ -301,8 +301,12 @@ describe("General Tests", () => {
         it("should default satoshiPerByte to 1 if value provided is <= 0", async () => {
             const handler = await Handlers.Registry.get(transaction.type);
 
-            expect(handler.dynamicFee(transaction, 0, -50)).toEqual(handler.dynamicFee(transaction, 0, 1));
-            expect(handler.dynamicFee(transaction, 0, 0)).toEqual(handler.dynamicFee(transaction, 0, 1));
+            expect(handler.dynamicFee({ transaction, addonBytes: 0, satoshiPerByte: -50, height: 1 })).toEqual(
+                handler.dynamicFee({ transaction, addonBytes: 0, satoshiPerByte: 1, height: 1 }),
+            );
+            expect(handler.dynamicFee({ transaction, addonBytes: 0, satoshiPerByte: 0, height: 1 })).toEqual(
+                handler.dynamicFee({ transaction, addonBytes: 0, satoshiPerByte: 1, height: 1 }),
+            );
         });
     });
 });
