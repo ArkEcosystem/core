@@ -76,7 +76,7 @@ describe("API 2.0 - Loader", () => {
             const response = await utils.request("GET", "node/fees", { days: 14 });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.meta.days).toBe(14);
-            expect(response.data.data).toBeArray();
+            expect(response.data.data).toBeObject();
         });
     });
 });
