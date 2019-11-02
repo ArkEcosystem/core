@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -89,7 +90,22 @@ export class NodeController extends Controller {
         // @ts-ignore
         const results = await transactionsBusinessRepository.getFeeStatistics(request.query.days);
 
-        return { meta: { days: request.query.days }, data: results };
+        const groupedByTypeGroup = {};
+        for (const result of results) {
+            if (!groupedByTypeGroup[result.typeGroup]) {
+                groupedByTypeGroup[result.typeGroup] = {};
+            }
+
+            const handler: Handlers.TransactionHandler = await Handlers.Registry.get(result.type, result.typeGroup);
+            groupedByTypeGroup[result.typeGroup][handler.getConstructor().key] = {
+                avg: result.avg,
+                max: result.max,
+                min: result.min,
+                sum: result.sum,
+            };
+        }
+
+        return { meta: { days: request.query.days }, data: groupedByTypeGroup };
     }
 
     public async debug(request: Hapi.Request, h) {
