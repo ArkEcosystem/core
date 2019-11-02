@@ -1,13 +1,14 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, Interfaces as TransactionInterfaces, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-manager";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
-export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
+export class BusinessRegistrationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BusinessRegistrationTransaction;
     }
@@ -24,10 +25,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             "business.bridgechains",
             "business.resigned",
         ];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -86,10 +83,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             return false;
         }
         return true;
-    }
-
-    public dynamicFee({ height }: TransactionInterfaces.IDynamicFeeContext): Utils.BigNumber {
-        return this.getConstructor().staticFee({ height });
     }
 
     public async applyToSender(

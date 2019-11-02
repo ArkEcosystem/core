@@ -1,13 +1,14 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, Interfaces as TransactionInterfaces, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
-export class BusinessResignationTransactionHandler extends Handlers.TransactionHandler {
+export class BusinessResignationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BusinessResignationTransaction;
     }
@@ -18,10 +19,6 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
 
     public walletAttributes(): ReadonlyArray<string> {
         return [];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -79,10 +76,6 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
             return false;
         }
         return true;
-    }
-
-    public dynamicFee({ height }: TransactionInterfaces.IDynamicFeeContext): Utils.BigNumber {
-        return this.getConstructor().staticFee({ height });
     }
 
     public async applyToSender(

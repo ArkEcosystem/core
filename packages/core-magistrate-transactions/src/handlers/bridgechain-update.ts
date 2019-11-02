@@ -5,8 +5,8 @@ import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, Interfaces as TransactionInterfaces, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
     BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
@@ -16,8 +16,9 @@ import {
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
-export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHandler {
+export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainUpdateTransaction;
     }
@@ -28,10 +29,6 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
 
     public walletAttributes(): ReadonlyArray<string> {
         return [];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -120,10 +117,6 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         }
 
         return true;
-    }
-
-    public dynamicFee({ height }: TransactionInterfaces.IDynamicFeeContext): Utils.BigNumber {
-        return this.getConstructor().staticFee({ height });
     }
 
     public async applyToSender(

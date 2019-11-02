@@ -4,8 +4,8 @@ import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, Interfaces as TransactionInterfaces, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
     BridgechainIsNotRegisteredError,
     BridgechainIsResignedError,
@@ -15,8 +15,9 @@ import {
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
-export class BridgechainResignationTransactionHandler extends Handlers.TransactionHandler {
+export class BridgechainResignationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainResignationTransaction;
     }
@@ -27,10 +28,6 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
 
     public walletAttributes(): ReadonlyArray<string> {
         return ["business.bridgechains.bridgechain.resigned"];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -120,10 +117,6 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         }
 
         return true;
-    }
-
-    public dynamicFee({ height }: TransactionInterfaces.IDynamicFeeContext): Utils.BigNumber {
-        return this.getConstructor().staticFee({ height });
     }
 
     public async applyToSender(

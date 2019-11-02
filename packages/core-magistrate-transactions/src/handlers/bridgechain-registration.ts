@@ -1,14 +1,15 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, Interfaces as TransactionInterfaces, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { BridgechainAlreadyRegisteredError, BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-manager";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
-export class BridgechainRegistrationTransactionHandler extends Handlers.TransactionHandler {
+export class BridgechainRegistrationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainRegistrationTransaction;
     }
@@ -19,10 +20,6 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
     public walletAttributes(): ReadonlyArray<string> {
         return ["business.bridgechains.bridgechain"];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
@@ -90,10 +87,6 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
         return true;
-    }
-
-    public dynamicFee({ height }: TransactionInterfaces.IDynamicFeeContext): Utils.BigNumber {
-        return this.getConstructor().staticFee({ height });
     }
 
     public async applyToSender(
