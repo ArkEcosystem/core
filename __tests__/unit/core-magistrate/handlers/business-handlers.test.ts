@@ -63,7 +63,7 @@ describe("should test marketplace transaction handlers", () => {
         walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
-        senderWallet.balance = Utils.BigNumber.make(4527654310);
+        senderWallet.balance = Utils.BigNumber.make("50000000000");
         senderWallet.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
         walletManager.reindex(senderWallet);
     });
@@ -72,7 +72,6 @@ describe("should test marketplace transaction handlers", () => {
         it("should pass all handler methods", async () => {
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset(businessRegistrationAsset1)
-                .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
             await expect(
@@ -90,7 +89,6 @@ describe("should test marketplace transaction handlers", () => {
         it("should pass all handler methods, with name, website, vat and repository", async () => {
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset(businessRegistrationAsset2)
-                .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -109,7 +107,6 @@ describe("should test marketplace transaction handlers", () => {
         it("should fail duo to wallet already a business error", async () => {
             const actual = businessRegistrationBuilder
                 .businessRegistrationAsset(businessRegistrationAsset1)
-                .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -125,7 +122,6 @@ describe("should test marketplace transaction handlers", () => {
     describe("should test business resignation handler", () => {
         it("should fail, because business is not registered", async () => {
             const actual = businessResignationBuilder
-                .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -137,12 +133,10 @@ describe("should test marketplace transaction handlers", () => {
         it("should pass, because business is registered", async () => {
             const businessRegister = businessRegistrationBuilder
                 .businessRegistrationAsset(businessRegistrationAsset1)
-                .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
             const businessResignation = businessResignationBuilder
-                .fee("50000000")
                 .nonce("2")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 

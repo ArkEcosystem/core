@@ -8,6 +8,7 @@ import { Managers, Utils } from "@arkecosystem/crypto";
 import {
     BridgechainAlreadyRegisteredError,
     BridgechainIsResignedError,
+    InvalidFeeError,
     WalletIsNotBusinessError,
 } from "../../../../packages/core-magistrate-transactions/src/errors";
 import {
@@ -75,7 +76,7 @@ describe("should test marketplace transaction handlers", () => {
         walletManager.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
-        senderWallet.balance = Utils.BigNumber.make(4527654310);
+        senderWallet.balance = Utils.BigNumber.make("500000000000000");
         senderWallet.publicKey = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
         walletManager.reindex(senderWallet);
     });
@@ -84,7 +85,6 @@ describe("should test marketplace transaction handlers", () => {
         it("should fail, because business is not registered", async () => {
             const actual = bridgechainRegistrationBuilder
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-                .fee("50000000")
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -100,7 +100,6 @@ describe("should test marketplace transaction handlers", () => {
                         name: "businessName",
                         website: "http://www.website.com",
                     })
-                    .fee("50000000")
                     .nonce("1")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
                 await businessRegistrationHandler.applyToSender(businessRegistration.build(), walletManager);
@@ -109,7 +108,6 @@ describe("should test marketplace transaction handlers", () => {
             it("should pass because business is registered", async () => {
                 const actual = bridgechainRegistrationBuilder
                     .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-                    .fee("50000000")
                     .nonce("2")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -121,7 +119,6 @@ describe("should test marketplace transaction handlers", () => {
             it("should throw because bridgechain is already registered", async () => {
                 const actual = bridgechainRegistrationBuilder
                     .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-                    .fee("50000000")
                     .nonce("2")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
                 await bridgechainRegistrationHandler.applyToSender(actual.build(), walletManager);
@@ -130,13 +127,24 @@ describe("should test marketplace transaction handlers", () => {
                     bridgechainRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
                 ).rejects.toThrowError(BridgechainAlreadyRegisteredError);
             });
+
+            it("should not pass because fee does not match", async () => {
+                const actual = bridgechainRegistrationBuilder
+                    .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
+                    .fee("5000")
+                    .nonce("2")
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+                await expect(
+                    bridgechainRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+                ).rejects.toThrow(InvalidFeeError);
+            });
         });
 
         describe("applyToSender tests", () => {
             beforeEach(async () => {
                 const businessRegistration = businessRegistrationBuilder
                     .businessRegistrationAsset(businessRegistrationAsset1)
-                    .fee("50000000")
                     .nonce("1")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
                 await businessRegistrationHandler.applyToSender(businessRegistration.build(), walletManager);
@@ -145,7 +153,6 @@ describe("should test marketplace transaction handlers", () => {
             it("should pass, because business is registered", async () => {
                 const bridgechainRegistration = bridgechainRegistrationBuilder
                     .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-                    .fee("50000000")
                     .nonce("2")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -170,7 +177,6 @@ describe("should test marketplace transaction handlers", () => {
 
                 const bridgechainResignation = bridgechainResignationBuilder
                     .businessResignationAsset(2)
-                    .fee("50000000")
                     .nonce("4")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -188,7 +194,6 @@ describe("should test marketplace transaction handlers", () => {
                 it("should be correct", async () => {
                     const bridgechainRegistration = bridgechainRegistrationBuilder
                         .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
-                        .fee("50000000")
                         .nonce("2")
                         .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -196,7 +201,6 @@ describe("should test marketplace transaction handlers", () => {
 
                     const bridgechainRegistration2 = bridgechainRegistrationBuilder
                         .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
-                        .fee("50000000")
                         .nonce("3")
                         .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
