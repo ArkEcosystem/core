@@ -1,7 +1,7 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Handlers, Interfaces as TransactionInterfaces, TransactionReader } from "@arkecosystem/core-transactions";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
@@ -79,6 +79,10 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
             return false;
         }
         return true;
+    }
+
+    public dynamicFee({ height }: TransactionInterfaces.IDynamicFeeContext): Utils.BigNumber {
+        return this.getConstructor().staticFee({ height });
     }
 
     public async applyToSender(

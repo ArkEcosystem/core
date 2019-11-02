@@ -3,6 +3,7 @@ import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces"
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../errors";
+import { IDynamicFeeContext } from "../interfaces";
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
@@ -32,11 +33,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         return Managers.configManager.getMilestone().aip11 === true;
     }
 
-    public dynamicFee(
-        transaction: Interfaces.ITransaction,
-        addonBytes: number,
-        satoshiPerByte: number,
-    ): Utils.BigNumber {
+    public dynamicFee(context: IDynamicFeeContext): Utils.BigNumber {
         // override dynamicFee calculation as this is a zero-fee transaction
         return Utils.BigNumber.ZERO;
     }
