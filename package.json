@@ -73,7 +73,7 @@
         "create-hash": "^1.2.0",
         "cross-env": "^6.0.3",
         "del-cli": "^3.0.0",
-        "depcheck": "^0.8.3",
+        "depcheck": "^0.9.0",
         "husky": "^3.0.8",
         "jest": "^24.9.0",
         "jest-extended": "^0.11.2",
