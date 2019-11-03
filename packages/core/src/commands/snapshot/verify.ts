@@ -21,6 +21,10 @@ export class VerifyCommand extends BaseCommand {
     public async run(): Promise<void> {
         const { flags, paths } = await this.parseWithNetwork(VerifyCommand);
 
+        this.abortRunningProcess(`${flags.token}-core`);
+        this.abortRunningProcess(`${flags.token}-forger`);
+        this.abortRunningProcess(`${flags.token}-relay`);
+
         await setUpLite(flags, paths);
 
         if (!app.has("snapshots")) {
