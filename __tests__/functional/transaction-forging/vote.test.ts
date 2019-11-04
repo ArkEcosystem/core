@@ -9,24 +9,57 @@ beforeAll(support.setUp);
 afterAll(support.tearDown);
 
 describe("Transaction Forging - Vote", () => {
-    it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
-        // Initial Funds
-        const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
-            .withPassphrase(secrets[0])
-            .createOne();
+    describe("Signed with 1 Passphase", () => {
+        it("should broadcast, accept and forge it", async () => {
+            // Initial Funds
+            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+                .withPassphrase(secrets[0])
+                .createOne();
 
-        await expect(initialFunds).toBeAccepted();
-        await support.snoozeForBlock(1);
-        await expect(initialFunds.id).toBeForged();
+            await expect(initialFunds).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(initialFunds.id).toBeForged();
 
-        // Submit a vote
-        const transactions = TransactionFactory.vote(Identities.PublicKey.fromPassphrase(secrets[0]))
-            .withPassphrase(passphrase)
-            .createOne();
+            // Submit a vote
+            const transactions = TransactionFactory.vote(Identities.PublicKey.fromPassphrase(secrets[0]))
+                .withPassphrase(passphrase)
+                .createOne();
 
-        await expect(transactions).toBeAccepted();
-        await support.snoozeForBlock(1);
-        await expect(transactions.id).toBeForged();
+            await expect(transactions).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(transactions.id).toBeForged();
+        });
+
+        it("should broadcast, accept and forge it if unvoting a resigned delegate", () => {
+            // Resign a delegate
+            const resignation = TransactionFactory.delegateResignation()
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(resignation).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(resignation.id).toBeForged();
+
+            // Submit an unvote
+            const unvote = TransactionFactory.unvote(Identities.PublicKey.fromPassphrase(secrets[0]))
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(unvote).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(unvote.id).toBeForged();
+        });
+
+        it("should broadcast, reject and not forge it if voting for a resigned delegate", () => {
+            // Submit a vote
+            const vote = TransactionFactory.vote(Identities.PublicKey.fromPassphrase(secrets[0]))
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(vote).toBeRejected();
+            await support.snoozeForBlock(1);
+            await expect(vote.id).not.toBeForged();
+        });
     });
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
