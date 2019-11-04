@@ -30,7 +30,7 @@ describe("Transaction Forging - Vote", () => {
             await expect(transactions.id).toBeForged();
         });
 
-        it("should broadcast, accept and forge it if unvoting a resigned delegate", () => {
+        it("should broadcast, accept and forge it if unvoting a resigned delegate", async () => {
             // Resign a delegate
             const resignation = TransactionFactory.delegateResignation()
                 .withPassphrase(secrets[0])
@@ -50,7 +50,7 @@ describe("Transaction Forging - Vote", () => {
             await expect(unvote.id).toBeForged();
         });
 
-        it("should broadcast, reject and not forge it if voting for a resigned delegate", () => {
+        it("should broadcast, reject and not forge it if voting for a resigned delegate", async () => {
             // Submit a vote
             const vote = TransactionFactory.vote(Identities.PublicKey.fromPassphrase(secrets[0]))
                 .withPassphrase(passphrase)
