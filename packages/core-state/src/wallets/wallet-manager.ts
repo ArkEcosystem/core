@@ -101,10 +101,6 @@ export class WalletManager implements State.IWalletManager {
         return this.getIndex(State.WalletIndexes.Usernames).values();
     }
 
-    public allByIpfs(): ReadonlyArray<State.IWallet> {
-        return this.getIndex(State.WalletIndexes.Ipfs).values();
-    }
-
     public findById(id: string): State.IWallet {
         for (const index of Object.values(this.indexes)) {
             const wallet: State.IWallet = index.get(id);

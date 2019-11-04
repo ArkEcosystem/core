@@ -92,8 +92,6 @@ export interface IWalletManager {
 
     allByUsername(): ReadonlyArray<IWallet>;
 
-    allByIpfs(): ReadonlyArray<IWallet>;
-
     findById(id: string): IWallet;
 
     findByAddress(address: string): IWallet;
