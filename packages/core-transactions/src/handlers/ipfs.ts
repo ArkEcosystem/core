@@ -45,9 +45,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        const ipfsHashes = walletManager.getIndex("ipfs").keys();
-
-        if (ipfsHashes.includes(transaction.data.asset.ipfs)) {
+        if (walletManager.getIndex("ipfs").has(transaction.data.asset.ipfs)) {
             throw new IpfsHashAlreadyExists();
         }
 
