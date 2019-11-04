@@ -20,20 +20,29 @@ describe("Transaction Forging - Vote", () => {
             await support.snoozeForBlock(1);
             await expect(initialFunds.id).toBeForged();
 
-            // Submit a vote
-            const transactions = TransactionFactory.vote(Identities.PublicKey.fromPassphrase(secrets[0]))
+            // Register a delegate
+            const registration = TransactionFactory.delegateRegistration()
                 .withPassphrase(passphrase)
                 .createOne();
 
-            await expect(transactions).toBeAccepted();
+            await expect(registration).toBeAccepted();
             await support.snoozeForBlock(1);
-            await expect(transactions.id).toBeForged();
+            await expect(registration.id).toBeForged();
+
+            // Submit a vote
+            const vote = TransactionFactory.vote(Identities.PublicKey.fromPassphrase(passphrase))
+                .withPassphrase(passphrase)
+                .createOne();
+
+            await expect(vote).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(vote.id).toBeForged();
         });
 
         it("should broadcast, accept and forge it if unvoting a resigned delegate", async () => {
             // Resign a delegate
             const resignation = TransactionFactory.delegateResignation()
-                .withPassphrase(secrets[0])
+                .withPassphrase(passphrase)
                 .createOne();
 
             await expect(resignation).toBeAccepted();
@@ -41,7 +50,7 @@ describe("Transaction Forging - Vote", () => {
             await expect(resignation.id).toBeForged();
 
             // Submit an unvote
-            const unvote = TransactionFactory.unvote(Identities.PublicKey.fromPassphrase(secrets[0]))
+            const unvote = TransactionFactory.unvote(Identities.PublicKey.fromPassphrase(passphrase))
                 .withPassphrase(passphrase)
                 .createOne();
 
@@ -52,7 +61,7 @@ describe("Transaction Forging - Vote", () => {
 
         it("should broadcast, reject and not forge it if voting for a resigned delegate", async () => {
             // Submit a vote
-            const vote = TransactionFactory.vote(Identities.PublicKey.fromPassphrase(secrets[0]))
+            const vote = TransactionFactory.vote(Identities.PublicKey.fromPassphrase(passphrase))
                 .withPassphrase(passphrase)
                 .createOne();
 
