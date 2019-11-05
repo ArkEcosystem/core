@@ -407,11 +407,17 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public buildDelegateRanking(roundInfo?: Shared.IRoundInfo): State.IWallet[] {
-        const delegates: State.IWallet[] = this.allByUsername().filter(
-            (wallet: State.IWallet) => !wallet.hasAttribute("delegate.resigned"),
-        );
+        const delegatesActive: State.IWallet[] = [];
 
-        let delegateWallets = delegates
+        for (const delegate of this.allByUsername()) {
+            if (delegate.hasAttribute("delegate.resigned")) {
+                delegate.forgetAttribute("delegate.rank");
+            } else {
+                delegatesActive.push(delegate);
+            }
+        }
+
+        let delegatesSorted = delegatesActive
             .sort((a, b) => {
                 const voteBalanceA: Utils.BigNumber = a.getAttribute("delegate.voteBalance");
                 const voteBalanceB: Utils.BigNumber = b.getAttribute("delegate.voteBalance");
@@ -440,13 +446,13 @@ export class WalletManager implements State.IWalletManager {
             );
 
         if (roundInfo) {
-            delegateWallets = delegateWallets.slice(0, roundInfo.maxDelegates);
-            for (const delegate of delegateWallets) {
+            delegatesSorted = delegatesSorted.slice(0, roundInfo.maxDelegates);
+            for (const delegate of delegatesSorted) {
                 delegate.setAttribute("delegate.round", roundInfo.round);
             }
         }
 
-        return delegateWallets;
+        return delegatesSorted;
     }
 
     /**
