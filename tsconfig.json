@@ -23,6 +23,7 @@
         },
         "resolveJsonModule": true,
         "skipLibCheck": true,
+        "sourceMap": true,
         "strict": true,
         "stripInternal": true,
         "target": "es2019",
