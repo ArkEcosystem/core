@@ -42,11 +42,12 @@ module.exports = async options => {
                 transaction = TransactionFactory.vote(delegates[2].publicKey);
                 break;
             case "delegateRegistration":
-                transaction = TransactionFactory.delegateRegistration(wallets[2].address.slice(0, 10).toLowerCase(),
+                transaction = TransactionFactory.delegateRegistration(
+                    wallets[2].address.slice(0, 10).toLowerCase(),
                 );
                 break;
             case "ipfs":
-                transaction = TransactionFactory.ipfs("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w");
+                transaction = TransactionFactory.ipfs("QmYSK2JyM3RyDyB52caZCTKFR3HKniEcMnNJYdk8DQ6KKB");
                 break;
         }
 
