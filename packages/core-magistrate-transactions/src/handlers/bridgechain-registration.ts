@@ -70,16 +70,27 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         const { data }: Interfaces.ITransaction = transaction;
         const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
 
-        if (bridgechains) {
-            const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(bridgechains);
+        if (
+            bridgechains &&
+            Object.values(bridgechains).some(bridgechain => {
+                return bridgechain.bridgechainAsset.name === data.asset.bridgechainRegistration.name;
+            })
+        ) {
+            throw new BridgechainAlreadyRegisteredError();
+        }
 
-            for (const bridgechain of bridgechainValues) {
-                if (bridgechain.bridgechainAsset.name === data.asset.bridgechainRegistration.name) {
-                    throw new BridgechainAlreadyRegisteredError();
-                }
+        for (const wallet of walletManager.getIndex("businesses").values()) {
+            const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute(
+                "business.bridgechains",
+            );
 
-                if (bridgechain.bridgechainAsset.genesisHash === data.asset.bridgechainRegistration.genesisHash) {
-                    throw new GenesisHashAlreadyRegisteredError();
+            if (bridgechains) {
+                const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(bridgechains);
+
+                for (const bridgechain of bridgechainValues) {
+                    if (bridgechain.bridgechainAsset.genesisHash === data.asset.bridgechainRegistration.genesisHash) {
+                        throw new GenesisHashAlreadyRegisteredError();
+                    }
                 }
             }
         }
