@@ -97,29 +97,57 @@ describe("Transaction Forging - Bridgechain registration", () => {
         });
 
         it("should reject bridgechain registration, because bridgechain with same genesisHash is already registered [Signed with 1 Passphrase]", async () => {
-            // Registering a bridgechain
+            // Business registration
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "arkecosystem1",
+                website: "https://ark.io",
+            })
+                .withPassphrase(secrets[1])
+                .createOne();
+
+            await expect(businessRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
+
+            // Bridgechain registration
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
                 name: "MyBridgechain",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "83cf8b609de60036a8277bd0e96135751bbc07eb234256d4b65b893360651bf2",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
-                .withPassphrase(secrets[0])
+                .withPassphrase(secrets[1])
                 .createOne();
 
+            await expect(bridgechainRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).toBeForged();
+
+            // Second business registration
+            const businessRegistration2 = TransactionFactory.businessRegistration({
+                name: "arkecosystem2",
+                website: "https://ark.io",
+            })
+                .withPassphrase(secrets[2])
+                .createOne();
+
+            await expect(businessRegistration2).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration2.id).toBeForged();
+
+            // Second bridgechain registration with the same genesisHash
             const bridgechainRegistration2 = TransactionFactory.bridgechainRegistration({
                 name: "MyOtherBridgechain",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "83cf8b609de60036a8277bd0e96135751bbc07eb234256d4b65b893360651bf2",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
-                .withPassphrase(secrets[0])
+                .withPassphrase(secrets[2])
                 .withNonce(bridgechainRegistration.nonce.plus(1))
                 .createOne();
 
-            await expect([bridgechainRegistration, bridgechainRegistration2]).not.toBeAllAccepted();
+            await expect(bridgechainRegistration2).toBeRejected();
             await support.snoozeForBlock(1);
-            await expect(bridgechainRegistration.id).toBeForged();
             await expect(bridgechainRegistration2.id).not.toBeForged();
         });
 
