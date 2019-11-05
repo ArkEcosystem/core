@@ -647,6 +647,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.5.28]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.5.28
+[2.5.26]: https://github.com/ARKEcosystem/core/compare/2.5.25...2.5.26
 [2.5.25]: https://github.com/ARKEcosystem/core/compare/2.5.24...2.5.25
 [2.5.24]: https://github.com/ARKEcosystem/core/compare/2.5.19...2.5.24
 [2.5.19]: https://github.com/ARKEcosystem/core/compare/2.5.17...2.5.19
@@ -992,3 +994,4 @@ Closed security vulnerabilities:
 [#2907]: https://github.com/ARKEcosystem/core/pull/2907
 [#2945]: https://github.com/ARKEcosystem/core/pull/2945
 [#3030]: https://github.com/ARKEcosystem/core/pull/3030
+[#3208]: https://github.com/ARKEcosystem/core/pull/3208
