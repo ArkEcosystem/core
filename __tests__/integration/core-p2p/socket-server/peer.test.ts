@@ -19,6 +19,8 @@ let server: SocketCluster;
 let socket;
 let connect;
 let emit;
+let ping;
+let pong;
 let send;
 
 const headers = {
@@ -33,6 +35,8 @@ beforeAll(async () => {
     defaults.remoteAccess = []; // empty for rate limit tests
 
     const { service, processor } = createPeerService();
+
+    jest.setTimeout(10000);
 
     server = await startSocketServer(service, { server: { port: 4007, workers: 1 } });
     await delay(1000);
@@ -54,12 +58,17 @@ beforeAll(async () => {
 
     send = data => socket.send(data);
 
+    ping = () => socket.transport.socket.ping();
+    pong = () => socket.transport.socket.pong();
+
     jest.spyOn(processor, "validateAndAcceptPeer").mockImplementation(jest.fn());
 });
 
 afterAll(() => {
     socket.destroy();
     server.destroy();
+
+    jest.setTimeout(5000);
 });
 
 describe("Peer socket endpoint", () => {
@@ -100,7 +109,7 @@ describe("Peer socket endpoint", () => {
                         data: {},
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "Error");
+                ).rejects.toHaveProperty("name", "BadConnectionError");
             });
         });
 
@@ -170,6 +179,28 @@ describe("Peer socket endpoint", () => {
 
                 expect(socket.state).toBe("closed");
             });
+
+            it("should disconnect the client if it sends a ping frame", async () => {
+                connect();
+                await delay(1000);
+
+                expect(socket.state).toBe("open");
+
+                ping();
+                await delay(500);
+                expect(socket.state).toBe("closed");
+            });
+
+            it("should disconnect the client if it sends a pong frame", async () => {
+                connect();
+                await delay(1000);
+
+                expect(socket.state).toBe("open");
+
+                pong();
+                await delay(500);
+                expect(socket.state).toBe("closed");
+            });
         });
     });
 
@@ -235,7 +266,7 @@ describe("Peer socket endpoint", () => {
                 }),
             ).toResolve();
 
-            await delay(1000);
+            await delay(4000);
 
             await expect(
                 emit("p2p.peer.postBlock", {

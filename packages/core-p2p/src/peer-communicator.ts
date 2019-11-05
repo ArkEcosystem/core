@@ -5,6 +5,7 @@ import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/cr
 import dayjs from "dayjs";
 import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
+import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { IPeerConfig, IPeerPingResponse } from "./interfaces";
@@ -24,7 +25,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             // them requests, ie we could spam them.
             whitelist: [],
             remoteAccess: [],
-            rateLimit: app.resolveOptions("p2p").rateLimit
+            rateLimit: app.resolveOptions("p2p").rateLimit,
         });
     }
 
@@ -93,7 +94,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                             } else {
                                 this.logger.warn(
                                     `Disconnecting from ${peerHostPort}: ` +
-                                        `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
+                                    `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
                                 );
                                 this.emitter.emit("internal.p2p.disconnectPeer", { peer });
                             }
@@ -157,10 +158,12 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         peer: P2P.IPeer,
         {
             fromBlockHeight,
-            blockLimit,
+            blockLimit = constants.MAX_DOWNLOAD_BLOCKS,
             headersOnly,
         }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
+        const maxPayload = headersOnly ? blockLimit * constants.KILOBYTE : constants.DEFAULT_MAX_PAYLOAD;
+
         const peerBlocks = await this.emit(
             peer,
             "p2p.peer.getBlocks",
@@ -169,11 +172,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 blockLimit,
                 headersOnly,
                 serialized: true,
-                headers: {
-                    "Content-Type": "application/json",
-                },
             },
             app.resolveOptions("p2p").getBlocksTimeout,
+            maxPayload,
         );
 
         if (!peerBlocks) {
@@ -223,7 +224,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return true;
     }
 
-    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number) {
+    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number, maxPayload?: number) {
         await this.throttle(peer, event);
 
         let response;
@@ -232,7 +233,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             const timeBeforeSocketCall: number = new Date().getTime();
 
-            const connection: SCClientSocket = this.connector.connect(peer);
+            maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
+            const connection: SCClientSocket = this.connector.connect(peer, maxPayload);
             response = await socketEmit(
                 peer.ip,
                 connection,
@@ -262,7 +264,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         const msBeforeReCheck = 1000;
         while (await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event)) {
             this.logger.debug(
-                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`
+                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`,
             );
             await delay(msBeforeReCheck);
         }

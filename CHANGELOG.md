@@ -135,6 +135,29 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Replace bignumber.js with native BigInt ([#3010])
 -   Replace bs58check with bstring ([#2673])
 
+## [2.5.28] - 2019-11-05
+
+### Fixed
+
+-   Stricter WS/SC events/messages handling ([#3208])
+-   Handle unwanted control frames ([#3208])
+
+### Changed
+
+-   Prepare for upcoming 2.6 release ([#3208])
+
+## [2.5.26] - 2019-10-07
+
+### Changed
+
+-   Integrate hapi-pagination to replace fork ([#3030])
+
+## [2.5.25] - 2019-09-19
+
+### Fixed
+
+-   Terminate connection when not authorized ([#2945])
+
 ## [2.5.24] - 2019-09-04
 
 ### Fixed
@@ -753,16 +776,15 @@ Closed security vulnerabilities:
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
 [2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.6.0
-[2.5.26]: https://github.com/ARKEcosystem/core/compare/2.5.25..2.5.26
-[2.5.25]: https://github.com/ARKEcosystem/core/compare/2.5.24..2.5.25
 [2.5.24]: https://github.com/ARKEcosystem/core/compare/2.5.19..2.5.24
-[2.5.19]: https://github.com/ARKEcosystem/core/compare/2.5.14..2.5.19
-[2.5.14]: https://github.com/ARKEcosystem/core/compare/2.5.7..2.5.14
-[2.5.7]: https://github.com/ARKEcosystem/core/compare/2.5.1...2.5.7
+[2.5.28]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.5.28
+[2.5.26]: https://github.com/ARKEcosystem/core/compare/2.5.25...2.5.26
+[2.5.25]: https://github.com/ARKEcosystem/core/compare/2.5.24...2.5.25
 [2.5.24]: https://github.com/ARKEcosystem/core/compare/2.5.19...2.5.24
 [2.5.19]: https://github.com/ARKEcosystem/core/compare/2.5.17...2.5.19
 [2.5.17]: https://github.com/ARKEcosystem/core/compare/2.5.14...2.5.17
-[2.5.14]: https://github.com/ARKEcosystem/core/compare/2.5.7...2.5.14
+[2.5.14]: https://github.com/ARKEcosystem/core/compare/2.5.7..2.5.14
+[2.5.7]: https://github.com/ARKEcosystem/core/compare/2.5.1...2.5.7
 [2.5.1]: https://github.com/ARKEcosystem/core/compare/2.5.0...2.5.1
 [2.5.0]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.5.0
 [2.4.15]: https://github.com/ARKEcosystem/core/compare/2.4.14...2.4.15
@@ -1168,6 +1190,7 @@ Closed security vulnerabilities:
 [#2942]: https://github.com/ARKEcosystem/core/pull/2942
 [#2943]: https://github.com/ARKEcosystem/core/pull/2943
 [#2944]: https://github.com/ARKEcosystem/core/pull/2944
+[#2945]: https://github.com/ARKEcosystem/core/pull/2945
 [#2947]: https://github.com/ARKEcosystem/core/pull/2947
 [#2948]: https://github.com/ARKEcosystem/core/pull/2948
 [#2949]: https://github.com/ARKEcosystem/core/pull/2949
@@ -1203,6 +1226,7 @@ Closed security vulnerabilities:
 [#3023]: https://github.com/ARKEcosystem/core/pull/3023
 [#3025]: https://github.com/ARKEcosystem/core/pull/3025
 [#3027]: https://github.com/ARKEcosystem/core/pull/3027
+[#3030]: https://github.com/ARKEcosystem/core/pull/3030
 [#3036]: https://github.com/ARKEcosystem/core/pull/3036
 [#3037]: https://github.com/ARKEcosystem/core/pull/3037
 [#3040]: https://github.com/ARKEcosystem/core/pull/3040
@@ -1220,3 +1244,4 @@ Closed security vulnerabilities:
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [7a73aef8b29d40572d1524cf8b1bafbffa3b096]: https://github.com/ARKEcosystem/core/commit/7a73aef8b29d40572d1524cf8b1bafbffa3b0964
+[#3208]: https://github.com/ARKEcosystem/core/pull/3208
