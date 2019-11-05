@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.28] - 2019-11-05
+
+### Fixed
+
+-   Stricter WS/SC events/messages handling ([#3208])
+-   Handle unwanted control frames ([#3208])
+
+### Changed
+
+-   Prepare for upcoming 2.6 release ([#3208])
+
 ## [2.5.26] - 2019-10-07
 
 ### Changed
