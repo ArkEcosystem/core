@@ -93,7 +93,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                             } else {
                                 this.logger.warn(
                                     `Disconnecting from ${peerHostPort}: ` +
-                                        `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
+                                    `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
                                 );
                                 this.emitter.emit("internal.p2p.disconnectPeer", { peer });
                             }
