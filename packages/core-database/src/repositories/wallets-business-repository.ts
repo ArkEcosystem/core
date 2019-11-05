@@ -229,6 +229,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             .map(wallet => {
                 const business: any = wallet.getAttribute("business");
                 return {
+                    address: wallet.address,
                     businessId: business.businessId,
                     ...business.businessAsset,
                 };
