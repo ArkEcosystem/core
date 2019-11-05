@@ -1,11 +1,12 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Utils as AppUtils, Contracts } from "@arkecosystem/core-kernel";
 import {
     Builders as MagistrateBuilders,
     Interfaces as MagistrateInterfaces,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
 
-import { secrets } from "../utils/config/delegates.json";
+import secrets from "../internal/secrets.json";
+import { getWalletNonce } from "./generic";
 
 const defaultPassphrase: string = secrets[0];
 
@@ -15,164 +16,6 @@ interface IPassphrasePair {
 }
 
 export class TransactionFactory {
-    public static transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
-        const builder = Transactions.BuilderFactory.transfer()
-            .amount(Utils.BigNumber.make(amount).toFixed())
-            .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
-
-        if (vendorField) {
-            builder.vendorField(vendorField);
-        }
-
-        return new TransactionFactory(builder);
-    }
-
-    public static secondSignature(secondPassphrase?: string): TransactionFactory {
-        return new TransactionFactory(
-            Transactions.BuilderFactory.secondSignature().signatureAsset(secondPassphrase || defaultPassphrase),
-        );
-    }
-
-    public static delegateRegistration(username?: string): TransactionFactory {
-        const builder = Transactions.BuilderFactory.delegateRegistration();
-
-        if (username) {
-            builder.usernameAsset(username);
-        }
-
-        return new TransactionFactory(builder);
-    }
-
-    public static delegateResignation(): TransactionFactory {
-        return new TransactionFactory(Transactions.BuilderFactory.delegateResignation());
-    }
-
-    public static vote(publicKey?: string): TransactionFactory {
-        return new TransactionFactory(
-            Transactions.BuilderFactory.vote().votesAsset([
-                `+${publicKey || Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
-            ]),
-        );
-    }
-
-    public static unvote(publicKey?: string): TransactionFactory {
-        return new TransactionFactory(
-            Transactions.BuilderFactory.vote().votesAsset([
-                `-${publicKey || Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
-            ]),
-        );
-    }
-
-    public static multiSignature(participants?: string[], min?: number): TransactionFactory {
-        let passphrases: string[] | undefined;
-        if (!participants) {
-            passphrases = [secrets[0], secrets[1], secrets[2]];
-        }
-
-        participants = participants || [
-            Identities.PublicKey.fromPassphrase(secrets[0]),
-            Identities.PublicKey.fromPassphrase(secrets[1]),
-            Identities.PublicKey.fromPassphrase(secrets[2]),
-        ];
-
-        const factory: TransactionFactory = new TransactionFactory(
-            Transactions.BuilderFactory.multiSignature().multiSignatureAsset({
-                publicKeys: participants,
-                min: min || participants.length,
-            }),
-        );
-
-        if (passphrases) {
-            factory.withPassphraseList(passphrases);
-        }
-
-        factory.withSenderPublicKey(participants[0]);
-        return factory;
-    }
-
-    public static ipfs(ipfsId: string): TransactionFactory {
-        return new TransactionFactory(Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId));
-    }
-
-    public static htlcLock(
-        lockAsset: Interfaces.IHtlcLockAsset,
-        recipientId?: string,
-        amount: number = 2 * 1e8,
-    ): TransactionFactory {
-        const builder = Transactions.BuilderFactory.htlcLock()
-            .htlcLockAsset(lockAsset)
-            .amount(Utils.BigNumber.make(amount).toFixed())
-            .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
-
-        return new TransactionFactory(builder);
-    }
-
-    public static htlcClaim(claimAsset: Interfaces.IHtlcClaimAsset): TransactionFactory {
-        return new TransactionFactory(Transactions.BuilderFactory.htlcClaim().htlcClaimAsset(claimAsset));
-    }
-
-    public static htlcRefund(refundAsset: Interfaces.IHtlcRefundAsset): TransactionFactory {
-        return new TransactionFactory(Transactions.BuilderFactory.htlcRefund().htlcRefundAsset(refundAsset));
-    }
-
-    public static multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory {
-        const builder = Transactions.BuilderFactory.multiPayment();
-        for (const payment of payments) {
-            builder.addPayment(payment.recipientId, payment.amount);
-        }
-        return new TransactionFactory(builder);
-    }
-
-    public static businessRegistration(
-        businessRegistrationAsset: MagistrateInterfaces.IBusinessRegistrationAsset,
-    ): TransactionFactory {
-        const businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
-        businessRegistrationBuilder.businessRegistrationAsset(businessRegistrationAsset);
-        return new TransactionFactory(businessRegistrationBuilder);
-    }
-
-    public static businessResignation(): TransactionFactory {
-        return new TransactionFactory(new MagistrateBuilders.BusinessResignationBuilder());
-    }
-
-    public static businessUpdate(businessUpdateAsset: MagistrateInterfaces.IBusinessUpdateAsset): TransactionFactory {
-        const businessUpdateBuilder = new MagistrateBuilders.BusinessUpdateBuilder();
-        businessUpdateBuilder.businessUpdateAsset(businessUpdateAsset);
-        return new TransactionFactory(businessUpdateBuilder);
-    }
-
-    public static bridgechainRegistration(
-        bridgechainRegistrationAsset: MagistrateInterfaces.IBridgechainRegistrationAsset,
-    ): TransactionFactory {
-        const bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder();
-        bridgechainRegistrationBuilder.bridgechainRegistrationAsset(bridgechainRegistrationAsset);
-        return new TransactionFactory(bridgechainRegistrationBuilder);
-    }
-
-    public static bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
-        const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
-        bridgechainResignationBuilder.businessResignationAsset(registeredBridgechainId);
-        return new TransactionFactory(bridgechainResignationBuilder);
-    }
-
-    public static bridgechainUpdate(
-        bridgechainUpdateAsset: MagistrateInterfaces.IBridgechainUpdateAsset,
-    ): TransactionFactory {
-        const bridgechainUpdateBuilder = new MagistrateBuilders.BridgechainUpdateBuilder();
-        bridgechainUpdateBuilder.bridgechainUpdateAsset(bridgechainUpdateAsset);
-        return new TransactionFactory(bridgechainUpdateBuilder);
-    }
-
-    public static getNonce(publicKey: string): Utils.BigNumber {
-        try {
-            return app
-                .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-                .walletRepository.getNonce(publicKey);
-        } catch {
-            return Utils.BigNumber.ZERO;
-        }
-    }
-
     private builder: any;
     private network: Types.NetworkName = "testnet";
     private nonce: Utils.BigNumber | undefined;
@@ -186,8 +29,198 @@ export class TransactionFactory {
     private senderPublicKey: string | undefined;
     private expiration: number | undefined;
 
-    public constructor(builder) {
+    private app: Contracts.Kernel.Application;
+
+    private constructor(app?: Contracts.Kernel.Application) {
+        // @ts-ignore - this is only needed because of the "getNonce"
+        // method so we don't care if it is undefined in certain scenarios
+        this.app = app;
+    }
+
+    public static init(app?: Contracts.Kernel.Application): TransactionFactory {
+        return new TransactionFactory(app);
+    }
+
+    public transfer(recipientId?: string, amount: number = 2 * 1e8, vendorField?: string): TransactionFactory {
+        const builder = Transactions.BuilderFactory.transfer()
+            .amount(Utils.BigNumber.make(amount).toFixed())
+            .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
+
+        if (vendorField) {
+            builder.vendorField(vendorField);
+        }
+
         this.builder = builder;
+
+        return this;
+    }
+
+    public secondSignature(secondPassphrase?: string): TransactionFactory {
+        this.builder = Transactions.BuilderFactory.secondSignature().signatureAsset(
+            secondPassphrase || defaultPassphrase,
+        );
+
+        return this;
+    }
+
+    public delegateRegistration(username?: string): TransactionFactory {
+        const builder = Transactions.BuilderFactory.delegateRegistration();
+
+        if (username) {
+            builder.usernameAsset(username);
+        }
+
+        this.builder = builder;
+
+        return this;
+    }
+
+    public delegateResignation(): TransactionFactory {
+        this.builder = Transactions.BuilderFactory.delegateResignation();
+
+        return this;
+    }
+
+    public vote(publicKey?: string): TransactionFactory {
+        this.builder = Transactions.BuilderFactory.vote().votesAsset([
+            `+${publicKey || Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
+        ]);
+
+        return this;
+    }
+
+    public unvote(publicKey?: string): TransactionFactory {
+        this.builder = Transactions.BuilderFactory.vote().votesAsset([
+            `-${publicKey || Identities.PublicKey.fromPassphrase(defaultPassphrase)}`,
+        ]);
+
+        return this;
+    }
+
+    public multiSignature(participants?: string[], min?: number): TransactionFactory {
+        let passphrases: string[] | undefined;
+        if (!participants) {
+            passphrases = [secrets[0], secrets[1], secrets[2]];
+        }
+
+        participants = participants || [
+            Identities.PublicKey.fromPassphrase(secrets[0]),
+            Identities.PublicKey.fromPassphrase(secrets[1]),
+            Identities.PublicKey.fromPassphrase(secrets[2]),
+        ];
+
+        this.builder = Transactions.BuilderFactory.multiSignature().multiSignatureAsset({
+            publicKeys: participants,
+            min: min || participants.length,
+        });
+
+        if (passphrases) {
+            this.withPassphraseList(passphrases);
+        }
+
+        this.withSenderPublicKey(participants[0]);
+
+        return this;
+    }
+
+    public ipfs(ipfsId: string): TransactionFactory {
+        this.builder = Transactions.BuilderFactory.ipfs().ipfsAsset(ipfsId);
+
+        return this;
+    }
+
+    public htlcLock(
+        lockAsset: Interfaces.IHtlcLockAsset,
+        recipientId?: string,
+        amount: number = 2 * 1e8,
+    ): TransactionFactory {
+        const builder = Transactions.BuilderFactory.htlcLock()
+            .htlcLockAsset(lockAsset)
+            .amount(Utils.BigNumber.make(amount).toFixed())
+            .recipientId(recipientId || Identities.Address.fromPassphrase(defaultPassphrase));
+
+        this.builder = builder;
+
+        return this;
+    }
+
+    public htlcClaim(claimAsset: Interfaces.IHtlcClaimAsset): TransactionFactory {
+        this.builder = Transactions.BuilderFactory.htlcClaim().htlcClaimAsset(claimAsset);
+
+        return this;
+    }
+
+    public htlcRefund(refundAsset: Interfaces.IHtlcRefundAsset): TransactionFactory {
+        this.builder = Transactions.BuilderFactory.htlcRefund().htlcRefundAsset(refundAsset);
+
+        return this;
+    }
+
+    public multiPayment(payments: Array<{ recipientId: string; amount: string }>): TransactionFactory {
+        const builder = Transactions.BuilderFactory.multiPayment();
+
+        for (const payment of payments) {
+            builder.addPayment(payment.recipientId, payment.amount);
+        }
+
+        this.builder = builder;
+
+        return this;
+    }
+
+    public businessRegistration(
+        businessRegistrationAsset: MagistrateInterfaces.IBusinessRegistrationAsset,
+    ): TransactionFactory {
+        const businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
+        businessRegistrationBuilder.businessRegistrationAsset(businessRegistrationAsset);
+
+        this.builder = businessRegistrationBuilder;
+
+        return this;
+    }
+
+    public businessResignation(): TransactionFactory {
+        this.builder = new MagistrateBuilders.BusinessResignationBuilder();
+
+        return this;
+    }
+
+    public businessUpdate(businessUpdateAsset: MagistrateInterfaces.IBusinessUpdateAsset): TransactionFactory {
+        const businessUpdateBuilder = new MagistrateBuilders.BusinessUpdateBuilder();
+        businessUpdateBuilder.businessUpdateAsset(businessUpdateAsset);
+
+        this.builder = businessUpdateBuilder;
+
+        return this;
+    }
+
+    public bridgechainRegistration(
+        bridgechainRegistrationAsset: MagistrateInterfaces.IBridgechainRegistrationAsset,
+    ): TransactionFactory {
+        const bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder();
+        bridgechainRegistrationBuilder.bridgechainRegistrationAsset(bridgechainRegistrationAsset);
+
+        this.builder = bridgechainRegistrationBuilder;
+
+        return this;
+    }
+
+    public bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
+        const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
+        bridgechainResignationBuilder.businessResignationAsset(registeredBridgechainId);
+
+        this.builder = bridgechainResignationBuilder;
+
+        return this;
+    }
+
+    public bridgechainUpdate(bridgechainUpdateAsset: MagistrateInterfaces.IBridgechainUpdateAsset): TransactionFactory {
+        const bridgechainUpdateBuilder = new MagistrateBuilders.BridgechainUpdateBuilder();
+        bridgechainUpdateBuilder.bridgechainUpdateAsset(bridgechainUpdateAsset);
+
+        this.builder = bridgechainUpdateBuilder;
+
+        return this;
     }
 
     public withFee(fee: number): TransactionFactory {
@@ -286,7 +319,7 @@ export class TransactionFactory {
             return this.nonce;
         }
 
-        return TransactionFactory.getNonce(AppUtils.assert.defined(this.senderPublicKey));
+        return getWalletNonce(this.app, AppUtils.assert.defined(this.senderPublicKey));
     }
 
     private make<T>(quantity = 1, method: string): T[] {
@@ -371,7 +404,7 @@ export class TransactionFactory {
                 }
             }
 
-            const isDevelop: boolean = ["unitnet", "testnet"].includes(Managers.configManager.get("network.name"));
+            const isDevelop: boolean = !["mainnet", "devnet"].includes(Managers.configManager.get("network.name"));
 
             if (sign) {
                 const aip11: boolean = Managers.configManager.getMilestone().aip11;

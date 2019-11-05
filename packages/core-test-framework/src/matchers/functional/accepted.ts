@@ -5,6 +5,7 @@ export {};
 
 declare global {
     namespace jest {
+        // @ts-ignore - All declarations of 'Matchers' must have identical type parameters.
         interface Matchers<R> {
             toBeAccepted(): Promise<R>;
             toBeAllAccepted(): Promise<R>;
@@ -31,6 +32,7 @@ expect.extend({
 
             error = JSON.stringify(parsedBody.errors);
         } catch (e) {
+            console.error(e);
             error = e.message;
             console.error(error);
         }

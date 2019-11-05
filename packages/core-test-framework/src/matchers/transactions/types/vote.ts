@@ -6,6 +6,7 @@ export {};
 
 declare global {
     namespace jest {
+        // @ts-ignore - All declarations of 'Matchers' must have identical type parameters.
         interface Matchers<R> {
             toBeVoteType(): R;
         }
