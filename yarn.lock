@@ -1023,7 +1023,7 @@
     "@hapi/hoek" "8.x.x"
     "@hapi/topo" "3.x.x"
 
-"@hapi/joi@16.x.x":
+"@hapi/joi@16.x.x", "@hapi/joi@^16.0.0":
   version "16.1.7"
   resolved "https://registry.yarnpkg.com/@hapi/joi/-/joi-16.1.7.tgz#360857223a87bb1f5f67691537964c1b4908ed93"
   integrity sha512-anaIgnZhNooG3LJLrTFzgGALTiO97zRA1UkvQHm9KxxoSiIzCozB3RCNCpDnfhTJD72QlrHA8nwGmNgpFFCIeg==
@@ -2597,10 +2597,10 @@
   resolved "https://registry.yarnpkg.com/@types/debug/-/debug-4.1.5.tgz#b14efa8852b7768d898906613c23f688713e02cd"
   integrity sha512-Q1y515GcOdTHgagaVFhHnIFQ38ygs/kmxdNpvpou+raI9UO3YZcHDngBSYKQklcKlvA7iuQlmIKbzvmxcOE9CQ==
 
-"@types/depcheck@^0.8.0":
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/@types/depcheck/-/depcheck-0.8.0.tgz#5c33f80c4d4ce6aa576c9ac09d326084d5c0884d"
-  integrity sha512-kpGVvWeWWhfZ8SPW+OWYmLfrHVCZtIcOzKaGJHUk4WcheY6UgxUb5xU+3aVymZEvQ7z9MuWmzaKibF8YwxR0Xg==
+"@types/depcheck@^0.9.0":
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/@types/depcheck/-/depcheck-0.9.0.tgz#5418fae01776ce25dc60fbcc4b518d0a668eb9cb"
+  integrity sha512-DbZcnaTtm7RVlR6+DuyuNXpCdsEV9SeO+aPbReoS5mCrYUQepNMaq21pTuXpyUoQ9C6lsfONqz4S8oamuunSeg==
 
 "@types/dottie@^2.0.3":
   version "2.0.3"
@@ -12673,7 +12673,7 @@ tar-stream@^2.0.0:
     inherits "^2.0.3"
     readable-stream "^3.1.1"
 
-tar@^4, tar@^4.4.10, tar@^4.4.12, tar@^4.4.6, tar@^4.4.8:
+tar@^4, tar@^4.4.10, tar@^4.4.12, tar@^4.4.8:
   version "4.4.13"
   resolved "https://registry.yarnpkg.com/tar/-/tar-4.4.13.tgz#43b364bc52888d555298637b10d60790254ab525"
   integrity sha512-w2VwSrBoHa5BsSyH+KxEqeQBAllHhccyMFVHtGtdMpF4W7IRWfZjFiQceJPChOeTsSDVUpER2T8FA93pr0L+QA==
@@ -13738,7 +13738,7 @@ yallist@^2.1.2:
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-2.1.2.tgz#1c11f9218f076089a47dd512f93c6699a6a81d52"
   integrity sha1-HBH5IY8HYImkfdUS+TxmmaaoHVI=
 
-yallist@^3.0.0, yallist@^3.0.2:
+yallist@^3.0.0, yallist@^3.0.2, yallist@^3.0.3:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/yallist/-/yallist-3.1.1.tgz#dbb7daf9bfd8bac9ab45ebf602b8cbad0d5d08fd"
   integrity sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==
