@@ -1,10 +1,20 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, EventEmitter, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { isWhitelisted, roundCalculator } from "@arkecosystem/core-utils";
 import { Crypto } from "@arkecosystem/crypto";
+import { process } from "ipaddr.js";
 
 export const acceptNewPeer = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<void> => {
     await service.getProcessor().validateAndAcceptPeer({ ip: req.data.ip });
+};
+
+export const isPeerOrForger = ({ service, req }: { service: P2P.IPeerService; req }): { isPeerOrForger: boolean } => {
+    const sanitizedIp = process(req.data.ip).toString();
+    return {
+        isPeerOrForger:
+            service.getStorage().hasPeer(sanitizedIp) ||
+            isWhitelisted(app.resolveOptions("p2p").remoteAccess, sanitizedIp),
+    };
 };
 
 export const emitEvent = ({ req }): void => {

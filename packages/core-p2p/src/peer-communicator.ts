@@ -4,6 +4,7 @@ import { httpie } from "@arkecosystem/core-utils";
 import { Interfaces, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
+import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { IPeerConfig, IPeerPingResponse } from "./interfaces";
@@ -139,11 +140,13 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         peer: P2P.IPeer,
         {
             fromBlockHeight,
-            blockLimit,
+            blockLimit = constants.MAX_DOWNLOAD_BLOCKS,
             timeoutMsec,
             headersOnly,
         }: { fromBlockHeight: number; blockLimit?: number; timeoutMsec?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
+        const maxPayload = headersOnly ? blockLimit * constants.KILOBYTE : constants.DEFAULT_MAX_PAYLOAD;
+
         const peerBlocks = await this.emit(
             peer,
             "p2p.peer.getBlocks",
@@ -152,11 +155,9 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 blockLimit,
                 headersOnly,
                 serialized: true,
-                headers: {
-                    "Content-Type": "application/json",
-                },
             },
             timeoutMsec || 10000,
+            maxPayload,
         );
 
         if (!peerBlocks) {
@@ -213,14 +214,15 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return true;
     }
 
-    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number) {
+    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number, maxPayload?: number) {
         let response;
         try {
             this.connector.forgetError(peer);
 
             const timeBeforeSocketCall: number = new Date().getTime();
 
-            const connection: SCClientSocket = this.connector.connect(peer);
+            maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
+            const connection: SCClientSocket = this.connector.connect(peer, maxPayload);
             response = await socketEmit(
                 peer.ip,
                 connection,

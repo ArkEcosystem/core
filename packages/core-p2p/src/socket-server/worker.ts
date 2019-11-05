@@ -1,6 +1,11 @@
+import Ajv from "ajv";
+import { cidr } from "ip";
 import SCWorker from "socketcluster/scworker";
 import { SocketErrors } from "../enums";
+import { requestSchemas } from "../schemas";
 import { RateLimiter } from "./rate-limiter";
+
+const ajv = new Ajv();
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
@@ -34,6 +39,7 @@ export class Worker extends SCWorker {
                 endpoints: [
                     {
                         rateLimit: 1,
+                        duration: 4,
                         endpoint: "p2p.peer.postBlock",
                     },
                     {
@@ -58,6 +64,12 @@ export class Worker extends SCWorker {
     }
 
     private handlePayload(ws, req) {
+        ws.on("ping", () => {
+            ws.terminate();
+        });
+        ws.on("pong", () => {
+            ws.terminate();
+        });
         ws.on("message", message => {
             try {
                 const InvalidMessagePayloadError: Error = this.createError(
@@ -112,6 +124,15 @@ export class Worker extends SCWorker {
             return;
         }
 
+        const cidrRemoteAddress = cidr(`${req.socket.remoteAddress}/24`);
+        const sameSubnetSockets = Object.values({ ...this.scServer.clients, ...this.scServer.pendingClients }).filter(
+            client => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
+        );
+        if (sameSubnetSockets.length > this.config.maxSameSubnetPeers) {
+            req.socket.destroy();
+            return;
+        }
+
         next();
     }
 
@@ -136,7 +157,7 @@ export class Worker extends SCWorker {
                 return;
             }
 
-            const [prefix, version] = req.event.split(".");
+            const [prefix, version, handler] = req.event.split(".");
 
             if (prefix !== "p2p") {
                 req.socket.disconnect(4404, "Not Found");
@@ -162,6 +183,23 @@ export class Worker extends SCWorker {
                     return;
                 }
             } else if (version === "peer") {
+                const requestSchema = requestSchemas.peer[handler];
+                if (["postTransactions", "postBlock"].includes(handler)) {
+                    // has to be in the peer list to use the endpoint
+                    const {
+                        data: { isPeerOrForger },
+                    } = await this.sendToMasterAsync("p2p.internal.isPeerOrForger", {
+                        data: { ip: req.socket.remoteAddress },
+                    });
+                    if (!isPeerOrForger) {
+                        req.socket.terminate();
+                        return;
+                    }
+                } else if (requestSchema && !ajv.validate(requestSchema, req.data.data)) {
+                    req.socket.terminate();
+                    return;
+                }
+
                 this.sendToMasterAsync("p2p.internal.acceptNewPeer", {
                     data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
