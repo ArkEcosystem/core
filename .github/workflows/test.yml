@@ -60,6 +60,7 @@ jobs:
               with:
                   path: node_modules
                   key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
@@ -97,7 +98,8 @@ jobs:
               uses: actions/cache@v1
               with:
                   path: node_modules
-                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  key: ${{ runner.os }}-e2e-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-e2e-
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
