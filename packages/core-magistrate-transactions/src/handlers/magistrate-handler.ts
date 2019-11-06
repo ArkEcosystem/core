@@ -17,6 +17,10 @@ export abstract class MagistrateTransactionHandler extends Handlers.TransactionH
         wallet: State.IWallet,
         walletManager: State.IWalletManager,
     ): Promise<void> {
+        if (Utils.isException(transaction.data)) {
+            return;
+        }
+
         if (!transaction.data.fee.isEqualTo(this.getConstructor().staticFee())) {
             throw new InvalidFeeError();
         }
