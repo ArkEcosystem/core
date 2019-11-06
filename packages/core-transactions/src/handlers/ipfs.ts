@@ -31,6 +31,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
                 const ipfsHashes: State.IWalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
                 ipfsHashes[transaction.asset.ipfs] = true;
+                walletManager.reindex(wallet);
             }
         }
     }
@@ -44,8 +45,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         walletManager: State.IWalletManager,
     ): Promise<void> {
-        // TODO implement unique ipfs hash on blockchain (not just on wallet)
-        if (wallet.hasAttribute("ipfs") && wallet.getAttribute("ipfs.hashes")[transaction.data.asset.ipfs]) {
+        if (walletManager.getIndex("ipfs").has(transaction.data.asset.ipfs)) {
             throw new IpfsHashAlreadyExists();
         }
 
@@ -86,6 +86,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const ipfsHashes: State.IWalletIpfsAttributes = sender.getAttribute("ipfs.hashes");
         delete ipfsHashes[transaction.data.asset.ipfs];
+
+        if (!Object.keys(ipfsHashes).length) {
+            sender.forgetAttribute("ipfs");
+        }
 
         walletManager.reindex(sender);
     }

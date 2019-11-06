@@ -844,7 +844,7 @@ describe("Ipfs", () => {
 
             await handler.revert(instance, walletManager);
 
-            expect(senderWallet.getAttribute("ipfs.hashes")[transaction.asset.ipfs]).toBeFalsy();
+            expect(senderWallet.getAttribute("ipfs")).toBeFalsy();
             expect(senderWallet.balance).toEqual(balanceBefore);
         });
     });

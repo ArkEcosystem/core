@@ -10,6 +10,7 @@ export enum WalletIndexes {
     Usernames = "usernames",
     Resignations = "resignations",
     Locks = "locks",
+    Ipfs = "ipfs",
 }
 
 export interface IWallet {
