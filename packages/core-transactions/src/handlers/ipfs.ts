@@ -1,5 +1,5 @@
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { IpfsHashAlreadyExists } from "../errors";
 import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
@@ -45,6 +45,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
         wallet: State.IWallet,
         walletManager: State.IWalletManager,
     ): Promise<void> {
+        if (Utils.isException(transaction.data)) {
+            return;
+        }
+
         if (walletManager.getIndex("ipfs").has(transaction.data.asset.ipfs)) {
             throw new IpfsHashAlreadyExists();
         }
