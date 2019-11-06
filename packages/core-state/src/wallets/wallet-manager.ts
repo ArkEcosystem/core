@@ -50,6 +50,15 @@ export class WalletManager implements State.IWalletManager {
                 }
             }
         });
+
+        this.registerIndex(State.WalletIndexes.Ipfs, (index: State.IWalletIndex, wallet: State.IWallet) => {
+            const hashes = wallet.getAttribute("ipfs.hashes");
+            if (hashes) {
+                for (const hash of Object.keys(hashes)) {
+                    index.set(hash, wallet);
+                }
+            }
+        });
     }
 
     public registerIndex(name: string, indexer: State.WalletIndexer): void {

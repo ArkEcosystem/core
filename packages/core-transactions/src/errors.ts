@@ -45,7 +45,7 @@ export class UnexpectedNonceError extends TransactionError {
         const action: string = reversal ? "revert" : "apply";
         super(
             `Cannot ${action} a transaction with nonce ${txNonce.toFixed()}: the ` +
-            `sender ${sender.publicKey} has nonce ${sender.nonce.toFixed()}.`,
+                `sender ${sender.publicKey} has nonce ${sender.nonce.toFixed()}.`,
         );
     }
 }
@@ -197,7 +197,7 @@ export class MultiSignatureKeyCountMismatchError extends TransactionError {
 
 export class IpfsHashAlreadyExists extends TransactionError {
     constructor() {
-        super(`Failed to apply transaction, because this IPFS hash is already registered for the wallet.`);
+        super(`Failed to apply transaction, because this IPFS hash is already registered on the blockchain.`);
     }
 }
 
