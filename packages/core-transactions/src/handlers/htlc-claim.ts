@@ -180,7 +180,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const recipientWallet: State.IWallet = walletManager.findByAddress(lockTransaction.recipientId);
 
         recipientWallet.balance = recipientWallet.balance.minus(lockTransaction.amount).plus(data.fee);
-        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+        const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
@@ -188,7 +188,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
-            vendorField: lockTransaction.vendorField ? lockTransaction.vendorField : undefined,
+            vendorField: lockTransaction.vendorField
+                ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
+                : undefined,
             ...lockTransaction.asset.lock,
         };
 

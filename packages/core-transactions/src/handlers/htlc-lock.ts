@@ -24,24 +24,28 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         for (const transaction of transactions) {
             const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
             const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
-            locks[transaction.id] = {
-                amount: Utils.BigNumber.make(transaction.amount),
-                recipientId: transaction.recipientId,
-                timestamp: transaction.timestamp,
-                vendorField: transaction.vendorField
-                    ? Buffer.from(transaction.vendorField, "hex").toString("utf8")
-                    : undefined,
-                ...transaction.asset.lock,
-            };
+            let lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+
+            if (transaction.open) {
+                locks[transaction.id] = {
+                    amount: Utils.BigNumber.make(transaction.amount),
+                    recipientId: transaction.recipientId,
+                    timestamp: transaction.timestamp,
+                    vendorField: transaction.vendorField
+                        ? Buffer.from(transaction.vendorField, "hex").toString("utf8")
+                        : undefined,
+                    ...transaction.asset.lock,
+                };
+
+                lockedBalance = lockedBalance.plus(transaction.amount);
+
+                const recipientWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
+                walletsToIndex[wallet.address] = wallet;
+                walletsToIndex[recipientWallet.address] = recipientWallet;
+            }
+
             wallet.setAttribute("htlc.locks", locks);
-
-            const lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
-            wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
-
-            const recipientWallet: State.IWallet = walletManager.findByAddress(transaction.recipientId);
-
-            walletsToIndex[wallet.address] = wallet;
-            walletsToIndex[recipientWallet.address] = recipientWallet;
+            wallet.setAttribute("htlc.lockedBalance", lockedBalance);
         }
 
         walletManager.index(Object.values(walletsToIndex));
@@ -103,7 +107,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             amount: transaction.data.amount,
             recipientId: transaction.data.recipientId,
             timestamp: transaction.timestamp,
-            vendorField: transaction.data.vendorField,
+            vendorField: Buffer.from(transaction.data.vendorField, "hex").toString("utf8"),
             ...transaction.data.asset.lock,
         };
         sender.setAttribute("htlc.locks", locks);
