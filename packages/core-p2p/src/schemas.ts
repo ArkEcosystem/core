@@ -2,6 +2,10 @@ import { app } from "@arkecosystem/core-container";
 
 export const requestSchemas = {
     peer: {
+        getPeers: {
+            type: "object",
+            maxProperties: 0,
+        },
         getCommonBlocks: {
             type: "object",
             required: ["ids"],
@@ -9,6 +13,10 @@ export const requestSchemas = {
             properties: {
                 ids: { type: "array", additionalItems: false, minItems: 1, maxItems: 10, items: { blockId: {} } },
             },
+        },
+        getStatus: {
+            type: "object",
+            maxProperties: 0,
         },
         getBlocks: {
             type: "object",

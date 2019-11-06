@@ -35,7 +35,6 @@ export const defaults = {
             expiresIn: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60000,
         },
     },
-    // @see https://github.com/fknop/hapi-pagination
     pagination: {
         limit: 100,
     },
