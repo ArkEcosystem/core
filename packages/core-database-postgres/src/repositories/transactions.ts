@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Interfaces, Utils } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 
@@ -6,7 +6,11 @@ import { Transaction } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
+@Container.injectable()
 export class TransactionsRepository extends Repository implements Contracts.Database.TransactionsRepository {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     public async search(
         parameters: Contracts.Database.SearchParameters,
     ): Promise<Contracts.Database.TransactionsPaginated> {
@@ -67,7 +71,7 @@ export class TransactionsRepository extends Repository implements Contracts.Data
                     first.operator === Contracts.Database.SearchOperator.OP_EQ
                 ) {
                     // Workaround to include transactions (e.g. type 2) where the recipient_id is missing in the database
-                    const walletRepository: Contracts.State.WalletRepository = app.get<
+                    const walletRepository: Contracts.State.WalletRepository = this.app.get<
                         Contracts.Database.DatabaseService
                     >(Container.Identifiers.DatabaseService).walletRepository;
                     const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(first.value);

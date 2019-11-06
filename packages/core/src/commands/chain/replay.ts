@@ -1,4 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Command, { flags } from "@oclif/command";
 
 import { abort } from "../../common/cli";
@@ -25,7 +25,7 @@ export class ReplayCommand extends Command {
     public async run(): Promise<void> {
         const { flags } = await parseWithNetwork(this.parse(ReplayCommand));
 
-        await setUpLite(flags);
+        const app: Contracts.Kernel.Application = await setUpLite(flags);
 
         if (!app.isBound(Container.Identifiers.BlockchainService)) {
             abort("The @arkecosystem/core-blockchain plugin is not installed.");

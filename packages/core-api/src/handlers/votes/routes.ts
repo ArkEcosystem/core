@@ -4,7 +4,7 @@ import { VotesController } from "./controller";
 import * as Schema from "./schema";
 
 export const registerRoutes = (server: Hapi.Server): void => {
-    const controller = new VotesController();
+    const controller = server.app.app.resolve(VotesController);
     server.bind(controller);
 
     server.route({

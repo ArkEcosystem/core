@@ -1,4 +1,4 @@
-import { app, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import sqlite3 from "better-sqlite3";
 import { ensureFileSync, existsSync, unlinkSync } from "fs-extra";
 import SocketCluster from "socketcluster";
@@ -6,18 +6,22 @@ import SocketCluster from "socketcluster";
 import { getHeaders } from "./utils/get-headers";
 
 // todo: review the implementation or trash it in favour of a proper implementation
+@Container.injectable()
 class PayloadProcessor {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     private payloadDatabasePath = `${process.env.CORE_PATH_DATA}/transactions-received.sqlite`;
 
     private databaseSize: number = (500 * 1024 * 1024) / 4096; // 500 MB
-    private payloadDatabase: sqlite3.Database;
+    private payloadDatabase!: sqlite3.Database;
     private payloadQueue: any[] = [];
     private payloadOverflowQueue: any[] = [];
     private maxPayloadQueueSize = 100;
     private maxPayloadOverflowQueueSize = 50;
     private listener: any;
 
-    public constructor() {
+    public init() {
         if (existsSync(this.payloadDatabasePath)) {
             unlinkSync(this.payloadDatabasePath);
         }
@@ -46,7 +50,7 @@ class PayloadProcessor {
                 }
                 return res(undefined, {
                     data: [],
-                    headers: getHeaders(),
+                    headers: getHeaders(this.app),
                 });
             }
             return await this.listener(workerId, req, res);
@@ -68,7 +72,7 @@ class PayloadProcessor {
                     });
                     saveToDB(this.payloadOverflowQueue);
                 } catch (error) {
-                    app.log.warning(
+                    this.app.log.warning(
                         `Discarding ${Utils.pluralize(
                             "transaction payload",
                             overflowQueueSize,

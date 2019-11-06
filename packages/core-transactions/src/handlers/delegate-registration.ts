@@ -1,4 +1,4 @@
-import { Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
@@ -14,6 +14,7 @@ const { TransactionType, TransactionTypeGroup } = Enums;
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
+@Container.injectable()
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.DelegateRegistrationTransaction;

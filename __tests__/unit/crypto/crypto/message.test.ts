@@ -2,18 +2,27 @@ import "jest-extended";
 
 import { configManager } from "../../../../packages/crypto/src/managers/config";
 import { Message } from "../../../../packages/crypto/src/crypto/message";
-import { identity } from "@packages/core-test-framework/src/utils/identities";
 
-const signedMessageEntries: any = [
-    ["publicKey", identity.publicKey],
-    [
-        "signature",
-        "3045022100b5ad008d8a2935cd2261c56ef1605b2e35810f47940277d1d8a6a202a08c6de0022021fcbf9ec9db67f8c7019ff2ce07376f8a203ea77f26f2f7d564d5b8f4bde1a7",
-    ],
-    ["message", "test"],
-];
+import { Generators } from "@packages/core-test-framework";
 
-beforeAll(() => configManager.setFromPreset("unitnet"));
+let identity;
+let signedMessageEntries;
+
+beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = new Generators.GenerateNetwork().generateCrypto();
+    configManager.setConfig(config);
+
+    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
+    signedMessageEntries = [
+        ["publicKey", identity.publicKey],
+        [
+            "signature",
+            "3045022100b5ad008d8a2935cd2261c56ef1605b2e35810f47940277d1d8a6a202a08c6de0022021fcbf9ec9db67f8c7019ff2ce07376f8a203ea77f26f2f7d564d5b8f4bde1a7",
+        ],
+        ["message", "test"],
+    ];
+});
 
 describe("Message", () => {
     describe("sign", () => {

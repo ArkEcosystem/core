@@ -1,10 +1,17 @@
 import { assert } from "@packages/core-kernel/src/utils/assert";
 import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 
-Managers.configManager.setFromPreset("unitnet");
+import { Generators } from "@packages/core-test-framework";
 
-const block: Interfaces.IBlock = Blocks.BlockFactory.fromData(Managers.configManager.get("genesisBlock"), {
-    deserializeTransactionsUnchecked: true,
+let block: Interfaces.IBlock;
+beforeAll(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    Managers.configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+
+    // Black Magic to get the genesis block to pass
+    Managers.configManager.getMilestone().aip11 = false;
+
+    block = Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"));
 });
 
 describe("Assertions", () => {

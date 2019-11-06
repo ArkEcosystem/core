@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import { inspect } from "util";
@@ -14,7 +14,11 @@ export class PeerVerificationResult implements Contracts.P2P.PeerVerificationRes
 }
 
 // todo: review the implementation
+@Container.injectable()
 export class PeerVerifier {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     /**
      * A cache of verified blocks' ids. A block is verified if it is connected to a chain
      * in which all blocks (including that one) are signed by the corresponding delegates.
@@ -22,18 +26,30 @@ export class PeerVerifier {
     private static readonly verifiedBlocks = new Utils.CappedSet();
 
     // todo: make use of ioc
-    private readonly database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        Container.Identifiers.DatabaseService,
-    );
-    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
-    private logPrefix: string;
+    private database!: Contracts.Database.DatabaseService;
+    private logger!: Contracts.Kernel.Log.Logger;
+    private logPrefix!: string;
 
-    // todo: make use of ioc
-    public constructor(
-        private readonly communicator: Contracts.P2P.PeerCommunicator,
-        private readonly peer: Contracts.P2P.Peer,
-    ) {
+    private communicator!: Contracts.P2P.PeerCommunicator;
+    private peer!: Contracts.P2P.Peer;
+
+    // // todo: make use of ioc
+    // public constructor(
+    //     private readonly communicator: Contracts.P2P.PeerCommunicator,
+    //     private readonly peer: Contracts.P2P.Peer,
+    // ) {
+    //     this.logPrefix = `Peer verify ${peer.ip}:`;
+    // }
+
+    public init(communicator: Contracts.P2P.PeerCommunicator, peer: Contracts.P2P.Peer) {
+        this.communicator = communicator;
+        this.peer = peer;
+        this.database = this.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+        this.logger = this.app.log;
+
         this.logPrefix = `Peer verify ${peer.ip}:`;
+
+        return this;
     }
 
     /**
@@ -121,7 +137,7 @@ export class PeerVerifier {
         }
 
         try {
-            const ownBlock: Interfaces.IBlock | undefined = app
+            const ownBlock: Interfaces.IBlock | undefined = this.app
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocks()
                 .find(block => block.data.height === blockHeader.height);
@@ -154,7 +170,7 @@ export class PeerVerifier {
         let height: number | undefined;
 
         try {
-            height = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
+            height = this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
 
             assert(Number.isInteger(height));
         } catch (error) {

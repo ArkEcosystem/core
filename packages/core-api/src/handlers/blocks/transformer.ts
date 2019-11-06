@@ -1,8 +1,8 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 // todo: review the implementation
-export const transformBlock = (model, transform) => {
+export const transformBlock = (app: Contracts.Kernel.Application, model, transform) => {
     if (!transform) {
         model.reward = Utils.BigNumber.make(model.reward).toFixed();
         model.totalFee = Utils.BigNumber.make(model.totalFee).toFixed();

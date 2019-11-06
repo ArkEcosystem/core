@@ -1,10 +1,10 @@
-import { app } from "@arkecosystem/core-kernel";
 // import { Plugins } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 
 import { PeerConfig } from "../../interfaces";
 
-export const getPeerConfig = (): PeerConfig => {
+export const getPeerConfig = (app: Contracts.Kernel.Application): PeerConfig => {
     return {
         version: app.version(),
         network: {

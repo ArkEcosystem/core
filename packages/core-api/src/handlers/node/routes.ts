@@ -1,11 +1,10 @@
-import { app } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 
 import { NodeController } from "./controller";
 import * as Schema from "./schema";
 
 export const registerRoutes = (server: Hapi.Server): void => {
-    const controller = new NodeController();
+    const controller = server.app.app.resolve(NodeController);
     server.bind(controller);
 
     server.route({
@@ -41,14 +40,14 @@ export const registerRoutes = (server: Hapi.Server): void => {
         },
     });
 
-    if (app.network() === "testnet" || process.env.CORE_API_DEBUG_ENDPOINT_ENABLED) {
-        server.route({
-            method: "GET",
-            path: "/node/debug",
-            handler: controller.debug,
-            options: {
-                validate: Schema.debug,
-            },
-        });
-    }
+    // if (app.network() === "testnet" || process.env.CORE_API_DEBUG_ENDPOINT_ENABLED) {
+    //     server.route({
+    //         method: "GET",
+    //         path: "/node/debug",
+    //         handler: controller.debug,
+    //         options: {
+    //             validate: Schema.debug,
+    //         },
+    //     });
+    // }
 };

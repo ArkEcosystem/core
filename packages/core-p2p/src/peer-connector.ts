@@ -1,9 +1,12 @@
-import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { create, SCClientSocket } from "socketcluster-client";
 
 // todo: review the implementation
 @Container.injectable()
 export class PeerConnector implements Contracts.P2P.PeerConnector {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     private readonly connections: Utils.Collection<SCClientSocket> = new Utils.Collection<SCClientSocket>();
     private readonly errors: Map<string, string> = new Map<string, string>();
 
@@ -28,14 +31,14 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
             hostname: peer.ip,
             ackTimeout: Math.max(
                 Utils.assert.defined(
-                    app
+                    this.app
                         .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                         .get("p2p")
                         .config()
                         .get<number>("getBlocksTimeout"),
                 ),
                 Utils.assert.defined(
-                    app
+                    this.app
                         .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                         .get("p2p")
                         .config()

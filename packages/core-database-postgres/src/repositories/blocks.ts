@@ -1,10 +1,11 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import { Block } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
+@Container.injectable()
 export class BlocksRepository extends Repository implements Contracts.Database.BlocksRepository {
     public async search(
         params: Contracts.Database.SearchParameters,

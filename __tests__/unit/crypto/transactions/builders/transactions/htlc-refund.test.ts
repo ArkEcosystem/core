@@ -1,24 +1,25 @@
 import "jest-extended";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
-import { HtlcRefundBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-refund";
-import { HtlcRefundTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-refund";
-import { BigNumber } from "../../../../../../packages/crypto/src/utils";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { HtlcRefundBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-refund";
+import { HtlcRefundTransaction } from "@packages/crypto/src/transactions/types/htlc-refund";
+import { BigNumber } from "@packages/crypto/src/utils";
+
+import { Generators } from "@packages/core-test-framework";
 
 let builder: HtlcRefundBuilder;
 
 beforeEach(() => {
-    configManager.setFromPreset("unitnet");
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = new Generators.GenerateNetwork().generateCrypto();
+    configManager.setConfig(config);
 
     builder = BuilderFactory.htlcRefund();
 });
 
 describe("Htlc refund Transaction", () => {
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.HtlcRefund);
         expect(builder).toHaveProperty("data.fee", HtlcRefundTransaction.staticFee());

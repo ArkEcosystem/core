@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-kernel";
 import Command, { flags } from "@oclif/command";
 
 import { buildPeerOptions } from "../../common/builder";
@@ -6,6 +5,7 @@ import { getConfigValue } from "../../common/config";
 import { flagsBehaviour, flagsNetwork } from "../../common/flags";
 import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
+import { createApplication } from "../../common/create-application";
 
 export class RunCommand extends Command {
     public static description = "Run the relay (without pm2)";
@@ -46,7 +46,7 @@ $ ark relay:run --launchMode=seed
     public async run(): Promise<void> {
         const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
-        await app.bootstrap({
+        await createApplication({
             ...getConfigValue(flags, "app", "cli.relay.run"),
             ...{
                 flags,
@@ -62,7 +62,5 @@ $ ark relay:run --launchMode=seed
                 },
             },
         });
-
-        await app.boot();
     }
 }

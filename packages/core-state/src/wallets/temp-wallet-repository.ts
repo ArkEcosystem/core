@@ -5,18 +5,26 @@ import { Wallet } from "./wallet";
 import { WalletRepository } from "./wallet-repository";
 
 export class TempWalletRepository extends WalletRepository {
-    public constructor(private readonly walletRepository: Contracts.State.WalletRepository) {
-        super();
+    private walletRepository!: Contracts.State.WalletRepository;
 
+    public setup(walletRepository: Contracts.State.WalletRepository) {
+        this.walletRepository = walletRepository;
+
+        return this;
+    }
+
+    public init() {
         this.index(this.walletRepository.allByUsername());
 
-        for (const index of walletRepository.getIndexNames()) {
+        for (const index of this.walletRepository.getIndexNames()) {
             if (this.indexes[index]) {
                 continue;
             }
 
-            this.indexes[index] = walletRepository.getIndex(index).clone();
+            this.indexes[index] = this.walletRepository.getIndex(index).clone();
         }
+
+        return this;
     }
 
     public reindex(wallet: Contracts.State.Wallet): void {
@@ -54,7 +62,7 @@ export class TempWalletRepository extends WalletRepository {
             if (parentIndex.has(key)) {
                 index.set(key, Utils.assert.defined<Contracts.State.Wallet>(parentIndex.get(key)).clone());
             } else if (indexName === Contracts.State.WalletIndexes.Addresses) {
-                index.set(key, new Wallet(key));
+                index.set(key, new Wallet(key, this.app));
             }
         }
 

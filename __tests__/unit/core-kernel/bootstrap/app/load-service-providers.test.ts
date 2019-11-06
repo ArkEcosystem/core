@@ -3,7 +3,7 @@ import "jest-extended";
 import { resolve } from "path";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { LoadServiceProviders } from "@packages/core-kernel/src/bootstrap/app";
@@ -13,31 +13,15 @@ class StubServiceProvider extends ServiceProvider {
 }
 
 let app: Application;
-let container: interfaces.Container;
 let configRepository: ConfigRepository;
 let serviceProviderRepository: ServiceProviderRepository;
 
 beforeEach(() => {
-    container = new Container();
-
-    app = new Application(container);
-
-    app.bind(Identifiers.ConfigRepository)
-        .to(ConfigRepository)
-        .inSingletonScope();
-
-    app.bind(Identifiers.ServiceProviderRepository)
-        .to(ServiceProviderRepository)
-        .inSingletonScope();
+    app = new Application(new Container());
 
     configRepository = app.get<ConfigRepository>(Identifiers.ConfigRepository);
-
     serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);
-
-    container.snapshot();
 });
-
-afterEach(() => container.restore());
 
 describe("LoadServiceProviders", () => {
     it("should bootstrap with defaults", async () => {

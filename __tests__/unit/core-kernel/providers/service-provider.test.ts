@@ -2,11 +2,10 @@ import "jest-extended";
 import { resolve } from "path";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
+import { Container, interfaces } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/providers/service-provider";
 import { PluginManifest } from "@packages/core-kernel/src/providers/plugin-manifest";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers/plugin-configuration";
-import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
 
 let app: Application;
 let container: interfaces.Container;
@@ -103,10 +102,6 @@ describe("ServiceProvider", () => {
     });
 
     it(".config", () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = app.resolve(StubServiceProvider);
 
         const pluginConfiguration: PluginConfiguration = app

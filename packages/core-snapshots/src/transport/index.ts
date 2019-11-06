@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import fs from "fs-extra";
 import msgpack from "msgpack-lite";
@@ -10,9 +10,6 @@ import JSONStream from "JSONStream";
 import * as utils from "../utils";
 import { Codec } from "./codec";
 import { canImportRecord, verifyData } from "./verification";
-
-const logger = app.log;
-const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
 const fixData = (table, data) => {
     if (table === "blocks" && data.height === 1) {
@@ -27,12 +24,12 @@ const fixData = (table, data) => {
     }
 };
 
-export const exportTable = async (table, options) => {
+export const exportTable = async (app: Contracts.Kernel.Application, table, options) => {
     const snapFileName = utils.getFilePath(table, options.meta.folder);
     const gzip = zlib.createGzip();
     await fs.ensureFile(snapFileName);
 
-    logger.info(
+    app.log.info(
         `Starting to export table ${table} to folder ${
             options.meta.folder
         }, append:${!!options.blocks}, skipCompression: ${options.meta.skipCompression}`,
@@ -52,13 +49,13 @@ export const exportTable = async (table, options) => {
                 .pipe(gzip)
                 .pipe(snapshotWriteStream);
         });
-        logger.info(
+        app.log.info(
             `Snapshot: ${table} done. ==> Total rows processed: ${data.processed}, duration: ${data.duration} ms`,
         );
 
         return {
-            count: utils.calcRecordCount(table, data.processed, options.blocks),
-            startHeight: utils.calcStartHeight(table, options.meta.startHeight, options.blocks),
+            count: utils.calcRecordCount(app, table, data.processed, options.blocks),
+            startHeight: utils.calcStartHeight(app, table, options.meta.startHeight, options.blocks),
             endHeight: options.meta.endHeight,
         };
     } catch (error) {
@@ -67,11 +64,13 @@ export const exportTable = async (table, options) => {
     }
 };
 
-export const importTable = async (table, options) => {
+export const importTable = async (app: Contracts.Kernel.Application, table, options) => {
+    const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
+
     const sourceFile = utils.getFilePath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();
     const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
-    logger.info(
+    app.log.info(
         `Starting to import table ${table} from ${sourceFile}, skipCompression: ${options.meta.skipCompression}`,
     );
 
@@ -101,7 +100,7 @@ export const importTable = async (table, options) => {
 
         fixData(table, record);
 
-        if (!verifyData(table, record, prevData, options.verifySignatures)) {
+        if (!verifyData(app, table, record, prevData, options.verifySignatures)) {
             app.terminate(`Error verifying data. Payload ${JSON.stringify(record, undefined, 2)}`);
         }
 
@@ -122,7 +121,7 @@ export const importTable = async (table, options) => {
     emitter.dispatch("complete");
 };
 
-export const verifyTable = async (table, options) => {
+export const verifyTable = async (app: Contracts.Kernel.Application, table, options) => {
     const sourceFile = utils.getFilePath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();
     const decodeStream = msgpack.createDecodeStream({ codec: Codec[table] });
@@ -133,23 +132,23 @@ export const verifyTable = async (table, options) => {
               .pipe(gunzip)
               .pipe(decodeStream);
 
-    logger.info(`Starting to verify snapshot file ${sourceFile}`);
+    app.log.info(`Starting to verify snapshot file ${sourceFile}`);
     let prevData;
 
     decodeStream.on("data", data => {
         fixData(table, data);
-        if (!verifyData(table, data, prevData, options.verifySignatures)) {
+        if (!verifyData(app, table, data, prevData, options.verifySignatures)) {
             app.terminate(`Error verifying data. Payload ${JSON.stringify(data, undefined, 2)}`);
         }
         prevData = data;
     });
 
     readStream.on("finish", () => {
-        logger.info(`Snapshot file ${sourceFile} successfully verified`);
+        app.log.info(`Snapshot file ${sourceFile} successfully verified`);
     });
 };
 
-export const backupTransactionsToJSON = async (snapFileName, query, database) => {
+export const backupTransactionsToJSON = async (app: Contracts.Kernel.Application, snapFileName, query, database) => {
     const transactionBackupPath = utils.getFilePath(snapFileName, "rollbackTransactions");
     await fs.ensureFile(transactionBackupPath);
     const snapshotWriteStream = fs.createWriteStream(transactionBackupPath);
@@ -157,7 +156,7 @@ export const backupTransactionsToJSON = async (snapFileName, query, database) =>
 
     try {
         const data = await database.db.stream(qs, s => s.pipe(JSONStream.stringify()).pipe(snapshotWriteStream));
-        logger.info(
+        app.log.info(
             `${Utils.pluralize(
                 "transaction",
                 data.processed,

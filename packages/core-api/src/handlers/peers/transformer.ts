@@ -1,7 +1,7 @@
-import { app, Container, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Providers, Utils, Contracts } from "@arkecosystem/core-kernel";
 
 // todo: review the implementation
-export const transformPeer = model => {
+export const transformPeer = (app: Contracts.Kernel.Application, model) => {
     const config: Providers.PluginConfiguration = Utils.assert.defined(
         app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
@@ -11,7 +11,7 @@ export const transformPeer = model => {
 
     return {
         ip: model.ip,
-        port: Utils.assert.defined(config.get<number>("server.port")),
+        port: +Utils.assert.defined<number>(config.get<number>("server.port")),
         ports: model.ports,
         version: model.version,
         height: model.state ? model.state.height : model.height,

@@ -9,14 +9,13 @@ import { readdirSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
 import { PinoLogger } from "@packages/core-kernel/src/services/log/drivers";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 
 let logger: Logger;
 let message: string;
 
 let app: Application;
-let container: interfaces.Container;
 
 beforeEach(async () => {
     const options = {
@@ -35,26 +34,15 @@ beforeEach(async () => {
         },
     };
 
-    container = new Container();
-
-    app = new Application(container);
+    app = new Application(new Container());
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
-    app.bind(Identifiers.ConfigRepository)
-        .to(ConfigRepository)
-        .inSingletonScope();
     app.get<ConfigRepository>(Identifiers.ConfigRepository).merge(options);
     app.bind("path.log").toConstantValue(dirSync().name);
-
-    container.snapshot();
 
     logger = await app.resolve<Logger>(PinoLogger).make(options);
 });
 
-afterEach(() => {
-    message = undefined;
-
-    container.restore();
-});
+afterEach(() => (message = undefined));
 
 beforeAll(() => {
     capcon.startCapture(process.stdout, stdout => (message = stdout.toString()));
@@ -154,9 +142,6 @@ describe("Logger", () => {
     it("should rotate the log 3 times", async () => {
         const app = new Application(new Container());
         app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
         app.get<ConfigRepository>(Identifiers.ConfigRepository).merge({
             app: {
                 services: {

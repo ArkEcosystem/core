@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
@@ -47,8 +47,12 @@ class BlockNotReadyCounter {
 }
 
 // todo: remove the abstract and instead require a contract to be implemented
+@Container.injectable()
 export class UnchainedHandler extends BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
+
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Log.Logger;
@@ -75,7 +79,7 @@ export class UnchainedHandler extends BlockHandler {
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
                 const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(block.data.height);
-                const delegates: Contracts.State.Wallet[] = await app
+                const delegates: Contracts.State.Wallet[] = await this.app
                     .get<any>(Container.Identifiers.DatabaseService)
                     .getActiveDelegates(roundInfo);
 

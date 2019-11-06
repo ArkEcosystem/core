@@ -1,4 +1,3 @@
-// import { app } from "@arkecosystem/core-kernel";
 import Joi from "@hapi/joi";
 
 import { blockId } from "../shared/schemas/block-id";

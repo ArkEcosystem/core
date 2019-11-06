@@ -9,17 +9,19 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.log.info("Establishing Database Connection");
 
-        const walletRepository = new Wallets.WalletRepository();
+        const walletRepository = this.app.resolve<Wallets.WalletRepository>(Wallets.WalletRepository).init();
         const walletState = this.app.resolve<Wallets.WalletState>(Wallets.WalletState).init(walletRepository);
+
+        const pg = this.app.resolve(PostgresConnection);
 
         const connectionManager = this.app.get<ConnectionManager>(Container.Identifiers.DatabaseManager);
         const connection = await connectionManager.createConnection(
-            new PostgresConnection(this.config().all(), walletRepository, walletState),
+            await pg.setup(this.config().all(), walletRepository, walletState),
         );
 
         this.app
             .bind(Container.Identifiers.DatabaseService)
-            .toConstantValue(await databaseServiceFactory(this.config().all(), walletRepository, connection));
+            .toConstantValue(await databaseServiceFactory(this.app, this.config().all(), walletRepository, connection));
     }
 
     public async dispose(): Promise<void> {

@@ -1,10 +1,20 @@
-import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 
 import { SearchParameterConverter } from "./utils/search-parameter-converter";
 
+@Container.injectable()
 export class TransactionsBusinessRepository implements Contracts.Database.TransactionsBusinessRepository {
-    constructor(private readonly databaseServiceProvider: () => Contracts.Database.DatabaseService) {}
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
+    private databaseServiceProvider: () => Contracts.Database.DatabaseService;
+
+    public init(databaseServiceProvider: () => Contracts.Database.DatabaseService) {
+        this.databaseServiceProvider = databaseServiceProvider;
+
+        return this;
+    }
 
     public async search(
         params: Contracts.Database.Parameters = {},
@@ -83,7 +93,7 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
     > {
         return this.databaseServiceProvider().connection.transactionsRepository.getFeeStatistics(
             days,
-            app
+            this.app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                 .get("state")
                 .config()

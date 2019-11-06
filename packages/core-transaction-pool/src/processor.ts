@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
@@ -9,7 +9,11 @@ import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./in
  * @todo: this class has too many responsibilities at the moment.
  * Its sole responsibility should be to validate transactions and return them.
  */
+@Container.injectable()
 export class Processor implements Contracts.TransactionPool.Processor {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     private transactions: Interfaces.ITransactionData[] = [];
     private readonly excess: string[] = [];
     private readonly accept: Map<string, Interfaces.ITransaction> = new Map();
@@ -17,7 +21,13 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
     private readonly errors: { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } = {};
 
-    constructor(private readonly pool: Contracts.TransactionPool.Connection) {}
+    private pool!: Contracts.TransactionPool.Connection;
+
+    public init(pool: Contracts.TransactionPool.Connection) {
+        this.pool = pool;
+
+        return this;
+    }
 
     public async validate(
         transactions: Interfaces.ITransactionData[],
@@ -68,7 +78,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     }
 
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
-        const { added, notAdded }: TransactionsCached = app
+        const { added, notAdded }: TransactionsCached = this.app
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .cacheTransactions(transactions);
 
@@ -82,7 +92,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     }
 
     private async removeForgedTransactions(): Promise<void> {
-        const forgedIdsSet: string[] = await app
+        const forgedIdsSet: string[] = await this.app
             .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
             .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
 
@@ -98,7 +108,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
         const maxTransactionBytes: number = Utils.assert.defined(
-            app
+            this.app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                 .get("@arkecosystem/core-transaction-pool")
                 .config()
@@ -125,12 +135,12 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
-                    const handler: Handlers.TransactionHandler = await app
+                    const handler: Handlers.TransactionHandler = await this.app
                         .get<any>("transactionHandlerRegistry")
                         .get(transactionInstance.type, transactionInstance.typeGroup);
                     if (await handler.verify(transactionInstance, this.pool.walletRepository)) {
                         try {
-                            const dynamicFee: DynamicFeeMatch = await dynamicFeeMatcher(transactionInstance);
+                            const dynamicFee: DynamicFeeMatch = await dynamicFeeMatcher(this.app, transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,
@@ -186,14 +196,14 @@ export class Processor implements Contracts.TransactionPool.Processor {
             return false;
         }
 
-        const lastHeight: number = app.get<any>(Container.Identifiers.StateStore).getLastHeight();
+        const lastHeight: number = this.app.get<any>(Container.Identifiers.StateStore).getLastHeight();
 
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,
             currentHeight: lastHeight,
             now: Crypto.Slots.getTime(),
             maxTransactionAge: Utils.assert.defined<number>(
-                app
+                this.app
                     .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                     .get("@arkecosystem/core-transaction-pool")
                     .config()
@@ -230,7 +240,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            const handler: Handlers.TransactionHandler = await app
+            const handler: Handlers.TransactionHandler = await this.app
                 .get<any>("transactionHandlerRegistry")
                 .get(transaction.type, transaction.typeGroup);
             return handler.canEnterTransactionPool(transaction, this.pool, this);
@@ -272,9 +282,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
             .join(" ");
 
         if (Object.keys(this.errors).length > 0) {
-            app.log.debug(JSON.stringify(this.errors));
+            this.app.log.debug(JSON.stringify(this.errors));
         }
 
-        app.log.info(`Received ${Utils.pluralize("transaction", this.transactions.length, true)} (${stats}).`);
+        this.app.log.info(`Received ${Utils.pluralize("transaction", this.transactions.length, true)} (${stats}).`);
     }
 }

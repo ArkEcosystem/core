@@ -2,7 +2,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 // todo: review the implementation
-export const transformWallet = (wallet: Contracts.State.Wallet) => {
+export const transformWallet = (app: Contracts.Kernel.Application, wallet: Contracts.State.Wallet) => {
     return {
         address: wallet.address,
         publicKey: wallet.publicKey,

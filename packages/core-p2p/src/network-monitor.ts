@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
@@ -19,6 +19,9 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     private initializing = true;
 
+    @Container.inject(Container.Identifiers.Application)
+    public readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Log.Logger;
 
@@ -34,10 +37,10 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
 
-    private readonly rateLimiter: RateLimiter;
+    private rateLimiter!: RateLimiter;
 
-    public constructor() {
-        this.config = app
+    public init() {
+        this.config = this.app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
             .get("@arkecosystem/core-p2p")
             .config()
@@ -254,6 +257,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     public async getNetworkState(): Promise<Contracts.P2P.NetworkState> {
         await this.cleansePeers({ fast: true, forcePing: true });
+
         return NetworkState.analyze(this, this.storage);
     }
 
@@ -267,7 +271,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         await this.cleansePeers({ forcePing: true });
 
         const lastBlock: Interfaces.IBlock = Utils.assert.defined(
-            app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
+            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
         );
         const allPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
 
@@ -364,7 +368,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     }
 
     public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
-        const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
+        const blockchain = this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
 
         if (!blockchain) {
             this.logger.info(
@@ -454,7 +458,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     private async checkDNSConnectivity(options): Promise<void> {
         try {
-            const host = await checkDNS(options);
+            const host = await checkDNS(this.app, options);
 
             this.logger.info(`Your network connectivity has been verified by ${host}`);
         } catch (error) {
@@ -464,7 +468,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     private async checkNTPConnectivity(options): Promise<void> {
         try {
-            const { host, time } = await checkNTP(options);
+            const { host, time } = await checkNTP(this.app, options);
 
             this.logger.info(`Your NTP connectivity has been verified by ${host}`);
 
@@ -499,14 +503,14 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     }
 
     private async populateSeedPeers(): Promise<any> {
-        const peerList: PeerData[] = app.config("peers").list;
+        const peerList: PeerData[] = this.app.config("peers").list;
 
         if (!peerList) {
-            app.terminate("No seed peers defined in peers.json");
+            this.app.terminate("No seed peers defined in peers.json");
         }
 
         const peers: PeerData[] = peerList.map(peer => {
-            peer.version = app.version();
+            peer.version = this.app.version();
             return peer;
         });
 

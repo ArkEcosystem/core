@@ -1,11 +1,14 @@
-import { app, Container, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Handlers } from "@arkecosystem/core-transactions";
+import { Container, Providers, Utils as AppUtils, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Handlers } from "@arkecosystem/core-transactions";
 
 import { DynamicFeeMatch } from "./interfaces";
 
 // todo: review implementation and better method name that indicates what it does
-export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): Promise<DynamicFeeMatch> => {
+export const dynamicFeeMatcher = async (
+    app: Contracts.Kernel.Application,
+    transaction: Interfaces.ITransaction,
+): Promise<DynamicFeeMatch> => {
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string | undefined = AppUtils.assert.defined(transaction.id);
 

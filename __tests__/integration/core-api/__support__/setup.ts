@@ -1,9 +1,8 @@
-import { app, Contracts, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Contracts, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Sandbox } from "@arkecosystem/core-test-framework";
 import { Utils } from "@arkecosystem/crypto";
-import { resolve } from "path";
 
-// import { generateRound } from "./utils/generate-round";
-// import { delegates } from "@packages/core-test-framework/src/utils/fixtures";
+const sandbox: Sandbox = new Sandbox();
 
 export const setUp = async () => {
     jest.setTimeout(60000);
@@ -11,37 +10,39 @@ export const setUp = async () => {
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
     process.env.CORE_RESET_DATABASE = "1";
 
-    process.env.CORE_PATH_CONFIG = resolve(__dirname, "../../../../packages/core-test-framework/src/utils/config");
-
-    await app.bootstrap({
-        flags: {
-            token: "ark",
-            network: "unitnet",
-            env: "test",
-        },
-        plugins: {
-            exclude: [
-                // "@arkecosystem/core-api",
-                "@arkecosystem/core-forger",
-                "@arkecosystem/core-webhooks",
-            ],
-            options: {
-                "@arkecosystem/core-blockchain": {
-                    networkStart: true,
+    await sandbox.setUp(async ({ app }) => {
+        await app.bootstrap({
+            flags: {
+                token: "ark",
+                network: "unitnet",
+                env: "test",
+            },
+            plugins: {
+                exclude: [
+                    // "@arkecosystem/core-api",
+                    "@arkecosystem/core-forger",
+                    "@arkecosystem/core-webhooks",
+                ],
+                options: {
+                    "@arkecosystem/core-blockchain": {
+                        networkStart: true,
+                    },
                 },
             },
-        },
+        });
+
+        await app.boot();
+
+        await AppUtils.sleep(1000); // give some more time for api server to be up
     });
 
-    await app.boot();
-
-    await AppUtils.sleep(1000); // give some more time for api server to be up
+    return sandbox.app;
 };
 
-export const tearDown = async () => await app.terminate();
+export const tearDown = async () => sandbox.tearDown();
 
 export const calculateRanks = async () => {
-    const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+    const databaseService = sandbox.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
 
     const delegateWallets = Object.values(databaseService.walletRepository.allByUsername()).sort(
         (a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
@@ -51,7 +52,7 @@ export const calculateRanks = async () => {
     );
 
     AppUtils.sortBy(delegateWallets, wallet => wallet.publicKey).forEach((delegate, i) => {
-        const wallet = databaseService.walletRepository.findByPublicKey(delegate.publicKey);
+        const wallet = databaseService.walletRepository.findByPublicKey(delegate.publicKey!);
         wallet.setAttribute("delegate.rank", i + 1);
 
         databaseService.walletRepository.reindex(wallet);

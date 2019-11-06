@@ -1,4 +1,4 @@
-import { app } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { copyFileSync, ensureFileSync, existsSync, readJSONSync, writeFileSync } from "fs-extra";
 
 export const writeMetaFile = snapshotInfo =>
@@ -10,9 +10,8 @@ export const writeMetaFile = snapshotInfo =>
 
 export const getFilePath = (filename, folder) => `${process.env.CORE_PATH_DATA}/snapshots/${folder}/${filename}`;
 
-export const copySnapshot = (sourceFolder, destFolder) => {
-    const logger = app.log;
-    logger.info(`Copying snapshot ${sourceFolder} to ${destFolder} for appending of data`);
+export const copySnapshot = (app: Contracts.Kernel.Application, sourceFolder, destFolder) => {
+    app.log.info(`Copying snapshot ${sourceFolder} to ${destFolder} for appending of data`);
 
     const paths = {
         source: {
@@ -44,7 +43,7 @@ export const copySnapshot = (sourceFolder, destFolder) => {
     copyFileSync(paths.source.rounds, paths.dest.rounds);
 };
 
-export const readMetaJSON = folder => {
+export const readMetaJSON = (app: Contracts.Kernel.Application, folder) => {
     const metaFileInfo = getFilePath("meta.json", folder);
 
     if (!existsSync(metaFileInfo)) {
@@ -54,26 +53,26 @@ export const readMetaJSON = folder => {
     return readJSONSync(metaFileInfo);
 };
 
-export const calcRecordCount = (table, currentCount, sourceFolder) => {
+export const calcRecordCount = (app: Contracts.Kernel.Application, table, currentCount, sourceFolder) => {
     if (sourceFolder) {
-        const snapshotInfo = readMetaJSON(sourceFolder);
+        const snapshotInfo = readMetaJSON(app, sourceFolder);
         return +snapshotInfo[table].count + currentCount;
     }
 
     return currentCount;
 };
 
-export const calcStartHeight = (table, currentHeight, sourceFolder) => {
+export const calcStartHeight = (app: Contracts.Kernel.Application, table, currentHeight, sourceFolder) => {
     if (sourceFolder) {
-        const snapshotInfo = readMetaJSON(sourceFolder);
+        const snapshotInfo = readMetaJSON(app, sourceFolder);
         return +snapshotInfo[table].startHeight;
     }
 
     return currentHeight;
 };
 
-export const getSnapshotInfo = folder => {
-    const snapshotInfo = readMetaJSON(folder);
+export const getSnapshotInfo = (app: Contracts.Kernel.Application, folder) => {
+    const snapshotInfo = readMetaJSON(app, folder);
     return {
         startHeight: +snapshotInfo.blocks.startHeight,
         endHeight: +snapshotInfo.blocks.endHeight,
@@ -85,7 +84,7 @@ export const getSnapshotInfo = folder => {
     };
 };
 
-export const setSnapshotInfo = (options, lastBlock) => {
+export const setSnapshotInfo = (app: Contracts.Kernel.Application, options, lastBlock) => {
     const meta = {
         startHeight: options.start !== -1 ? options.start : 1,
         endHeight: options.end !== -1 ? options.end : lastBlock.height,
@@ -96,7 +95,7 @@ export const setSnapshotInfo = (options, lastBlock) => {
     meta.folder = `${meta.startHeight}-${meta.endHeight}`;
 
     if (options.blocks) {
-        const oldMeta = getSnapshotInfo(options.blocks);
+        const oldMeta = getSnapshotInfo(app, options.blocks);
         meta.startHeight = oldMeta.endHeight + 1;
         meta.folder = `${oldMeta.startHeight}-${meta.endHeight}`;
     }

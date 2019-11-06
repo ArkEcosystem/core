@@ -9,8 +9,13 @@ import { transformFeeStatistics } from "../handlers/shared/transformers/fee-stat
 import { transformPorts } from "../handlers/shared/transformers/ports";
 import { transformTransaction } from "../handlers/transactions/transformer";
 import { transformWallet } from "../handlers/wallets/transformer";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 
-class Transformer {
+@Container.injectable()
+export class TransformerService {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     private readonly transformers: Record<string, any> = {
         block: transformBlock,
         bridgechain: transformBridgechain,
@@ -26,12 +31,10 @@ class Transformer {
     };
 
     public toResource(data, transformer, transform = true): object {
-        return this.transformers[transformer](data, transform);
+        return this.transformers[transformer](this.app, data, transform);
     }
 
     public toCollection(data, transformer, transform = true): object[] {
         return data.map(d => this.toResource(d, transformer, transform));
     }
 }
-
-export const transformerService = new Transformer();

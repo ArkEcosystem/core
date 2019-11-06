@@ -1,22 +1,37 @@
-import { app, Container, Contracts, Enums } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
 
 // todo: review the implementation
+@Container.injectable()
 export class StateBuilder {
-    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
-        Contracts.Kernel.Events.EventDispatcher
-    >(Container.Identifiers.EventDispatcherService);
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
 
-    constructor(
-        private readonly connection: Contracts.Database.Connection,
-        private readonly walletRepository: Contracts.State.WalletRepository,
-        private readonly walletState,
-    ) {}
+    private logger: Contracts.Kernel.Log.Logger;
+    private emitter: Contracts.Kernel.Events.EventDispatcher;
 
-    public async run(): Promise<void> {
-        const transactionHandlers: Handlers.TransactionHandler[] = app.get<any>("transactionHandlerRegistry").getAll();
+    private connection: Contracts.Database.Connection;
+    private walletRepository: Contracts.State.WalletRepository;
+    private walletState;
+
+    public async run(
+        connection: Contracts.Database.Connection,
+        walletRepository: Contracts.State.WalletRepository,
+        walletState,
+    ): Promise<void> {
+        this.logger = this.app.log;
+        this.emitter = this.app.get<Contracts.Kernel.Events.EventDispatcher>(
+            Container.Identifiers.EventDispatcherService,
+        );
+
+        this.connection = connection;
+        this.walletRepository = walletRepository;
+        this.walletState = walletState;
+
+        const transactionHandlers: Handlers.TransactionHandler[] = this.app
+            .get<any>("transactionHandlerRegistry")
+            .getAll();
         const steps = transactionHandlers.length + 3;
 
         this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);

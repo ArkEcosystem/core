@@ -10,6 +10,9 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean = false;
 
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Log.Logger;
 
@@ -75,7 +78,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     private updatePeersAfterMilestoneChange(): void {
         const peers: Contracts.P2P.Peer[] = this.storage.getPeers();
         for (const peer of peers) {
-            if (!isValidVersion(peer)) {
+            if (!isValidVersion(this.app, peer)) {
                 this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
             }
         }
@@ -86,7 +89,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return;
         }
 
-        const newPeer: Contracts.P2P.Peer = new Peer(peer.ip);
+        const newPeer: Contracts.P2P.Peer = new Peer(this.app, peer.ip);
 
         try {
             this.storage.setPendingPeer(peer);

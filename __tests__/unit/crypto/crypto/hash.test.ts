@@ -3,16 +3,26 @@ import "jest-extended";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
-import { identity } from "@packages/core-test-framework/src/utils/identities";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 
-const transaction = TransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+import { Generators } from "@packages/core-test-framework";
+
+const transaction = TransactionFactory.init()
+    .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
     .withVersion(2)
     .withFee(2000)
     .withPassphrase("secret")
     .createOne();
 
-beforeEach(() => configManager.setFromPreset("unitnet"));
+let identity;
+
+beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = new Generators.GenerateNetwork().generateCrypto();
+    configManager.setConfig(config);
+
+    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
+});
 
 describe("Hash", () => {
     describe("ECDSA", () => {

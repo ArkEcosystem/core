@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
@@ -8,6 +8,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
+@Container.injectable()
 export class DelegateResignationTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.DelegateResignationTransaction;
@@ -56,7 +57,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             throw new WalletAlreadyResignedError();
         }
 
-        const delegates: ReadonlyArray<Contracts.State.Wallet> = app
+        const delegates: ReadonlyArray<Contracts.State.Wallet> = this.app
             .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
             .walletRepository.allByUsername();
         let requiredDelegates: number = Managers.configManager.getMilestone().activeDelegates + 1;

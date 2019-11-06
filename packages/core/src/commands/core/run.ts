@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-kernel";
 import Command, { flags } from "@oclif/command";
 
 import { buildPeerOptions } from "../../common/builder";
@@ -7,6 +6,7 @@ import { buildBIP38 } from "../../common/crypto";
 import { flagsBehaviour, flagsForger, flagsNetwork } from "../../common/flags";
 import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
+import { createApplication } from "../../common/create-application";
 
 export class RunCommand extends Command {
     public static description = "Run the core (without pm2)";
@@ -48,8 +48,7 @@ $ ark core:run --launchMode=seed
     public async run(): Promise<void> {
         const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
-        // @ts-ignore
-        await app.bootstrap({
+        await createApplication({
             ...getConfigValue(flags, "app", "cli.core.run"),
             ...{
                 flags,
@@ -65,7 +64,5 @@ $ ark core:run --launchMode=seed
                 },
             },
         });
-
-        await app.boot();
     }
 }

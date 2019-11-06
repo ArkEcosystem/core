@@ -1,18 +1,25 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { app, Container, Providers } from "@arkecosystem/core-kernel";
+import { Contracts, Container, Providers } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
+import { ApiHelpers } from "@arkecosystem/core-test-framework";
 
 import { setUp, tearDown } from "../__support__/setup";
-import { utils } from "../utils";
 
-beforeAll(setUp);
-afterAll(tearDown);
+let app: Contracts.Kernel.Application;
+let api: ApiHelpers;
+
+beforeAll(async () => {
+    app = await setUp();
+    api = new ApiHelpers(app);
+});
+
+afterAll(async () => await tearDown());
 
 describe("API 2.0 - Loader", () => {
     describe("GET /node/status", () => {
         it("should GET the node status", async () => {
-            const response = await utils.request("GET", "node/status");
+            const response = await api.request("GET", "node/status");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 
@@ -25,7 +32,7 @@ describe("API 2.0 - Loader", () => {
 
     describe("GET /node/syncing", () => {
         it("should GET the node syncing status", async () => {
-            const response = await utils.request("GET", "node/syncing");
+            const response = await api.request("GET", "node/syncing");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 
@@ -38,7 +45,7 @@ describe("API 2.0 - Loader", () => {
 
     describe("GET /node/configuration", () => {
         it("should GET the node configuration", async () => {
-            let response = await utils.request("GET", "node/configuration");
+            let response = await api.request("GET", "node/configuration");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 
@@ -60,7 +67,7 @@ describe("API 2.0 - Loader", () => {
 
             config.set("dynamicFees.enabled", false);
 
-            response = await utils.request("GET", "node/configuration");
+            response = await api.request("GET", "node/configuration");
             expect(response.data.data.transactionPool.dynamicFees.enabled).toBeFalse();
 
             config.set("dynamicFees.enabled", true);
@@ -69,16 +76,16 @@ describe("API 2.0 - Loader", () => {
 
     describe("GET /node/configuration/crypto", () => {
         it("should GET the node crypto configuration", async () => {
-            const response = await utils.request("GET", "node/configuration/crypto");
+            const response = await api.request("GET", "node/configuration/crypto");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
-            expect(response.data.data).toEqual(Managers.configManager.getPreset("unitnet"));
+            expect(response.data.data).toEqual(Managers.configManager.all());
         });
     });
 
     describe("GET /node/fees", () => {
         it("should GET the node fees", async () => {
-            const response = await utils.request("GET", "node/fees", { days: 14 });
+            const response = await api.request("GET", "node/fees", { days: 14 });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.meta.days).toBe(14);
             expect(response.data.data).toBeArray();

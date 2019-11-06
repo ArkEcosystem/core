@@ -1,5 +1,5 @@
 import "jest-extended";
-import * as enums from "../../../packages/crypto/src/enums";
+import * as enums from "@packages/crypto/src/enums";
 
 describe("Constants", () => {
     it("transaction types are defined", () => {

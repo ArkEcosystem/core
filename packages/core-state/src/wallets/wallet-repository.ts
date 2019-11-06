@@ -1,4 +1,4 @@
-import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
@@ -7,10 +7,14 @@ import { Wallet } from "./wallet";
 import { WalletIndex } from "./wallet-index";
 
 // todo: review the implementation
+@Container.injectable()
 export class WalletRepository implements Contracts.State.WalletRepository {
+    @Container.inject(Container.Identifiers.Application)
+    public app!: Contracts.Kernel.Application;
+
     protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 
-    public constructor() {
+    public init() {
         this.reset();
 
         this.registerIndex(
@@ -61,6 +65,8 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 }
             },
         );
+
+        return this;
     }
 
     public registerIndex(name: string, indexer: Contracts.State.WalletIndexer): void {
@@ -119,7 +125,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         const index: Contracts.State.WalletIndex = this.getIndex(Contracts.State.WalletIndexes.Addresses);
 
         if (address && !index.has(address)) {
-            index.set(address, new Wallet(address));
+            index.set(address, new Wallet(address, this.app));
         }
 
         return AppUtils.assert.defined(index.get(address));
@@ -221,8 +227,10 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     public clone(): Contracts.State.WalletRepository {
-        // @todo: ioc
-        return new TempWalletRepository(this);
+        return this.app
+            .resolve<TempWalletRepository>(TempWalletRepository)
+            .setup(this)
+            .init();
     }
 
     public reset(): void {

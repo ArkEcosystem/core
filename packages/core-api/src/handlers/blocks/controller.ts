@@ -1,10 +1,11 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { Controller } from "../shared/controller";
 
 // todo: remove the abstract and use dependency injection if needed
+@Container.injectable()
 export class BlocksController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
@@ -21,7 +22,7 @@ export class BlocksController extends Controller {
         try {
             return super.respondWithResource(
                 // todo: inject from container
-                app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getGenesisBlock().data,
+                this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getGenesisBlock().data,
                 "block",
                 (request.query.transform as unknown) as boolean,
             );
@@ -34,7 +35,8 @@ export class BlocksController extends Controller {
         try {
             return super.respondWithResource(
                 // todo: inject from container
-                app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).getLastBlock().data,
+                this.app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).getLastBlock()
+                    .data,
                 "block",
                 (request.query.transform as unknown) as boolean,
             );

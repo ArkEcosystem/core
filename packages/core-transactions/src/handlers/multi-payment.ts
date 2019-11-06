@@ -1,11 +1,11 @@
-import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { InsufficientBalanceError } from "../errors";
 import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
-// tslint:disable-next-line: max-classes-per-file
+@Container.injectable()
 export class MultiPaymentTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.MultiPaymentTransaction;

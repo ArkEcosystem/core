@@ -1,10 +1,10 @@
-import { app, Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Providers, Contracts } from "@arkecosystem/core-kernel";
 
 import { isWhitelisted } from "../../utils/is-whitelisted";
 import * as internalHandlers from "./internal";
 import * as peerHandlers from "./peer";
 
-export const isAppReady = (): { ready: boolean } => {
+export const isAppReady = ({ app }: { app: Contracts.Kernel.Application }): { ready: boolean } => {
     return {
         ready:
             app.isBound(Container.Identifiers.TransactionPoolService) &&
@@ -18,9 +18,16 @@ export const getHandlers = (): { [key: string]: string[] } => ({
     internal: Object.keys(internalHandlers),
 });
 
-export const log = ({ req }): void => app.log[req.data.level](req.data.message);
+export const log = ({ app, req }: { app: Contracts.Kernel.Application; req: any }): void =>
+    app.log[req.data.level](req.data.message);
 
-export const isForgerAuthorized = ({ req }): { authorized: boolean } => ({
+export const isForgerAuthorized = ({
+    app,
+    req,
+}: {
+    app: Contracts.Kernel.Application;
+    req: any;
+}): { authorized: boolean } => ({
     authorized: isWhitelisted(
         app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
@@ -31,7 +38,7 @@ export const isForgerAuthorized = ({ req }): { authorized: boolean } => ({
     ),
 });
 
-export const getConfig = (): Record<string, any> =>
+export const getConfig = ({ app }: { app: Contracts.Kernel.Application }): Record<string, any> =>
     app
         .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
         .get("@arkecosystem/core-p2p")

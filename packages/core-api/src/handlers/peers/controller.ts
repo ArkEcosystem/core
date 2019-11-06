@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 import semver from "semver";
@@ -6,11 +6,12 @@ import semver from "semver";
 import { Controller } from "../shared/controller";
 
 // todo: remove the abstract and use dependency injection if needed
+@Container.injectable()
 export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             // todo: inject from container
-            const allPeers: Contracts.P2P.Peer[] = app
+            const allPeers: Contracts.P2P.Peer[] = this.app
                 .get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage)
                 .getPeers();
 
@@ -62,7 +63,7 @@ export class PeersController extends Controller {
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             // todo: inject from container
-            const storage: Contracts.P2P.PeerStorage = app.get<Contracts.P2P.PeerStorage>(
+            const storage: Contracts.P2P.PeerStorage = this.app.get<Contracts.P2P.PeerStorage>(
                 Container.Identifiers.PeerStorage,
             );
 

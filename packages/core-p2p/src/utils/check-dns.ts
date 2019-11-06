@@ -1,8 +1,8 @@
-import { app, Utils } from "@arkecosystem/core-kernel";
+import { Utils, Contracts } from "@arkecosystem/core-kernel";
 import dns from "dns";
 import util from "util";
 
-export const checkDNS = async (hosts: string[]) => {
+export const checkDNS = async (app: Contracts.Kernel.Application, hosts: string[]) => {
     hosts = Utils.shuffle(hosts);
 
     const lookupService = util.promisify(dns.lookupService);

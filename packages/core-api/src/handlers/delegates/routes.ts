@@ -4,7 +4,7 @@ import { DelegatesController } from "./controller";
 import * as Schema from "./schema";
 
 export const registerRoutes = (server: Hapi.Server): void => {
-    const controller = new DelegatesController();
+    const controller = server.app.app.resolve(DelegatesController);
     server.bind(controller);
 
     server.route({

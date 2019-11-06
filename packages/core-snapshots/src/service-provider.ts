@@ -5,7 +5,7 @@ import { SnapshotManager } from "./manager";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        const manager = new SnapshotManager(this.config().all());
+        const manager = this.app.resolve<SnapshotManager>(SnapshotManager).setup(this.config().all());
 
         const databaseService = this.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
 

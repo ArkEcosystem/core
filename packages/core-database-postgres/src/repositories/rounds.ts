@@ -1,9 +1,10 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { Round } from "../models";
 import { queries } from "../queries";
 import { Repository } from "./repository";
 
+@Container.injectable()
 export class RoundsRepository extends Repository implements Contracts.Database.RoundsRepository {
     public async findById(round: number): Promise<Contracts.Database.Round[]> {
         return this.db.manyOrNone(queries.rounds.find, { round });

@@ -1,20 +1,20 @@
 import "jest-extended";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { TransactionVersionError } from "../../../../../../packages/crypto/src/errors";
-import {
-    BuilderFactory,
-    MultiSignatureRegistrationTransaction,
-} from "../../../../../../packages/crypto/src/transactions";
-import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
-import * as Utils from "../../../../../../packages/crypto/src/utils";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { TransactionVersionError } from "@packages/crypto/src/errors";
+import { BuilderFactory, MultiSignatureRegistrationTransaction } from "@packages/crypto/src/transactions";
+import { MultiSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/multi-signature";
+import * as Utils from "@packages/crypto/src/utils";
+
+import { Generators } from "@packages/core-test-framework";
 
 let builder: MultiSignatureBuilder;
 
 beforeEach(() => {
-    configManager.setFromPreset("unitnet");
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = new Generators.GenerateNetwork().generateCrypto();
+    configManager.setConfig(config);
 
     builder = BuilderFactory.multiSignature();
 });
@@ -58,8 +58,6 @@ describe("Multi Signature Transaction", () => {
             configManager.getMilestone().aip11 = true;
         });
     });
-
-    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.MultiSignature);

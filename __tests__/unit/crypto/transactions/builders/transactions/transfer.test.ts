@@ -2,19 +2,24 @@ import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { Keys, WIF } from "../../../../../../packages/crypto/src/identities";
-import { devnet } from "../../../../../../packages/crypto/src/networks";
-import { BuilderFactory, TransferTransaction } from "../../../../../../packages/crypto/src/transactions";
-import { TransferBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/transfer";
-import { identity } from "../../../../../../packages/core-test-framework/src/utils/identities";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { Keys, WIF } from "@packages/crypto/src/identities";
+import { devnet } from "@packages/crypto/src/networks";
+import { BuilderFactory, TransferTransaction } from "@packages/crypto/src/transactions";
+import { TransferBuilder } from "@packages/crypto/src/transactions/builders/transactions/transfer";
+
+import { Generators } from "@packages/core-test-framework";
 
 let builder: TransferBuilder;
+let identity;
 
 beforeEach(() => {
-    configManager.setFromPreset("unitnet");
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = new Generators.GenerateNetwork().generateCrypto();
+    configManager.setConfig(config);
+
+    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
 
     builder = BuilderFactory.transfer();
 });
@@ -92,8 +97,6 @@ describe("Transfer Transaction", () => {
             expect(wifTransaction.data.secondSignature).toBe(passphraseTransaction.data.secondSignature);
         });
     });
-
-    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.Transfer);

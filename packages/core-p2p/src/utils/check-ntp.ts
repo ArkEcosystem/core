@@ -1,7 +1,11 @@
-import { app, Utils } from "@arkecosystem/core-kernel";
+import { Utils, Contracts } from "@arkecosystem/core-kernel";
 import Sntp, { TimeOptions } from "@hapi/sntp";
 
-export const checkNTP = (hosts: string[], timeout: number = 1000): Promise<{ time: TimeOptions; host: string }> => {
+export const checkNTP = (
+    app: Contracts.Kernel.Application,
+    hosts: string[],
+    timeout: number = 1000,
+): Promise<{ time: TimeOptions; host: string }> => {
     return new Promise(async (resolve, reject) => {
         for (const host of Utils.shuffle(hosts)) {
             try {

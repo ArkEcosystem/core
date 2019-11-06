@@ -1,4 +1,4 @@
-import { app, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -18,7 +18,11 @@ export type TransactionHandlerConstructor = new () => TransactionHandler;
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
+@Container.injectable()
 export abstract class TransactionHandler implements TransactionHandlerContract {
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
+
     public abstract getConstructor(): Transactions.TransactionConstructor;
 
     public abstract dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
@@ -187,7 +191,7 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data.id)) {
-            app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            this.app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
         await this.throwIfCannotBeApplied(transaction, sender, walletRepository);

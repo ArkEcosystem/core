@@ -1,25 +1,26 @@
 import "jest-extended";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
-import { HtlcLockExpirationType, TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
-import { HtlcLockBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-lock";
-import { HtlcLockTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-lock";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { configManager } from "@packages/crypto/src/managers";
+import { HtlcLockExpirationType, TransactionType } from "@packages/crypto/src/enums";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { HtlcLockBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-lock";
+import { HtlcLockTransaction } from "@packages/crypto/src/transactions/types/htlc-lock";
+
+import { Generators } from "@packages/core-test-framework";
 
 const { EpochTimestamp } = HtlcLockExpirationType;
 
 let builder: HtlcLockBuilder;
 
 beforeEach(() => {
-    configManager.setFromPreset("unitnet");
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = new Generators.GenerateNetwork().generateCrypto();
+    configManager.setConfig(config);
 
     builder = BuilderFactory.htlcLock();
 });
 
 describe("Htlc lock Transaction", () => {
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.HtlcLock);
         expect(builder).toHaveProperty("data.fee", HtlcLockTransaction.staticFee());

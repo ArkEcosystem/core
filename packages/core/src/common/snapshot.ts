@@ -1,12 +1,13 @@
-import { app, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { existsSync, lstatSync, readdirSync } from "fs-extra";
 import prompts from "prompts";
 
 import { abort } from "./cli";
+import { createApplication } from "./create-application";
 
 // todo: review the implementation
-export const setUpLite = async (flags): Promise<Contracts.Kernel.Application> => {
-    await app.bootstrap({
+export const setUpLite = async (flags): Promise<Contracts.Kernel.Application> =>
+    createApplication({
         flags,
         plugins: {
             include: [
@@ -16,11 +17,6 @@ export const setUpLite = async (flags): Promise<Contracts.Kernel.Application> =>
             ],
         },
     });
-
-    await app.boot();
-
-    return app;
-};
 
 // todo: review the implementation
 export const chooseSnapshot = async (dataPath: string, message: string) => {

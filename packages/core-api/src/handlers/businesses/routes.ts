@@ -4,7 +4,7 @@ import { BusinessController } from "./controller";
 import * as Schema from "./schema";
 
 export const registerRoutes = (server: Hapi.Server): void => {
-    const controller = new BusinessController();
+    const controller = server.app.app.resolve(BusinessController);
     server.bind(controller);
 
     server.route({

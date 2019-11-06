@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import { MissingCommonBlockError } from "../../errors";
@@ -24,7 +24,11 @@ export const getPeers = ({ service }: { service: PeerService }): Contracts.P2P.P
 };
 
 export const getCommonBlocks = async ({
+    app,
     req,
+}: {
+    app: Contracts.Kernel.Application;
+    req: any;
 }): Promise<{
     common: Interfaces.IBlockData;
     lastBlockHeight: number;
@@ -49,7 +53,7 @@ export const getCommonBlocks = async ({
     };
 };
 
-export const getStatus = async (): Promise<PeerPingResponse> => {
+export const getStatus = async ({ app }: { app: Contracts.Kernel.Application }): Promise<PeerPingResponse> => {
     const lastBlock: Interfaces.IBlock = app
         .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
         .getLastBlock();
@@ -61,11 +65,11 @@ export const getStatus = async (): Promise<PeerPingResponse> => {
             currentSlot: Crypto.Slots.getSlotNumber(),
             header: lastBlock ? lastBlock.getHeader() : {},
         },
-        config: getPeerConfig(),
+        config: getPeerConfig(app),
     };
 };
 
-export const postBlock = async ({ req }): Promise<void> => {
+export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Application; req: any }): Promise<void> => {
     const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>(
         Container.Identifiers.BlockchainService,
     );
@@ -103,7 +107,15 @@ export const postBlock = async ({ req }): Promise<void> => {
     blockchain.handleIncomingBlock(block, fromForger);
 };
 
-export const postTransactions = async ({ service, req }: { service: PeerService; req }): Promise<string[]> => {
+export const postTransactions = async ({
+    app,
+    service,
+    req,
+}: {
+    app: Contracts.Kernel.Application;
+    service: PeerService;
+    req;
+}): Promise<string[]> => {
     const processor: Contracts.TransactionPool.Processor = app
         .get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService)
         .makeProcessor();
@@ -121,7 +133,13 @@ export const postTransactions = async ({ service, req }: { service: PeerService;
     return result.accept;
 };
 
-export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Contracts.Database.DownloadBlock[]> => {
+export const getBlocks = async ({
+    app,
+    req,
+}: {
+    app: Contracts.Kernel.Application;
+    req: any;
+}): Promise<Interfaces.IBlockData[] | Contracts.Database.DownloadBlock[]> => {
     const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
         Container.Identifiers.DatabaseService,
     );

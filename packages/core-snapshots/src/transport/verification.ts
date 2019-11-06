@@ -1,8 +1,8 @@
-import { app } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Transactions, Utils } from "@arkecosystem/crypto";
 import { camelizeKeys } from "xcase";
+import { Contracts } from "@arkecosystem/core-kernel";
 
-export const verifyData = (context, data, prevData, verifySignatures) => {
+export const verifyData = (app: Contracts.Kernel.Application, context, data, prevData, verifySignatures) => {
     if (context === "blocks") {
         const isBlockChained = () => {
             if (!prevData) {

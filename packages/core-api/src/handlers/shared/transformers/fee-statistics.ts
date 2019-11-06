@@ -1,4 +1,6 @@
-export const transformFeeStatistics = (model: any) => {
+import { Contracts } from "@arkecosystem/core-kernel";
+
+export const transformFeeStatistics = (app: Contracts.Kernel.Application, model: any) => {
     return {
         type: model.type,
         fees: {

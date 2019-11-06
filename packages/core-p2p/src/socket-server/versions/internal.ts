@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
 import { Peer } from "../../peer";
@@ -7,17 +7,28 @@ import { PeerService } from "../../types";
 // todo: turn this into a class so that ioc can be used
 // todo: review the implementation of all methods
 
-export const acceptNewPeer = async ({ service, req }: { service: PeerService; req }): Promise<void> =>
-    service.processor.validateAndAcceptPeer({ ip: req.data.ip } as Peer);
+export const acceptNewPeer = async ({
+    app,
+    service,
+    req,
+}: {
+    app: Contracts.Kernel.Application;
+    service: PeerService;
+    req;
+}): Promise<void> => service.processor.validateAndAcceptPeer({ ip: req.data.ip } as Peer);
 
-export const emitEvent = ({ req }): void => {
+export const emitEvent = ({ app, req }: { app: Contracts.Kernel.Application; req: any }): void => {
     app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService).dispatch(
         req.data.event,
         req.data.body,
     );
 };
 
-export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.UnconfirmedTransactions> => {
+export const getUnconfirmedTransactions = async ({
+    app,
+}: {
+    app: Contracts.Kernel.Application;
+}): Promise<Contracts.P2P.UnconfirmedTransactions> => {
     const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
     const { maxTransactions } = Managers.configManager.getMilestone(blockchain.getLastBlock().data.height).block;
 
@@ -31,7 +42,11 @@ export const getUnconfirmedTransactions = async (): Promise<Contracts.P2P.Unconf
     };
 };
 
-export const getCurrentRound = async (): Promise<Contracts.P2P.CurrentRound> => {
+export const getCurrentRound = async ({
+    app,
+}: {
+    app: Contracts.Kernel.Application;
+}): Promise<Contracts.P2P.CurrentRound> => {
     const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
     const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
 
@@ -92,7 +107,7 @@ export const isBlockedByRateLimit = async ({
     };
 };
 
-export const syncBlockchain = (): void => {
+export const syncBlockchain = ({ app }: { app: Contracts.Kernel.Application }): void => {
     app.log.debug("Blockchain sync check WAKEUP requested by forger");
 
     app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).forceWakeup();

@@ -1,9 +1,11 @@
+import { Container } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { Controller } from "../shared/controller";
 
 // todo: remove the abstract and use dependency injection if needed
+@Container.injectable()
 export class DelegatesController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {

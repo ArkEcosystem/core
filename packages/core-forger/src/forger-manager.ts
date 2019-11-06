@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
@@ -28,7 +28,7 @@ export class ForgerManager {
     }
 
     public async startForging(bip38?: string, password?: string): Promise<void> {
-        const secrets = app.config("delegates").secrets;
+        const secrets = this.app.config("delegates").secrets;
 
         if (!bip38 && (!secrets || !secrets.length || !Array.isArray(secrets))) {
             this.logger.warning('No delegate found! Please check your "delegates.json" file and try again.');

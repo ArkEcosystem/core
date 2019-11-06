@@ -1,4 +1,3 @@
-import { app } from "@arkecosystem/core-kernel";
 import Command, { flags } from "@oclif/command";
 
 import { getConfigValue } from "../../common/config";
@@ -6,6 +5,7 @@ import { buildBIP38 } from "../../common/crypto";
 import { flagsForger, flagsNetwork } from "../../common/flags";
 import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
+import { createApplication } from "../../common/create-application";
 
 export class RunCommand extends Command {
     public static description = "Run the forger (without pm2)";
@@ -30,8 +30,7 @@ $ ark forger:run --bip38="..." --password="..."
     public async run(): Promise<void> {
         const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
-        // @ts-ignore
-        await app.bootstrap({
+        await createApplication({
             ...getConfigValue(flags, "app", "cli.forger.run"),
             ...{
                 flags,
@@ -44,7 +43,5 @@ $ ark forger:run --bip38="..." --password="..."
                 },
             },
         });
-
-        await app.boot();
     }
 }

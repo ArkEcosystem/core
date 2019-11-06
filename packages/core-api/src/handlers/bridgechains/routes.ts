@@ -4,7 +4,7 @@ import { BridgechainController } from "./controller";
 import * as Schema from "./schema";
 
 export const registerRoutes = (server: Hapi.Server): void => {
-    const controller = new BridgechainController();
+    const controller = server.app.app.resolve(BridgechainController);
     server.bind(controller);
 
     server.route({

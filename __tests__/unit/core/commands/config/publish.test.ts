@@ -13,7 +13,7 @@ describe("PublishCommand", () => {
 
     it("should throw if the network is invalid", async () => {
         await expect(PublishCommand.run(["--token=ark", "--network=invalid"])).rejects.toThrow(
-            /Expected --network=invalid to be one of: devnet, mainnet, testnet, unitnet/,
+            /Expected --network=invalid to be one of: devnet, mainnet, testnet/,
         );
     });
 

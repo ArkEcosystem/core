@@ -1,18 +1,23 @@
 import "jest-extended";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { Keys } from "../../../../../../packages/crypto/src/identities";
-import { BuilderFactory, VoteTransaction } from "../../../../../../packages/crypto/src/transactions";
-import { VoteBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/vote";
-import * as Utils from "../../../../../../packages/crypto/src/utils";
-import { identity } from "../../../../../../packages/core-test-framework/src/utils/identities";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { Keys } from "@packages/crypto/src/identities";
+import { BuilderFactory, VoteTransaction } from "@packages/crypto/src/transactions";
+import { VoteBuilder } from "@packages/crypto/src/transactions/builders/transactions/vote";
+import * as Utils from "@packages/crypto/src/utils";
+
+import { Generators } from "@packages/core-test-framework";
 
 let builder: VoteBuilder;
+let identity;
 
 beforeEach(() => {
-    configManager.setFromPreset("unitnet");
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = new Generators.GenerateNetwork().generateCrypto();
+    configManager.setConfig(config);
+
+    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
 
     builder = BuilderFactory.vote();
 });
@@ -38,8 +43,6 @@ describe("Vote Transaction", () => {
             expect(actual.verify()).toBeTrue();
         });
     });
-
-    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.Vote);

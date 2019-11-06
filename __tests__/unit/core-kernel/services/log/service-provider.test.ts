@@ -1,23 +1,19 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/services/log";
 import { PinoLogger } from "@packages/core-kernel/src/services/log/drivers/pino";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { dirSync, setGracefulCleanup } from "tmp";
 
 let app: Application;
-let container: interfaces.Container;
+
+beforeAll(() => setGracefulCleanup());
 
 beforeEach(() => {
-    container = new Container();
-
-    app = new Application(container);
+    app = new Application(new Container());
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
-    app.bind(Identifiers.ConfigRepository)
-        .to(ConfigRepository)
-        .inSingletonScope();
     app.get<ConfigRepository>(Identifiers.ConfigRepository).merge({
         app: {
             services: {
@@ -35,13 +31,7 @@ beforeEach(() => {
     });
 
     app.useLogPath(dirSync().name);
-
-    container.snapshot();
 });
-
-afterEach(() => container.restore());
-
-afterAll(() => setGracefulCleanup());
 
 describe("LogServiceProvider", () => {
     it(".register", async () => {

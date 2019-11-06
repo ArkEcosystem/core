@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
@@ -11,6 +11,7 @@ import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
+@Container.injectable()
 export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BusinessUpdateTransaction;
@@ -118,7 +119,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             IBusinessWalletAttributes
         >("business").businessAsset;
 
-        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>(
+        const connection: Contracts.Database.Connection = this.app.get<Contracts.Database.Connection>(
             Container.Identifiers.DatabaseService,
         );
         let reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());

@@ -7,6 +7,7 @@ import { PeerConnector } from "./peer-connector";
 import { PeerProcessor } from "./peer-processor";
 import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
+import { payloadProcessor } from "./socket-server/payload-processor";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -18,6 +19,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).setServer(
             await startSocketServer(
+                this.app,
                 {
                     storage: this.app.get<PeerStorage>(Container.Identifiers.PeerStorage),
                     connector: this.app.get<PeerConnector>(Container.Identifiers.PeerConnector),
@@ -28,6 +30,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
                 this.config().all(),
             ),
         );
+
+        payloadProcessor.init();
     }
 
     public async dispose(): Promise<void> {
@@ -63,6 +67,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.PeerNetworkMonitor)
             .to(NetworkMonitor)
             .inSingletonScope();
+
+        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).init();
 
         this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).init();
 

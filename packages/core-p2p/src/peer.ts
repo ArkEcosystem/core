@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import dayjs, { Dayjs } from "dayjs";
 
 import { PeerVerificationResult } from "./peer-verifier";
@@ -22,7 +22,7 @@ export class Peer implements Contracts.P2P.Peer {
 
     public plugins: Contracts.P2P.PeerPlugins = {};
 
-    constructor(readonly ip: string) {
+    constructor(app: Contracts.Kernel.Application, readonly ip: string) {
         const config: Providers.PluginConfiguration = Utils.assert.defined(
             app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)

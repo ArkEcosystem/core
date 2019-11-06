@@ -1,4 +1,4 @@
-import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
@@ -12,6 +12,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
+@Container.injectable()
 export class MultiSignatureTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.MultiSignatureRegistrationTransaction;

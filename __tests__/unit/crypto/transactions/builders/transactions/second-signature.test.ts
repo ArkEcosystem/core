@@ -1,21 +1,23 @@
 import "jest-extended";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
+import { configManager } from "@packages/crypto/src/managers";
 import { Utils } from "@arkecosystem/crypto";
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { Keys } from "../../../../../../packages/crypto/src/identities";
-import {
-    BuilderFactory,
-    SecondSignatureRegistrationTransaction,
-} from "../../../../../../packages/crypto/src/transactions";
-import { SecondSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/second-signature";
-import { identity } from "../../../../../../packages/core-test-framework/src/utils/identities";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { Keys } from "@packages/crypto/src/identities";
+import { BuilderFactory, SecondSignatureRegistrationTransaction } from "@packages/crypto/src/transactions";
+import { SecondSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/second-signature";
+
+import { Generators } from "@packages/core-test-framework";
 
 let builder: SecondSignatureBuilder;
+let identity;
 
 beforeEach(() => {
-    configManager.setFromPreset("unitnet");
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = new Generators.GenerateNetwork().generateCrypto();
+    configManager.setConfig(config);
+
+    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
 
     builder = BuilderFactory.secondSignature();
 });
@@ -29,8 +31,6 @@ describe("Second Signature Transaction", () => {
             expect(actual.verify()).toBeTrue();
         });
     });
-
-    transactionBuilder(() => builder);
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.SecondSignature);

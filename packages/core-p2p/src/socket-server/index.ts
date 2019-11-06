@@ -1,7 +1,7 @@
-import { app, Container, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import SocketCluster from "socketcluster";
 
-import { requestSchemas } from "../schemas";
+import { createSchemas } from "../schemas";
 import { PeerService } from "../types";
 import { ServerError } from "./errors";
 import { payloadProcessor } from "./payload-processor";
@@ -10,7 +10,11 @@ import { validate } from "./utils/validate";
 import * as handlers from "./versions";
 
 // todo: review implementation
-export const startSocketServer = async (service: PeerService, config: Record<string, any>): Promise<any> => {
+export const startSocketServer = async (
+    app: Contracts.Kernel.Application,
+    service: PeerService,
+    config: Record<string, any>,
+): Promise<any> => {
     // when testing we also need to get socket files from dist folder
     // todo: get rid of thise, no test vars in production code
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
@@ -55,6 +59,8 @@ export const startSocketServer = async (service: PeerService, config: Record<str
         const [, version, method] = req.endpoint.split(".");
 
         try {
+            const { requestSchemas } = createSchemas(app);
+
             if (requestSchemas[version]) {
                 const requestSchema = requestSchemas[version][method];
 
@@ -64,8 +70,8 @@ export const startSocketServer = async (service: PeerService, config: Record<str
             }
 
             return res(undefined, {
-                data: (await handlers[version][method]({ service, req })) || {},
-                headers: getHeaders(),
+                data: (await handlers[version][method]({ app, service, req })) || {},
+                headers: getHeaders(app),
             });
         } catch (error) {
             if (error instanceof ServerError) {

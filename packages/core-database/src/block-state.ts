@@ -1,4 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers, Interfaces as TransactionInterfaces } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
@@ -6,6 +6,9 @@ import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 // todo: review the implementation and make use of ioc
 @Container.injectable()
 export class BlockState {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     private walletRepository: Contracts.State.WalletRepository;
 
     // todo: remove the need for this method
@@ -23,12 +26,12 @@ export class BlockState {
             const generator: string = Identities.Address.fromPublicKey(generatorPublicKey);
 
             if (block.data.height === 1) {
-                delegate = new Wallets.Wallet(generator);
+                delegate = new Wallets.Wallet(generator, this.app);
                 delegate.publicKey = generatorPublicKey;
 
                 this.walletRepository.reindex(delegate);
             } else {
-                app.terminate(`Failed to lookup generator '${generatorPublicKey}' of block '${block.data.id}'.`);
+                this.app.terminate(`Failed to lookup generator '${generatorPublicKey}' of block '${block.data.id}'.`);
             }
         } else {
             delegate = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
@@ -59,7 +62,7 @@ export class BlockState {
                 votedDelegate.setAttribute("delegate.voteBalance", voteBalance.plus(increase));
             }
         } catch (error) {
-            app.log.error("Failed to apply all transactions in block - reverting previous transactions");
+            this.app.log.error("Failed to apply all transactions in block - reverting previous transactions");
 
             // Revert the applied transactions from last to first
             for (const transaction of appliedTransactions.reverse()) {
@@ -72,7 +75,9 @@ export class BlockState {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         if (!this.walletRepository.has(block.data.generatorPublicKey)) {
-            app.terminate(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
+            this.app.terminate(
+                `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`,
+            );
         }
 
         const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
@@ -103,7 +108,7 @@ export class BlockState {
                 votedDelegate.setAttribute("delegate.voteBalance", voteBalance.minus(decrease));
             }
         } catch (error) {
-            app.log.error(error.stack);
+            this.app.log.error(error.stack);
 
             for (const transaction of revertedTransactions.reverse()) {
                 await this.applyTransaction(transaction);
@@ -114,7 +119,7 @@ export class BlockState {
     }
 
     public async applyTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        const transactionHandler: Handlers.TransactionHandler = await app
+        const transactionHandler: Handlers.TransactionHandler = await this.app
             .get<any>("transactionHandlerRegistry")
             .get(transaction.type, transaction.typeGroup);
 
@@ -144,7 +149,7 @@ export class BlockState {
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler: TransactionInterfaces.TransactionHandler = await app
+        const transactionHandler: TransactionInterfaces.TransactionHandler = await this.app
             .get<any>("transactionHandlerRegistry")
             .get(transaction.type, transaction.typeGroup);
         const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(data.senderPublicKey);
@@ -234,11 +239,11 @@ export class BlockState {
                 );
                 const amount =
                     transaction.type === Enums.TransactionType.MultiPayment &&
-                        transaction.typeGroup === Enums.TransactionTypeGroup.Core
+                    transaction.typeGroup === Enums.TransactionTypeGroup.Core
                         ? transaction.asset.payments.reduce(
-                            (prev, curr) => prev.plus(curr.amount),
-                            Utils.BigNumber.ZERO,
-                        )
+                              (prev, curr) => prev.plus(curr.amount),
+                              Utils.BigNumber.ZERO,
+                          )
                         : transaction.amount;
                 const total: Utils.BigNumber = amount.plus(transaction.fee);
 

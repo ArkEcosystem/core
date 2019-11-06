@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
@@ -27,6 +27,6 @@ export class ExceptionHandler extends BlockHandler {
 
         this.logger.warning(`Block ${block.data.height.toLocaleString()} (${id}) forcibly accepted.`);
 
-        return app.resolve<AcceptBlockHandler>(AcceptBlockHandler).execute(block);
+        return this.app.resolve<AcceptBlockHandler>(AcceptBlockHandler).execute(block);
     }
 }

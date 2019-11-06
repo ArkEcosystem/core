@@ -1,12 +1,14 @@
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { queries } from "./queries";
 import { rawQuery } from "./utils";
 
-const logger = app.log;
-
+@Container.injectable()
 export class Database {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     public db: any;
     public pgp: any;
     public blocksColumnSet: any;
@@ -22,7 +24,7 @@ export class Database {
     }
 
     public close() {
-        if (!app.isBound(Container.Identifiers.BlockchainService)) {
+        if (!this.app.isBound(Container.Identifiers.BlockchainService)) {
             this.db.$pool.end();
             this.pgp.end();
         }
@@ -49,11 +51,11 @@ export class Database {
         try {
             const tables = "rounds, transactions, blocks";
 
-            logger.info(`Truncating tables: ${tables}`);
+            this.app.log.info(`Truncating tables: ${tables}`);
 
             await this.db.none(queries.truncate(tables));
         } catch (error) {
-            app.terminate(error.message);
+            this.app.terminate(error.message);
         }
     }
 
@@ -74,7 +76,7 @@ export class Database {
                 ]);
             }
         } catch (error) {
-            logger.error(error);
+            this.app.log.error(error);
         }
 
         return this.getLastBlock();
@@ -90,7 +92,7 @@ export class Database {
         const endBlock = await this.getBlockByHeight(meta.endHeight);
 
         if (!startBlock || !endBlock) {
-            app.terminate(
+            this.app.terminate(
                 "Wrong input height parameters for building export queries. Blocks at height not found in db.",
             );
         }
@@ -198,5 +200,3 @@ export class Database {
         this.roundsColumnSet = new this.pgp.helpers.ColumnSet(["round", "balance", "public_key"], { table: "rounds" });
     }
 }
-
-export const database = new Database();

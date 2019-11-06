@@ -1,4 +1,4 @@
-import { app, Container, Services, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { Enums, Errors, Transactions } from "@arkecosystem/crypto";
 
 import { DeactivatedTransactionHandlerError, InvalidTransactionTypeError } from "../errors";
@@ -18,12 +18,23 @@ import { VoteTransactionHandler } from "./vote";
 // todo: review the implementation
 @Container.injectable()
 export class TransactionHandlerRegistry {
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Server
+     */
+    // @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     private readonly registeredTransactionHandlers: Map<
         Transactions.InternalTransactionType,
         TransactionHandler
     > = new Map();
 
-    public constructor() {
+    // todo: we should avoid the use of constructors for initialisation as inversify uses it for injection
+    public constructor(@Container.inject(Container.Identifiers.Application) app: Contracts.Kernel.Application) {
+        this.app = app;
+
         this.registerTransactionHandler(TransferTransactionHandler);
         this.registerTransactionHandler(SecondSignatureTransactionHandler);
         this.registerTransactionHandler(DelegateRegistrationTransactionHandler);
@@ -74,7 +85,7 @@ export class TransactionHandlerRegistry {
     }
 
     public registerTransactionHandler(constructor: TransactionHandlerConstructor) {
-        const service: TransactionHandler = new constructor();
+        const service: TransactionHandler = this.app.resolve(constructor);
         const transactionConstructor = service.getConstructor();
 
         const type: number = Utils.assert.defined(transactionConstructor.type);
@@ -97,7 +108,7 @@ export class TransactionHandlerRegistry {
         }
 
         for (const attribute of service.walletAttributes()) {
-            app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set(attribute);
+            this.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set(attribute);
         }
 
         this.registeredTransactionHandlers.set(internalType, service);
@@ -123,7 +134,7 @@ export class TransactionHandlerRegistry {
         }
 
         for (const attribute of service.walletAttributes()) {
-            app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).forget(attribute);
+            this.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).forget(attribute);
         }
 
         Transactions.TransactionRegistry.deregisterTransactionType(transactionConstructor);

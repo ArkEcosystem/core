@@ -9,6 +9,8 @@ import { TransactionTypeFactory } from "../../../../packages/crypto/src/transact
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
 
+import { Generators } from "@packages/core-test-framework";
+
 let transaction;
 let transactionSchema: TransactionSchema;
 
@@ -505,7 +507,10 @@ describe("Multi Signature Registration Transaction", () => {
     });
 
     beforeEach(() => {
-        configManager.setFromPreset("unitnet");
+
+                // todo: completely wrap this into a function to hide the generation and setting of the config?
+                configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+
         transaction = BuilderFactory.multiSignature();
         multiSignatureAsset = {
             min: 3,

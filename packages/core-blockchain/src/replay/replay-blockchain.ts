@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Blocks, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
@@ -7,29 +7,29 @@ import { FailedToReplayBlocksError } from "./errors";
 import { MemoryDatabaseService } from "./memory-database-service";
 
 // todo: review the implementation
+@Container.injectable()
 export class ReplayBlockchain extends Blockchain {
-    private logger: Contracts.Kernel.Log.Logger;
-    private localDatabase: Contracts.Database.DatabaseService;
-    private walletRepository: Wallets.WalletRepository;
-    private walletState: Wallets.WalletState; // @todo: review and/or remove
+    private logger!: Contracts.Kernel.Log.Logger;
+    private localDatabase!: Contracts.Database.DatabaseService;
+    private walletRepository!: Wallets.WalletRepository;
+    private walletState!: Wallets.WalletState; // @todo: review and/or remove
     private targetHeight: number | undefined;
     private chunkSize = 20000;
 
-    private memoryDatabase: Contracts.Database.DatabaseService;
+    private memoryDatabase!: Contracts.Database.DatabaseService;
 
     public get database(): Contracts.Database.DatabaseService {
         return this.memoryDatabase;
     }
 
-    public constructor() {
-        super();
-
-        this.walletRepository = new Wallets.WalletRepository();
-        this.walletState = app.resolve<Wallets.WalletState>(Wallets.WalletState).init(this.walletRepository);
+    // todo: rename after IoC issues are resolved
+    public setup() {
+        this.walletRepository = this.app.resolve(Wallets.WalletRepository).init();
+        this.walletState = this.app.resolve<Wallets.WalletState>(Wallets.WalletState).init(this.walletRepository);
         this.memoryDatabase = new MemoryDatabaseService(this.walletRepository);
 
-        this.logger = app.log;
-        this.localDatabase = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+        this.logger = this.app.log;
+        this.localDatabase = this.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
         this.localDatabase.walletRepository = this.walletRepository;
 
         this.queue.kill();

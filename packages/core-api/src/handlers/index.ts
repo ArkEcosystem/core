@@ -1,4 +1,4 @@
-// import { app } from "@arkecosystem/core-kernel";
+// import { Contracts } from "@arkecosystem/core-kernel";
 import Hapi from "@hapi/hapi";
 
 import * as Blockchain from "./blockchain";
@@ -19,7 +19,8 @@ export = {
         const modules = [Blockchain, Blocks, Delegates, Locks, Node, Peers, Rounds, Transactions, Votes, Wallets];
 
         for (const module of modules) {
-            module.register(server);
+            // todo: clean up
+            module.register(server.app.app, server);
         }
 
         // // TODO: hook into core-api instead in V3

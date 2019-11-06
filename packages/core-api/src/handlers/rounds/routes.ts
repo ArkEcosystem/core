@@ -4,7 +4,7 @@ import { RoundsController } from "./controller";
 import * as Schema from "./schema";
 
 export const registerRoutes = (server: Hapi.Server): void => {
-    const controller = new RoundsController();
+    const controller = server.app.app.resolve(RoundsController);
     server.bind(controller);
 
     server.route({

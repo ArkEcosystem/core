@@ -1,10 +1,10 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
+import { Contracts, Container } from "@arkecosystem/core-kernel";
 import { Peer } from "@arkecosystem/core-p2p/src/peer";
+import { ApiHelpers } from "@arkecosystem/core-test-framework";
 
 import { setUp, tearDown } from "../__support__/setup";
-import { utils } from "../utils";
 
 const peers = [
     {
@@ -21,11 +21,15 @@ const peers = [
     },
 ];
 
+let app: Contracts.Kernel.Application;
+let api: ApiHelpers;
+
 beforeAll(async () => {
-    await setUp();
+    app = await setUp();
+    api = new ApiHelpers(app);
 
     const peerMocks = peers.map(mock => {
-        const peerMock = new Peer(mock.ip);
+        const peerMock = new Peer(app, mock.ip);
         peerMock.port = mock.port;
         peerMock.version = mock.version;
         peerMock.latency = mock.latency;
@@ -39,19 +43,19 @@ beforeAll(async () => {
     }
 });
 
-afterAll(tearDown);
+afterAll(async () => await tearDown());
 
 describe("API 2.0 - Peers", () => {
     describe("GET /peers", () => {
         it("should GET all the peers", async () => {
-            const response = await utils.request("GET", "peers");
+            const response = await api.request("GET", "peers");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data[0]).toBeObject();
         });
 
         it("should GET all the peers sorted by version,asc", async () => {
-            const response = await utils.request("GET", "peers", { orderBy: "version:asc" });
+            const response = await api.request("GET", "peers", { orderBy: "version:asc" });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArrayOfSize(peers.length);
             expect(response.data.data[0]).toBeObject();
@@ -60,7 +64,7 @@ describe("API 2.0 - Peers", () => {
         });
 
         it("should GET all the peers sorted by version,desc", async () => {
-            const response = await utils.request("GET", "peers", { orderBy: "version:desc" });
+            const response = await api.request("GET", "peers", { orderBy: "version:desc" });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArrayOfSize(peers.length);
             expect(response.data.data[0]).toBeObject();
@@ -71,7 +75,7 @@ describe("API 2.0 - Peers", () => {
 
     describe("GET /peers/:ip", () => {
         it("should GET a peer by the given ip", async () => {
-            const response = await utils.request("GET", `peers/${peers[0].ip}`);
+            const response = await api.request("GET", `peers/${peers[0].ip}`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
             expect(response.data.data.ip).toBe(peers[0].ip);
@@ -79,7 +83,7 @@ describe("API 2.0 - Peers", () => {
         });
 
         it("should fail to GET a peer by the given ip if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "peers/127.0.0.1"), 404);
+            api.expectError(await api.request("GET", "peers/127.0.0.1"), 404);
         });
     });
 });

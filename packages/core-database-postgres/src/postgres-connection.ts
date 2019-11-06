@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 import path from "path";
 import pgPromise, { IMain } from "pg-promise";
@@ -13,9 +13,13 @@ import { QueryExecutor } from "./sql/query-executor";
 import { StateBuilder } from "./state-builder";
 import { camelizeColumns } from "./utils";
 
+@Container.injectable()
 export class PostgresConnection implements Contracts.Database.Connection {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     // @todo: make this private
-    public models: { [key: string]: Model } = {};
+    public models: { [key: string]: Model };
     // @todo: make this private
     public query: QueryExecutor;
     // @todo: make this private
@@ -30,22 +34,39 @@ export class PostgresConnection implements Contracts.Database.Connection {
     public walletsRepository: Contracts.Database.WalletsRepository;
     // @todo: make this private
     public pgp: IMain;
-    private readonly logger: Contracts.Kernel.Log.Logger = app.log;
-    private readonly emitter: Contracts.Kernel.Events.EventDispatcher = app.get<
-        Contracts.Kernel.Events.EventDispatcher
-    >(Container.Identifiers.EventDispatcherService);
+    private logger!: Contracts.Kernel.Log.Logger;
+    private emitter!: Contracts.Kernel.Events.EventDispatcher;
     private migrationsRepository: MigrationsRepository;
     private cache: Map<any, any>;
 
-    public constructor(
-        readonly options: Record<string, any>,
-        private readonly walletRepository: Contracts.State.WalletRepository,
-        private readonly walletState,
-    ) {}
+    // todo: those came from the constructor which inversify uses for injection
+    public options: Record<string, any>;
+    private walletRepository: Contracts.State.WalletRepository;
+    private walletState;
+
+    public async setup(
+        options: Record<string, any>,
+        walletRepository: Contracts.State.WalletRepository,
+        walletState,
+    ): Promise<Contracts.Database.Connection> {
+        this.options = options;
+        this.walletRepository = walletRepository;
+        this.walletState = walletState;
+
+        this.models = {};
+        this.logger = this.app.log;
+        this.emitter = this.app.get<Contracts.Kernel.Events.EventDispatcher>(
+            Container.Identifiers.EventDispatcherService,
+        );
+
+        return this;
+    }
 
     public async make(): Promise<Contracts.Database.Connection> {
         if (this.db) {
             throw new Error("Database connection already initialised");
+            // // todo: some annoying structure issues due to the core-db packages not being adjusted to IoC yet
+            // return this;
         }
 
         this.logger.debug("Connecting to database");
@@ -63,7 +84,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
 
             return this;
         } catch (error) {
-            app.terminate("Unable to connect to the database!", error);
+            this.app.terminate("Unable to connect to the database!", error);
         }
 
         return undefined;
@@ -74,6 +95,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
 
         const options = this.options;
 
+        const app = this.app;
         const pgp: pgPromise.IMain = pgPromise({
             ...options.initialization,
             ...{
@@ -83,7 +105,10 @@ export class PostgresConnection implements Contracts.Database.Connection {
                     // Class 57 — Operator Intervention
                     // Class 58 — System Error (errors external to PostgreSQL itself)
                     if (error.code && ["53", "57", "58"].includes(error.code.slice(0, 2))) {
-                        app.terminate("Unexpected database error. Shutting down to prevent further damage.", error);
+                        this.app.terminate(
+                            "Unexpected database error. Shutting down to prevent further damage.",
+                            error,
+                        );
                     }
                 },
                 receive(data) {
@@ -91,7 +116,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
                 },
                 extend(object) {
                     for (const repository of Object.keys(repositories)) {
-                        object[repository] = new repositories[repository](object, pgp, options);
+                        object[repository] = app.resolve<any>(repositories[repository]).init(object, pgp, options);
                     }
                 },
             },
@@ -120,7 +145,7 @@ export class PostgresConnection implements Contracts.Database.Connection {
     }
 
     public async buildWallets(): Promise<void> {
-        await new StateBuilder(this, this.walletRepository, this.walletState).run();
+        await this.app.resolve<StateBuilder>(StateBuilder).run(this, this.walletRepository, this.walletState);
     }
 
     public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {

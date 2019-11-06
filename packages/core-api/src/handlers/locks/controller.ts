@@ -2,7 +2,9 @@ import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { Controller } from "../shared/controller";
+import { Container } from "@arkecosystem/core-kernel";
 
+@Container.injectable()
 export class LocksController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {

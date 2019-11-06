@@ -1,4 +1,4 @@
-import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { isRecipientOnActiveNetwork } from "../utils";
@@ -6,6 +6,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
+@Container.injectable()
 export class TransferTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.TransferTransaction;

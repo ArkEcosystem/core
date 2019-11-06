@@ -1,27 +1,17 @@
 import "jest-extended";
 import { resolve } from "path";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers/plugin-configuration";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 
 let app: Application;
-let container: interfaces.Container;
 let pluginConfiguration: PluginConfiguration;
 
 beforeEach(() => {
-    container = new Container();
-    container.snapshot();
-
-    app = new Application(container);
-    app.bind(Identifiers.ConfigRepository)
-        .to(ConfigRepository)
-        .inSingletonScope();
-
+    app = new Application(new Container());
     pluginConfiguration = app.resolve<PluginConfiguration>(PluginConfiguration);
 });
-
-afterEach(() => container.restore());
 
 describe("PluginConfiguration", () => {
     it("should create an instance from a name and defaults", () => {

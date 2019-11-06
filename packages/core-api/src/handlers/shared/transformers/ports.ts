@@ -1,4 +1,6 @@
-export const transformPorts = (config: any) => {
+import { Contracts } from "@arkecosystem/core-kernel";
+
+export const transformPorts = (app: Contracts.Kernel.Application, config: any) => {
     const result = {};
     const keys = ["@arkecosystem/core-p2p", "@arkecosystem/core-api", "@arkecosystem/core-webhooks"];
 

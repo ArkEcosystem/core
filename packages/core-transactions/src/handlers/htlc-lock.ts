@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { HtlcLockExpiredError } from "../errors";
@@ -6,6 +6,7 @@ import { TransactionHandler, TransactionHandlerConstructor } from "./transaction
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
+@Container.injectable()
 export class HtlcLockTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcLockTransaction;
@@ -63,7 +64,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
         const lock: Interfaces.IHtlcLockAsset = AppUtils.assert.defined(transaction.data.asset!.lock);
-        const lastBlock: Interfaces.IBlock = app.get<any>(Container.Identifiers.StateStore).getLastBlock();
+        const lastBlock: Interfaces.IBlock = this.app.get<any>(Container.Identifiers.StateStore).getLastBlock();
 
         let { blocktime, activeDelegates } = Managers.configManager.getMilestone();
         const expiration: Interfaces.IHtlcExpiration = lock.expiration;

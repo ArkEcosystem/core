@@ -6,16 +6,20 @@ import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
 import { Keys } from "@arkecosystem/crypto/src/identities";
 import { BuilderFactory, Utils as TransactionUtils, Verifier } from "@arkecosystem/crypto/src/transactions";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { createRandomTx } from "./__support__";
 
-describe("Verifier", () => {
-    beforeEach(() => {
-        configManager.setFromPreset("unitnet");
-    });
+import { Generators } from "@packages/core-test-framework";
 
+beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+});
+
+describe("Verifier", () => {
     describe("verify", () => {
-        const transaction = TransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+        const transaction = TransactionFactory.init()
+            .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
             .withVersion(2)
             .withFee(2000)
             .withPassphrase("secret")
@@ -82,7 +86,8 @@ describe("Verifier", () => {
     describe("verifySecondSignature", () => {
         const keys2 = Keys.fromPassphrase("secret two");
 
-        const transaction = TransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+        const transaction = TransactionFactory.init()
+            .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
             .withVersion(2)
             .withFee(2000)
             .withPassphrase("secret")

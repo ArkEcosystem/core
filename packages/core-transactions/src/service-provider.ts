@@ -17,6 +17,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind("transactionHandlerRegistry")
             .to(TransactionHandlerRegistry)
             .inSingletonScope();
+
+        // this.app.get<TransactionHandlerRegistry>("transactionHandlerRegistry").init();
     }
 
     /**

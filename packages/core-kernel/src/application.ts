@@ -39,6 +39,14 @@ export class Application implements Contracts.Kernel.Application {
         // this.listenToShutdownSignals();
 
         this.bind<Contracts.Kernel.Application>(Identifiers.Application).toConstantValue(this);
+
+        this.bind<ConfigRepository>(Identifiers.ConfigRepository)
+            .to(ConfigRepository)
+            .inSingletonScope();
+
+        this.bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
+            .to(ServiceProviderRepository)
+            .inSingletonScope();
     }
 
     /**
@@ -47,14 +55,6 @@ export class Application implements Contracts.Kernel.Application {
      * @memberof Application
      */
     public async bootstrap({ flags, plugins }: { flags: JsonObject; plugins?: JsonObject }): Promise<void> {
-        this.bind<ConfigRepository>(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
-        this.bind<ServiceProviderRepository>(Identifiers.ServiceProviderRepository)
-            .to(ServiceProviderRepository)
-            .inSingletonScope();
-
         this.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
         this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins || {});
 

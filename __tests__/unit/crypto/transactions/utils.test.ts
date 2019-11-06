@@ -15,8 +15,10 @@ import {
     TransactionFactory,
     Utils as TransactionUtils,
 } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
+import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
+
+import { Generators } from "@packages/core-test-framework";
 
 let transactionData: ITransactionData;
 let transactionDataJSON;
@@ -161,7 +163,8 @@ describe("Transaction", () => {
         });
 
         it("should throw when getting an unsupported version", () => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
 
             const transaction = BuilderFactory.transfer()
                 .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
@@ -184,9 +187,11 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
 
-            transaction = TestTransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+            transaction = TestTransactionFactory.init()
+                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
                 .withVersion(2)
@@ -211,9 +216,11 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
 
-            transaction = TestTransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+            transaction = TestTransactionFactory.init()
+                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
                 .withVersion(2)

@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
@@ -7,6 +7,9 @@ import { OrderedMap, OrderedSet, Seq } from "immutable";
 // todo: review the implementation
 @Container.injectable()
 export class StateStore implements Contracts.State.StateStore {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
@@ -95,14 +98,14 @@ export class StateStore implements Contracts.State.StateStore {
         Managers.configManager.setHeight(block.data.height);
 
         if (Managers.configManager.isNewMilestone()) {
-            app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService).dispatch(
-                Enums.Events.Internal.MilestoneChanged,
-            );
+            this.app
+                .get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService)
+                .dispatch(Enums.Events.Internal.MilestoneChanged);
         }
 
         // Delete oldest block if size exceeds the maximum
         const maxLastBlocks: number = Utils.assert.defined(
-            app
+            this.app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                 .get("state")
                 .config()
@@ -200,7 +203,7 @@ export class StateStore implements Contracts.State.StateStore {
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
         const maxLastTransactionIds: number = Utils.assert.defined(
-            app
+            this.app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                 .get("@arkecosystem/core-state")
                 .config()
@@ -251,7 +254,7 @@ export class StateStore implements Contracts.State.StateStore {
      */
     public pushPingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         if (this.blockPing) {
-            app.log.info(
+            this.app.log.info(
                 `Previous block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
                     this.blockPing.count
                 } times`,

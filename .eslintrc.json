@@ -31,6 +31,7 @@
         "@typescript-eslint/prefer-regexp-exec": "off",
         "@typescript-eslint/require-await": "off",
         "@typescript-eslint/unbound-method": "off",
+        "jest/no-standalone-expect": "off",
         "no-async-promise-executor": "off",
         "no-empty": "off",
         "no-inferrable-types": "off",

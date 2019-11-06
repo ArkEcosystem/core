@@ -1,27 +1,33 @@
 import "jest-extended";
 
-import { app, Container, Services } from "@arkecosystem/core-kernel";
+import { Container, Services } from "@arkecosystem/core-kernel";
+import { Sandbox } from "@arkecosystem/core-test-framework";
+
 import { Identifiers } from "@packages/core-kernel/src/ioc";
 import { AttributeService } from "@packages/core-kernel/src/services/attributes";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import { calculateApproval, calculateForgedTotal } from "@packages/core-kernel/src/utils/delegate-calculator";
 
-beforeAll(() => {
-    // @fixme: we modify the real app instance instead of using a container and snapshot.
-    // There are some context issues that result in "core-state" resolving a different container
-    // then we initially specify in the test so those bindings would not be available.
+let sandbox: Sandbox;
 
-    app.bind<AttributeService>(Identifiers.AttributeService)
+beforeAll(() => {
+    sandbox = new Sandbox();
+
+    sandbox.app
+        .bind<AttributeService>(Identifiers.AttributeService)
         .to(AttributeService)
         .inSingletonScope();
 
-    app.bind<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+    sandbox.app
+        .bind<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .to(Services.Attributes.AttributeSet)
         .inSingletonScope();
 
-    app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate");
-    app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate.voteBalance");
+    sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate");
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("delegate.voteBalance");
 
     Managers.configManager.set("genesisBlock.totalAmount", 1000000 * 1e8);
 });
@@ -29,7 +35,7 @@ beforeAll(() => {
 describe("Delegate Calculator", () => {
     describe("calculateApproval", () => {
         it("should calculate correctly with a height", () => {
-            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7", sandbox.app);
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,
@@ -40,7 +46,7 @@ describe("Delegate Calculator", () => {
         });
 
         it("should calculate correctly with 2 decimals", () => {
-            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7", sandbox.app);
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,
@@ -53,7 +59,7 @@ describe("Delegate Calculator", () => {
 
     describe("calculateForgedTotal", () => {
         it("should calculate correctly", () => {
-            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
+            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7", sandbox.app);
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,

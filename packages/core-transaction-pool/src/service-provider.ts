@@ -12,11 +12,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const maxTransactionAge: number = Utils.assert.defined(this.config().get("maxTransactionAge"));
 
+        const conn = this.app.resolve(Connection);
         const connection = await new ConnectionManager().createConnection(
-            new Connection({
+            // @ts-ignore
+            conn.init({
                 options: this.config().all(),
-                walletRepository: new PoolWalletRepository(),
-                memory: new Memory(maxTransactionAge),
+                walletRepository: this.app.resolve(PoolWalletRepository),
+                memory: this.app.resolve(Memory).init(maxTransactionAge),
                 storage: new Storage(),
             }),
         );

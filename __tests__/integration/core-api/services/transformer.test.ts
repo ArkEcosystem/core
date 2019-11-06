@@ -1,17 +1,11 @@
-import { transformerService } from "@packages/core-api/src/services/transformer";
+import { TransformerService } from "@packages/core-api/src/services/transformer";
 import { Managers, Transactions } from "@packages/crypto";
-import { genesisBlock } from "@packages/core-test-framework/src/utils/config/genesisBlock";
 import { setUp, tearDown } from "../__support__/setup";
 import blockRaw from "./block-raw.json";
 import blockTransformed from "./block-transformed.json";
 import transactionRaw from "./transaction-raw.json";
 import transactionTransformed from "./transaction-transformed.json";
-
-Managers.configManager.setFromPreset("unitnet");
-Managers.configManager.getMilestone().aip11 = false;
-
-const genesisTransaction = Transactions.TransactionFactory.fromData(genesisBlock.transactions[0]);
-delete genesisBlock.transactions;
+import { Identities } from "@arkecosystem/crypto";
 
 const filterUndefined = values => {
     if (Array.isArray(values)) {
@@ -29,49 +23,118 @@ const filterUndefined = values => {
     return values;
 };
 
-beforeAll(async () => setUp());
+let transformerService: TransformerService;
+let genesisBlock;
+let genesisTransaction;
+
+beforeAll(async () => {
+    const app = await setUp();
+
+    transformerService = app.resolve<TransformerService>(TransformerService);
+
+    genesisBlock = Managers.configManager.get("genesisBlock");
+
+    Managers.configManager.getMilestone().aip11 = false;
+
+    genesisTransaction = Transactions.TransactionFactory.fromData(genesisBlock.transactions[0]);
+
+    delete genesisBlock.transactions;
+});
+
 afterAll(async () => tearDown());
 
 describe("Transformer", () => {
     describe("toResource", () => {
         it("should transform a block", () => {
-            expect(transformerService.toResource(genesisBlock, "block")).toEqual(blockTransformed);
+            const transformed = { ...blockTransformed };
+            transformed.id = genesisBlock.id;
+            transformed.generator.address = Identities.Address.fromPublicKey(genesisBlock.generatorPublicKey);
+            transformed.generator.publicKey = genesisBlock.generatorPublicKey;
+            transformed.payload.hash = genesisBlock.payloadHash;
+            transformed.payload.length = genesisBlock.payloadLength;
+            transformed.signature = genesisBlock.blockSignature;
+
+            expect(transformerService.toResource(genesisBlock, "block")).toEqual(transformed);
         });
 
         it("should not transform a block", () => {
-            expect(transformerService.toResource(genesisBlock, "block", false)).toEqual(blockRaw);
+            const transformed = { ...blockRaw };
+            transformed.id = genesisBlock.id;
+            transformed.generatorPublicKey = Identities.Address.fromPublicKey(genesisBlock.generatorPublicKey);
+            transformed.generatorPublicKey = genesisBlock.generatorPublicKey;
+            transformed.payloadHash = genesisBlock.payloadHash;
+            transformed.payloadLength = genesisBlock.payloadLength;
+            transformed.blockSignature = genesisBlock.blockSignature;
+
+            expect(transformerService.toResource(genesisBlock, "block", false)).toEqual(transformed);
         });
 
         it("should transform a transaction", () => {
+            const transformed = { ...transactionTransformed };
+            transformed.id = genesisTransaction.data.id;
+            transformed.sender = Identities.Address.fromPublicKey(genesisTransaction.data.senderPublicKey);
+            transformed.senderPublicKey = genesisTransaction.data.senderPublicKey;
+            transformed.signature = genesisTransaction.data.signature;
+
             expect(filterUndefined(transformerService.toResource(genesisTransaction, "transaction"))).toEqual(
-                transactionTransformed,
+                transformed,
             );
         });
 
         it("should not transform a transaction", () => {
-            expect(transformerService.toResource(genesisTransaction, "transaction", false)).toEqual(transactionRaw);
+            const transformed = { ...transactionRaw };
+            transformed.id = genesisTransaction.data.id;
+            transformed.senderPublicKey = genesisTransaction.data.senderPublicKey;
+            transformed.signature = genesisTransaction.data.signature;
+
+            expect(transformerService.toResource(genesisTransaction, "transaction", false)).toEqual(transformed);
         });
     });
 
     describe("toCollection", () => {
         it("should transform a block", () => {
-            expect(transformerService.toCollection([genesisBlock], "block")).toEqual([blockTransformed]);
+            const transformed = { ...blockTransformed };
+            transformed.id = genesisBlock.id;
+            transformed.generator.address = Identities.Address.fromPublicKey(genesisBlock.generatorPublicKey);
+            transformed.generator.publicKey = genesisBlock.generatorPublicKey;
+            transformed.payload.hash = genesisBlock.payloadHash;
+            transformed.payload.length = genesisBlock.payloadLength;
+            transformed.signature = genesisBlock.blockSignature;
+
+            expect(transformerService.toCollection([genesisBlock], "block")).toEqual([transformed]);
         });
 
         it("should not transform a block", () => {
-            expect(transformerService.toCollection([genesisBlock], "block", false)).toEqual([blockRaw]);
+            const transformed = { ...blockRaw };
+            transformed.id = genesisBlock.id;
+            transformed.generatorPublicKey = Identities.Address.fromPublicKey(genesisBlock.generatorPublicKey);
+            transformed.generatorPublicKey = genesisBlock.generatorPublicKey;
+            transformed.payloadHash = genesisBlock.payloadHash;
+            transformed.payloadLength = genesisBlock.payloadLength;
+            transformed.blockSignature = genesisBlock.blockSignature;
+
+            expect(transformerService.toCollection([genesisBlock], "block", false)).toEqual([transformed]);
         });
 
         it("should transform a transaction", () => {
+            const transformed = { ...transactionTransformed };
+            transformed.id = genesisTransaction.data.id;
+            transformed.sender = Identities.Address.fromPublicKey(genesisTransaction.data.senderPublicKey);
+            transformed.senderPublicKey = genesisTransaction.data.senderPublicKey;
+            transformed.signature = genesisTransaction.data.signature;
+
             expect(filterUndefined(transformerService.toCollection([genesisTransaction], "transaction"))).toEqual([
-                transactionTransformed,
+                transformed,
             ]);
         });
 
         it("should not transform a transaction", () => {
-            expect(transformerService.toCollection([genesisTransaction], "transaction", false)).toEqual([
-                transactionRaw,
-            ]);
+            const transformed = { ...transactionRaw };
+            transformed.id = genesisTransaction.data.id;
+            transformed.senderPublicKey = genesisTransaction.data.senderPublicKey;
+            transformed.signature = genesisTransaction.data.signature;
+
+            expect(transformerService.toCollection([genesisTransaction], "transaction", false)).toEqual([transformed]);
         });
     });
 });

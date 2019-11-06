@@ -1,14 +1,25 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { IMain } from "pg-promise";
 import { Executable, Query } from "sql";
 
 import { Model } from "../models";
 
+@Container.injectable()
 export abstract class Repository implements Contracts.Database.Repository {
     protected model: Model;
 
-    constructor(protected readonly db, protected readonly pgp: IMain, private readonly options) {
+    protected db;
+    protected pgp: IMain;
+    private options;
+
+    public init(db, pgp: IMain, options) {
+        this.db = db;
+        this.pgp = pgp;
+        this.options = options;
+
         this.model = this.getModel();
+
+        return this;
     }
 
     public abstract getModel(): Model;

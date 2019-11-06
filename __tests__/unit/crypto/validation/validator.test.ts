@@ -7,7 +7,8 @@ import { TransactionTypeFactory } from "../../../../packages/crypto/src/transact
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { BigNumber } from "../../../../packages/crypto/src/utils";
 import { validator } from "../../../../packages/crypto/src/validation";
-import { block2 } from "../../../../packages/core-test-framework/src/utils/fixtures/blocks";
+
+import { Generators } from "@packages/core-test-framework";
 
 describe("validator", () => {
     describe("validate", () => {
@@ -255,27 +256,47 @@ describe("validator", () => {
         describe("block", () => {
             beforeAll(() => {
                 TransactionTypeFactory.get(0); // Make sure registry is loaded, since it adds the "transactions" schema.
-                configManager.setFromPreset("unitnet");
+
+                // todo: completely wrap this into a function to hide the generation and setting of the config?
+                configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
             });
 
             it("should be ok", () => {
-                // note: those are outdated after the new unitnet config was generated
-                // expect(validator.validate("block", block2).error).toBeUndefined();
-                // expect(validator.validate("block", genesisBlock).error).toBeUndefined();
+                expect(
+                    validator.validate(
+                        "block",
+                        Generators.generateBlocks({
+                            transactions: 10,
+                            network: new Generators.GenerateNetwork().generateCrypto(), // todo: somehow get rid of this - node module cache mess
+                            nonce: "0",
+                        })[0],
+                    ).error,
+                ).toBeUndefined();
+
                 expect(validator.validate("block", configManager.get("genesisBlock")).error).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                block2.numberOfTransactions = 1;
-                expect(validator.validate("block", block2).error).not.toBeUndefined();
-                block2.numberOfTransactions = 11;
-                expect(validator.validate("block", block2).error).not.toBeUndefined();
-                block2.numberOfTransactions = 10;
-                expect(validator.validate("block", block2).error).toBeUndefined();
-                block2.transactions[0] = {} as any;
-                expect(validator.validate("block", block2).error).not.toBeUndefined();
-                block2.transactions[0] = 1234 as any;
-                expect(validator.validate("block", block2).error).not.toBeUndefined();
+                // todo: completely wrap this into a function to hide the generation and setting of the config?
+                const config = new Generators.GenerateNetwork().generateCrypto();
+                configManager.setConfig(config);
+
+                const block = Generators.generateBlocks({
+                    transactions: 10,
+                    network: config, // todo: somehow get rid of this - node module cache mess
+                    nonce: "0",
+                })[0];
+
+                block.numberOfTransactions = 1;
+                expect(validator.validate("block", block).error).not.toBeUndefined();
+                block.numberOfTransactions = 11;
+                expect(validator.validate("block", block).error).not.toBeUndefined();
+                block.numberOfTransactions = 10;
+                expect(validator.validate("block", block).error).toBeUndefined();
+                block.transactions[0] = {} as any;
+                expect(validator.validate("block", block).error).not.toBeUndefined();
+                block.transactions[0] = 1234 as any;
+                expect(validator.validate("block", block).error).not.toBeUndefined();
             });
         });
     });

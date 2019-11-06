@@ -1,4 +1,4 @@
-import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
@@ -9,6 +9,7 @@ import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../inte
 import { MagistrateIndex } from "../wallet-manager";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
+@Container.injectable()
 export class BridgechainRegistrationTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainRegistrationTransaction;

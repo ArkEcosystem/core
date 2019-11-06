@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -6,6 +6,7 @@ import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "../er
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
+@Container.injectable()
 export class HtlcRefundTransactionHandler extends TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.HtlcRefundTransaction;
@@ -66,7 +67,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks", {})[lockId];
         const lastBlock: Interfaces.IBlock = AppUtils.assert.defined(
-            app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
+            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
         );
 
         const lastBlockEpochTimestamp: number = lastBlock.data.timestamp;
@@ -87,7 +88,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     ): Promise<boolean> {
         const lockId: string = AppUtils.assert.defined(data.asset!.refund!.lockTransactionId);
 
-        const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+        const databaseService: Contracts.Database.DatabaseService = this.app.get<Contracts.Database.DatabaseService>(
             Container.Identifiers.DatabaseService,
         );
 
@@ -132,7 +133,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const data: Interfaces.ITransactionData = transaction.data;
 
         if (Utils.isException(data.id)) {
-            app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
+            this.app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
         await this.throwIfCannotBeApplied(transaction, sender, walletRepository);
@@ -183,7 +184,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         sender.nonce = sender.nonce.minus(1);
 
         // TODO: not so good to call database from here, would need a better way
-        const databaseService: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
+        const databaseService: Contracts.Database.DatabaseService = this.app.get<Contracts.Database.DatabaseService>(
             Container.Identifiers.DatabaseService,
         );
 

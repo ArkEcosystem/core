@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import { NetworkStateStatus } from "./enums";
@@ -42,11 +42,15 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         monitor: Contracts.P2P.INetworkMonitor,
         storage: Contracts.P2P.PeerStorage,
     ): Contracts.P2P.NetworkState {
-        const lastBlock: Interfaces.IBlock = app.get<any>(Container.Identifiers.BlockchainService).getLastBlock();
+        // @ts-ignore - app exists but isn't on the interface for now
+        const lastBlock: Interfaces.IBlock = monitor.app
+            .get<any>(Container.Identifiers.BlockchainService)
+            .getLastBlock();
 
         const peers: Contracts.P2P.Peer[] = storage.getPeers();
         const minimumNetworkReach: number =
-            app
+            // @ts-ignore - app exists but isn't on the interface for now
+            monitor.app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                 .get("@arkecosystem/core-p2p")
                 .config()

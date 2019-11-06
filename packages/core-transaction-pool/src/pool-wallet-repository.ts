@@ -1,11 +1,12 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
 // todo: review the implementation
+@Container.injectable()
 export class PoolWalletRepository extends Wallets.WalletRepository {
-    public constructor() {
+    public constructor(@Container.inject(Container.Identifiers.Application) app: Contracts.Kernel.Application) {
         super();
 
         const databaseWalletRepository: Contracts.State.WalletRepository = app.get<any>(
@@ -24,7 +25,7 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
             this.reindex(
-                app
+                this.app
                     .get<any>(Container.Identifiers.DatabaseService)
                     .walletRepository.findByAddress(address)
                     .clone(),
@@ -44,19 +45,19 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
             Utils.assert.defined(transaction.data.senderPublicKey),
         );
 
-        const handler: Handlers.TransactionHandler = await app
+        const handler: Handlers.TransactionHandler = await this.app
             .get<any>("transactionHandlerRegistry")
             .get(transaction.type, transaction.typeGroup);
 
         return handler.throwIfCannotBeApplied(
             transaction,
             sender,
-            app.get<any>(Container.Identifiers.DatabaseService).walletRepository,
+            this.app.get<any>(Container.Identifiers.DatabaseService).walletRepository,
         );
     }
 
     public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
-        const handler: Handlers.TransactionHandler = await app
+        const handler: Handlers.TransactionHandler = await this.app
             .get<any>("transactionHandlerRegistry")
             .get(transaction.type, transaction.typeGroup);
         return handler.revertForSender(transaction, this);

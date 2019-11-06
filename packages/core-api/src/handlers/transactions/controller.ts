@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
@@ -7,11 +7,10 @@ import Hapi from "@hapi/hapi";
 import { Controller } from "../shared/controller";
 
 // todo: remove the abstract and use dependency injection if needed
+@Container.injectable()
 export class TransactionsController extends Controller {
-    // todo: inject from container
-    private readonly transactionPool = app.get<Contracts.TransactionPool.Connection>(
-        Container.Identifiers.TransactionPoolService,
-    );
+    @Container.inject(Container.Identifiers.TransactionPoolService)
+    private readonly transactionPool!: Contracts.TransactionPool.Connection;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
@@ -31,9 +30,9 @@ export class TransactionsController extends Controller {
 
             if (result.broadcast.length > 0) {
                 // todo: inject from container
-                app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastTransactions(
-                    processor.getBroadcastTransactions(),
-                );
+                this.app
+                    .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+                    .broadcastTransactions(processor.getBroadcastTransactions());
             }
 
             return {
@@ -115,7 +114,7 @@ export class TransactionsController extends Controller {
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await app
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
                 .get<any>("transactionHandlerRegistry")
                 .getActivatedTransactionHandlers();
             const typeGroups: Record<string | number, Record<string, number>> = {};
@@ -143,7 +142,7 @@ export class TransactionsController extends Controller {
 
     public async schemas(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await app
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
                 .get<any>("transactionHandlerRegistry")
                 .getActivatedTransactionHandlers();
             const schemasByType: Record<string, Record<string, any>> = {};

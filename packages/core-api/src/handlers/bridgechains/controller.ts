@@ -1,8 +1,10 @@
+import { Container } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { Controller } from "../shared/controller";
 
+@Container.injectable()
 export class BridgechainController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {

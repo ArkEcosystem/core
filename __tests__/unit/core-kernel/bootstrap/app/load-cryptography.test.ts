@@ -1,35 +1,22 @@
 import "jest-extended";
 
-// import { resolve } from "path";
-
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { LoadCryptography } from "@packages/core-kernel/src/bootstrap/app";
 
 let app: Application;
-let container: interfaces.Container;
 let configRepository: ConfigRepository;
 
 beforeEach(() => {
-    container = new Container();
-
-    app = new Application(container);
-
-    app.bind(Identifiers.ConfigRepository)
-        .to(ConfigRepository)
-        .inSingletonScope();
-
+    app = new Application(new Container());
     configRepository = app.get<ConfigRepository>(Identifiers.ConfigRepository);
-
-    container.snapshot();
 });
-
-afterEach(() => container.restore());
 
 describe("LoadCryptography", () => {
     it("should bootstrap from the network name", async () => {
-        app.bind(Identifiers.ApplicationNetwork).toConstantValue("unitnet");
+        // Doesn't really matter network we use here as we don't rely on any specific values
+        app.bind(Identifiers.ApplicationNetwork).toConstantValue("testnet");
 
         await app.resolve<LoadCryptography>(LoadCryptography).bootstrap();
 

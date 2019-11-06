@@ -41,8 +41,7 @@ beforeEach(() => {
 
     app.bind(Identifiers.EventDispatcherService).toConstantValue(new MemoryEventDispatcher());
 
-    serviceProviderRepository = new ServiceProviderRepository();
-    app.bind(Identifiers.ServiceProviderRepository).toConstantValue(serviceProviderRepository);
+    serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);
 
     logger = {
         notice: jest.fn(),
@@ -56,10 +55,6 @@ afterEach(() => container.restore());
 
 describe("RegisterServiceProviders", () => {
     it("should bootstrap with a basic service provider", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new StubServiceProvider();
         const spyRegister = jest.spyOn(serviceProvider, "register");
         serviceProviderRepository.set("stub", serviceProvider);
@@ -70,10 +65,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should respect the include configuration", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         app.get<ConfigRepository>(Identifiers.ConfigRepository).set("app.pluginOptions.include", ["stub-other"]);
 
         const serviceProvider: ServiceProvider = new StubServiceProvider();
@@ -86,10 +77,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should respect the exclude configuration", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         app.get<ConfigRepository>(Identifiers.ConfigRepository).set("app.pluginOptions.exclude", ["stub"]);
 
         const serviceProvider: ServiceProvider = new StubServiceProvider();
@@ -102,10 +89,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should bootstrap if the configuration validation passes", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new ValidConfigurationServiceProvider();
         serviceProvider.setManifest(app.resolve(PluginManifest));
 
@@ -125,10 +108,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should mark the service provider as failed if the configuration validation fails", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new InvalidConfigurationServiceProvider();
         serviceProvider.setManifest(app.resolve(PluginManifest));
         serviceProvider.setConfig(app.resolve(PluginConfiguration));
@@ -144,10 +123,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should throw if the service provider is required and the configuration validation fails", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new RequiredInvalidConfigurationServiceProvider();
         serviceProvider.setManifest(app.resolve(PluginManifest));
         serviceProvider.setConfig(app.resolve(PluginConfiguration));
@@ -166,10 +141,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should terminate if a required (boolean) dependency cannot be found", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new RequiredDependencyCannotBeFoundServiceProvider();
         serviceProvider.setManifest(app.resolve(PluginManifest));
         serviceProvider.setConfig(app.resolve(PluginConfiguration));
@@ -184,10 +155,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should terminate if a required (async) dependency cannot be found", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new RequiredDependencyCannotBeFoundAsyncServiceProvider();
         serviceProvider.setManifest(app.resolve(PluginManifest));
         serviceProvider.setConfig(app.resolve(PluginConfiguration));
@@ -204,10 +171,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should mark the service provider as failed and log a warning if an optional dependency cannot be found", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new OptionalDependencyCannotBeFoundServiceProvider();
         serviceProvider.setManifest(app.resolve(PluginManifest));
         serviceProvider.setConfig(app.resolve(PluginConfiguration));
@@ -223,10 +186,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should terminate if a required dependency cannot satisfy the version", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new RequiredDependencyVersionCannotBeSatisfiedServiceProvider();
         serviceProvider.setManifest(app.resolve(PluginManifest));
         serviceProvider.setConfig(app.resolve(PluginConfiguration));
@@ -242,10 +201,6 @@ describe("RegisterServiceProviders", () => {
     });
 
     it("should mark the service provider as failed and log a warning if an optional dependency cannot satisfy the version", async () => {
-        app.bind(Identifiers.ConfigRepository)
-            .to(ConfigRepository)
-            .inSingletonScope();
-
         const serviceProvider: ServiceProvider = new OptionalDependencyVersionCannotBeSatisfiedServiceProvider();
         serviceProvider.setManifest(app.resolve(PluginManifest));
         serviceProvider.setConfig(app.resolve(PluginConfiguration));

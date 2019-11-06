@@ -4,8 +4,7 @@ import { resolve } from "path";
 import { LocalConfigLoader } from "@packages/core-kernel/src/services/config/drivers/local";
 import { Application } from "@packages/core-kernel/src/application";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
-import { ServiceProviderRepository } from "@packages/core-kernel/src/providers";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 import {
     ApplicationConfigurationCannotBeLoaded,
@@ -13,27 +12,16 @@ import {
 } from "@packages/core-kernel/src/exceptions/config";
 
 let app: Application;
-let container: interfaces.Container;
 let configLoader: LocalConfigLoader;
 
 beforeEach(() => {
-    container = new Container();
-
-    app = new Application(container);
-    app.bind(Identifiers.ConfigRepository)
-        .to(ConfigRepository)
-        .inSingletonScope();
+    app = new Application(new Container());
     app.bind(Identifiers.EventDispatcherService).toConstantValue(new MemoryEventDispatcher());
-    app.bind(Identifiers.ServiceProviderRepository).toConstantValue(new ServiceProviderRepository());
     app.bind(Identifiers.ConfigFlags).toConstantValue({});
     app.bind(Identifiers.ConfigPlugins).toConstantValue({});
 
-    container.snapshot();
-
     configLoader = app.resolve<LocalConfigLoader>(LocalConfigLoader);
 });
-
-afterEach(() => container.restore());
 
 describe("LocalConfigLoader", () => {
     it("should throw if it fails to fail the application configuration", async () => {

@@ -1,30 +1,35 @@
 import "@packages/core-test-framework/src/matchers";
 
+import { Contracts, Container } from "@arkecosystem/core-kernel";
+import { ApiHelpers, Generators } from "@arkecosystem/core-test-framework";
+import { Identities } from "@arkecosystem/crypto";
+
+import secrets from "@packages/core-test-framework/src/internal/secrets.json";
+
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
-import { utils } from "../utils";
 
-import { generateRound } from "../__support__/utils/generate-round";
-import { delegates } from "@packages/core-test-framework/src/utils/fixtures";
-
-import { app, Contracts, Container } from "@arkecosystem/core-kernel";
-
+let app: Contracts.Kernel.Application;
+let api: ApiHelpers;
 beforeAll(async () => {
-    await setUp();
+    app = await setUp();
+    api = new ApiHelpers(app);
 
     const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
     await databaseService.buildWallets();
-    await databaseService.saveRound(generateRound(delegates.map(delegate => delegate.publicKey), 1));
+    await databaseService.saveRound(
+        Generators.generateRound(app, secrets.map(secret => Identities.PublicKey.fromPassphrase(secret)), 1),
+    );
     await (databaseService as any).initializeActiveDelegates(1);
 
     await calculateRanks();
 });
 
-afterAll(tearDown);
+afterAll(async () => await tearDown());
 
 describe("API 2.0 - Rounds", () => {
     describe("GET /rounds/:id/delegates", () => {
         it("should GET the delegates of a round by the given identifier", async () => {
-            const response = await utils.request("GET", `rounds/1/delegates`);
+            const response = await api.request("GET", `rounds/1/delegates`);
 
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();

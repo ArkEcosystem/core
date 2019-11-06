@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Errors } from "@arkecosystem/core-transactions";
 import {
     Crypto,
@@ -20,7 +20,7 @@ export class Wallet implements Contracts.State.Wallet {
 
     private readonly attributes: Services.Attributes.AttributeMap;
 
-    public constructor(address: string) {
+    public constructor(address: string, app: Contracts.Kernel.Application) {
         this.address = address;
         this.balance = Utils.BigNumber.ZERO;
         this.nonce = Utils.BigNumber.ZERO;

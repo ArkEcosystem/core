@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
@@ -7,12 +7,15 @@ import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerConfig, PeerPingResponse } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
-import { replySchemas } from "./schemas";
+import { createSchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
 export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Log.Logger;
 
@@ -64,7 +67,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 throw new PeerVerificationFailedError();
             }
 
-            const peerVerifier = new PeerVerifier(this, peer);
+            const peerVerifier = this.app.resolve(PeerVerifier).init(this, peer);
 
             if (deadline <= new Date().getTime()) {
                 throw new PeerPingTimeoutError(timeoutMsec);
@@ -125,7 +128,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
         peer.version = config.version;
 
-        if (!isValidVersion(peer)) {
+        if (!isValidVersion(this.app, peer)) {
             return false;
         }
 
@@ -178,7 +181,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                     "Content-Type": "application/json",
                 },
             },
-            app
+            this.app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                 .get("@arkecosystem/core-p2p")
                 .config()
@@ -214,7 +217,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     }
 
     private validateReply(peer: Contracts.P2P.Peer, reply: any, endpoint: string): boolean {
-        const schema = replySchemas[endpoint];
+        const schema = createSchemas(this.app).replySchemas[endpoint];
         if (schema === undefined) {
             this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined schemas matches.`);
             return false;

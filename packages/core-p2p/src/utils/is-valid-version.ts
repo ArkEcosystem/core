@@ -1,9 +1,9 @@
-import { app, Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import semver from "semver";
 
 // todo: review the implementation
-export const isValidVersion = (peer: Contracts.P2P.Peer): boolean => {
+export const isValidVersion = (app: Contracts.Kernel.Application, peer: Contracts.P2P.Peer): boolean => {
     if (!peer.version) {
         return false;
     }

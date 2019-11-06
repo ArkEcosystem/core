@@ -1,15 +1,24 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { setUp, tearDown } from "../__support__/setup";
-import { utils } from "../utils";
+import { ApiHelpers } from "@arkecosystem/core-test-framework";
 
-beforeAll(setUp);
-afterAll(tearDown);
+import { setUp, tearDown } from "../__support__/setup";
+import { Contracts } from "@arkecosystem/core-kernel";
+
+let app: Contracts.Kernel.Application;
+let api: ApiHelpers;
+
+beforeAll(async () => {
+    app = await setUp();
+    api = new ApiHelpers(app);
+});
+
+afterAll(async () => await tearDown());
 
 describe("API 2.0 - Blockchain", () => {
     describe("GET /blockchain", () => {
         it("should GET the blockchain info", async () => {
-            const response = await utils.request("GET", "blockchain");
+            const response = await api.request("GET", "blockchain");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 

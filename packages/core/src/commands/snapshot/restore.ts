@@ -1,4 +1,4 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { SnapshotManager } from "@arkecosystem/core-snapshots";
 import Command, { flags } from "@oclif/command";
 import cliProgress from "cli-progress";
@@ -31,7 +31,7 @@ export class RestoreCommand extends Command {
     public async run(): Promise<void> {
         const { flags, paths } = await parseWithNetwork(this.parse(RestoreCommand));
 
-        await setUpLite(flags);
+        const app: Contracts.Kernel.Application = await setUpLite(flags);
 
         if (!app.isBound(Container.Identifiers.SnapshotService)) {
             abort("The @arkecosystem/core-snapshots plugin is not installed.");

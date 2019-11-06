@@ -29,18 +29,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-registration.test.ts
 
@@ -71,18 +84,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-resignation.test.ts
 
@@ -113,18 +139,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/bridgechain-update.test.ts
 
@@ -155,18 +194,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-registration.test.ts
 
@@ -197,18 +249,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-resignation.test.ts
 
@@ -239,18 +304,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/business-update.test.ts
 
@@ -281,18 +359,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/delegate-registration.test.ts
 
@@ -323,18 +414,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/delegate-resignation.test.ts
 
@@ -365,18 +469,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-claim.test.ts
 
@@ -407,18 +524,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-lock.test.ts
 
@@ -449,18 +579,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/htlc-refund.test.ts
 
@@ -491,18 +634,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/ipfs.test.ts
 
@@ -533,18 +689,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/multi-payment.test.ts
 
@@ -575,18 +744,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/multi-signature-registration.test.ts
 
@@ -617,18 +799,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/second-signature-registration.test.ts
 
@@ -659,18 +854,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/transfer.test.ts
 
@@ -701,18 +909,31 @@ jobs:
 
         steps:
             - uses: actions/checkout@v1
+
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+
             - name: Use Node.js ${{ matrix.node-version }}
               uses: actions/setup-node@v1
               with:
                   node-version: ${{ matrix.node-version }}
+
             - name: Update system
               run: sudo apt-get update -y
+
             - name: Install xsel & postgresql-client
               run: sudo apt-get install -q xsel postgresql-client
+
             - name: Install and build packages
               run: yarn setup
+
             - name: Create .core/database directory
               run: mkdir -p $HOME/.core/database
+
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/vote.test.ts
 

@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Enums,
     Interfaces as MagistrateInterfaces,
@@ -17,6 +17,7 @@ import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 
+@Container.injectable()
 export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainUpdateTransaction;
@@ -147,7 +148,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             "business",
         );
 
-        const connection: Contracts.Database.Connection = app.get<Contracts.Database.Connection>(
+        const connection: Contracts.Database.Connection = this.app.get<Contracts.Database.Connection>(
             Container.Identifiers.DatabaseService,
         );
         const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
@@ -177,7 +178,7 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
                 Utils.assert.defined(businessAttributes.bridgechains),
             ).indexOf(bridgechainId);
 
-            const transactions = await app
+            const transactions = await this.app
                 .get<Contracts.Database.Connection>(Container.Identifiers.DatabaseService)
                 .transactionsRepository.search({
                     parameters: [

@@ -1705,9 +1705,7 @@
             "recipientId": "ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo",
             "senderPublicKey": "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
             "asset": {
-                "votes": [
-                    "+03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"
-                ]
+                "votes": ["+03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"]
             },
             "network": 23,
             "signature": "3045022100f2e455ed7eb6f8671e4c53be5d16271b967696f383991ffcc140b620f59d527902203bed44d8cc997b8b382ec4cda8fa2d04fc20f11633b9024cc9dc9b396b265c8b"
@@ -1724,9 +1722,7 @@
             "recipientId": "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
             "senderPublicKey": "02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d",
             "asset": {
-                "votes": [
-                    "+02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d"
-                ]
+                "votes": ["+02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d"]
             },
             "network": 23,
             "signature": "3045022100f7e158a66a9ecd77b3da74a063cbb20cff8d1d23223038a04ec996889ffa018102205ae65e2ddaf0b5dccf5a620e26021c3c60706df16ac69a0f3fc96aae47961688"
@@ -1743,9 +1739,7 @@
             "recipientId": "ARAibxGqLQJTo1bWMJfu5fCc88rdWWjqgv",
             "senderPublicKey": "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
             "asset": {
-                "votes": [
-                    "+038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17"
-                ]
+                "votes": ["+038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17"]
             },
             "network": 23,
             "signature": "30450221008d82ffc7517e2c87158c4fec7ed6bef200970c962f73f343ea53438ae2166a7e02200398ac2ab52556e081604c0f8c8deb62bdd7a198dd60ced3028d8b6ca3b26dd7"
@@ -1762,9 +1756,7 @@
             "recipientId": "ASEJEDLfTxy6upQDWTuYucoVwMUcmhSGhp",
             "senderPublicKey": "03832487ab0aa9450a4c223999bf4311b7b65c50c06baa90d19d4f65c27bfeeb93",
             "asset": {
-                "votes": [
-                    "+03832487ab0aa9450a4c223999bf4311b7b65c50c06baa90d19d4f65c27bfeeb93"
-                ]
+                "votes": ["+03832487ab0aa9450a4c223999bf4311b7b65c50c06baa90d19d4f65c27bfeeb93"]
             },
             "network": 23,
             "signature": "3045022100841b944c998923a24c4655047f90acf769c4bf2e100a00e9c766cb5c6a2552750220587724431c141f7c08d91ed73a7072a60b81e554c85c99257fcff52044870ef9"
@@ -1781,9 +1773,7 @@
             "recipientId": "AdXbS4GKvV6TZVHrNzcYSQKfpenQnFGTxK",
             "senderPublicKey": "026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565",
             "asset": {
-                "votes": [
-                    "+026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565"
-                ]
+                "votes": ["+026c598170201caf0357f202ff14f365a3b09322071e347873869f58d776bfc565"]
             },
             "network": 23,
             "signature": "3045022100e74e45b000ec0d35ef7cf666a12bb6e920581ce712dd567c1e64aac040eadf8a02205f7e23aec2a2a4ba7e8ce452eed7d5afaa76b380746bfa1096b18b78e5495a93"
@@ -1800,9 +1790,7 @@
             "recipientId": "Ac9dCo9dFgAkkBdEBsoRAN4Mm6xMsgYdZx",
             "senderPublicKey": "0363550e2a3fe2153526effd4302045fa2c3027d0d9b30b19821a4870c8cb134bc",
             "asset": {
-                "votes": [
-                    "+0363550e2a3fe2153526effd4302045fa2c3027d0d9b30b19821a4870c8cb134bc"
-                ]
+                "votes": ["+0363550e2a3fe2153526effd4302045fa2c3027d0d9b30b19821a4870c8cb134bc"]
             },
             "network": 23,
             "signature": "3045022100e3a18a78d248293d426cc6c69f6ac7147d7e92849eda4fd04a448e84106116ec022003b7c66458f6859430654990b7e0b737869197761788dff54e819f29924758e8"
@@ -1819,9 +1807,7 @@
             "recipientId": "AV6GP5qhhsZG6MHb4gShy22doUnVjEKHcN",
             "senderPublicKey": "022f2978d57f95c021b9d4bf082b482738ce392bcf6bc213710e7a21504cfeb5a0",
             "asset": {
-                "votes": [
-                    "+022f2978d57f95c021b9d4bf082b482738ce392bcf6bc213710e7a21504cfeb5a0"
-                ]
+                "votes": ["+022f2978d57f95c021b9d4bf082b482738ce392bcf6bc213710e7a21504cfeb5a0"]
             },
             "network": 23,
             "signature": "304402200549c17c9ed576e0cdd9f54b61ee771f0f863f3d6ddeb28334b8aec1c58668b202205de283a9ed775df2abcdcc1b8c3263323fb85342865b54066a0c8dae5a2da0af"
@@ -1838,9 +1824,7 @@
             "recipientId": "AdWRsk7Lbo97jxGBKzLAFwevVHbqVbW1Cj",
             "senderPublicKey": "03691178f8610d0a295e650201b62345056c788d7f9ac7e8570b69c6c90091b564",
             "asset": {
-                "votes": [
-                    "+03691178f8610d0a295e650201b62345056c788d7f9ac7e8570b69c6c90091b564"
-                ]
+                "votes": ["+03691178f8610d0a295e650201b62345056c788d7f9ac7e8570b69c6c90091b564"]
             },
             "network": 23,
             "signature": "3045022100b4b4b7bea2e91bcd2f94d03cb9814c94a782528ffd7b8a5e13586877c83e246302202beebfb3f1dba8298031d3371471baa6ff87c7c77e7aa71ed70643103d839fa8"
@@ -1857,9 +1841,7 @@
             "recipientId": "AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo",
             "senderPublicKey": "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647",
             "asset": {
-                "votes": [
-                    "+0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647"
-                ]
+                "votes": ["+0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647"]
             },
             "network": 23,
             "signature": "3045022100c8e713866b39e58760578a6f427cc861921d7bae8ebdc3b5d82b94b078f2ad7e022016d06248cd10d720459f289e7456be4c29c8c104395eb2543d9a688258fc57e3"
@@ -1876,9 +1858,7 @@
             "recipientId": "AFyf2qVpX2JbpKcy29XbusedCpFDeYFX8Q",
             "senderPublicKey": "02f7acb179ddfddb2e220aa600921574646ac59fd3f1ae6255ada40b9a7fab75fd",
             "asset": {
-                "votes": [
-                    "+02f7acb179ddfddb2e220aa600921574646ac59fd3f1ae6255ada40b9a7fab75fd"
-                ]
+                "votes": ["+02f7acb179ddfddb2e220aa600921574646ac59fd3f1ae6255ada40b9a7fab75fd"]
             },
             "network": 23,
             "signature": "304402206f23a3d0bdca6dacaab64f74f59e3dd1aae56522ee30b12ed301060e61a2bf4902200f293f39e00949a5c065cb57a29a6c51da9fdfc727b00475d5b2ba33d9ed0903"
@@ -1895,9 +1875,7 @@
             "recipientId": "AZuvQC5WuVpPE9jwMCJcA28X5e7Ni32WY2",
             "senderPublicKey": "0345ef2a1e4f64707044ba600efdc72aaad281c5a73195f930527c54d7cc891904",
             "asset": {
-                "votes": [
-                    "+0345ef2a1e4f64707044ba600efdc72aaad281c5a73195f930527c54d7cc891904"
-                ]
+                "votes": ["+0345ef2a1e4f64707044ba600efdc72aaad281c5a73195f930527c54d7cc891904"]
             },
             "network": 23,
             "signature": "304402206c087b8ae7017a31958568aa5abee428523aed99620a1b58c70a95a738b62c7b022070a4fa1e8805ea17e97ac20a576b7e751cb8bfe5da46221713ae71649c0b11a3"
@@ -1914,9 +1892,7 @@
             "recipientId": "AHysG9CfbXvHtxev9eziTK8WUbnFKKLFR8",
             "senderPublicKey": "03c74d53dcfef0d79f249a812e95c1a58040b769867df036639f0c107d3b577b12",
             "asset": {
-                "votes": [
-                    "+03c74d53dcfef0d79f249a812e95c1a58040b769867df036639f0c107d3b577b12"
-                ]
+                "votes": ["+03c74d53dcfef0d79f249a812e95c1a58040b769867df036639f0c107d3b577b12"]
             },
             "network": 23,
             "signature": "304402203b5488c3b450c438365148cce83f7bcd9f5f65050600785a0ea6488ee84410de0220024727b1d2242dfc3d72fe1a3ccf3b1b410024373788330c54da98706ba8f645"
@@ -1933,9 +1909,7 @@
             "recipientId": "ANRNMPjQjJGVsVbyeqwShcxKTidYJ2S1Hm",
             "senderPublicKey": "021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f",
             "asset": {
-                "votes": [
-                    "+021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f"
-                ]
+                "votes": ["+021770413ad01c60b94e1d3ed44c00e0145fe7897e40f5f6265e220f4e65cf427f"]
             },
             "network": 23,
             "signature": "304402202974c887287a44714b93a0990c9195145f50834ed8ae67fdfcdbba07e3d23370022070f459fcbcbc9d6e4d38770002fc1ebcfea6845ffdbdaf3bbe04e06ef0716f3c"
@@ -1952,9 +1926,7 @@
             "recipientId": "AH39inbLsUBhC3k29NcvQP3zKZWnsQksvA",
             "senderPublicKey": "03d27324bd4829f57d549bdb273bfd666d88f43d8429ba9a42a4fa1c9bd1032a24",
             "asset": {
-                "votes": [
-                    "+03d27324bd4829f57d549bdb273bfd666d88f43d8429ba9a42a4fa1c9bd1032a24"
-                ]
+                "votes": ["+03d27324bd4829f57d549bdb273bfd666d88f43d8429ba9a42a4fa1c9bd1032a24"]
             },
             "network": 23,
             "signature": "3045022100a35198e629d4ce56e0cbe34d9a89dcddc66154f08f52c327c5476338156905a7022077c2b4cfbfe2f6538125ce43b1e8f26b367cee30376f4d03fb1544b076776358"
@@ -1971,9 +1943,7 @@
             "recipientId": "AeooqGMJPE5UWRPkKW6kgLGZu3898vcLPV",
             "senderPublicKey": "02c39e352d0f3c4ea19842a5bca3114b4247cd56da72157963a5873ecfcd824aca",
             "asset": {
-                "votes": [
-                    "+02c39e352d0f3c4ea19842a5bca3114b4247cd56da72157963a5873ecfcd824aca"
-                ]
+                "votes": ["+02c39e352d0f3c4ea19842a5bca3114b4247cd56da72157963a5873ecfcd824aca"]
             },
             "network": 23,
             "signature": "3045022100f99756ef0bdff7db4feb21a505b2e9378fb313199295028db51b3c129e0e918802205a8ae44f8c1a4842209fea04dc5f90c5eb04d9b268721f324d3bc8cf4abd30fa"
@@ -1990,9 +1960,7 @@
             "recipientId": "AWHGbGaz5FgvyChuAfWFmKY2LsbcwqPYL9",
             "senderPublicKey": "02dcb87d64ee2fdc6c2bcecdd841ad8e3b3163599214a818924fd433a8ffe7daf9",
             "asset": {
-                "votes": [
-                    "+02dcb87d64ee2fdc6c2bcecdd841ad8e3b3163599214a818924fd433a8ffe7daf9"
-                ]
+                "votes": ["+02dcb87d64ee2fdc6c2bcecdd841ad8e3b3163599214a818924fd433a8ffe7daf9"]
             },
             "network": 23,
             "signature": "3045022100d859250dc186166660ed8563bdd96a814d2c98bd6f4a61754282c77c18183f6a02205f5872b557f68b2f4d410e2917687912c4f04713e7cd7fa4a955f34bac69874b"
@@ -2009,9 +1977,7 @@
             "recipientId": "AJPicaX6vmokoK3x8abBMDpi8GMPc7rLiW",
             "senderPublicKey": "03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357",
             "asset": {
-                "votes": [
-                    "+03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357"
-                ]
+                "votes": ["+03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357"]
             },
             "network": 23,
             "signature": "3045022100a3e69d779b922ff08bb781dc05a99c276c1968b6db5a77385b284e567425fa7702201844a259da54b97e5ea551a1125322bc813733e23dd73684d5823c03c5eb9fde"
@@ -2028,9 +1994,7 @@
             "recipientId": "AHXtmB84sTZ9Zd35h9Y1vfFvPE2Xzqj8ri",
             "senderPublicKey": "02ad799c6bd670746892bd4331e1aebada26a2cc3ccaf0fde1e94942b20066b05a",
             "asset": {
-                "votes": [
-                    "+02ad799c6bd670746892bd4331e1aebada26a2cc3ccaf0fde1e94942b20066b05a"
-                ]
+                "votes": ["+02ad799c6bd670746892bd4331e1aebada26a2cc3ccaf0fde1e94942b20066b05a"]
             },
             "network": 23,
             "signature": "304402201ffac70aac30e4b91bb7163f39d73ed61cf7d4c21361682798f120ff3ea01a49022056c459856a31e0554b9e469fdaa12f720e7fef79b4bb6771b50a08c2da368644"
@@ -2047,9 +2011,7 @@
             "recipientId": "ARMEiPQE55CfHfR8WmosiFykTAPGYUyYJv",
             "senderPublicKey": "0287a12b336fc781f2621aeb703ae47feca4d3ba6f30625f09ba03d225be6ee2bb",
             "asset": {
-                "votes": [
-                    "+0287a12b336fc781f2621aeb703ae47feca4d3ba6f30625f09ba03d225be6ee2bb"
-                ]
+                "votes": ["+0287a12b336fc781f2621aeb703ae47feca4d3ba6f30625f09ba03d225be6ee2bb"]
             },
             "network": 23,
             "signature": "3045022100b2d3b33c3a48a60d1117903862c598dc2d1dc63efddd2e025e0db4296797c854022079ea313dd049f5e47adc3aed54c6aee0c49fd15b63b475026a54432ec965d6e4"
@@ -2066,9 +2028,7 @@
             "recipientId": "ALHDQyTm7wALtwjmKwEejZjq7f6u6w5xCv",
             "senderPublicKey": "02c1151ab35e371a333e73f72e9971cfc16782e421186cfff9325d3c3b9cf91751",
             "asset": {
-                "votes": [
-                    "+02c1151ab35e371a333e73f72e9971cfc16782e421186cfff9325d3c3b9cf91751"
-                ]
+                "votes": ["+02c1151ab35e371a333e73f72e9971cfc16782e421186cfff9325d3c3b9cf91751"]
             },
             "network": 23,
             "signature": "3045022100f0c6c4c1cee39e5dc691e865193823d27a5bde51598399e101ad6dfb3150f200022054d19b4599399cb0fa18ee4a486daeb13d3efe257c59cfa1e0df56e8d020ec37"
@@ -2085,9 +2045,7 @@
             "recipientId": "Aa3mWTMFTXeTJukUgpeihQLBYDHBzdpWZX",
             "senderPublicKey": "0395ff46d07f197dd4d4cb5dbb46e164c1e7ca9896c33827f9d6f8003ea167917a",
             "asset": {
-                "votes": [
-                    "+0395ff46d07f197dd4d4cb5dbb46e164c1e7ca9896c33827f9d6f8003ea167917a"
-                ]
+                "votes": ["+0395ff46d07f197dd4d4cb5dbb46e164c1e7ca9896c33827f9d6f8003ea167917a"]
             },
             "network": 23,
             "signature": "30440220112eef9eff9aa125ad29607e9194e5bba5b19d996dffcdb7ac3a2294f9f0490f02202a47160ee0c35a0a7182b05583e2b88e899513356e76e3252797f3d343dc24bc"
@@ -2104,9 +2062,7 @@
             "recipientId": "AGqSC7M137ctKtkAjd3J1haCEWNfayXnuJ",
             "senderPublicKey": "03a46f2547d20b47003c1c376788db5a54d67264df2ae914f70bf453b6a1fa1b3a",
             "asset": {
-                "votes": [
-                    "+03a46f2547d20b47003c1c376788db5a54d67264df2ae914f70bf453b6a1fa1b3a"
-                ]
+                "votes": ["+03a46f2547d20b47003c1c376788db5a54d67264df2ae914f70bf453b6a1fa1b3a"]
             },
             "network": 23,
             "signature": "3045022100edaf487026cf969c0e79306c406e704244c21bcf9b410e5a7c63939728e3f5f6022078bcaf877c44e9afcbb7449849631d5bf4d9909fae947eab25815a5da6f91e54"
@@ -2123,9 +2079,7 @@
             "recipientId": "AZeX3qaqdU8iCebAKYoLMR2QkiuG5CffgU",
             "senderPublicKey": "034ff439276ab784098e66dca4075111008448a3b3519c10701bd2d1600ec1203a",
             "asset": {
-                "votes": [
-                    "+034ff439276ab784098e66dca4075111008448a3b3519c10701bd2d1600ec1203a"
-                ]
+                "votes": ["+034ff439276ab784098e66dca4075111008448a3b3519c10701bd2d1600ec1203a"]
             },
             "network": 23,
             "signature": "3045022100e267d94f66f127e380bd5e8059f333d3f9d901f5c52cc6de2a9a21288fa59f810220602ebe90e20b1466e23e899448cd25e1682090d8401655b5094b7e8d4c6af2b8"
@@ -2142,9 +2096,7 @@
             "recipientId": "AcFWyJRk5sRKagThYhk5e1jdkx3wzhL5cW",
             "senderPublicKey": "039f71d74e13cd8c4b7e134ad46e2c28f1bc8e6eacaa9839b5bf59eef5cea06f95",
             "asset": {
-                "votes": [
-                    "+039f71d74e13cd8c4b7e134ad46e2c28f1bc8e6eacaa9839b5bf59eef5cea06f95"
-                ]
+                "votes": ["+039f71d74e13cd8c4b7e134ad46e2c28f1bc8e6eacaa9839b5bf59eef5cea06f95"]
             },
             "network": 23,
             "signature": "304402207cf8a3ee50226d771faadba525c47b483022939948b716ee6c27936c796c1081022022761c3501541c1e9a010c0d1c108d18d986f541821b83d56baaa3b1d8ed8e8a"
@@ -2161,9 +2113,7 @@
             "recipientId": "AJQuCRxeJpzkoGSBMXtmuRMYg9mtCb4qHf",
             "senderPublicKey": "02be75b3862c454887da01b866972b4fb312e0b72fa7d5dda5c0e828c1f4d7f964",
             "asset": {
-                "votes": [
-                    "+02be75b3862c454887da01b866972b4fb312e0b72fa7d5dda5c0e828c1f4d7f964"
-                ]
+                "votes": ["+02be75b3862c454887da01b866972b4fb312e0b72fa7d5dda5c0e828c1f4d7f964"]
             },
             "network": 23,
             "signature": "3045022100a65caaf4c26314f21180656a39ee25d5eb711fc151a7176a380030c1af8e2db402207c1b233fa3e67d94018c82d9f033b442e4485dcf8bc8a0f63722f7bf94b35bd9"
@@ -2180,9 +2130,7 @@
             "recipientId": "AJRf2oWusRmm8QEiZuwvMg3qLbMxpd7BJ2",
             "senderPublicKey": "02292be0bf30b21cf57d55b20f9092a70dc1d1b71f51a91d2ccb2d2f8d8abe6983",
             "asset": {
-                "votes": [
-                    "+02292be0bf30b21cf57d55b20f9092a70dc1d1b71f51a91d2ccb2d2f8d8abe6983"
-                ]
+                "votes": ["+02292be0bf30b21cf57d55b20f9092a70dc1d1b71f51a91d2ccb2d2f8d8abe6983"]
             },
             "network": 23,
             "signature": "30440220266994a0796048210b9e8b4f7b024199f89830a412180e649c7bc954652281e502204e3c424acc27201830e5ba2ca131777ecd0bb80e302ee49091e20749e9949391"
@@ -2199,9 +2147,7 @@
             "recipientId": "ALJVm7EYiMtc1JJDG6BupFw3ttRR6Yewej",
             "senderPublicKey": "02589ffa5363e245f8068d823af8b721b6bf9742c17cdd7925bc9a1fefe66a243d",
             "asset": {
-                "votes": [
-                    "+02589ffa5363e245f8068d823af8b721b6bf9742c17cdd7925bc9a1fefe66a243d"
-                ]
+                "votes": ["+02589ffa5363e245f8068d823af8b721b6bf9742c17cdd7925bc9a1fefe66a243d"]
             },
             "network": 23,
             "signature": "3045022100a8e0c24aa1c36cdf18c6db1675144d16d012309067547670a7153f804e2c712e02206209365856de7c8ce77f8ca3646330a2ceaddb9cd99562e51018b7ea46a674de"
@@ -2218,9 +2164,7 @@
             "recipientId": "AJv5ZFmu6fuugsdTZNi6ukPgptbCmdW4AW",
             "senderPublicKey": "03747096ce60f19e52e99f5d80ae1ddedf6fa88be4ff0669b33f75f3fd991cff28",
             "asset": {
-                "votes": [
-                    "+03747096ce60f19e52e99f5d80ae1ddedf6fa88be4ff0669b33f75f3fd991cff28"
-                ]
+                "votes": ["+03747096ce60f19e52e99f5d80ae1ddedf6fa88be4ff0669b33f75f3fd991cff28"]
             },
             "network": 23,
             "signature": "3045022100c34d8b31bacd5db1f1de93560ff0302997663c9b3a6dc1ae30b4715e0d88231802205b4b366e6c45b0b6b48e41a3400cba452fd274ca0ec24f1583eaf697a91d854d"
@@ -2237,9 +2181,7 @@
             "recipientId": "Aa4M1zL3a74L51f1AvEsLmBTsKLKrkRScU",
             "senderPublicKey": "0308c0d019cd9c0c59618e3b86afc584078b54a85a025c9f30a8bdc82cdc8e1252",
             "asset": {
-                "votes": [
-                    "+0308c0d019cd9c0c59618e3b86afc584078b54a85a025c9f30a8bdc82cdc8e1252"
-                ]
+                "votes": ["+0308c0d019cd9c0c59618e3b86afc584078b54a85a025c9f30a8bdc82cdc8e1252"]
             },
             "network": 23,
             "signature": "30450221009aab52ac9a54158c835bbf824fc5c2068991a4c94c87d67cf558e90fa63a676b022036b197c7ea85a33c8f5c78291c6a29b4b0b296844d9cc032f174e55c3a4ef11a"
@@ -2256,9 +2198,7 @@
             "recipientId": "AMv3iLrvyvpi6d4wEfLqX8kzMxaRvxAcHT",
             "senderPublicKey": "02532c68cd0842fb86b2202c1027eafc741bdd581517047d9d19319e6741c54883",
             "asset": {
-                "votes": [
-                    "+02532c68cd0842fb86b2202c1027eafc741bdd581517047d9d19319e6741c54883"
-                ]
+                "votes": ["+02532c68cd0842fb86b2202c1027eafc741bdd581517047d9d19319e6741c54883"]
             },
             "network": 23,
             "signature": "304402202e3c02c7d6f45d379b6925aba5bd70b3e5eabd43d1e7eaa2c6a95023b6927c3602203902abccb7416c2e24ff34c9890d86fbb83a7665fbe240a75d8e4b8bf706683d"
@@ -2275,9 +2215,7 @@
             "recipientId": "ALiMCXj25VkGEAbj5PNbNez5NagZZJxLsy",
             "senderPublicKey": "03807f9abe33fb390546bb5dcab075dd1136d0b98c54420c8c463c4ed3545161b2",
             "asset": {
-                "votes": [
-                    "+03807f9abe33fb390546bb5dcab075dd1136d0b98c54420c8c463c4ed3545161b2"
-                ]
+                "votes": ["+03807f9abe33fb390546bb5dcab075dd1136d0b98c54420c8c463c4ed3545161b2"]
             },
             "network": 23,
             "signature": "304402207258c016647bd70a656306ae0d3cdf17e8b1264b56a51c35b7082930fa2ec9eb02203a2c7c559dffccada9201df830a71c834f3ffb2b8ddf7901e3b8616f584417de"
@@ -2294,9 +2232,7 @@
             "recipientId": "AeenH7EKK4Fo8Ebotorr9NrVfudukkXhof",
             "senderPublicKey": "0305322487b6dfe8abe67f680bed2df70d92379a48840dd636b32a2c142baa1055",
             "asset": {
-                "votes": [
-                    "+0305322487b6dfe8abe67f680bed2df70d92379a48840dd636b32a2c142baa1055"
-                ]
+                "votes": ["+0305322487b6dfe8abe67f680bed2df70d92379a48840dd636b32a2c142baa1055"]
             },
             "network": 23,
             "signature": "3045022100afea883b0bb5ef68d639fb3e9dc12704e6c47c3d71f11afc7a18b976a80e5a1d0220187824e0062631ea2b74c7d7af33d7844a88d0514408a2167d5b3ea22c754768"
@@ -2313,9 +2249,7 @@
             "recipientId": "AU8hpb5QKJXBx6QhAzy3CJJR69pPfdvp5t",
             "senderPublicKey": "03ba0fa7dd4760a15e46bc762ac39fc8cfb7022bdfef31d1fd73428404796c23fe",
             "asset": {
-                "votes": [
-                    "+03ba0fa7dd4760a15e46bc762ac39fc8cfb7022bdfef31d1fd73428404796c23fe"
-                ]
+                "votes": ["+03ba0fa7dd4760a15e46bc762ac39fc8cfb7022bdfef31d1fd73428404796c23fe"]
             },
             "network": 23,
             "signature": "3045022100a8e1b0254fb4ad52e25e043419ec9f36b37a7989eeee741398e66fe81ac4bda702202dca9bed9339c93fcea774447e9a968b868cb924d8b2e0f9583d755f928ef962"
@@ -2332,9 +2266,7 @@
             "recipientId": "AHXuTrYMxsdSvYJvRoBkM3kH8pS4QSq9i7",
             "senderPublicKey": "030fc33db3d3ab20d73bc6d52633a4f3cc26081ce307c89ab9fe493def7dba4b80",
             "asset": {
-                "votes": [
-                    "+030fc33db3d3ab20d73bc6d52633a4f3cc26081ce307c89ab9fe493def7dba4b80"
-                ]
+                "votes": ["+030fc33db3d3ab20d73bc6d52633a4f3cc26081ce307c89ab9fe493def7dba4b80"]
             },
             "network": 23,
             "signature": "3045022100be74a26248b317e468e434d714b69a2e6557743771ce8780d7ecf3e42b0e99e202204a324cbd625066880d0ce5efe8e925b046b00dae4df22a0964ad4cd6080d06c6"
@@ -2351,9 +2283,7 @@
             "recipientId": "AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1",
             "senderPublicKey": "032b59ba992a9b8987b48606779d92101e4b332f6fcb47a4e61e9b49f2dbb45b2e",
             "asset": {
-                "votes": [
-                    "+032b59ba992a9b8987b48606779d92101e4b332f6fcb47a4e61e9b49f2dbb45b2e"
-                ]
+                "votes": ["+032b59ba992a9b8987b48606779d92101e4b332f6fcb47a4e61e9b49f2dbb45b2e"]
             },
             "network": 23,
             "signature": "3045022100c7de066609f82ade70cd88d4c03d94d608d5d2a4edb7bab1ed654fb3b9e225a602205aceea2a0cff8722d9f0edab124947ef0a3e52a228a236133fffa770c4159d94"
@@ -2370,9 +2300,7 @@
             "recipientId": "ARJWp8VJEieDA8h8YDiHq5LqU9vWcpWGG9",
             "senderPublicKey": "0282d4297584488b9c843face25f1816f95ccdd6660b1a2788fef259ed26a86e8e",
             "asset": {
-                "votes": [
-                    "+0282d4297584488b9c843face25f1816f95ccdd6660b1a2788fef259ed26a86e8e"
-                ]
+                "votes": ["+0282d4297584488b9c843face25f1816f95ccdd6660b1a2788fef259ed26a86e8e"]
             },
             "network": 23,
             "signature": "3045022100de5a82142ac63d69299237489202cfee9c18481e0e0994d02543fe976fdd05f7022034b8ee5834ad53e9aaa40c12fe6a71da74de4e4c950f3ade6854bca560faa81d"
@@ -2389,9 +2317,7 @@
             "recipientId": "AX1M38eZC6TB1mzz33PxZBYBGrmE2zPdFK",
             "senderPublicKey": "030d13c0a7f1433091a5730cfd7956175261bb9442d8c0c0beffeb3b5de32e5aa4",
             "asset": {
-                "votes": [
-                    "+030d13c0a7f1433091a5730cfd7956175261bb9442d8c0c0beffeb3b5de32e5aa4"
-                ]
+                "votes": ["+030d13c0a7f1433091a5730cfd7956175261bb9442d8c0c0beffeb3b5de32e5aa4"]
             },
             "network": 23,
             "signature": "3044022056bdf68e265e59bf528f141bbc9bbe5034c54fc308468bdc915c32b6198e09d402206a82fd5661973a7d98ecb73910ba028b1f97231807274528c2df1cb633561aa6"
@@ -2408,9 +2334,7 @@
             "recipientId": "ALs933qA9Cm3caRDei4ZXxnzXexpXNem8U",
             "senderPublicKey": "0232d790f7a6ac16f2581283a47d0dcfbb51ee100f92e46cea46a63a8a043cb294",
             "asset": {
-                "votes": [
-                    "+0232d790f7a6ac16f2581283a47d0dcfbb51ee100f92e46cea46a63a8a043cb294"
-                ]
+                "votes": ["+0232d790f7a6ac16f2581283a47d0dcfbb51ee100f92e46cea46a63a8a043cb294"]
             },
             "network": 23,
             "signature": "3045022100e91acb3dfefedf7870a7451e28b9b9df702f25ae33f0b5c53cfca8674f95ad750220656d958030d6a6e90cd7eb592986447b1ee08a99ebe03ebe4115b281d07220f7"
@@ -2427,9 +2351,7 @@
             "recipientId": "AWdRZPxQQvG1TP6hdxvQCn2t3skerq9Ky9",
             "senderPublicKey": "03827628ae32074e284bcd660aec4f0504ba5d401586cb9566c887dd4da522c1d5",
             "asset": {
-                "votes": [
-                    "+03827628ae32074e284bcd660aec4f0504ba5d401586cb9566c887dd4da522c1d5"
-                ]
+                "votes": ["+03827628ae32074e284bcd660aec4f0504ba5d401586cb9566c887dd4da522c1d5"]
             },
             "network": 23,
             "signature": "304402206f98fed5986126d532c96d14cb3de1f69cc9c48a5e390e718a62f1c914575f350220230ce15b9317696bf6a94f4a76bbd5288c5e9b0086eb78befb54673aba24ccad"
@@ -2446,9 +2368,7 @@
             "recipientId": "AdT9FrWUksf99Lhkr9JGb8f2HLSg14kTqr",
             "senderPublicKey": "022b80e0d314928d93e48d1fe02190378384215237a5d42a86bc91580ba8c88689",
             "asset": {
-                "votes": [
-                    "+022b80e0d314928d93e48d1fe02190378384215237a5d42a86bc91580ba8c88689"
-                ]
+                "votes": ["+022b80e0d314928d93e48d1fe02190378384215237a5d42a86bc91580ba8c88689"]
             },
             "network": 23,
             "signature": "304402205b1ac1573d9b1e5fe33396035f34b0b8b7f2e61e2756890d604b7f3d3834c7cb022056ff2d66e3d4b6252f158cde602e097a33cc7a8d69217b3faed71c87d7ccf541"
@@ -2465,9 +2385,7 @@
             "recipientId": "AcATpmcMU1tmLDX7TzR3wXop4tfLFR21Lf",
             "senderPublicKey": "03343930630f8235c2b3ae9ba013dbecd4d8bfc999d34bda33e18c8caf43772f1f",
             "asset": {
-                "votes": [
-                    "+03343930630f8235c2b3ae9ba013dbecd4d8bfc999d34bda33e18c8caf43772f1f"
-                ]
+                "votes": ["+03343930630f8235c2b3ae9ba013dbecd4d8bfc999d34bda33e18c8caf43772f1f"]
             },
             "network": 23,
             "signature": "304402204c5948369c4c680a7be1edd39099c98aeee6b3abecd765f9aea42bae677cc1d102203d7ae10bfc5261ac9b42cdbbee81f4dd41ebb2c82eb597e1ca021fd6510daa1a"
@@ -2484,9 +2402,7 @@
             "recipientId": "AcmXmomxpP8NahbbFivq32QmLuKFkTkqRg",
             "senderPublicKey": "0311077c86a98b67850e7ed2c81775d094cf81c6991082ddc33fc7be5347dc765d",
             "asset": {
-                "votes": [
-                    "+0311077c86a98b67850e7ed2c81775d094cf81c6991082ddc33fc7be5347dc765d"
-                ]
+                "votes": ["+0311077c86a98b67850e7ed2c81775d094cf81c6991082ddc33fc7be5347dc765d"]
             },
             "network": 23,
             "signature": "304402202b2f115a09e085abbcd67ac83ef5447da694046de510cf38898c22e75bf414e7022000e9e0d79b451d73e10131b4ffe5bf9887f662ea2c935f656a27824107ede856"
@@ -2503,9 +2419,7 @@
             "recipientId": "AQBo4exLwyapRiDoDteh1fF2ctWWdxofSf",
             "senderPublicKey": "034985f6f2167cc8c9df1204aaf6744bc97c0d7f3c07c43ee6c0978bc91b6c680e",
             "asset": {
-                "votes": [
-                    "+034985f6f2167cc8c9df1204aaf6744bc97c0d7f3c07c43ee6c0978bc91b6c680e"
-                ]
+                "votes": ["+034985f6f2167cc8c9df1204aaf6744bc97c0d7f3c07c43ee6c0978bc91b6c680e"]
             },
             "network": 23,
             "signature": "3045022100a33242cd3b4949d13cedf96b20f4bf9c4f908205dd73678325745e43756571a802205bd75cabe43bf3d7575f08fd0f6e3bae6488448bdf8527a177037c25aa6fd944"
@@ -2522,9 +2436,7 @@
             "recipientId": "AWtD9W5LCv2TH3VcdzbGQBGaJBwvbzZNDQ",
             "senderPublicKey": "022ebb110e9630377073d4f0e32897a5928a2c71f2941fb6d4b71251dbd62da98c",
             "asset": {
-                "votes": [
-                    "+022ebb110e9630377073d4f0e32897a5928a2c71f2941fb6d4b71251dbd62da98c"
-                ]
+                "votes": ["+022ebb110e9630377073d4f0e32897a5928a2c71f2941fb6d4b71251dbd62da98c"]
             },
             "network": 23,
             "signature": "3044022070d1a53b4ff67f478a11e33f134f24c86811481821b6f9c738a6c2ed6aedf1ee02204c31a5bb96a1ce56740b7b7be96b0424dfcff3dddcbd82da64af9a3e9588c1d1"
@@ -2541,9 +2453,7 @@
             "recipientId": "ASqzCDRS5cTBwCmC5moQ34W4QZhtrj4pT1",
             "senderPublicKey": "02af50fcb5183b3f2c468fb4e75e573a6bf0a048a6fab095df6d70f9f91fd6651b",
             "asset": {
-                "votes": [
-                    "+02af50fcb5183b3f2c468fb4e75e573a6bf0a048a6fab095df6d70f9f91fd6651b"
-                ]
+                "votes": ["+02af50fcb5183b3f2c468fb4e75e573a6bf0a048a6fab095df6d70f9f91fd6651b"]
             },
             "network": 23,
             "signature": "304402204b442e8b70009135dc5c0e923100af90ccd0be98f7a5b78cdee52b03ca59ed03022039c187fc628cb44758a10d365c29962775223648e0d7890cea3315d63e8f26e8"
@@ -2560,9 +2470,7 @@
             "recipientId": "AMfyf9iRjXiKNcLQVTUE9oCESUPzmQ6iUT",
             "senderPublicKey": "034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c",
             "asset": {
-                "votes": [
-                    "+034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c"
-                ]
+                "votes": ["+034776bd6080a504b0f84f8d66b16af292dc253aa5f4be8b807746a82aa383bd3c"]
             },
             "network": 23,
             "signature": "3044022005fc64af0d62551d592a9642793a4eef0915b8852a02a732ef5190af8c2c4fd9022007974b14954a6710fd63eba1de616cc8f86c2c49f615629ecd4e21624ef849bf"
@@ -2579,9 +2487,7 @@
             "recipientId": "AW8n3yvSAqUJkyfcG5u3bgRxsNKzXYPamN",
             "senderPublicKey": "036f612457adc81041662e664ca4ae64f844b412065f2b7d2f9f7d305e59c908cd",
             "asset": {
-                "votes": [
-                    "+036f612457adc81041662e664ca4ae64f844b412065f2b7d2f9f7d305e59c908cd"
-                ]
+                "votes": ["+036f612457adc81041662e664ca4ae64f844b412065f2b7d2f9f7d305e59c908cd"]
             },
             "network": 23,
             "signature": "3045022100bdabb5670d50268099008b38b96cdcb89dc6d828b98dcc197cc16527a22814420220504307c723217366ba7f54f0521a4b2060891017ec50e0c53ca1c6d1e6bf1579"
@@ -2598,9 +2504,7 @@
             "recipientId": "AaUgne8txmQB1iBboiFVLVHwLaYChZiFVA",
             "senderPublicKey": "03e59140fde881ac437ec3dc3e372bf25f7c19f0b471a5b35cc30f783e8a7b811b",
             "asset": {
-                "votes": [
-                    "+03e59140fde881ac437ec3dc3e372bf25f7c19f0b471a5b35cc30f783e8a7b811b"
-                ]
+                "votes": ["+03e59140fde881ac437ec3dc3e372bf25f7c19f0b471a5b35cc30f783e8a7b811b"]
             },
             "network": 23,
             "signature": "3045022100af342c34090ff2179bd268acaf5ae54a0daa4251b4465938ac4eae6f59a752eb02205c07d44f3b15fa026ce188c167eb353c670bf3de3185812daf6512c4cb2215e3"
@@ -2617,9 +2521,7 @@
             "recipientId": "AReCSCQRssLGF4XyhTjxhQm6mBFAWTaDTz",
             "senderPublicKey": "032c51f895ccdafae44e68baf283c50605d3f7dbba1c48011c6577383791f4a374",
             "asset": {
-                "votes": [
-                    "+032c51f895ccdafae44e68baf283c50605d3f7dbba1c48011c6577383791f4a374"
-                ]
+                "votes": ["+032c51f895ccdafae44e68baf283c50605d3f7dbba1c48011c6577383791f4a374"]
             },
             "network": 23,
             "signature": "304402206730c6072e313dc4439b4f7343b864c1d047258335ea09b31549b409c0e2cf9602206a8fccb96d0b3001db45f501f14a0f02e29cfc2a8c10205305a415dd9050de04"
@@ -2636,9 +2538,7 @@
             "recipientId": "APRiwbs17FdbaF8DYU9js2jChRehQc2e6P",
             "senderPublicKey": "030a9321ff83e384aef559e6030008c23a137e3b3c5d45028e46cccbaafce772b1",
             "asset": {
-                "votes": [
-                    "+030a9321ff83e384aef559e6030008c23a137e3b3c5d45028e46cccbaafce772b1"
-                ]
+                "votes": ["+030a9321ff83e384aef559e6030008c23a137e3b3c5d45028e46cccbaafce772b1"]
             },
             "network": 23,
             "signature": "3045022100e25a4cc1f8aeda954cbf38d776e7a03b56a8f2b2aec370a80953ca407e2ec2f20220493f8b708776fcbf4480800705ae538dea78ee07fcacb3ef8b7ed992c110fe1a"
@@ -2655,9 +2555,7 @@
             "recipientId": "AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD",
             "senderPublicKey": "02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a",
             "asset": {
-                "votes": [
-                    "+02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a"
-                ]
+                "votes": ["+02275d8577a0ec2b75fc8683282d53c5db76ebc54514a80c2854e419b793ea259a"]
             },
             "network": 23,
             "signature": "3044022020d07f035c6ec9fb97b14f0fb693bfa6e52ca7ffeae0fea65fb1a8c6c7ee7566022067e5a02fda97158bf72eb1e2b8aae465b981320c3d464e81e92d42febf829427"

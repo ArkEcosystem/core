@@ -4,7 +4,7 @@ import { LocksController } from "./controller";
 import * as Schema from "./schema";
 
 export const registerRoutes = (server: Hapi.Server): void => {
-    const controller = new LocksController();
+    const controller = server.app.app.resolve(LocksController);
     server.bind(controller);
 
     server.route({

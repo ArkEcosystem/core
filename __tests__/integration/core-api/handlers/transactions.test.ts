@@ -1,13 +1,28 @@
 import "@packages/core-test-framework/src/matchers";
 
 import { setUp, tearDown } from "../__support__/setup";
-import { utils } from "../utils";
 
 import { Identities, Managers } from "@arkecosystem/crypto";
+import { generateMnemonic } from "bip39";
 
-import { TransactionFactory } from "@packages/core-test-framework/src/helpers/transaction-factory";
-import { delegates } from "@packages/core-test-framework/src/utils/fixtures/delegates";
-import { generateWallets } from "@packages/core-test-framework/src/utils/generators/wallets";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+import secrets from "@packages/core-test-framework/src/internal/secrets.json";
+import { ApiHelpers, getWalletNonce } from "@arkecosystem/core-test-framework";
+import { Contracts } from "@arkecosystem/core-kernel";
+
+export const generateWallets = quantity => {
+    const wallets: { address: string; passphrase: string; publicKey: string }[] = [];
+
+    for (let i = 0; i < quantity; i++) {
+        const passphrase: string = generateMnemonic();
+        const publicKey: string = Identities.PublicKey.fromPassphrase(passphrase);
+        const address: string = Identities.Address.fromPassphrase(passphrase);
+
+        wallets.push({ address, passphrase, publicKey });
+    }
+
+    return wallets;
+};
 
 const transferFee = 10000000;
 
@@ -32,10 +47,31 @@ let fee;
 let feeFrom;
 let feeTo;
 
-beforeAll(async () => {
-    await setUp();
+let delegates: any;
 
-    Managers.configManager.setFromPreset("unitnet");
+let app: Contracts.Kernel.Application;
+let api: ApiHelpers;
+
+beforeAll(async () => {
+    app = await setUp();
+    api = new ApiHelpers(app);
+
+    delegates = secrets.map(secret => {
+        const publicKey: string = Identities.PublicKey.fromPassphrase(secret);
+        const address: string = Identities.Address.fromPassphrase(secret);
+
+        const transaction: { amount: string } = Managers.configManager
+            .get("genesisBlock")
+            .transactions.find(transaction => transaction.recipientId === address && transaction.type === 0);
+
+        return {
+            secret,
+            passphrase: secret, // just an alias for delegate secret
+            publicKey,
+            address,
+            balance: transaction.amount,
+        };
+    });
 
     const genesisBlock = Managers.configManager.get("genesisBlock");
 
@@ -61,54 +97,52 @@ beforeAll(async () => {
     feeTo = fee;
 });
 
-afterAll(tearDown);
-
+afterAll(async () => await tearDown());
 describe("API 2.0 - Transactions", () => {
     describe("GET /transactions", () => {
         it("should GET all the transactions", async () => {
-            const response = await utils.request("GET", "transactions");
+            const response = await api.request("GET", "transactions");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
 
-            utils.expectTransaction(response.data.data[0]);
+            api.expectTransaction(response.data.data[0]);
         });
     });
 
     describe("GET /transactions/:id", () => {
         it("should GET a transaction by the given identifier", async () => {
-            const response = await utils.request("GET", `transactions/${transactionId}`);
+            const response = await api.request("GET", `transactions/${transactionId}`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 
             const transaction = response.data.data;
-            utils.expectTransaction(transaction);
+            api.expectTransaction(transaction);
             expect(transaction.id).toBe(transactionId);
         });
 
         it("should GET a transaction by the given identifier and not transform it", async () => {
-            const response = await utils.request("GET", `transactions/${transactionId}`, { transform: false });
+            const response = await api.request("GET", `transactions/${transactionId}`, { transform: false });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 
             expect(response.data.data).toEqual({
-                id: "77d99a5103cf72256654a4ddfce7bba5e4e9c867f160e68065fc355750317719",
+                id: genesisTransaction.id,
                 timestamp: 0,
                 version: 1,
                 type: 0,
                 fee: "0",
                 amount: "300000000000000",
-                recipientId: "ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo",
-                senderPublicKey: "03485dd4f27e970c5812d3ae99df15d1be0cdb05de6b9dfca5d4316b88b4a2206d",
+                recipientId: genesisTransaction.recipientId,
+                senderPublicKey: genesisTransaction.senderPublicKey,
                 expiration: 0,
                 network: 23,
-                signature:
-                    "30440220367158b94ab965ec44efd8824a0970ab1b1a0c789e60520473e564cd83bf1663022067e077e4e6af809687230b418a6274a124540748d1d451d4ed6b342cf7246950",
+                signature: genesisTransaction.signature,
             });
         });
 
         it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
-            utils.expectError(
-                await utils.request(
+            api.expectError(
+                await api.request(
                     "GET",
                     "transactions/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
                 ),
@@ -119,9 +153,11 @@ describe("API 2.0 - Transactions", () => {
 
     describe("GET /transactions/unconfirmed", () => {
         it("should GET all the unconfirmed transactions", async () => {
-            await utils.createTransaction();
+            // the wallet already send 1 transaction before that so 1 + 1 = 2
+            // todo: maybe reset the db/wallets between every tests to clear nonces?
+            await api.createTransfer(undefined, 2);
 
-            const response = await utils.request("GET", "transactions/unconfirmed");
+            const response = await api.request("GET", "transactions/unconfirmed");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).not.toBeEmpty();
@@ -130,17 +166,19 @@ describe("API 2.0 - Transactions", () => {
 
     describe("GET /transactions/unconfirmed/:id", () => {
         it("should GET an unconfirmed transaction by the given identifier", async () => {
-            const transaction = await utils.createTransaction();
+            // the wallet already send 2 transactions before that so 2 + 1 = 3
+            // todo: maybe reset the db/wallets between every tests to clear nonces?
+            const transaction = await api.createTransfer(undefined, 3);
 
-            const response = await utils.request("GET", `transactions/unconfirmed/${transaction.id}`);
+            const response = await api.request("GET", `transactions/unconfirmed/${transaction.id}`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
             expect(response.data.data).toHaveProperty("id", transaction.id);
         });
 
         it("should fail to GET a transaction by the given identifier if it doesn't exist", async () => {
-            utils.expectError(
-                await utils.request(
+            api.expectError(
+                await api.request(
                     "GET",
                     "transactions/unconfirmed/9816f8d8c257ea0c951deba911266394b0f2614df023f8b4ffd9da43d36efd9d",
                 ),
@@ -151,7 +189,7 @@ describe("API 2.0 - Transactions", () => {
 
     describe("GET /transactions/types", () => {
         it("should GET transaction types", async () => {
-            const response = await utils.request("GET", "transactions/types");
+            const response = await api.request("GET", "transactions/types");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
             expect(response.data.data).toEqual({
@@ -183,7 +221,7 @@ describe("API 2.0 - Transactions", () => {
 
     describe("POST /transactions/search", () => {
         it("should POST a search for transactions with the exact specified transactionId", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 id: transactionId,
             });
             expect(response).toBeSuccessfulResponse();
@@ -191,13 +229,13 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(1);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.id).toBe(transactionId);
             }
         });
 
         it("should POST a search for transactions with the exact specified blockId", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 blockId,
             });
             expect(response).toBeSuccessfulResponse();
@@ -205,13 +243,13 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(100);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.blockId).toBe(blockId);
             }
         });
 
         it("should POST a search for transactions with the exact specified type", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 type,
             });
             expect(response).toBeSuccessfulResponse();
@@ -219,13 +257,13 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(51);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.type).toBe(type);
             }
         });
 
         it("should POST a search for transactions with the exact specified version", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 version,
             });
             expect(response).toBeSuccessfulResponse();
@@ -233,39 +271,39 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(100);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.version).toBe(version);
             }
         });
 
         it("should POST a search for transactions with the exact specified senderPublicKey", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 senderPublicKey,
             });
 
             expect(response).toBeSuccessfulResponse();
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.sender).toBe(senderAddress);
             }
         });
 
         it("should POST a search for transactions with the exact specified senderId", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 senderId: senderAddress,
             });
 
             expect(response).toBeSuccessfulResponse();
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.sender).toBe(senderAddress);
             }
         });
 
         it("should POST a search for transactions with the exact specified recipientId (Address)", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 recipientId: recipientAddress,
             });
             expect(response).toBeSuccessfulResponse();
@@ -273,13 +311,13 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(3);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.recipient).toBe(recipientAddress);
             }
         });
 
         it("should POST a search for transactions with the any of the specified addresses", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 addresses: [genesisTransactions[3].recipientId, genesisTransactions[8].recipientId],
             });
 
@@ -289,12 +327,12 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(6);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
             }
         });
 
         it("should POST a search for transactions with the exact specified timestamp", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 timestamp: {
                     from: timestamp,
                     to: timestamp,
@@ -306,13 +344,13 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(100);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.timestamp.epoch).toBe(timestamp);
             }
         });
 
         it("should POST a search for transactions with the specified timestamp range", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 timestamp: {
                     from: timestampFrom,
                     to: timestampTo,
@@ -324,14 +362,14 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(100);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.timestamp.epoch).toBeGreaterThanOrEqual(timestampFrom);
                 expect(transaction.timestamp.epoch).toBeLessThanOrEqual(timestampTo);
             }
         });
 
         it("should POST a search for transactions with the exact specified amount", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 amount: {
                     from: amount,
                     to: amount,
@@ -343,13 +381,13 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(51);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(+transaction.amount).toBe(amount);
             }
         });
 
         it("should POST a search for transactions with the specified amount range", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 amount: {
                     from: amountFrom,
                     to: amountTo,
@@ -361,14 +399,14 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(51);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(+transaction.amount).toBeGreaterThanOrEqual(amountFrom);
                 expect(+transaction.amount).toBeLessThanOrEqual(amountTo);
             }
         });
 
         it("should POST a search for transactions with the exact specified fee", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 fee: {
                     from: fee,
                     to: fee,
@@ -380,13 +418,13 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(100);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(+transaction.fee).toBe(fee);
             }
         });
 
         it("should POST a search for transactions with the specified fee range", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 fee: {
                     from: feeFrom,
                     to: feeTo,
@@ -398,16 +436,16 @@ describe("API 2.0 - Transactions", () => {
             expect(response.data.data).toHaveLength(100);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(+transaction.fee).toBeGreaterThanOrEqual(feeFrom);
                 expect(+transaction.fee).toBeLessThanOrEqual(feeTo);
             }
         });
 
         it("should POST a search for transactions with the exact specified vendorField", async () => {
-            const dummyTransaction = await utils.createTransaction();
+            const dummyTransaction = await api.createTransfer();
 
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 vendorField: dummyTransaction.vendorField,
             });
 
@@ -417,13 +455,13 @@ describe("API 2.0 - Transactions", () => {
             // expect(response.data.data).toHaveLength(1);
 
             for (const transaction of response.data.data) {
-                utils.expectTransaction(transaction);
+                api.expectTransaction(transaction);
                 expect(transaction.vendorField).toBe(dummyTransaction.vendorField);
             }
         });
 
         it("should POST a search for transactions with the wrong specified type", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 id: transactionId,
                 type: wrongType,
             });
@@ -433,7 +471,7 @@ describe("API 2.0 - Transactions", () => {
         });
 
         it("should POST a search for transactions with the specific criteria", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 senderPublicKey,
                 type,
                 timestamp: {
@@ -443,11 +481,11 @@ describe("API 2.0 - Transactions", () => {
             });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-            utils.expectTransaction(response.data.data[0]);
+            api.expectTransaction(response.data.data[0]);
         });
 
         it("should POST a search for transactions with an asset matching any delegate", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 asset: {
                     delegate: {},
                 },
@@ -455,11 +493,11 @@ describe("API 2.0 - Transactions", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).toHaveLength(51);
-            utils.expectTransaction(response.data.data[0]);
+            api.expectTransaction(response.data.data[0]);
         });
 
         it("should POST a search for transactions with an asset matching any delegate and sender public key", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 asset: {
                     delegate: {},
                 },
@@ -468,11 +506,11 @@ describe("API 2.0 - Transactions", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).toHaveLength(1);
-            utils.expectTransaction(response.data.data[0]);
+            api.expectTransaction(response.data.data[0]);
         });
 
         it("should POST a search for transactions with an wrong asset", async () => {
-            const response = await utils.request("POST", "transactions/search", {
+            const response = await api.request("POST", "transactions/search", {
                 asset: {
                     garbage: {},
                 },
@@ -484,20 +522,25 @@ describe("API 2.0 - Transactions", () => {
     });
 
     describe("POST /transactions", () => {
-        const transactions = TransactionFactory.transfer(delegates[1].address)
-            .withNetwork("testnet")
-            .withPassphrase(delegates[0].secret)
-            .create(40);
+        let transactions;
+
+        beforeEach(() => {
+            transactions = TransactionFactory.init(app)
+                .transfer(delegates[1].address)
+                .withNetwork("testnet")
+                .withPassphrase(delegates[0].secret)
+                .create(40);
+        });
 
         it("should POST all the transactions", async () => {
-            const response = await utils.request("POST", "transactions", {
+            const response = await api.request("POST", "transactions", {
                 transactions,
             });
             expect(response).toBeSuccessfulResponse();
         });
 
         it("should not POST all the transactions", async () => {
-            const response = await utils.request("POST", "transactions", {
+            const response = await api.request("POST", "transactions", {
                 transactions: transactions.concat(transactions),
             });
 
@@ -507,15 +550,16 @@ describe("API 2.0 - Transactions", () => {
 
         // FIXME
         it.skip("should POST 2 transactions double spending and get only 1 accepted and broadcasted", async () => {
-            const transactions = TransactionFactory.transfer(
-                delegates[1].address,
-                300000000000000 - 5098000000000, // a bit less than the delegates' balance
-            )
+            const transactions = TransactionFactory.init(app)
+                .transfer(
+                    delegates[1].address,
+                    300000000000000 - 5098000000000, // a bit less than the delegates' balance
+                )
                 .withNetwork("testnet")
                 .withPassphrase(delegates[0].secret)
                 .create(2);
 
-            const response = await utils.request("POST", "transactions", {
+            const response = await api.request("POST", "transactions", {
                 transactions,
             });
 
@@ -533,22 +577,24 @@ describe("API 2.0 - Transactions", () => {
 
         it.each([3, 5, 8])("should accept and broadcast %i transactions emptying a wallet", async txNumber => {
             const sender = delegates[txNumber]; // use txNumber so that we use a different delegate for each test case
-            const receivers = generateWallets("testnet", 2);
+            const receivers = generateWallets(2);
             const amountPlusFee = Math.floor(+sender.balance / txNumber);
             const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee;
 
-            const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
+            const transactions = TransactionFactory.init(app)
+                .transfer(receivers[0].address, amountPlusFee - transferFee)
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
 
-            const lastTransaction = TransactionFactory.transfer(receivers[0].address, lastAmountPlusFee - transferFee)
+            const lastTransaction = TransactionFactory.init(app)
+                .transfer(receivers[0].address, lastAmountPlusFee - transferFee)
                 .withNonce(transactions[transactions.length - 1].nonce)
                 .withPassphrase(sender.secret)
                 .create();
 
             const allTransactions = transactions.concat(lastTransaction);
 
-            const response = await utils.request("POST", "transactions", {
+            const response = await api.request("POST", "transactions", {
                 transactions: allTransactions,
             });
 
@@ -565,20 +611,19 @@ describe("API 2.0 - Transactions", () => {
             "should not accept the last of %i transactions emptying a wallet when the last one is 1 satoshi too much",
             async txNumber => {
                 const sender = delegates[txNumber + 1]; // use txNumber + 1 so that we don't use the same delegates as the above test
-                const receivers = generateWallets("testnet", 2);
+                const receivers = generateWallets(2);
                 const amountPlusFee = Math.floor(+sender.balance / txNumber);
                 const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee + 1;
 
-                const transactions = TransactionFactory.transfer(receivers[0].address, amountPlusFee - transferFee)
+                const transactions = TransactionFactory.init(app)
+                    .transfer(receivers[0].address, amountPlusFee - transferFee)
                     .withNetwork("testnet")
                     .withPassphrase(sender.secret)
                     .create(txNumber - 1);
 
-                const senderNonce = TransactionFactory.getNonce(sender.publicKey);
-                const lastTransaction = TransactionFactory.transfer(
-                    receivers[1].address,
-                    lastAmountPlusFee - transferFee,
-                )
+                const senderNonce = getWalletNonce(app, sender.publicKey);
+                const lastTransaction = TransactionFactory.init(app)
+                    .transfer(receivers[1].address, lastAmountPlusFee - transferFee)
                     .withNetwork("testnet")
                     .withPassphrase(sender.secret)
                     .withNonce(senderNonce.plus(txNumber - 1))
@@ -587,7 +632,7 @@ describe("API 2.0 - Transactions", () => {
 
                 const allTransactions = transactions.concat(lastTransaction);
 
-                const response = await utils.request("POST", "transactions", {
+                const response = await api.request("POST", "transactions", {
                     transactions: allTransactions,
                 });
 
@@ -606,7 +651,7 @@ describe("API 2.0 - Transactions", () => {
 
     describe("GET /transactions/fees", () => {
         it("should GET all the transaction fees", async () => {
-            const response = await utils.request("GET", "transactions/fees");
+            const response = await api.request("GET", "transactions/fees");
 
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toEqual({

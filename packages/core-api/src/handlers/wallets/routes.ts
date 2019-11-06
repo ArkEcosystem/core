@@ -4,7 +4,7 @@ import { WalletsController } from "./controller";
 import * as Schema from "./schema";
 
 export const registerRoutes = (server: Hapi.Server): void => {
-    const controller = new WalletsController();
+    const controller = server.app.app.resolve(WalletsController);
     server.bind(controller);
 
     server.route({

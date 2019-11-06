@@ -1,9 +1,9 @@
-import { app, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import prettyMs from "pretty-ms";
 
 let tracker;
 
-export const tickSyncTracker = (blockCount, count): void => {
+export const tickSyncTracker = (app: Contracts.Kernel.Application, blockCount, count): void => {
     if (!tracker) {
         tracker = {
             start: new Date().getTime(),

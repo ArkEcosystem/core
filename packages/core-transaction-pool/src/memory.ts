@@ -1,9 +1,13 @@
-import { app, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
 // todo: review implementation and reduce the complexity of all methods as it is quite high
+@Container.injectable()
 export class Memory {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     /**
      * An array of all transactions, possibly sorted by fee (highest fee first).
      * We use lazy sorting:
@@ -32,7 +36,12 @@ export class Memory {
         removed: new Set(),
     };
 
-    public constructor(private readonly maxTransactionAge: number) {}
+    private maxTransactionAge!: number;
+    public init(maxTransactionAge: number) {
+        this.maxTransactionAge = maxTransactionAge;
+
+        return this;
+    }
 
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
@@ -371,6 +380,6 @@ export class Memory {
     }
 
     private currentHeight(): number {
-        return app.get<any>(Container.Identifiers.StateStore).getLastHeight();
+        return this.app.get<any>(Container.Identifiers.StateStore).getLastHeight();
     }
 }

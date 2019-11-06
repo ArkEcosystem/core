@@ -4,6 +4,7 @@ module.exports = {
             run: {
                 plugins: {
                     include: ["@arkecosystem/core-forger"],
+                    exclude: ["@arkecosystem/core-snapshots"],
                 },
             },
         },

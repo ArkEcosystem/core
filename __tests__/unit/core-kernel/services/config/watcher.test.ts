@@ -7,7 +7,6 @@ import { writeFileSync } from "fs";
 import { Watcher } from "@packages/core-kernel/src/services/config/watcher";
 import { Application } from "@packages/core-kernel/src/application";
 import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
-import { ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 const configPath: string = dirSync().name;
@@ -22,7 +21,6 @@ beforeEach(() => {
 
     app = new Application(container);
     app.bind(Identifiers.EventDispatcherService).toConstantValue(new MemoryEventDispatcher());
-    app.bind(Identifiers.ServiceProviderRepository).toConstantValue(new ServiceProviderRepository());
     app.bind("path.config").toConstantValue(configPath);
 
     watcher = app.resolve<Watcher>(Watcher);

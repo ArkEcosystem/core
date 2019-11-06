@@ -20,6 +20,8 @@ import { deserializer } from "../../../../packages/crypto/src/transactions/deser
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
+import { Generators } from "@packages/core-test-framework";
+
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
         const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount"];
@@ -162,7 +164,8 @@ describe("Transaction serializer / deserializer", () => {
         let multiSignatureRegistration;
 
         beforeEach(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
 
             const participant1 = Keys.fromPassphrase("secret 1");
             const participant2 = Keys.fromPassphrase("secret 2");
@@ -222,7 +225,8 @@ describe("Transaction serializer / deserializer", () => {
         ];
 
         beforeAll(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
         });
 
         beforeEach(() => {
@@ -283,7 +287,8 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("ser/deserialize - multi payment", () => {
         beforeAll(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -346,7 +351,8 @@ describe("Transaction serializer / deserializer", () => {
         };
 
         beforeAll(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -392,7 +398,8 @@ describe("Transaction serializer / deserializer", () => {
         };
 
         beforeAll(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -432,7 +439,8 @@ describe("Transaction serializer / deserializer", () => {
         };
 
         beforeAll(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -468,7 +476,8 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("deserialize - others", () => {
         beforeAll(() => {
-            configManager.setFromPreset("unitnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
         });
 
         it("should throw if type is not supported", () => {

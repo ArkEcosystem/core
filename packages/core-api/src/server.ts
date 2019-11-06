@@ -3,6 +3,8 @@ import { badData } from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
+import { Utils } from "./handlers/utils";
+
 // todo: review the implementation
 @Container.injectable()
 export class Server {
@@ -37,6 +39,8 @@ export class Server {
     public async init(name: string, optionsServer: Types.JsonObject): Promise<void> {
         this.name = name;
         this.server = new HapiServer(this.getServerOptions(optionsServer));
+        this.server.app.app = this.app;
+        this.server.app.utils = this.app.resolve<Utils>(Utils);
 
         this.server.ext({
             type: "onPreHandler",

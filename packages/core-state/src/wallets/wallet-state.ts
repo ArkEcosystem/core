@@ -1,10 +1,13 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 // todo: ioc
 // todo: review the implementation
 @Container.injectable()
 export class WalletState {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     private walletRepository!: Contracts.State.WalletRepository;
 
     public init(walletRepository: Contracts.State.WalletRepository): this {
@@ -24,7 +27,7 @@ export class WalletState {
             );
         }
 
-        app.log.debug(`Loaded ${delegates.length} active ${AppUtils.pluralize("delegate", delegates.length)}`);
+        this.app.log.debug(`Loaded ${delegates.length} active ${AppUtils.pluralize("delegate", delegates.length)}`);
 
         return delegates;
     }

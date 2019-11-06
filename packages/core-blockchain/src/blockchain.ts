@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
 
@@ -10,8 +10,11 @@ const { BlockFactory } = Blocks;
 // todo: reduce the overall complexity of this class and remove all helpers and getters that just serve as proxies
 @Container.injectable()
 export class Blockchain implements Contracts.Blockchain.Blockchain {
+    @Container.inject(Container.Identifiers.Application)
+    public readonly app!: Contracts.Kernel.Application;
+
     // todo: make this private
-    public isStopped: boolean = true;
+    public isStopped!: boolean;
     // todo: make this private
     public options: any;
     // todo: make this private and use a queue instance from core-kernel
@@ -41,17 +44,19 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     init(options: { networkStart?: boolean }): this {
+        this.isStopped = true;
+
         // flag to force a network start
         this.state.networkStart = !!options.networkStart;
 
         if (this.state.networkStart) {
-            app.log.warning(
+            this.app.log.warning(
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
         }
 
         this.actions = stateMachine.actionMap(this);
-        this.blockProcessor = app.resolve<BlockProcessor>(BlockProcessor);
+        this.blockProcessor = this.app.resolve<BlockProcessor>(BlockProcessor);
 
         this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
@@ -60,11 +65,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                     cb,
                 );
             } catch (error) {
-                app.log.error(
+                this.app.log.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
                 );
 
-                app.log.error(error.stack);
+                this.app.log.error(error.stack);
 
                 return cb();
             }
@@ -85,13 +90,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const nextState = stateMachine.transition(this.state.blockchain, event);
 
         if (nextState.actions.length > 0) {
-            app.log.debug(
+            this.app.log.debug(
                 `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
                     nextState.value,
                 )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`,
             );
         } else {
-            app.log.debug(
+            this.app.log.debug(
                 `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
                     nextState.value,
                 )}`,
@@ -106,7 +111,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             if (action) {
                 setImmediate(() => action(event));
             } else {
-                app.log.error(`No action '${actionKey}' found`);
+                this.app.log.error(`No action '${actionKey}' found`);
             }
         }
 
@@ -118,11 +123,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async start(skipStartedCheck = false): Promise<boolean> {
-        app.log.info("Starting Blockchain Manager :chains:");
+        this.app.log.info("Starting Blockchain Manager :chains:");
 
         this.dispatch("START");
 
-        app.events.listenOnce("shutdown", () => this.stop());
+        this.app.events.listenOnce("shutdown", () => this.stop());
 
         if (skipStartedCheck || process.env.CORE_SKIP_BLOCKCHAIN_STARTED_CHECK) {
             return true;
@@ -132,7 +137,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             await Utils.sleep(1000);
         }
 
-        app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
+        this.app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
             forcePing: true,
             peerCount: 10,
         });
@@ -142,7 +147,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     public async stop(): Promise<void> {
         if (!this.isStopped) {
-            app.log.info("Stopping Blockchain Manager :chains:");
+            this.app.log.info("Stopping Blockchain Manager :chains:");
 
             this.isStopped = true;
             this.state.clearWakeUpTimeout();
@@ -176,7 +181,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @return {void}
      */
     public async updateNetworkStatus(): Promise<void> {
-        await app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).updateNetworkStatus();
+        await this.app
+            .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+            .updateNetworkStatus();
     }
 
     /**
@@ -208,7 +215,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         const receivedSlot: number = Crypto.Slots.getSlotNumber(block.timestamp);
 
         if (receivedSlot > currentSlot) {
-            app.log.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
+            this.app.log.info(`Discarded block ${block.height.toLocaleString()} because it takes a future slot.`);
             return;
         }
 
@@ -216,11 +223,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 
-            app.events.dispatch(Enums.Events.State.BlockReceived, block);
+            this.app.events.dispatch(Enums.Events.State.BlockReceived, block);
         } else {
-            app.log.info(`Block disregarded because blockchain is not ready`);
+            this.app.log.info(`Block disregarded because blockchain is not ready`);
 
-            app.events.dispatch(Enums.Events.State.BlockDisregarded, block);
+            this.app.events.dispatch(Enums.Events.State.BlockDisregarded, block);
         }
     }
 
@@ -294,7 +301,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             let newLastBlock: Interfaces.IBlock;
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
-                newLastBlock = app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
+                newLastBlock = this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
             } else {
                 const tempNewLastBlockData: Interfaces.IBlockData = Utils.assert.defined(blocksToRemove.pop());
 
@@ -318,7 +325,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.state.getLastBlock());
 
-            app.log.info(`Undoing block ${lastBlock.data.height.toLocaleString()}`);
+            this.app.log.info(`Undoing block ${lastBlock.data.height.toLocaleString()}`);
 
             await revertLastBlock();
             await __removeBlocks(numberOfBlocks - 1);
@@ -329,7 +336,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         }
 
         const resetHeight: number = lastBlock.data.height - nblocks;
-        app.log.info(
+        this.app.log.info(
             `Removing ${Utils.pluralize("block", nblocks, true)}. Reset to height ${resetHeight.toLocaleString()}`,
         );
 
@@ -351,7 +358,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     public async removeTopBlocks(count: number): Promise<void> {
         const blocks: Interfaces.IBlockData[] = await this.database.getTopBlocks(count);
 
-        app.log.info(
+        this.app.log.info(
             `Removing ${Utils.pluralize(
                 "block",
                 blocks.length,
@@ -363,7 +370,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             await this.database.deleteBlocks(blocks);
             await this.database.loadBlocksFromCurrentRound();
         } catch (error) {
-            app.log.error(`Encountered error while removing blocks: ${error.message}`);
+            this.app.log.error(`Encountered error while removing blocks: ${error.message}`);
         }
     }
 
@@ -376,7 +383,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         if (
             blocks[0] &&
-            !Utils.isBlockChained(this.getLastBlock().data, blocks[0].data, app.log) &&
+            !Utils.isBlockChained(this.getLastBlock().data, blocks[0].data, this.app.log) &&
             !CryptoUtils.isException(blocks[0].data.id)
         ) {
             // Discard remaining blocks as it won't go anywhere anyway.
@@ -399,7 +406,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             try {
                 await this.database.saveBlocks(acceptedBlocks);
             } catch (error) {
-                app.log.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
+                this.app.log.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
 
                 this.clearQueue();
 
@@ -410,7 +417,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 const lastHeight: number = lastBlock.data.height;
                 const deleteRoundsAfter: number = Utils.roundCalculator.calculateRound(lastHeight).round;
 
-                app.log.info(
+                this.app.log.info(
                     `Reverting ${Utils.pluralize(
                         "block",
                         acceptedBlocks.length,
@@ -440,9 +447,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             const blocktime: number = Managers.configManager.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
-                app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).broadcastBlock(
-                    currentBlock,
-                );
+                this.app
+                    .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+                    .broadcastBlock(currentBlock);
             }
         }
 
@@ -483,7 +490,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Determine if the blockchain is synced.
      */
     public isSynced(block?: Interfaces.IBlockData): boolean {
-        if (!app.get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage).hasPeers()) {
+        if (!this.app.get<Contracts.P2P.PeerStorage>(Container.Identifiers.PeerStorage).hasPeers()) {
             return true;
         }
 

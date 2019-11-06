@@ -1,14 +1,20 @@
-import { app, Container, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Providers, Utils, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto } from "@arkecosystem/crypto";
 import Hapi, { ServerMethod } from "@hapi/hapi";
 
 // todo: review the implementation
+@Container.injectable()
 export class ServerCache {
-    public static make(server: Hapi.Server): ServerCache {
-        return new ServerCache(server);
-    }
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
 
-    private constructor(readonly server: Hapi.Server) {}
+    private server: Hapi.Server;
+
+    public make(server: Hapi.Server): ServerCache {
+        this.server = server;
+
+        return this;
+    }
 
     public method(name: string, method: ServerMethod, expiresIn: number, argsCallback?: any): this {
         let options = {};
@@ -40,7 +46,7 @@ export class ServerCache {
     }
 
     private getConfig<T>(key: string): T | undefined {
-        return app
+        return this.app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
             .get("@arkecosystem/core-api")
             .config()

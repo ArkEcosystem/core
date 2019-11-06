@@ -1,4 +1,4 @@
-import { app, Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
@@ -54,7 +54,7 @@ export class BlockProcessor {
             return this.app.resolve<NonceOutOfOrderHandler>(NonceOutOfOrderHandler).execute();
         }
 
-        const isValidGenerator: boolean = await validateGenerator(block);
+        const isValidGenerator: boolean = await validateGenerator(this.app, block);
         const isChained: boolean = AppUtils.isBlockChained(this.blockchain.getLastBlock().data, block.data);
         if (!isChained) {
             return this.app
@@ -79,12 +79,12 @@ export class BlockProcessor {
         if (block.verification.containsMultiSignatures) {
             try {
                 for (const transaction of block.transactions) {
-                    const handler: Handlers.TransactionHandler = await app
+                    const handler: Handlers.TransactionHandler = await this.app
                         .get<any>("transactionHandlerRegistry")
                         .get(transaction.type, transaction.typeGroup);
                     await handler.verify(
                         transaction,
-                        app.get<any>(Container.Identifiers.DatabaseService).walletRepository,
+                        this.app.get<any>(Container.Identifiers.DatabaseService).walletRepository,
                     );
                 }
 
@@ -164,7 +164,7 @@ export class BlockProcessor {
             const sender: string = AppUtils.assert.defined(data.senderPublicKey);
 
             if (nonceBySender[sender] === undefined) {
-                nonceBySender[sender] = app
+                nonceBySender[sender] = this.app
                     .get<any>(Container.Identifiers.DatabaseService)
                     .walletRepository.getNonce(sender);
             }

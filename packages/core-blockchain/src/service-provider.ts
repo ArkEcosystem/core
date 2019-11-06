@@ -8,7 +8,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         // Blockchain
         const blockchain: Blockchain = this.config().get("replay")
-            ? new ReplayBlockchain()
+            ? this.app.resolve<any>(ReplayBlockchain).setup()
             : this.app.resolve<Blockchain>(Blockchain);
 
         this.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);

@@ -1,18 +1,19 @@
 import "jest-extended";
 
-import { app, Utils as AppUtils, Contracts, Container } from "@arkecosystem/core-kernel";
-import { Crypto, Managers, Utils, Identities } from "@arkecosystem/crypto";
-import cloneDeep from "lodash.clonedeep";
-import { secrets } from "@packages/core-test-framework/src/utils/config/delegates.json";
-import { resolve } from "path";
+import { Contracts, Container } from "@arkecosystem/core-kernel";
+import { Utils, Identities } from "@arkecosystem/crypto";
+import secrets from "@packages/core-test-framework/src/internal/secrets.json";
 
 jest.setTimeout(1200000);
 
-export const setUp = async (): Promise<void> => {
-    try {
-        process.env.CORE_RESET_DATABASE = "1";
-        process.env.CORE_PATH_CONFIG = resolve(__dirname, "../../../../packages/core-test-framework/src/utils/config");
+import { Sandbox } from "@arkecosystem/core-test-framework";
 
+const sandbox: Sandbox = new Sandbox();
+
+export const setUp = async (): Promise<Contracts.Kernel.Application> => {
+    process.env.CORE_RESET_DATABASE = "1";
+
+    await sandbox.setUp(async ({ app }) => {
         await app.bootstrap({
             flags: {
                 token: "ark",
@@ -65,40 +66,17 @@ export const setUp = async (): Promise<void> => {
         );
 
         await (databaseService as any).initializeActiveDelegates(1);
-    } catch (error) {
-        console.log(error);
-    }
+    });
+
+    return sandbox.app;
 };
 
 export const tearDown = async (): Promise<void> => {
-    const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
-    await databaseService.reset();
+    // const databaseService = sandbox.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+    // await databaseService.reset();
 
-    await app.terminate();
+    await sandbox.tearDown();
 };
-
-export const snoozeForBlock = async (sleep: number = 0, height: number = 1): Promise<void> => {
-    const blockTime = Managers.configManager.getMilestone(height).blocktime * 1000;
-    const remainingTimeInSlot = Crypto.Slots.getTimeInMsUntilNextSlot();
-    const sleepTime = sleep * 1000;
-
-    return AppUtils.sleep(blockTime + remainingTimeInSlot + sleepTime);
-};
-
-export const injectMilestone = (index: number, milestone: Record<string, any>): void => {
-    (Managers.configManager as any).milestones.splice(index, 0, {
-        ...cloneDeep(Managers.configManager.getMilestone()),
-        ...milestone,
-    });
-};
-
-export const getLastHeight = (): number =>
-    app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
-
-export const getSenderNonce = (senderPublicKey: string): Utils.BigNumber =>
-    app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .walletRepository.getNonce(senderPublicKey);
 
 export const passphrases = {
     passphrase: "this is top secret passphrase number 1",
