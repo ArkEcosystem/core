@@ -129,11 +129,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
         assert(!newLockedBalance.isNegative());
 
-        if (newLockedBalance.isZero()) {
-            lockWallet.forgetAttribute("htlc.lockedBalance");
-        } else {
-            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
-        }
+        lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
 
         delete locks[lockId];
 
