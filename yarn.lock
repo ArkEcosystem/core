@@ -2336,10 +2336,10 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-0.14.0.tgz#9fb3a3cf3132328151f353de4632e01e52102bea"
   integrity sha512-9NET910DNaIPngYnLLPeg+Ogzqsi9uM4mSboU5y6p8S5DzMTVEsJZrawi+BoDNUVBa2DhJqQYUFvMDfgU062LQ==
 
-"@sindresorhus/tsconfig@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/@sindresorhus/tsconfig/-/tsconfig-0.5.0.tgz#5c9bf47a1bc348fb079c812f1f00df0592119a4e"
-  integrity sha512-CZ0ZFPDA2ldxWG/MA8hVvzDxzh8N/FtAzlYsRFs/UJYwTEwARILesg6uaozOTgKWfZ4qJEN2fo6xPu0Pdxapnw==
+"@sindresorhus/tsconfig@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@sindresorhus/tsconfig/-/tsconfig-0.6.0.tgz#2ef67e7fff86127cd0386d83825c75639ba209b7"
+  integrity sha512-9ZqIfvW6bPjOHRaId57L/63N79QM+sUcf+ONuVfXLksXCHDfOkS+NUw6cchjkndHlRY0eXM3ri5PfWUZ61lbwg==
 
 "@snyk/cli-interface@1.5.0":
   version "1.5.0"
