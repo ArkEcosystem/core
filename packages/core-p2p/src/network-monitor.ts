@@ -5,6 +5,8 @@ import SocketCluster from "socketcluster";
 
 import { PeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
+import { PeerCommunicator } from "./peer-communicator";
+import { PeerProcessor } from "./peer-processor";
 import { RateLimiter } from "./rate-limiter";
 import { checkDNS, checkNTP } from "./utils";
 import { buildRateLimiter } from "./utils/build-rate-limiter";
@@ -29,10 +31,10 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerCommunicator)
-    private readonly communicator!: Contracts.P2P.PeerCommunicator;
+    private readonly communicator!: PeerCommunicator;
 
     @Container.inject(Container.Identifiers.PeerProcessor)
-    private readonly processor!: Contracts.P2P.PeerProcessor;
+    private readonly processor!: PeerProcessor;
 
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;

@@ -2,11 +2,14 @@ import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arke
 import { Utils } from "@arkecosystem/crypto";
 
 import { Peer } from "./peer";
+import { PeerConnector } from "./peer-connector";
+import { PeerCommunicator } from "./peer-communicator";
 import { isValidVersion, isWhitelisted } from "./utils";
+import { AcceptNewPeerOptions } from "./types";
 
 // todo: review the implementation
 @Container.injectable()
-export class PeerProcessor implements Contracts.P2P.PeerProcessor {
+export class PeerProcessor {
     public server: any;
     public nextUpdateNetworkStatusScheduled: boolean = false;
 
@@ -20,10 +23,10 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerCommunicator)
-    private readonly communicator!: Contracts.P2P.PeerCommunicator;
+    private readonly communicator!: PeerCommunicator;
 
     @Container.inject(Container.Identifiers.PeerConnector)
-    private readonly connector!: Contracts.P2P.PeerConnector;
+    private readonly connector!: PeerConnector;
 
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
@@ -35,16 +38,13 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         this.emitter.listen("internal.milestone.changed", () => this.updatePeersAfterMilestoneChange());
     }
 
-    public async validateAndAcceptPeer(
-        peer: Contracts.P2P.Peer,
-        options: Contracts.P2P.AcceptNewPeerOptions = {},
-    ): Promise<void> {
+    public async validateAndAcceptPeer(peer: Contracts.P2P.Peer, options: AcceptNewPeerOptions = {}): Promise<void> {
         if (this.validatePeerIp(peer, options)) {
             await this.acceptNewPeer(peer, options);
         }
     }
 
-    public validatePeerIp(peer, options: Contracts.P2P.AcceptNewPeerOptions = {}): boolean {
+    public validatePeerIp(peer, options: AcceptNewPeerOptions = {}): boolean {
         if (this.getConfig("disableDiscovery") && !this.storage.hasPendingPeer(peer.ip)) {
             this.logger.warning(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
@@ -84,7 +84,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         }
     }
 
-    private async acceptNewPeer(peer, options: Contracts.P2P.AcceptNewPeerOptions = {}): Promise<void> {
+    private async acceptNewPeer(peer, options: AcceptNewPeerOptions = {}): Promise<void> {
         if (this.storage.getPeer(peer.ip)) {
             return;
         }

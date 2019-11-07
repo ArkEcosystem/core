@@ -3,7 +3,7 @@ import { create, SCClientSocket } from "socketcluster-client";
 
 // todo: review the implementation
 @Container.injectable()
-export class PeerConnector implements Contracts.P2P.PeerConnector {
+export class PeerConnector {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 

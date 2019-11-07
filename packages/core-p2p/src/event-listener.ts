@@ -1,5 +1,7 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
+import { PeerConnector } from "./peer-connector";
+
 // todo: review the implementation
 @Container.injectable()
 export class EventListener {
@@ -7,7 +9,7 @@ export class EventListener {
     private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerConnector)
-    private readonly connector!: Contracts.P2P.PeerConnector;
+    private readonly connector!: PeerConnector;
 
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;

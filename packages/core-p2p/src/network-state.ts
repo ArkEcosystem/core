@@ -3,13 +3,47 @@ import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import { NetworkStateStatus } from "./enums";
 
-class QuorumDetails implements Contracts.P2P.QuorumDetails {
+class QuorumDetails {
+    /**
+     * Number of peers on same height, with same block and same slot. Used for
+     * quorum calculation.
+     */
     public peersQuorum = 0;
+
+    /**
+     * Number of peers which do not meet the quorum requirements. Used for
+     * quorum calculation.
+     */
     public peersNoQuorum = 0;
+
+    /**
+     * Number of overheight peers.
+     */
     public peersOverHeight = 0;
+
+    /**
+     * All overheight block headers grouped by id.
+     */
     public peersOverHeightBlockHeaders: { [id: string]: any } = {};
+
+    /**
+     * The following properties are not mutual exclusive for a peer
+     * and imply a peer is on the same `nodeHeight`.
+     */
+
+    /**
+     * Number of peers that are on a different chain (forked).
+     */
     public peersForked = 0;
+
+    /**
+     * Number of peers with a different slot.
+     */
     public peersDifferentSlot = 0;
+
+    /**
+     * Number of peers where forging is not allowed.
+     */
     public peersForgingNotAllowed = 0;
 
     public getQuorum() {

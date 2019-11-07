@@ -6,13 +6,14 @@ import { SCClientSocket } from "socketcluster-client";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerConfig, PeerPingResponse } from "./interfaces";
+import { PeerConnector } from "./peer-connector";
 import { PeerVerifier } from "./peer-verifier";
 import { createSchemas } from "./schemas";
 import { isValidVersion, socketEmit } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
-export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
+export class PeerCommunicator {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -23,7 +24,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerConnector)
-    private readonly connector!: Contracts.P2P.PeerConnector;
+    private readonly connector!: PeerConnector;
 
     public async downloadBlocks(peer: Contracts.P2P.Peer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
         this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);

@@ -4,8 +4,9 @@ import assert from "assert";
 import { inspect } from "util";
 
 import { Severity } from "./enums";
+import { PeerCommunicator } from "./peer-communicator";
 
-export class PeerVerificationResult implements Contracts.P2P.PeerVerificationResult {
+export class PeerVerificationResult {
     public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
 
     get forked(): boolean {
@@ -30,18 +31,18 @@ export class PeerVerifier {
     private logger!: Contracts.Kernel.Log.Logger;
     private logPrefix!: string;
 
-    private communicator!: Contracts.P2P.PeerCommunicator;
+    private communicator!: PeerCommunicator;
     private peer!: Contracts.P2P.Peer;
 
     // // todo: make use of ioc
     // public constructor(
-    //     private readonly communicator: Contracts.P2P.PeerCommunicator,
+    //     private readonly communicator: PeerCommunicator,
     //     private readonly peer: Contracts.P2P.Peer,
     // ) {
     //     this.logPrefix = `Peer verify ${peer.ip}:`;
     // }
 
-    public init(communicator: Contracts.P2P.PeerCommunicator, peer: Contracts.P2P.Peer) {
+    public init(communicator: PeerCommunicator, peer: Contracts.P2P.Peer) {
         this.communicator = communicator;
         this.peer = peer;
         this.database = this.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);

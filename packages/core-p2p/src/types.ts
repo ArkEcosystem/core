@@ -11,3 +11,8 @@ export interface PeerService {
     processor: PeerProcessor;
     networkMonitor: NetworkMonitor;
 }
+
+export interface AcceptNewPeerOptions {
+    seed?: boolean;
+    lessVerbose?: boolean;
+}
