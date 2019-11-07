@@ -158,13 +158,18 @@ describe("PeerCommunicator", () => {
 
         it("should return true when peer has common block", async () => {
             await socketManager.resetAllMocks();
-            await socketManager.addMock("getCommonBlocks", { common: genesisBlock });
 
-            const commonBlocks = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
+            const common = {
+                id: genesisBlock.id,
+                height: genesisBlock.height,
+                previousBlock: genesisBlock.previousBlock,
+                timestamp: genesisBlock.timestamp,
+            };
+            await socketManager.addMock("getCommonBlocks", { common });
 
-            expect(commonBlocks.id).toBe(genesisBlock.id);
-            expect(commonBlocks.height).toBe(genesisBlock.height);
-            expect(commonBlocks.transactions).toHaveLength(255);
+            const commonBlock = await communicator.hasCommonBlocks(stubPeer, [genesisBlock.id]);
+
+            expect(commonBlock).toEqual(common);
         });
     });
 
