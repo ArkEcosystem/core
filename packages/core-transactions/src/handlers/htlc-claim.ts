@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { expirationCalculator } from "@arkecosystem/core-utils";
 import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../errors";
@@ -58,17 +59,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks")[lockId];
-        const lastBlock: Interfaces.IBlock = app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastBlock();
-
-        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
-        if (
-            (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
-                expiration.value <= lastBlock.data.timestamp) ||
-            (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value <= lastBlock.data.height)
-        ) {
+        if (expirationCalculator.calculateLockExpirationStatus(lock.expiration)) {
             throw new HtlcLockExpiredError();
         }
 
@@ -145,11 +136,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
         assert(!newLockedBalance.isNegative());
 
-        if (newLockedBalance.isZero()) {
-            lockWallet.forgetAttribute("htlc.lockedBalance");
-        } else {
-            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
-        }
+        lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
 
         delete locks[lockId];
 
@@ -188,7 +175,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
-            vendorField: lockTransaction.vendorField ? lockTransaction.vendorField : undefined,
+            vendorField: lockTransaction.vendorField
+                ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
+                : undefined,
             ...lockTransaction.asset.lock,
         };
 
