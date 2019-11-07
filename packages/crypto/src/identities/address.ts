@@ -31,7 +31,7 @@ export class Address {
     }
 
     public static fromWIF(wif: string, network?: NetworkType): string {
-        return Address.fromPublicKey(Keys.fromWIF(wif, network).publicKey);
+        return Address.fromPublicKey(PublicKey.fromWIF(wif, network));
     }
 
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
