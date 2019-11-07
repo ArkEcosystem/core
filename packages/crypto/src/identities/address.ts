@@ -4,7 +4,6 @@ import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
 import { NetworkType } from "../types";
 import { Base58 } from "../utils/base58";
-import { Keys } from "./keys";
 import { PublicKey } from "./public-key";
 
 export class Address {
