@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, State, TransactionPool } from "@arkecosystem/core-interfaces";
+import { expirationCalculator } from "@arkecosystem/core-utils";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert = require("assert");
 import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "../errors";
@@ -58,17 +59,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks")[lockId];
-        const lastBlock: Interfaces.IBlock = app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastBlock();
-        const lastBlockEpochTimestamp: number = lastBlock.data.timestamp;
-        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
-        if (
-            (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
-                expiration.value > lastBlockEpochTimestamp) ||
-            (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value > lastBlock.data.height)
-        ) {
+        if (!expirationCalculator.calculateLockExpirationStatus(lock.expiration)) {
             throw new HtlcLockNotExpiredError();
         }
     }
