@@ -2,7 +2,12 @@ import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/co
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { BridgechainAlreadyRegisteredError, BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
+import {
+    BridgechainAlreadyRegisteredError,
+    BusinessIsResignedError,
+    GenesisHashAlreadyRegisteredError,
+    WalletIsNotBusinessError,
+} from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-manager";
@@ -72,6 +77,22 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             })
         ) {
             throw new BridgechainAlreadyRegisteredError();
+        }
+
+        for (const wallet of walletManager.getIndex("businesses").values()) {
+            const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute(
+                "business.bridgechains",
+            );
+
+            if (bridgechains) {
+                const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(bridgechains);
+
+                for (const bridgechain of bridgechainValues) {
+                    if (bridgechain.bridgechainAsset.genesisHash === data.asset.bridgechainRegistration.genesisHash) {
+                        throw new GenesisHashAlreadyRegisteredError();
+                    }
+                }
+            }
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, walletManager);

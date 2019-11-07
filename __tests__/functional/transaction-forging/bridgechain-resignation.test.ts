@@ -26,7 +26,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
                 name: "cryptoProject",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                genesisHash: "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
@@ -61,7 +61,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
                 name: "cryptoProject2",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                genesisHash: "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(secrets[0])
@@ -128,7 +128,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
                 name: "cryptoProject",
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                genesisHash: "3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withPassphrase(passphrase)
@@ -210,7 +210,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
                 name: "cryptoProject",
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                genesisHash: "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
             })
                 .withSenderPublicKey(multiSigPublicKey)
