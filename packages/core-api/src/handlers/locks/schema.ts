@@ -1,3 +1,4 @@
+import { Enums } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { pagination } from "../shared/schemas/pagination";
 
@@ -24,7 +25,8 @@ export const index: object = {
             expirationValue: Joi.number()
                 .integer()
                 .min(0),
-            expirationType: Joi.number().only(1, 2),
+            expirationType: Joi.number()
+                .only(...Object.values(Enums.HtlcLockExpirationType)),
         },
     },
 };
@@ -76,7 +78,8 @@ export const search: object = {
         vendorField: Joi.string()
             .min(1)
             .max(255),
-        expirationType: Joi.number().only(1, 2),
+        expirationType: Joi.number()
+            .only(...Object.values(Enums.HtlcLockExpirationType)),
         expirationValue: Joi.object().keys({
             from: Joi.number()
                 .integer()
