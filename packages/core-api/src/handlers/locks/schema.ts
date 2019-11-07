@@ -25,6 +25,7 @@ export const index: object = {
                 .integer()
                 .min(0),
             expirationType: Joi.number().only(1, 2),
+            isExpired: Joi.bool(),
         },
     },
 };
@@ -85,6 +86,7 @@ export const search: object = {
                 .integer()
                 .min(0),
         }),
+        isExpired: Joi.bool(),
     },
 };
 
