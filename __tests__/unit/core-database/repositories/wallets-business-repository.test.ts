@@ -267,7 +267,7 @@ describe("Wallet Repository", () => {
             const wallets = generateHtlcLocks();
             walletManager.index(wallets);
 
-            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValueOnce(genesisBlock);
+            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(genesisBlock);
 
             const locks = repository.search(Database.SearchScope.Locks, {});
             expect(locks.rows).toHaveLength(genesisBlock.transactions.length);
