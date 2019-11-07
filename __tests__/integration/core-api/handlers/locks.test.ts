@@ -71,7 +71,7 @@ describe("API 2.0 - Locks", () => {
             const response = await utils.request("GET", "locks", { orderBy: "expirationValue:asc" });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-            expect(response.data.data[0].expirationValue).toBe(100);
+            expect(response.data.data[0].expirationValue).toBe(0);
         });
 
         it("should GET all the locks by epoch expiration", async () => {
@@ -95,7 +95,7 @@ describe("API 2.0 - Locks", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).not.toBeEmpty();
-            expect(response.data.data.every(lock => !lock.isExpired)).toBeTrue();
+            expect(response.data.data.every(lock => lock.isExpired)).toBeTrue();
         });
 
         it("should GET all the locks that are not expired", async () => {
@@ -103,7 +103,7 @@ describe("API 2.0 - Locks", () => {
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).not.toBeEmpty();
-            expect(response.data.data.every(lock => lock.isExpired)).toBeTrue();
+            expect(response.data.data.every(lock => !lock.isExpired)).toBeTrue();
         });
 
         describe("orderBy", () => {
