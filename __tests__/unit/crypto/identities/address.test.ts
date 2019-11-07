@@ -22,7 +22,7 @@ describe("Identities - Address", () => {
         it("should fail with an invalid wif", () => {
             expect(() => {
                 Address.fromPublicKey("invalid");
-            }).toThrow(PublicKeyError);
+            }).toThrow();
         });
     });
 
