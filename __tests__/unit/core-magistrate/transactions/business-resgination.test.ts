@@ -22,7 +22,7 @@ describe("Business resignation ser/deser", () => {
             .getStruct();
 
         const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
-        const deserialized = Transactions.deserializer.deserialize(serialized);
+        const deserialized = Transactions.Deserializer.deserialize(serialized);
 
         checkCommonFields(deserialized, businessResignation);
     });

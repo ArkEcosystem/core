@@ -5,8 +5,8 @@ import { TransactionFactory } from "../transactions";
 import { BigNumber } from "../utils";
 import { Block } from "./block";
 
-class Deserializer {
-    public deserialize(
+export class Deserializer {
+    public static deserialize(
         serializedHex: string,
         headerOnly: boolean = false,
         options: { deserializeTransactionsUnchecked?: boolean } = {},
@@ -46,7 +46,7 @@ class Deserializer {
         return { data: block, transactions };
     }
 
-    private deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
+    private static deserializeHeader(block: IBlockData, buf: ByteBuffer): void {
         block.version = buf.readUint32();
         block.timestamp = buf.readUint32();
         block.height = buf.readUint32();
@@ -85,7 +85,7 @@ class Deserializer {
         block.blockSignature = buf.readBytes(signatureLength()).toString("hex");
     }
 
-    private deserializeTransactions(
+    private static deserializeTransactions(
         block: IBlockData,
         buf: ByteBuffer,
         deserializeTransactionsUnchecked: boolean = false,
@@ -110,5 +110,3 @@ class Deserializer {
         return transactions;
     }
 }
-
-export const deserializer = new Deserializer();
