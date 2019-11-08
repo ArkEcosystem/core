@@ -187,6 +187,7 @@ export const locks: object = {
     query: {
         ...pagination,
         ...{
+            isExpired: Joi.bool(),
             orderBy: Joi.string(),
         },
     },

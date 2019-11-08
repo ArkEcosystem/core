@@ -2,6 +2,7 @@ import { HashAlgorithms } from "../crypto";
 import { PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
+import { NetworkType } from "../types";
 import { Base58 } from "../utils/base58";
 import { PublicKey } from "./public-key";
 
@@ -28,6 +29,10 @@ export class Address {
         return this.fromBuffer(payload);
     }
 
+    public static fromWIF(wif: string, network?: NetworkType): string {
+        return Address.fromPublicKey(PublicKey.fromWIF(wif, network));
+    }
+
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
         return this.fromPublicKey(PublicKey.fromMultiSignatureAsset(asset), networkVersion);
     }
@@ -40,15 +45,15 @@ export class Address {
         return Base58.encodeCheck(buffer);
     }
 
-    public static toBuffer(address: string): { addressBuffer: Buffer, addressError?: string } {
+    public static toBuffer(address: string): { addressBuffer: Buffer; addressError?: string } {
         const buffer: Buffer = Base58.decodeCheck(address);
         const networkVersion: number = configManager.get("network.pubKeyHash");
-        const result: { addressBuffer: Buffer, addressError?: string } = {
+        const result: { addressBuffer: Buffer; addressError?: string } = {
             addressBuffer: buffer,
-        }
+        };
 
         if (buffer[0] !== networkVersion) {
-            result.addressError = `Expected address network byte ${networkVersion}, but got ${buffer[0]}.`
+            result.addressError = `Expected address network byte ${networkVersion}, but got ${buffer[0]}.`;
         }
 
         return result;
