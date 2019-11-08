@@ -15,26 +15,26 @@ describe("Identities - Address", () => {
     });
 
     describe("fromPublicKey", () => {
-        it("should pass with a valid wif", () => {
-            expect(Address.fromPublicKey(data.wif)).toBe(data.address);
-        });
-
-        it("should fail with an invalid wif", () => {
-            expect(() => {
-                Address.fromPublicKey("invalid");
-            }).toThrow();
-        });
-    });
-
-    describe("fromWIF", () => {
         it("should pass with a valid public key", () => {
-            expect(Address.fromWIF(data.publicKey)).toBe(data.address);
+            expect(Address.fromPublicKey(data.publicKey)).toBe(data.address);
         });
 
         it("should fail with an invalid public key", () => {
             expect(() => {
-                Address.fromWIF("invalid");
+                Address.fromPublicKey("invalid");
             }).toThrow(PublicKeyError);
+        });
+    });
+
+    describe("fromWIF", () => {
+        it("should pass with a valid wif", () => {
+            expect(Address.fromWIF(data.wif)).toBe(data.address);
+        });
+
+        it("should fail with an invalid wif", () => {
+            expect(() => {
+                Address.fromWIF("invalid");
+            }).toThrow(Error);
         });
     });
 
