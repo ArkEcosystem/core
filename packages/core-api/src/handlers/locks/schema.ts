@@ -27,6 +27,7 @@ export const index: object = {
                 .min(0),
             expirationType: Joi.number()
                 .only(...Object.values(Enums.HtlcLockExpirationType)),
+            isExpired: Joi.bool(),
         },
     },
 };
@@ -88,6 +89,7 @@ export const search: object = {
                 .integer()
                 .min(0),
         }),
+        isExpired: Joi.bool(),
     },
 };
 
