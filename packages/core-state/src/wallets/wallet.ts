@@ -116,49 +116,10 @@ export class Wallet implements State.IWallet {
         transaction: Interfaces.ITransactionData,
         multiSignature?: Interfaces.IMultiSignatureAsset,
     ): boolean {
-        multiSignature = multiSignature || this.getAttribute("multiSignature");
-        if (!multiSignature) {
-            throw new Errors.InvalidMultiSignatureError();
-        }
-
-        const { publicKeys, min }: Interfaces.IMultiSignatureAsset = multiSignature;
-        const { signatures }: Interfaces.ITransactionData = transaction;
-
-        const hash: Buffer = Transactions.Utils.toHash(transaction, {
-            excludeSignature: true,
-            excludeSecondSignature: true,
-            excludeMultiSignature: true,
-        });
-
-        const publicKeyIndexes: { [index: number]: boolean } = {};
-        let verified: boolean = false;
-        let verifiedSignatures: number = 0;
-        for (let i = 0; i < signatures.length; i++) {
-            const signature: string = signatures[i];
-            const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
-
-            if (!publicKeyIndexes[publicKeyIndex]) {
-                publicKeyIndexes[publicKeyIndex] = true;
-            } else {
-                throw new CryptoErrors.DuplicateParticipantInMultiSignatureError();
-            }
-
-            const partialSignature: string = signature.slice(2, 130);
-            const publicKey: string = publicKeys[publicKeyIndex];
-
-            if (Crypto.Hash.verifySchnorr(hash, partialSignature, publicKey)) {
-                verifiedSignatures++;
-            }
-
-            if (verifiedSignatures === min) {
-                verified = true;
-                break;
-            } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
-                break;
-            }
-        }
-
-        return verified;
+        return Transactions.Verifier.verifySignatures(
+            transaction,
+            multiSignature || this.getAttribute("multiSignature"),
+        );
     }
 
     /**

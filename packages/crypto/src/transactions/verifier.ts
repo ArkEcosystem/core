@@ -1,5 +1,6 @@
 import { Hash } from "../crypto/hash";
-import { ISchemaValidationResult, ITransactionData } from "../interfaces";
+import { DuplicateParticipantInMultiSignatureError, InvalidMultiSignatureAssetError } from "../errors";
+import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
@@ -28,6 +29,51 @@ export class Verifier {
 
         const hash: Buffer = Utils.toHash(transaction, { excludeSecondSignature: true });
         return this.internalVerifySignature(hash, secondSignature, publicKey);
+    }
+
+    public static verifySignatures(transaction: ITransactionData, multiSignature: IMultiSignatureAsset): boolean {
+        if (!multiSignature) {
+            throw new InvalidMultiSignatureAssetError();
+        }
+
+        const { publicKeys, min }: IMultiSignatureAsset = multiSignature;
+        const { signatures }: ITransactionData = transaction;
+
+        const hash: Buffer = Utils.toHash(transaction, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+            excludeMultiSignature: true,
+        });
+
+        const publicKeyIndexes: { [index: number]: boolean } = {};
+        let verified: boolean = false;
+        let verifiedSignatures: number = 0;
+        for (let i = 0; i < signatures.length; i++) {
+            const signature: string = signatures[i];
+            const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
+
+            if (!publicKeyIndexes[publicKeyIndex]) {
+                publicKeyIndexes[publicKeyIndex] = true;
+            } else {
+                throw new DuplicateParticipantInMultiSignatureError();
+            }
+
+            const partialSignature: string = signature.slice(2, 130);
+            const publicKey: string = publicKeys[publicKeyIndex];
+
+            if (Hash.verifySchnorr(hash, partialSignature, publicKey)) {
+                verifiedSignatures++;
+            }
+
+            if (verifiedSignatures === min) {
+                verified = true;
+                break;
+            } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
+                break;
+            }
+        }
+
+        return verified;
     }
 
     public static verifyHash(data: ITransactionData): boolean {
