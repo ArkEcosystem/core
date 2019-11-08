@@ -1,7 +1,7 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     BridgechainAlreadyRegisteredError,
     BusinessIsResignedError,
@@ -59,6 +59,10 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         wallet: State.IWallet,
         walletManager: State.IWalletManager,
     ): Promise<void> {
+        if (Utils.isException(transaction.data)) {
+            return;
+        }
+
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }
