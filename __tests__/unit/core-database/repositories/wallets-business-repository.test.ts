@@ -11,6 +11,7 @@ import { WalletsBusinessRepository } from "../../../../packages/core-database/sr
 import { DatabaseService } from "../../../../packages/core-database/src/database-service";
 import { Wallets } from "../../../../packages/core-state/src";
 import { Address } from "../../../../packages/crypto/src/identities";
+import { stateStorageStub } from "../__fixtures__/state-storage-stub";
 
 let genesisSenders;
 let repository: Database.IWalletsBusinessRepository;
@@ -265,6 +266,8 @@ describe("Wallet Repository", () => {
         it("should return all locks", () => {
             const wallets = generateHtlcLocks();
             walletManager.index(wallets);
+
+            jest.spyOn(stateStorageStub, "getLastBlock").mockReturnValue(genesisBlock);
 
             const locks = repository.search(Database.SearchScope.Locks, {});
             expect(locks.rows).toHaveLength(genesisBlock.transactions.length);
