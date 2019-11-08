@@ -46,7 +46,7 @@ describe("API 2.0 - Locks", () => {
                     secretHash: transaction.id,
                     expiration: {
                         type: j % 2 === 0 ? 1 : 2,
-                        value: 100 * (j + 1),
+                        value: !j ? 0 : (100 * (j + 1)),
                     },
                     timestamp: (i + 1) * 100000,
                 };
@@ -71,7 +71,7 @@ describe("API 2.0 - Locks", () => {
             const response = await utils.request("GET", "locks", { orderBy: "expirationValue:asc" });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
-            expect(response.data.data[0].expirationValue).toBe(100);
+            expect(response.data.data[0].expirationValue).toBe(0);
         });
 
         it("should GET all the locks by epoch expiration", async () => {
@@ -90,6 +90,22 @@ describe("API 2.0 - Locks", () => {
             expect(response.data.data.every(lock => lock.expirationType === 2)).toBeTrue();
         });
 
+        it("should GET all the locks that are expired", async () => {
+            const response = await utils.request("GET", "locks", { isExpired: true });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).not.toBeEmpty();
+            expect(response.data.data.every(lock => lock.isExpired)).toBeTrue();
+        });
+
+        it("should GET all the locks that are not expired", async () => {
+            const response = await utils.request("GET", "locks", { isExpired: false });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).not.toBeEmpty();
+            expect(response.data.data.every(lock => !lock.isExpired)).toBeTrue();
+        });
+
         describe("orderBy", () => {
             it("should be ordered by amount:desc", async () => {
                 const response = await utils.request("GET", "locks", { orderBy: "amount:desc", expirationType: 2 });
@@ -104,7 +120,7 @@ describe("API 2.0 - Locks", () => {
                 }
             });
 
-            it("should be ordered by amount:ascs", async () => {
+            it("should be ordered by amount:asc", async () => {
                 const response = await utils.request("GET", "locks", { orderBy: "amount:asc", expirationType: 2 });
                 expect(response).toBeSuccessfulResponse();
                 expect(response.data.data).toBeArray();

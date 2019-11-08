@@ -87,9 +87,9 @@
         "rimraf": "^3.0.0",
         "snyk": "^1.234.0",
         "ts-jest": "^24.1.0",
-        "tslint": "^5.20.0",
+        "tslint": "^5.20.1",
         "tslint-config-prettier": "^1.18.0",
-        "typescript": "^3.6.4",
+        "typescript": "^3.7.2",
         "typesync": "^0.6.1",
         "uuid": "^3.3.3"
     },
