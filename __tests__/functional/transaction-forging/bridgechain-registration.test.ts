@@ -162,7 +162,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                     TransactionFactory.bridgechainRegistration({
                         name,
                         seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                        genesisHash: `ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d${i}`,
+                        genesisHash: `ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39${i}`,
                         bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                     })
                         .withPassphrase(secrets[0])
