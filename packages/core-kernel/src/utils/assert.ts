@@ -15,7 +15,7 @@ export const assert = {
             throw new AssertionException(message || "Expected the input to be null.");
         }
 
-        return value as T;
+        return (value as unknown) as T;
     },
     sameLength: (a: string | unknown[], b: string | unknown[], message?: string): void => {
         if (a.length !== b.length) {
@@ -31,7 +31,7 @@ export const assert = {
     },
     transaction: <T>(value: unknown, message?: string): T => {
         if (!(value instanceof Transactions.Transaction)) {
-            throw new AssertionException(message || "Expected the input to be a transaction instance.")
+            throw new AssertionException(message || "Expected the input to be a transaction instance.");
         }
 
         return (value as unknown) as T;
@@ -42,7 +42,7 @@ export const assert = {
                 throw new AssertionException(message || "Expected the input not to be defined.");
             }
 
-            return value as T;
+            return (value as unknown) as T;
         },
         null: <T>(value: unknown, message?: string): T => {
             if (value === null) {

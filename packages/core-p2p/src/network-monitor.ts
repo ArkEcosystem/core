@@ -201,7 +201,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                         .slice(0, maxPeersPerPeer)
                         .reduce(
                             // @ts-ignore
-                            (acc, curr: Contracts.P2P.Peer) => ({
+                            (acc: object, curr: Contracts.P2P.Peer) => ({
                                 ...acc,
                                 ...{ [Utils.assert.defined<string>(curr.ip)]: curr },
                             }),
