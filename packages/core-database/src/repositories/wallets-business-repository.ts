@@ -1,5 +1,5 @@
 import { Database, State } from "@arkecosystem/core-interfaces";
-import { delegateCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
+import { delegateCalculator, expirationCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { searchEntries } from "./utils/search-entries";
 
@@ -18,6 +18,7 @@ interface IUnwrappedHtlcLock {
     timestamp: number;
     expirationType: number;
     expirationValue: number;
+    isExpired: boolean;
     vendorField: string;
 }
 
@@ -179,7 +180,15 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchLocks(params: Database.IParameters = {}): ISearchContext<IUnwrappedHtlcLock> {
         const query: Record<string, string[]> = {
-            exact: ["senderPublicKey", "lockId", "recipientId", "secretHash", "expirationType", "vendorField"],
+            exact: [
+                "expirationType",
+                "isExpired",
+                "lockId",
+                "recipientId",
+                "secretHash",
+                "senderPublicKey",
+                "vendorField",
+            ],
             between: ["expirationValue", "amount", "timestamp"],
         };
 
@@ -203,6 +212,9 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                         timestamp: lock.timestamp,
                         expirationType: lock.expiration.type,
                         expirationValue: lock.expiration.value,
+                        isExpired: expirationCalculator.calculateLockExpirationStatus(
+                            lock.expiration,
+                        ),
                         vendorField: lock.vendorField,
                     });
                 }
