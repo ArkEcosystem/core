@@ -152,19 +152,30 @@ describe("Transaction Forging - Bridgechain registration", () => {
         });
 
         it("should reject bridgechain registration, because bridgechain name contains disallowed characters [Signed with 1 Passphrase]", async () => {
-            // Bridgechain registration
-            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
-                name: "mybridgech@in",
-                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                genesisHash: "ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d",
-                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-            })
-                .withPassphrase(secrets[0])
-                .createOne();
+            const disallowed = [" bridgechain", "bridgechain ", "bridge  chain", "bridgech@in"];
 
-            await expect(bridgechainRegistration).toBeRejected();
+            const bridgechainRegistrations = [];
+
+            // Bridgechain registrations
+            for (const [i, name] of disallowed.entries()) {
+                bridgechainRegistrations.push(
+                    TransactionFactory.bridgechainRegistration({
+                        name,
+                        seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                        genesisHash: `ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d${i}`,
+                        bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    })
+                        .withPassphrase(secrets[0])
+                        .createOne(),
+                );
+            }
+
+            await expect(bridgechainRegistrations).toBeEachRejected();
             await support.snoozeForBlock(1);
-            await expect(bridgechainRegistration.id).not.toBeForged();
+
+            for (const transaction of bridgechainRegistrations) {
+                await expect(transaction.id).not.toBeForged();
+            }
         });
 
         it("should reject bridgechain registration, because business resigned [Signed with 1 Passphrase]", async () => {
