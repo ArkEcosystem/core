@@ -26,6 +26,18 @@ describe("Identities - Address", () => {
         });
     });
 
+    describe("fromWIF", () => {
+        it("should pass with a valid wif", () => {
+            expect(Address.fromWIF(data.wif)).toBe(data.address);
+        });
+
+        it("should fail with an invalid wif", () => {
+            expect(() => {
+                Address.fromWIF("invalid");
+            }).toThrow(Error);
+        });
+    });
+
     describe("fromMultiSignatureAddress", () => {
         it("should be ok", () => {
             expect(
