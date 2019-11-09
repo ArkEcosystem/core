@@ -26,7 +26,7 @@ describe("Bridgechain registration transaction", () => {
             const serialized = Transactions.TransactionFactory.fromData(bridgechainResignation).serialized.toString(
                 "hex",
             );
-            const deserialized = Transactions.deserializer.deserialize(serialized);
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, bridgechainResignation);
         });

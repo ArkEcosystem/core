@@ -24,7 +24,7 @@ describe("Business update transaction", () => {
                 .getStruct();
 
             const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
-            const deserialized = Transactions.deserializer.deserialize(serialized);
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessResignation);
         });
@@ -36,7 +36,7 @@ describe("Business update transaction", () => {
                 .getStruct();
 
             const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
-            const deserialized = Transactions.deserializer.deserialize(serialized);
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessResignation);
         });
@@ -48,7 +48,7 @@ describe("Business update transaction", () => {
                 .getStruct();
 
             const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
-            const deserialized = Transactions.deserializer.deserialize(serialized);
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessResignation);
         });
