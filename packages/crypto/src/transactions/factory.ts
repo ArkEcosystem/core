@@ -13,7 +13,7 @@ import {
     ITransactionJson,
 } from "../interfaces";
 import { BigNumber, isException } from "../utils";
-import { deserializer } from "./deserializer";
+import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 import { TransactionTypeFactory } from "./types";
 import { Utils } from "./utils";
@@ -38,7 +38,7 @@ export class TransactionFactory {
     public static fromBytesUnsafe(buffer: Buffer, id?: string): ITransaction {
         try {
             const options: IDeserializeOptions | ISerializeOptions = { acceptLegacyVersion: true };
-            const transaction = deserializer.deserialize(buffer, options);
+            const transaction = Deserializer.deserialize(buffer, options);
             transaction.data.id = id || Utils.getId(transaction.data, options);
             transaction.isVerified = true;
 
@@ -67,7 +67,7 @@ export class TransactionFactory {
 
         const { version } = transaction.data;
         if (version === 1) {
-            deserializer.applyV1Compatibility(transaction.data);
+            Deserializer.applyV1Compatibility(transaction.data);
         }
 
         Serializer.serialize(transaction);
@@ -77,7 +77,7 @@ export class TransactionFactory {
 
     private static fromSerialized(serialized: string, strict: boolean = true): ITransaction {
         try {
-            const transaction = deserializer.deserialize(serialized);
+            const transaction = Deserializer.deserialize(serialized);
             transaction.data.id = Utils.getId(transaction.data);
 
             const { value, error } = Verifier.verifySchema(transaction.data, strict);
