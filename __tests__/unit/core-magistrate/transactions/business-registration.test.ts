@@ -32,7 +32,7 @@ describe("Business registration transaction", () => {
             const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
                 "hex",
             );
-            const deserialized = Transactions.deserializer.deserialize(serialized);
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
 
@@ -48,7 +48,7 @@ describe("Business registration transaction", () => {
             const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
                 "hex",
             );
-            const deserialized = Transactions.deserializer.deserialize(serialized);
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
 
@@ -64,7 +64,7 @@ describe("Business registration transaction", () => {
             const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
                 "hex",
             );
-            const deserialized = Transactions.deserializer.deserialize(serialized);
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
 
@@ -80,7 +80,7 @@ describe("Business registration transaction", () => {
             const serialized = Transactions.TransactionFactory.fromData(businessRegistration).serialized.toString(
                 "hex",
             );
-            const deserialized = Transactions.deserializer.deserialize(serialized);
+            const deserialized = Transactions.Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, businessRegistration);
 
