@@ -3784,10 +3784,10 @@ asn1@~0.2.3:
   dependencies:
     safer-buffer "~2.1.0"
 
-assert-options@0.1.3:
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/assert-options/-/assert-options-0.1.3.tgz#ea56c6a67a558eefb9db52c394f2fa92b94bfcde"
-  integrity sha512-DXrZ5WkCv/igD+H8OmeUTl9k0pBhYSTdyA7DRZoSJERCzQ8Z2v85yDjkhYVnHUOeCXGfCNKaogRbLWQsIQbtpg==
+assert-options@0.6.0:
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/assert-options/-/assert-options-0.6.0.tgz#3c5cb87fd1a5e807b64257a25d16a1431b84ed2e"
+  integrity sha512-xmBFb5sY0AO8SNihIfavR6uMhOyzq6D7RoFKJxxAditMQc876szBBQ9RQVwLi6Bm3zUoG0nexZK11Gy5TBX69A==
 
 assert-plus@1.0.0, assert-plus@^1.0.0:
   version "1.0.0"
@@ -10460,26 +10460,26 @@ pg-int8@1.0.1:
   resolved "https://registry.yarnpkg.com/pg-int8/-/pg-int8-1.0.1.tgz#943bd463bf5b71b4170115f80f8efc9a0c0eb78c"
   integrity sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==
 
-pg-minify@1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/pg-minify/-/pg-minify-1.4.1.tgz#ff9a9febefa6cec53055e2fd24e3115a275e2a08"
-  integrity sha512-8aZ9xdx7Pe/ppFYVOqvU5KgmM6ttXjaBlsl9Y8yzrUH4xSNVucJKKOwm4Y4H+LCvzZGjZIm4Rkf2Ajt5ixtkBQ==
+pg-minify@1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/pg-minify/-/pg-minify-1.5.1.tgz#5d0a9c7c31e482398a68669af564f0d7d31b1789"
+  integrity sha512-nqUTo8y9T0VhiJoWC0sK0+2S8hYDiu7CdH0Z9ijPi2iikiQ44mfcAFxEJxfvF8H3h/bDBvXthtOQPIB3pLWIow==
 
 pg-pool@^2.0.4:
   version "2.0.7"
   resolved "https://registry.yarnpkg.com/pg-pool/-/pg-pool-2.0.7.tgz#f14ecab83507941062c313df23f6adcd9fd0ce54"
   integrity sha512-UiJyO5B9zZpu32GSlP0tXy8J2NsJ9EFGFfz5v6PSbdz/1hBLX1rNiiy5+mAm5iJJYwfCv4A0EBcQLGWwjbpzZw==
 
-pg-promise@^8.7.4:
-  version "8.7.5"
-  resolved "https://registry.yarnpkg.com/pg-promise/-/pg-promise-8.7.5.tgz#d66beb86b041ae6e9dc66c4b5c7fb04dafcd18bb"
-  integrity sha512-r/OmS1b1i0nA0KHqlbcAoMLoNo3EGUdcZxaseyXnHrzepcS8ciK516Lw6/lIb6AeWI85ZOBSNdiPlw22xoFx3A==
+pg-promise@^10.0.0:
+  version "10.0.0"
+  resolved "https://registry.yarnpkg.com/pg-promise/-/pg-promise-10.0.0.tgz#4af0c532d7756320d464cda86f4f88669fca26f0"
+  integrity sha512-J1m0aO+DGTfMgJBcs1sbD7lMPqjqL6fRvBc0oNXJQJ0OXbai2p6cmDUurkX2JU+cNpJWejIaYlQJw5mNUKA/wQ==
   dependencies:
-    assert-options "0.1.3"
+    assert-options "0.6.0"
     manakin "0.5.2"
-    pg "7.11.0"
-    pg-minify "1.4.1"
-    spex "2.2.0"
+    pg "7.12.1"
+    pg-minify "1.5.1"
+    spex "3.0.0"
 
 pg-query-stream@^2.0.0:
   version "2.0.0"
@@ -10488,10 +10488,10 @@ pg-query-stream@^2.0.0:
   dependencies:
     pg-cursor "2.0.0"
 
-pg-types@~2.0.0:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/pg-types/-/pg-types-2.0.1.tgz#b8585a37f2a9c7b386747e44574799549e5f4933"
-  integrity sha512-b7y6QM1VF5nOeX9ukMQ0h8a9z89mojrBHXfJeSug4mhL0YpxNBm83ot2TROyoAmX/ZOX3UbwVO4EbH7i1ZZNiw==
+pg-types@^2.1.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/pg-types/-/pg-types-2.2.0.tgz#2d0250d636454f7cfa3b6ae0382fdfa8063254a3"
+  integrity sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==
   dependencies:
     pg-int8 "1.0.1"
     postgres-array "~2.0.0"
@@ -10499,16 +10499,16 @@ pg-types@~2.0.0:
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
-pg@7.11.0:
-  version "7.11.0"
-  resolved "https://registry.yarnpkg.com/pg/-/pg-7.11.0.tgz#a8b9ae9cf19199b7952b72957573d0a9c5e67c0c"
-  integrity sha512-YO4V7vCmEMGoF390LJaFaohWNKaA2ayoQOEZmiHVcAUF+YsRThpf/TaKCgSvsSE7cDm37Q/Cy3Gz41xiX/XjTw==
+pg@7.12.1:
+  version "7.12.1"
+  resolved "https://registry.yarnpkg.com/pg/-/pg-7.12.1.tgz#880636d46d2efbe0968e64e9fe0eeece8ef72a7e"
+  integrity sha512-l1UuyfEvoswYfcUe6k+JaxiN+5vkOgYcVSbSuw3FvdLqDbaoa2RJo1zfJKfPsSYPFVERd4GHvX3s2PjG1asSDA==
   dependencies:
     buffer-writer "2.0.0"
     packet-reader "1.0.0"
     pg-connection-string "0.1.3"
     pg-pool "^2.0.4"
-    pg-types "~2.0.0"
+    pg-types "^2.1.0"
     pgpass "1.x"
     semver "4.3.2"
 
@@ -12328,10 +12328,10 @@ spdx-license-ids@^3.0.0:
   resolved "https://registry.yarnpkg.com/spdx-license-ids/-/spdx-license-ids-3.0.5.tgz#3694b5804567a458d3c8045842a6358632f62654"
   integrity sha512-J+FWzZoynJEXGphVIS+XEh3kFSjZX/1i9gFBaWQcB+/tmpe2qUsSBABpcxqxnAxFdiUFEgAX1bjYGQvIZmoz9Q==
 
-spex@2.2.0:
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/spex/-/spex-2.2.0.tgz#b0d825f43ca3c88a35bda79553296c83c07b4d63"
-  integrity sha512-iwBxqKe4ZKD+P/i/WdzWw5qxmerHvzVb29wQm4zwYaDPuwsTKjS7nbqt8OyBSLAi2q0ZFUN3F2b4erX0UwF0fA==
+spex@3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/spex/-/spex-3.0.0.tgz#a563888b70b90d0e582beb329b94a9af8f723742"
+  integrity sha512-JoMfgbrJcEPn53JCLkSNH1o7fZ9rzkb24UKEt5LTcsp0YsaN+yxtb5MEmibbMRltj9CdXDNGitPrYi11JY2hog==
 
 split-string@^3.0.1, split-string@^3.0.2:
   version "3.1.0"
