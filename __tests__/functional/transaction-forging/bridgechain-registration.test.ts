@@ -64,10 +64,10 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration2.id).not.toBeForged();
         });
 
-        it("should reject bridgechain registration, because bridgechain with same name is already registered [Signed with 1 Passphrase]", async () => {
+        it("should reject bridgechain registration, because bridgechain with same name is already registered (case insensitive) [Signed with 1 Passphrase]", async () => {
             // Bridgechain registration
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
-                name: "cryptoProject",
+                name: "CRYPTOPROJECT",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",

@@ -77,7 +77,10 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         if (
             bridgechains &&
             Object.values(bridgechains).some(bridgechain => {
-                return bridgechain.bridgechainAsset.name === data.asset.bridgechainRegistration.name;
+                return (
+                    bridgechain.bridgechainAsset.name.toLowerCase() ===
+                    data.asset.bridgechainRegistration.name.toLowerCase()
+                );
             })
         ) {
             throw new BridgechainAlreadyRegisteredError();
