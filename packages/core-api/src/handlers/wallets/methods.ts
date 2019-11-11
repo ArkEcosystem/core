@@ -179,6 +179,7 @@ export const registerMethods = server => {
         }))
         .method("v2.wallets.locks", locks, 30, request => ({
             ...{ id: request.params.id },
+            ...request.query,
             ...request.params,
             ...paginate(request),
         }))
