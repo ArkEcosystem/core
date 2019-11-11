@@ -1,11 +1,11 @@
 import Joi from "@hapi/joi";
-import { pagination } from "../shared/schemas/pagination";
+import { orderBy, pagination } from "../shared/schemas";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             businessId: Joi.number()
                 .integer()
                 .min(1),
@@ -30,7 +30,7 @@ export const bridgechains: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
         },
     },
 };
@@ -39,7 +39,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
         },
     },
     payload: {
