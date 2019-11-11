@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import Joi from "@hapi/joi";
-import { blockId } from "../shared/schemas/block-id";
-import { pagination } from "../shared/schemas/pagination";
+import { blockId, orderBy, pagination } from "../shared/schemas";
 
 const config = app.getConfig();
 
@@ -39,7 +38,7 @@ export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             type: Joi.string().valid("resigned", "never-forged"),
             address: Joi.string()
                 .alphanum()
@@ -77,7 +76,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
         },
     },
     payload: {
@@ -109,7 +108,7 @@ export const blocks: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             id: blockId,
             version: Joi.number()
                 .integer()
@@ -153,7 +152,7 @@ export const voters: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             address: Joi.string()
                 .alphanum()
                 .length(34),

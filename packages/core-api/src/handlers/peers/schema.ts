@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-import { pagination } from "../shared/schemas/pagination";
+import { orderBy, pagination } from "../shared/schemas";
 
 export const index: object = {
     query: {
@@ -7,7 +7,7 @@ export const index: object = {
         ...{
             ip: Joi.string().ip(),
             version: Joi.string(),
-            orderBy: Joi.string(),
+            orderBy,
         },
     },
 };

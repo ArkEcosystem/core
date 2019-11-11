@@ -37,9 +37,9 @@ describe("API 2.0 - Blocks", () => {
         });
     });
 
-    describe("GET /blocks?orderBy=height:", () => {
+    describe("GET /blocks?orderBy=height:desc", () => {
         it("should GET all the blocks in descending order", async () => {
-            const response = await utils.request("GET", "blocks?orderBy=height:");
+            const response = await utils.request("GET", "blocks", { orderBy: "height:desc" });
 
             expect(response).toBeSuccessfulResponse();
             expect(response).toBePaginated();
