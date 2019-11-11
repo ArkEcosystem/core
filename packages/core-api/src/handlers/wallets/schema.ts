@@ -1,7 +1,5 @@
 import Joi from "@hapi/joi";
-import { blockId } from "../shared/schemas/block-id";
-import { pagination } from "../shared/schemas/pagination";
-import { walletId } from "../shared/schemas/wallet-id";
+import { blockId, orderBy, pagination, walletId } from "../shared/schemas";
 
 const address: object = Joi.string()
     .alphanum()
@@ -11,7 +9,7 @@ export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             address: Joi.string()
                 .alphanum()
                 .length(34),
@@ -49,7 +47,7 @@ export const transactions: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -88,7 +86,7 @@ export const transactionsSent: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -130,7 +128,7 @@ export const transactionsReceived: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -188,7 +186,7 @@ export const locks: object = {
         ...pagination,
         ...{
             isExpired: Joi.bool(),
-            orderBy: Joi.string(),
+            orderBy,
         },
     },
 };
@@ -197,7 +195,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
         },
     },
     payload: {
