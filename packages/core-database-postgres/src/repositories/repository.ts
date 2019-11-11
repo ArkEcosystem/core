@@ -74,7 +74,7 @@ export abstract class Repository implements Database.IRepository {
 
         const rows = await this.findMany(selectQuery);
 
-        if (rows.length < paginate.limit) {
+        if (rows.length && rows.length < paginate.limit) {
             return { rows, count: paginate.offset + rows.length, countIsEstimate: false };
         }
 
