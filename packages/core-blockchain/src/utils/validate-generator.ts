@@ -29,8 +29,10 @@ export const validateGenerator = async (
             }) is allowed to forge block ${block.data.height.toLocaleString()}`,
         );
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+        Utils.assert.defined<string>(forgingDelegate.publicKey);
+
         const forgingWallet: Contracts.State.Wallet = database.walletRepository.findByPublicKey(
-            Utils.assert.defined(forgingDelegate.publicKey),
+            forgingDelegate.publicKey,
         );
         const forgingUsername: string = forgingWallet.getAttribute("delegate.username");
 

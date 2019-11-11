@@ -44,11 +44,12 @@ export const tearDown = async () => sandbox.tearDown();
 export const calculateRanks = async () => {
     const databaseService = sandbox.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
 
-    const delegateWallets = Object.values(databaseService.walletRepository.allByUsername()).sort(
-        (a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
-            b
-                .getAttribute<Utils.BigNumber>("delegate.voteBalance")
-                .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
+    const delegateWallets = Object.values(
+        databaseService.walletRepository.allByUsername(),
+    ).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
+        b
+            .getAttribute<Utils.BigNumber>("delegate.voteBalance")
+            .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
     );
 
     AppUtils.sortBy(delegateWallets, wallet => wallet.publicKey).forEach((delegate, i) => {

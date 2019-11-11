@@ -17,7 +17,11 @@ beforeAll(async () => {
     const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
     await databaseService.buildWallets();
     await databaseService.saveRound(
-        Generators.generateRound(app, secrets.map(secret => Identities.PublicKey.fromPassphrase(secret)), 1),
+        Generators.generateRound(
+            app,
+            secrets.map(secret => Identities.PublicKey.fromPassphrase(secret)),
+            1,
+        ),
     );
     await (databaseService as any).initializeActiveDelegates(1);
 

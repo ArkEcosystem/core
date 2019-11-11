@@ -114,7 +114,11 @@ export class BlockProcessor {
     private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
             const forgedIds: string[] = await this.database.getForgedTransactionsIds(
-                block.transactions.map(tx => AppUtils.assert.defined(tx.id)),
+                block.transactions.map(tx => {
+                    AppUtils.assert.defined<string>(tx.id);
+
+                    return tx.id;
+                }),
             );
 
             if (forgedIds.length > 0) {
@@ -161,7 +165,9 @@ export class BlockProcessor {
                 break;
             }
 
-            const sender: string = AppUtils.assert.defined(data.senderPublicKey);
+            AppUtils.assert.defined<string>(data.senderPublicKey);
+
+            const sender: string = data.senderPublicKey;
 
             if (nonceBySender[sender] === undefined) {
                 nonceBySender[sender] = this.app
@@ -169,7 +175,9 @@ export class BlockProcessor {
                     .walletRepository.getNonce(sender);
             }
 
-            const nonce: AppUtils.BigNumber = AppUtils.assert.defined(data.nonce);
+            AppUtils.assert.defined<string>(data.nonce);
+
+            const nonce: AppUtils.BigNumber = data.nonce;
 
             if (!nonceBySender[sender].plus(1).isEqualTo(nonce)) {
                 this.logger.warning(

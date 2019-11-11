@@ -54,7 +54,9 @@ export class TransferTransactionHandler extends TransactionHandler {
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        const recipientId: string = Utils.assert.defined(data.recipientId);
+        Utils.assert.defined<string>(data.recipientId);
+
+        const recipientId: string = data.recipientId;
 
         if (!isRecipientOnActiveNetwork(recipientId)) {
             processor.pushError(
@@ -74,9 +76,9 @@ export class TransferTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(
-            Utils.assert.defined(transaction.data.recipientId),
-        );
+        Utils.assert.defined<string>(transaction.data.recipientId);
+
+        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
 
         recipient.balance = recipient.balance.plus(transaction.data.amount);
     }
@@ -85,9 +87,9 @@ export class TransferTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(
-            Utils.assert.defined(transaction.data.recipientId),
-        );
+        Utils.assert.defined<string>(transaction.data.recipientId);
+
+        const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
 
         recipient.balance = recipient.balance.minus(transaction.data.amount);
     }

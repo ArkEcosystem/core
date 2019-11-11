@@ -1,5 +1,8 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import {
+    Interfaces as MagistrateInterfaces,
+    Transactions as MagistrateTransactions,
+} from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
@@ -92,21 +95,26 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
+
         if (!businessAttributes.bridgechains) {
             businessAttributes.bridgechains = {};
         }
 
+        AppUtils.assert.defined<MagistrateInterfaces.IBridgechainRegistrationAsset>(
+            transaction.data.asset?.bridgechainRegistration,
+        );
+
         const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletRepository);
         businessAttributes.bridgechains[bridgechainId.toFixed()] = {
             bridgechainId,
-            bridgechainAsset: AppUtils.assert.defined(transaction.data.asset!.bridgechainRegistration),
+            bridgechainAsset: transaction.data.asset.bridgechainRegistration,
         };
 
         sender.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
@@ -119,21 +127,21 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
 
-        const bridgechains: Record<string, IBridgechainWalletAttributes> = AppUtils.assert.defined(
-            businessAttributes.bridgechains,
-        );
+        AppUtils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
-        const bridgechainId: string = AppUtils.assert.defined(Object.keys(bridgechains).pop());
+        const bridgechainId: string | undefined = Object.keys(businessAttributes.bridgechains).pop();
 
-        delete bridgechains[bridgechainId];
+        AppUtils.assert.defined<string>(bridgechainId);
+
+        delete businessAttributes.bridgechains[bridgechainId];
 
         walletRepository.reindex(sender);
     }

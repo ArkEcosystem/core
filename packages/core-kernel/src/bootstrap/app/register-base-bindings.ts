@@ -26,7 +26,9 @@ export class RegisterBaseBindings implements Bootstrapper {
      * @memberof RegisterBaseBindings
      */
     public async bootstrap(): Promise<void> {
-        const flags: Record<string, string> = assert.defined(this.app.config("app.flags"));
+        const flags: Record<string, string> | undefined = this.app.config("app.flags");
+
+        assert.defined<Record<string, string>>(flags);
 
         this.app.bind<string>(Identifiers.ApplicationEnvironment).toConstantValue(flags.env);
         this.app.bind<string>(Identifiers.ApplicationToken).toConstantValue(flags.token);

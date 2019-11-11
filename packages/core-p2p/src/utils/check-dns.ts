@@ -1,4 +1,4 @@
-import { Utils, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import dns from "dns";
 import util from "util";
 

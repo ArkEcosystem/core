@@ -190,6 +190,10 @@ export class MemoryQueue implements Queue {
             this.queues.set(name, new PQueue({ autoStart: false }));
         }
 
-        return assert.defined(this.queues.get(name));
+        const queue: PQueue | undefined = this.queues.get(name);
+
+        assert.defined<PQueue>(queue);
+
+        return queue;
     }
 }

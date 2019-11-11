@@ -41,9 +41,9 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
     }
 
     public async throwIfCannotBeApplied(transaction: Interfaces.ITransaction): Promise<void> {
-        const sender: Contracts.State.Wallet = this.findByPublicKey(
-            Utils.assert.defined(transaction.data.senderPublicKey),
-        );
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = this.findByPublicKey(transaction.data.senderPublicKey);
 
         const handler: Handlers.TransactionHandler = await this.app
             .get<any>("transactionHandlerRegistry")

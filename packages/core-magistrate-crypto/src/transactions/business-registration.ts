@@ -43,9 +43,9 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const businessRegistrationAsset: IBusinessRegistrationAsset = AppUtils.assert.defined(
-            data.asset!.businessRegistration,
-        );
+        AppUtils.assert.defined<IBusinessRegistrationAsset>(data.asset?.businessRegistration);
+
+        const businessRegistrationAsset: IBusinessRegistrationAsset = data.asset.businessRegistration;
         const businessName: Buffer = Buffer.from(businessRegistrationAsset.name, "utf8");
         const businessWebsite: Buffer = Buffer.from(businessRegistrationAsset.website, "utf8");
 

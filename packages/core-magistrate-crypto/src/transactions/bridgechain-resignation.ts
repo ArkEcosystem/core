@@ -44,9 +44,9 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const bridgechainResignationAsset: IBridgechainResignationAsset = AppUtils.assert.defined(
-            data.asset!.bridgechainResignation,
-        );
+        AppUtils.assert.defined<IBridgechainResignationAsset>(data.asset?.bridgechainResignation);
+
+        const bridgechainResignationAsset: IBridgechainResignationAsset = data.asset.bridgechainResignation;
         const buffer: ByteBuffer = new ByteBuffer(8, true);
         buffer.writeUint64(Long.fromString(bridgechainResignationAsset.bridgechainId.toString()));
 

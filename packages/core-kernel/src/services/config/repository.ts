@@ -2,6 +2,7 @@ import { get, has, set, unset } from "@arkecosystem/utils";
 
 import { injectable } from "../../ioc";
 import { JsonObject, KeyValuePair } from "../../types";
+import { assert } from "../../utils";
 
 /**
  * @export
@@ -38,8 +39,12 @@ export class ConfigRepository {
      * @returns {T}
      * @memberof ConfigRepository
      */
-    public get<T>(key: string, defaultValue?: T): T | undefined {
-        return get(this.items, key, defaultValue);
+    public get<T>(key: string, defaultValue?: T): T {
+        const value: T | undefined = get(this.items, key, defaultValue);
+
+        assert.defined<string>(value);
+
+        return value;
     }
 
     /**

@@ -91,7 +91,9 @@ export class ReplayBlockchain extends Blockchain {
     ): Promise<Interfaces.IBlock[]> {
         this.logger.info("Fetching blocks from database...");
 
-        const targetHeight: number = AppUtils.assert.defined(this.targetHeight);
+        AppUtils.assert.defined<number>(this.targetHeight);
+
+        const targetHeight: number = this.targetHeight;
 
         const offset: number = startHeight + (batch - 1) * this.chunkSize;
         const count: number = Math.min(targetHeight - lastAcceptedHeight, this.chunkSize);
@@ -102,9 +104,11 @@ export class ReplayBlockchain extends Blockchain {
     }
 
     private async processGenesisBlock(): Promise<void> {
-        const genesisBlock: Interfaces.IBlock = AppUtils.assert.defined(
-            Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")),
+        const genesisBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromJson(
+            Managers.configManager.get("genesisBlock"),
         );
+
+        AppUtils.assert.defined<Interfaces.IBlock>(genesisBlock);
 
         const { transactions }: Interfaces.IBlock = genesisBlock;
         for (const transaction of transactions) {
@@ -112,8 +116,10 @@ export class ReplayBlockchain extends Blockchain {
                 transaction.type === Enums.TransactionType.Transfer &&
                 transaction.typeGroup === Enums.TransactionTypeGroup.Core
             ) {
+                AppUtils.assert.defined<string>(transaction.data.recipientId);
+
                 const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(
-                    AppUtils.assert.defined(transaction.data.recipientId),
+                    transaction.data.recipientId,
                 );
 
                 recipient.balance = new Utils.BigNumber(transaction.data.amount);
@@ -121,16 +127,20 @@ export class ReplayBlockchain extends Blockchain {
         }
 
         for (const transaction of transactions) {
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
             const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
-                AppUtils.assert.defined(transaction.data.senderPublicKey),
+                transaction.data.senderPublicKey,
             );
 
             sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
 
             if (transaction.typeGroup === Enums.TransactionTypeGroup.Core) {
                 if (transaction.type === Enums.TransactionType.DelegateRegistration) {
+                    AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
+
                     sender.setAttribute("delegate", {
-                        username: AppUtils.assert.defined(transaction.data.asset!.delegate!.username),
+                        username: transaction.data.asset.delegate.username,
                         voteBalance: Utils.BigNumber.ZERO,
                         forgedFees: Utils.BigNumber.ZERO,
                         forgedRewards: Utils.BigNumber.ZERO,
@@ -140,10 +150,9 @@ export class ReplayBlockchain extends Blockchain {
 
                     this.walletRepository.reindex(sender);
                 } else if (transaction.type === Enums.TransactionType.Vote) {
-                    sender.setAttribute(
-                        "vote",
-                        AppUtils.assert.defined<string>(transaction.data.asset!.votes![0]).slice(1),
-                    );
+                    AppUtils.assert.defined<string>(transaction.data.asset?.votes);
+
+                    sender.setAttribute("vote", transaction.data.asset.votes[0].slice(1));
                 }
             }
         }

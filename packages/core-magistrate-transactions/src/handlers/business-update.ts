@@ -88,16 +88,17 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            Utils.assert.defined(transaction.data.senderPublicKey),
-        );
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
             IBusinessWalletAttributes
         >("business").businessAsset;
-        const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = Utils.assert.defined(
-            transaction.data.asset!.businessUpdate,
-        );
+
+        Utils.assert.defined<MagistrateInterfaces.IBusinessUpdateAsset>(transaction.data.asset?.businessUpdate);
+
+        const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.data.asset.businessUpdate;
 
         sender.setAttribute("business.businessAsset", {
             ...businessWalletAsset,
@@ -111,9 +112,9 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            Utils.assert.defined(transaction.data.senderPublicKey),
-        );
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         let businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
             IBusinessWalletAttributes
@@ -129,9 +130,10 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         }
 
         if (updateTransactions.length > 0) {
-            const updateTransaction: Contracts.Database.IBootstrapTransaction = Utils.assert.defined(
-                updateTransactions.pop(),
-            );
+            const updateTransaction: Contracts.Database.IBootstrapTransaction | undefined = updateTransactions.pop();
+
+            Utils.assert.defined<Contracts.Database.IBootstrapTransaction>(updateTransaction);
+
             const previousUpdate: MagistrateInterfaces.IBusinessUpdateAsset = updateTransaction.asset.businessUpdate;
 
             businessWalletAsset = {
@@ -145,12 +147,15 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
                 registerTransactions.push(...(await reader.read()));
             }
 
-            const registerTransaction: Contracts.Database.IBootstrapTransaction = Utils.assert.defined(
-                registerTransactions.pop(),
-            );
+            const registerTransaction:
+                | Contracts.Database.IBootstrapTransaction
+                | undefined = registerTransactions.pop();
+
+            Utils.assert.defined<Contracts.Database.IBootstrapTransaction>(registerTransaction);
 
             const previousRegistration: MagistrateInterfaces.IBusinessRegistrationAsset =
                 registerTransaction.asset.businessRegistration;
+
             businessWalletAsset = {
                 ...businessWalletAsset,
                 ...previousRegistration,

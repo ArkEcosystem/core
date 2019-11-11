@@ -63,11 +63,12 @@ export class WalletState {
                 const voteBalanceB: Utils.BigNumber = b.getAttribute("delegate.voteBalance");
 
                 const diff = voteBalanceB.comparedTo(voteBalanceA);
-                if (diff === 0) {
-                    const publicKeyA: string = AppUtils.assert.defined(a.publicKey);
-                    const publicKeyB: string = AppUtils.assert.defined(b.publicKey);
 
-                    if (publicKeyA === publicKeyB) {
+                if (diff === 0) {
+                    AppUtils.assert.defined<string>(a.publicKey);
+                    AppUtils.assert.defined<string>(b.publicKey);
+
+                    if (a.publicKey === b.publicKey) {
                         throw new Error(
                             `The balance and public key of both delegates are identical! Delegate "${a.getAttribute(
                                 "delegate.username",
@@ -75,7 +76,7 @@ export class WalletState {
                         );
                     }
 
-                    return publicKeyA.localeCompare(publicKeyB, "en");
+                    return a.publicKey.localeCompare(b.publicKey, "en");
                 }
 
                 return diff;

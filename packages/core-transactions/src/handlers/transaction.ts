@@ -41,9 +41,9 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<boolean> {
-        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.hasMultiSignature()) {
             transaction.isVerified = senderWallet.verifySignatures(transaction.data);
@@ -96,10 +96,10 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         }
 
         if (sender.hasSecondSignature()) {
+            AppUtils.assert.defined<string>(data.senderPublicKey);
+
             // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(
-                AppUtils.assert.defined(data.senderPublicKey),
-            );
+            const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(data.senderPublicKey);
 
             if (!dbSender.hasSecondSignature()) {
                 throw new UnexpectedSecondSignatureError();
@@ -126,9 +126,11 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         }
 
         if (sender.hasMultiSignature()) {
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
             // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
             const dbSender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(
-                AppUtils.assert.defined(transaction.data.senderPublicKey),
+                transaction.data.senderPublicKey,
             );
 
             if (dbSender.getAttribute("multiSignature").legacy) {
@@ -152,12 +154,10 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         sender: Contracts.State.Wallet,
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
+        AppUtils.assert.defined<string>(sender.publicKey);
         const senderWallet: Contracts.State.Wallet = databaseWalletRepository.findByAddress(sender.address);
 
-        if (
-            !databaseWalletRepository.hasByPublicKey(AppUtils.assert.defined(sender.publicKey)) &&
-            senderWallet.balance.isZero()
-        ) {
+        if (!databaseWalletRepository.hasByPublicKey(sender.publicKey) && senderWallet.balance.isZero()) {
             throw new ColdWalletError();
         }
 
@@ -184,9 +184,9 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -199,7 +199,9 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         if (data.version && data.version > 1) {
             sender.verifyTransactionNonceApply(transaction);
 
-            sender.nonce = AppUtils.assert.defined(data.nonce);
+            AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
+
+            sender.nonce = data.nonce;
         } else {
             sender.nonce = sender.nonce.plus(1);
         }
@@ -213,8 +215,9 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
                 const negativeBalanceExceptions: Record<string, Record<string, string>> =
                     Managers.configManager.get("exceptions.negativeBalances") || {};
 
-                const negativeBalances: Record<string, string> =
-                    negativeBalanceExceptions[AppUtils.assert.defined<string>(sender.publicKey)] || {};
+                AppUtils.assert.defined<string>(sender.publicKey);
+
+                const negativeBalances: Record<string, string> = negativeBalanceExceptions[sender.publicKey] || {};
 
                 if (!newBalance.isEqualTo(negativeBalances[sender.nonce.toString()] || 0)) {
                     throw new InsufficientBalanceError();
@@ -229,9 +232,9 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -281,8 +284,11 @@ export abstract class TransactionHandler implements TransactionHandlerContract {
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        const type: number = AppUtils.assert.defined(data.type);
-        const senderPublicKey: string = AppUtils.assert.defined(data.senderPublicKey);
+        AppUtils.assert.defined<string>(data.type);
+        AppUtils.assert.defined<string>(data.senderPublicKey);
+
+        const type: number = data.type;
+        const senderPublicKey: string = data.senderPublicKey;
 
         if (await pool.senderHasTransactionsOfType(senderPublicKey, type)) {
             processor.pushError(

@@ -57,7 +57,10 @@ describe(".listen", () => {
 describe(".listenMany", () => {
     it("should add many event listeners", async () => {
         const calls: number[] = [];
-        emitter.listenMany([["firstEvent", () => calls.push(1)], ["firstEvent", () => calls.push(2)]]);
+        emitter.listenMany([
+            ["firstEvent", () => calls.push(1)],
+            ["firstEvent", () => calls.push(2)],
+        ]);
 
         await emitter.dispatch("firstEvent");
 
@@ -247,7 +250,10 @@ describe(".dispatchMany", () => {
         emitter.listen("secondEvent", () => listener(5));
         emitter.listen("secondEvent", () => listener(6));
 
-        await emitter.dispatchMany([["firstEvent", undefined], ["secondEvent", undefined]]);
+        await emitter.dispatchMany([
+            ["firstEvent", undefined],
+            ["secondEvent", undefined],
+        ]);
     });
 });
 
@@ -271,7 +277,10 @@ describe(".dispatchManySeq", () => {
         emitter.listen("secondEvent", () => listener(5));
         emitter.listen("secondEvent", () => listener(6));
 
-        await emitter.dispatchManySeq([["firstEvent", undefined], ["secondEvent", undefined]]);
+        await emitter.dispatchManySeq([
+            ["firstEvent", undefined],
+            ["secondEvent", undefined],
+        ]);
     });
 });
 
@@ -295,7 +304,10 @@ describe(".dispatchManySync", () => {
         emitter.listen("secondEvent", () => listener(5));
         emitter.listen("secondEvent", () => listener(6));
 
-        emitter.dispatchManySync([["firstEvent", undefined], ["secondEvent", undefined]]);
+        emitter.dispatchManySync([
+            ["firstEvent", undefined],
+            ["secondEvent", undefined],
+        ]);
     });
 });
 
@@ -379,7 +391,10 @@ describe(".forgetMany", () => {
 
         expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent"]);
 
-        emitter.forgetMany([["firstEvent", firstEvent], ["secondEvent", secondEvent]]);
+        emitter.forgetMany([
+            ["firstEvent", firstEvent],
+            ["secondEvent", secondEvent],
+        ]);
 
         await emitter.dispatch("firstEvent");
         await emitter.dispatch("secondEvent");

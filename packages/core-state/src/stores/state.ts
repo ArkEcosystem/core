@@ -59,14 +59,16 @@ export class StateStore implements Contracts.State.StateStore {
      * Get the last block height.
      */
     public getLastHeight(): number {
-        return Utils.assert.defined<Interfaces.IBlock>(this.getLastBlock()).data.height;
+        return this.getLastBlock().data.height;
     }
 
     /**
      * Get the genesis block.
      */
     public getGenesisBlock(): Interfaces.IBlock {
-        return Utils.assert.defined(this.genesisBlock);
+        Utils.assert.defined<Interfaces.IBlock>(this.genesisBlock);
+
+        return this.genesisBlock;
     }
 
     /**
@@ -80,7 +82,11 @@ export class StateStore implements Contracts.State.StateStore {
      * Get the last block.
      */
     public getLastBlock(): Interfaces.IBlock {
-        return Utils.assert.defined(this.lastBlocks.last());
+        const lastBlock: Interfaces.IBlock | undefined = this.lastBlocks.last();
+
+        Utils.assert.defined<Interfaces.IBlock>(lastBlock);
+
+        return lastBlock;
     }
 
     /**
@@ -104,13 +110,13 @@ export class StateStore implements Contracts.State.StateStore {
         }
 
         // Delete oldest block if size exceeds the maximum
-        const maxLastBlocks: number = Utils.assert.defined(
-            this.app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("state")
-                .config()
-                .get<number>("storage.maxLastBlocks"),
-        );
+        const maxLastBlocks: number | undefined = this.app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("state")
+            .config()
+            .get<number>("storage.maxLastBlocks");
+
+        Utils.assert.defined<number>(maxLastBlocks);
 
         if (this.lastBlocks.size > maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
@@ -144,7 +150,11 @@ export class StateStore implements Contracts.State.StateStore {
         return this.lastBlocks
             .valueSeq()
             .reverse()
-            .map(b => Utils.assert.defined<string>(b.data.id))
+            .map(b => {
+                Utils.assert.defined<string>(b.data.id);
+
+                return b.data.id;
+            })
             .toArray();
     }
 
@@ -154,7 +164,9 @@ export class StateStore implements Contracts.State.StateStore {
      * @param {Number} end
      */
     public getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[] {
-        const tail: number = Utils.assert.defined(end || start);
+        const tail: number | undefined = end || start;
+
+        Utils.assert.defined<number>(tail);
 
         const blocks = this.lastBlocks
             .valueSeq()
@@ -174,7 +186,11 @@ export class StateStore implements Contracts.State.StateStore {
         }
 
         return this.getLastBlocksData(true)
-            .filter(block => idsHash[Utils.assert.defined<string>(block.id)])
+            .filter(block => {
+                Utils.assert.defined<string>(block.id);
+
+                return idsHash[block.id];
+            })
             .toArray() as Interfaces.IBlockData[];
     }
 
@@ -186,7 +202,9 @@ export class StateStore implements Contracts.State.StateStore {
     ): { added: Interfaces.ITransactionData[]; notAdded: Interfaces.ITransactionData[] } {
         const notAdded: Interfaces.ITransactionData[] = [];
         const added: Interfaces.ITransactionData[] = transactions.filter(tx => {
-            if (this.cachedTransactionIds.has(Utils.assert.defined(tx.id))) {
+            Utils.assert.defined<string>(tx.id);
+
+            if (this.cachedTransactionIds.has(tx.id)) {
                 notAdded.push(tx);
 
                 return false;
@@ -197,18 +215,20 @@ export class StateStore implements Contracts.State.StateStore {
 
         this.cachedTransactionIds = this.cachedTransactionIds.withMutations(cache => {
             for (const tx of added) {
-                cache.add(Utils.assert.defined(tx.id));
+                Utils.assert.defined<string>(tx.id);
+
+                cache.add(tx.id);
             }
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
-        const maxLastTransactionIds: number = Utils.assert.defined(
-            this.app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-state")
-                .config()
-                .get<number>("storage.maxLastTransactionIds"),
-        );
+        const maxLastTransactionIds: number | undefined = this.app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("@arkecosystem/core-state")
+            .config()
+            .get<number>("storage.maxLastTransactionIds");
+
+        Utils.assert.defined<number>(maxLastTransactionIds);
 
         if (this.cachedTransactionIds.size > maxLastTransactionIds) {
             this.cachedTransactionIds = this.cachedTransactionIds.takeLast(maxLastTransactionIds);

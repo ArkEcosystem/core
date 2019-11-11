@@ -63,7 +63,9 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         wallet: Contracts.State.Wallet,
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const lock: Interfaces.IHtlcLockAsset = AppUtils.assert.defined(transaction.data.asset!.lock);
+        AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(transaction.data.asset?.lock);
+
+        const lock: Interfaces.IHtlcLockAsset = transaction.data.asset.lock;
         const lastBlock: Interfaces.IBlock = this.app.get<any>(Container.Identifiers.StateStore).getLastBlock();
 
         let { blocktime, activeDelegates } = Managers.configManager.getMilestone();
@@ -101,9 +103,15 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = AppUtils.assert.defined(
-            walletRepository.findByPublicKey(AppUtils.assert.defined(transaction.data.senderPublicKey)),
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet | undefined = walletRepository.findByPublicKey(
+            transaction.data.senderPublicKey,
         );
+
+        AppUtils.assert.defined<Contracts.State.Wallet>(sender);
+
+        AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(transaction.data.asset?.lock);
 
         const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks", {});
         locks[transaction.id!] = {
@@ -111,7 +119,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             recipientId: transaction.data.recipientId,
             timestamp: transaction.timestamp,
             vendorField: transaction.data.vendorField,
-            ...AppUtils.assert.defined(transaction.data.asset!.lock),
+            ...transaction.data.asset.lock,
         };
         sender.setAttribute("htlc.locks", locks);
 
@@ -127,15 +135,16 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.id);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const lockedBalance: Utils.BigNumber = sender.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
 
         const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks", {});
-        delete locks[AppUtils.assert.defined<string>(transaction.id)];
+        delete locks[transaction.id];
 
         walletRepository.reindex(sender);
     }

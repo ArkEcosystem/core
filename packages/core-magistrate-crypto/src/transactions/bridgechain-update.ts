@@ -44,7 +44,9 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const bridgechainUpdateAsset: IBridgechainUpdateAsset = AppUtils.assert.defined(data.asset!.bridgechainUpdate);
+        AppUtils.assert.defined<IBridgechainUpdateAsset>(data.asset?.bridgechainUpdate);
+
+        const bridgechainUpdateAsset: IBridgechainUpdateAsset = data.asset.bridgechainUpdate;
 
         let seedNodesBuffersLength = 0;
         const seedNodesBuffers: Buffer[] = [];

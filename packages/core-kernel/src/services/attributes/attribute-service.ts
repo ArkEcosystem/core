@@ -25,7 +25,11 @@ export class AttributeService {
      * @memberof AttributeService
      */
     public get(name: string, options: AttributeMapOptions = { scope: "default" }): AttributeMap {
-        return assert.defined(this.scope(options.scope).get(name), `Unknown index: ${name}`);
+        const scope: AttributeMap | undefined = this.scope(options.scope).get(name);
+
+        assert.defined<AttributeMap>(scope);
+
+        return scope;
     }
 
     /**
@@ -95,6 +99,10 @@ export class AttributeService {
             this.scopes.set(name, new Map<string, AttributeMap>());
         }
 
-        return assert.defined(this.scopes.get(name));
+        const scope: Map<string, AttributeMap> | undefined = this.scopes.get(name);
+
+        assert.defined<Map<string, AttributeMap>>(scope);
+
+        return scope;
     }
 }

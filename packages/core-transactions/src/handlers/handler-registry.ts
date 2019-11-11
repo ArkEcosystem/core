@@ -53,14 +53,16 @@ export class TransactionHandlerRegistry {
     }
 
     public async get(type: number, typeGroup?: number): Promise<TransactionHandler> {
-        const internalType: Transactions.InternalTransactionType = Utils.assert.defined(
-            Transactions.InternalTransactionType.from(type, typeGroup),
-        );
+        const internalType:
+            | Transactions.InternalTransactionType
+            | undefined = Transactions.InternalTransactionType.from(type, typeGroup);
+
+        Utils.assert.defined<Transactions.InternalTransactionType>(internalType);
 
         if (this.registeredTransactionHandlers.has(internalType)) {
-            const handler: TransactionHandler = Utils.assert.defined(
-                this.registeredTransactionHandlers.get(internalType),
-            );
+            const handler: TransactionHandler | undefined = this.registeredTransactionHandlers.get(internalType);
+
+            Utils.assert.defined<TransactionHandler>(handler);
 
             if (!(await handler.isActivated())) {
                 throw new DeactivatedTransactionHandlerError(internalType);
@@ -88,22 +90,27 @@ export class TransactionHandlerRegistry {
         const service: TransactionHandler = this.app.resolve(constructor);
         const transactionConstructor = service.getConstructor();
 
-        const type: number = Utils.assert.defined(transactionConstructor.type);
-        const typeGroup: number = Utils.assert.defined(transactionConstructor.typeGroup);
+        Utils.assert.defined<number>(transactionConstructor.type);
+        Utils.assert.defined<number>(transactionConstructor.typeGroup);
 
         for (const dependency of service.dependencies()) {
             this.registerTransactionHandler(dependency);
         }
 
-        const internalType: Transactions.InternalTransactionType = Utils.assert.defined(
-            Transactions.InternalTransactionType.from(type, typeGroup),
+        const internalType:
+            | Transactions.InternalTransactionType
+            | undefined = Transactions.InternalTransactionType.from(
+            transactionConstructor.type,
+            transactionConstructor.typeGroup,
         );
+
+        Utils.assert.defined<number>(internalType);
 
         if (this.registeredTransactionHandlers.has(internalType)) {
             return;
         }
 
-        if (typeGroup !== Enums.TransactionTypeGroup.Core) {
+        if (transactionConstructor.typeGroup !== Enums.TransactionTypeGroup.Core) {
             Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
         }
 
@@ -118,16 +125,24 @@ export class TransactionHandlerRegistry {
         const service: TransactionHandler = new constructor();
         const transactionConstructor = service.getConstructor();
 
-        const type: number = Utils.assert.defined(transactionConstructor.type);
-        const typeGroup: number = Utils.assert.defined(transactionConstructor.typeGroup);
+        Utils.assert.defined<number>(transactionConstructor.type);
+        Utils.assert.defined<number>(transactionConstructor.typeGroup);
 
-        if (typeGroup === Enums.TransactionTypeGroup.Core || typeGroup === undefined) {
+        if (
+            transactionConstructor.typeGroup === Enums.TransactionTypeGroup.Core ||
+            transactionConstructor.typeGroup === undefined
+        ) {
             throw new Errors.CoreTransactionTypeGroupImmutableError();
         }
 
-        const internalType: Transactions.InternalTransactionType = Utils.assert.defined(
-            Transactions.InternalTransactionType.from(type, typeGroup),
+        const internalType:
+            | Transactions.InternalTransactionType
+            | undefined = Transactions.InternalTransactionType.from(
+            transactionConstructor.type,
+            transactionConstructor.typeGroup,
         );
+
+        Utils.assert.defined<Transactions.InternalTransactionType>(internalType);
 
         if (!this.registeredTransactionHandlers.has(internalType)) {
             throw new InvalidTransactionTypeError(internalType.toString());

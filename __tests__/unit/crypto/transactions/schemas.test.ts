@@ -507,9 +507,8 @@ describe("Multi Signature Registration Transaction", () => {
     });
 
     beforeEach(() => {
-
-                // todo: completely wrap this into a function to hide the generation and setting of the config?
-                configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+        // todo: completely wrap this into a function to hide the generation and setting of the config?
+        configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
 
         transaction = BuilderFactory.multiSignature();
         multiSignatureAsset = {

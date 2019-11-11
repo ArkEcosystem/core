@@ -51,7 +51,11 @@ export class Actions {
     public get(name: string): Action {
         this.throwIfActionIsMissing(name);
 
-        return assert.defined(this.actions.get(name));
+        const action: Action | undefined = this.actions.get(name);
+
+        assert.defined<Action>(action);
+
+        return action;
     }
 
     /**

@@ -1,3 +1,5 @@
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+
 import { transformBlock } from "../handlers/blocks/transformer";
 import { transformBridgechain } from "../handlers/bridgechains/transformer";
 import { transformBusiness } from "../handlers/businesses/transformer";
@@ -9,7 +11,6 @@ import { transformFeeStatistics } from "../handlers/shared/transformers/fee-stat
 import { transformPorts } from "../handlers/shared/transformers/ports";
 import { transformTransaction } from "../handlers/transactions/transformer";
 import { transformWallet } from "../handlers/wallets/transformer";
-import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 @Container.injectable()
 export class TransformerService {

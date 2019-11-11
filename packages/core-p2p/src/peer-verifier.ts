@@ -278,10 +278,10 @@ export class PeerVerifier {
             const probesHeightById = {};
 
             for (const b of ourBlocks) {
-                const id: string = Utils.assert.defined(b.id);
+                Utils.assert.defined<string>(b.id);
 
-                probesIdByHeight[b.height] = id;
-                probesHeightById[id] = b.height;
+                probesIdByHeight[b.height] = b.id;
+                probesHeightById[b.id] = b.height;
             }
 
             // Make sure getBlocksByHeight() returned a block for every height we asked.
@@ -416,7 +416,9 @@ export class PeerVerifier {
         const delegatesByPublicKey = {} as Record<string, Contracts.State.Wallet>;
 
         for (const delegate of delegates) {
-            delegatesByPublicKey[Utils.assert.defined<string>(delegate.publicKey)] = delegate;
+            Utils.assert.defined<string>(delegate.publicKey);
+
+            delegatesByPublicKey[delegate.publicKey] = delegate;
         }
 
         return delegatesByPublicKey;
@@ -499,7 +501,9 @@ export class PeerVerifier {
             return true;
         }
 
-        const block: Interfaces.IBlock = Utils.assert.defined(Blocks.BlockFactory.fromData(blockData));
+        const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockData);
+
+        Utils.assert.defined<number>(block);
 
         if (!block.verifySignature()) {
             this.log(

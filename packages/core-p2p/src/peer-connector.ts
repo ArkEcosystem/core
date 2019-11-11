@@ -15,7 +15,11 @@ export class PeerConnector {
     }
 
     public connection(peer: Contracts.P2P.Peer): SCClientSocket {
-        return Utils.assert.defined(this.connections.get(peer.ip));
+        const connection: SCClientSocket | undefined = this.connections.get(peer.ip);
+
+        Utils.assert.defined<SCClientSocket>(connection);
+
+        return connection;
     }
 
     public connect(peer: Contracts.P2P.Peer): SCClientSocket {
@@ -25,26 +29,27 @@ export class PeerConnector {
             return connection;
         }
 
+        const getBlocksTimeout: number | undefined = this.app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("p2p")
+            .config()
+            .get<number>("getBlocksTimeout");
+
+        Utils.assert.defined<number>(getBlocksTimeout);
+
+        const verifyTimeout: number | undefined = this.app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("p2p")
+            .config()
+            .get<number>("verifyTimeout");
+
+        Utils.assert.defined<number>(verifyTimeout);
+
         // https://socketcluster.io/#!/docs/api-socketcluster-client
         connection = create({
             port: peer.port,
             hostname: peer.ip,
-            ackTimeout: Math.max(
-                Utils.assert.defined(
-                    this.app
-                        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                        .get("p2p")
-                        .config()
-                        .get<number>("getBlocksTimeout"),
-                ),
-                Utils.assert.defined(
-                    this.app
-                        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                        .get("p2p")
-                        .config()
-                        .get<number>("verifyTimeout"),
-                ),
-            ),
+            ackTimeout: Math.max(getBlocksTimeout, verifyTimeout),
             perMessageDeflate: true,
         });
 

@@ -96,7 +96,7 @@ describe("restartRunningProcessWithPrompt", () => {
         spyRestart.mockClear();
     });
 
-    it("should restart the process", async () => {
+    it.only("should restart the process", async () => {
         const spyOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(true);
         const spyRestart = jest.spyOn(processManager, "restart").mockImplementation(undefined);
 

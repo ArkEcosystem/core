@@ -118,7 +118,9 @@ export class Factory {
         const entities: T[] = [];
 
         const states: string[] = [...this.modifiers.states.values()];
-        const initialState: string = Utils.assert.defined(states.shift());
+        const initialState: string | undefined = states.shift();
+
+        Utils.assert.defined<string>(initialState);
 
         for (let i = 0; i < count; i++) {
             const fn: FactoryFunction<T> | undefined = this.states.get(initialState) as FactoryFunction<T>;
@@ -131,7 +133,10 @@ export class Factory {
 
             // We apply all states in order of insertion to guarantee consistency.
             for (const state of states) {
-                const fn: FactoryFunction<T> = Utils.assert.defined(this.states.get(state));
+                // @ts-ignore - Type 'FactoryFunction<unknown> | undefined' is not assignable to type 'FactoryFunction<T> | undefined'.
+                const fn: FactoryFunction<T> | undefined = this.states.get(state);
+
+                Utils.assert.defined<FactoryFunction<T>>(fn);
 
                 result = deepmerge(result, fn(result, this.modifiers.options));
 
@@ -161,7 +166,10 @@ export class Factory {
             this.hooks.set(state, new Set());
         }
 
-        const hooks: Set<HookFunction<T>> = Utils.assert.defined(this.hooks.get(state));
+        const hooks: Set<HookFunction<T>> | undefined = this.hooks.get(state);
+
+        Utils.assert.defined<Set<HookFunction<T>>>(hooks);
+
         hooks.add(fn);
 
         // @ts-ignore - this complains that we can't assign Set<HookFunction<T>> to Set<HookFunction<unknown>>

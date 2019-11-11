@@ -258,12 +258,10 @@ export class PostgresConnection implements Contracts.Database.Connection {
         );
         const { transactionIdFixTable } = Managers.configManager.get("exceptions");
 
-        const chunks: Array<
-            Array<{
-                serialized: Buffer;
-                id: string;
-            }>
-        > = Utils.chunk(all, 20000);
+        const chunks: Array<Array<{
+            serialized: Buffer;
+            id: string;
+        }>> = Utils.chunk(all, 20000);
 
         for (const chunk of chunks) {
             await this.db.task(task => {

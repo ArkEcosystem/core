@@ -1,10 +1,12 @@
-import { Managers, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
 import { assert } from "./assert";
 
 // todo: review the implementation
 export const calculate = (height: number): string => {
-    const config: Record<string, any> = assert.defined(Managers.configManager.all());
+    const config: Interfaces.NetworkConfig | undefined = Managers.configManager.all();
+
+    assert.defined<Interfaces.NetworkConfig>(config);
 
     const { genesisBlock, milestones } = config;
 

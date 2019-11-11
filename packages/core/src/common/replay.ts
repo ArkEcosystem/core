@@ -1,4 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
+
 import { createApplication } from "./create-application";
 
 // todo: review the implementation

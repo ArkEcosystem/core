@@ -16,9 +16,11 @@ export const transformTransaction = (app: Contracts.Kernel.Application, model, t
 
     const { data } = transaction;
 
+    Utils.assert.defined<string>(data.senderPublicKey);
+
     const sender: string = app
         .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .walletRepository.findByPublicKey(Utils.assert.defined(data.senderPublicKey)).address;
+        .walletRepository.findByPublicKey(data.senderPublicKey).address;
 
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
     const timestamp: number = data.version === 1 ? data.timestamp : model.timestamp;

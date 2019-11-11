@@ -108,9 +108,9 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            Utils.assert.defined(transaction.data.senderPublicKey),
-        );
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         senderWallet.setAttribute("delegate.resigned", true);
     }
@@ -121,9 +121,9 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        walletRepository
-            .findByPublicKey(Utils.assert.defined(transaction.data.senderPublicKey))
-            .forgetAttribute("delegate.resigned");
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        walletRepository.findByPublicKey(transaction.data.senderPublicKey).forgetAttribute("delegate.resigned");
     }
 
     public async applyToRecipient(

@@ -45,20 +45,24 @@ export class RegisterBasePaths implements Bootstrapper {
             const processPath: string | undefined = process.env[`CORE_PATH_${type.toUpperCase()}`];
 
             if (processPath) {
-                path = assert.defined(processPath);
+                path = processPath;
             }
 
             if (this.configRepository.has(`app.flags.paths.${type}`)) {
-                path = assert.defined(this.configRepository.get(`app.flags.paths.${type}`));
+                path = this.configRepository.get(`app.flags.paths.${type}`);
             }
 
             path = resolve(expandTilde(path));
+
+            assert.defined<string>(path);
 
             ensureDirSync(path);
 
             set(process.env, `CORE_PATH_${type.toUpperCase()}`, path);
 
-            const pathMethod: string = assert.defined(camelCase(`use_${type}_path`));
+            const pathMethod: string | undefined = camelCase(`use_${type}_path`);
+
+            assert.defined<string>(pathMethod);
 
             this.app[pathMethod](path);
 

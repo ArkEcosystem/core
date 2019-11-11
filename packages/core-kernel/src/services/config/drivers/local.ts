@@ -145,11 +145,14 @@ export class LocalConfigLoader implements ConfigLoader {
             const fullPath: string = this.app.configPath(file);
 
             if (existsSync(fullPath)) {
-                return assert.defined(
+                const config: KeyValuePair =
                     extname(fullPath) === ".json"
                         ? JSON.parse(readFileSync(fullPath).toString())
-                        : importFresh(fullPath),
-                );
+                        : importFresh(fullPath);
+
+                assert.defined<KeyValuePair>(config);
+
+                return config;
             }
         }
 

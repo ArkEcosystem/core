@@ -15,7 +15,9 @@ export class ExceptionHandler extends BlockHandler {
     private readonly database!: Contracts.Database.DatabaseService;
 
     public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
-        const id: string = Utils.assert.defined(block.data.id);
+        Utils.assert.defined<string>(block.data.id);
+
+        const id: string = block.data.id;
 
         // Ensure the block has not been forged yet, as an exceptional block bypasses all other checks.
         const forgedBlock: Interfaces.IBlock = await this.database.getBlock(id);

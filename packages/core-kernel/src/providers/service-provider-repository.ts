@@ -76,7 +76,11 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public get(name: string): ServiceProvider {
-        return assert.defined(this.serviceProviders.get(this.aliases.get(name) || name));
+        const serviceProvider: ServiceProvider | undefined = this.serviceProviders.get(this.aliases.get(name) || name);
+
+        assert.defined<ServiceProvider>(serviceProvider);
+
+        return serviceProvider;
     }
 
     /**

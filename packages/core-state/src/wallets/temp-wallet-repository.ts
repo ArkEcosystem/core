@@ -60,13 +60,21 @@ export class TempWalletRepository extends WalletRepository {
             const parentIndex: Contracts.State.WalletIndex = this.walletRepository.getIndex(indexName);
 
             if (parentIndex.has(key)) {
-                index.set(key, Utils.assert.defined<Contracts.State.Wallet>(parentIndex.get(key)).clone());
+                const wallet: Contracts.State.Wallet | undefined = parentIndex.get(key);
+
+                Utils.assert.defined<Contracts.State.Wallet>(wallet);
+
+                index.set(key, wallet.clone());
             } else if (indexName === Contracts.State.WalletIndexes.Addresses) {
                 index.set(key, new Wallet(key, this.app));
             }
         }
 
-        return Utils.assert.defined(index.get(key));
+        const wallet: Contracts.State.Wallet | undefined = index.get(key);
+
+        Utils.assert.defined<Contracts.State.Wallet>(wallet);
+
+        return wallet;
     }
 
     public hasByAddress(address: string): boolean {

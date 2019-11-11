@@ -5,6 +5,8 @@ import { Interfaces } from "@arkecosystem/crypto";
 @Container.injectable()
 export class TransactionStore extends Utils.CappedMap<string, Interfaces.ITransactionData> {
     public push(value: Interfaces.ITransactionData): void {
-        super.set(Utils.assert.defined(value.id), value);
+        Utils.assert.defined<string>(value.id);
+
+        super.set(value.id, value);
     }
 }

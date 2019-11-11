@@ -30,15 +30,17 @@ export class IpfsTransactionHandler extends TransactionHandler {
             const transactions = await reader.read();
 
             for (const transaction of transactions) {
-                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
-                    Utils.assert.defined(transaction.senderPublicKey),
-                );
+                Utils.assert.defined<string>(transaction.senderPublicKey);
+
+                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
 
                 if (!wallet.hasAttribute("ipfs")) {
                     wallet.setAttribute("ipfs", { hashes: {} });
                 }
 
-                wallet.getAttribute("ipfs.hashes", {})[Utils.assert.defined<string>(transaction.asset.ipfs)] = true;
+                Utils.assert.defined<string>(transaction.asset.ipfs);
+
+                wallet.getAttribute("ipfs.hashes", {})[transaction.asset.ipfs] = true;
             }
         }
     }
@@ -74,15 +76,17 @@ export class IpfsTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            Utils.assert.defined(transaction.data.senderPublicKey),
-        );
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         if (!sender.hasAttribute("ipfs")) {
             sender.setAttribute("ipfs", { hashes: {} });
         }
 
-        sender.getAttribute("ipfs.hashes", {})[Utils.assert.defined<string>(transaction.data.asset!.ipfs)] = true;
+        Utils.assert.defined<string>(transaction.data.asset?.ipfs);
+
+        sender.getAttribute("ipfs.hashes", {})[transaction.data.asset.ipfs] = true;
 
         walletRepository.reindex(sender);
     }
@@ -93,11 +97,13 @@ export class IpfsTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            Utils.assert.defined(transaction.data.senderPublicKey),
-        );
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        delete sender.getAttribute("ipfs.hashes", {})[Utils.assert.defined<string>(transaction.data.asset!.ipfs)];
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+
+        Utils.assert.defined<string>(transaction.data.asset?.ipfs);
+
+        delete sender.getAttribute("ipfs.hashes", {})[transaction.data.asset.ipfs];
 
         walletRepository.reindex(sender);
     }

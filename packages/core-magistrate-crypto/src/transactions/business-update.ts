@@ -57,7 +57,9 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const businessUpdateAsset: IBusinessUpdateAsset = AppUtils.assert.defined(data.asset!.businessUpdate);
+        AppUtils.assert.defined<IBusinessUpdateAsset>(data.asset?.businessUpdate);
+
+        const businessUpdateAsset: IBusinessUpdateAsset = data.asset.businessUpdate;
 
         let businessName: Buffer | undefined;
         let businessNameLength: number = 0;

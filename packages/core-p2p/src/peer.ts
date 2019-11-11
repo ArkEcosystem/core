@@ -23,14 +23,16 @@ export class Peer implements Contracts.P2P.Peer {
     public plugins: Contracts.P2P.PeerPlugins = {};
 
     constructor(app: Contracts.Kernel.Application, readonly ip: string) {
-        const config: Providers.PluginConfiguration = Utils.assert.defined(
-            app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("p2p")
-                .config(),
-        );
+        const config: Providers.PluginConfiguration | undefined = app
+            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+            .get("p2p")
+            .config();
 
-        const port: number = Utils.assert.defined(config.get<number>("server.port"));
+        Utils.assert.defined<Providers.PluginConfiguration>(config);
+
+        const port: number | undefined = config.get<number>("server.port");
+
+        Utils.assert.defined<number>(port);
 
         this.port = port;
     }

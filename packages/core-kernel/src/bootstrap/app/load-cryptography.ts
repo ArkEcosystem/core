@@ -47,9 +47,11 @@ export class LoadCryptography implements Bootstrapper {
             ? this.fromConfigRepository()
             : this.fromPreset();
 
-        this.app
-            .bind<Interfaces.NetworkConfig>(Identifiers.Crypto)
-            .toConstantValue(assert.defined(Managers.configManager.all()));
+        const networkConfig: Interfaces.NetworkConfig | undefined = Managers.configManager.all();
+
+        assert.defined<Interfaces.NetworkConfig>(networkConfig);
+
+        this.app.bind<Interfaces.NetworkConfig>(Identifiers.Crypto).toConstantValue(networkConfig);
     }
 
     /**

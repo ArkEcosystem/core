@@ -1,4 +1,4 @@
-import { Utils, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import Sntp, { TimeOptions } from "@hapi/sntp";
 
 export const checkNTP = (

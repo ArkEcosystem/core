@@ -2,10 +2,10 @@ import Command, { flags } from "@oclif/command";
 
 import { buildPeerOptions } from "../../common/builder";
 import { getConfigValue } from "../../common/config";
+import { createApplication } from "../../common/create-application";
 import { flagsBehaviour, flagsNetwork } from "../../common/flags";
 import { parseWithNetwork } from "../../common/parser";
 import { CommandFlags } from "../../types";
-import { createApplication } from "../../common/create-application";
 
 export class RunCommand extends Command {
     public static description = "Run the relay (without pm2)";

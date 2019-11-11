@@ -45,10 +45,10 @@ describe("LocalConfigLoader", () => {
 
         await configLoader.loadConfiguration();
 
-        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.genesisBlock")).toBeUndefined();
-        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.exceptions")).toBeUndefined();
-        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.milestones")).toBeUndefined();
-        expect(app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.network")).toBeUndefined();
+        expect(() => app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.genesisBlock")).toThrow();
+        expect(() => app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.exceptions")).toThrow();
+        expect(() => app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.milestones")).toThrow();
+        expect(() => app.get<ConfigRepository>(Identifiers.ConfigRepository).get("crypto.network")).toThrow();
     });
 
     it("should load the application configuration with cryptography", async () => {

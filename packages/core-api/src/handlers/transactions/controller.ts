@@ -122,9 +122,13 @@ export class TransactionsController extends Controller {
             for (const handler of activatedTransactionHandlers) {
                 const constructor = handler.getConstructor();
 
-                const type: number = Utils.assert.defined(constructor.type);
-                const typeGroup: number = Utils.assert.defined(constructor.typeGroup);
-                const key: string = Utils.assert.defined(constructor.key);
+                const type: number | undefined = constructor.type;
+                const typeGroup: number | undefined = constructor.typeGroup;
+                const key: string | undefined = constructor.key;
+
+                Utils.assert.defined<number>(type);
+                Utils.assert.defined<number>(typeGroup);
+                Utils.assert.defined<string>(key);
 
                 const groupName: string | number = Enums.TransactionTypeGroup[typeGroup] || typeGroup;
                 if (typeGroups[groupName] === undefined) {
@@ -150,8 +154,11 @@ export class TransactionsController extends Controller {
             for (const handler of activatedTransactionHandlers) {
                 const constructor = handler.getConstructor();
 
-                const type: number = Utils.assert.defined(constructor.type);
-                const typeGroup: number = Utils.assert.defined(constructor.typeGroup);
+                const type: number | undefined = constructor.type;
+                const typeGroup: number | undefined = constructor.typeGroup;
+
+                Utils.assert.defined<number>(type);
+                Utils.assert.defined<number>(typeGroup);
 
                 if (schemasByType[typeGroup] === undefined) {
                     schemasByType[typeGroup] = {};

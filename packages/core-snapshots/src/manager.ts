@@ -1,5 +1,5 @@
-import { Utils, Container, Contracts } from "@arkecosystem/core-kernel";
 import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Database } from "./db";
 import { backupTransactionsToJSON, exportTable, importTable, verifyTable } from "./transport";

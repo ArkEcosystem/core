@@ -10,7 +10,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.log.info("Connecting to transaction pool");
 
-        const maxTransactionAge: number = Utils.assert.defined(this.config().get("maxTransactionAge"));
+        const maxTransactionAge: number | undefined = this.config().get("maxTransactionAge");
+
+        Utils.assert.defined<number>(maxTransactionAge);
 
         const conn = this.app.resolve(Connection);
         const connection = await new ConnectionManager().createConnection(

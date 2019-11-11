@@ -63,13 +63,18 @@ export class Memory {
 
         if (!this.byExpirationIsSorted) {
             this.byExpiration.sort((a, b) => {
-                const expirationA: number = AppUtils.assert.defined(
-                    AppUtils.expirationCalculator.calculateTransactionExpiration(a.data, expirationContext),
+                const expirationA: number | undefined = AppUtils.expirationCalculator.calculateTransactionExpiration(
+                    a.data,
+                    expirationContext,
                 );
 
-                const expirationB: number = AppUtils.assert.defined(
-                    AppUtils.expirationCalculator.calculateTransactionExpiration(b.data, expirationContext),
+                const expirationB: number | undefined = AppUtils.expirationCalculator.calculateTransactionExpiration(
+                    b.data,
+                    expirationContext,
                 );
+
+                AppUtils.assert.defined<number>(expirationA);
+                AppUtils.assert.defined<number>(expirationB);
 
                 return expirationA - expirationB;
             });
@@ -80,9 +85,12 @@ export class Memory {
         const transactions: Interfaces.ITransaction[] = [];
 
         for (const transaction of this.byExpiration) {
-            const expiration: number = AppUtils.assert.defined(
-                AppUtils.expirationCalculator.calculateTransactionExpiration(transaction.data, expirationContext),
+            const expiration: number | undefined = AppUtils.expirationCalculator.calculateTransactionExpiration(
+                transaction.data,
+                expirationContext,
             );
+
+            AppUtils.assert.defined<number>(expiration);
 
             if (expiration > currentHeight) {
                 break;
@@ -117,9 +125,11 @@ export class Memory {
     }
 
     public getByType(type: number, typeGroup: number): Set<Interfaces.ITransaction> {
-        const internalType: Transactions.InternalTransactionType = AppUtils.assert.defined(
-            Transactions.InternalTransactionType.from(type, typeGroup),
-        );
+        const internalType:
+            | Transactions.InternalTransactionType
+            | undefined = Transactions.InternalTransactionType.from(type, typeGroup);
+
+        AppUtils.assert.defined<Transactions.InternalTransactionType>(internalType);
 
         if (this.byType.has(internalType)) {
             return this.byType.get(internalType) as Set<Interfaces.ITransaction>;
@@ -137,7 +147,9 @@ export class Memory {
     }
 
     public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
-        const id: string = AppUtils.assert.defined(transaction.id);
+        AppUtils.assert.defined<string>(transaction.id);
+
+        const id: string = transaction.id;
 
         assert.strictEqual(this.byId[id], undefined);
 
@@ -146,7 +158,9 @@ export class Memory {
 
         this.byId[id] = transaction;
 
-        const sender: string = AppUtils.assert.defined(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: string = transaction.data.senderPublicKey;
 
         const { type, typeGroup } = transaction;
 
@@ -158,13 +172,19 @@ export class Memory {
             this.bySender[sender].add(transaction);
         }
 
-        const internalType: Transactions.InternalTransactionType = AppUtils.assert.defined(
-            Transactions.InternalTransactionType.from(type, typeGroup),
-        );
+        const internalType:
+            | Transactions.InternalTransactionType
+            | undefined = Transactions.InternalTransactionType.from(type, typeGroup);
+
+        AppUtils.assert.defined<Transactions.InternalTransactionType>(internalType);
 
         if (this.byType.has(internalType)) {
             // Append to existing transaction ids for this type.
-            AppUtils.assert.defined<Set<Interfaces.ITransaction>>(this.byType.get(internalType)).add(transaction);
+            const transactions: Set<Interfaces.ITransaction> | undefined = this.byType.get(internalType);
+
+            AppUtils.assert.defined<Set<Interfaces.ITransaction>>(transactions);
+
+            transactions.add(transaction);
         } else {
             // First transaction of this type, create a new Set.
             this.byType.set(internalType, new Set([transaction]));
@@ -204,7 +224,9 @@ export class Memory {
         }
 
         if (senderPublicKey === undefined) {
-            senderPublicKey = AppUtils.assert.defined(this.byId[id].data.senderPublicKey);
+            AppUtils.assert.defined<string>(this.byId[id].data.senderPublicKey);
+
+            senderPublicKey = this.byId[id].data.senderPublicKey;
         }
 
         const transaction: Interfaces.ITransaction = this.byId[id];
@@ -221,11 +243,15 @@ export class Memory {
             delete this.bySender[senderPublicKey!];
         }
 
-        const internalType: Transactions.InternalTransactionType = AppUtils.assert.defined(
-            Transactions.InternalTransactionType.from(type, typeGroup),
-        );
+        const internalType:
+            | Transactions.InternalTransactionType
+            | undefined = Transactions.InternalTransactionType.from(type, typeGroup);
 
-        const transactions: Set<Interfaces.ITransaction> = AppUtils.assert.defined(this.byType.get(internalType));
+        AppUtils.assert.defined<Transactions.InternalTransactionType>(internalType);
+
+        const transactions: Set<Interfaces.ITransaction> | undefined = this.byType.get(internalType);
+
+        AppUtils.assert.defined<Set<Interfaces.ITransaction>>(transactions);
 
         transactions.delete(transaction);
 
@@ -342,7 +368,9 @@ export class Memory {
                 continue;
             }
 
-            const sender: string = AppUtils.assert.defined(transaction.data.senderPublicKey);
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+            const sender: string = transaction.data.senderPublicKey;
 
             if (indexBySender[sender] === undefined) {
                 indexBySender[sender] = [];
@@ -354,8 +382,11 @@ export class Memory {
             for (let j = 0; j < indexBySender[sender].length - 1; j++) {
                 const prevIndex: number = indexBySender[sender][j];
 
-                const currNonce: AppUtils.BigNumber = AppUtils.assert.defined(this.all[i].data.nonce);
-                const prevNonce: AppUtils.BigNumber = AppUtils.assert.defined(this.all[prevIndex].data.nonce);
+                const currNonce: AppUtils.BigNumber | undefined = this.all[i].data.nonce;
+                const prevNonce: AppUtils.BigNumber | undefined = this.all[prevIndex].data.nonce;
+
+                AppUtils.assert.defined<AppUtils.BigNumber>(currNonce);
+                AppUtils.assert.defined<AppUtils.BigNumber>(prevNonce);
 
                 if (currNonce.isLessThan(prevNonce)) {
                     const newIndex = i + 1 + nMoved;

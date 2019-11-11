@@ -291,8 +291,11 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
                     .config()
                     .get<Record<string, number>>("databaseRollback") || {};
 
-            const maxBlockRewind: number = AppUtils.assert.defined(config.maxBlockRewind);
-            const steps: number = AppUtils.assert.defined(config.steps);
+            AppUtils.assert.defined<number>(config.maxBlockRewind);
+            AppUtils.assert.defined<number>(config.steps);
+
+            const maxBlockRewind: number = config.maxBlockRewind;
+            const steps: number = config.steps;
 
             for (let i = maxBlockRewind; i >= 0; i -= steps) {
                 await blockchain.removeTopBlocks(steps);

@@ -34,7 +34,9 @@ export class BootServiceProviders implements Bootstrapper {
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
-            const serviceProviderName: string = assert.defined(serviceProvider.name());
+            const serviceProviderName: string | undefined = serviceProvider.name();
+
+            assert.defined<string>(serviceProviderName);
 
             if (await serviceProvider.enableWhen()) {
                 try {

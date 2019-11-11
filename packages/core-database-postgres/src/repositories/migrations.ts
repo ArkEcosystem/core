@@ -1,4 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
+
 import { Migration as MigrationContract } from "../interfaces";
 import { Migration } from "../models";
 import { queries } from "../queries";

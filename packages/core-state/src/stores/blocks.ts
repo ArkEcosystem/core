@@ -19,21 +19,29 @@ export class BlockStore {
     }
 
     public set(value: Interfaces.IBlock): void {
-        const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.last());
+        const lastBlock: Interfaces.IBlock | undefined = this.last();
+
+        Utils.assert.defined<Interfaces.IBlock>(lastBlock);
 
         assert.strictEqual(value.data.height, lastBlock ? lastBlock.data.height + 1 : 1);
 
-        this.byId.set(Utils.assert.defined(value.data.id), value.data);
+        Utils.assert.defined<string>(value.data.id);
+
+        this.byId.set(value.data.id, value.data);
         this.byHeight.set(value.data.height, value.data);
         this.lastBlock = value;
     }
 
     public has(value: Interfaces.IBlockData): boolean {
-        return this.byId.has(Utils.assert.defined(value.id)) || this.byHeight.has(value.height);
+        Utils.assert.defined<string>(value.id);
+
+        return this.byId.has(value.id) || this.byHeight.has(value.height);
     }
 
     public delete(value: Interfaces.IBlockData): void {
-        this.byId.delete(Utils.assert.defined(value.id));
+        Utils.assert.defined<string>(value.id);
+
+        this.byId.delete(value.id);
         this.byHeight.delete(value.height);
     }
 

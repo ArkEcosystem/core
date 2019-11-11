@@ -6,11 +6,12 @@ export class TransactionReader {
         connection: Contracts.Database.Connection,
         typeConstructor: Transactions.TransactionConstructor,
     ): Promise<TransactionReader> {
-        const reader: TransactionReader = new TransactionReader(
-            connection,
-            Utils.assert.defined(typeConstructor.type),
-            Utils.assert.defined(typeConstructor.typeGroup),
-        );
+        const { type, typeGroup } = typeConstructor;
+
+        Utils.assert.defined<number>(type);
+        Utils.assert.defined<number>(typeGroup);
+
+        const reader: TransactionReader = new TransactionReader(connection, type, typeGroup);
 
         await reader.init();
 

@@ -54,8 +54,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await this.performGenericWalletChecks(transaction, sender, databaseWalletRepository);
 
+        AppUtils.assert.defined<string>(transaction.data.asset?.refund);
+
         // Specific HTLC refund checks
-        const refundAsset: Interfaces.IHtlcRefundAsset = AppUtils.assert.defined(transaction.data.asset!.refund);
+        const refundAsset: Interfaces.IHtlcRefundAsset = transaction.data.asset.refund;
         const lockId: string = refundAsset.lockTransactionId;
         const lockWallet: Contracts.State.Wallet = databaseWalletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
@@ -66,9 +68,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         }
 
         const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks", {})[lockId];
-        const lastBlock: Interfaces.IBlock = AppUtils.assert.defined(
-            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
-        );
+        const lastBlock: Interfaces.IBlock = this.app
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
+            .getLastBlock();
 
         const lastBlockEpochTimestamp: number = lastBlock.data.timestamp;
         const expiration: Interfaces.IHtlcExpiration = lock.expiration;
@@ -86,7 +88,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        const lockId: string = AppUtils.assert.defined(data.asset!.refund!.lockTransactionId);
+        AppUtils.assert.defined<string>(data.asset?.refund?.lockTransactionId);
+
+        const lockId: string = data.asset.refund.lockTransactionId;
 
         const databaseService: Contracts.Database.DatabaseService = this.app.get<Contracts.Database.DatabaseService>(
             Container.Identifiers.DatabaseService,
@@ -111,7 +115,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
         const alreadyHasPendingRefund: boolean = htlcRefundsInpool.some(transaction => {
-            return AppUtils.assert.defined(transaction.asset!.claim!.lockTransactionId) === lockId;
+            AppUtils.assert.defined<string>(data.asset?.claim?.lockTransactionId);
+
+            return transaction.asset!.claim!.lockTransactionId === lockId;
         });
 
         if (alreadyHasPendingRefund) {
@@ -126,9 +132,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -140,9 +146,13 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         sender.verifyTransactionNonceApply(transaction);
 
-        sender.nonce = AppUtils.assert.defined(data.nonce);
+        AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
 
-        const lockId: string = AppUtils.assert.defined(data.asset!.refund!.lockTransactionId);
+        sender.nonce = data.nonce;
+
+        AppUtils.assert.defined<string>(data.asset?.refund?.lockTransactionId);
+
+        const lockId: string = data.asset.refund.lockTransactionId;
         const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
@@ -175,9 +185,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.verifyTransactionNonceRevert(transaction);
 
@@ -188,14 +198,19 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             Container.Identifiers.DatabaseService,
         );
 
-        const lockId: string = AppUtils.assert.defined(transaction.data.asset!.refund!.lockTransactionId);
-        const lockTransaction: Interfaces.ITransactionData = AppUtils.assert.defined(
-            await databaseService.transactionsBusinessRepository.findById(lockId),
+        AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
+
+        const lockId: string = transaction.data.asset.refund.lockTransactionId;
+        const lockTransaction: Interfaces.ITransactionData = await databaseService.transactionsBusinessRepository.findById(
+            lockId,
         );
 
-        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(lockTransaction.senderPublicKey),
-        );
+        AppUtils.assert.defined<Interfaces.ITransactionData>(lockTransaction);
+
+        AppUtils.assert.defined<string>(lockTransaction.senderPublicKey);
+
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
+
         lockWallet.balance = lockWallet.balance.minus(lockTransaction.amount).plus(transaction.data.fee);
 
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
@@ -203,13 +218,15 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks", {});
 
+        AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
+
         if (locks) {
             locks[lockTransaction.id!] = {
                 amount: lockTransaction.amount,
                 recipientId: lockTransaction.recipientId,
                 timestamp: lockTransaction.timestamp,
                 vendorField: lockTransaction.vendorField,
-                ...AppUtils.assert.defined(lockTransaction.asset!.lock),
+                ...lockTransaction.asset.lock,
             };
         }
 

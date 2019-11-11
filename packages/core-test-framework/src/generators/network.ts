@@ -4,9 +4,9 @@ import ByteBuffer from "bytebuffer";
 import { copyFileSync, ensureDirSync, existsSync, writeJSONSync } from "fs-extra";
 import { resolve } from "path";
 import { dirSync } from "tmp";
-import secrets from "../internal/secrets.json";
 
 import { ConfigPaths } from "../app/types";
+import secrets from "../internal/secrets.json";
 
 interface Wallet {
     address: string;

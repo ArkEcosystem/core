@@ -102,15 +102,17 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         const { data }: Interfaces.ITransaction = transaction;
 
-        const sender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(
-            AppUtils.assert.defined(data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(data.senderPublicKey);
 
         if (sender.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
         }
 
-        const { username }: { username: string } = AppUtils.assert.defined(data.asset!.delegate);
+        AppUtils.assert.defined<string>(data.asset?.delegate?.username);
+
+        const username: string = data.asset.delegate.username;
 
         if (!username) {
             throw new WalletNotADelegateError();
@@ -140,7 +142,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             return false;
         }
 
-        const { username }: { username: string } = AppUtils.assert.defined(data.asset!.delegate);
+        AppUtils.assert.defined<string>(data.asset?.delegate?.username);
+
+        const username: string = data.asset.delegate.username;
+
         const delegateRegistrationsSameNameInPayload = processor
             .getTransactions()
             .filter(
@@ -183,12 +188,14 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+
+        AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
 
         sender.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
-            username: AppUtils.assert.defined(transaction.data.asset!.delegate!.username),
+            username: transaction.data.asset.delegate.username,
             voteBalance: Utils.BigNumber.ZERO,
             forgedFees: Utils.BigNumber.ZERO,
             forgedRewards: Utils.BigNumber.ZERO,
@@ -205,9 +212,9 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         walletRepository.forgetByUsername(sender.getAttribute("delegate.username"));
 

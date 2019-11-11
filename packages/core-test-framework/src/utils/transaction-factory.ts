@@ -1,4 +1,4 @@
-import { Utils as AppUtils, Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Builders as MagistrateBuilders,
     Interfaces as MagistrateInterfaces,
@@ -319,7 +319,9 @@ export class TransactionFactory {
             return this.nonce;
         }
 
-        return getWalletNonce(this.app, AppUtils.assert.defined(this.senderPublicKey));
+        AppUtils.assert.defined<string>(this.senderPublicKey);
+
+        return getWalletNonce(this.app, this.senderPublicKey);
     }
 
     private make<T>(quantity = 1, method: string): T[] {

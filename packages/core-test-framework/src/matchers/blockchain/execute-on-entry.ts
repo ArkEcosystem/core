@@ -33,7 +33,10 @@ expect.extend({
                 `Expected machine to ${this.isNot ? "not " : ""} call actions ${actions} on state "${
                     transition.state
                 }"`,
-            pass: Utils.isEqual(state.onEntry.map(action => action.type), transition.actions),
+            pass: Utils.isEqual(
+                state.onEntry.map(action => action.type),
+                transition.actions,
+            ),
         };
     },
 });

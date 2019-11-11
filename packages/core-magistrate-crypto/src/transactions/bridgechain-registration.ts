@@ -60,9 +60,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const bridgechainRegistrationAsset: IBridgechainRegistrationAsset = AppUtils.assert.defined(
-            data.asset!.bridgechainRegistration,
-        );
+        AppUtils.assert.defined<IBridgechainRegistrationAsset>(data.asset?.bridgechainRegistration);
+
+        const bridgechainRegistrationAsset: IBridgechainRegistrationAsset = data.asset.bridgechainRegistration;
         const seedNodes: string[] = bridgechainRegistrationAsset.seedNodes;
         const seedNodesBuffers: Buffer[] = [];
         const bridgechainName: Buffer = Buffer.from(bridgechainRegistrationAsset.name, "utf8");

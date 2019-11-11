@@ -128,7 +128,11 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             index.set(address, new Wallet(address, this.app));
         }
 
-        return AppUtils.assert.defined(index.get(address));
+        const wallet: Contracts.State.Wallet | undefined = index.get(address);
+
+        AppUtils.assert.defined<Contracts.State.Wallet>(wallet);
+
+        return wallet;
     }
 
     public findByPublicKey(publicKey: string): Contracts.State.Wallet {
@@ -141,7 +145,11 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             index.set(publicKey, wallet);
         }
 
-        return AppUtils.assert.defined(index.get(publicKey));
+        const wallet: Contracts.State.Wallet | undefined = index.get(publicKey);
+
+        AppUtils.assert.defined<Contracts.State.Wallet>(wallet);
+
+        return wallet;
     }
 
     public findByUsername(username: string): Contracts.State.Wallet {
@@ -157,7 +165,11 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             const index: Contracts.State.WalletIndex = this.getIndex(name);
 
             if (index.has(key)) {
-                return AppUtils.assert.defined(index.get(key));
+                const wallet: Contracts.State.Wallet | undefined = index.get(key);
+
+                AppUtils.assert.defined<Contracts.State.Wallet>(wallet);
+
+                return wallet;
             }
         }
 

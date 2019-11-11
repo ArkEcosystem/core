@@ -543,19 +543,20 @@ describe("Block", () => {
 
     describe("serializeWithTransactions", () => {
         describe("genesis block", () => {
-            it.each([["mainnet", 468048], ["devnet", 14492], ["testnet", 46488]])(
-                "%s",
-                (network: NetworkName, length: number) => {
-                    configManager.setFromPreset(network);
-                    configManager.getMilestone().aip11 = false;
+            it.each([
+                ["mainnet", 468048],
+                ["devnet", 14492],
+                ["testnet", 46488],
+            ])("%s", (network: NetworkName, length: number) => {
+                configManager.setFromPreset(network);
+                configManager.getMilestone().aip11 = false;
 
-                    const block: Interfaces.IBlock = BlockFactory.fromJson(networks[network].genesisBlock);
+                const block: Interfaces.IBlock = BlockFactory.fromJson(networks[network].genesisBlock);
 
-                    expect(block.serialized).toHaveLength(length);
-                    expect(block.verifySignature()).toBeTrue();
-                    configManager.getMilestone().aip11 = network === "testnet";
-                },
-            );
+                expect(block.serialized).toHaveLength(length);
+                expect(block.verifySignature()).toBeTrue();
+                configManager.getMilestone().aip11 = network === "testnet";
+            });
         });
 
         it("should validate hash", () => {

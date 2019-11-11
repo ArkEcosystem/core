@@ -183,32 +183,38 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         const maxPeersPerPeer = 50;
         const ownPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
         const theirPeers: Contracts.P2P.Peer[] = Object.values(
-            (await Promise.all(
-                Utils.shuffle(this.storage.getPeers())
-                    .slice(0, 8)
-                    .map(async (peer: Contracts.P2P.Peer) => {
-                        try {
-                            const hisPeers = await this.communicator.getPeers(peer);
-                            return hisPeers || [];
-                        } catch (error) {
-                            this.logger.debug(`Failed to get peers from ${peer.ip}: ${error.message}`);
-                            return [];
-                        }
-                    }),
-            ))
+            (
+                await Promise.all(
+                    Utils.shuffle(this.storage.getPeers())
+                        .slice(0, 8)
+                        .map(async (peer: Contracts.P2P.Peer) => {
+                            try {
+                                const hisPeers = await this.communicator.getPeers(peer);
+                                return hisPeers || [];
+                            } catch (error) {
+                                this.logger.debug(`Failed to get peers from ${peer.ip}: ${error.message}`);
+                                return [];
+                            }
+                        }),
+                )
+            )
                 .map(peers =>
                     Utils.shuffle(peers)
                         .slice(0, maxPeersPerPeer)
                         .reduce(
                             // @ts-ignore
-                            (acc: object, curr: Contracts.P2P.Peer) => ({
-                                ...acc,
-                                ...{ [Utils.assert.defined<string>(curr.ip)]: curr },
-                            }),
+                            (acc: object, curr: Contracts.P2P.Peer) => {
+                                Utils.assert.defined<string>(curr.ip);
+
+                                return {
+                                    ...acc,
+                                    ...{ [curr.ip]: curr },
+                                };
+                            },
                             {},
                         ),
                 )
-                .reduce((acc, curr) => ({ ...acc, ...curr }), {}),
+                .reduce((acc: object, curr) => ({ ...acc, ...curr }), {}),
         );
 
         if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
@@ -248,10 +254,10 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
             .filter(peer => peer.state.height)
             .map(peer => peer.state.height)
             .sort((a, b) => {
-                const heightA: number = Utils.assert.defined(a);
-                const heightB: number = Utils.assert.defined(b);
+                Utils.assert.defined<string>(a);
+                Utils.assert.defined<string>(b);
 
-                return heightA - heightB;
+                return a - b;
             });
 
         return medians[Math.floor(medians.length / 2)] || 0;
@@ -272,9 +278,10 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public async checkNetworkHealth(): Promise<Contracts.P2P.NetworkStatus> {
         await this.cleansePeers({ forcePing: true });
 
-        const lastBlock: Interfaces.IBlock = Utils.assert.defined(
-            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
-        );
+        const lastBlock: Interfaces.IBlock = this.app
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
+            .getLastBlock();
+
         const allPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
 
         if (!allPeers.length) {
@@ -339,29 +346,31 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
             const chunksMissingToSync: number = Math.ceil((networkHeight - fromBlockHeight) / chunkSize);
             const chunksToDownload: number = Math.min(chunksMissingToSync, peersFiltered.length, maxParallelDownloads);
 
-            return (await Promise.all(
-                Utils.shuffle(peersFiltered)
-                    .slice(0, chunksToDownload)
-                    .map(async (peer: Contracts.P2P.Peer, index) => {
-                        const height: number = fromBlockHeight + chunkSize * index;
-                        const peersToTry: Contracts.P2P.Peer[] = [
-                            peer,
-                            Utils.sample(peersFiltered),
-                            Utils.sample(peersFiltered),
-                        ]; // 2 "fallback" peers to download from if 1st one failed
+            return (
+                await Promise.all(
+                    Utils.shuffle(peersFiltered)
+                        .slice(0, chunksToDownload)
+                        .map(async (peer: Contracts.P2P.Peer, index) => {
+                            const height: number = fromBlockHeight + chunkSize * index;
+                            const peersToTry: Contracts.P2P.Peer[] = [
+                                peer,
+                                Utils.sample(peersFiltered),
+                                Utils.sample(peersFiltered),
+                            ]; // 2 "fallback" peers to download from if 1st one failed
 
-                        let blocks: Interfaces.IBlockData[] = [];
-                        for (const peerToDownloadFrom of peersToTry) {
-                            blocks = await this.communicator.downloadBlocks(peerToDownloadFrom, height);
+                            let blocks: Interfaces.IBlockData[] = [];
+                            for (const peerToDownloadFrom of peersToTry) {
+                                blocks = await this.communicator.downloadBlocks(peerToDownloadFrom, height);
 
-                            if (blocks.length > 0) {
-                                return blocks;
+                                if (blocks.length > 0) {
+                                    return blocks;
+                                }
                             }
-                        }
 
-                        return blocks;
-                    }),
-            )).reduce((acc, curr) => [...acc, ...(curr || [])], []);
+                            return blocks;
+                        }),
+                )
+            ).reduce((acc, curr) => [...acc, ...(curr || [])], []);
         } catch (error) {
             this.logger.error(`Could not download blocks: ${error.message}`);
 

@@ -138,7 +138,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     public removeTransaction(transaction: Interfaces.ITransaction): void {
-        this.removeTransactionById(AppUtils.assert.defined(transaction.id), transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.id);
+
+        this.removeTransactionById(transaction.id, transaction.data.senderPublicKey);
     }
 
     public removeTransactionById(id: string, senderPublicKey?: string): void {
@@ -180,12 +182,18 @@ export class Connection implements Contracts.TransactionPool.Connection {
             this.options.maxTransactionBytes,
         );
 
-        return transactions.map((transaction: Interfaces.ITransaction) => AppUtils.assert.defined(transaction.id));
+        return transactions.map((transaction: Interfaces.ITransaction) => {
+            AppUtils.assert.defined<string>(transaction.id);
+
+            return transaction.id;
+        });
     }
 
     public removeTransactionsForSender(senderPublicKey: string): void {
         for (const transaction of this.memory.getBySender(senderPublicKey)) {
-            this.removeTransactionById(AppUtils.assert.defined(transaction.id));
+            AppUtils.assert.defined<string>(transaction.id);
+
+            this.removeTransactionById(transaction.id);
         }
     }
 
@@ -229,8 +237,13 @@ export class Connection implements Contracts.TransactionPool.Connection {
         for (const transaction of block.transactions) {
             const { data }: Interfaces.ITransaction = transaction;
 
-            const exists: boolean = await this.has(AppUtils.assert.defined(data.id));
-            const senderPublicKey: string = AppUtils.assert.defined(data.senderPublicKey);
+            AppUtils.assert.defined<string>(data.id);
+
+            const exists: boolean = await this.has(data.id);
+
+            AppUtils.assert.defined<string>(data.senderPublicKey);
+
+            const senderPublicKey: string = data.senderPublicKey;
 
             const transactionHandler: Handlers.TransactionHandler = await this.app
                 .get<any>("transactionHandlerRegistry")
@@ -240,8 +253,8 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
             let recipientWallet: Contracts.State.Wallet | undefined;
 
-            if (this.walletRepository.hasByAddress(data.recipientId!)) {
-                recipientWallet = this.walletRepository.findByAddress(AppUtils.assert.defined(data.recipientId));
+            if (data.recipientId && this.walletRepository.hasByAddress(data.recipientId)) {
+                recipientWallet = this.walletRepository.findByAddress(data.recipientId);
             }
 
             if (recipientWallet) {
@@ -423,7 +436,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
     private async addTransaction(
         transaction: Interfaces.ITransaction,
     ): Promise<Contracts.TransactionPool.AddTransactionResponse> {
-        if (await this.has(AppUtils.assert.defined(transaction.id))) {
+        AppUtils.assert.defined<string>(transaction.id);
+
+        if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
                     `in the pool, id: ${transaction.id}`,
@@ -438,14 +453,16 @@ export class Connection implements Contracts.TransactionPool.Connection {
             // The pool can't accommodate more transactions. Either decline the newcomer or remove
             // an existing transaction from the pool in order to free up space.
             const all: Interfaces.ITransaction[] = this.memory.allSortedByFee();
-            const lowest: Interfaces.ITransaction = AppUtils.assert.defined(all[all.length - 1]);
+            const lowest: Interfaces.ITransaction | undefined = all[all.length - 1];
+
+            AppUtils.assert.defined<string>(lowest.id);
 
             const fee: Utils.BigNumber = transaction.data.fee;
             const lowestFee: Utils.BigNumber = lowest.data.fee;
 
             if (lowestFee.isLessThan(fee)) {
                 await this.walletRepository.revertTransactionForSender(lowest);
-                this.memory.forget(AppUtils.assert.defined(lowest.id), lowest.data.senderPublicKey);
+                this.memory.forget(lowest.id, lowest.data.senderPublicKey);
             } else {
                 return {
                     transaction,
@@ -470,7 +487,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
         } catch (error) {
             this.logger.error(error.message);
 
-            this.memory.forget(AppUtils.assert.defined(transaction.id));
+            AppUtils.assert.defined<string>(transaction.id);
+
+            this.memory.forget(transaction.id);
 
             return { transaction, type: "ERR_APPLY", message: error.message };
         }
@@ -555,7 +574,11 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
     private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
         const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
-            transactions.map(({ id }) => AppUtils.assert.defined(id)),
+            transactions.map(({ id }) => {
+                AppUtils.assert.defined<string>(id);
+
+                return id;
+            }),
         );
 
         this.removeTransactionsById(forgedIds);
@@ -575,7 +598,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
             await this.walletRepository.revertTransactionForSender(transaction);
 
-            this.memory.forget(AppUtils.assert.defined(transaction.id), transaction.data.senderPublicKey);
+            AppUtils.assert.defined<Interfaces.ITransaction>(transaction.id);
+
+            this.memory.forget(transaction.id, transaction.data.senderPublicKey);
 
             this.syncToPersistentStorageIfNecessary();
         };
@@ -587,7 +612,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 continue;
             }
 
-            const senderPublicKey: string = AppUtils.assert.defined(transaction.data.senderPublicKey);
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+            const senderPublicKey: string = transaction.data.senderPublicKey;
 
             if (lowestNonceBySender[senderPublicKey] === undefined) {
                 lowestNonceBySender[senderPublicKey] = transaction.data.nonce;
@@ -602,14 +629,14 @@ export class Connection implements Contracts.TransactionPool.Connection {
         for (const senderPublicKey of Object.keys(lowestNonceBySender)) {
             const allTxFromSender = Array.from(this.memory.getBySender(senderPublicKey));
             allTxFromSender.sort((a, b) => {
-                const nonceA: Utils.BigNumber = AppUtils.assert.defined(a.data.nonce);
-                const nonceB: Utils.BigNumber = AppUtils.assert.defined(b.data.nonce);
+                AppUtils.assert.defined<AppUtils.BigNumber>(a.data.nonce);
+                AppUtils.assert.defined<AppUtils.BigNumber>(b.data.nonce);
 
-                if (nonceA.isGreaterThan(nonceB)) {
+                if (a.data.nonce.isGreaterThan(b.data.nonce)) {
                     return -1;
                 }
 
-                if (nonceA.isLessThan(nonceB)) {
+                if (a.data.nonce.isLessThan(b.data.nonce)) {
                     return 1;
                 }
 
@@ -619,8 +646,11 @@ export class Connection implements Contracts.TransactionPool.Connection {
             for (const transaction of allTxFromSender) {
                 await purge(transaction);
 
-                const nonce: AppUtils.BigNumber = AppUtils.assert.defined(transaction.data.nonce);
-                const senderPublicKey: string = AppUtils.assert.defined(transaction.data.senderPublicKey);
+                AppUtils.assert.defined<AppUtils.BigNumber>(transaction.data.nonce);
+                AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+                const nonce: AppUtils.BigNumber = transaction.data.nonce;
+                const senderPublicKey: string = transaction.data.senderPublicKey;
 
                 if (nonce.isEqualTo(lowestNonceBySender[senderPublicKey])) {
                     break;

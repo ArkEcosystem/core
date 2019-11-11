@@ -55,13 +55,13 @@ export class NodeController extends Controller {
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
             const network = Managers.configManager.get("network");
-            const dynamicFees: Record<string, any> = Utils.assert.defined(
-                this.app
-                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                    .get("transactionPool")
-                    .config()
-                    .get<{ enabled?: boolean }>("dynamicFees"),
-            );
+            const dynamicFees: Record<string, any> | undefined = this.app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("transactionPool")
+                .config()
+                .get<{ enabled?: boolean }>("dynamicFees");
+
+            Utils.assert.defined<Record<string, any>>(dynamicFees);
 
             return {
                 data: {
@@ -109,8 +109,12 @@ export class NodeController extends Controller {
         return { meta: { days: request.query.days }, data: results };
     }
 
+    // todo: move this into core manager
     public async debug(request: Hapi.Request, h) {
-        const logPath: string | undefined = Utils.assert.defined(process.env.CORE_PATH_LOG);
+        const logPath: string | undefined = process.env.CORE_PATH_LOG;
+
+        Utils.assert.defined<string>(logPath);
+
         const logFile: string = `${logPath}/${this.app.token()}-current.log`;
 
         if (!existsSync(logFile)) {

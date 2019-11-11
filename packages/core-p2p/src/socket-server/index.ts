@@ -19,6 +19,22 @@ export const startSocketServer = async (
     // todo: get rid of thise, no test vars in production code
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
+    const getBlocksTimeout: number | undefined = app
+        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+        .get("@arkecosystem/core-p2p")
+        .config()
+        .get<number>("getBlocksTimeout");
+
+    Utils.assert.defined<number>(getBlocksTimeout);
+
+    const verifyTimeout: number | undefined = app
+        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+        .get("@arkecosystem/core-p2p")
+        .config()
+        .get<number>("verifyTimeout");
+
+    Utils.assert.defined<number>(verifyTimeout);
+
     // https://socketcluster.io/#!/docs/api-socketcluster
     const server: SocketCluster = new SocketCluster({
         ...{
@@ -31,22 +47,7 @@ export const startSocketServer = async (
             wsEngine: "ws",
             // See https://github.com/SocketCluster/socketcluster/issues/506 about
             // details on how pingTimeout works.
-            pingTimeout: Math.max(
-                Utils.assert.defined(
-                    app
-                        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                        .get("@arkecosystem/core-p2p")
-                        .config()
-                        .get<number>("getBlocksTimeout"),
-                ),
-                Utils.assert.defined(
-                    app
-                        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                        .get("@arkecosystem/core-p2p")
-                        .config()
-                        .get<number>("verifyTimeout"),
-                ),
-            ),
+            pingTimeout: Math.max(getBlocksTimeout, verifyTimeout),
             perMessageDeflate: true,
         },
         ...config.server,

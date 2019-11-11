@@ -16,8 +16,12 @@ export class MixinService {
      * @returns {Function}
      * @memberof MixinService
      */
-    public get(name: string): Function | undefined {
-        return this.mixins.get(name);
+    public get(name: string): Function {
+        const mixin: Function | undefined = this.mixins.get(name);
+
+        assert.defined<Function>(mixin);
+
+        return mixin;
     }
 
     /**
@@ -59,12 +63,12 @@ export class MixinService {
             names = [names];
         }
 
-        let macroValue: Constructor<T> = assert.defined<Function>(this.mixins.get(names[0]))(value);
+        let macroValue: Constructor<T> = this.get(names[0])(value);
 
         names.shift();
 
         for (const name of names) {
-            macroValue = assert.defined<Function>(this.mixins.get(name))(macroValue);
+            macroValue = this.get(name)(macroValue);
         }
 
         return macroValue;

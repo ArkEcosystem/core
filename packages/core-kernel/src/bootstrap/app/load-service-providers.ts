@@ -49,7 +49,9 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const plugins: PluginEntry[] = assert.defined(this.configRepository.get<PluginEntry[]>("app.plugins"));
+        const plugins: PluginEntry[] | undefined = this.configRepository.get<PluginEntry[]>("app.plugins");
+
+        assert.defined<PluginEntry[]>(plugins);
 
         for (const plugin of plugins) {
             const serviceProvider: ServiceProvider = this.app.resolve(require(plugin.package).ServiceProvider);
@@ -76,7 +78,10 @@ export class LoadServiceProviders implements Bootstrapper {
      * @memberof LoadServiceProviders
      */
     private discoverConfiguration(serviceProvider: ServiceProvider, options: JsonObject): PluginConfiguration {
-        const serviceProviderName: string = assert.defined(serviceProvider.name());
+        const serviceProviderName: string | undefined = serviceProvider.name();
+
+        assert.defined<string>(serviceProviderName);
+
         const hasDefaults: boolean = Object.keys(serviceProvider.configDefaults()).length > 0;
 
         if (hasDefaults) {

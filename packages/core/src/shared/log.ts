@@ -17,7 +17,9 @@ export abstract class AbstractLogCommand extends Command {
 
         abortMissingProcess(processName);
 
-        const proc: Record<string, any> = Utils.assert.defined(processManager.describe(processName));
+        const proc: Record<string, any> | undefined = processManager.describe(processName);
+
+        Utils.assert.defined<Record<string, any>>(proc);
 
         const file = flags.error ? proc.pm2_env.pm_err_log_path : proc.pm2_env.pm_out_log_path;
 

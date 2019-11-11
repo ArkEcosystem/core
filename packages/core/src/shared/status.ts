@@ -20,7 +20,9 @@ export abstract class AbstractStatusCommand extends Command {
         abortMissingProcess(processName);
 
         renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {
-            const app: ProcessDescription = Utils.assert.defined(processManager.describe(processName));
+            const app: ProcessDescription | undefined = processManager.describe(processName);
+
+            Utils.assert.defined<ProcessDescription>(app);
 
             // @ts-ignore
             table.push([

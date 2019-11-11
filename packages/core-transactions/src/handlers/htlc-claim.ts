@@ -54,7 +54,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         await this.performGenericWalletChecks(transaction, sender, databaseWalletRepository);
 
         // Specific HTLC claim checks
-        const claimAsset: Interfaces.IHtlcClaimAsset = AppUtils.assert.defined(transaction.data.asset!.claim);
+        AppUtils.assert.defined<Interfaces.IHtlcClaimAsset>(transaction.data.asset?.claim);
+
+        const claimAsset: Interfaces.IHtlcClaimAsset = transaction.data.asset.claim;
         const lockId: string = claimAsset.lockTransactionId;
         const lockWallet: Contracts.State.Wallet = databaseWalletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
@@ -65,9 +67,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         }
 
         const lock: Interfaces.IHtlcLock = lockWallet.getAttribute("htlc.locks", {})[lockId];
-        const lastBlock: Interfaces.IBlock = AppUtils.assert.defined(
-            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
-        );
+        const lastBlock: Interfaces.IBlock = this.app
+            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
+            .getLastBlock();
 
         const expiration: Interfaces.IHtlcExpiration = lock.expiration;
         if (
@@ -89,7 +91,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        const lockId: string = AppUtils.assert.defined(data.asset!.claim!.lockTransactionId);
+        AppUtils.assert.defined<string>(data.asset?.claim?.lockTransactionId);
+
+        const lockId: string = data.asset.claim.lockTransactionId;
 
         const databaseService: Contracts.Database.DatabaseService = this.app.get<Contracts.Database.DatabaseService>(
             Container.Identifiers.DatabaseService,
@@ -112,7 +116,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         ).map((memTx: Interfaces.ITransaction) => memTx.data);
 
         const alreadyHasPendingClaim: boolean = htlcClaimsInPool.some(transaction => {
-            return AppUtils.assert.defined<string>(transaction.asset!.claim!.lockTransactionId) === lockId;
+            AppUtils.assert.defined<string>(transaction.asset?.claim?.lockTransactionId);
+
+            return transaction.asset.claim.lockTransactionId === lockId;
         });
 
         if (alreadyHasPendingClaim) {
@@ -127,9 +133,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -141,9 +147,13 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         sender.verifyTransactionNonceApply(transaction);
 
-        sender.nonce = AppUtils.assert.defined(data.nonce);
+        AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
 
-        const lockId: string = AppUtils.assert.defined(data.asset!.claim!.lockTransactionId);
+        sender.nonce = data.nonce;
+
+        AppUtils.assert.defined<string>(data.asset?.claim?.lockTransactionId);
+
+        const lockId: string = data.asset.claim.lockTransactionId;
         const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
@@ -153,11 +163,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks", {});
 
-        const recipientId: string = AppUtils.assert.defined(locks[lockId].recipientId);
+        const recipientId: string | undefined = locks[lockId].recipientId;
 
-        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
-            AppUtils.assert.defined(recipientId),
-        );
+        AppUtils.assert.defined<string>(recipientId);
+
+        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(recipientId);
 
         const newBalance: Utils.BigNumber = recipientWallet.balance.plus(locks[lockId].amount).minus(data.fee);
 
@@ -184,7 +194,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const sender: Contracts.State.Wallet = AppUtils.assert.defined(transaction.data.senderPublicKey);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         const data: Interfaces.ITransactionData = transaction.data;
 
@@ -197,29 +209,34 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             Container.Identifiers.DatabaseService,
         );
 
-        const lockId: string = AppUtils.assert.defined(data.asset!.claim!.lockTransactionId);
-        const lockTransaction: Interfaces.ITransactionData = AppUtils.assert.defined(
-            await databaseService.transactionsBusinessRepository.findById(lockId),
+        AppUtils.assert.defined<string>(data.asset?.claim?.lockTransactionId);
+
+        const lockId: string = data.asset.claim.lockTransactionId;
+        const lockTransaction: Interfaces.ITransactionData = await databaseService.transactionsBusinessRepository.findById(
+            lockId,
         );
 
-        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
-            AppUtils.assert.defined(lockTransaction.recipientId),
-        );
+        AppUtils.assert.defined<Interfaces.ITransactionData>(lockTransaction.recipientId);
+
+        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(lockTransaction.recipientId);
         recipientWallet.balance = recipientWallet.balance.minus(lockTransaction.amount).plus(data.fee);
 
-        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(lockTransaction.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(lockTransaction.senderPublicKey);
+
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(lockTransaction.senderPublicKey);
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
         const locks: Interfaces.IHtlcLocks = lockWallet.getAttribute("htlc.locks");
+
+        AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
+
         locks[lockTransaction.id!] = {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
             vendorField: lockTransaction.vendorField,
-            ...AppUtils.assert.defined(lockTransaction.asset!.lock),
+            ...lockTransaction.asset.lock,
         };
 
         walletRepository.reindex(sender);

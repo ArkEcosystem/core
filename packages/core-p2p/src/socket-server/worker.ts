@@ -38,7 +38,8 @@ export class Worker extends SCWorker {
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
                         (typeof parsed.cid !== "number" &&
-                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
+                            parsed.event === "#disconnect" &&
+                            typeof parsed.cid !== "undefined")
                     ) {
                         req.socket.terminate();
                     }

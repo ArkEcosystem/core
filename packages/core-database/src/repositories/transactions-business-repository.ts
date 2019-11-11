@@ -72,9 +72,11 @@ export class TransactionsBusinessRepository implements Contracts.Database.Transa
 
     // @TODO: simplify this
     public async findById(id: string) {
-        return (await this.mapBlocksToTransactions(
-            await this.databaseServiceProvider().connection.transactionsRepository.findById(id),
-        ))[0];
+        return (
+            await this.mapBlocksToTransactions(
+                await this.databaseServiceProvider().connection.transactionsRepository.findById(id),
+            )
+        )[0];
     }
 
     public async findByTypeAndId(type: number, id: string) {

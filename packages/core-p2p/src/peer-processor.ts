@@ -2,10 +2,10 @@ import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arke
 import { Utils } from "@arkecosystem/crypto";
 
 import { Peer } from "./peer";
-import { PeerConnector } from "./peer-connector";
 import { PeerCommunicator } from "./peer-communicator";
-import { isValidVersion, isWhitelisted } from "./utils";
+import { PeerConnector } from "./peer-connector";
 import { AcceptNewPeerOptions } from "./types";
+import { isValidVersion, isWhitelisted } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
@@ -58,7 +58,9 @@ export class PeerProcessor {
             return false;
         }
 
-        const maxSameSubnetPeers: number = AppUtils.assert.defined(this.getConfig("maxSameSubnetPeers"));
+        const maxSameSubnetPeers: number | undefined = this.getConfig("maxSameSubnetPeers");
+
+        AppUtils.assert.defined<number>(maxSameSubnetPeers);
 
         if (this.storage.getSameSubnetPeers(peer.ip).length >= maxSameSubnetPeers && !options.seed) {
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
@@ -94,7 +96,9 @@ export class PeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            const verifyTimeout: number = AppUtils.assert.defined(this.getConfig("verifyTimeout"));
+            const verifyTimeout: number | undefined = this.getConfig("verifyTimeout");
+
+            AppUtils.assert.defined<number>(verifyTimeout);
 
             await this.communicator.ping(newPeer, verifyTimeout);
 

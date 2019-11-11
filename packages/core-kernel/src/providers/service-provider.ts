@@ -1,7 +1,6 @@
 import { Kernel } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
 import { JsonObject } from "../types";
-import { assert } from "../utils";
 import { PluginConfiguration } from "./plugin-configuration";
 import { PluginManifest } from "./plugin-manifest";
 
@@ -29,7 +28,7 @@ export abstract class ServiceProvider {
      * @type {PluginConfiguration}
      * @memberof ServiceProvider
      */
-    private packageConfiguration: PluginConfiguration | undefined;
+    private packageConfiguration!: PluginConfiguration;
 
     /**
      * The loaded manifest.
@@ -38,7 +37,7 @@ export abstract class ServiceProvider {
      * @type {PluginManifest}
      * @memberof PluginManifest
      */
-    private packageManifest: PluginManifest | undefined;
+    private packageManifest!: PluginManifest;
 
     /**
      * Register the service provider.
@@ -76,7 +75,7 @@ export abstract class ServiceProvider {
      * @memberof ServiceProvider
      */
     public manifest(): PluginManifest {
-        return assert.defined(this.packageManifest);
+        return this.packageManifest;
     }
 
     /**
@@ -138,7 +137,7 @@ export abstract class ServiceProvider {
      * @memberof ServiceProvider
      */
     public config(): PluginConfiguration {
-        return assert.defined(this.packageConfiguration);
+        return this.packageConfiguration;
     }
 
     /**

@@ -16,10 +16,10 @@ export const getPeers = ({ service }: { service: PeerService }): Contracts.P2P.P
         .getPeers()
         .map(peer => peer.toBroadcast())
         .sort((a, b) => {
-            const latencyA: number = Utils.assert.defined(a.latency);
-            const latencyB: number = Utils.assert.defined(b.latency);
+            Utils.assert.defined<number>(a.latency);
+            Utils.assert.defined<number>(b.latency);
 
-            return latencyA - latencyB;
+            return a.latency - b.latency;
         });
 };
 

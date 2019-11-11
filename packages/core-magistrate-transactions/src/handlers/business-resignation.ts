@@ -77,8 +77,10 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
                 "ERR_PENDING",
                 `Business resignation for "${wallet.getAttribute("business")}" already in the pool`,
             );
+
             return false;
         }
+
         return true;
     }
 
@@ -88,9 +90,9 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.setAttribute("business.resigned", true);
         walletRepository.reindex(sender);
@@ -102,9 +104,9 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.forgetAttribute("business.resigned");
         walletRepository.reindex(sender);

@@ -44,7 +44,9 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
                     wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
                     multiSignature.legacy = true;
                 } else {
-                    multiSignature = AppUtils.assert.defined(transaction.asset.multiSignature);
+                    AppUtils.assert.defined<string>(transaction.asset.multiSignature);
+
+                    multiSignature = transaction.asset.multiSignature;
                     wallet = walletRepository.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
                 }
 
@@ -76,25 +78,27 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             return;
         }
 
-        const { publicKeys, min } = AppUtils.assert.defined(data.asset!.multiSignature);
+        AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
+
+        const { publicKeys, min } = data.asset.multiSignature;
         if (min < 1 || min > publicKeys.length || min > 16) {
             throw new MultiSignatureMinimumKeysError();
         }
 
-        if (publicKeys.length !== AppUtils.assert.defined<string[]>(data.signatures).length) {
+        AppUtils.assert.defined<string[]>(data.signatures);
+
+        if (publicKeys.length !== data.signatures.length) {
             throw new MultiSignatureKeyCountMismatchError();
         }
 
-        const multiSigAddress: string = Identities.Address.fromMultiSignatureAsset(
-            AppUtils.assert.defined(data.asset!.multiSignature),
-        );
+        const multiSigAddress: string = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
         const recipientWallet: Contracts.State.Wallet = databaseWalletRepository.findByAddress(multiSigAddress);
 
         if (recipientWallet.hasMultiSignature()) {
             throw new MultiSignatureAlreadyRegisteredError();
         }
 
-        if (!wallet.verifySignatures(data, AppUtils.assert.defined(data.asset!.multiSignature))) {
+        if (!wallet.verifySignatures(data, data.asset.multiSignature)) {
             throw new InvalidMultiSignatureError();
         }
 
@@ -121,13 +125,11 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
 
         // Create the multi sig wallet
         if (transaction.data.version && transaction.data.version >= 2) {
+            AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
+
             walletRepository
-                .findByAddress(
-                    Identities.Address.fromMultiSignatureAsset(
-                        AppUtils.assert.defined(transaction.data.asset!.multiSignature),
-                    ),
-                )
-                .setAttribute("multiSignature", AppUtils.assert.defined(transaction.data.asset!.multiSignature));
+                .findByAddress(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
+                .setAttribute("multiSignature", transaction.data.asset.multiSignature);
         }
     }
 
@@ -147,11 +149,13 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version && data.version >= 2) {
+            AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
+
             const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
-                Identities.Address.fromMultiSignatureAsset(AppUtils.assert.defined(data.asset!.multiSignature)),
+                Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
             );
 
-            recipientWallet.setAttribute("multiSignature", AppUtils.assert.defined(data.asset!.multiSignature));
+            recipientWallet.setAttribute("multiSignature", data.asset.multiSignature);
         }
     }
 
@@ -162,8 +166,10 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version && data.version >= 2) {
+            AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
+
             const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
-                Identities.Address.fromMultiSignatureAsset(AppUtils.assert.defined(data.asset!.multiSignature)),
+                Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
             );
 
             recipientWallet.forgetAttribute("multiSignature");

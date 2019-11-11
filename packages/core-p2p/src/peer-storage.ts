@@ -16,7 +16,11 @@ export class PeerStorage implements Contracts.P2P.PeerStorage {
     }
 
     public getPeer(ip: string): Contracts.P2P.Peer {
-        return Utils.assert.defined(this.peers.get(ip));
+        const peer: Contracts.P2P.Peer | undefined = this.peers.get(ip);
+
+        Utils.assert.defined<Contracts.P2P.Peer>(peer);
+
+        return peer;
     }
 
     public setPeer(peer: Contracts.P2P.Peer): void {
@@ -40,7 +44,11 @@ export class PeerStorage implements Contracts.P2P.PeerStorage {
     }
 
     public getPendingPeer(ip: string): Contracts.P2P.Peer {
-        return Utils.assert.defined(this.peersPending.get(ip));
+        const peer: Contracts.P2P.Peer | undefined = this.peersPending.get(ip);
+
+        Utils.assert.defined<Contracts.P2P.Peer>(peer);
+
+        return peer;
     }
 
     public setPendingPeer(peer: Contracts.P2P.Peer): void {

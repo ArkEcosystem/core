@@ -221,7 +221,11 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
             this.listeners.set(name, new Set<EventListener>());
         }
 
-        return assert.defined(this.listeners.get(name));
+        const listener: Set<EventListener> | undefined = this.listeners.get(name);
+
+        assert.defined<Set<EventListener>>(listener);
+
+        return listener;
     }
 
     /**

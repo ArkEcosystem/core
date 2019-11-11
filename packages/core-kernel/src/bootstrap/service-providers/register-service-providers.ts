@@ -44,7 +44,9 @@ export class RegisterServiceProviders implements Bootstrapper {
         );
 
         for (const [name, serviceProvider] of serviceProviders.all()) {
-            const serviceProviderName: string = assert.defined(serviceProvider.name());
+            const serviceProviderName: string | undefined = serviceProvider.name();
+
+            assert.defined<string>(serviceProviderName);
 
             try {
                 // Shall we include the plugin?
@@ -85,14 +87,20 @@ export class RegisterServiceProviders implements Bootstrapper {
         if (Object.keys(configSchema).length > 0) {
             const config: PluginConfiguration = serviceProvider.config();
 
-            const validator: Kernel.Validation.Validator = assert.defined(
-                this.app.get<ValidationManager>(Identifiers.ValidationManager).driver(),
-            );
+            const validator: Kernel.Validation.Validator | undefined = this.app
+                .get<ValidationManager>(Identifiers.ValidationManager)
+                .driver();
+
+            assert.defined<Kernel.Validation.Validator>(validator);
 
             validator.validate(config.all(), configSchema);
 
             if (validator.fails()) {
-                throw new InvalidPluginConfiguration(assert.defined(serviceProvider.name()), validator.errors());
+                const serviceProviderName: string | undefined = serviceProvider.name();
+
+                assert.defined<string>(serviceProviderName);
+
+                throw new InvalidPluginConfiguration(serviceProviderName, validator.errors());
             }
 
             serviceProvider.setConfig(config.merge(validator.valid() || {}));
@@ -115,7 +123,9 @@ export class RegisterServiceProviders implements Bootstrapper {
 
             const isRequired: boolean = typeof required === "function" ? await required() : !!required;
 
-            const serviceProviderName: string = assert.defined(serviceProvider.name());
+            const serviceProviderName: string | undefined = serviceProvider.name();
+
+            assert.defined<string>(serviceProviderName);
 
             if (!serviceProviders.has(name)) {
                 // The dependency is necessary for this package to function. We'll output an error and terminate the process.
@@ -143,7 +153,9 @@ export class RegisterServiceProviders implements Bootstrapper {
 
             /* istanbul ignore else */
             if (constraint) {
-                const version: string = assert.defined(serviceProviders.get(name).version());
+                const version: string | undefined = serviceProviders.get(name).version();
+
+                assert.defined<string>(version);
 
                 /* istanbul ignore else */
                 if (!semver.satisfies(version, constraint)) {

@@ -133,9 +133,11 @@ export class Client {
 
     private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
+            Utils.assert.defined<socketCluster.SCClientSocket>(this.host.socket);
+
             const response: Contracts.P2P.Response<T> = await socketEmit(
                 this.host.hostname,
-                Utils.assert.defined(this.host.socket),
+                this.host.socket,
                 event,
                 data,
                 {

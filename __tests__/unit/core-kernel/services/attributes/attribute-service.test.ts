@@ -12,7 +12,7 @@ describe("AttributeService", () => {
     it("should throw if the given index does not exist in the given scope", () => {
         indexes.set("block", new AttributeSet(), { scope: "queued" });
 
-        expect(() => indexes.get("block")).toThrow("Unknown index: block");
+        expect(() => indexes.get("block")).toThrow('Expected value which is "non-null and non-undefined".');
     });
 
     it("should return the given index", () => {
@@ -22,7 +22,7 @@ describe("AttributeService", () => {
     });
 
     it("should throw if the given index is undefined", () => {
-        expect(() => indexes.get("block")).toThrow("Unknown index: block");
+        expect(() => indexes.get("block")).toThrow('Expected value which is "non-null and non-undefined".');
     });
 
     it("should throw if the given index is already set", () => {
@@ -39,7 +39,7 @@ describe("AttributeService", () => {
 
         indexes.forget("block");
 
-        expect(() => indexes.get("block")).toThrow("Unknown index: block");
+        expect(() => indexes.get("block")).toThrow('Expected value which is "non-null and non-undefined".');
         expect(indexes.has("block")).toBeFalse();
     });
 
@@ -51,7 +51,7 @@ describe("AttributeService", () => {
 
         indexes.flush();
 
-        expect(() => indexes.get("block")).toThrow("Unknown index: block");
+        expect(() => indexes.get("block")).toThrow('Expected value which is "non-null and non-undefined".');
         expect(indexes.has("block")).toBeFalse();
     });
 
@@ -65,7 +65,7 @@ describe("AttributeService", () => {
 
         indexes.flush("special");
 
-        expect(() => indexes.get("block", opts)).toThrow("Unknown index: block");
+        expect(() => indexes.get("block", opts)).toThrow('Expected value which is "non-null and non-undefined".');
         expect(indexes.has("block", opts)).toBeFalse();
     });
 });

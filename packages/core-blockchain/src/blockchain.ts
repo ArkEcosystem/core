@@ -61,7 +61,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
                 return this.processBlocks(
-                    blockList.blocks.map(b => Utils.assert.defined(Blocks.BlockFactory.fromData(b))),
+                    blockList.blocks.map(b => {
+                        const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(b);
+
+                        Utils.assert.defined<Interfaces.IBlock>(block);
+
+                        return block;
+                    }),
                     cb,
                 );
             } catch (error) {
@@ -250,8 +256,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         // this is to avoid blocking the application when processing "heavy" blocks
         let currentBlocksChunk: any[] = [];
         let currentTransactionsCount = 0;
-        for (let block of blocks) {
-            block = Utils.assert.defined(block);
+        for (const block of blocks) {
+            Utils.assert.defined<Interfaces.IBlockData>(block);
 
             currentBlocksChunk.push(block);
             currentTransactionsCount += block.numberOfTransactions;
@@ -279,7 +285,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     public async removeBlocks(nblocks: number): Promise<void> {
         this.clearAndStopQueue();
 
-        const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.state.getLastBlock());
+        const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
         // If the current chain height is H and we will be removing blocks [N, H],
         // then blocksToRemove[] will contain blocks [N - 1, H - 1].
@@ -290,7 +296,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         const removedBlocks: Interfaces.IBlockData[] = [];
         const revertLastBlock = async () => {
-            const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.state.getLastBlock());
+            const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
             await this.database.revertBlock(lastBlock);
             removedBlocks.push(lastBlock.data);
@@ -303,13 +309,15 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
                 newLastBlock = this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
             } else {
-                const tempNewLastBlockData: Interfaces.IBlockData = Utils.assert.defined(blocksToRemove.pop());
+                const tempNewLastBlockData: Interfaces.IBlockData | undefined = blocksToRemove.pop();
 
-                const tempNewLastBlock: Interfaces.IBlock = Utils.assert.defined(
-                    BlockFactory.fromData(tempNewLastBlockData, {
-                        deserializeTransactionsUnchecked: true,
-                    }),
-                );
+                Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
+
+                const tempNewLastBlock: Interfaces.IBlock | undefined = BlockFactory.fromData(tempNewLastBlockData, {
+                    deserializeTransactionsUnchecked: true,
+                });
+
+                Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlock);
 
                 newLastBlock = tempNewLastBlock;
             }
@@ -323,7 +331,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 return;
             }
 
-            const lastBlock: Interfaces.IBlock = Utils.assert.defined(this.state.getLastBlock());
+            const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
             this.app.log.info(`Undoing block ${lastBlock.data.height.toLocaleString()}`);
 
@@ -509,7 +517,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Get the last block of the blockchain.
      */
     public getLastBlock(): Interfaces.IBlock {
-        return Utils.assert.defined(this.state.getLastBlock());
+        return this.state.getLastBlock();
     }
 
     /**

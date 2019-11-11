@@ -16,8 +16,11 @@ export const registerMethods = (app: Contracts.Kernel.Application, server) => {
                 ...server.app.utils.paginate(request),
             });
 
-        return server.app.utils.toPagination(transactions, "transaction", (request.query
-            .transform as unknown) as boolean);
+        return server.app.utils.toPagination(
+            transactions,
+            "transaction",
+            (request.query.transform as unknown) as boolean,
+        );
     };
 
     const show = async request => {
@@ -29,8 +32,11 @@ export const registerMethods = (app: Contracts.Kernel.Application, server) => {
             return Boom.notFound("Vote not found");
         }
 
-        return server.app.utils.respondWithResource(transaction, "transaction", (request.query
-            .transform as unknown) as boolean);
+        return server.app.utils.respondWithResource(
+            transaction,
+            "transaction",
+            (request.query.transform as unknown) as boolean,
+        );
     };
 
     app.resolve<ServerCache>(ServerCache)

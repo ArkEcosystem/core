@@ -2,8 +2,8 @@ import "jest-extended";
 
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
-import { TransactionFactory } from "./transaction-factory";
 import secrets from "../internal/secrets.json";
+import { TransactionFactory } from "./transaction-factory";
 
 export class ApiHelpers {
     public constructor(private readonly app: Contracts.Kernel.Application) {}

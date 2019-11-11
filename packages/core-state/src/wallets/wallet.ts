@@ -231,10 +231,11 @@ export class Wallet implements Contracts.State.Wallet {
                 });
             }
         }
-        if (
-            AppUtils.assert.defined<number>(transaction.version) > 1 &&
-            !this.nonce.plus(1).isEqualTo(AppUtils.assert.defined(transaction.nonce))
-        ) {
+
+        AppUtils.assert.defined<number>(transaction.version);
+        AppUtils.assert.defined<AppUtils.BigNumber>(transaction.nonce);
+
+        if (transaction.version > 1 && !this.nonce.plus(1).isEqualTo(transaction.nonce)) {
             audit.push({
                 "Invalid Nonce": transaction.nonce,
                 "Wallet Nonce": this.nonce,
@@ -243,7 +244,9 @@ export class Wallet implements Contracts.State.Wallet {
 
         const typeGroup: number = transaction.typeGroup || Enums.TransactionTypeGroup.Core;
         if (typeGroup === Enums.TransactionTypeGroup.Core) {
-            const asset: Interfaces.ITransactionAsset = AppUtils.assert.defined(transaction.asset);
+            AppUtils.assert.defined<Interfaces.ITransactionAsset>(transaction.asset);
+
+            const asset: Interfaces.ITransactionAsset = transaction.asset;
 
             if (transaction.type === Enums.TransactionType.Transfer) {
                 audit.push({ Transfer: true });
@@ -277,9 +280,10 @@ export class Wallet implements Contracts.State.Wallet {
                     "Multisignature enough keys": keysgroup.length >= asset.multiSignature!.min,
                 });
 
+                AppUtils.assert.defined<string[]>(transaction.signatures);
+
                 audit.push({
-                    "Multisignature all keys signed":
-                        keysgroup.length === AppUtils.assert.defined<string[]>(transaction.signatures).length,
+                    "Multisignature all keys signed": keysgroup.length === transaction.signatures.length,
                 });
 
                 audit.push({

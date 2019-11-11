@@ -26,7 +26,10 @@ class BlockNotReadyCounter {
 
         if (this.id !== id) {
             this.reset();
-            this.id = Utils.assert.defined(id);
+
+            Utils.assert.defined<string>(id);
+
+            this.id = id;
         }
 
         this.attempts += 1;

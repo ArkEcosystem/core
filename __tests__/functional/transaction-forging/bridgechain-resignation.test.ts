@@ -12,7 +12,7 @@ let app: Contracts.Kernel.Application;
 beforeAll(async () => (app = await support.setUp()));
 afterAll(async () => await support.tearDown());
 
-describe("Transaction Forging - Bridgechain registration", () => {
+describe("Transaction Forging - Bridgechain resignation", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Business registration

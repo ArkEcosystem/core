@@ -1,5 +1,8 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import {
+    Interfaces as MagistrateInterfaces,
+    Transactions as MagistrateTransactions,
+} from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
@@ -95,12 +98,16 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+
+        AppUtils.assert.defined<MagistrateInterfaces.IBusinessRegistrationAsset>(
+            transaction.data.asset?.businessRegistration,
         );
 
         const businessAsset: IBusinessWalletAttributes = {
-            businessAsset: AppUtils.assert.defined(transaction.data.asset!.businessRegistration),
+            businessAsset: transaction.data.asset.businessRegistration,
             businessId: this.getBusinessId(walletRepository),
         };
 
@@ -114,13 +121,15 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.forgetAttribute("business");
 
-        walletRepository.forgetByIndex(MagistrateIndex.Businesses, AppUtils.assert.defined(sender.publicKey));
+        AppUtils.assert.defined<string>(sender.publicKey);
+
+        walletRepository.forgetByIndex(MagistrateIndex.Businesses, sender.publicKey);
     }
 
     public async applyToRecipient(

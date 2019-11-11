@@ -30,7 +30,9 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             for (const transaction of transactions) {
                 const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
 
-                const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.asset.payments);
+                AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.asset.payments);
+
+                const payments: Interfaces.IMultiPaymentItem[] = transaction.asset.payments;
                 for (const payment of payments) {
                     const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
 
@@ -50,7 +52,9 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         wallet: Contracts.State.Wallet,
         databaseWalletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+        AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
+
+        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
         const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
 
         if (
@@ -79,13 +83,15 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.applyToSender(transaction, walletRepository);
 
-        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+        AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
+
+        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
 
         const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
 
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.balance = sender.balance.minus(totalPaymentsAmount);
     }
@@ -96,12 +102,15 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     ): Promise<void> {
         await super.revertForSender(transaction, walletRepository);
 
-        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+        AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
+
+        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
 
         const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
-        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-            AppUtils.assert.defined(transaction.data.senderPublicKey),
-        );
+
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.balance = sender.balance.plus(totalPaymentsAmount);
     }
@@ -110,7 +119,9 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+        AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
+
+        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
 
         for (const payment of payments) {
             const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
@@ -123,7 +134,9 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const payments: Interfaces.IMultiPaymentItem[] = AppUtils.assert.defined(transaction.data.asset!.payments);
+        AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
+
+        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
 
         for (const payment of payments) {
             const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);

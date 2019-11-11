@@ -1,4 +1,4 @@
-import { Container, Providers, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
 export const createSchemas = (app: Contracts.Kernel.Application) => {
     return {

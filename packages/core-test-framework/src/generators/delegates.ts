@@ -10,17 +10,17 @@ export const delegates: any = genesisBlock =>
         const publicKey: string = Identities.PublicKey.fromPassphrase(secret);
         const address: string = Identities.Address.fromPassphrase(secret);
 
-        const transaction: { amount: string } = Utils.assert.defined(
-            genesisBlock.transactions.find(
-                transaction => transaction.recipientId === address && transaction.type === 0,
-            ),
+        const balance: string = genesisBlock.transactions.find(
+            transaction => transaction.recipientId === address && transaction.type === 0,
         );
+
+        Utils.assert.defined<number>(balance);
 
         return {
             secret,
             passphrase: secret, // just an alias for delegate secret
             publicKey,
             address,
-            balance: transaction.amount,
+            balance,
         };
     });

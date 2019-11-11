@@ -16,8 +16,11 @@ export class PeersController extends Controller {
                 .getPeers();
 
             let result = allPeers.sort((a, b) => {
-                const latencyA: number = Utils.assert.defined(a.latency);
-                const latencyB: number = Utils.assert.defined(b.latency);
+                const latencyA: number | undefined = a.latency;
+                const latencyB: number | undefined = b.latency;
+
+                Utils.assert.defined<number>(latencyA);
+                Utils.assert.defined<number>(latencyB);
 
                 return latencyA - latencyB;
             });
