@@ -285,7 +285,7 @@ export const htlcClaim = extend(transactionBaseSchema, {
                     type: "object",
                     required: ["lockTransactionId", "unlockSecret"],
                     properties: {
-                        lockTransactionId: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
+                        lockTransactionId: { $ref: "transactionId" },
                         unlockSecret: { type: "string", minLength: 32, maxLength: 32 },
                     },
                 },
@@ -308,7 +308,7 @@ export const htlcRefund = extend(transactionBaseSchema, {
                     type: "object",
                     required: ["lockTransactionId"],
                     properties: {
-                        lockTransactionId: { allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }] },
+                        lockTransactionId: { $ref: "transactionId" },
                     },
                 },
             },
