@@ -8,7 +8,7 @@ import { Managers, Utils } from "@arkecosystem/crypto";
 import {
     BridgechainAlreadyRegisteredError,
     BridgechainIsResignedError,
-    InvalidFeeError,
+    StaticFeeMismatchError,
     WalletIsNotBusinessError,
 } from "../../../../packages/core-magistrate-transactions/src/errors";
 import {
@@ -137,7 +137,7 @@ describe("should test marketplace transaction handlers", () => {
 
                 await expect(
                     bridgechainRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-                ).rejects.toThrow(InvalidFeeError);
+                ).rejects.toThrow(StaticFeeMismatchError);
             });
         });
 
