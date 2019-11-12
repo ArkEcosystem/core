@@ -19,7 +19,7 @@ export const schemas = {
 
     transactionId: {
         $id: "transactionId",
-        allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "alphanumeric" }],
+        allOf: [{ minLength: 64, maxLength: 64 }, { $ref: "hex" }],
     },
 
     networkByte: {
