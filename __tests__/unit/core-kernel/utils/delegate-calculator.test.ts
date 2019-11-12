@@ -3,8 +3,6 @@ import "jest-extended";
 import { Container, Services } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@arkecosystem/core-test-framework";
 
-import { Identifiers } from "@packages/core-kernel/src/ioc";
-import { AttributeService } from "@packages/core-kernel/src/services/attributes";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import { calculateApproval, calculateForgedTotal } from "@packages/core-kernel/src/utils/delegate-calculator";
@@ -13,11 +11,6 @@ let sandbox: Sandbox;
 
 beforeAll(() => {
     sandbox = new Sandbox();
-
-    sandbox.app
-        .bind<AttributeService>(Identifiers.AttributeService)
-        .to(AttributeService)
-        .inSingletonScope();
 
     sandbox.app
         .bind<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
