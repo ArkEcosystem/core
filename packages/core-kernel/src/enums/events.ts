@@ -2,10 +2,14 @@
  * @export
  * @enum {number}
  */
-export enum Internal {
+export enum InternalEvents {
     DisconnectPeer = "internal.p2p.disconnectPeer",
     MilestoneChanged = "internal.milestone.changed",
     StateBuilderFinished = "internal.stateBuilder.finished",
+
+    ServiceProviderRegistered = "internal.serviceProvider.registered",
+    ServiceProviderBooted = "internal.serviceProvider.booted",
+    ServiceProviderDisposed = "internal.serviceProvider.disposed",
 }
 
 /**

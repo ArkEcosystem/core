@@ -1,10 +1,17 @@
 import "jest-extended";
+
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces } from "@packages/core-kernel/src/ioc";
+import { InternalEvents } from "@packages/core-kernel/src/enums/events";
+import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 class StubServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}
+
+    public async boot(): Promise<void> {}
+
+    public async dispose(): Promise<void> {}
 }
 
 let app: Application;
@@ -17,7 +24,11 @@ beforeEach(() => {
 
     app = new Application(container);
 
-    serviceProviderRepository = app.resolve<ServiceProviderRepository>(ServiceProviderRepository);
+    app.bind(Identifiers.EventDispatcherService)
+        .to(MemoryEventDispatcher)
+        .inSingletonScope();
+
+    serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);
 });
 
 afterEach(() => container.restore());
@@ -110,8 +121,15 @@ describe("ServiceProviderRepository", () => {
         const spyRegister = jest.spyOn(serviceProvider, "register");
         serviceProviderRepository.set("stub", serviceProvider);
 
+        let fired: boolean = false;
+        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
+            InternalEvents.ServiceProviderRegistered,
+            () => (fired = true),
+        );
+
         await serviceProviderRepository.register("stub");
 
+        expect(fired).toBeTrue();
         expect(spyRegister).toHaveBeenCalled();
     });
 
@@ -120,8 +138,15 @@ describe("ServiceProviderRepository", () => {
         const spyBoot = jest.spyOn(serviceProvider, "boot");
         serviceProviderRepository.set("stub", serviceProvider);
 
+        let fired: boolean = false;
+        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
+            InternalEvents.ServiceProviderBooted,
+            () => (fired = true),
+        );
+
         await serviceProviderRepository.boot("stub");
 
+        expect(fired).toBeTrue();
         expect(spyBoot).toHaveBeenCalled();
         expect(serviceProviderRepository.loaded("stub")).toBeTrue();
         expect(serviceProviderRepository.failed("stub")).toBeFalse();
@@ -133,8 +158,15 @@ describe("ServiceProviderRepository", () => {
         const spyDispose = jest.spyOn(serviceProvider, "dispose");
         serviceProviderRepository.set("stub", serviceProvider);
 
+        let fired: boolean = false;
+        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
+            InternalEvents.ServiceProviderDisposed,
+            () => (fired = true),
+        );
+
         await serviceProviderRepository.dispose("stub");
 
+        expect(fired).toBeTrue();
         expect(spyDispose).toHaveBeenCalled();
         expect(serviceProviderRepository.loaded("stub")).toBeFalse();
         expect(serviceProviderRepository.failed("stub")).toBeFalse();

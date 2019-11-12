@@ -1,5 +1,7 @@
+import { EventDispatcher } from "../contracts/kernel/events";
+import { InternalEvents } from "../enums/events";
 import { InvalidArgumentException } from "../exceptions/logic";
-import { injectable } from "../ioc";
+import { Identifiers, inject, injectable } from "../ioc";
 import { assert } from "../utils";
 import { ServiceProvider } from "./service-provider";
 
@@ -9,6 +11,14 @@ import { ServiceProvider } from "./service-provider";
  */
 @injectable()
 export class ServiceProviderRepository {
+    /**
+     * @private
+     * @type {ConfigRepository}
+     * @memberof RegisterBasePaths
+     */
+    @inject(Identifiers.EventDispatcherService)
+    private readonly eventDisaptcher!: EventDispatcher;
+
     /**
      * All of the registered service providers.
      *
@@ -178,6 +188,8 @@ export class ServiceProviderRepository {
      */
     public async register(name: string): Promise<void> {
         await this.get(name).register();
+
+        this.eventDisaptcher.dispatch(InternalEvents.ServiceProviderRegistered, { name });
     }
 
     /**
@@ -189,6 +201,8 @@ export class ServiceProviderRepository {
      */
     public async boot(name: string): Promise<void> {
         await this.get(name).boot();
+
+        this.eventDisaptcher.dispatch(InternalEvents.ServiceProviderBooted, { name });
 
         this.loadedProviders.add(name);
         this.failedProviders.delete(name);
@@ -204,6 +218,8 @@ export class ServiceProviderRepository {
      */
     public async dispose(name: string): Promise<void> {
         await this.get(name).dispose();
+
+        this.eventDisaptcher.dispatch(InternalEvents.ServiceProviderDisposed, { name });
 
         this.loadedProviders.delete(name);
         this.failedProviders.delete(name);

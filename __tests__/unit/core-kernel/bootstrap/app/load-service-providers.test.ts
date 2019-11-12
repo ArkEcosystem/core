@@ -7,6 +7,7 @@ import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { LoadServiceProviders } from "@packages/core-kernel/src/bootstrap/app";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 class StubServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}
@@ -18,6 +19,10 @@ let serviceProviderRepository: ServiceProviderRepository;
 
 beforeEach(() => {
     app = new Application(new Container());
+
+    app.bind(Identifiers.EventDispatcherService)
+        .to(MemoryEventDispatcher)
+        .inSingletonScope();
 
     configRepository = app.get<ConfigRepository>(Identifiers.ConfigRepository);
     serviceProviderRepository = app.get<ServiceProviderRepository>(Identifiers.ServiceProviderRepository);

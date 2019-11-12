@@ -106,7 +106,7 @@ export class StateStore implements Contracts.State.StateStore {
         if (Managers.configManager.isNewMilestone()) {
             this.app
                 .get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService)
-                .dispatch(Enums.Events.Internal.MilestoneChanged);
+                .dispatch(Enums.Events.InternalEvents.MilestoneChanged);
         }
 
         // Delete oldest block if size exceeds the maximum

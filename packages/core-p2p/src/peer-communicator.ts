@@ -156,7 +156,7 @@ export class PeerCommunicator {
 
             this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
 
-            this.emitter.dispatch(Enums.Events.Internal.DisconnectPeer, { peer });
+            this.emitter.dispatch(Enums.Events.InternalEvents.DisconnectPeer, { peer });
         }
 
         return false;
@@ -289,7 +289,7 @@ export class PeerCommunicator {
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
-                this.emitter.dispatch(Enums.Events.Internal.DisconnectPeer, { peer });
+                this.emitter.dispatch(Enums.Events.InternalEvents.DisconnectPeer, { peer });
         }
     }
 }
