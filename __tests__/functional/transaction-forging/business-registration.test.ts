@@ -35,7 +35,7 @@ describe("Transaction Forging - Business registration", () => {
             await expect(businessRegistrations).toBeEachAccepted();
             await support.snoozeForBlock(1);
             for (const transaction of businessRegistrations) {
-                await expect(transaction.id).not.toBeForged();
+                await expect(transaction.id).toBeForged();
             }
         });
 
