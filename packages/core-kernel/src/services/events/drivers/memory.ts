@@ -240,14 +240,14 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
 
         let eventListeners: EventListener[] = [];
         if (this.listeners.has("*")) {
-            eventListeners = eventListeners.concat(Array.from(this.getListenersByEvent("*") || []));
+            eventListeners = eventListeners.concat([...(this.getListenersByEvent("*") || [])]);
         }
 
         for (const match of matches) {
             const matchListeners: Set<EventListener> | undefined = this.getListenersByEvent(match);
 
             if (matchListeners && matchListeners.size > 0) {
-                eventListeners = eventListeners.concat(Array.from(matchListeners));
+                eventListeners = eventListeners.concat([...matchListeners]);
             }
         }
 

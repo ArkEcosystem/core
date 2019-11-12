@@ -180,10 +180,10 @@ export class DeferredServiceProvider extends ServiceProvider {
     }
 
     public async enableWhen(): Promise<boolean> {
-        return !!process.env.DEFFERED_ENABLE;
+        return process.env.DEFFERED_ENABLE === "true";
     }
 
     public async disableWhen(): Promise<boolean> {
-        return !!process.env.DEFFERED_DISABLE;
+        return process.env.DEFFERED_DISABLE === "true";
     }
 }

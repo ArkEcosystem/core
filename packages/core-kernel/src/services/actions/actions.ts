@@ -100,7 +100,7 @@ export class Actions {
             return;
         }
 
-        for (const hook of Array.from(hooks)) {
+        for (const hook of [...hooks]) {
             await hook();
         }
     }

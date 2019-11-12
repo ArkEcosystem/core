@@ -69,7 +69,7 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public all(): Array<[string, ServiceProvider]> {
-        return Array.from(this.serviceProviders.entries());
+        return [...this.serviceProviders.entries()];
     }
 
     /**
@@ -77,7 +77,7 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public allLoadedProviders(): ServiceProvider[] {
-        return Array.from(this.loadedProviders.values()).map((name: string) => this.get(name));
+        return [...this.loadedProviders.values()].map((name: string) => this.get(name));
     }
 
     /**
@@ -189,7 +189,7 @@ export class ServiceProviderRepository {
     public async register(name: string): Promise<void> {
         await this.get(name).register();
 
-        this.eventDisaptcher.dispatch(InternalEvent.ServiceProviderRegistered, { name });
+        await this.eventDisaptcher.dispatch(InternalEvent.ServiceProviderRegistered, { name });
     }
 
     /**
@@ -202,7 +202,7 @@ export class ServiceProviderRepository {
     public async boot(name: string): Promise<void> {
         await this.get(name).boot();
 
-        this.eventDisaptcher.dispatch(InternalEvent.ServiceProviderBooted, { name });
+        await this.eventDisaptcher.dispatch(InternalEvent.ServiceProviderBooted, { name });
 
         this.loadedProviders.add(name);
         this.failedProviders.delete(name);
@@ -219,7 +219,7 @@ export class ServiceProviderRepository {
     public async dispose(name: string): Promise<void> {
         await this.get(name).dispose();
 
-        this.eventDisaptcher.dispatch(InternalEvent.ServiceProviderDisposed, { name });
+        await this.eventDisaptcher.dispatch(InternalEvent.ServiceProviderDisposed, { name });
 
         this.loadedProviders.delete(name);
         this.failedProviders.delete(name);

@@ -34,7 +34,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async all(): Promise<Array<[K, T]>> {
-        return Array.from(this.store.entries());
+        return [...this.store.entries()];
     }
 
     /**
@@ -44,7 +44,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async keys(): Promise<K[]> {
-        return Array.from(this.store.keys());
+        return [...this.store.keys()];
     }
 
     /**
@@ -54,7 +54,7 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async values(): Promise<T[]> {
-        return Array.from(this.store.values());
+        return [...this.store.values()];
     }
 
     /**

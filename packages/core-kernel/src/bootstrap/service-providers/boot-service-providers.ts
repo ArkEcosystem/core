@@ -1,10 +1,12 @@
 import { Application } from "../../contracts/kernel";
+// @ts-ignore
+import { InternalEvent, StateEvent } from "../../enums";
 import { ServiceProviderCannotBeBooted } from "../../exceptions/plugins";
 import { Identifiers, inject, injectable } from "../../ioc";
-import { ServiceProviderRepository } from "../../providers";
+// @ts-ignore
+import { ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
-import { StateEvent } from "../../enums";
 
 // todo: review the implementation
 /**
@@ -55,20 +57,36 @@ export class BootServiceProviders implements Bootstrapper {
             }
 
             // Register the "enable/disableWhen" listeners to be triggered on every block. Use with care!
-            this.app.events.listen(StateEvent.BlockApplied, async () => {
-                if (serviceProviders.failed(name)) {
-                    return;
-                }
+            this.app.events.listen(
+                StateEvent.BlockApplied,
+                async () => await this.changeState(name, serviceProvider, serviceProviders),
+            );
 
-                if (serviceProviders.loaded(name) && (await serviceProvider.disableWhen())) {
-                    await serviceProviders.dispose(name);
-                }
-
-                /* istanbul ignore else */
-                if (serviceProviders.deferred(name) && (await serviceProvider.enableWhen())) {
-                    await serviceProviders.boot(name);
+            // We only want to trigger this if another service provider has been booted to avoid an infinite loop.
+            this.app.events.listen(InternalEvent.ServiceProviderBooted, async ({ data }) => {
+                if (data.name !== name) {
+                    await this.changeState(name, serviceProvider, serviceProviders);
                 }
             });
+        }
+    }
+
+    private async changeState(
+        name: string,
+        serviceProvider: ServiceProvider,
+        serviceProviders: ServiceProviderRepository,
+    ): Promise<void> {
+        if (serviceProviders.failed(name)) {
+            return;
+        }
+
+        if (serviceProviders.loaded(name) && (await serviceProvider.disableWhen())) {
+            await serviceProviders.dispose(name);
+        }
+
+        /* istanbul ignore else */
+        if (serviceProviders.deferred(name) && (await serviceProvider.enableWhen())) {
+            await serviceProviders.boot(name);
         }
     }
 }

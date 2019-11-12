@@ -46,7 +46,7 @@ describe("Round Calculator", () => {
 
                 const milestones = testVector.reduce((acc, vector) => acc.set(vector.height, vector), new Map());
 
-                Managers.configManager.set("milestones", Array.from(milestones.values()));
+                Managers.configManager.set("milestones", [...milestones.values()]);
 
                 Managers.configManager.getMilestone = jest.fn().mockImplementation(height => milestones.get(height));
 
