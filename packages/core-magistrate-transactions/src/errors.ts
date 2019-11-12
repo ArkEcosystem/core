@@ -56,7 +56,7 @@ export class GenesisHashAlreadyRegisteredError extends Errors.TransactionError {
 }
 
 export class StaticFeeMismatchError extends Errors.TransactionError {
-    constructor(staticFee: number) {
+    constructor(staticFee: string) {
         super(`Failed to apply transaction, because fee doesn't match static fee ${staticFee}.`);
     }
 }

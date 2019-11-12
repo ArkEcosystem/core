@@ -21,9 +21,9 @@ export abstract class MagistrateTransactionHandler extends Handlers.TransactionH
             return;
         }
 
-        const staticFee = this.getConstructor().staticFee();
+        const staticFee: Utils.BigNumber = this.getConstructor().staticFee();
         if (!transaction.data.fee.isEqualTo(staticFee)) {
-            throw new StaticFeeMismatchError(staticFee);
+            throw new StaticFeeMismatchError(staticFee.toFixed());
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
