@@ -107,9 +107,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             amount: transaction.data.amount,
             recipientId: transaction.data.recipientId,
             timestamp: transaction.timestamp,
-            vendorField: transaction.data.vendorField
-                ? Buffer.from(transaction.data.vendorField, "hex").toString("utf8")
-                : undefined,
+            vendorField: transaction.data.vendorField,
             ...transaction.data.asset.lock,
         };
         sender.setAttribute("htlc.locks", locks);
