@@ -9,27 +9,43 @@ afterAll(support.tearDown);
 
 describe("Transaction Forging - Business registration", () => {
     describe("Signed with 1 Passphrase", () => {
-        it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
-            // Registering a business
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "http://ark.io",
-            })
-                .withPassphrase(secrets[0])
-                .createOne();
+        it("should accept, broadcast and forge it [Signed with 1 Passphrase]", async () => {
+            const allowed = [
+                "My Business",
+                "My-Business",
+                "My Blockchain-Business",
+                "This.is.my.business",
+                "My Business Inc.",
+            ];
 
-            await expect(businessRegistration).toBeAccepted();
+            const businessRegistrations = [];
+
+            // Registering businesses
+            for (const [i, name] of allowed.entries()) {
+                businessRegistrations.push(
+                    TransactionFactory.businessRegistration({
+                        name,
+                        website: "http://ark.io",
+                    })
+                        .withPassphrase(secrets[10 + i])
+                        .createOne(),
+                );
+            }
+
+            await expect(businessRegistrations).toBeEachAccepted();
             await support.snoozeForBlock(1);
-            await expect(businessRegistration.id).toBeForged();
+            for (const transaction of businessRegistrations) {
+                await expect(transaction.id).toBeForged();
+            }
         });
 
         it("should be rejected, because wallet is already a business [Signed with 1 Passphrase]", async () => {
             // Registering a business again
             const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
+                name: "ark.io",
                 website: "https://ark.io",
             })
-                .withPassphrase(secrets[0])
+                .withPassphrase(secrets[10])
                 .createOne();
 
             await expect(businessRegistration).toBeRejected();
@@ -52,7 +68,7 @@ describe("Transaction Forging - Business registration", () => {
         });
 
         it("should be rejected, because business name contains disallowed characters [Signed with 1 Passphrase]", async () => {
-            const disallowed = [" business", "business ", "busi  ness", "busi+ness"];
+            const disallowed = [" business", "business ", "busi  ness", "busi+ness", "busi. ness"];
 
             const businessRegistrations = [];
 
@@ -87,7 +103,7 @@ describe("Transaction Forging - Business registration", () => {
 
             // Registering a business again
             const businessRegistration2 = TransactionFactory.businessRegistration({
-                name: "ark2",
+                name: "ark",
                 website: "https://ark.io",
             })
                 .withPassphrase(secrets[1])
