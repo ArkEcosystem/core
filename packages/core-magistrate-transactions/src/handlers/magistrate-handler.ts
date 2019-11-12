@@ -1,7 +1,7 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Handlers, Interfaces } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoInterfaces, Managers, Utils } from "@arkecosystem/crypto";
-import { InvalidFeeError } from "../errors";
+import { StaticFeeMismatchError } from "../errors";
 
 export abstract class MagistrateTransactionHandler extends Handlers.TransactionHandler {
     public async isActivated(): Promise<boolean> {
@@ -21,8 +21,9 @@ export abstract class MagistrateTransactionHandler extends Handlers.TransactionH
             return;
         }
 
-        if (!transaction.data.fee.isEqualTo(this.getConstructor().staticFee())) {
-            throw new InvalidFeeError();
+        const staticFee = this.getConstructor().staticFee();
+        if (!transaction.data.fee.isEqualTo(staticFee)) {
+            throw new StaticFeeMismatchError(staticFee);
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
