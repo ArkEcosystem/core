@@ -175,7 +175,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
-            vendorField: lockTransaction.vendorField,
+            vendorField: lockTransaction.vendorField
+                ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
+                : undefined,
             ...lockTransaction.asset.lock,
         };
 
