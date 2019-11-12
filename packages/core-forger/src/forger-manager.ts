@@ -133,7 +133,7 @@ export class ForgerManager {
                     );
                 }
 
-                this.client.emitEvent(Enums.Events.State.ForgerFailed, { error: error.message });
+                this.client.emitEvent(Enums.StateEvent.ForgerFailed, { error: error.message });
             }
 
             // no idea when this will be ok, so waiting 2s before checking again
@@ -178,10 +178,10 @@ export class ForgerManager {
 
             await this.client.broadcastBlock(block.toJson());
 
-            this.client.emitEvent(Enums.Events.State.BlockForged, block.data);
+            this.client.emitEvent(Enums.StateEvent.BlockForged, block.data);
 
             for (const transaction of transactions) {
-                this.client.emitEvent(Enums.Events.State.TransactionForged, transaction);
+                this.client.emitEvent(Enums.StateEvent.TransactionForged, transaction);
             }
         } else {
             if (currentSlot !== roundSlot) {
@@ -284,7 +284,7 @@ export class ForgerManager {
             this.printLoadedDelegates();
 
             // @ts-ignore
-            this.client.emitEvent(Enums.Events.State.ForgerStarted, {
+            this.client.emitEvent(Enums.StateEvent.ForgerStarted, {
                 activeDelegates: this.delegates.map(delegate => delegate.publicKey),
             });
 

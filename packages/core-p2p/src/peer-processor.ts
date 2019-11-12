@@ -108,7 +108,7 @@ export class PeerProcessor {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port} (v${newPeer.version})`);
             }
 
-            this.emitter.dispatch(Enums.Events.State.PeerAdded, newPeer);
+            this.emitter.dispatch(Enums.StateEvent.PeerAdded, newPeer);
         } catch (error) {
             this.connector.disconnect(newPeer);
         } finally {

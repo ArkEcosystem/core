@@ -59,7 +59,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             Managers.configManager.getMilestone().aip11 = false;
         }
 
-        this.emitter.dispatch(Enums.Events.State.StateStarting, this);
+        this.emitter.dispatch(Enums.StateEvent.StateStarting, this);
 
         this.app
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
@@ -103,7 +103,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         this.detectMissedBlocks(block);
 
-        this.emitter.dispatch(Enums.Events.State.BlockApplied, block.data);
+        this.emitter.dispatch(Enums.StateEvent.BlockApplied, block.data);
     }
 
     public async applyRound(height: number): Promise<void> {
@@ -133,7 +133,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
                     this.blocksInCurrentRound.length = 0;
 
-                    this.emitter.dispatch(Enums.Events.State.RoundApplied);
+                    this.emitter.dispatch(Enums.StateEvent.RoundApplied);
                 } catch (error) {
                     // trying to leave database state has it was
                     await this.deleteRound(round);
@@ -440,10 +440,10 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
 
         for (let i = block.transactions.length - 1; i >= 0; i--) {
-            this.emitter.dispatch(Enums.Events.State.TransactionReverted, block.transactions[i].data);
+            this.emitter.dispatch(Enums.StateEvent.TransactionReverted, block.transactions[i].data);
         }
 
-        this.emitter.dispatch(Enums.Events.State.BlockReverted, block.data);
+        this.emitter.dispatch(Enums.StateEvent.BlockReverted, block.data);
     }
 
     public async revertRound(height: number): Promise<void> {
@@ -477,7 +477,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         await this.connection.roundsRepository.insert(activeDelegates);
 
-        this.emitter.dispatch(Enums.Events.State.RoundCreated, activeDelegates);
+        this.emitter.dispatch(Enums.StateEvent.RoundCreated, activeDelegates);
     }
 
     public async verifyBlockchain(): Promise<boolean> {
@@ -586,7 +586,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
                 `Delegate ${delegate.getAttribute("delegate.username")} (${delegate.publicKey}) just missed a block.`,
             );
 
-            this.emitter.dispatch(Enums.Events.State.ForgerMissing, {
+            this.emitter.dispatch(Enums.StateEvent.ForgerMissing, {
                 delegate,
             });
         }
@@ -707,7 +707,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
                     `Delegate ${wallet.getAttribute("delegate.username")} (${wallet.publicKey}) just missed a round.`,
                 );
 
-                this.emitter.dispatch(Enums.Events.State.RoundMissed, {
+                this.emitter.dispatch(Enums.StateEvent.RoundMissed, {
                     delegate: wallet,
                 });
             }
@@ -766,7 +766,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {
-        this.emitter.dispatch(Enums.Events.State.TransactionApplied, transaction.data);
+        this.emitter.dispatch(Enums.StateEvent.TransactionApplied, transaction.data);
 
         (await this.app.get<any>("transactionHandlerRegistry").get(transaction.type, transaction.typeGroup)).emitEvents(
             transaction,

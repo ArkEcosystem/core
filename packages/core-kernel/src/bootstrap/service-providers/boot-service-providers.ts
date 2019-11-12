@@ -1,10 +1,10 @@
 import { Application } from "../../contracts/kernel";
-import { Events } from "../../enums";
 import { ServiceProviderCannotBeBooted } from "../../exceptions/plugins";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { ServiceProviderRepository } from "../../providers";
 import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
+import { StateEvent } from "../../enums";
 
 // todo: review the implementation
 /**
@@ -55,7 +55,7 @@ export class BootServiceProviders implements Bootstrapper {
             }
 
             // Register the "enable/disableWhen" listeners to be triggered on every block. Use with care!
-            this.app.events.listen(Events.State.BlockApplied, async () => {
+            this.app.events.listen(StateEvent.BlockApplied, async () => {
                 if (serviceProviders.failed(name)) {
                     return;
                 }

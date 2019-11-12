@@ -13,7 +13,7 @@ import {
     DeferredServiceProvider,
 } from "./__stubs__/service-providers";
 import { ServiceProviderCannotBeBooted } from "@packages/core-kernel/src/exceptions/plugins";
-import { State } from "@packages/core-kernel/src/enums/events";
+import { StateEvent } from "@packages/core-kernel/src/enums/events";
 
 let app: Application;
 let serviceProviderRepository: ServiceProviderRepository;
@@ -76,7 +76,7 @@ describe("BootServiceProviders", () => {
 
         serviceProviderRepository.fail("stub");
 
-        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatchSync(State.BlockApplied);
+        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatchSync(StateEvent.BlockApplied);
 
         expect(spyBoot).not.toHaveBeenCalled();
         expect(serviceProviderRepository.deferred("stub")).toBeTrue();
@@ -93,7 +93,7 @@ describe("BootServiceProviders", () => {
 
         process.env.DEFFERED_ENABLE = "true";
 
-        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatchSync(State.BlockApplied);
+        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatchSync(StateEvent.BlockApplied);
 
         await sleep(500);
 
@@ -111,7 +111,7 @@ describe("BootServiceProviders", () => {
 
         process.env.DEFFERED_DISABLE = "true";
 
-        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatchSync(State.BlockApplied);
+        app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatchSync(StateEvent.BlockApplied);
 
         await sleep(500);
 

@@ -127,11 +127,11 @@ export class Connection implements Contracts.TransactionPool.Connection {
         }
 
         if (added.length > 0) {
-            this.emitter.dispatch(AppEnums.Events.State.TransactionPoolAdded, added);
+            this.emitter.dispatch(AppEnums.StateEvent.TransactionPoolAdded, added);
         }
 
         if (notAdded.length > 0) {
-            this.emitter.dispatch(AppEnums.Events.State.TransactionPoolRejected, notAdded);
+            this.emitter.dispatch(AppEnums.StateEvent.TransactionPoolRejected, notAdded);
         }
 
         return { added, notAdded };
@@ -148,7 +148,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         this.syncToPersistentStorageIfNecessary();
 
-        this.emitter.dispatch(AppEnums.Events.State.TransactionPoolRemoved, id);
+        this.emitter.dispatch(AppEnums.StateEvent.TransactionPoolRemoved, id);
     }
 
     public removeTransactionsById(ids: string[]): void {
@@ -354,7 +354,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     public async purgeInvalidTransactions(): Promise<void> {
-        return this.purgeTransactions(AppEnums.Events.State.TransactionPoolRemoved, this.memory.getInvalid());
+        return this.purgeTransactions(AppEnums.StateEvent.TransactionPoolRemoved, this.memory.getInvalid());
     }
 
     public async senderHasTransactionsOfType(
@@ -586,7 +586,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     private async purgeExpired(): Promise<void> {
-        return this.purgeTransactions(AppEnums.Events.State.TransactionExpired, this.memory.getExpired());
+        return this.purgeTransactions(AppEnums.StateEvent.TransactionExpired, this.memory.getExpired());
     }
 
     /**

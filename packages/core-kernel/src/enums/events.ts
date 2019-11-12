@@ -2,7 +2,7 @@
  * @export
  * @enum {number}
  */
-export enum InternalEvents {
+export enum InternalEvent {
     DisconnectPeer = "internal.p2p.disconnectPeer",
     MilestoneChanged = "internal.milestone.changed",
     StateBuilderFinished = "internal.stateBuilder.finished",
@@ -16,7 +16,7 @@ export enum InternalEvents {
  * @export
  * @enum {number}
  */
-export enum State {
+export enum StateEvent {
     BlockApplied = "block.applied",
     BlockDisregarded = "block.disregarded",
     BlockForged = "block.forged",
@@ -43,9 +43,3 @@ export enum State {
     TransactionPoolRemoved = "transaction.pool.removed",
     TransactionReverted = "transaction.reverted",
 }
-
-/**
- * @export
- * @enum {number}
- */
-export enum Action {}

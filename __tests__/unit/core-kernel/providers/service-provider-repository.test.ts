@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { InternalEvents } from "@packages/core-kernel/src/enums/events";
+import { InternalEvent } from "@packages/core-kernel/src/enums/events";
 import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
@@ -123,7 +123,7 @@ describe("ServiceProviderRepository", () => {
 
         let fired: boolean = false;
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
-            InternalEvents.ServiceProviderRegistered,
+            InternalEvent.ServiceProviderRegistered,
             () => (fired = true),
         );
 
@@ -140,7 +140,7 @@ describe("ServiceProviderRepository", () => {
 
         let fired: boolean = false;
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
-            InternalEvents.ServiceProviderBooted,
+            InternalEvent.ServiceProviderBooted,
             () => (fired = true),
         );
 
@@ -160,7 +160,7 @@ describe("ServiceProviderRepository", () => {
 
         let fired: boolean = false;
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
-            InternalEvents.ServiceProviderDisposed,
+            InternalEvent.ServiceProviderDisposed,
             () => (fired = true),
         );
 

@@ -14,7 +14,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app
             .get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService)
-            .listenOnce(Enums.Events.State.StateStarting, ({ data }: { data: Contracts.Database.DatabaseService }) => {
+            .listenOnce(Enums.StateEvent.StateStarting, ({ data }: { data: Contracts.Database.DatabaseService }) => {
                 data.walletRepository.registerIndex(MagistrateIndex.Businesses, businessIndexer);
                 data.walletRepository.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
             });

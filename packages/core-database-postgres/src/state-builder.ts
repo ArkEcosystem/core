@@ -60,7 +60,7 @@ export class StateBuilder {
 
         this.verifyWalletsConsistency();
 
-        this.emitter.dispatch(Enums.Events.InternalEvents.StateBuilderFinished);
+        this.emitter.dispatch(Enums.InternalEvent.StateBuilderFinished);
     }
 
     private async buildBlockRewards(): Promise<void> {

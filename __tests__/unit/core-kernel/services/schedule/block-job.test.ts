@@ -2,7 +2,7 @@ import "jest-extended";
 import { BlockJob } from "@packages/core-kernel/src/services/schedule/block-job";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
-import { State } from "@packages/core-kernel/src/enums/events";
+import { StateEvent } from "@packages/core-kernel/src/enums/events";
 
 let job: BlockJob;
 let eventDispatcher: MemoryEventDispatcher;
@@ -22,13 +22,13 @@ describe("BlockJob", () => {
 
         expect(fn).not.toHaveBeenCalled();
 
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 3 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 4 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 6 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 7 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 9 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 10 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 3 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 4 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 6 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 7 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 9 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 10 });
 
         expect(fn).toHaveBeenCalledTimes(3);
     });
@@ -40,9 +40,9 @@ describe("BlockJob", () => {
 
         expect(fn).not.toHaveBeenCalled();
 
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
 
         expect(fn).toHaveBeenCalledTimes(3);
     });
@@ -54,13 +54,13 @@ describe("BlockJob", () => {
 
         expect(fn).not.toHaveBeenCalled();
 
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 5 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 6 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 10 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 11 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 15 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 16 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 5 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 6 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 10 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 11 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 15 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 16 });
 
         expect(fn).toHaveBeenCalledTimes(3);
     });
@@ -72,13 +72,13 @@ describe("BlockJob", () => {
 
         expect(fn).not.toHaveBeenCalled();
 
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 10 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 11 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 20 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 21 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 30 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 31 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 10 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 11 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 20 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 21 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 30 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 31 });
 
         expect(fn).toHaveBeenCalledTimes(3);
     });
@@ -90,13 +90,13 @@ describe("BlockJob", () => {
 
         expect(fn).not.toHaveBeenCalled();
 
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 15 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 16 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 30 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 31 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 45 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 46 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 15 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 16 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 30 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 31 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 45 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 46 });
 
         expect(fn).toHaveBeenCalledTimes(3);
     });
@@ -108,13 +108,13 @@ describe("BlockJob", () => {
 
         expect(fn).not.toHaveBeenCalled();
 
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 30 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 31 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 60 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 61 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 90 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 91 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 30 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 31 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 60 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 61 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 90 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 91 });
 
         expect(fn).toHaveBeenCalledTimes(3);
     });
@@ -126,13 +126,13 @@ describe("BlockJob", () => {
 
         expect(fn).not.toHaveBeenCalled();
 
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 1 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 51 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 52 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 102 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 103 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 153 });
-        eventDispatcher.dispatchSync(State.BlockReceived, { height: 154 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 1 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 51 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 52 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 102 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 103 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 153 });
+        eventDispatcher.dispatchSync(StateEvent.BlockReceived, { height: 154 });
 
         expect(fn).toHaveBeenCalledTimes(3);
     });
