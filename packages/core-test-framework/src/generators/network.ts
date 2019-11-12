@@ -105,7 +105,7 @@ export class GenerateNetwork {
         copyFileSync(resolve(__dirname, "../../../core/bin/config/testnet/.env"), resolve(coreConfigDest, ".env"));
 
         // include this file in the package so it works once published on npm
-        copyFileSync(resolve(__dirname, "../../../core/bin/config/testnet/app.js"), resolve(coreConfigDest, "app.js"));
+        copyFileSync(resolve(__dirname, "../../../core/bin/config/testnet/app.json"), resolve(coreConfigDest, "app.json"));
 
         return {
             core: {
@@ -151,7 +151,7 @@ export class GenerateNetwork {
         copyFileSync(resolve(__dirname, "../../../core/bin/config/testnet/.env"), resolve(coreConfigDest, ".env"));
 
         // include this file in the package so it works once published on npm
-        copyFileSync(resolve(__dirname, "../../../core/bin/config/testnet/app.js"), resolve(coreConfigDest, "app.js"));
+        copyFileSync(resolve(__dirname, "../../../core/bin/config/testnet/app.json"), resolve(coreConfigDest, "app.json"));
 
         return {
             root: coreConfigDest,

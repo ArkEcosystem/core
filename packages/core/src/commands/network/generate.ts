@@ -202,7 +202,7 @@ $ ark network:generate --network=mynet7 --premine=120000000000 --delegates=47 --
 
             copyFileSync(resolve(coreConfigDest, "../testnet/.env"), resolve(coreConfigDest, ".env"));
 
-            copyFileSync(resolve(coreConfigDest, "../testnet/app.js"), resolve(coreConfigDest, "app.js"));
+            copyFileSync(resolve(coreConfigDest, "../testnet/app.json"), resolve(coreConfigDest, "app.json"));
         });
 
         await tasks.run();
