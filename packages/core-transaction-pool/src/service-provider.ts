@@ -1,7 +1,6 @@
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 
 import { Connection } from "./connection";
-import { ConnectionManager } from "./manager";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
 import { Storage } from "./storage";
@@ -14,30 +13,27 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         Utils.assert.defined<number>(maxTransactionAge);
 
-        const conn = this.app.resolve(Connection);
-        const connection = await new ConnectionManager().createConnection(
-            // @ts-ignore
-            conn.init({
-                options: this.config().all(),
-                walletRepository: this.app.resolve(PoolWalletRepository),
-                memory: this.app.resolve(Memory).init(maxTransactionAge),
-                storage: new Storage(),
-            }),
-        );
+        this.app
+            .bind(Container.Identifiers.TransactionPoolService)
+            .to(Connection)
+            .inSingletonScope();
 
-        this.app.bind(Container.Identifiers.TransactionPoolService).toConstantValue(connection);
+        // Initialise the connection with some defaults
+        // todo: clean this up, too many params that can be replaced with IoC
+        this.app.get<Connection>(Container.Identifiers.TransactionPoolService).init({
+            options: this.config().all(),
+            walletRepository: this.app.resolve(PoolWalletRepository),
+            memory: this.app.resolve(Memory).init(maxTransactionAge),
+            storage: new Storage(),
+        });
+    }
+
+    public async boot(): Promise<void> {
+        await this.app.get<Connection>(Container.Identifiers.TransactionPoolService).make();
     }
 
     public async dispose(): Promise<void> {
-        try {
-            this.app.log.info("Disconnecting from transaction pool");
-
-            this.app
-                .get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService)
-                .disconnect();
-        } catch (error) {
-            // @todo: handle
-        }
+        this.app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService).disconnect();
     }
 
     public async required(): Promise<boolean> {

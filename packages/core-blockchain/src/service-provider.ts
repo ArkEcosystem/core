@@ -5,6 +5,7 @@ import { blockchainMachine } from "./machines/blockchain";
 import { ReplayBlockchain } from "./replay";
 
 export class ServiceProvider extends Providers.ServiceProvider {
+    // todo: split this into register and boot
     public async register(): Promise<void> {
         // Blockchain
         const blockchain: Blockchain = this.config().get("replay")
