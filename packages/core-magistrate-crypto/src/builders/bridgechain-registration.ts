@@ -22,6 +22,7 @@ export class BridgechainRegistrationBuilder extends Transactions.TransactionBuil
             seedNodes: bridgechainAsset.seedNodes,
             genesisHash: bridgechainAsset.genesisHash,
             bridgechainRepository: bridgechainAsset.bridgechainRepository,
+            ports: bridgechainAsset.ports,
         };
         return this;
     }

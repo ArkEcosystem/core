@@ -1,3 +1,7 @@
+export interface IBridgechainPorts {
+    [name: string]: number;
+}
+
 export interface IBusinessRegistrationAsset {
     name: string;
     website: string;
@@ -15,6 +19,7 @@ export interface IBusinessUpdateAsset {
 export interface IBridgechainRegistrationAsset {
     name: string;
     seedNodes: string[];
+    ports: IBridgechainPorts;
     genesisHash: string;
     bridgechainRepository: string;
 }
