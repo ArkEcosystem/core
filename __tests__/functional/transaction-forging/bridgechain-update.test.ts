@@ -253,6 +253,7 @@ describe("Transaction Forging - Bridgechain update", () => {
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
                 bridgechainId: 4,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
+                ports: { "port1": 1 },
             })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
