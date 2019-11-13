@@ -23,6 +23,7 @@ describe("Bridgechain update builder", () => {
                 .bridgechainUpdateAsset({
                     bridgechainId: 1,
                     seedNodes: ["192.168.1.0", "131.107.0.89"],
+                    ports: { "port1": 1 },
                 })
                 .sign("passphrase");
             expect(actual.build().verified).toBeTrue();
