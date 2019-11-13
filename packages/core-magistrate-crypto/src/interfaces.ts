@@ -19,14 +19,15 @@ export interface IBusinessUpdateAsset {
 export interface IBridgechainRegistrationAsset {
     name: string;
     seedNodes: string[];
-    ports: IBridgechainPorts;
     genesisHash: string;
     bridgechainRepository: string;
+    ports: IBridgechainPorts;
 }
 
 export interface IBridgechainUpdateAsset {
     bridgechainId: number;
-    seedNodes: string[];
+    seedNodes?: string[];
+    ports?: IBridgechainPorts;
 }
 
 export interface IBridgechainResignationAsset {
