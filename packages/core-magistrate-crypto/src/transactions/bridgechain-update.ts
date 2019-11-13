@@ -66,7 +66,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         seedNodesBuffersLength += seedNodesBuffers.length;
 
-        const ports: IBridgechainPorts = bridgechainRegistrationAsset.ports;
+        const ports: IBridgechainPorts = bridgechainUpdateAsset.ports;
         let portsLength: number = 0;
 
         const portNamesBuffers: Buffer[] = [];
