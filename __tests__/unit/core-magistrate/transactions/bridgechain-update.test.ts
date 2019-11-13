@@ -22,7 +22,7 @@ describe("Bridgechain update ser/deser", () => {
             .bridgechainUpdateAsset({
                 bridgechainId: 1,
                 seedNodes: ["74.125.224.72"],
-                ports: { "port1": 1 },
+                ports: { "@arkecosystem/core-api": 12345 },
             })
             .sign("passphrase")
             .getStruct();

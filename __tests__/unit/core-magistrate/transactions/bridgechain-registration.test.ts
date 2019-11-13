@@ -89,7 +89,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -104,7 +104,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -121,7 +121,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -135,8 +135,8 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f+",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
-                        seedNodes: ["74.125.224.72", "66.102.0.0"],                        
-                        ports: { "port1": 1 },
+                        seedNodes: ["74.125.224.72", "66.102.0.0"],
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -153,7 +153,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -168,7 +168,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://" + "a".repeat(101),
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -183,7 +183,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "some.repository",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -200,7 +200,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
                         seedNodes: [],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -215,7 +215,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
                         seedNodes: ["66.102.0.0", "66.102.0.0"],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 
@@ -230,7 +230,7 @@ describe("Bridgechain registration transaction", () => {
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
                         seedNodes: ["127.0.0.1"],
-                        ports: { "port1": 1 },
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");
 

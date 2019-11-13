@@ -10,15 +10,15 @@ export const seedNodesSchema = {
 };
 
 export const portsSchema = {
-	type: "object",
-	maxProperties: 32,
+    type: "object",
+    maxProperties: 1,
     minProperties: 1,
     additionalProperties: false,
     patternProperties: {
-	    "^.{4,64}$": {
-	        type: "integer",
-	        minimum: 0,
-	        maximum: 65535,
-	    },
+        "^@arkecosystem/core-api$": {
+            type: "integer",
+            minimum: 0,
+            maximum: 65535,
+        },
     },
 };
