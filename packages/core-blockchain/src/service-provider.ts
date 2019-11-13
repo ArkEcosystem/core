@@ -5,9 +5,7 @@ import { blockchainMachine } from "./machines/blockchain";
 import { ReplayBlockchain } from "./replay";
 
 export class ServiceProvider extends Providers.ServiceProvider {
-    // todo: split this into register and boot
     public async register(): Promise<void> {
-        // Blockchain
         const blockchain: Blockchain = this.config().get("replay")
             ? this.app.resolve<any>(ReplayBlockchain).setup()
             : this.app.resolve<Blockchain>(Blockchain);
@@ -16,16 +14,19 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         blockchain.init(this.config().all());
 
-        // State
         this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).reset(blockchainMachine);
+    }
 
-        if (!process.env.CORE_SKIP_BLOCKCHAIN && !this.config().get("replay")) {
-            await blockchain.start();
-        }
+    public async boot(): Promise<void> {
+        await this.app.get<Blockchain>(Container.Identifiers.BlockchainService).start();
     }
 
     public async dispose(): Promise<void> {
         await this.app.get<Blockchain>(Container.Identifiers.BlockchainService).stop();
+    }
+
+    public async bootWhen(): Promise<boolean> {
+        return !process.env.CORE_SKIP_BLOCKCHAIN && !this.config().has("replay");
     }
 
     public async required(): Promise<boolean> {

@@ -214,7 +214,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                             {},
                         ),
                 )
-                .reduce((acc: object, curr) => ({ ...acc, ...curr }), {}),
+                .reduce((acc: object, curr: Contracts.P2P.Peer) => ({ ...acc, ...curr }), {}),
         );
 
         if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
