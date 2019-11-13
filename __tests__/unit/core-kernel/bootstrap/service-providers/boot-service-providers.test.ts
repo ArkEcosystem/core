@@ -11,6 +11,8 @@ import {
     FaultyBootServiceProvider,
     RequiredFaultyBootServiceProvider,
     DeferredServiceProvider,
+    DeferredBootServiceProvider,
+    DeferredDisposeServiceProvider,
 } from "./__stubs__/service-providers";
 import { ServiceProviderCannotBeBooted } from "@packages/core-kernel/src/exceptions/plugins";
 import { InternalEvent, StateEvent } from "@packages/core-kernel/src/enums/events";
@@ -144,6 +146,48 @@ describe("BootServiceProviders", () => {
 
             expect(spyBoot).not.toHaveBeenCalled();
         });
+
+        it("should react if the service provider does match the expected provider", async () => {
+            const serviceProvider: ServiceProvider = new DeferredBootServiceProvider();
+            const spyBoot = jest.spyOn(serviceProvider, "boot");
+            serviceProviderRepository.set("stub", serviceProvider);
+
+            process.env.DEFFERED_ENABLE = "false";
+
+            await app.resolve<BootServiceProviders>(BootServiceProviders).bootstrap();
+
+            serviceProviderRepository.defer("stub");
+
+            process.env.DEFFERED_ENABLE = "true";
+
+            await app
+                .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
+                .dispatch(InternalEvent.ServiceProviderBooted, { name: "expected-stub" });
+
+            await sleep(500);
+
+            expect(spyBoot).toHaveBeenCalled();
+        });
+
+        it("should not react if the service provider does not match the expected provider", async () => {
+            const serviceProvider: ServiceProvider = new DeferredBootServiceProvider();
+            const spyBoot = jest.spyOn(serviceProvider, "boot");
+            serviceProviderRepository.set("stub", serviceProvider);
+
+            await app.resolve<BootServiceProviders>(BootServiceProviders).bootstrap();
+
+            serviceProviderRepository.defer("stub");
+
+            process.env.DEFFERED_ENABLE = "true";
+
+            await app
+                .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
+                .dispatch(InternalEvent.ServiceProviderBooted, { name: "another-stub" });
+
+            await sleep(500);
+
+            expect(spyBoot).not.toHaveBeenCalled();
+        });
     });
 
     describe("DeferredServiceProvider - disposeWhen", () => {
@@ -190,6 +234,26 @@ describe("BootServiceProviders", () => {
             const spyDispose = jest.spyOn(serviceProvider, "dispose");
             serviceProviderRepository.set("stub", serviceProvider);
 
+            await app.resolve<BootServiceProviders>(BootServiceProviders).bootstrap();
+
+            serviceProviderRepository.defer("stub");
+
+            process.env.DEFFERED_ENABLE = "true";
+
+            await app
+                .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
+                .dispatch(InternalEvent.ServiceProviderBooted, { name: "stub" });
+
+            await sleep(500);
+
+            expect(spyDispose).not.toHaveBeenCalled();
+        });
+
+        it("should react if the service provider does match the expected provider", async () => {
+            const serviceProvider: ServiceProvider = new DeferredDisposeServiceProvider();
+            const spyDispose = jest.spyOn(serviceProvider, "dispose");
+            serviceProviderRepository.set("stub", serviceProvider);
+
             process.env.DEFFERED_ENABLE = "false";
 
             await app.resolve<BootServiceProviders>(BootServiceProviders).bootstrap();
@@ -200,7 +264,27 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "stub" });
+                .dispatch(InternalEvent.ServiceProviderBooted, { name: "expected-stub" });
+
+            await sleep(500);
+
+            expect(spyDispose).toHaveBeenCalled();
+        });
+
+        it("should not react if the service provider does not match the expected provider", async () => {
+            const serviceProvider: ServiceProvider = new DeferredDisposeServiceProvider();
+            const spyDispose = jest.spyOn(serviceProvider, "dispose");
+            serviceProviderRepository.set("stub", serviceProvider);
+
+            await app.resolve<BootServiceProviders>(BootServiceProviders).bootstrap();
+
+            serviceProviderRepository.defer("stub");
+
+            process.env.DEFFERED_ENABLE = "true";
+
+            await app
+                .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
+                .dispatch(InternalEvent.ServiceProviderBooted, { name: "another-stub" });
 
             await sleep(500);
 

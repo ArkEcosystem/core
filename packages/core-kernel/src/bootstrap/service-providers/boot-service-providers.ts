@@ -27,22 +27,26 @@ export class BootServiceProviders implements Bootstrapper {
     private readonly app!: Application;
 
     /**
+     * @private
+     * @type {ServiceProviderRepository}
+     * @memberof BootServiceProviders
+     */
+    @inject(Identifiers.ServiceProviderRepository)
+    private readonly serviceProviders!: ServiceProviderRepository;
+
+    /**
      * @returns {Promise<void>}
      * @memberof RegisterProviders
      */
     public async bootstrap(): Promise<void> {
-        const serviceProviders: ServiceProviderRepository = this.app.get<ServiceProviderRepository>(
-            Identifiers.ServiceProviderRepository,
-        );
-
-        for (const [name, serviceProvider] of serviceProviders.all()) {
+        for (const [name, serviceProvider] of this.serviceProviders.all()) {
             const serviceProviderName: string | undefined = serviceProvider.name();
 
             assert.defined<string>(serviceProviderName);
 
             if (await serviceProvider.bootWhen()) {
                 try {
-                    await serviceProviders.boot(name);
+                    await this.serviceProviders.boot(name);
                 } catch (error) {
                     const isRequired: boolean = await serviceProvider.required();
 
@@ -50,43 +54,44 @@ export class BootServiceProviders implements Bootstrapper {
                         throw new ServiceProviderCannotBeBooted(serviceProviderName, error.message);
                     }
 
-                    serviceProviders.fail(serviceProviderName);
+                    this.serviceProviders.fail(serviceProviderName);
                 }
             } else {
-                serviceProviders.defer(name);
+                this.serviceProviders.defer(name);
             }
 
             // Register the "enable/disposeWhen" listeners to be triggered on every block. Use with care!
-            this.app.events.listen(
-                StateEvent.BlockApplied,
-                async () => await this.changeState(name, serviceProvider, serviceProviders),
-            );
+            this.app.events.listen(StateEvent.BlockApplied, async () => await this.changeState(name, serviceProvider));
 
             // We only want to trigger this if another service provider has been booted to avoid an infinite loop.
             this.app.events.listen(InternalEvent.ServiceProviderBooted, async ({ data }) => {
                 if (data.name !== name) {
-                    await this.changeState(name, serviceProvider, serviceProviders);
+                    await this.changeState(name, serviceProvider, data.name);
                 }
             });
         }
     }
 
-    private async changeState(
-        name: string,
-        serviceProvider: ServiceProvider,
-        serviceProviders: ServiceProviderRepository,
-    ): Promise<void> {
-        if (serviceProviders.failed(name)) {
+    /**
+     * @private
+     * @param {string} name
+     * @param {ServiceProvider} serviceProvider
+     * @param {string} [previous]
+     * @returns {Promise<void>}
+     * @memberof BootServiceProviders
+     */
+    private async changeState(name: string, serviceProvider: ServiceProvider, previous?: string): Promise<void> {
+        if (this.serviceProviders.failed(name)) {
             return;
         }
 
-        if (serviceProviders.loaded(name) && (await serviceProvider.disposeWhen())) {
-            await serviceProviders.dispose(name);
+        if (this.serviceProviders.loaded(name) && (await serviceProvider.disposeWhen(previous))) {
+            await this.serviceProviders.dispose(name);
         }
 
         /* istanbul ignore else */
-        if (serviceProviders.deferred(name) && (await serviceProvider.bootWhen())) {
-            await serviceProviders.boot(name);
+        if (this.serviceProviders.deferred(name) && (await serviceProvider.bootWhen(previous))) {
+            await this.serviceProviders.boot(name);
         }
     }
 }

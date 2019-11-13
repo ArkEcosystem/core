@@ -187,20 +187,32 @@ export abstract class ServiceProvider {
     /**
      * Enable the service provider when the given conditions are met.
      *
+     * @remarks
+     * The [serviceProvider] variable will be undefined unless the [InternalEvent.ServiceProviderBooted]
+     * event triggered a state change check in which case the name of the booteed service provider will be
+     * passed down to this method as packages might rely on each other being booted in a specific order.
+     *
+     * @param {string} [serviceProvider]
      * @returns {Promise<boolean>}
      * @memberof ServiceProvider
      */
-    public async bootWhen(): Promise<boolean> {
+    public async bootWhen(serviceProvider?: string): Promise<boolean> {
         return true;
     }
 
     /**
      * Disable the service provider when the given conditions are met.
      *
+     * @remarks
+     * The [serviceProvider] variable will be undefined unless the [InternalEvent.ServiceProviderBooted]
+     * event triggered a state change check in which case the name of the booteed service provider will be
+     * passed down to this method as packages might rely on each other being booted in a specific order.
+     *
+     * @param {string} [serviceProvider]
      * @returns {Promise<boolean>}
      * @memberof ServiceProvider
      */
-    public async disposeWhen(): Promise<boolean> {
+    public async disposeWhen(serviceProvider?: string): Promise<boolean> {
         return false;
     }
 

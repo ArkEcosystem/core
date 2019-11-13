@@ -187,3 +187,35 @@ export class DeferredServiceProvider extends ServiceProvider {
         return process.env.DEFFERED_DISABLE === "true";
     }
 }
+
+export class DeferredBootServiceProvider extends ServiceProvider {
+    public async register(): Promise<void> {}
+
+    public name(): string {
+        return "stub";
+    }
+
+    public version(): string {
+        return "version";
+    }
+
+    public async bootWhen(serviceProvider?: string): Promise<boolean> {
+        return process.env.DEFFERED_ENABLE === "true" && serviceProvider === "expected-stub";
+    }
+}
+
+export class DeferredDisposeServiceProvider extends ServiceProvider {
+    public async register(): Promise<void> {}
+
+    public name(): string {
+        return "stub";
+    }
+
+    public version(): string {
+        return "version";
+    }
+
+    public async disposeWhen(serviceProvider?: string): Promise<boolean> {
+        return process.env.DEFFERED_DISABLE === "true" && serviceProvider === "expected-stub";
+    }
+}
