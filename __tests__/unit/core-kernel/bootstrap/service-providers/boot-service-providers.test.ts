@@ -84,7 +84,7 @@ describe("BootServiceProviders", () => {
         expect(serviceProviderRepository.deferred("stub")).toBeTrue();
     });
 
-    describe("DeferredServiceProvider - enableWhen", () => {
+    describe("DeferredServiceProvider - bootWhen", () => {
         it("should react to [StateEvent.BlockApplied]", async () => {
             const serviceProvider: ServiceProvider = new DeferredServiceProvider();
             const spyBoot = jest.spyOn(serviceProvider, "boot");
@@ -146,7 +146,7 @@ describe("BootServiceProviders", () => {
         });
     });
 
-    describe("DeferredServiceProvider - disableWhen", () => {
+    describe("DeferredServiceProvider - disposeWhen", () => {
         it("should react to [StateEvent.BlockApplied]", async () => {
             const serviceProvider: ServiceProvider = new DeferredServiceProvider();
             const spyDispose = jest.spyOn(serviceProvider, "dispose");

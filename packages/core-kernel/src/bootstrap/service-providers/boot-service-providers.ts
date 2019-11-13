@@ -40,7 +40,7 @@ export class BootServiceProviders implements Bootstrapper {
 
             assert.defined<string>(serviceProviderName);
 
-            if (await serviceProvider.enableWhen()) {
+            if (await serviceProvider.bootWhen()) {
                 try {
                     await serviceProviders.boot(name);
                 } catch (error) {
@@ -56,7 +56,7 @@ export class BootServiceProviders implements Bootstrapper {
                 serviceProviders.defer(name);
             }
 
-            // Register the "enable/disableWhen" listeners to be triggered on every block. Use with care!
+            // Register the "enable/disposeWhen" listeners to be triggered on every block. Use with care!
             this.app.events.listen(
                 StateEvent.BlockApplied,
                 async () => await this.changeState(name, serviceProvider, serviceProviders),
@@ -80,12 +80,12 @@ export class BootServiceProviders implements Bootstrapper {
             return;
         }
 
-        if (serviceProviders.loaded(name) && (await serviceProvider.disableWhen())) {
+        if (serviceProviders.loaded(name) && (await serviceProvider.disposeWhen())) {
             await serviceProviders.dispose(name);
         }
 
         /* istanbul ignore else */
-        if (serviceProviders.deferred(name) && (await serviceProvider.enableWhen())) {
+        if (serviceProviders.deferred(name) && (await serviceProvider.bootWhen())) {
             await serviceProviders.boot(name);
         }
     }

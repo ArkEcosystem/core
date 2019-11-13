@@ -179,11 +179,11 @@ export class DeferredServiceProvider extends ServiceProvider {
         return "version";
     }
 
-    public async enableWhen(): Promise<boolean> {
+    public async bootWhen(): Promise<boolean> {
         return process.env.DEFFERED_ENABLE === "true";
     }
 
-    public async disableWhen(): Promise<boolean> {
+    public async disposeWhen(): Promise<boolean> {
         return process.env.DEFFERED_DISABLE === "true";
     }
 }

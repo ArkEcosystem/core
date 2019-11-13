@@ -132,12 +132,12 @@ describe("ServiceProvider", () => {
         expect(app.resolve(StubServiceProvider).dependencies()).toEqual([]);
     });
 
-    it(".enableWhen", async () => {
-        await expect(app.resolve(StubServiceProvider).enableWhen()).resolves.toBeTrue();
+    it(".bootWhen", async () => {
+        await expect(app.resolve(StubServiceProvider).bootWhen()).resolves.toBeTrue();
     });
 
-    it(".disableWhen", async () => {
-        await expect(app.resolve(StubServiceProvider).disableWhen()).resolves.toBeFalse();
+    it(".disposeWhen", async () => {
+        await expect(app.resolve(StubServiceProvider).disposeWhen()).resolves.toBeFalse();
     });
 
     it(".required", () => {

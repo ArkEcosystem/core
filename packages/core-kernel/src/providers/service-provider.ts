@@ -190,7 +190,7 @@ export abstract class ServiceProvider {
      * @returns {Promise<boolean>}
      * @memberof ServiceProvider
      */
-    public async enableWhen(): Promise<boolean> {
+    public async bootWhen(): Promise<boolean> {
         return true;
     }
 
@@ -200,7 +200,7 @@ export abstract class ServiceProvider {
      * @returns {Promise<boolean>}
      * @memberof ServiceProvider
      */
-    public async disableWhen(): Promise<boolean> {
+    public async disposeWhen(): Promise<boolean> {
         return false;
     }
 
