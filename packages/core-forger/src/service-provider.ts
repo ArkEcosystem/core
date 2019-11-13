@@ -8,13 +8,17 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         forgerManager.init(this.config().all());
 
-        await forgerManager.startForging(this.config().get("bip38"), this.config().get("password"));
+        this.app.bind("forger").toConstantValue(forgerManager);
+    }
+
+    public async boot(): Promise<void> {
+        await this.app
+            .get<ForgerManager>("forger")
+            .startForging(this.config().get("bip38"), this.config().get("password"));
 
         // Don't keep bip38 password in memory
         this.config().set("bip38", undefined);
         this.config().set("password", undefined);
-
-        this.app.bind("forger").toConstantValue(forgerManager);
     }
 
     public async dispose(): Promise<void> {
