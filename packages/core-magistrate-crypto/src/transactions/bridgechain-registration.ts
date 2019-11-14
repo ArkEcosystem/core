@@ -57,7 +57,8 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const seedNodesBuffers: Buffer[] = [];
         const bridgechainName: Buffer = Buffer.from(bridgechainRegistrationAsset.name, "utf8");
 
-        let seedNodesBuffersLength: number = 0;
+        let seedNodesBuffersLength: number = 1;
+
         for (const seed of seedNodes) {
             const seedBuffer: Buffer = Buffer.from(seed, "utf8");
             seedNodesBuffersLength += seedBuffer.length;
@@ -71,7 +72,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         const ports: IBridgechainPorts = bridgechainRegistrationAsset.ports;
         const portsLength: number = Object.keys(ports).length;
-        
+
         const portNamesBuffers: Buffer[] = [];
         const portNumbers: number[] = [];
 
@@ -81,18 +82,18 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
             const nameBuffer: Buffer = Buffer.from(name, "utf8");
             portNamesBuffers.push(nameBuffer);
             portNumbers.push(port);
-            portsBuffersLength += nameBuffer.length;
+            portsBuffersLength += nameBuffer.length + 2;
         }
 
         portsBuffersLength += portsLength;
 
         const buffer: ByteBuffer = new ByteBuffer(
-            bridgechainName.length +
+            1 +
+                bridgechainName.length +
                 seedNodesBuffersLength +
                 bridgechainGenesisHash.length +
-                bridgechainRepository.length +
-                portsBuffersLength +
-                4,
+                (1 + bridgechainRepository.length) +
+                portsBuffersLength,
             true,
         );
 

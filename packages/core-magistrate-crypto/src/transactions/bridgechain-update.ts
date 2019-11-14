@@ -25,12 +25,13 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                     properties: {
                         bridgechainUpdate: {
                             type: "object",
+                            required: ["bridgechainId"],
                             anyOf: [
                                 {
-                                    required: ["bridgechainId", "seedNodes"],
+                                    required: ["seedNodes"],
                                 },
                                 {
-                                    required: ["bridgechainId", "ports"],
+                                    required: ["ports"],
                                 },
                             ],
                             properties: {
@@ -91,7 +92,8 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
             4 + // bridgechainId
                 seedNodesBuffersLength +
                 portsBuffersLength,
-            true);
+            true,
+        );
         buffer.writeUint32(bridgechainUpdateAsset.bridgechainId);
 
         buffer.writeUint8(seedNodesBuffers.length);
