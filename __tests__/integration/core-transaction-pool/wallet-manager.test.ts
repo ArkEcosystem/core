@@ -224,7 +224,7 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
     });
 });
 
-describe.only("findByIndex", () => {
+describe("findByIndex", () => {
     describe("when transaction pool wallet manager does not find a wallet by index", () => {
         it("should get the wallet from database wallet manager if it exists", async () => {
             const publicKey = "02664fe58caa4a960ed74169a5968a5f69587ba50b75087d268f5788af3a5bf56d";
