@@ -111,7 +111,7 @@ describe("Bridgechain update ser/deser", () => {
             });
 
             it("should fail if property does not match pattern", () => {
-                bridgechainUpdate = builder
+                const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
                         bridgechainId: 1,
                         ports: { "not-valid": 1 },
@@ -123,7 +123,7 @@ describe("Bridgechain update ser/deser", () => {
             });
 
             it("should pass if property does match pattern", () => {
-                bridgechainUpdate = builder
+                const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
                         bridgechainId: 1,
                         ports: { "@arkecosystem/core-api": 12345 },
