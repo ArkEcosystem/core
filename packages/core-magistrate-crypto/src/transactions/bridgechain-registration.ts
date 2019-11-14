@@ -55,7 +55,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const bridgechainRegistrationAsset: IBridgechainRegistrationAsset = data.asset.bridgechainRegistration;
         const seedNodes: string[] = bridgechainRegistrationAsset.seedNodes;
         const seedNodesBuffers: Buffer[] = [];
-        const bridgechainName: Buffer = Buffer.from(bridgechainRegistrationAsset.name, "utf8");
+
+        const bridgechainNameBuffer: Buffer = Buffer.from(bridgechainRegistrationAsset.name, "utf8");
+        const bridgechainNameBufferLength: number = bridgechainNameBuffer.length;
 
         let seedNodesBuffersLength: number = 1;
 
@@ -68,7 +70,12 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         seedNodesBuffersLength += seedNodesBuffers.length;
 
         const bridgechainGenesisHash: Buffer = Buffer.from(bridgechainRegistrationAsset.genesisHash, "utf8");
-        const bridgechainRepository: Buffer = Buffer.from(bridgechainRegistrationAsset.bridgechainRepository, "utf8");
+
+        const bridgechainRepositoryBuffer: Buffer = Buffer.from(
+            bridgechainRegistrationAsset.bridgechainRepository,
+            "utf8",
+        );
+        const bridgechainRepositoryBufferLength: number = bridgechainRepositoryBuffer.length;
 
         const ports: IBridgechainPorts = bridgechainRegistrationAsset.ports;
         const portsLength: number = Object.keys(ports).length;
@@ -88,17 +95,16 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         portsBuffersLength += portsLength;
 
         const buffer: ByteBuffer = new ByteBuffer(
-            1 +
-                bridgechainName.length +
+            bridgechainNameBufferLength +
                 seedNodesBuffersLength +
                 bridgechainGenesisHash.length +
-                (1 + bridgechainRepository.length) +
+                bridgechainRepositoryBufferLength +
                 portsBuffersLength,
             true,
         );
 
-        buffer.writeUint8(bridgechainName.length);
-        buffer.append(bridgechainName);
+        buffer.writeUint8(bridgechainNameBufferLength);
+        buffer.append(bridgechainNameBuffer);
 
         buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuffer of seedNodesBuffers) {
@@ -108,8 +114,8 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         buffer.append(bridgechainGenesisHash);
 
-        buffer.writeUint8(bridgechainRepository.length);
-        buffer.append(bridgechainRepository);
+        buffer.writeUint8(bridgechainRepositoryBufferLength);
+        buffer.append(bridgechainRepositoryBuffer);
 
         buffer.writeUint8(portsLength);
         for (const [i, nameBuffer] of portNamesBuffers.entries()) {
