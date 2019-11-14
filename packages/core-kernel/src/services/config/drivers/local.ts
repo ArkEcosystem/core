@@ -84,17 +84,21 @@ export class LocalConfigLoader implements ConfigLoader {
      * @memberof LocalConfigLoader
      */
     private loadApplication(): void {
+        const processType: string = this.app.get<KeyValuePair>(Identifiers.ConfigFlags).processType;
+
         const config = this.loadFromLocation(["app.json", "app.js"]);
 
         this.configRepository.set("app.flags", {
             ...this.app.get<JsonObject>(Identifiers.ConfigFlags),
-            ...defaults.flags,
-            ...get(config, "flags", {}),
+            ...get(config, `${processType}.flags`, {}),
         });
 
-        this.configRepository.set("app.services", { ...defaults.services, ...get(config, "services", {}) });
+        this.configRepository.set("app.services", {
+            ...defaults.services,
+            ...get(config, `${processType}.services`, {}),
+        });
 
-        this.configRepository.set("app.plugins", [...defaults.plugins, ...get(config, "plugins", [] as any)]);
+        this.configRepository.set("app.plugins", get(config, `${processType}.plugins`, []));
     }
 
     /**

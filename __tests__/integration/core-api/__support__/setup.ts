@@ -16,6 +16,7 @@ export const setUp = async () => {
                 token: "ark",
                 network: "unitnet",
                 env: "test",
+                processType: "core",
             },
             plugins: {
                 exclude: [

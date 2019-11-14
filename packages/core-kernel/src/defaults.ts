@@ -1,5 +1,4 @@
 export const defaults = {
-    flags: {},
     services: {
         log: {
             levels: {
@@ -11,5 +10,4 @@ export const defaults = {
             },
         },
     },
-    plugins: [],
 };

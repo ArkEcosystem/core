@@ -52,7 +52,9 @@ export class PluginConfiguration {
     public discover(name: string): this {
         try {
             this.items = require(`${name}/dist/defaults.js`).defaults;
-        } catch {}
+        } catch {
+            // Failed to discover the defaults configuration file. This can be intentional.
+        }
 
         this.mergeWithGlobal(name);
 

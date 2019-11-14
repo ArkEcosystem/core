@@ -19,6 +19,7 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
                 token: "ark",
                 network: "unitnet",
                 env: "test",
+                processType: "core",
             },
             plugins: {
                 include: [

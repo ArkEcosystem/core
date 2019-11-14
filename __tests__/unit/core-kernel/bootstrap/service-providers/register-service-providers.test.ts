@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
 import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
-import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import {
     ServiceProvider,
     ServiceProviderRepository,
@@ -62,30 +61,6 @@ describe("RegisterServiceProviders", () => {
         await app.resolve<RegisterServiceProviders>(RegisterServiceProviders).bootstrap();
 
         expect(spyRegister).toHaveBeenCalled();
-    });
-
-    it("should respect the include configuration", async () => {
-        app.get<ConfigRepository>(Identifiers.ConfigRepository).set("app.pluginOptions.include", ["stub-other"]);
-
-        const serviceProvider: ServiceProvider = new StubServiceProvider();
-        const spyRegister = jest.spyOn(serviceProvider, "register");
-        serviceProviderRepository.set("stub", serviceProvider);
-
-        await app.resolve<RegisterServiceProviders>(RegisterServiceProviders).bootstrap();
-
-        expect(spyRegister).not.toHaveBeenCalled();
-    });
-
-    it("should respect the exclude configuration", async () => {
-        app.get<ConfigRepository>(Identifiers.ConfigRepository).set("app.pluginOptions.exclude", ["stub"]);
-
-        const serviceProvider: ServiceProvider = new StubServiceProvider();
-        const spyRegister = jest.spyOn(serviceProvider, "register");
-        serviceProviderRepository.set("stub", serviceProvider);
-
-        await app.resolve<RegisterServiceProviders>(RegisterServiceProviders).bootstrap();
-
-        expect(spyRegister).not.toHaveBeenCalled();
     });
 
     it("should bootstrap if the configuration validation passes", async () => {

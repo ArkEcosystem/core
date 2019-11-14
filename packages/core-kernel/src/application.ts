@@ -50,13 +50,13 @@ export class Application implements Contracts.Kernel.Application {
     }
 
     /**
-     * @param {{ flags: JsonObject; plugins?: JsonObject }} { flags, plugins }
+     * @param {{ flags: JsonObject; plugins: JsonObject; }} options
      * @returns {Promise<void>}
      * @memberof Application
      */
-    public async bootstrap({ flags, plugins }: { flags: JsonObject; plugins?: JsonObject }): Promise<void> {
-        this.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(flags);
-        this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(plugins || {});
+    public async bootstrap(options: { flags: JsonObject; plugins?: JsonObject }): Promise<void> {
+        this.bind<KeyValuePair>(Identifiers.ConfigFlags).toConstantValue(options.flags);
+        this.bind<KeyValuePair>(Identifiers.ConfigPlugins).toConstantValue(options.plugins || {});
 
         await this.registerEventDispatcher();
 

@@ -11,7 +11,6 @@ import {
 } from "../../exceptions/plugins";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { PluginConfiguration, ServiceProvider, ServiceProviderRepository } from "../../providers";
-import { ConfigRepository } from "../../services/config";
 import { ValidationManager } from "../../services/validation";
 import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
@@ -49,11 +48,6 @@ export class RegisterServiceProviders implements Bootstrapper {
             assert.defined<string>(serviceProviderName);
 
             try {
-                // Shall we include the plugin?
-                if (!this.shouldBeIncluded(serviceProviderName) || this.shouldBeExcluded(serviceProviderName)) {
-                    continue;
-                }
-
                 // Does the configuration conform to the given rules?
                 await this.validateConfiguration(serviceProvider);
 
@@ -177,33 +171,5 @@ export class RegisterServiceProviders implements Bootstrapper {
         }
 
         return true;
-    }
-
-    /**
-     * @private
-     * @param {string} name
-     * @returns {boolean}
-     * @memberof RegisterServiceProviders
-     */
-    private shouldBeIncluded(name: string): boolean {
-        const includes: string[] | undefined = this.app
-            .get<ConfigRepository>(Identifiers.ConfigRepository)
-            .get<string[]>("app.pluginOptions.include", []);
-
-        return includes && includes.length > 0 ? includes.includes(name) : true;
-    }
-
-    /**
-     * @private
-     * @param {string} name
-     * @returns {boolean}
-     * @memberof RegisterServiceProviders
-     */
-    private shouldBeExcluded(name: string): boolean {
-        const excludes: string[] | undefined = this.app
-            .get<ConfigRepository>(Identifiers.ConfigRepository)
-            .get<string[]>("app.pluginOptions.exclude", []);
-
-        return excludes && excludes.length > 0 ? excludes.includes(name) : false;
     }
 }

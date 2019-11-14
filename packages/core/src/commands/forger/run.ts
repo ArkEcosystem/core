@@ -1,6 +1,5 @@
 import Command, { flags } from "@oclif/command";
 
-import { getConfigValue } from "../../common/config";
 import { createApplication } from "../../common/create-application";
 import { buildBIP38 } from "../../common/crypto";
 import { flagsForger, flagsNetwork } from "../../common/flags";
@@ -30,17 +29,12 @@ $ ark forger:run --bip38="..." --password="..."
     public async run(): Promise<void> {
         const { flags } = await parseWithNetwork(this.parse(RunCommand));
 
+        flags.processType = "forger";
+
         await createApplication({
-            ...getConfigValue(flags, "app", "cli.forger.run"),
-            ...{
-                flags,
-                plugins: {
-                    include: ["@arkecosystem/core-forger"],
-                    // todo: this can actually be removed and done inside the service provider of the packages
-                    options: {
-                        "@arkecosystem/core-forger": await buildBIP38(flags),
-                    },
-                },
+            flags,
+            plugins: {
+                "@arkecosystem/core-forger": await buildBIP38(flags),
             },
         });
     }
