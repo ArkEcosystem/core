@@ -103,13 +103,25 @@ export class PinoLogger implements Logger {
 
         this.fileStream = this.getFileStream(options.fileRotator);
 
-        // @ts-ignore
-        const consoleTransport = this.createPrettyTransport(options.levels.console, { colorize: true });
-        // @ts-ignore
-        const fileTransport = this.createPrettyTransport(options.levels.file, { colorize: false });
+        if (this.isValidLevel(options.levels.console)) {
+            pump(
+                stream,
+                split(),
+                // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
+                this.createPrettyTransport(options.levels.console, { colorize: true }),
+                process.stdout,
+            );
+        }
 
-        pump(stream, split(), consoleTransport, process.stdout);
-        pump(stream, split(), fileTransport, this.fileStream);
+        if (this.isValidLevel(options.levels.file)) {
+            pump(
+                stream,
+                split(),
+                // @ts-ignore - Object literal may only specify known properties, and 'colorize' does not exist in type 'PrettyOptions'.
+                this.createPrettyTransport(options.levels.file, { colorize: false }),
+                this.fileStream,
+            );
+        }
 
         return this;
     }
@@ -281,5 +293,9 @@ export class PinoLogger implements Logger {
                 compress: "gzip",
             },
         );
+    }
+
+    private isValidLevel(level: string): boolean {
+        return ["emergency", "alert", "critical", "error", "warning", "notice", "info", "debug"].includes(level);
     }
 }
