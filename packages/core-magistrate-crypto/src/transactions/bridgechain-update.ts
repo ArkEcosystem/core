@@ -82,7 +82,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                 const nameBuffer: Buffer = Buffer.from(name, "utf8");
                 portNamesBuffers.push(nameBuffer);
                 portNumbers.push(port);
-                portsBuffersLength += nameBuffer.length;
+                portsBuffersLength += nameBuffer.length + 2;
             }
 
             portsBuffersLength += portsLength;
@@ -114,32 +114,40 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-        const bridgechainId: number = buf.readUint32();
 
-        const seedNodes: string[] = [];
+        const bridgechainUpdate: IBridgechainUpdateAsset = {};
+
+        bridgechainUpdate.bridgechainId = buf.readUint32();
+
         const seedNodesLength: number = buf.readUint8();
-        for (let i = 0; i < seedNodesLength; i++) {
-            const ipLength = buf.readUint8();
-            const ip = buf.readString(ipLength);
-            seedNodes.push(ip);
+        if (seedNodesLength) {
+            const seedNodes: string[] = [];
+
+            for (let i = 0; i < seedNodesLength; i++) {
+                const ipLength = buf.readUint8();
+                const ip = buf.readString(ipLength);
+                seedNodes.push(ip);
+            }
+
+            bridgechainUpdate.seedNodes = seedNodes;
         }
 
-        const ports: IBridgechainPorts = {};
-
         const portsLength: number = buf.readUint8();
-        for (let i = 0; i < portsLength; i++) {
-            const nameLength: number = buf.readUint8();
-            const name: string = buf.readString(nameLength);
-            const port: number = buf.readUint16();
-            ports[name] = port;
+        if (portsLength) {
+            const ports: IBridgechainPorts = {};
+
+            for (let i = 0; i < portsLength; i++) {
+                const nameLength: number = buf.readUint8();
+                const name: string = buf.readString(nameLength);
+                const port: number = buf.readUint16();
+                ports[name] = port;
+            }
+
+            bridgechainUpdate.ports = ports;
         }
 
         data.asset = {
-            bridgechainUpdate: {
-                bridgechainId,
-                seedNodes,
-                ports,
-            },
+            bridgechainUpdate,
         };
     }
 }
