@@ -193,7 +193,7 @@ describe("Bridgechain registration transaction", () => {
         });
 
         describe("should test edge cases for seedNodes", () => {
-            it("should had at least one item (ip)", () => {
+            it("should have at least one item (ip)", () => {
                 const bridgechainRegistration = builder
                     .bridgechainRegistrationAsset({
                         name: "google",

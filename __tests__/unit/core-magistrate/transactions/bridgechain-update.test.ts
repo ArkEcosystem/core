@@ -1,16 +1,16 @@
 import "jest-extended";
 
 import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Managers, Transactions } from "@arkecosystem/crypto";
-import { checkCommonFields } from "../helper";
+import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
+import { BridgechainUpdateTransaction } from "../../../../packages/core-magistrate-crypto/src/transactions";
+import { bridgechainUpdateAsset1, checkCommonFields } from "../helper";
 
 let builder: MagistrateBuilders.BridgechainUpdateBuilder;
 
 describe("Bridgechain update ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
 
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BridgechainUpdateTransaction);
 
     beforeEach(() => {
         builder = new MagistrateBuilders.BridgechainUpdateBuilder();
@@ -31,5 +31,108 @@ describe("Bridgechain update ser/deser", () => {
         const deserialized = Transactions.Deserializer.deserialize(serialized);
 
         checkCommonFields(deserialized, businessResignation);
+    });
+
+    describe("Schema tests", () => {
+        let transactionSchema;
+
+        beforeAll(() => {
+            transactionSchema = BridgechainUpdateTransaction.getSchema();
+        });
+
+        it("should not throw any error", () => {
+            const bridgechainUpdate = builder.bridgechainUpdateAsset(bridgechainUpdateAsset1).sign("passphrase");
+
+            const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+            expect(error).toBeUndefined();
+        });
+
+        describe("should test edge cases for seedNodes", () => {
+            it("should have at least one item (ip)", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: 1,
+                        seedNodes: [],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should not accept duplicates", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: 1,
+                        seedNodes: ["66.102.0.0", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should not accept localhost", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: 1,
+                        seedNodes: ["66.102.0.0", "66.102.0.0"],
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+        });
+
+        describe("should test edge cases for ports", () => {
+            it("should fail with less than 1 property", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: 1,
+                        ports: {},
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should fail with more than 1 property", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: 1,
+                        ports: { name1: 1, name2: 2 },
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should fail if property does not match pattern", () => {
+                bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: 1,
+                        ports: { "not-valid": 1 },
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should pass if property does match pattern", () => {
+                bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: 1,
+                        ports: { "@arkecosystem/core-api": 12345 },
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).toBeUndefined();
+            });
+        });
     });
 });
