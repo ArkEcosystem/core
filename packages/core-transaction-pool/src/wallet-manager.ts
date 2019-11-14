@@ -32,6 +32,23 @@ export class WalletManager extends Wallets.WalletManager {
         return this.findByIndex(State.WalletIndexes.Addresses, address);
     }
 
+    public findByIndex(index: string | string[], key: string): State.IWallet | undefined {
+        const wallet = super.findByIndex(index, key);
+
+        if (wallet) {
+            return wallet;
+        }
+
+        const dbWallet = this.databaseService.walletManager.findByIndex(index, key);
+        if (dbWallet) {
+            const cloneWallet = clonedeep(dbWallet);
+            this.reindex(cloneWallet);
+            return cloneWallet;
+        }
+
+        return undefined;
+    }
+
     public forget(publicKey: string): void {
         this.forgetByPublicKey(publicKey);
         this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
