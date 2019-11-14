@@ -115,9 +115,11 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const bridgechainUpdate: IBridgechainUpdateAsset = {};
+        const bridgechainId: number = buf.readUint32();
 
-        bridgechainUpdate.bridgechainId = buf.readUint32();
+        const bridgechainUpdate: IBridgechainUpdateAsset = {
+            bridgechainId,
+        };
 
         const seedNodesLength: number = buf.readUint8();
         if (seedNodesLength) {
