@@ -79,12 +79,13 @@ const createRandomTx = type => {
                 Math.floor(Math.random() * (max - min)) + min,
             );
 
-            participants.forEach(participant => {
+            for (const participant of participants) {
                 multiSigRegistration.participant(participant.publicKey);
-            });
+            }
 
             multiSigRegistration.senderPublicKey(participants[0].publicKey);
 
+            // tslint:disable-next-line: ban
             passphrases.forEach((passphrase, index) => {
                 multiSigRegistration.multiSign(passphrase, index);
             });
@@ -115,6 +116,7 @@ describe("Transaction", () => {
 
     describe("toBytes / fromBytes", () => {
         it("should verify all transactions", () => {
+            // tslint:disable-next-line: ban
             [0, 1, 2, 3]
                 .map(type => createRandomTx(type))
                 .forEach(transaction => {
@@ -181,13 +183,12 @@ describe("Transaction", () => {
     });
 
     describe("getHash", () => {
-        let transaction: ITransactionData
+        let transaction: ITransactionData;
 
         beforeEach(() => {
             configManager.setFromPreset("testnet");
 
-            transaction = TestTransactionFactory
-                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+            transaction = TestTransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
                 .withVersion(2)
@@ -209,13 +210,12 @@ describe("Transaction", () => {
     });
 
     describe("getId", () => {
-        let transaction: ITransactionData
+        let transaction: ITransactionData;
 
         beforeEach(() => {
             configManager.setFromPreset("testnet");
 
-            transaction = TestTransactionFactory
-                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+            transaction = TestTransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
                 .withVersion(2)

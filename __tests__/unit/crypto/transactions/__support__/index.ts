@@ -66,12 +66,13 @@ export const createRandomTx = type => {
                 Math.floor(Math.random() * (max - min)) + min,
             );
 
-            participants.forEach(participant => {
+            for (const participant of participants) {
                 multiSigRegistration.participant(participant.publicKey);
-            });
+            }
 
             multiSigRegistration.senderPublicKey(participants[0].publicKey);
 
+            // tslint:disable-next-line: ban
             passphrases.forEach((passphrase, index) => {
                 multiSigRegistration.multiSign(passphrase, index);
             });

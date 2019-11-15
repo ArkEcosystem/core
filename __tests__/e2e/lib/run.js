@@ -108,7 +108,7 @@ class Runner {
 
             // we configure for every node one peer being the last node we started
             console.log(`Updating node${nodeNumber} peer list...`);
-            const peers = { list: this.nodes.map(node => ({ ip: node.IP, port: 4000})) };
+            const peers = { list: this.nodes.map(node => ({ ip: node.IP, port: 4000 })) };
             fs.writeFile(
                 `${this.rootPath}/dist/${nodeInfos.name}/packages/core/bin/config/${this.network}/peers.json`,
                 JSON.stringify(peers, null, 2),
@@ -163,7 +163,7 @@ class Runner {
         let response;
         try {
             response = await testUtils.GET("node/status", {}, nodeNumber);
-        } catch (e) {}
+        } catch (e) { }
 
         if (!response || response.status !== 200) {
             await delay(2000);
@@ -229,25 +229,25 @@ class Runner {
                 return true;
             }
 
-            thingsToExecute.forEach(key => {
+            for (const key in thingsToExecute) {
                 const actionsPaths = configAllTests.events.newBlock[key].filter(file => file.indexOf(".action") > 0);
                 const testsPaths = configAllTests.events.newBlock[key].filter(file => file.indexOf(".test") > 0);
 
                 if (testsPaths) {
-                    testsPaths.forEach(testPath => {
+                    for (const testPath in testsPaths) {
                         // now use Jest to launch the tests
                         console.log(`Executing test ${testPath} for block ${blockHeight}`);
                         this.runJestTest(testPath);
-                    });
+                    }
                 }
 
                 if (actionsPaths) {
-                    actionsPaths.forEach(actionPath => {
+                    for (const actionPath in actionsPaths) {
                         console.log(`Executing action ${actionPath} for block ${blockHeight}`);
                         this.executeAction(actionPath);
-                    });
+                    }
                 }
-            });
+            }
         }
 
         await delay(2000);

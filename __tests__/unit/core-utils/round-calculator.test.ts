@@ -59,6 +59,7 @@ describe("Round calculator", () => {
                     };
                 });
 
+                // tslint:disable-next-line: ban
                 testVector.forEach(({ height, round, roundHeight, nextRound, activeDelegates }) => {
                     const result = calculateRound(height);
                     expect(result.round).toBe(round);

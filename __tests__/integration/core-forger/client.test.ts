@@ -31,7 +31,9 @@ beforeAll(async () => {
 });
 
 afterAll(() => {
-    client.hosts.forEach(host => host.socket.destroy());
+    for (const host of client.hosts) {
+        host.socket.destroy();
+    }
 
     socketManager.stopServer();
 });

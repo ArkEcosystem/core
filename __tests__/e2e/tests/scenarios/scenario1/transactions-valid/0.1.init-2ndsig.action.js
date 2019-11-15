@@ -15,7 +15,7 @@ module.exports = async options => {
 
     const transactions = [];
 
-    Object.keys(utils.wallets).forEach(txType => {
+    for (const txType of Object.keys(utils.wallets)) {
         const wallets = utils.wallets[txType];
 
         transactions.push(
@@ -24,7 +24,7 @@ module.exports = async options => {
                 .withPassphrase(wallets[2].passphrase)
                 .createOne(),
         );
-    });
+    }
 
     await testUtils.POST("transactions", { transactions });
 };
