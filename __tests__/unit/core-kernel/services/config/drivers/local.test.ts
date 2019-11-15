@@ -6,6 +6,7 @@ import { Application } from "@packages/core-kernel/src/application";
 import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+import { JoiValidator } from "@packages/core-kernel/src/services/validation/drivers/joi";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
@@ -20,6 +21,8 @@ beforeEach(() => {
     app.bind(Identifiers.ConfigFlags).toConstantValue({});
     app.bind(Identifiers.ConfigPlugins).toConstantValue({});
 
+    app.bind(Identifiers.ValidationService).to(JoiValidator);
+
     configLoader = app.resolve<LocalConfigLoader>(LocalConfigLoader);
 });
 
@@ -27,16 +30,14 @@ describe("LocalConfigLoader", () => {
     it("should throw if it fails to fail the application configuration", async () => {
         app.rebind("path.config").toConstantValue("does-not-exist");
 
-        await expect(configLoader.loadConfiguration()).rejects.toThrowError(
-            new ApplicationConfigurationCannotBeLoaded(),
-        );
+        await expect(configLoader.loadConfiguration()).rejects.toThrowError(ApplicationConfigurationCannotBeLoaded);
     });
 
     it("should throw if it fails to fail the environment variables", async () => {
         app.rebind("path.config").toConstantValue("does-not-exist");
 
         await expect(configLoader.loadEnvironmentVariables()).rejects.toThrowError(
-            new EnvironmentConfigurationCannotBeLoaded(),
+            EnvironmentConfigurationCannotBeLoaded,
         );
     });
 

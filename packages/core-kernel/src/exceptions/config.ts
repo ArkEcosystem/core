@@ -37,8 +37,8 @@ export class ApplicationConfigurationCannotBeLoaded extends ConfigurationExcepti
     /**
      * @memberof ApplicationConfigurationCannotBeLoaded
      */
-    constructor() {
-        super("Unable to load the application configuration file.");
+    constructor(message: string) {
+        super(`Unable to load the application configuration file. ${message}`);
     }
 }
 
@@ -51,8 +51,8 @@ export class EnvironmentConfigurationCannotBeLoaded extends ConfigurationExcepti
     /**
      * @memberof EnvironmentConfigurationCannotBeLoaded
      */
-    constructor() {
-        super(`Unable to load the environment file.`);
+    constructor(message: string) {
+        super(`Unable to load the environment file. ${message}`);
     }
 }
 

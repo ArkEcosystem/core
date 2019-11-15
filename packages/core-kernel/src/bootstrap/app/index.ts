@@ -1,3 +1,9 @@
+/**
+ * These service providers don't rely on any configuration and are
+ * necessary to be available early on during the application lifecycle.
+ */
+export * from "./register-core-service-providers";
+
 // Foundation
 export * from "./register-error-handler";
 export * from "./register-base-configuration";
