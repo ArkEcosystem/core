@@ -1,4 +1,5 @@
-import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
+import { Blockchain, Container, Database, State } from "@arkecosystem/core-interfaces";
+import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
@@ -220,5 +221,36 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         expect(+transferDelegateWallet.balance).toBe(+transferDelegate.balance - transferAmount - totalFee);
 
         expect(+delegateWallet.balance).toBe(+forgingDelegate.balance + reward + totalFee); // balance increased by reward + fee
+    });
+});
+
+describe("findByIndex", () => {
+    describe("when transaction pool wallet manager does not find a wallet by index", () => {
+        it("should get the wallet from database wallet manager if it exists", async () => {
+            const publicKey = "02664fe58caa4a960ed74169a5968a5f69587ba50b75087d268f5788af3a5bf56d";
+            const address = Identities.Address.fromPublicKey(publicKey);
+            const lockId = "cd08f14f049ea0ff0661635929ed267275e71509561c78d72a55a0bbccc48c30";
+            const walletWithHtlcLock = Object.assign(new Wallets.Wallet(address), {
+                attributes: {
+                    htlc: {
+                        locks: {
+                            [lockId]: {
+                                amount: Utils.BigNumber.make(10),
+                                recipientId: address,
+                                secretHash: lockId,
+                                expiration: {
+                                    type: 1,
+                                    value: 100,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+            container.resolvePlugin<Database.IDatabaseService>("database").walletManager.reindex(walletWithHtlcLock);
+
+            const poolWallet = poolWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+            expect(poolWallet).toEqual(walletWithHtlcLock);
+        });
     });
 });
