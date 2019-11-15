@@ -3,6 +3,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { IBusinessWalletAttributes } from "../../../packages/core-magistrate-transactions/src/interfaces";
 
+const genesisHash = "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61";
 describe("should test wallet", () => {
     it("should return the same data as added", () => {
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
@@ -15,8 +16,8 @@ describe("should test wallet", () => {
             },
             resigned: false,
             bridgechains: {
-                "1001": {
-                    bridgechainId: 1001,
+                [genesisHash]: {
+                    bridgechainId: genesisHash,
                     bridgechainAsset: {
                         name: "googleCrypto",
                         seedNodes: [
