@@ -16,19 +16,18 @@ module.exports = async options => {
     const transactions = [];
     const noncesByAddress = {};
 
-    Object.keys(utils.walletsMix).forEach(firstTxType => {
+    for (const firstTxType of Object.keys(utils.walletsMix)) {
         const secondTxsTypes = utils.walletsMix[firstTxType];
-        Object.keys(secondTxsTypes).forEach(secondTxType => {
+        for (const secondTxType of Object.keys(secondTxsTypes)) {
             const wallets = secondTxsTypes[secondTxType];
-
             transactions.push(
                 TransactionFactory.secondSignature(wallets[3].passphrase)
                     .withFee(utils.fees.secondSignRegistration)
                     .withPassphrase(wallets[2].passphrase)
                     .createOne()
             );
-        });
-    });
+        }
+    }
 
     await testUtils.POST("transactions", { transactions });
 };

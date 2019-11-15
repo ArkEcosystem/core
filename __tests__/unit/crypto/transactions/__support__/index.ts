@@ -66,15 +66,15 @@ export const createRandomTx = type => {
                 Math.floor(Math.random() * (max - min)) + min,
             );
 
-            participants.forEach(participant => {
+            for (const participant of participants) {
                 multiSigRegistration.participant(participant.publicKey);
-            });
+            }
 
             multiSigRegistration.senderPublicKey(participants[0].publicKey);
 
-            passphrases.forEach((passphrase, index) => {
-                multiSigRegistration.multiSign(passphrase, index);
-            });
+            for (const passphrase of passphrases) {
+                multiSigRegistration.multiSign(passphrase, passphrases.indexOf(passphrase));
+            }
 
             transaction = multiSigRegistration.sign(passphrases[0]).build();
 
