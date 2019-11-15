@@ -102,8 +102,9 @@ describe("TransactionFactory", () => {
         // Old tests
         it("should match transaction id", () => {
             configManager.setFromPreset("testnet");
-            const randomTxs = [0, 1, 2, 3].map(type => createRandomTx(type));
-            for (const transaction of randomTxs) {
+            let i: number;
+            for (i = 0; i < 3; i++) {
+                const transaction = createRandomTx(i);
                 const originalId = transaction.data.id;
                 const newTransaction = TransactionFactory.fromData(transaction.data);
                 expect(newTransaction.data.id).toEqual(originalId);

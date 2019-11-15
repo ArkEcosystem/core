@@ -115,8 +115,9 @@ describe("Transaction", () => {
 
     describe("toBytes / fromBytes", () => {
         it("should verify all transactions", () => {
-            const randomTxs = [0, 1, 2, 3].map(type => createRandomTx(type));
-            for (const transaction of randomTxs) {
+            let i: number;
+            for (i = 0; i < 3; i++) {
+                const transaction = createRandomTx(i);
                 const newTransaction = TransactionFactory.fromBytes(TransactionUtils.toBytes(transaction.data));
 
                 // TODO: Remove both from data when not needed
