@@ -13,7 +13,7 @@ export class BridgechainResignationBuilder extends Transactions.TransactionBuild
         this.data.asset = { bridgechainResignation: {} };
     }
 
-    public businessResignationAsset(bridgechainId: number): BridgechainResignationBuilder {
+    public businessResignationAsset(bridgechainId: string): BridgechainResignationBuilder {
         this.data.asset.bridgechainResignation.bridgechainId = bridgechainId;
         return this;
     }

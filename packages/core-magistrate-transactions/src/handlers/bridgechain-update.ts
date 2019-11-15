@@ -44,7 +44,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
                 );
 
                 const { bridgechainId, seedNodes } = transaction.asset.bridgechainUpdate;
-                businessAttributes.bridgechains[bridgechainId.toString()].bridgechainAsset.seedNodes = seedNodes;
+                businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
 
                 walletManager.reindex(wallet);
             }
@@ -70,7 +70,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
             transaction.data.asset.bridgechainUpdate;
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toString()];
+            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
 
         if (!bridgechainAttributes) {
             throw new BridgechainIsNotRegisteredByWalletError();
@@ -92,7 +92,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        const { bridgechainId }: { bridgechainId: number } = data.asset.bridgechainUpdate;
+        const { bridgechainId }: { bridgechainId: string } = data.asset.bridgechainUpdate;
 
         const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
             await pool.getTransactionsByType(
@@ -133,7 +133,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             transaction.data.asset.bridgechainUpdate;
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toString()];
+            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
         bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
 
         walletManager.reindex(wallet);
@@ -160,14 +160,13 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         if (updateTransactions.length > 1) {
             const updateTransaction: Database.IBootstrapTransaction = updateTransactions.pop();
             const { bridgechainId, seedNodes } = updateTransaction.asset.bridgechainUpdate;
-            const bridgechainAttributes: IBridgechainWalletAttributes =
-                businessAttributes.bridgechains[bridgechainId.toString()];
+            const bridgechainAttributes: IBridgechainWalletAttributes = businessAttributes.bridgechains[bridgechainId];
             bridgechainAttributes.bridgechainAsset.seedNodes = seedNodes;
         } else {
             // There are equally many bridgechain registrations as bridgechains a wallet posseses in the database.
             // By getting the index of the bridgechainId we can use it as an offset to get
             // the actual registration transaction.
-            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId.toString();
+            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId;
             const registrationIndex: number = Object.keys(businessAttributes.bridgechains).indexOf(bridgechainId);
 
             const bridgechainRegistration: MagistrateInterfaces.IBridgechainRegistrationAsset = (await app
