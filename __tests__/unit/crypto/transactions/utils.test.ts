@@ -115,7 +115,6 @@ describe("Transaction", () => {
 
     describe("toBytes / fromBytes", () => {
         it("should verify all transactions", () => {
-            // tslint:disable-next-line: ban
             const randomTxs = [0, 1, 2, 3].map(type => createRandomTx(type));
             for (const transaction of randomTxs) {
                 const newTransaction = TransactionFactory.fromBytes(TransactionUtils.toBytes(transaction.data));
