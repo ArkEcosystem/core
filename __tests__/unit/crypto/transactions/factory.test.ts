@@ -102,14 +102,12 @@ describe("TransactionFactory", () => {
         // Old tests
         it("should match transaction id", () => {
             configManager.setFromPreset("testnet");
-            // tslint:disable-next-line: ban
-            [0, 1, 2, 3]
-                .map(type => createRandomTx(type))
-                .forEach(transaction => {
-                    const originalId = transaction.data.id;
-                    const newTransaction = TransactionFactory.fromData(transaction.data);
-                    expect(newTransaction.data.id).toEqual(originalId);
-                });
+            const randomTxs = [0, 1, 2, 3].map(type => createRandomTx(type));
+            for (const transaction of randomTxs) {
+                const originalId = transaction.data.id;
+                const newTransaction = TransactionFactory.fromData(transaction.data);
+                expect(newTransaction.data.id).toEqual(originalId);
+            }
         });
 
         it("should throw when getting garbage", () => {

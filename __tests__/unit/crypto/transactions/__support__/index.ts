@@ -72,10 +72,9 @@ export const createRandomTx = type => {
 
             multiSigRegistration.senderPublicKey(participants[0].publicKey);
 
-            // tslint:disable-next-line: ban
-            passphrases.forEach((passphrase, index) => {
-                multiSigRegistration.multiSign(passphrase, index);
-            });
+            for (const passphrase of passphrases) {
+                multiSigRegistration.multiSign(passphrase, passphrases.indexOf(passphrase));
+            }
 
             transaction = multiSigRegistration.sign(passphrases[0]).build();
 

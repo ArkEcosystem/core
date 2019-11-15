@@ -85,10 +85,9 @@ const createRandomTx = type => {
 
             multiSigRegistration.senderPublicKey(participants[0].publicKey);
 
-            // tslint:disable-next-line: ban
-            passphrases.forEach((passphrase, index) => {
-                multiSigRegistration.multiSign(passphrase, index);
-            });
+            for (const passphrase of passphrases) {
+                multiSigRegistration.multiSign(passphrase, passphrases.indexOf(passphrase));
+            }
 
             transaction = multiSigRegistration.sign(passphrases[0]).build();
 
@@ -117,35 +116,34 @@ describe("Transaction", () => {
     describe("toBytes / fromBytes", () => {
         it("should verify all transactions", () => {
             // tslint:disable-next-line: ban
-            [0, 1, 2, 3]
-                .map(type => createRandomTx(type))
-                .forEach(transaction => {
-                    const newTransaction = TransactionFactory.fromBytes(TransactionUtils.toBytes(transaction.data));
+            const randomTxs = [0, 1, 2, 3].map(type => createRandomTx(type));
+            for (const transaction of randomTxs) {
+                const newTransaction = TransactionFactory.fromBytes(TransactionUtils.toBytes(transaction.data));
 
-                    // TODO: Remove both from data when not needed
-                    delete transaction.data.signSignature;
-                    if (transaction.data.recipientId === undefined) {
-                        delete transaction.data.recipientId;
-                    }
+                // TODO: Remove both from data when not needed
+                delete transaction.data.signSignature;
+                if (transaction.data.recipientId === undefined) {
+                    delete transaction.data.recipientId;
+                }
 
-                    // @TODO: double check
-                    if (!transaction.data.secondSignature) {
-                        delete transaction.data.secondSignature;
-                    }
+                // @TODO: double check
+                if (!transaction.data.secondSignature) {
+                    delete transaction.data.secondSignature;
+                }
 
-                    if (transaction.data.version === 1) {
-                        delete transaction.data.typeGroup;
-                        delete transaction.data.nonce;
-                    }
+                if (transaction.data.version === 1) {
+                    delete transaction.data.typeGroup;
+                    delete transaction.data.nonce;
+                }
 
-                    // @ts-ignore
-                    transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
-                    // @ts-ignore
-                    transaction.data.fee = Utils.BigNumber.make(transaction.data.fee).toFixed();
+                // @ts-ignore
+                transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
+                // @ts-ignore
+                transaction.data.fee = Utils.BigNumber.make(transaction.data.fee).toFixed();
 
-                    expect(newTransaction.toJson()).toMatchObject(transaction.data);
-                    expect(newTransaction.verified).toBeTrue();
-                });
+                expect(newTransaction.toJson()).toMatchObject(transaction.data);
+                expect(newTransaction.verified).toBeTrue();
+            }
         });
 
         it("should create a transaction", () => {
