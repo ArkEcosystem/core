@@ -116,8 +116,6 @@ export class ForgerManager {
 
             return this.checkLater(Crypto.Slots.getTimeInMsUntilNextSlot());
         } catch (error) {
-            AppUtils.assert.defined<Contracts.P2P.CurrentRound>(this.round);
-
             if (error instanceof HostNoResponseError || error instanceof RelayCommunicationError) {
                 if (error.message.includes("blockchain isn't ready")) {
                     this.logger.info("Waiting for relay to become ready.");
@@ -127,7 +125,7 @@ export class ForgerManager {
             } else {
                 this.logger.error(error.stack);
 
-                if (!AppUtils.isEmpty(this.round)) {
+                if (this.round) {
                     this.logger.info(
                         `Round: ${this.round.current.toLocaleString()}, height: ${this.round.lastBlock.height.toLocaleString()}`,
                     );

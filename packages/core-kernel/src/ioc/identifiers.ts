@@ -31,6 +31,7 @@ export const Identifiers: Record<string, symbol> = {
     FilesystemService: Symbol.for("Service<Filesystem>"),
     LogService: Symbol.for("Service<Log>"),
     MixinService: Symbol.for("Service<Mixin>"),
+    PipelineService: Symbol.for("Service<Pipeline>"),
     QueueService: Symbol.for("Service<Queue>"),
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
