@@ -17,10 +17,10 @@ module.exports = async options => {
     const senderWallet = delegates[3]; // better use a different delegate for each scenario initial transfer
     let nonce = Utils.BigNumber.make(1);
     const transactions = [];
-    Object.keys(utils.walletsMix).forEach(firstTxType => {
+    for (const firstTxType of Object.keys(utils.walletsMix)) {
         const secondTxsTypes = utils.walletsMix[firstTxType];
 
-        Object.keys(secondTxsTypes).forEach(secondTxType => {
+        for (const secondTxType of Object.keys(secondTxsTypes)) {
             const wallets = secondTxsTypes[secondTxType];
             const transferAmount = _balanceNeededFromTxMix(firstTxType, secondTxType);
             transactions.push(
@@ -38,8 +38,8 @@ module.exports = async options => {
             );
 
             nonce = nonce.plus(2);
-        });
-    });
+        }
+    }
 
     await testUtils.POST("transactions", { transactions });
 

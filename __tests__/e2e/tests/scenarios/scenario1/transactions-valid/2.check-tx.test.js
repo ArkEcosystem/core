@@ -8,7 +8,7 @@ describe("Check that only each transaction was accepted", () => {
         const response = await testUtils.GET("transactions");
         testUtils.expectSuccessful(response);
 
-        Object.keys(utils.wallets).forEach(txType => {
+        for(const txType of Object.keys(utils.wallets)) {
             const wallets = utils.wallets[txType];
 
             const txSent = response.data.data.filter(tx => tx.sender === wallets[0].address);
@@ -21,6 +21,6 @@ describe("Check that only each transaction was accepted", () => {
                 );
                 expect(txSent2ndSign.length).toBe(1);
             }
-        });
+        }
     });
 });

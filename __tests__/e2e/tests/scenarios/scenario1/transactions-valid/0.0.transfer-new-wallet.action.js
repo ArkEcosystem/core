@@ -18,7 +18,7 @@ module.exports = async options => {
     const senderWallet = delegates[6]; // better use a different delegate for each scenario initial transfer
     let nonce = Utils.BigNumber.make(1);
 
-    Object.keys(utils.wallets).forEach(txType => {
+    for(const txType of Object.keys(utils.wallets)) {
         const wallets = utils.wallets[txType];
         const transferAmount = 100 * Math.pow(10, 8);
         transactions.push(
@@ -37,7 +37,7 @@ module.exports = async options => {
         );
 
         nonce = nonce.plus(2);
-    });
+    }
 
     await testUtils.POST("transactions", { transactions });
 };
