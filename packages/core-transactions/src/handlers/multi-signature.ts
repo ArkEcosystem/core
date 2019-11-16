@@ -108,13 +108,6 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         walletManager: State.IWalletManager,
     ): Promise<void> {
         await super.applyToSender(transaction, walletManager);
-
-        // Create the multi sig wallet
-        if (transaction.data.version >= 2) {
-            walletManager
-                .findByAddress(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
-                .setAttribute("multiSignature", transaction.data.asset.multiSignature);
-        }
     }
 
     public async revertForSender(
