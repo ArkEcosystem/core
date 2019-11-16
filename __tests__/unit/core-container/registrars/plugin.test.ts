@@ -24,10 +24,10 @@ beforeEach(() => {
 
 describe("Plugin Registrar", () => {
     it("should load the plugins and their options", () => {
-        ["a", "b", "c"].forEach(char => {
+        for (const char of ["a", "b", "c"]) {
             const pluginName = resolveStubPath(`./plugin-${char}`);
             expect(instance.plugins[pluginName]).toBeObject();
-        });
+        }
 
         expect(instance.plugins[resolveStubPath("./plugin-b")]).toHaveProperty("property", "value");
     });
@@ -46,9 +46,9 @@ describe("Plugin Registrar", () => {
         it("should register each plugin", async () => {
             await instance.setUp();
             const plugins = ["a", "b", "c"];
-            plugins.forEach(char => {
+            for (const char of plugins) {
                 expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue();
-            });
+            }
         });
 
         describe("with a plugin name as the value of the `exit` option", () => {
@@ -58,9 +58,9 @@ describe("Plugin Registrar", () => {
                 await instance.setUp();
                 expect(instance.container.has("stub-plugin-a")).toBeTrue();
                 const plugins = ["b", "c"];
-                plugins.forEach(char => {
+                for (const char of plugins) {
                     expect(instance.container.has(`stub-plugin-${char}`)).toBeFalse();
-                });
+                }
             });
         });
     });
@@ -71,24 +71,24 @@ describe("Plugin Registrar", () => {
         beforeEach(async () => {
             await instance.setUp();
             const dummyPlugins = ["a", "b", "c"];
-            dummyPlugins.forEach(char => {
+            for (const char of dummyPlugins) {
                 expect(instance.container.has(`stub-plugin-${char}`)).toBeTrue();
-            });
-            dummyPlugins.forEach(char => {
+            }
+            for (const char of dummyPlugins) {
                 plugins[char] = require(`${stubPluginPath}/plugin-${char}`);
-            });
+            }
         });
 
         it("should deregister plugins supporting deregister", async () => {
             const dummyPlugins = ["a", "b"];
-            dummyPlugins.forEach(char => {
+            for (const char of dummyPlugins) {
                 plugins[char].plugin.deregister = jest.fn();
-            });
+            }
 
             await instance.tearDown();
-            dummyPlugins.forEach(char => {
+            for (const char of dummyPlugins) {
                 expect(plugins[char].plugin.deregister).toHaveBeenCalled();
-            });
+            }
 
             expect(plugins.c.deregister).not.toBeDefined();
         });
@@ -96,9 +96,9 @@ describe("Plugin Registrar", () => {
         it("should deregister all the plugins in inverse order", async () => {
             const spy = jest.fn();
             const dummyPlugins = ["a", "b"];
-            dummyPlugins.forEach(char => {
+            for (const char of dummyPlugins) {
                 plugins[char].plugin.deregister = () => spy(char);
-            });
+            }
 
             await instance.tearDown();
 

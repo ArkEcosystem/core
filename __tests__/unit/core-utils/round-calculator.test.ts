@@ -59,14 +59,14 @@ describe("Round calculator", () => {
                     };
                 });
 
-                testVector.forEach(({ height, round, roundHeight, nextRound, activeDelegates }) => {
-                    const result = calculateRound(height);
-                    expect(result.round).toBe(round);
-                    expect(result.roundHeight).toBe(roundHeight);
+                for (const test of testVector) {
+                    const result = calculateRound(test.height);
+                    expect(result.round).toBe(test.round);
+                    expect(result.roundHeight).toBe(test.roundHeight);
                     expect(isNewRound(result.roundHeight)).toBeTrue();
-                    expect(result.nextRound).toBe(nextRound);
-                    expect(result.maxDelegates).toBe(activeDelegates);
-                });
+                    expect(result.nextRound).toBe(test.nextRound);
+                    expect(result.maxDelegates).toBe(test.activeDelegates);
+                }
 
                 app.getConfig = backup;
             });

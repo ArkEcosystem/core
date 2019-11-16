@@ -34,9 +34,10 @@ describe("block deserializer", () => {
                 "generatorPublicKey",
                 "blockSignature",
             ];
-            blockFields.forEach(field => {
+
+            for (const field of blockFields) {
                 expect(deserialized[field].toString()).toEqual(dummyBlock2.data[field].toString());
-            });
+            }
 
             expect(deserialized.transactions).toHaveLength(dummyBlock2.data.transactions.length);
 
@@ -50,13 +51,13 @@ describe("block deserializer", () => {
                 "recipientId",
                 "signature",
             ];
-            deserialized.transactions.forEach(tx => {
+            for (const tx of deserialized.transactions) {
                 const dummyBlockTx = dummyBlock2.data.transactions.find(dummyTx => dummyTx.id === tx.id);
                 expect(dummyBlockTx).toBeDefined();
-                transactionFields.forEach(field => {
+                for (const field of transactionFields) {
                     expect(tx[field].toString()).toEqual(dummyBlockTx[field].toString());
-                });
-            });
+                }
+            }
         });
     });
 });

@@ -17,17 +17,17 @@ module.exports = async options => {
     const transactions = [];
     const noncesByAddress = {};
 
-    Object.keys(utils.walletsMix).forEach(firstTxType => {
+    for (const firstTxType of Object.keys(utils.walletsMix)) {
         const secondTxsTypes = utils.walletsMix[firstTxType];
 
-        Object.keys(secondTxsTypes).forEach(secondTxType => {
+        for (const secondTxType of Object.keys(secondTxsTypes)) {
             const wallets = secondTxsTypes[secondTxType];
             transactions.push(
                 _genTransaction(firstTxType, wallets),
                 _genTransaction(secondTxType, wallets)
             );
-        });
-    });
+        }
+    }
 
     await testUtils.POST("transactions", { transactions });
 

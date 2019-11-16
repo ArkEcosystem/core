@@ -17,14 +17,14 @@ module.exports = async options => {
     const transactions = [];
     const noncesByAddress = {};
 
-    Object.keys(utils.wallets).forEach(txType => {
+    for(const txType of Object.keys(utils.wallets)) {
         // ignore 2nd sign registration tx type as we already have a 2nd signature
         if (txType !== "secondSignRegistration") {
             const wallets = utils.wallets[txType];
 
             transactions.push(_genTransaction(txType, wallets));
         }
-    });
+    }
 
     await testUtils.POST("transactions", { transactions });
 

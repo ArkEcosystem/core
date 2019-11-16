@@ -17,10 +17,10 @@ module.exports = async options => {
     const transactions = [];
     const noncesByAddress = {};
 
-    Object.keys(utils.walletsMix).forEach(firstTxType => {
+    for (const firstTxType of Object.keys(utils.walletsMix)) {
         const secondTxsTypes = utils.walletsMix[firstTxType];
 
-        Object.keys(secondTxsTypes).forEach(secondTxType => {
+        for (const secondTxType of Object.keys(secondTxsTypes)) {
             // ignore 2nd sign registration tx type as we already have a 2nd signature
             if ([firstTxType, secondTxType].indexOf("secondSignRegistration") < 0) {
                 const wallets = secondTxsTypes[secondTxType];
@@ -30,8 +30,8 @@ module.exports = async options => {
                     _genTransaction(secondTxType, wallets)
                 );
             }
-        });
-    });
+        }
+    }
 
     await testUtils.POST("transactions", { transactions });
 

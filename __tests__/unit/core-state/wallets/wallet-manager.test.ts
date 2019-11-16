@@ -117,17 +117,17 @@ describe("Wallet Manager", () => {
 
                     try {
                         await walletManager.applyBlock(block2);
-
                         expect(undefined).toBe("this should fail if no error is thrown");
                     } catch (error) {
                         expect(walletManager.revertTransaction).toHaveBeenCalledTimes(2);
-                        // tslint:disable-next-line: ban
-                        block2.transactions.slice(0, 1).forEach((transaction, i, total) => {
+                        for (const transaction of block2.transactions.slice(0, 1)) {
+                            const i = block2.transactions.slice(0, 1).indexOf(transaction);
+                            const total = block2.transactions.slice(0, 1).length;
                             expect(walletManager.revertTransaction).toHaveBeenNthCalledWith(
-                                total.length + 1 - i,
+                                total + 1 - i,
                                 block2.transactions[i],
                             );
-                        });
+                        }
                     }
                 });
 

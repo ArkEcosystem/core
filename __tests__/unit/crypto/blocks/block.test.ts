@@ -11,7 +11,7 @@ import * as networks from "../../../../packages/crypto/src/networks";
 import { testnet } from "../../../../packages/crypto/src/networks";
 import { NetworkName } from "../../../../packages/crypto/src/types";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
-import { dummyBlock, dummyBlockSize, dummyBlock2 } from "../fixtures/block";
+import { dummyBlock, dummyBlock2, dummyBlockSize } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 

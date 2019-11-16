@@ -102,13 +102,12 @@ describe("TransactionFactory", () => {
         // Old tests
         it("should match transaction id", () => {
             configManager.setFromPreset("testnet");
-            [0, 1, 2, 3]
-                .map(type => createRandomTx(type))
-                .forEach(transaction => {
-                    const originalId = transaction.data.id;
-                    const newTransaction = TransactionFactory.fromData(transaction.data);
-                    expect(newTransaction.data.id).toEqual(originalId);
-                });
+            for (let i = 0; i < 3; i++) {
+                const transaction = createRandomTx(i);
+                const originalId = transaction.data.id;
+                const newTransaction = TransactionFactory.fromData(transaction.data);
+                expect(newTransaction.data.id).toEqual(originalId);
+            }
         });
 
         it("should throw when getting garbage", () => {

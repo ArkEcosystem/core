@@ -17,11 +17,10 @@ module.exports = async options => {
     const transactions = [];
     const noncesByAddress = {};
 
-    Object.keys(utils.wallets).forEach(txType => {
+    for(const txType of Object.keys(utils.wallets)) {
         const wallets = utils.wallets[txType];
-
         transactions.push(_genTransaction(txType, wallets));
-    });
+    }
 
     await testUtils.POST("transactions", { transactions });
 
