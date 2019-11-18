@@ -8,7 +8,6 @@ describe("should test wallet", () => {
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
         const senderWallet: Wallets.Wallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         const businessAttributes: IBusinessWalletAttributes = {
-            businessId: 1,
             businessAsset: {
                 name: "google",
                 website: "https://www.google.com",
