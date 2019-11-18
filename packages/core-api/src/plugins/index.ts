@@ -13,7 +13,7 @@ export const preparePlugins = config => [
     },
     { plugin: hapiAjv },
     {
-        plugin: require("hapi-rate-limit"),
+        plugin: require("./rate-limit"),
         options: config.rateLimit,
     },
     {

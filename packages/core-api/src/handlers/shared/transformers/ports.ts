@@ -1,4 +1,4 @@
-import { Contracts, Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
 export const transformPorts = (app: Contracts.Kernel.Application, config: any) => {
     const result = {};

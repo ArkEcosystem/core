@@ -1,9 +1,9 @@
 import { EventDispatcher } from "../contracts/kernel/events";
+import { InternalEvent } from "../enums";
 import { InvalidArgumentException } from "../exceptions/logic";
 import { Identifiers, inject, injectable } from "../ioc";
 import { assert } from "../utils";
 import { ServiceProvider } from "./service-provider";
-import { InternalEvent } from "../enums";
 
 /**
  * @export

@@ -1200,7 +1200,7 @@
     "@hapi/hoek" "8.x.x"
     "@hapi/topo" "3.x.x"
 
-"@hapi/joi@16.x.x", "@hapi/joi@^16.0.0", "@hapi/joi@^16.1.7":
+"@hapi/joi@16.x.x", "@hapi/joi@^16.1.7":
   version "16.1.7"
   resolved "https://registry.yarnpkg.com/@hapi/joi/-/joi-16.1.7.tgz#360857223a87bb1f5f67691537964c1b4908ed93"
   integrity sha512-anaIgnZhNooG3LJLrTFzgGALTiO97zRA1UkvQHm9KxxoSiIzCozB3RCNCpDnfhTJD72QlrHA8nwGmNgpFFCIeg==
@@ -6289,14 +6289,6 @@ handlebars@^4.1.2, handlebars@^4.4.0:
   optionalDependencies:
     uglify-js "^3.1.4"
 
-hapi-rate-limit@^4.0.1:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/hapi-rate-limit/-/hapi-rate-limit-4.0.2.tgz#972edec221a61cb9ed3ee5fe958fe9d75bb7637d"
-  integrity sha512-z2PNmXtLdN086IFsK77vPiZe05EORtDjlo7I/PGk/MGtAskuw2WKMNeYel0XGScQXcF2LwV/us69L4jMpDAC7Q==
-  dependencies:
-    "@hapi/boom" "^7.4.2"
-    "@hapi/joi" "^16.0.0"
-
 har-schema@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/har-schema/-/har-schema-2.0.0.tgz#a94c2224ebcac04782a0d9035521f24735b7ec92"
@@ -9955,7 +9947,7 @@ randomstring@~1.1.5:
   dependencies:
     array-uniq "1.0.2"
 
-rate-limiter-flexible@^1.1.1:
+rate-limiter-flexible@^1.1.1, rate-limiter-flexible@^1.1.6:
   version "1.1.6"
   resolved "https://registry.yarnpkg.com/rate-limiter-flexible/-/rate-limiter-flexible-1.1.6.tgz#b3620ba1b4d61f34b8a982546600a7a776924c40"
   integrity sha512-fVjTbMcXlBqbCfYyfmEqzyj5niHVyPl5b4OtWcnaM3M8layKz5K6ooILqeDA8AljKgvH2bv7rmcO/qZqffU6gw==

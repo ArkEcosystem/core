@@ -17,16 +17,17 @@ export const defaults = {
         },
     },
     plugins: {
-        // @see https://github.com/wraithgar/hapi-rate-limit
         rateLimit: {
             enabled: !process.env.CORE_API_RATE_LIMIT,
-            pathLimit: false,
-            userLimit: process.env.CORE_API_RATE_LIMIT_USER_LIMIT || 300,
-            userCache: {
-                expiresIn: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60000,
-            },
+            points: process.env.CORE_API_RATE_LIMIT_USER_LIMIT || 300,
+            duration: process.env.CORE_API_RATE_LIMIT_USER_EXPIRES || 60000,
+            whitelist: process.env.CORE_API_RATE_LIMIT_WHITELIST
+                ? process.env.CORE_API_RATE_LIMIT_WHITELIST.split(",")
+                : ["*"],
+            blacklist: process.env.CORE_API_RATE_LIMIT_BLACKLIST
+                ? process.env.CORE_API_RATE_LIMIT_BLACKLIST.split(",")
+                : [],
         },
-        // @see https://github.com/fknop/hapi-pagination
         pagination: {
             limit: 100,
         },

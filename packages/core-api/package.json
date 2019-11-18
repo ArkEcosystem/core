@@ -29,8 +29,8 @@
         "@hapi/hapi": "^18.3.2",
         "@hapi/joi": "^15.1.1",
         "ajv": "^6.10.2",
-        "hapi-rate-limit": "^4.0.1",
         "ip": "^1.1.5",
+        "rate-limiter-flexible": "^1.1.6",
         "semver": "^6.3.0"
     },
     "devDependencies": {
