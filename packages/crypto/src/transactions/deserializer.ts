@@ -140,9 +140,6 @@ export class Deserializer {
 
         if (canReadNonMultiSignature()) {
             transaction.signature = buf.readBytes(64).toString("hex");
-        }
-
-        if (canReadNonMultiSignature()) {
             transaction.secondSignature = buf.readBytes(64).toString("hex");
         }
 
