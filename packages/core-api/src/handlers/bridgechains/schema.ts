@@ -9,9 +9,6 @@ export const index: object = {
             businessId: Joi.number()
                 .integer()
                 .min(1),
-            bridgechainId: Joi.string()
-                .hex()
-                .length(64),
         },
     },
 };
@@ -32,9 +29,6 @@ export const search: object = {
         },
     },
     payload: {
-        bridgechainId: Joi.string()
-            .hex()
-            .length(64),
         bridgechainRepository: Joi.string().max(80),
         businessId: Joi.number()
             .integer()
