@@ -212,9 +212,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                         timestamp: lock.timestamp,
                         expirationType: lock.expiration.type,
                         expirationValue: lock.expiration.value,
-                        isExpired: expirationCalculator.calculateLockExpirationStatus(
-                            lock.expiration,
-                        ),
+                        isExpired: expirationCalculator.calculateLockExpirationStatus(lock.expiration),
                         vendorField: lock.vendorField,
                     });
                 }
@@ -256,7 +254,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["bridgechainId", "businessId", "genesisHash"],
+            exact: ["bridgechainId", "businessId"],
             like: ["bridgechainRepository", "name"],
             every: ["seedNodes"],
         };
