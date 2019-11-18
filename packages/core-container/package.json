@@ -26,7 +26,7 @@
         "awilix": "^4.2.2",
         "delay": "^4.3.0",
         "env-paths": "^2.2.0",
-        "envfile": "^3.0.0",
+        "envfile": "^4.0.0",
         "expand-home-dir": "^0.0.3",
         "fs-extra": "^8.1.0",
         "got": "^9.6.0",

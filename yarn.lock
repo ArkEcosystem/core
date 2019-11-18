@@ -3553,13 +3553,12 @@ ajv@^6.10.2, ajv@^6.5.5:
     json-schema-traverse "^0.4.1"
     uri-js "^4.2.2"
 
-ambi@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/ambi/-/ambi-5.0.0.tgz#7392e8f845d0f4dec37c3ecb2ab4a6b4c68b86c9"
-  integrity sha512-NYJzHMsZU7clGY2lH11U+2PEllFDW66qnUukXYbyF8ZJ0B0CXVNfKHUvkUp+gsaNPBW8FqEFX5l64LTlUvI2pw==
+ambi@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/ambi/-/ambi-6.0.0.tgz#d8f000c09209adf7d79ee76410973646536e3206"
+  integrity sha512-Rip1eGjDuGY6LoJZXKxdEeYrHWF4nr0uFG3yp3JXW0qOGIdu6o/epJbjof6CYz2anTqTsMEPg3aRlWV3CqioYQ==
   dependencies:
-    editions "^2.1.0"
-    typechecker "^4.3.0"
+    typechecker "^4.10.0"
 
 ansi-align@^2.0.0:
   version "2.0.0"
@@ -5710,13 +5709,13 @@ duplexify@^3.4.2, duplexify@^3.6.0:
     readable-stream "^2.0.0"
     stream-shift "^1.0.0"
 
-eachr@^3.1.0:
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/eachr/-/eachr-3.2.0.tgz#2c35e43ea086516f7997cf80b7aa64d55a4a4484"
-  integrity sha1-LDXkPqCGUW95l8+At6pk1VpKRIQ=
+eachr@^3.3.0:
+  version "3.3.0"
+  resolved "https://registry.yarnpkg.com/eachr/-/eachr-3.3.0.tgz#11f7287be7d31d6b99947fe0d8a79de99ac2a469"
+  integrity sha512-yKWuGwOE283CTgbEuvqXXusLH4VBXnY2nZbDkeWev+cpAXY6zCIADSPLdvfkAROc0t8S4l07U1fateCdEDuuvg==
   dependencies:
-    editions "^1.1.1"
-    typechecker "^4.3.0"
+    editions "^2.2.0"
+    typechecker "^4.9.0"
 
 ecc-jsbn@~0.1.1:
   version "0.1.2"
@@ -5733,12 +5732,7 @@ ecdsa-sig-formatter@1.0.11:
   dependencies:
     safe-buffer "^5.0.1"
 
-editions@^1.1.1:
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/editions/-/editions-1.3.4.tgz#3662cb592347c3168eb8e498a0ff73271d67f50b"
-  integrity sha512-gzao+mxnYDzIysXKMQi/+M1mjy/rjestjg6OPoYTtI+3Izp23oiGZitsl9lPDPiTGXbcSIk1iJWhliSaglxnUg==
-
-editions@^2.1.0, editions@^2.1.3:
+editions@^2.1.3, editions@^2.2.0:
   version "2.2.0"
   resolved "https://registry.yarnpkg.com/editions/-/editions-2.2.0.tgz#dacd0c2a9441ebef592bba316a6264febb337f35"
   integrity sha512-RYg3iEA2BDLCNVe8PUkD+ox5vAKxB9XS/mAhx1bdxGCF0CpX077C0pyTA9t5D6idCYA3avl5/XDHKPsHFrygfw==
@@ -5835,15 +5829,14 @@ env-variable@0.0.x:
   resolved "https://registry.yarnpkg.com/env-variable/-/env-variable-0.0.5.tgz#913dd830bef11e96a039c038d4130604eba37f88"
   integrity sha512-zoB603vQReOFvTg5xMl9I1P2PnHsHQQKTEowsKKD7nseUfJq6UWzK+4YtlWUO1nhiQUxe6XMkk+JleSZD1NZFA==
 
-envfile@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/envfile/-/envfile-3.0.0.tgz#7724a599d025b9af34757cc4ab0092f5d3fa2b53"
-  integrity sha512-LdL/WLZutuZedarG3Knu4v4RC7kZpC+dSdv9tVj0B8q11K0T0pLczRYxhmyVpApRRXWQnz5Fldrtnu/RzbCHPA==
+envfile@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/envfile/-/envfile-4.0.0.tgz#54c3724db9e5c36a75ad6f5becb991a023f3c536"
+  integrity sha512-c7R0QV86pwo91zTta9/ufhv160j7eAc6qAUDd6bUF2uT8aJr5f2cw4Oq8x7P1HUxU8Od1JIzZcDOzh/6C2JCtw==
   dependencies:
-    ambi "^5.0.0"
-    eachr "^3.1.0"
-    editions "^2.1.3"
-    typechecker "^4.0.1"
+    ambi "^6.0.0"
+    eachr "^3.3.0"
+    typechecker "^4.10.0"
 
 err-code@^1.0.0:
   version "1.1.2"
@@ -13076,12 +13069,12 @@ type-is@~1.6.17, type-is@~1.6.18:
     media-typer "0.3.0"
     mime-types "~2.1.24"
 
-typechecker@^4.0.1, typechecker@^4.3.0:
-  version "4.7.0"
-  resolved "https://registry.yarnpkg.com/typechecker/-/typechecker-4.7.0.tgz#5249f427358f45b7250c4924fd4d01ed9ba435e9"
-  integrity sha512-4LHc1KMNJ6NDGO+dSM/yNfZQRtp8NN7psYrPHUblD62Dvkwsp3VShsbM78kOgpcmMkRTgvwdKOTjctS+uMllgQ==
+typechecker@^4.10.0, typechecker@^4.9.0:
+  version "4.10.0"
+  resolved "https://registry.yarnpkg.com/typechecker/-/typechecker-4.10.0.tgz#0c7ef0b86a1ff9d32df512e46a03e3e3ed2fbc67"
+  integrity sha512-HI0okLe7UhvCxnatUFrW3ZI9dwGCPG91Ul/OgTQxgOnXhZuZRRrHP89tipJMLFOZ6P4/pPkrVVCEPR/wD6qhyQ==
   dependencies:
-    editions "^2.1.0"
+    editions "^2.2.0"
 
 typedarray-to-buffer@^3.1.5:
   version "3.1.5"
