@@ -149,9 +149,15 @@ export class DatabaseService implements Database.IDatabaseService {
     }
 
     public async getActiveDelegates(
-        roundInfo: Shared.IRoundInfo,
+        roundInfo?: Shared.IRoundInfo,
         delegates?: State.IWallet[],
     ): Promise<State.IWallet[]> {
+        if (!roundInfo) {
+            const database: Database.IDatabaseService = app.resolvePlugin("database");
+            const lastBlock = await database.getLastBlock();
+            roundInfo = roundCalculator.calculateRound(lastBlock.data.height);
+        }
+
         const { round } = roundInfo;
 
         if (
