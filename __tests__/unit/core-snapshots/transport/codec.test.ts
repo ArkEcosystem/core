@@ -6,8 +6,7 @@ import { Codec } from "../../../../packages/core-snapshots/src/transport/codec";
 import { blocks } from "../fixtures/blocks";
 import { transactions } from "../fixtures/transactions";
 
-function jsonBlock(block) {
-    // @ts-ignore
+const jsonBlock = block => {
     block.reward = block.reward.toFixed();
     // @ts-ignore
     block.total_amount = block.total_amount.toFixed();
@@ -15,12 +14,13 @@ function jsonBlock(block) {
     block.total_fee = block.total_fee.toFixed();
 
     return block;
-}
+};
 
 beforeAll(async () => {
-    transactions.forEach((transaction: any) => {
+    for (const tx of transactions) {
+        const transaction: any = tx;
         transaction.serialized = transaction.serializedHex;
-    });
+    }
 });
 
 describe("Codec testing", () => {

@@ -64,14 +64,14 @@ describe("Identities - Public Key", () => {
                 ],
             ];
 
-            permutations.forEach(publicKeys => {
+            for (const publicKeys of permutations) {
                 publicKeySet.add(
                     PublicKey.fromMultiSignatureAsset({
                         min: 2,
                         publicKeys,
                     }),
                 );
-            });
+            }
 
             expect([...publicKeySet]).toHaveLength(1);
         });

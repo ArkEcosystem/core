@@ -65,13 +65,12 @@ const calculateRanks = async () => {
                 .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
     );
 
-    // tslint:disable-next-line: ban
-    sortBy(delegateWallets, "publicKey").forEach((delegate, i) => {
+    for (const delegate of sortBy(delegateWallets, "publicKey")) {
         const wallet = databaseService.walletManager.findByPublicKey(delegate.publicKey);
-        wallet.setAttribute("delegate.rank", i + 1);
+        wallet.setAttribute("delegate.rank", delegateWallets.indexOf(delegate) + 1);
 
         databaseService.walletManager.reindex(wallet);
-    });
+    }
 };
 
 export { calculateRanks, setUp, tearDown };
