@@ -47,6 +47,9 @@ RPM=$(which yum || :)
 # Detect SystemV / SystemD
 SYS=$([[ -L "/sbin/init" ]] && echo 'SystemD' || echo 'SystemV')
 
+# Detect Debian/Ubuntu derivate
+DEB_ID=$(lsb_release -si)
+
 if [[ ! -z $DEB ]]; then
     success "Running install for Debian derivate"
 elif [[ ! -z $RPM ]]; then
@@ -107,9 +110,14 @@ sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
 if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-    (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+        if [[ "$ID" == "Debian" ]] || [[ "$ID" == "Ubuntu" ]]; then
+            (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+        elif [[ "$ID" != "Debian" ]] || [[ "$ID" != "Ubuntu" ]]; then
+            (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c -u) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
+    	fi
     sudo apt-get update
     sudo apt-get install nodejs -y
+
 elif [[ ! -z $RPM ]]; then
     sudo yum install gcc-c++ make -y
     curl -sL https://rpm.nodesource.com/setup_12.x | sudo -E bash - > /dev/null 2>&1
