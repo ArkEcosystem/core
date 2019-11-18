@@ -17,7 +17,6 @@ describe("should test wallet", () => {
             resigned: false,
             bridgechains: {
                 [genesisHash]: {
-                    bridgechainId: genesisHash,
                     bridgechainAsset: {
                         name: "googleCrypto",
                         seedNodes: [

@@ -165,7 +165,7 @@ describe("should test marketplace transaction handlers", () => {
                 expect(
                     senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
                         bridgechainRegistrationAsset1.genesisHash
-                    ].bridgechainId,
+                    ].bridgechainAsset.genesisHash,
                 ).toBe(bridgechainRegistrationAsset1.genesisHash);
 
                 bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
@@ -176,7 +176,7 @@ describe("should test marketplace transaction handlers", () => {
                 expect(
                     senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
                         bridgechainRegistrationAsset2.genesisHash
-                    ].bridgechainId,
+                    ].bridgechainAsset.genesisHash,
                 ).toBe(bridgechainRegistrationAsset2.genesisHash);
 
                 const bridgechainResignation = bridgechainResignationBuilder
@@ -219,9 +219,9 @@ describe("should test marketplace transaction handlers", () => {
                     );
 
                     expect(Object.keys(bridgechains).length).toEqual(1);
-                    expect(bridgechains[bridgechainRegistrationAsset1.genesisHash].bridgechainId).toEqual(
-                        bridgechainRegistrationAsset1.genesisHash,
-                    );
+                    expect(
+                        bridgechains[bridgechainRegistrationAsset1.genesisHash].bridgechainAsset.genesisHash,
+                    ).toEqual(bridgechainRegistrationAsset1.genesisHash);
                 });
             });
         });
