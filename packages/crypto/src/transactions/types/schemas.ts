@@ -23,7 +23,7 @@ export const transactionBaseSchema = {
         network: { $ref: "networkByte" },
         timestamp: { type: "integer", minimum: 0 },
         amount: { bignumber: { minimum: 1, bypassGenesis: true } },
-        fee: { bignumber: { minimum: 1, bypassGenesis: true } },
+        fee: { bignumber: { minimum: 0, bypassGenesis: true } },
         senderPublicKey: { $ref: "publicKey" },
         signature: { $ref: "alphanumeric" },
         secondSignature: { $ref: "alphanumeric" },
