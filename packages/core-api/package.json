@@ -30,6 +30,7 @@
         "@hapi/joi": "^15.1.1",
         "ajv": "^6.10.2",
         "ip": "^1.1.5",
+        "node-cache": "^5.0.2",
         "rate-limiter-flexible": "^1.1.6",
         "semver": "^6.3.0"
     },

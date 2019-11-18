@@ -1,9 +1,9 @@
-import { Container, Contracts, Types } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
 import { badData } from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
 import { readFileSync } from "fs";
 
-import { Utils } from "./handlers/utils";
+import { createSchemas } from "./schemas";
 
 // todo: review the implementation
 @Container.injectable()
@@ -15,6 +15,14 @@ export class Server {
      */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    /**
+     * @protected
+     * @type {Providers.ServiceProviderRepository}
+     * @memberof Server
+     */
+    @Container.inject(Container.Identifiers.ServiceProviderRepository)
+    protected readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
 
     /**
      * @private
@@ -40,7 +48,14 @@ export class Server {
         this.name = name;
         this.server = new HapiServer(this.getServerOptions(optionsServer));
         this.server.app.app = this.app;
-        this.server.app.utils = this.app.resolve<Utils>(Utils);
+        this.server.app.schemas = createSchemas({
+            pagination: {
+                limit: this.serviceProviderRepository
+                    .get("@arkecosystem/core-api")
+                    .config()
+                    .get<number>("plugins.pagination.limit")!,
+            },
+        });
 
         this.server.ext({
             type: "onPreHandler",

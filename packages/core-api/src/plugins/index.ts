@@ -13,6 +13,10 @@ export const preparePlugins = config => [
     },
     { plugin: hapiAjv },
     {
+        plugin: require("./cache"),
+        options: config.cache,
+    },
+    {
         plugin: require("./rate-limit"),
         options: config.rateLimit,
     },

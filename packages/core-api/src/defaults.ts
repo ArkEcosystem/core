@@ -17,6 +17,11 @@ export const defaults = {
         },
     },
     plugins: {
+        cache: {
+            enabled: !process.env.CORE_API_CACHE,
+            stdTTL: 8,
+            checkperiod: 120,
+        },
         rateLimit: {
             enabled: !process.env.CORE_API_RATE_LIMIT,
             points: process.env.CORE_API_RATE_LIMIT_USER_LIMIT || 300,

@@ -1,6 +1,6 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts, Container, Providers } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import { ApiHelpers } from "@arkecosystem/core-test-framework";
 
@@ -57,20 +57,7 @@ describe("API 2.0 - Loader", () => {
             expect(response.data.data.symbol).toBeString();
             expect(response.data.data.explorer).toBeString();
             expect(response.data.data.version).toBeNumber();
-
-            const config = app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-transaction-pool")
-                .config();
-
-            expect(response.data.data.transactionPool.dynamicFees).toEqual(config.get("dynamicFees"));
-
-            config.set("dynamicFees.enabled", false);
-
-            response = await api.request("GET", "node/configuration");
-            expect(response.data.data.transactionPool.dynamicFees.enabled).toBeFalse();
-
-            config.set("dynamicFees.enabled", true);
+            expect(response.data.data.transactionPool.dynamicFees).toBeObject();
         });
     });
 

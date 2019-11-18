@@ -1,7 +1,7 @@
 module.exports = {
     testEnvironment: "node",
     bail: false,
-    verbose: true,
+    verbose: false,
     transform: {
         "^.+\\.tsx?$": "ts-jest",
     },
