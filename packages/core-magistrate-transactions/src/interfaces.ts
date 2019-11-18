@@ -9,6 +9,5 @@ export interface IBusinessWalletAttributes {
 
 export interface IBridgechainWalletAttributes {
     bridgechainAsset: Interfaces.IBridgechainRegistrationAsset;
-    bridgechainId: string;
     resigned?: boolean;
 }

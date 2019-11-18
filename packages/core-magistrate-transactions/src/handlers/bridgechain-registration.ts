@@ -43,7 +43,6 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
                 const bridgechainId: string = transaction.asset.bridgechainRegistration.genesisHash;
                 businessAttributes.bridgechains[bridgechainId] = {
-                    bridgechainId,
                     bridgechainAsset: transaction.asset.bridgechainRegistration,
                 };
 
@@ -132,7 +131,6 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
         const bridgechainId: string = transaction.data.asset.bridgechainRegistration.genesisHash;
         businessAttributes.bridgechains[bridgechainId] = {
-            bridgechainId,
             bridgechainAsset: transaction.data.asset.bridgechainRegistration,
         };
 
