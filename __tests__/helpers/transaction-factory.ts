@@ -143,9 +143,9 @@ export class TransactionFactory {
         return new TransactionFactory(bridgechainRegistrationBuilder);
     }
 
-    public static bridgechainResignation(registeredBridgechainId: number): TransactionFactory {
+    public static bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
         const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
-        bridgechainResignationBuilder.businessResignationAsset(registeredBridgechainId);
+        bridgechainResignationBuilder.bridgechainResignationAsset(registeredBridgechainId);
         return new TransactionFactory(bridgechainResignationBuilder);
     }
 

@@ -163,8 +163,10 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
 
                 expect(
-                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains["1"].bridgechainId,
-                ).toBe(1);
+                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
+                        bridgechainRegistrationAsset1.genesisHash
+                    ].bridgechainAsset.genesisHash,
+                ).toBe(bridgechainRegistrationAsset1.genesisHash);
 
                 bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
                 await expect(
@@ -172,11 +174,13 @@ describe("should test marketplace transaction handlers", () => {
                 ).toResolve();
 
                 expect(
-                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains["2"].bridgechainId,
-                ).toBe(2);
+                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
+                        bridgechainRegistrationAsset2.genesisHash
+                    ].bridgechainAsset.genesisHash,
+                ).toBe(bridgechainRegistrationAsset2.genesisHash);
 
                 const bridgechainResignation = bridgechainResignationBuilder
-                    .businessResignationAsset(2)
+                    .bridgechainResignationAsset(bridgechainRegistrationAsset1.genesisHash)
                     .nonce("4")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
@@ -215,7 +219,9 @@ describe("should test marketplace transaction handlers", () => {
                     );
 
                     expect(Object.keys(bridgechains).length).toEqual(1);
-                    expect(bridgechains["1"].bridgechainId).toEqual(1);
+                    expect(
+                        bridgechains[bridgechainRegistrationAsset1.genesisHash].bridgechainAsset.genesisHash,
+                    ).toEqual(bridgechainRegistrationAsset1.genesisHash);
                 });
             });
         });

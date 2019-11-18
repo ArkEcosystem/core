@@ -20,10 +20,10 @@ export interface IBridgechainRegistrationAsset {
 }
 
 export interface IBridgechainUpdateAsset {
-    bridgechainId: number;
+    bridgechainId: string;
     seedNodes: string[];
 }
 
 export interface IBridgechainResignationAsset {
-    bridgechainId: number;
+    bridgechainId: string;
 }
