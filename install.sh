@@ -110,9 +110,9 @@ sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
 if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-        if [[ "$ID" == "Debian" ]] || [[ "$ID" == "Ubuntu" ]]; then
+        if [[ "$DEB_ID" == "Debian" ]] || [[ "$DEB_ID" == "Ubuntu" ]]; then
             (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-        elif [[ "$ID" != "Debian" ]] || [[ "$ID" != "Ubuntu" ]]; then
+        elif [[ "$DEB_ID" != "Debian" ]] || [[ "$DEB_ID" != "Ubuntu" ]]; then
             (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c -u) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     	fi
     sudo apt-get update
