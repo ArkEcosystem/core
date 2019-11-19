@@ -106,7 +106,7 @@ success "Installed system dependencies!"
 heading "Installing node.js & npm..."
 
 sudo rm -rf /usr/local/{lib/node{,/.npm,_modules},bin,share/man}/{npm*,node*,man1/node*}
-sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
+sudo rm -rf ~/{.npm,.forever,.node*,.nvm}
 
 if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
