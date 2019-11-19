@@ -1,54 +1,59 @@
-// import { RollbackCommand } from "@packages/core/src/commands/snapshot/rollback";
-// import { app } from "@arkecosystem/core-kernel";
+import { RollbackCommand } from "@packages/core/src/commands/snapshot/rollback";
 
-// jest.mock("@arkecosystem/core-kernel");
+export const app = {
+    bootstrap: jest.fn(),
+    boot: jest.fn(),
+    isBound: jest.fn(),
+    get: jest.fn(),
+};
 
-// describe("RollbackCommand", () => {
-//     it("should call [rollbackByHeight] if a height is given", async () => {
-//         app.isBound = jest.fn().mockReturnValue(true);
-
-//         const rollbackByHeight = jest.fn();
-//         app.get = jest.fn().mockReturnValue({ rollbackByHeight });
-
-//         await RollbackCommand.run(["--token=ark", "--network=testnet", "--height=1"]);
-
-//         await expect(rollbackByHeight).toHaveBeenCalled();
-//     });
-
-//     it("should call [rollbackByNumber] if a number is given", async () => {
-//         app.isBound = jest.fn().mockReturnValue(true);
-
-//         const rollbackByNumber = jest.fn();
-//         app.get = jest.fn().mockReturnValue({ rollbackByNumber });
-
-//         await RollbackCommand.run(["--token=ark", "--network=testnet", "--number=1"]);
-
-//         await expect(rollbackByNumber).toHaveBeenCalled();
-//     });
-
-//     it("should throw if no height or number is given", async () => {
-//         app.isBound = jest.fn().mockReturnValue(true);
-
-//         await expect(RollbackCommand.run(["--token=ark", "--network=testnet"])).rejects.toThrow(
-//             "Please specify either a height or number of blocks to roll back.",
-//         );
-//     });
-
-//     it("should throw if the snapshot service is not available", async () => {
-//         app.isBound = jest.fn().mockReturnValue(false);
-
-//         await expect(RollbackCommand.run(["--token=ark", "--network=testnet"])).rejects.toThrow(
-//             "The @arkecosystem/core-snapshots plugin is not installed.",
-//         );
-//     });
-// });
+jest.mock("@arkecosystem/core-kernel", () => ({
+    __esModule: true,
+    Application: jest.fn(() => app),
+    Container: {
+        Container: jest.fn(),
+        Identifiers: {
+            BlockchainService: Symbol("BlockchainService"),
+        },
+    },
+}));
 
 describe("RollbackCommand", () => {
-    it.todo("should call [rollbackByHeight] if a height is given");
+    it("should call [rollbackByHeight] if a height is given", async () => {
+        app.isBound = jest.fn().mockReturnValue(true);
 
-    it.todo("should call [rollbackByNumber] if a number is given");
+        const rollbackByHeight = jest.fn();
+        app.get = jest.fn().mockReturnValue({ rollbackByHeight });
 
-    it.todo("should throw if no height or number is given");
+        await RollbackCommand.run(["--token=ark", "--network=testnet", "--height=1"]);
 
-    it.todo("should throw if the snapshot service is not available");
+        await expect(rollbackByHeight).toHaveBeenCalled();
+    });
+
+    it("should call [rollbackByNumber] if a number is given", async () => {
+        app.isBound = jest.fn().mockReturnValue(true);
+
+        const rollbackByNumber = jest.fn();
+        app.get = jest.fn().mockReturnValue({ rollbackByNumber });
+
+        await RollbackCommand.run(["--token=ark", "--network=testnet", "--number=1"]);
+
+        await expect(rollbackByNumber).toHaveBeenCalled();
+    });
+
+    it("should throw if no height or number is given", async () => {
+        app.isBound = jest.fn().mockReturnValue(true);
+
+        await expect(RollbackCommand.run(["--token=ark", "--network=testnet"])).rejects.toThrow(
+            "Please specify either a height or number of blocks to roll back.",
+        );
+    });
+
+    it("should throw if the snapshot service is not available", async () => {
+        app.isBound = jest.fn().mockReturnValue(false);
+
+        await expect(RollbackCommand.run(["--token=ark", "--network=testnet"])).rejects.toThrow(
+            "The @arkecosystem/core-snapshots plugin is not installed.",
+        );
+    });
 });
