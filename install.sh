@@ -112,7 +112,7 @@ if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
         if [[ "$DEB_ID" == "Debian" ]] || [[ "$DEB_ID" == "Ubuntu" ]]; then
             (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-        elif [[ "$DEB_ID" != "Debian" ]] || [[ "$DEB_ID" != "Ubuntu" ]]; then
+        else
             (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c -u) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
     	fi
     sudo apt-get update
