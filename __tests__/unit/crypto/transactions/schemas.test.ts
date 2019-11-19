@@ -340,6 +340,16 @@ describe("Delegate Registration Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 
+    it("should be invalid due to zero fee", () => {
+        transaction
+            .usernameAsset("delegate1")
+            .fee("0")
+            .sign("passphrase");
+
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        expect(error).not.toBeUndefined();
+    });
+
     it("should be invalid due to space in username", () => {
         transaction.usernameAsset("test 123").sign("passphrase");
 
