@@ -52,7 +52,7 @@ describe("Bridgechain update ser/deser", () => {
             it("should have at least one item (ip)", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
-                        bridgechainId: 1,
+                        bridgechainId: genesisHash,
                         seedNodes: [],
                     })
                     .sign("passphrase");
@@ -64,7 +64,7 @@ describe("Bridgechain update ser/deser", () => {
             it("should not accept duplicates", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
-                        bridgechainId: 1,
+                        bridgechainId: genesisHash,
                         seedNodes: ["66.102.0.0", "66.102.0.0"],
                     })
                     .sign("passphrase");
@@ -76,7 +76,7 @@ describe("Bridgechain update ser/deser", () => {
             it("should not accept localhost", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
-                        bridgechainId: 1,
+                        bridgechainId: genesisHash,
                         seedNodes: ["66.102.0.0", "66.102.0.0"],
                     })
                     .sign("passphrase");
@@ -90,7 +90,7 @@ describe("Bridgechain update ser/deser", () => {
             it("should fail with less than 1 property", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
-                        bridgechainId: 1,
+                        bridgechainId: genesisHash,
                         ports: {},
                     })
                     .sign("passphrase");
@@ -102,7 +102,7 @@ describe("Bridgechain update ser/deser", () => {
             it("should fail with more than 1 property", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
-                        bridgechainId: 1,
+                        bridgechainId: genesisHash,
                         ports: { name1: 1, name2: 2 },
                     })
                     .sign("passphrase");
@@ -114,7 +114,7 @@ describe("Bridgechain update ser/deser", () => {
             it("should fail if property does not match pattern", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
-                        bridgechainId: 1,
+                        bridgechainId: genesisHash,
                         ports: { "not-valid": 1 },
                     })
                     .sign("passphrase");
@@ -126,7 +126,7 @@ describe("Bridgechain update ser/deser", () => {
             it("should pass if property does match pattern", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
-                        bridgechainId: 1,
+                        bridgechainId: genesisHash,
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
                     .sign("passphrase");

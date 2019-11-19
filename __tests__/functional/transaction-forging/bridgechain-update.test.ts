@@ -158,7 +158,9 @@ describe("Transaction Forging - Bridgechain update", () => {
             // Registering a bridgechain
             const bridgechainRegistrationAsset = {
                 name: "cryptoProject",
+                seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "4523540f1504cd17100c4835e85b7eefd49911580f8efff0599a8f283be6b9e3",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                 ports: { "@arkecosystem/core-api": 12345 },
             };
 

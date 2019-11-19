@@ -69,7 +69,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         seedNodesBuffersLength += seedNodesBuffers.length;
 
-        const bridgechainGenesisHash: Buffer = Buffer.from(bridgechainRegistrationAsset.genesisHash, "utf8");
+        const bridgechainGenesisHash: Buffer = Buffer.from(bridgechainRegistrationAsset.genesisHash, "hex");
 
         const bridgechainRepositoryBuffer: Buffer = Buffer.from(
             bridgechainRegistrationAsset.bridgechainRepository,
