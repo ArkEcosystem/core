@@ -110,7 +110,7 @@ sudo rm -rf ~/{.npm,.forever,.node*,.cache,.nvm}
 
 if [[ ! -z $DEB ]]; then
     sudo wget --quiet -O - https://deb.nodesource.com/gpgkey/nodesource.gpg.key | sudo apt-key add -
-        if [[ "$DEB_ID" == "Debian" ]] || [[ "$DEB_ID" == "Ubuntu" ]]; then
+        if [[ "$DEB_ID" == "Debian" ]] || [[ "$DEB_ID" == "Ubuntu" ]] || [[ "$DEB_ID" == "LinuxMint" ]]; then
             (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
         else
             (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c -u) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
