@@ -305,6 +305,18 @@ describe("Blockchain", () => {
         });
     });
 
+    describe("getActiveDelegates", () => {
+        it("should retrieve the active delegates of the latest round", async () => {
+            await resetToHeight1();
+
+            // Go to arbitrary height in round 2.
+            await addBlocks(55);
+
+            const forgingDelegates = await blockchain.database.getActiveDelegates();
+            expect(forgingDelegates).toHaveLength(51);
+        });
+    });
+
     describe("stop on emit shutdown", () => {
         it("should trigger the stop method when receiving 'shutdown' event", async () => {
             const emitter = container.resolvePlugin("event-emitter");
