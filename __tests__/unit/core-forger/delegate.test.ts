@@ -33,11 +33,9 @@ describe("Delegate", () => {
             });
 
             it("should fail with an invalid passphrase", () => {
-                const delegate = new Delegate(dummy.bip38Passphrase, Networks.testnet.network, "invalid-password");
-
-                expect(delegate.publicKey).toBeUndefined();
-                expect(delegate.address).toBeUndefined();
-                expect(delegate.bip38).toBeFalse();
+                expect(
+                    () => new Delegate(dummy.bip38Passphrase, Networks.testnet.network, "invalid-password"),
+                ).toThrow();
             });
         });
     });

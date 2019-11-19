@@ -71,7 +71,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()];
+            businessAttributes.bridgechains[bridgechainResignation.bridgechainId];
         if (!bridgechainAttributes) {
             throw new BridgechainIsNotRegisteredError();
         }
@@ -92,7 +92,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        const { bridgechainId }: { bridgechainId: number } = data.asset.bridgechainResignation;
+        const { bridgechainId }: { bridgechainId: string } = data.asset.bridgechainResignation;
 
         const bridgechainResignationsInPool: Interfaces.ITransactionData[] = Array.from(
             await pool.getTransactionsByType(
@@ -132,7 +132,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
-        businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()].resigned = true;
+        businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = true;
     }
 
     public async revertForSender(
@@ -148,7 +148,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
-        businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()].resigned = false;
+        businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = false;
     }
 
     public async applyToRecipient(
