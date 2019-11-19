@@ -6,26 +6,26 @@ export const index: object = {
         ...pagination,
         ...{
             orderBy,
-            businessId: Joi.number()
-                .integer()
-                .min(1),
+            publicKey: Joi.string()
+                .hex()
+                .length(66),
         },
     },
 };
 
 export const show: object = {
     params: {
-        id: Joi.number()
-            .integer()
-            .min(1),
+        id: Joi.string()
+            .hex()
+            .length(66),
     },
 };
 
 export const bridgechains: object = {
     params: {
-        id: Joi.number()
-            .integer()
-            .min(1),
+        id: Joi.string()
+            .hex()
+            .length(66),
     },
     query: {
         ...pagination,
@@ -43,9 +43,9 @@ export const search: object = {
         },
     },
     payload: {
-        businessId: Joi.number()
-            .integer()
-            .min(1),
+        publicKey: Joi.string()
+            .hex()
+            .length(66),
         name: Joi.string()
             .regex(/^[a-zA-Z0-9_-]+$/)
             .max(40),

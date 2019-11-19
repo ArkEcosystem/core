@@ -14,7 +14,7 @@ export const transformWallet = (wallet: State.IWallet) => {
         if (business) {
             business = {
                 ...business.businessAsset,
-                businessId: business.businessId,
+                publicKey: wallet.publicKey,
                 resigned: business.resigned,
             };
         }
