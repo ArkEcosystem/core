@@ -51,12 +51,12 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         for (const seed of seedNodes) {
             const seedBuf = Buffer.from(seed, "utf8");
-            seedNodesBuffersLength = seedNodesBuffersLength + seedBuf.length;
+            seedNodesBuffersLength += seedBuf.length;
             seedNodesBuffers.push(seedBuf);
         }
 
-        const buffer: ByteBuffer = new ByteBuffer(4 + 1 + seedNodesBuffersLength + seedNodes.length, true);
-        buffer.append(ByteBuffer.fromHex(bridgechainUpdateAsset.bridgechainId));
+        const buffer: ByteBuffer = new ByteBuffer(32 + 1 + seedNodesBuffersLength + seedNodes.length, true);
+        buffer.append(bridgechainUpdateAsset.bridgechainId, "hex");
 
         buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {

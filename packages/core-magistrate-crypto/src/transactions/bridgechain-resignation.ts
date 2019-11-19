@@ -43,7 +43,7 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
         const { data } = this;
 
         const buffer: ByteBuffer = new ByteBuffer(32, true);
-        buffer.append(ByteBuffer.fromHex(data.asset.bridgechainResignation.bridgechainId));
+        buffer.append(data.asset.bridgechainResignation.bridgechainId, "hex");
 
         return buffer;
     }
