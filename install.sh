@@ -114,7 +114,7 @@ if [[ ! -z $DEB ]]; then
             (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
         else
             (echo "deb https://deb.nodesource.com/node_12.x $(lsb_release -s -c -u) main" | sudo tee /etc/apt/sources.list.d/nodesource.list)
-    	fi
+        fi
     sudo apt-get update
     sudo apt-get install nodejs -y
 
