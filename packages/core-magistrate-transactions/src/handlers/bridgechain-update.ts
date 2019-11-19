@@ -135,8 +135,14 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
-        bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
-        bridgechainAttributes.bridgechainAsset.ports = bridgechainUpdate.ports;
+
+        if (bridgechainUpdate.seedNodes) {
+            bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
+        }
+
+        if (bridgechainUpdate.ports) {
+            bridgechainAttributes.bridgechainAsset.ports = bridgechainUpdate.ports;
+        }
 
         walletManager.reindex(wallet);
     }
