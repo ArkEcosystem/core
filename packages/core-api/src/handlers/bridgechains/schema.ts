@@ -17,7 +17,7 @@ export const show: object = {
     params: {
         id: Joi.string()
             .hex()
-            .length(66),
+            .length(64), // id is genesisHash
     },
 };
 

@@ -229,12 +229,12 @@ class Runner {
                 return true;
             }
 
-            for (const key in thingsToExecute) {
+            for (const key of thingsToExecute) {
                 const actionsPaths = configAllTests.events.newBlock[key].filter(file => file.indexOf(".action") > 0);
                 const testsPaths = configAllTests.events.newBlock[key].filter(file => file.indexOf(".test") > 0);
 
                 if (testsPaths) {
-                    for (const testPath in testsPaths) {
+                    for (const testPath of testsPaths) {
                         // now use Jest to launch the tests
                         console.log(`Executing test ${testPath} for block ${blockHeight}`);
                         this.runJestTest(testPath);
@@ -242,7 +242,7 @@ class Runner {
                 }
 
                 if (actionsPaths) {
-                    for (const actionPath in actionsPaths) {
+                    for (const actionPath of actionsPaths) {
                         console.log(`Executing action ${actionPath} for block ${blockHeight}`);
                         this.executeAction(actionPath);
                     }
