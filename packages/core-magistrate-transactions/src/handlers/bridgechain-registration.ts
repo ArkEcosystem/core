@@ -10,7 +10,6 @@ import {
 } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
-import { MagistrateIndex } from "../wallet-manager";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
 
@@ -42,9 +41,8 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
                     businessAttributes.bridgechains = {};
                 }
 
-                const bridgechainId: number = this.getBridgechainId(walletManager);
-                businessAttributes.bridgechains[bridgechainId.toString()] = {
-                    bridgechainId,
+                const bridgechainId: string = transaction.asset.bridgechainRegistration.genesisHash;
+                businessAttributes.bridgechains[bridgechainId] = {
                     bridgechainAsset: transaction.asset.bridgechainRegistration,
                 };
 
@@ -131,9 +129,8 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             businessAttributes.bridgechains = {};
         }
 
-        const bridgechainId: number = this.getBridgechainId(walletManager);
-        businessAttributes.bridgechains[bridgechainId.toString()] = {
-            bridgechainId,
+        const bridgechainId: string = transaction.data.asset.bridgechainRegistration.genesisHash;
+        businessAttributes.bridgechains[bridgechainId] = {
             bridgechainAsset: transaction.data.asset.bridgechainRegistration,
         };
 
@@ -169,8 +166,4 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         walletManager: State.IWalletManager,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
-
-    private getBridgechainId(walletManager: State.IWalletManager): number {
-        return walletManager.getIndex(MagistrateIndex.Bridgechains).values().length + 1;
-    }
 }
