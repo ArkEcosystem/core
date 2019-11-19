@@ -97,7 +97,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
             true,
         );
 
-        buffer.append(ByteBuffer.fromHex(bridgechainUpdateAsset.bridgechainId));
+        buffer.append(bridgechainUpdateAsset.bridgechainId, "hex");
 
         buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {
