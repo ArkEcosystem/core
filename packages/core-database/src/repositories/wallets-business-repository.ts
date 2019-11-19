@@ -238,11 +238,17 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             .values()
             .map(wallet => {
                 const business: any = wallet.getAttribute("business");
-                return {
+
+                const businessData = {
                     address: wallet.address,
                     publicKey: wallet.publicKey,
                     ...business.businessAsset,
                 };
+                if (business.resigned) {
+                    businessData.isResigned = true;
+                }
+
+                return businessData;
             });
 
         return {
@@ -267,11 +273,16 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                 if (bridgechains && bridgechains[bridgechainId]) {
                     const bridgechain: any = bridgechains[bridgechainId];
 
-                    acc.push({
+                    const bridgechainData = {
                         bridgechainId: bridgechain.bridgechainId,
                         publicKey: wallet.publicKey,
                         ...bridgechain.bridgechainAsset,
-                    });
+                    };
+                    if (bridgechain.resigned) {
+                        bridgechainData.isResigned = true;
+                    }
+
+                    acc.push(bridgechainData);
                 }
 
                 return acc;
