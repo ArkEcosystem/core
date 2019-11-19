@@ -229,7 +229,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["businessId", "vat"],
+            exact: ["publicKey", "vat"],
             like: ["name", "repository", "website"],
         };
 
@@ -240,7 +240,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                 const business: any = wallet.getAttribute("business");
                 return {
                     address: wallet.address,
-                    businessId: business.businessId,
+                    publicKey: wallet.publicKey,
                     ...business.businessAsset,
                 };
             });
@@ -254,7 +254,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["bridgechainId", "businessId"],
+            exact: ["bridgechainId", "publicKey"],
             like: ["bridgechainRepository", "name"],
             every: ["seedNodes"],
         };
@@ -263,14 +263,13 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             .walletManager.getIndex("bridgechains")
             .entries()
             .reduce((acc, [bridgechainId, wallet]) => {
-                const business: any = wallet.getAttribute("business");
                 const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
                 if (bridgechains && bridgechains[bridgechainId]) {
                     const bridgechain: any = bridgechains[bridgechainId];
 
                     acc.push({
                         bridgechainId: bridgechain.bridgechainId,
-                        businessId: business.businessId,
+                        publicKey: wallet.publicKey,
                         ...bridgechain.bridgechainAsset,
                     });
                 }

@@ -6,9 +6,9 @@ export const index: object = {
         ...pagination,
         ...{
             orderBy,
-            businessId: Joi.number()
-                .integer()
-                .min(1),
+            publicKey: Joi.string()
+                .hex()
+                .length(66),
         },
     },
 };
@@ -17,7 +17,7 @@ export const show: object = {
     params: {
         id: Joi.string()
             .hex()
-            .length(64),
+            .length(66),
     },
 };
 
@@ -30,9 +30,9 @@ export const search: object = {
     },
     payload: {
         bridgechainRepository: Joi.string().max(80),
-        businessId: Joi.number()
-            .integer()
-            .min(1),
+        publicKey: Joi.string()
+            .hex()
+            .length(66),
         genesisHash: Joi.string()
             .hex()
             .length(64),

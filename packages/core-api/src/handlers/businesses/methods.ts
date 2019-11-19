@@ -16,9 +16,7 @@ const index = async request => {
 };
 
 const show = async request => {
-    const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        businessId: request.params.id,
-    }).rows[0];
+    const business = databaseService.walletManager.findByPublicKey(request.params.id);
 
     if (!business) {
         return Boom.notFound("Business not found");
@@ -29,7 +27,7 @@ const show = async request => {
 
 const bridgechains = async request => {
     const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        businessId: request.params.id,
+        publicKey: request.params.id,
     });
 
     if (!business) {
@@ -37,7 +35,7 @@ const bridgechains = async request => {
     }
 
     const bridgechains = databaseService.wallets.search(Database.SearchScope.Bridgechains, {
-        businessId: request.params.id,
+        publicKey: request.params.id,
         ...request.query,
         ...paginate(request),
     });
