@@ -12,6 +12,7 @@ module.exports = {
         "htlc-refund",
         "multisignature",
         "multisig-htlc-claim",
-        "multisig-htlc-refund"
+        "multisig-htlc-refund",
+        "business-bridgechain"
     ],
 };

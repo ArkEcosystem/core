@@ -11,7 +11,7 @@ class Helpers {
     }
 
     async POST(path, params = {}, nodeId = 0) {
-        console.log(`POST request body:  ${JSON.stringify(params, null, 2)}`);
+        console.log(`POST ${path} request body:  ${JSON.stringify(params, null, 2)}`);
         return this.request("POST", path, params, nodeId);
     }
 
@@ -22,8 +22,6 @@ class Helpers {
             "Content-Type": "application/json",
         };
         const request = axios[method.toLowerCase()];
-
-        console.log(`[api] ${method} ${url}`);
 
         let response;
         try {
