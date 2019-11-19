@@ -35,7 +35,9 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                                 },
                             ],
                             properties: {
-                                bridgechainId: { type: "integer", minimum: 1 },
+                                bridgechainId: {
+                                    $ref: "transactionId",
+                                },
                                 seedNodes: seedNodesSchema,
                                 ports: portsSchema,
                             },
@@ -89,12 +91,13 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         const buffer: ByteBuffer = new ByteBuffer(
-            4 + // bridgechain id
+            32 + // bridgechain id
                 seedNodesBuffersLength +
                 portsBuffersLength,
             true,
         );
-        buffer.writeUint32(bridgechainUpdateAsset.bridgechainId);
+
+        buffer.append(ByteBuffer.fromHex(bridgechainUpdateAsset.bridgechainId));
 
         buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {
@@ -115,7 +118,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const bridgechainId: number = buf.readUint32();
+        const bridgechainId: string = buf.readBytes(32).toString("hex");
 
         const bridgechainUpdate: IBridgechainUpdateAsset = {
             bridgechainId,

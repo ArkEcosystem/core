@@ -38,19 +38,13 @@ export class Delegate {
         this.iterations = 5000;
 
         if (Crypto.bip38.verify(passphrase)) {
-            try {
-                this.keys = Delegate.decryptPassphrase(passphrase, network, password);
-                this.publicKey = this.keys.publicKey;
-                this.address = Identities.Address.fromPublicKey(this.keys.publicKey, network.pubKeyHash);
-                this.otpSecret = forge.random.getBytesSync(128);
-                this.bip38 = true;
+            this.keys = Delegate.decryptPassphrase(passphrase, network, password);
+            this.publicKey = this.keys.publicKey;
+            this.address = Identities.Address.fromPublicKey(this.keys.publicKey, network.pubKeyHash);
+            this.otpSecret = forge.random.getBytesSync(128);
+            this.bip38 = true;
 
-                this.encryptKeysWithOtp();
-            } catch (error) {
-                this.publicKey = undefined;
-                this.keys = undefined;
-                this.address = undefined;
-            }
+            this.encryptKeysWithOtp();
         } else {
             this.keys = Identities.Keys.fromPassphrase(passphrase);
             this.publicKey = this.keys.publicKey;

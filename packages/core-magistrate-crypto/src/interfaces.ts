@@ -25,11 +25,11 @@ export interface IBridgechainRegistrationAsset {
 }
 
 export interface IBridgechainUpdateAsset {
-    bridgechainId: number;
+    bridgechainId: string;
     seedNodes?: string[];
     ports?: IBridgechainPorts;
 }
 
 export interface IBridgechainResignationAsset {
-    bridgechainId: number;
+    bridgechainId: string;
 }

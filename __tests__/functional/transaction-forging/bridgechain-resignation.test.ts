@@ -9,6 +9,14 @@ afterAll(support.tearDown);
 
 describe("Transaction Forging - Bridgechain resignation", () => {
     describe("Signed with 1 Passphrase", () => {
+        const bridgechainRegistrationAsset = {
+            name: "cryptoProject",
+            seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+            genesisHash: "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8",
+            bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+            ports: { "@arkecosystem/core-api": 12345 },
+        };
+
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Business registration
             const businessRegistration = TransactionFactory.businessRegistration({
@@ -23,13 +31,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Bridgechain registration
-            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
-                name: "cryptoProject",
-                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                genesisHash: "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8",
-                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-                ports: { "@arkecosystem/core-api": 12345 },
-            })
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration(bridgechainRegistrationAsset)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -38,7 +40,9 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.bridgechainResignation(1)
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(
+                bridgechainRegistrationAsset.genesisHash,
+            )
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -48,7 +52,9 @@ describe("Transaction Forging - Bridgechain resignation", () => {
         });
 
         it("should reject bridgechain resignation, because bridgechain resigned [Signed with 1 Passphrase]", async () => {
-            const bridgechainResignation = TransactionFactory.bridgechainResignation(1)
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(
+                bridgechainRegistrationAsset.genesisHash,
+            )
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -59,13 +65,15 @@ describe("Transaction Forging - Bridgechain resignation", () => {
 
         it("should reject bridgechain resignation, because bridgechain resignation for same bridgechain is already in the pool [Signed with 1 Passphrase]", async () => {
             // Bridgechain registration
-            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+            const bridgechainRegistrationAsset2 = {
                 name: "cryptoProject2",
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                 ports: { "@arkecosystem/core-api": 12345 },
-            })
+            };
+
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration(bridgechainRegistrationAsset2)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -73,11 +81,15 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             await support.snoozeForBlock(1);
             await expect(bridgechainRegistration.id).toBeForged();
 
-            const bridgechainResignation = TransactionFactory.bridgechainResignation(2)
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(
+                bridgechainRegistrationAsset2.genesisHash,
+            )
                 .withPassphrase(secrets[0])
                 .createOne();
 
-            const bridgechainResignation2 = TransactionFactory.bridgechainResignation(2)
+            const bridgechainResignation2 = TransactionFactory.bridgechainResignation(
+                bridgechainRegistrationAsset2.genesisHash,
+            )
                 .withPassphrase(secrets[0])
                 .withNonce(bridgechainResignation.nonce.plus(1))
                 .createOne();
@@ -127,13 +139,15 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Registering a bridgechain
-            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+            const bridgechainRegistrationAsset = {
                 name: "cryptoProject",
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                 ports: { "@arkecosystem/core-api": 12345 },
-            })
+            };
+
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration(bridgechainRegistrationAsset)
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
@@ -143,7 +157,9 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.bridgechainResignation(3)
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(
+                bridgechainRegistrationAsset.genesisHash,
+            )
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
@@ -210,13 +226,15 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Registering a bridgechain
-            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+            const bridgechainRegistrationAsset = {
                 name: "cryptoProject",
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                 ports: { "@arkecosystem/core-api": 12345 },
-            })
+            };
+
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration(bridgechainRegistrationAsset)
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
@@ -226,7 +244,9 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Bridgechain resignation
-            const bridgechainResignation = TransactionFactory.bridgechainResignation(4)
+            const bridgechainResignation = TransactionFactory.bridgechainResignation(
+                bridgechainRegistrationAsset.genesisHash,
+            )
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();

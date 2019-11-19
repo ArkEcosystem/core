@@ -5,6 +5,7 @@ import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magis
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
 import { checkCommonFields } from "../helper";
 
+const genesisHash = "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61";
 let builder: MagistrateBuilders.BridgechainResignationBuilder;
 
 describe("Bridgechain registration transaction", () => {
@@ -18,7 +19,7 @@ describe("Bridgechain registration transaction", () => {
     describe("Ser/deser", () => {
         it("should ser/deserialize giving back original fields", () => {
             const bridgechainResignation = builder
-                .businessResignationAsset(1)
+                .bridgechainResignationAsset(genesisHash)
                 .network(23)
                 .sign("passphrase")
                 .getStruct();
@@ -40,21 +41,21 @@ describe("Bridgechain registration transaction", () => {
         });
 
         it("should not throw any error", () => {
-            const bridgechainRegistration = builder.businessResignationAsset(1).sign("passphrase");
+            const bridgechainRegistration = builder.bridgechainResignationAsset(genesisHash).sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
         it("should not throw any error", () => {
-            const bridgechainRegistration = builder.businessResignationAsset(1).sign("passphrase");
+            const bridgechainRegistration = builder.bridgechainResignationAsset(genesisHash).sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).toBeUndefined();
         });
 
         it("should fail because invalid asset", () => {
-            const bridgechainRegistration = builder.businessResignationAsset(0).sign("passphrase");
+            const bridgechainRegistration = builder.bridgechainResignationAsset("wrongGenesisHash").sign("passphrase");
 
             const { error } = Ajv.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
             expect(error).not.toBeUndefined();

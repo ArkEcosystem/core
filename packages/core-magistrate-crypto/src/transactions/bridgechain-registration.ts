@@ -141,7 +141,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
             seedNodes.push(ip);
         }
 
-        const genesisHash: string = buf.readString(64);
+        const genesisHash: string = buf.readBytes(32).toString("hex");
         const repositoryLength: number = buf.readUint8();
         const bridgechainRepository: string = buf.readString(repositoryLength);
 
