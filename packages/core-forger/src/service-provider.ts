@@ -1,6 +1,7 @@
-import { Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
 
 import { ForgerManager } from "./forger-manager";
+import { ForgerTracker } from "./forger-tracker";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -19,11 +20,23 @@ export class ServiceProvider extends Providers.ServiceProvider {
         // Don't keep bip38 password in memory
         this.config().set("bip38", undefined);
         this.config().set("password", undefined);
+
+        this.startTracker();
     }
 
     public async dispose(): Promise<void> {
         this.app.log.info("Stopping Forger Manager");
 
         return this.app.get<ForgerManager>("forger").stopForging();
+    }
+
+    private startTracker(): void {
+        if (this.config().get("tracker") === true) {
+            const forgerTracker: ForgerTracker = this.app.resolve<ForgerTracker>(ForgerTracker);
+
+            this.app
+                .get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService)
+                .listen(Enums.StateEvent.BlockApplied, async () => forgerTracker.execute());
+        }
     }
 }
