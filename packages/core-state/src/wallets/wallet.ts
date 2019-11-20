@@ -1,6 +1,6 @@
 import { State } from "@arkecosystem/core-interfaces";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
-import { Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 import dottie from "dottie";
 
@@ -60,48 +60,6 @@ export class Wallet implements State.IWallet {
         const hasAttributes = Object.keys(this.attributes).length > 0;
         const lockedBalance = this.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
         return this.balance.isZero() && lockedBalance.isZero() && !hasAttributes;
-    }
-
-    public applyBlock(block: Interfaces.IBlockData): boolean {
-        if (
-            block.generatorPublicKey === this.publicKey ||
-            Identities.Address.fromPublicKey(block.generatorPublicKey) === this.address
-        ) {
-            this.balance = this.balance.plus(block.reward).plus(block.totalFee);
-
-            const delegate: State.IWalletDelegateAttributes = this.getAttribute("delegate");
-
-            delegate.producedBlocks++;
-            delegate.forgedFees = delegate.forgedFees.plus(block.totalFee);
-            delegate.forgedRewards = delegate.forgedRewards.plus(block.reward);
-            delegate.lastBlock = block;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public revertBlock(block: Interfaces.IBlockData): boolean {
-        if (
-            block.generatorPublicKey === this.publicKey ||
-            Identities.Address.fromPublicKey(block.generatorPublicKey) === this.address
-        ) {
-            this.balance = this.balance.minus(block.reward).minus(block.totalFee);
-
-            const delegate: State.IWalletDelegateAttributes = this.getAttribute("delegate");
-
-            delegate.forgedFees = delegate.forgedFees.minus(block.totalFee);
-            delegate.forgedRewards = delegate.forgedRewards.minus(block.reward);
-            delegate.producedBlocks--;
-
-            // TODO: get it back from database?
-            delegate.lastBlock = undefined;
-
-            return true;
-        }
-
-        return false;
     }
 
     public verifySignatures(
