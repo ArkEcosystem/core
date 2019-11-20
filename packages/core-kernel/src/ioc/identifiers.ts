@@ -1,4 +1,4 @@
-export const Identifiers: Record<string, symbol> = {
+export const Identifiers = {
     // Config
     ConfigFlags: Symbol.for("Config<Flags>"),
     ConfigPlugins: Symbol.for("Config<Plugins>"),
@@ -36,14 +36,25 @@ export const Identifiers: Record<string, symbol> = {
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
     TransactionPoolService: Symbol.for("Service<TransactionPool>"),
+    TransactionPoolWalletRepository: Symbol.for("Repository<PoolWallet>"),
     ValidationService: Symbol.for("Service<Validation>"),
+    // Database
+    DatabaseConnection: Symbol.for("Database<Connection>"),
     // Repositories
+    WalletRepository: Symbol.for("Repository<Wallet>"),
+    // Database - @todo add database prefix?
+    BlockRepository: Symbol.for("Repository<Block>"),
+    TransactionRepository: Symbol.for("Repository<Transaction>"),
+    RoundRepository: Symbol.for("Repository<Round>"),
+    //
     ConfigRepository: Symbol.for("Repository<Config>"),
     ServiceProviderRepository: Symbol.for("Repository<ServiceProvider>"),
     // State - @todo: better names that won't clash
     StateBlockStore: Symbol.for("State<BlockStore>"),
     StateTransactionStore: Symbol.for("State<TransactionStore>"),
     StateStore: Symbol.for("State<StateStore>"),
+    BlockState: Symbol.for("State<Block>"),
+    WalletState: Symbol.for("State<Wallet>"),
     // P2P - @todo: better names that won't clash
     PeerCommunicator: Symbol.for("Peer<Communicator>"),
     PeerConnector: Symbol.for("Peer<Connector>"),
@@ -52,4 +63,6 @@ export const Identifiers: Record<string, symbol> = {
     PeerStorage: Symbol.for("Peer<Storage>"),
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
+    // Registries
+    TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
 };

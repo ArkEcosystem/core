@@ -8,13 +8,8 @@ export class WalletState {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.WalletRepository)
     private walletRepository!: Contracts.State.WalletRepository;
-
-    public init(walletRepository: Contracts.State.WalletRepository): this {
-        this.walletRepository = walletRepository;
-
-        return this;
-    }
 
     public loadActiveDelegateList(roundInfo: Contracts.Shared.RoundInfo): Contracts.State.Wallet[] {
         const delegates: Contracts.State.Wallet[] = this.buildDelegateRanking(roundInfo);

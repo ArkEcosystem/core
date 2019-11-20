@@ -1,3 +1,4 @@
+import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -7,11 +8,14 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class LocksController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    protected readonly transactionRepository!: Repositories.TransactionRepository;
+
+    @Container.inject(Container.Identifiers.WalletRepository)
+    protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const locks = this.databaseService.wallets.search(Contracts.Database.SearchScope.Locks, {
+        const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.query,
             ...this.paginate(request),
         });
@@ -20,7 +24,7 @@ export class LocksController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const lock = this.databaseService.wallets.search(Contracts.Database.SearchScope.Locks, {
+        const lock = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             lockId: request.params.id,
         }).rows[0];
 
@@ -32,7 +36,7 @@ export class LocksController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const locks = this.databaseService.wallets.search(Contracts.Database.SearchScope.Locks, {
+        const locks = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.payload,
             ...request.query,
             ...this.paginate(request),
@@ -42,9 +46,7 @@ export class LocksController extends Controller {
     }
 
     public async unlocked(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions = await this.databaseService.transactionsBusinessRepository.findByHtlcLocks(
-            request.payload.ids,
-        );
+        const transactions = await this.transactionRepository.findByHtlcLocks(request.payload.ids);
 
         return this.toPagination(
             {

@@ -54,3 +54,28 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
             .max(100),
     }),
 });
+
+export const searchCriteria = (field: string, value: any, operator: string[]) =>
+    Joi.object().keys({
+        field: Joi.string()
+            .only(field)
+            .required(),
+        value: value.required(),
+        operator: Joi.string()
+            .only(operator)
+            .required(),
+    });
+
+export const numberFixedOrBetween = Joi.alternatives(
+    Joi.number()
+        .integer()
+        .min(0),
+    Joi.object().keys({
+        from: Joi.number()
+            .integer()
+            .min(0),
+        to: Joi.number()
+            .integer()
+            .min(0),
+    }),
+);

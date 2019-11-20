@@ -1,3 +1,4 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
@@ -21,24 +22,12 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return ["secondPublicKey"];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
-
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
-
-            for (const transaction of transactions) {
-                Utils.assert.defined<string>(transaction.senderPublicKey);
-
-                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-
-                Utils.assert.defined<string>(transaction.asset.signature?.publicKey);
-
-                wallet.setAttribute("secondPublicKey", transaction.asset.signature.publicKey);
-            }
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
+        for (const transaction of transactions) {
+            const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
+            wallet.setAttribute("secondPublicKey", transaction.asset.signature!.publicKey);
         }
     }
 
@@ -49,23 +38,23 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (wallet.hasSecondSignature()) {
             throw new SecondSignatureAlreadyRegisteredError();
         }
 
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const senderWallet: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(
-            transaction.data.senderPublicKey,
-        );
+        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
     public async canEnterTransactionPool(
@@ -82,9 +71,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletRepository);
+        await super.applyToSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -97,9 +88,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletRepository);
+        await super.revertForSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -108,11 +101,11 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }

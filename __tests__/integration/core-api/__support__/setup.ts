@@ -43,10 +43,10 @@ export const setUp = async () => {
 export const tearDown = async () => sandbox.tearDown();
 
 export const calculateRanks = async () => {
-    const databaseService = sandbox.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+    const walletRepository = sandbox.app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
 
     const delegateWallets = Object.values(
-        databaseService.walletRepository.allByUsername(),
+        walletRepository.allByUsername(),
     ).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
         b
             .getAttribute<Utils.BigNumber>("delegate.voteBalance")
@@ -54,9 +54,9 @@ export const calculateRanks = async () => {
     );
 
     AppUtils.sortBy(delegateWallets, wallet => wallet.publicKey).forEach((delegate, i) => {
-        const wallet = databaseService.walletRepository.findByPublicKey(delegate.publicKey!);
+        const wallet = walletRepository.findByPublicKey(delegate.publicKey!);
         wallet.setAttribute("delegate.rank", i + 1);
 
-        databaseService.walletRepository.reindex(wallet);
+        walletRepository.reindex(wallet);
     });
 };

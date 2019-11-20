@@ -7,11 +7,11 @@ import { Resource } from "../interfaces";
 export class TransactionResource implements Resource {
     /**
      * @protected
-     * @type {Contracts.Database.DatabaseService}
-     * @memberof Resource
+     * @type {Contracts.State.WalletRepository}
+     * @memberof TransactionResource
      */
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.WalletRepository)
+    protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**
      * @protected
@@ -44,7 +44,7 @@ export class TransactionResource implements Resource {
 
         AppUtils.assert.defined<string>(data.senderPublicKey);
 
-        const sender: string = this.databaseService.walletRepository.findByPublicKey(data.senderPublicKey).address;
+        const sender: string = this.walletRepository.findByPublicKey(data.senderPublicKey).address;
 
         const lastBlock: Interfaces.IBlock = this.blockchainService.getLastBlock();
         const timestamp: number = data.version === 1 ? data.timestamp : resource.timestamp;

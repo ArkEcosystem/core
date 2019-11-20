@@ -1,3 +1,4 @@
+import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
@@ -47,7 +48,7 @@ export const getCurrentRound = async ({
 }: {
     app: Contracts.Kernel.Application;
 }): Promise<Contracts.P2P.CurrentRound> => {
-    const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+    const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
 
     const lastBlock = blockchain.getLastBlock();

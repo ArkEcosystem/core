@@ -1,3 +1,4 @@
+import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Managers } from "@arkecosystem/crypto";
@@ -15,20 +16,20 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
-
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly transactionPool!: Contracts.TransactionPool.Connection;
 
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     protected readonly networkMonitor!: Contracts.P2P.INetworkMonitor;
 
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    protected readonly transactionRepository!: Repositories.TransactionRepository;
+
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions = await this.databaseService.transactionsBusinessRepository.search({
-            ...request.query,
-            ...this.paginate(request),
-        });
+        const transactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.searchByQuery(
+            request.query,
+            this.paginate(request),
+        );
 
         return this.toPagination(transactions, TransactionResource, (request.query.transform as unknown) as boolean);
     }
@@ -53,7 +54,7 @@ export class TransactionsController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction = await this.databaseService.transactionsBusinessRepository.findById(request.params.id);
+        const transaction: Models.Transaction = await this.transactionRepository.findById(request.params.id);
 
         if (!transaction) {
             return Boom.notFound("Transaction not found");
@@ -100,18 +101,20 @@ export class TransactionsController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions = await this.databaseService.transactionsBusinessRepository.search({
-            ...request.query,
-            ...request.payload,
-            ...this.paginate(request),
-        });
+        const transactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+            {
+                ...request.query, // only for orderBy
+                ...request.payload,
+                ...this.paginate(request),
+            },
+        );
 
         return this.toPagination(transactions, TransactionResource, (request.query.transform as unknown) as boolean);
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
-            .get<any>("transactionHandlerRegistry")
+            .get<any>(Container.Identifiers.TransactionHandlerRegistry)
             .getActivatedTransactionHandlers();
         const typeGroups: Record<string | number, Record<string, number>> = {};
 
@@ -139,7 +142,7 @@ export class TransactionsController extends Controller {
 
     public async schemas(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
-            .get<any>("transactionHandlerRegistry")
+            .get<any>(Container.Identifiers.TransactionHandlerRegistry)
             .getActivatedTransactionHandlers();
         const schemasByType: Record<string, Record<string, any>> = {};
 

@@ -7,11 +7,11 @@ import { Resource } from "../interfaces";
 export class BlockResource implements Resource {
     /**
      * @protected
-     * @type {Contracts.Database.DatabaseService}
-     * @memberof Resource
+     * @type {Contracts.State.WalletRepository}
+     * @memberof BlockResource
      */
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.WalletRepository)
+    protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**
      * @protected
@@ -44,9 +44,7 @@ export class BlockResource implements Resource {
      * @memberof Resource
      */
     public transform(resource): object {
-        const generator: Contracts.State.Wallet = this.databaseService.walletRepository.findByPublicKey(
-            resource.generatorPublicKey,
-        );
+        const generator: Contracts.State.Wallet = this.walletRepository.findByPublicKey(resource.generatorPublicKey);
 
         const lastBlock: Interfaces.IBlock = this.blockchainService.getLastBlock();
 

@@ -15,14 +15,11 @@ export const getHeaders = (app: Contracts.Kernel.Application) => {
         height: undefined,
     };
 
-    if (app.isBound(Container.Identifiers.BlockchainService)) {
-        const lastBlock = app
+    const state: Contracts.State.StateStore = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore);
+    if (state.started) {
+        headers.height = app
             .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
-            .getLastBlock();
-
-        if (lastBlock) {
-            headers.height = lastBlock.data.height;
-        }
+            .getLastHeight();
     }
 
     return headers;

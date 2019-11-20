@@ -1,4 +1,6 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Repositories } from "@arkecosystem/core-database";
+import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
+import { Enums } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -7,12 +9,21 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class WalletsController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Application;
+
+    @Container.inject(Container.Identifiers.BlockRepository)
+    protected readonly blockRepository!: Repositories.BlockRepository;
+
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    protected readonly transactionRepository!: Repositories.TransactionRepository;
+
+    @Container.inject(Container.Identifiers.WalletRepository)
+    protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         return this.toPagination(
-            this.databaseService.wallets.search(Contracts.Database.SearchScope.Wallets, {
+            this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
                 ...request.query,
                 ...this.paginate(request),
             }),
@@ -22,7 +33,7 @@ export class WalletsController extends Controller {
 
     public async top(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         return this.toPagination(
-            this.databaseService.wallets.top(Contracts.Database.SearchScope.Wallets, this.paginate(request)),
+            this.walletRepository.top(Contracts.State.SearchScope.Wallets, this.paginate(request)),
             WalletResource,
         );
     }
@@ -51,7 +62,7 @@ export class WalletsController extends Controller {
         delete parameters.recipientId;
         delete parameters.id;
 
-        const rows = await this.databaseService.transactionsBusinessRepository.search(parameters);
+        const rows = await this.transactionRepository.search(parameters);
 
         return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
     }
@@ -66,11 +77,14 @@ export class WalletsController extends Controller {
         // NOTE: We unset this value because it otherwise will produce a faulty SQL query
         delete request.params.id;
 
-        const rows = await this.databaseService.transactionsBusinessRepository.findAllBySender(wallet.publicKey!, {
-            ...request.query,
-            ...request.params,
-            ...this.paginate(request),
-        });
+        const rows = await this.transactionRepository.searchByQuery(
+            {
+                ...request.query,
+                ...request.params,
+                senderPublicKey: wallet.publicKey,
+            },
+            this.paginate(request),
+        );
 
         return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
     }
@@ -85,11 +99,14 @@ export class WalletsController extends Controller {
         // NOTE: We unset this value because it otherwise will produce a faulty SQL query
         delete request.params.id;
 
-        const rows = await this.databaseService.transactionsBusinessRepository.findAllByRecipient(wallet.address, {
-            ...request.query,
-            ...request.params,
-            ...this.paginate(request),
-        });
+        const rows = await this.transactionRepository.searchByQuery(
+            {
+                ...request.query,
+                ...request.params,
+                recipientId: wallet.address,
+            },
+            this.paginate(request),
+        );
 
         return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
     }
@@ -104,10 +121,16 @@ export class WalletsController extends Controller {
         // NOTE: We unset this value because it otherwise will produce a faulty SQL query
         delete request.params.id;
 
-        const rows = await this.databaseService.transactionsBusinessRepository.allVotesBySender(wallet.publicKey!, {
-            ...request.params,
-            ...this.paginate(request),
-        });
+        const rows = await this.transactionRepository.searchByQuery(
+            {
+                ...request.query,
+                ...request.params,
+                senderPublicKey: wallet.publicKey,
+                type: Enums.TransactionType.Vote,
+                typeGroup: Enums.TransactionTypeGroup.Core,
+            },
+            this.paginate(request),
+        );
 
         return this.toPagination(rows, TransactionResource, (request.query.transform as unknown) as boolean);
     }
@@ -124,7 +147,7 @@ export class WalletsController extends Controller {
             return this.toPagination({ rows: [], count: 0 }, LockResource);
         }
 
-        const rows = this.databaseService.wallets.search(Contracts.Database.SearchScope.Locks, {
+        const rows = this.walletRepository.search(Contracts.State.SearchScope.Locks, {
             ...request.params,
             ...request.query,
             ...this.paginate(request),
@@ -135,7 +158,7 @@ export class WalletsController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const wallets = this.databaseService.wallets.search(Contracts.Database.SearchScope.Wallets, {
+        const wallets = this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
             ...request.payload,
             ...request.query,
             ...this.paginate(request),
@@ -148,7 +171,7 @@ export class WalletsController extends Controller {
         let wallet: Contracts.State.Wallet | undefined;
 
         try {
-            wallet = this.databaseService.wallets.findById(Contracts.Database.SearchScope.Wallets, id);
+            wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
         } catch (error) {
             return Boom.notFound("Wallet not found");
         }

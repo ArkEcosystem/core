@@ -1,3 +1,4 @@
+import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 
@@ -117,7 +118,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
             // todo: turn the state machine into a class so that injection can be used
             logger = app.log;
             emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
-            database = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+            database = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
             transactionPool = app.get<Contracts.TransactionPool.Connection>(
                 Container.Identifiers.TransactionPoolService,
             );

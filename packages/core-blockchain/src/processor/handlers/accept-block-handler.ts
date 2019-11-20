@@ -1,3 +1,4 @@
+import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
@@ -14,7 +15,7 @@ export class AcceptBlockHandler extends BlockHandler {
     protected readonly state!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database!: Contracts.Database.DatabaseService;
+    protected readonly database!: DatabaseService;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
     protected readonly transactionPool!: Contracts.TransactionPool.Connection;

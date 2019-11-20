@@ -1,3 +1,4 @@
+import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
@@ -6,9 +7,7 @@ export const validateGenerator = async (
     app: Contracts.Kernel.Application,
     block: Interfaces.IBlock,
 ): Promise<boolean> => {
-    const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        Container.Identifiers.DatabaseService,
-    );
+    const database: DatabaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     const logger: Contracts.Kernel.Log.Logger = app.log;
 
     const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(block.data.height);
@@ -16,9 +15,10 @@ export const validateGenerator = async (
     const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
     const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 
-    const generatorWallet: Contracts.State.Wallet = database.walletRepository.findByPublicKey(
-        block.data.generatorPublicKey,
+    const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+        Container.Identifiers.WalletRepository,
     );
+    const generatorWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.data.generatorPublicKey);
 
     const generatorUsername: string = generatorWallet.getAttribute("delegate.username");
 
@@ -31,9 +31,7 @@ export const validateGenerator = async (
     } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
         Utils.assert.defined<string>(forgingDelegate.publicKey);
 
-        const forgingWallet: Contracts.State.Wallet = database.walletRepository.findByPublicKey(
-            forgingDelegate.publicKey,
-        );
+        const forgingWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(forgingDelegate.publicKey);
         const forgingUsername: string = forgingWallet.getAttribute("delegate.username");
 
         logger.warning(

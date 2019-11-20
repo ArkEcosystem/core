@@ -1,8 +1,9 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
 import { TempWalletRepository } from "./temp-wallet-repository";
+import { searchEntries } from "./utils/search-entries";
 import { Wallet } from "./wallet";
 import { WalletIndex } from "./wallet-index";
 
@@ -10,11 +11,16 @@ import { WalletIndex } from "./wallet-index";
 @Container.injectable()
 export class WalletRepository implements Contracts.State.WalletRepository {
     @Container.inject(Container.Identifiers.Application)
-    public app!: Contracts.Kernel.Application;
+    protected readonly app!: Contracts.Kernel.Application;
 
     protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 
-    public init() {
+    // TODO: use a inversify factory for wallets instead?
+    public createWallet(address: string): Contracts.State.Wallet {
+        return new Wallet(address, this.app);
+    }
+
+    public constructor() {
         this.reset();
 
         this.registerIndex(
@@ -65,8 +71,6 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 }
             },
         );
-
-        return this;
     }
 
     public registerIndex(name: string, indexer: Contracts.State.WalletIndexer): void {
@@ -238,16 +242,260 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         }
     }
 
-    public clone(): Contracts.State.WalletRepository {
-        return this.app
-            .resolve<TempWalletRepository>(TempWalletRepository)
-            .setup(this)
-            .init();
+    public clone(): Contracts.State.TempWalletRepository {
+        return this.app.resolve<TempWalletRepository>(TempWalletRepository).setup(this);
     }
 
     public reset(): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();
         }
+    }
+
+    public search<T>(
+        scope: Contracts.State.SearchScope,
+        params: Contracts.Database.QueryParameters = {},
+    ): Contracts.State.RowsPaginated<T> {
+        let searchContext: Contracts.State.SearchContext;
+
+        switch (scope) {
+            case Contracts.State.SearchScope.Wallets: {
+                searchContext = this.searchWallets(params);
+                break;
+            }
+            case Contracts.State.SearchScope.Delegates: {
+                searchContext = this.searchDelegates(params);
+                break;
+            }
+            case Contracts.State.SearchScope.Locks: {
+                searchContext = this.searchLocks(params);
+                break;
+            }
+            case Contracts.State.SearchScope.Bridgechains: {
+                searchContext = this.searchBridgechains(params);
+                break;
+            }
+            case Contracts.State.SearchScope.Businesses: {
+                searchContext = this.searchBusinesses(params);
+                break;
+            }
+        }
+
+        return searchEntries(params, searchContext.query, searchContext.entries, searchContext.defaultOrder);
+    }
+
+    public findByScope(scope: Contracts.State.SearchScope, id: string): Contracts.State.Wallet {
+        switch (scope) {
+            case Contracts.State.SearchScope.Wallets: {
+                return this.findByIndex(
+                    [
+                        Contracts.State.WalletIndexes.Usernames,
+                        Contracts.State.WalletIndexes.Addresses,
+                        Contracts.State.WalletIndexes.PublicKeys,
+                    ],
+                    id,
+                );
+            }
+
+            case Contracts.State.SearchScope.Delegates: {
+                const wallet: Contracts.State.Wallet | undefined = this.findByIndex(
+                    [
+                        Contracts.State.WalletIndexes.Usernames,
+                        Contracts.State.WalletIndexes.Addresses,
+                        Contracts.State.WalletIndexes.PublicKeys,
+                    ],
+                    id,
+                );
+
+                if (wallet && wallet.isDelegate()) {
+                    return wallet;
+                }
+
+                break;
+            }
+        }
+
+        throw new Error(`A wallet with the ID [${id}] does not exist in the [${scope.toString()}] scope.`);
+    }
+
+    public count(scope: Contracts.State.SearchScope): number {
+        return this.search(scope, {}).count;
+    }
+
+    public top(
+        scope: Contracts.State.SearchScope,
+        params: Record<string, any> = {},
+    ): Contracts.State.RowsPaginated<Contracts.State.Wallet> {
+        return this.search(scope, { ...params, ...{ orderBy: "balance:desc" } });
+    }
+
+    private searchWallets(
+        params: Contracts.Database.QueryParameters,
+    ): Contracts.State.SearchContext<Contracts.State.Wallet> {
+        const query: Record<string, string[]> = {
+            exact: ["address", "publicKey", "secondPublicKey", "username", "vote"],
+            between: ["balance", "voteBalance", "lockedBalance"],
+        };
+
+        if (params.addresses) {
+            // Use the `in` filter instead of `exact` for the `address` field
+            if (!params.address) {
+                // @ts-ignore
+                params.address = params.addresses;
+                query.exact.shift();
+                query.in = ["address"];
+            }
+
+            delete params.addresses;
+        }
+
+        return {
+            query,
+            entries: this.allByAddress(),
+            defaultOrder: ["balance", "desc"],
+        };
+    }
+
+    private searchDelegates(
+        params: Contracts.Database.QueryParameters,
+    ): Contracts.State.SearchContext<Contracts.State.Wallet> {
+        const query: Record<string, string[]> = {
+            exact: ["address", "publicKey"],
+            like: ["username"],
+            between: ["approval", "forgedFees", "forgedRewards", "forgedTotal", "producedBlocks", "voteBalance"],
+        };
+
+        if (params.usernames) {
+            if (!params.username) {
+                params.username = params.usernames;
+                query.like.shift();
+                query.in = ["username"];
+            }
+
+            delete params.usernames;
+        }
+
+        let entries: ReadonlyArray<Contracts.State.Wallet>;
+        switch (params.type) {
+            case "resigned": {
+                entries = this.getIndex(Contracts.State.WalletIndexes.Resignations).values();
+                break;
+            }
+            case "never-forged": {
+                entries = this.allByUsername().filter(delegate => {
+                    return delegate.getAttribute("delegate.producedBlocks") === 0;
+                });
+                break;
+            }
+            default: {
+                entries = this.allByUsername();
+                break;
+            }
+        }
+
+        const manipulators = {
+            approval: AppUtils.delegateCalculator.calculateApproval,
+            forgedTotal: AppUtils.delegateCalculator.calculateForgedTotal,
+        };
+
+        if (AppUtils.hasSomeProperty(params, Object.keys(manipulators))) {
+            entries = entries.map(delegate => {
+                for (const [prop, method] of Object.entries(manipulators)) {
+                    if (params.hasOwnProperty(prop)) {
+                        delegate.setAttribute(`delegate.${prop}`, method(delegate));
+                    }
+                }
+
+                return delegate;
+            });
+        }
+
+        return {
+            query,
+            entries,
+            defaultOrder: ["rank", "asc"],
+        };
+    }
+
+    private searchLocks(
+        params: Contracts.Database.QueryParameters = {},
+    ): Contracts.State.SearchContext<Contracts.State.UnwrappedHtlcLock> {
+        const query: Record<string, string[]> = {
+            exact: ["senderPublicKey", "lockId", "recipientId", "secretHash", "expirationType", "vendorField"],
+            between: ["expirationValue", "amount", "timestamp"],
+        };
+
+        if (params.amount !== undefined) {
+            params.amount = "" + params.amount;
+        }
+
+        const entries: Contracts.State.UnwrappedHtlcLock[] = this.getIndex(Contracts.State.WalletIndexes.Locks)
+            .entries()
+            .reduce<Contracts.State.UnwrappedHtlcLock[]>((acc, [lockId, wallet]) => {
+                const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks");
+
+                if (locks && locks[lockId]) {
+                    const lock: Interfaces.IHtlcLock = locks[lockId];
+
+                    AppUtils.assert.defined<string>(lock.recipientId);
+                    AppUtils.assert.defined<string>(wallet.publicKey);
+
+                    acc.push({
+                        lockId,
+                        amount: lock.amount,
+                        secretHash: lock.secretHash,
+                        senderPublicKey: wallet.publicKey,
+                        recipientId: lock.recipientId,
+                        timestamp: lock.timestamp,
+                        expirationType: lock.expiration.type,
+                        expirationValue: lock.expiration.value,
+                        vendorField: lock.vendorField!,
+                    });
+                }
+
+                return acc;
+            }, []);
+
+        return {
+            query,
+            entries,
+            defaultOrder: ["expirationValue", "asc"],
+        };
+    }
+
+    // TODO
+    private searchBusinesses(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
+        const query: Record<string, string[]> = {};
+        const entries: any[] = this.getIndex("businesses")
+            .values()
+            .map(wallet => {
+                const business: Interfaces.IHtlcLocks = wallet.getAttribute("business");
+                return business;
+            })
+            .filter(business => !!business);
+
+        return {
+            query,
+            entries,
+            defaultOrder: ["expirationValue", "asc"],
+        };
+    }
+
+    // TODO
+    private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
+        const query: Record<string, string[]> = {};
+
+        const entries: any[][] = this.getIndex("bridgechains")
+            .values()
+            .map(wallet => {
+                return wallet.getAttribute("business.bridgechains");
+            })
+            .filter(bridgchain => !!bridgchain);
+
+        return {
+            query,
+            entries,
+            defaultOrder: ["expirationValue", "asc"],
+        };
     }
 }

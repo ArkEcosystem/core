@@ -6,6 +6,7 @@ import { Wallets } from "@arkecosystem/core-state";
 import { ApiHelpers, Generators } from "@arkecosystem/core-test-framework";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
+import { Repositories } from "@arkecosystem/core-database";
 
 const delegate = {
     address: "AFyf2qVpX2JbpKcy29XbusedCpFDeYFX8Q",
@@ -35,17 +36,17 @@ beforeAll(async () => {
 afterAll(async () => await tearDown());
 
 beforeEach(() => {
-    const wr: Contracts.State.WalletRepository = app.get<Contracts.Database.DatabaseService>(
-        Container.Identifiers.DatabaseService,
-    ).walletRepository;
+    const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+        Container.Identifiers.WalletRepository,
+    );
 
-    const wallet: Contracts.State.Wallet = wr.findByUsername("genesis_10");
+    const wallet: Contracts.State.Wallet = walletRepository.findByUsername("genesis_10");
     wallet.setAttribute("delegate.forgedFees", AppUtils.BigNumber.make(delegate.forgedFees));
     wallet.setAttribute("delegate.forgedRewards", AppUtils.BigNumber.make(delegate.forgedRewards));
     wallet.setAttribute("delegate.producedBlocks", 75);
     wallet.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(delegate.voteBalance));
 
-    wr.reindex(wallet);
+    walletRepository.reindex(wallet);
 });
 
 describe("API 2.0 - Delegates", () => {
@@ -63,11 +64,11 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should GET all the delegates sorted by votes,asc", async () => {
-            const wr: Contracts.State.WalletRepository = app.get<Contracts.Database.DatabaseService>(
-                Container.Identifiers.DatabaseService,
-            ).walletRepository;
+            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+            );
 
-            const originalDelegates = [...wr.allByUsername()];
+            const originalDelegates = [...walletRepository.allByUsername()];
 
             // Reverse order indexing for descending results
             const reverseDelegates = originalDelegates.reverse();
@@ -75,7 +76,7 @@ describe("API 2.0 - Delegates", () => {
                 const delegate = reverseDelegates[i];
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(i * 1e8));
 
-                wr.reindex(delegate);
+                walletRepository.reindex(delegate);
             }
 
             const response = await api.request("GET", "delegates", { orderBy: "votes:asc" });
@@ -90,17 +91,17 @@ describe("API 2.0 - Delegates", () => {
                 const delegate = originalDelegates[i];
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.ZERO);
 
-                wr.reindex(delegate);
+                walletRepository.reindex(delegate);
             }
         });
 
         it("should GET all the delegates sorted by votes,desc", async () => {
-            const wr: Contracts.State.WalletRepository = app.get<Contracts.Database.DatabaseService>(
-                Container.Identifiers.DatabaseService,
-            ).walletRepository;
-            const wallet: Contracts.State.Wallet = wr.findByUsername("genesis_1");
+            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+            );
+            const wallet: Contracts.State.Wallet = walletRepository.findByUsername("genesis_1");
             wallet.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(12500000000000000));
-            wr.reindex(wallet);
+            walletRepository.reindex(wallet);
 
             const response = await api.request("GET", "delegates", { orderBy: "votes:desc" });
             expect(response).toBeSuccessfulResponse();
@@ -172,9 +173,8 @@ describe("API 2.0 - Delegates", () => {
         it("should fail to GET a delegate by the given identifier if the resource is not a delegate (has no username)", async () => {
             const wallet = new Wallets.Wallet("non_delegate_address", app);
 
-            const wm = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-                .walletRepository;
-            wm.index([wallet]);
+            const walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+            walletRepository.index([wallet]);
 
             api.expectError(await api.request("GET", `delegates/${wallet.address}`), 404);
         });
@@ -244,26 +244,26 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should POST a search for delegates with the exact specified approval", async () => {
-            const wr: Contracts.State.WalletRepository = app.get<Contracts.Database.DatabaseService>(
-                Container.Identifiers.DatabaseService,
-            ).walletRepository;
+            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+            );
 
             // Make sure all vote balances are at 0
-            const delegates = wr.allByUsername();
+            const delegates = walletRepository.allByUsername();
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.ZERO);
-                wr.reindex(delegate);
+                walletRepository.reindex(delegate);
             }
 
             // Give 2 delegates a vote weight
-            const delegate1 = wr.findByUsername("genesis_1");
+            const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(10000000 * 1e8));
-            wr.reindex(delegate1);
+            walletRepository.reindex(delegate1);
 
-            const delegate2 = wr.findByUsername("genesis_2");
+            const delegate2 = walletRepository.findByUsername("genesis_2");
             delegate2.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(10000000 * 1e8));
-            wr.reindex(delegate2);
+            walletRepository.reindex(delegate2);
 
             const response = await api.request("POST", "delegates/search", {
                 approval: {
@@ -282,33 +282,33 @@ describe("API 2.0 - Delegates", () => {
             }
 
             // Make sure all vote balances are at 0
-            for (const delegate of wr.allByUsername()) {
+            for (const delegate of walletRepository.allByUsername()) {
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.ZERO);
-                wr.reindex(delegate);
+                walletRepository.reindex(delegate);
             }
         });
 
         it("should POST a search for delegates with the specified approval range", async () => {
-            const wr: Contracts.State.WalletRepository = app.get<Contracts.Database.DatabaseService>(
-                Container.Identifiers.DatabaseService,
-            ).walletRepository;
+            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+            );
 
             // Make sure all vote balances are at 0
-            const delegates = wr.allByUsername();
+            const delegates = walletRepository.allByUsername();
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.ZERO);
-                wr.reindex(delegate);
+                walletRepository.reindex(delegate);
             }
 
             // Give 2 delegates a vote weight
-            const delegate1 = wr.findByUsername("genesis_1");
+            const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(10000000 * 1e8));
-            wr.reindex(delegate1);
+            walletRepository.reindex(delegate1);
 
-            const delegate2 = wr.findByUsername("genesis_2");
+            const delegate2 = walletRepository.findByUsername("genesis_2");
             delegate2.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(5000000 * 1e8));
-            wr.reindex(delegate2);
+            walletRepository.reindex(delegate2);
 
             const response = await api.request("POST", "delegates/search", {
                 approval: {
@@ -458,22 +458,22 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should POST a search for delegates with the specified produced blocks range", async () => {
-            const wr: Contracts.State.WalletRepository = app.get<Contracts.Database.DatabaseService>(
-                Container.Identifiers.DatabaseService,
-            ).walletRepository;
+            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+            );
 
             // Make sure all vote balances are at 0
-            const delegates = wr.allByUsername();
+            const delegates = walletRepository.allByUsername();
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.producedBlocks", 0);
-                wr.reindex(delegate);
+                walletRepository.reindex(delegate);
             }
 
             // Give 2 delegates a vote weight
-            const delegate1 = wr.findByUsername("genesis_1");
+            const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.producedBlocks", delegate.producedBlocks);
-            wr.reindex(delegate1);
+            walletRepository.reindex(delegate1);
 
             const response = await api.request("POST", "delegates/search", {
                 producedBlocks: {
@@ -512,22 +512,22 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should POST a search for delegates with the specified vote balance range", async () => {
-            const wr: Contracts.State.WalletRepository = app.get<Contracts.Database.DatabaseService>(
-                Container.Identifiers.DatabaseService,
-            ).walletRepository;
+            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+            );
 
             // Make sure all vote balances are at 0
-            const delegates = wr.allByUsername();
+            const delegates = walletRepository.allByUsername();
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.voteBalance", 0);
-                wr.reindex(delegate);
+                walletRepository.reindex(delegate);
             }
 
             // Give 2 delegates a vote weight
-            const delegate1 = wr.findByUsername("genesis_1");
+            const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(delegate.voteBalance));
-            wr.reindex(delegate1);
+            walletRepository.reindex(delegate1);
 
             const response = await api.request("POST", "delegates/search", {
                 voteBalance: {
@@ -555,7 +555,7 @@ describe("API 2.0 - Delegates", () => {
             );
 
             // save a new block so that we can make the request with generatorPublicKey
-            await app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService).saveBlock(block2);
+            await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([block2]);
 
             const response = await api.request("GET", `delegates/${block2.data.generatorPublicKey}/blocks`);
             expect(response).toBeSuccessfulResponse();
@@ -566,7 +566,7 @@ describe("API 2.0 - Delegates", () => {
             }
 
             await app
-                .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
+                .get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository)
                 .deleteBlocks([block2.data]); // reset to genesis block
         });
 

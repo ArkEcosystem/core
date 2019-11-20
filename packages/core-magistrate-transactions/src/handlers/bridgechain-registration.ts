@@ -1,3 +1,4 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
@@ -9,7 +10,7 @@ import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto"
 import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
-import { MagistrateIndex } from "../wallet-manager";
+import { MagistrateIndex } from "../wallet-indexes";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 
 @Container.injectable()
@@ -30,41 +31,34 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
 
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
-
-            for (const transaction of transactions) {
-                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-
-                const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
-                    "business",
-                );
-                if (!businessAttributes.bridgechains) {
-                    businessAttributes.bridgechains = {};
-                }
-
-                const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletRepository);
-                businessAttributes.bridgechains[bridgechainId.toFixed()] = {
-                    bridgechainId,
-                    bridgechainAsset: transaction.asset.bridgechainRegistration,
-                };
-
-                wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-                walletRepository.reindex(wallet);
+        for (const transaction of transactions) {
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
+            const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
+                "business",
+            );
+            if (!businessAttributes.bridgechains) {
+                businessAttributes.bridgechains = {};
             }
+
+            const bridgechainId: Utils.BigNumber = this.getBridgechainId(this.walletRepository);
+            businessAttributes.bridgechains[bridgechainId.toFixed()] = {
+                bridgechainId,
+                bridgechainAsset: transaction.asset.bridgechainRegistration,
+            };
+
+            wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
+            this.walletRepository.reindex(wallet);
         }
     }
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
@@ -74,7 +68,7 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             throw new BusinessIsResignedError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
@@ -91,9 +85,11 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletRepository);
+        await super.applyToSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -123,9 +119,11 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletRepository);
+        await super.revertForSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -148,13 +146,13 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 

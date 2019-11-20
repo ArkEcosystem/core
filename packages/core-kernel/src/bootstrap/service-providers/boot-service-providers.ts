@@ -48,6 +48,7 @@ export class BootServiceProviders implements Bootstrapper {
                 try {
                     await this.serviceProviders.boot(name);
                 } catch (error) {
+                    this.app.log.error(error.stack);
                     const isRequired: boolean = await serviceProvider.required();
 
                     if (isRequired) {

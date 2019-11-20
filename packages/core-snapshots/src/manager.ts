@@ -1,4 +1,5 @@
-import { PostgresConnection } from "@arkecosystem/core-database-postgres";
+// @ts-ignore
+import { PostgresConnection } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Database } from "./db";

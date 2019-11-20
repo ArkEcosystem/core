@@ -33,6 +33,7 @@ beforeEach(() => {
     logger = {
         notice: jest.fn(),
         warning: jest.fn(),
+        error: jest.fn(),
     };
 
     app.bind(Identifiers.LogService).toConstantValue(logger);

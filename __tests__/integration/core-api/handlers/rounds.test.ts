@@ -7,6 +7,7 @@ import { Identities } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/secrets.json";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
+import { DatabaseService } from "@arkecosystem/core-database";
 
 let app: Contracts.Kernel.Application;
 let api: ApiHelpers;
@@ -14,7 +15,7 @@ beforeAll(async () => {
     app = await setUp();
     api = new ApiHelpers(app);
 
-    const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+    const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     await databaseService.buildWallets();
     await databaseService.saveRound(
         Generators.generateRound(

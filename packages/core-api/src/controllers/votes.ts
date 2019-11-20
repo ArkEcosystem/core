@@ -1,4 +1,5 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Models, Repositories } from "@arkecosystem/core-database";
+import { Container } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -8,23 +9,20 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class VotesController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    protected readonly transactionRepository!: Repositories.TransactionRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactions = await this.databaseService.transactionsBusinessRepository.findAllByType(
-            Enums.TransactionType.Vote,
-            {
-                ...request.query,
-                ...this.paginate(request),
-            },
+        const transactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.searchByQuery(
+            { ...request.query, ...{ type: Enums.TransactionType.Vote } },
+            this.paginate(request),
         );
 
         return this.toPagination(transactions, TransactionResource, (request.query.transform as unknown) as boolean);
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction = await this.databaseService.transactionsBusinessRepository.findByTypeAndId(
+        const transaction: Models.Transaction | undefined = await this.transactionRepository.findByIdAndType(
             Enums.TransactionType.Vote,
             request.params.id,
         );

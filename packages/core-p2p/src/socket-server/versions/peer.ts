@@ -1,3 +1,4 @@
+import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
@@ -37,9 +38,7 @@ export const getCommonBlocks = async ({
         Container.Identifiers.BlockchainService,
     );
 
-    const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        Container.Identifiers.DatabaseService,
-    );
+    const database: DatabaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
 
     const commonBlocks: Interfaces.IBlockData[] = await database.getCommonBlocks(req.data.ids);
 
@@ -139,16 +138,14 @@ export const getBlocks = async ({
 }: {
     app: Contracts.Kernel.Application;
     req: any;
-}): Promise<Interfaces.IBlockData[] | Contracts.Database.DownloadBlock[]> => {
-    const database: Contracts.Database.DatabaseService = app.get<Contracts.Database.DatabaseService>(
-        Container.Identifiers.DatabaseService,
-    );
+}): Promise<Interfaces.IBlockData[] | Contracts.Shared.DownloadBlock[]> => {
+    const database: DatabaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
 
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
     const reqBlockLimit: number = +req.data.blockLimit || 400;
     const reqHeadersOnly: boolean = !!req.data.headersOnly;
 
-    const blocks: Contracts.Database.DownloadBlock[] = await database.getBlocksForDownload(
+    const blocks: Contracts.Shared.DownloadBlock[] = await database.getBlocksForDownload(
         reqBlockHeight,
         reqBlockLimit,
         reqHeadersOnly,

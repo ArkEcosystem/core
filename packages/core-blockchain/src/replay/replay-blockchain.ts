@@ -1,3 +1,4 @@
+import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Blocks, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
@@ -10,26 +11,30 @@ import { MemoryDatabaseService } from "./memory-database-service";
 @Container.injectable()
 export class ReplayBlockchain extends Blockchain {
     private logger!: Contracts.Kernel.Log.Logger;
-    private localDatabase!: Contracts.Database.DatabaseService;
+    private localDatabase!: DatabaseService;
     private walletRepository!: Wallets.WalletRepository;
     private walletState!: Wallets.WalletState; // @todo: review and/or remove
     private targetHeight: number | undefined;
     private chunkSize = 20000;
 
-    private memoryDatabase!: Contracts.Database.DatabaseService;
+    private memoryDatabase!: DatabaseService;
 
-    public get database(): Contracts.Database.DatabaseService {
+    public get database(): DatabaseService {
         return this.memoryDatabase;
     }
 
     // todo: rename after IoC issues are resolved
     public setup() {
+        // @ts-ignore
         this.walletRepository = this.app.resolve(Wallets.WalletRepository).init();
+        // @ts-ignore
         this.walletState = this.app.resolve<Wallets.WalletState>(Wallets.WalletState).init(this.walletRepository);
+        // @ts-ignore
         this.memoryDatabase = new MemoryDatabaseService(this.walletRepository);
 
         this.logger = this.app.log;
-        this.localDatabase = this.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+        this.localDatabase = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
+        // @ts-ignore
         this.localDatabase.walletRepository = this.walletRepository;
 
         this.queue.kill();
@@ -173,6 +178,7 @@ export class ReplayBlockchain extends Blockchain {
     }
 
     private async disconnect(): Promise<void> {
+        // @ts-ignore
         await this.localDatabase.connection.disconnect();
     }
 }

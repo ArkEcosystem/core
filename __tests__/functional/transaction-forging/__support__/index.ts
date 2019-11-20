@@ -7,6 +7,7 @@ import secrets from "@packages/core-test-framework/src/internal/secrets.json";
 jest.setTimeout(1200000);
 
 import { Sandbox } from "@arkecosystem/core-test-framework";
+import { DatabaseService } from "@arkecosystem/core-database";
 
 const sandbox: Sandbox = new Sandbox();
 
@@ -23,11 +24,10 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
             },
             plugins: {
                 include: [
-                    "@arkecosystem/core-transactions",
                     "@arkecosystem/core-state",
-                    "@arkecosystem/core-magistrate-transactions",
                     "@arkecosystem/core-database",
-                    "@arkecosystem/core-database-postgres",
+                    "@arkecosystem/core-transactions",
+                    "@arkecosystem/core-magistrate-transactions",
                     "@arkecosystem/core-transaction-pool",
                     "@arkecosystem/core-p2p",
                     "@arkecosystem/core-blockchain",
@@ -44,13 +44,13 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
 
         await app.boot();
 
-        const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+        const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
+        const walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+
         await databaseService.buildWallets();
         await databaseService.saveRound(
             secrets.map((secret, i) => {
-                const wallet = databaseService.walletRepository.findByPublicKey(
-                    Identities.PublicKey.fromPassphrase(secret),
-                );
+                const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase(secret));
 
                 wallet.setAttribute("delegate", {
                     username: `genesis_${i + 1}`,
@@ -73,7 +73,7 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
 };
 
 export const tearDown = async (): Promise<void> => {
-    // const databaseService = sandbox.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+    // const databaseService = sandbox.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     // await databaseService.reset();
 
     await sandbox.tearDown();

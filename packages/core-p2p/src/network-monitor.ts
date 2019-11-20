@@ -80,6 +80,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
             await this.updateNetworkStatus(true);
 
             for (const [version, peers] of Object.entries(
+                // @ts-ignore
                 Utils.groupBy(this.storage.getPeers(), peer => peer.version),
             )) {
                 this.logger.info(`Discovered ${Utils.pluralize("peer", peers.length, true)} with v${version}.`);
@@ -202,15 +203,11 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                     Utils.shuffle(peers)
                         .slice(0, maxPeersPerPeer)
                         .reduce(
-                            // @ts-ignore
-                            (acc: object, curr: Contracts.P2P.Peer) => {
-                                Utils.assert.defined<string>(curr.ip);
-
-                                return {
-                                    ...acc,
-                                    ...{ [curr.ip]: curr },
-                                };
-                            },
+                            // @ts-ignore - rework this so TS stops throwing errors
+                            (acc: object, curr: Contracts.P2P.Peer) => ({
+                                ...acc,
+                                ...{ [curr.ip]: curr },
+                            }),
                             {},
                         ),
                 )
@@ -350,27 +347,29 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                 await Promise.all(
                     Utils.shuffle(peersFiltered)
                         .slice(0, chunksToDownload)
-                        .map(async (peer: Contracts.P2P.Peer, index) => {
-                            const height: number = fromBlockHeight + chunkSize * index;
-                            const peersToTry: Contracts.P2P.Peer[] = [
-                                peer,
-                                Utils.sample(peersFiltered),
-                                Utils.sample(peersFiltered),
-                            ]; // 2 "fallback" peers to download from if 1st one failed
+                        .map(
+                            async (peer: Contracts.P2P.Peer, index: number): Promise<Interfaces.IBlockData[]> => {
+                                const height: number = fromBlockHeight + chunkSize * index;
+                                const peersToTry: Contracts.P2P.Peer[] = [
+                                    peer,
+                                    Utils.sample(peersFiltered),
+                                    Utils.sample(peersFiltered),
+                                ]; // 2 "fallback" peers to download from if 1st one failed
 
-                            let blocks: Interfaces.IBlockData[] = [];
-                            for (const peerToDownloadFrom of peersToTry) {
-                                blocks = await this.communicator.downloadBlocks(peerToDownloadFrom, height);
+                                let blocks: Interfaces.IBlockData[] = [];
+                                for (const peerToDownloadFrom of peersToTry) {
+                                    blocks = await this.communicator.downloadBlocks(peerToDownloadFrom, height);
 
-                                if (blocks.length > 0) {
-                                    return blocks;
+                                    if (blocks.length > 0) {
+                                        return blocks;
+                                    }
                                 }
-                            }
 
-                            return blocks;
-                        }),
+                                return blocks;
+                            },
+                        ),
                 )
-            ).reduce((acc, curr) => [...acc, ...(curr || [])], []);
+            ).reduce((acc: Interfaces.IBlockData[], curr: Interfaces.IBlockData[]) => [...acc, ...(curr || [])], []);
         } catch (error) {
             this.logger.error(`Could not download blocks: ${error.message}`);
 

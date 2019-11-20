@@ -1,3 +1,4 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
@@ -40,38 +41,29 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         ];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const forgedBlocks = await connection.blocksRepository.getDelegatesForgedBlocks();
-        const lastForgedBlocks = await connection.blocksRepository.getLastForgedBlocks();
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
 
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+        for (const transaction of transactions) {
+            const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
+            wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
+                username: transaction.asset.delegate!.username,
+                voteBalance: Utils.BigNumber.ZERO,
+                forgedFees: Utils.BigNumber.ZERO,
+                forgedRewards: Utils.BigNumber.ZERO,
+                producedBlocks: 0,
+                rank: undefined,
+            });
 
-            for (const transaction of transactions) {
-                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-
-                if (transaction.asset && transaction.asset.delegate) {
-                    wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
-                        username: transaction.asset.delegate.username,
-                        voteBalance: Utils.BigNumber.ZERO,
-                        forgedFees: Utils.BigNumber.ZERO,
-                        forgedRewards: Utils.BigNumber.ZERO,
-                        producedBlocks: 0,
-                        rank: undefined,
-                    });
-
-                    walletRepository.reindex(wallet);
-                }
-            }
+            this.walletRepository.reindex(wallet);
         }
 
+        const forgedBlocks = await this.blockRepository.getDelegatesForgedBlocks();
+        const lastForgedBlocks = await this.blockRepository.getLastForgedBlocks();
         for (const block of forgedBlocks) {
-            const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.generatorPublicKey);
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(block.generatorPublicKey);
 
             // Genesis wallet is empty
             if (!wallet.hasAttribute("delegate")) {
@@ -85,7 +77,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         }
 
         for (const block of lastForgedBlocks) {
-            const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.generatorPublicKey);
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(block.generatorPublicKey);
 
             wallet.setAttribute("delegate.lastBlock", block);
         }
@@ -98,13 +90,15 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         const { data }: Interfaces.ITransaction = transaction;
 
         AppUtils.assert.defined<string>(data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(data.senderPublicKey);
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(data.senderPublicKey);
 
         if (sender.hasMultiSignature()) {
             throw new NotSupportedForMultiSignatureWalletError();
@@ -122,11 +116,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             throw new WalletIsAlreadyDelegateError();
         }
 
-        if (databaseWalletRepository.hasByUsername(username)) {
+        if (walletRepository.hasByUsername(username)) {
             throw new WalletUsernameAlreadyRegisteredError(username);
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
@@ -184,9 +178,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletRepository);
+        await super.applyToSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -195,7 +191,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
 
         sender.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
-            username: transaction.data.asset.delegate.username,
+            username: transaction.data.asset?.delegate?.username,
             voteBalance: Utils.BigNumber.ZERO,
             forgedFees: Utils.BigNumber.ZERO,
             forgedRewards: Utils.BigNumber.ZERO,
@@ -208,9 +204,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletRepository);
+        await super.revertForSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -223,11 +221,11 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }

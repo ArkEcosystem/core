@@ -20,18 +20,12 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         return ["htlc.locks", "htlc.lockedBalance"];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getOpenHtlcLocks();
-
+    public async bootstrap(): Promise<void> {
+        const transactions = await this.transactionRepository.getOpenHtlcLocks();
         const walletsToIndex: Record<string, Contracts.State.Wallet> = {};
         for (const transaction of transactions) {
-            const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const locks: Interfaces.IHtlcLocks = wallet.getAttribute("htlc.locks", {});
-
             locks[transaction.id] = {
                 amount: Utils.BigNumber.make(transaction.amount),
                 recipientId: transaction.recipientId,
@@ -39,19 +33,20 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
                 vendorField: transaction.vendorField ? transaction.vendorField : undefined,
                 ...transaction.asset.lock,
             };
-
             wallet.setAttribute("htlc.locks", locks);
-
             const lockedBalance: Utils.BigNumber = wallet.getAttribute("htlc.lockedBalance");
             wallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.amount));
 
-            const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(transaction.recipientId);
+            AppUtils.assert.defined<string>(transaction.recipientId);
 
+            const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
+                transaction.recipientId,
+            );
             walletsToIndex[wallet.address] = wallet;
             walletsToIndex[recipientWallet.address] = recipientWallet;
         }
 
-        walletRepository.index(Object.values(walletsToIndex));
+        this.walletRepository.index(Object.values(walletsToIndex));
     }
 
     public async isActivated(): Promise<boolean> {
@@ -61,7 +56,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(transaction.data.asset?.lock);
 
@@ -86,7 +81,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
             throw new HtlcLockExpiredError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
     public async canEnterTransactionPool(
@@ -99,15 +94,15 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletRepository);
+        await super.applyToSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet | undefined = walletRepository.findByPublicKey(
-            transaction.data.senderPublicKey,
-        );
+        const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         AppUtils.assert.defined<Contracts.State.Wallet>(sender);
 
@@ -131,11 +126,12 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletRepository);
+        await super.revertForSender(transaction, customWalletRepository);
 
-        AppUtils.assert.defined<string>(transaction.id);
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
@@ -144,6 +140,9 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
 
         const locks: Interfaces.IHtlcLocks = sender.getAttribute("htlc.locks", {});
+
+        AppUtils.assert.defined<string>(transaction.id);
+
         delete locks[transaction.id];
 
         walletRepository.reindex(sender);
@@ -151,11 +150,11 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }

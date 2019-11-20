@@ -1,3 +1,4 @@
+import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
@@ -13,6 +14,12 @@ import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./in
 export class Processor implements Contracts.TransactionPool.Processor {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    private readonly transactionRepository!: Repositories.TransactionRepository;
+
+    @Container.inject(Container.Identifiers.TransactionPoolWalletRepository)
+    private readonly poolWalletRepository!: Contracts.State.WalletRepository;
 
     private transactions: Interfaces.ITransactionData[] = [];
     private readonly excess: string[] = [];
@@ -96,9 +103,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
     }
 
     private async removeForgedTransactions(): Promise<void> {
-        const forgedIdsSet: string[] = await this.app
-            .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-            .getForgedTransactionsIds([...new Set([...this.accept.keys(), ...this.broadcast.keys()])]);
+        const forgedIdsSet: string[] = await this.transactionRepository.getForgedTransactionsIds([
+            ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
+        ]);
 
         for (const id of forgedIdsSet) {
             const transaction: Interfaces.ITransaction | undefined = this.accept.get(id);
@@ -148,10 +155,10 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     Utils.assert.defined<string>(transactionInstance.data.id);
 
                     const handler: Handlers.TransactionHandler = await this.app
-                        .get<any>("transactionHandlerRegistry")
+                        .get<any>(Container.Identifiers.TransactionHandlerRegistry)
                         .get(transactionInstance.type, transactionInstance.typeGroup);
 
-                    if (await handler.verify(transactionInstance, this.pool.walletRepository)) {
+                    if (await handler.verify(transactionInstance, this.poolWalletRepository)) {
                         try {
                             const dynamicFee: DynamicFeeMatch = await dynamicFeeMatcher(this.app, transactionInstance);
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
@@ -254,7 +261,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
         try {
             // @TODO: this leaks private members, refactor this
             const handler: Handlers.TransactionHandler = await this.app
-                .get<any>("transactionHandlerRegistry")
+                .get<any>(Container.Identifiers.TransactionHandlerRegistry)
                 .get(transaction.type, transaction.typeGroup);
             return handler.canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {

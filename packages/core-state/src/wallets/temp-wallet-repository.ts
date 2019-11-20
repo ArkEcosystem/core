@@ -1,8 +1,10 @@
-import { Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Identities } from "@arkecosystem/crypto";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Identities, Interfaces } from "@arkecosystem/crypto";
 
+import { BlockState } from "../block-state";
 import { Wallet } from "./wallet";
 import { WalletRepository } from "./wallet-repository";
+import { WalletState } from "./wallet-state";
 
 export class TempWalletRepository extends WalletRepository {
     private walletRepository!: Contracts.State.WalletRepository;
@@ -10,10 +12,6 @@ export class TempWalletRepository extends WalletRepository {
     public setup(walletRepository: Contracts.State.WalletRepository) {
         this.walletRepository = walletRepository;
 
-        return this;
-    }
-
-    public init() {
         this.index(this.walletRepository.allByUsername());
 
         for (const index of this.walletRepository.getIndexNames()) {
@@ -23,7 +21,6 @@ export class TempWalletRepository extends WalletRepository {
 
             this.indexes[index] = this.walletRepository.getIndex(index).clone();
         }
-
         return this;
     }
 
@@ -93,5 +90,33 @@ export class TempWalletRepository extends WalletRepository {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();
         }
+    }
+
+    public async getActiveDelegatesOfPreviousRound(
+        blocks: Interfaces.IBlock[],
+        roundInfo: Contracts.Shared.RoundInfo,
+    ): Promise<Contracts.State.Wallet[]> {
+        const container = new Container.Container();
+        container.bind<Contracts.Kernel.Application>(Container.Identifiers.Application).toConstantValue(this.app);
+        container.bind<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository).toConstantValue(this);
+
+        const tempBlockState = container.resolve<BlockState>(BlockState);
+        const tempWalletState = container.resolve<WalletState>(WalletState);
+
+        // Revert all blocks in reverse order
+        const index: number = blocks.length - 1;
+
+        let height = 0;
+        for (let i = index; i >= 0; i--) {
+            height = blocks[i].data.height;
+
+            if (height === 1) {
+                break;
+            }
+
+            await tempBlockState.revertBlock(blocks[i]);
+        }
+
+        return tempWalletState.loadActiveDelegateList(roundInfo);
     }
 }

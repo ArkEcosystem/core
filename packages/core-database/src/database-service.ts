@@ -1,80 +1,74 @@
 import { Container, Contracts, Enums, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Wallets } from "@arkecosystem/core-state";
-import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Crypto, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
+import { Connection } from "typeorm";
 
-import { BlockState } from "./block-state";
+import { DatabaseEvent } from "./events";
+import { BlockRepository } from "./repositories/block-repository";
+import { RoundRepository } from "./repositories/round-repository";
+import { TransactionRepository } from "./repositories/transaction-repository";
 
+// TODO: maybe we should introduce `BlockLike`, `TransactionLike`, `RoundLke` interfaces to remove the need to cast
 @Container.injectable()
-export class DatabaseService implements Contracts.Database.DatabaseService {
+export class DatabaseService {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
-    public connection: Contracts.Database.Connection;
-    public walletRepository: Contracts.State.WalletRepository;
-    public logger;
-    public emitter;
-    public options: any;
-    public wallets: Contracts.Database.WalletsBusinessRepository;
-    public blocksBusinessRepository: Contracts.Database.BlocksBusinessRepository;
-    public transactionsBusinessRepository: Contracts.Database.TransactionsBusinessRepository;
-    public blocksInCurrentRound: Interfaces.IBlock[] = undefined;
+    @Container.inject(Container.Identifiers.DatabaseConnection)
+    private readonly connection!: Connection;
+
+    @Container.inject(Container.Identifiers.BlockRepository)
+    private readonly blockRepository!: BlockRepository;
+
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    private readonly transactionRepository!: TransactionRepository;
+
+    @Container.inject(Container.Identifiers.RoundRepository)
+    private readonly roundRepository!: RoundRepository;
+
+    @Container.inject(Container.Identifiers.WalletRepository)
+    private readonly walletRepository!: Contracts.State.WalletRepository;
+
+    @Container.inject(Container.Identifiers.BlockState)
+    private readonly blockState!: Contracts.State.BlockState;
+
+    @Container.inject(Container.Identifiers.WalletState)
+    private readonly walletState!: Contracts.State.WalletState;
+
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Log.Logger;
+
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
+
+    // TODO: make private readonly
+    public blocksInCurrentRound: Interfaces.IBlock[] | undefined = undefined;
+    // TODO: make private readonly
     public restoredDatabaseIntegrity: boolean = false;
-    public forgingDelegates: Contracts.State.Wallet[] = undefined;
-    public cache: Map<any, any> = new Map();
+    // TODO: make private readonly
+    public forgingDelegates: Contracts.State.Wallet[] | undefined = undefined;
 
-    public blockState; // @todo: private readonly
-    public walletState; // @todo: private readonly
-
-    public make(
-        options: Record<string, any>,
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-        walletsBusinessRepository: Contracts.Database.WalletsBusinessRepository,
-        transactionsBusinessRepository: Contracts.Database.TransactionsBusinessRepository,
-        blocksBusinessRepository: Contracts.Database.BlocksBusinessRepository,
-    ) {
-        this.connection = connection;
-        this.walletRepository = walletRepository;
-        this.options = options;
-        this.wallets = walletsBusinessRepository;
-        this.blocksBusinessRepository = blocksBusinessRepository;
-        this.transactionsBusinessRepository = transactionsBusinessRepository;
-
-        this.logger = this.app.log;
-        this.emitter = this.app.get<Contracts.Kernel.Events.EventDispatcher>(
-            Container.Identifiers.EventDispatcherService,
-        );
-
-        // @todo: review and/or remove then after the core-db rewrite to loosen coupling
-        this.blockState = this.app.resolve<BlockState>(BlockState).init(this.walletRepository);
-        this.walletState = this.app.resolve<Wallets.WalletState>(Wallets.WalletState).init(this.walletRepository);
-
-        return this;
-    }
-
-    public async init(): Promise<void> {
+    public async initialize(): Promise<void> {
         if (process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = false;
         }
 
-        this.emitter.dispatch(Enums.StateEvent.StateStarting, this);
-
-        this.app
-            .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-            .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock")));
-
-        if (process.env.CORE_RESET_DATABASE) {
-            await this.reset();
-        }
-
-        await this.initializeLastBlock();
-
         try {
+            this.emitter.dispatch(Enums.StateEvent.StateStarting);
+
+            this.app
+                .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
+                .setGenesisBlock(Blocks.BlockFactory.fromJson(Managers.configManager.get("genesisBlock"))!);
+
+            if (process.env.CORE_RESET_DATABASE) {
+                await this.reset();
+            }
+
+            await this.initializeLastBlock();
             await this.loadBlocksFromCurrentRound();
         } catch (error) {
-            this.logger.warning(`Failed to load blocks from current round: ${error.message}`);
+            this.logger.error(error.stack);
+            this.app.terminate("Failed to initialize database service.", error);
         }
     }
 
@@ -84,10 +78,11 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async reset(): Promise<void> {
-        await this.connection.resetAll();
+        await this.connection.query("TRUNCATE TABLE blocks, rounds, transactions RESTART IDENTITY;");
         await this.createGenesisBlock();
     }
 
+    // TODO: move out of core-database to get rid of BlockState dependency
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         await this.blockState.applyBlock(block);
 
@@ -106,6 +101,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         this.emitter.dispatch(Enums.StateEvent.BlockApplied, block.data);
     }
 
+    // TODO: move out of core-database to get rid of WalletState dependency
     public async applyRound(height: number): Promise<void> {
         const nextHeight: number = height === 1 ? 1 : height + 1;
 
@@ -123,7 +119,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
                 try {
                     if (nextHeight > 1) {
-                        this.detectMissedRound(this.forgingDelegates);
+                        this.detectMissedRound(this.forgingDelegates!);
                     }
 
                     const delegates: Contracts.State.Wallet[] = this.walletState.loadActiveDelegateList(roundInfo);
@@ -131,7 +127,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
                     await this.saveRound(delegates);
 
-                    this.blocksInCurrentRound.length = 0;
+                    this.blocksInCurrentRound!.length = 0;
 
                     this.emitter.dispatch(Enums.StateEvent.RoundApplied);
                 } catch (error) {
@@ -149,17 +145,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async buildWallets(): Promise<void> {
-        this.walletRepository.reset();
-
-        await this.connection.buildWallets();
-    }
-
-    public async deleteBlocks(blocks: Interfaces.IBlockData[]): Promise<void> {
-        await this.connection.deleteBlocks(blocks);
-    }
-
-    public async deleteRound(round: number): Promise<void> {
-        await this.connection.roundsRepository.delete(round);
+        //this.walletRepository.reset();
     }
 
     public async getActiveDelegates(
@@ -178,13 +164,15 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         // When called during applyRound we already know the delegates, so we don't have to query the database.
         if (!delegates || delegates.length === 0) {
-            delegates = (await this.connection.roundsRepository.findById(round)).map(({ publicKey, balance }) => {
-                const wallet = new Wallets.Wallet(Identities.Address.fromPublicKey(publicKey), this.app);
+            delegates = (await this.roundRepository.find({ round })).map(({ publicKey, balance }) => {
+                const wallet = this.walletRepository.createWallet(Identities.Address.fromPublicKey(publicKey));
                 wallet.publicKey = publicKey;
                 wallet.setAttribute("delegate", {
                     delegate: {
                         voteBalance: Utils.BigNumber.make(balance),
-                        username: this.walletRepository.findByPublicKey(publicKey).getAttribute("delegate.username"),
+                        username: this.walletRepository
+                            .findByPublicKey(publicKey)
+                            .getAttribute("delegate.username", ""),
                     },
                 });
                 return wallet;
@@ -214,7 +202,9 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
     public async getBlock(id: string): Promise<Interfaces.IBlock | undefined> {
         // TODO: caching the last 1000 blocks, in combination with `saveBlock` could help to optimise
-        const block: Interfaces.IBlockData = await this.connection.blocksRepository.findById(id);
+        const block: Interfaces.IBlockData = ((await this.blockRepository.findOne(
+            id,
+        )) as unknown) as Interfaces.IBlockData;
 
         if (!block) {
             return undefined;
@@ -223,7 +213,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         const transactions: Array<{
             serialized: Buffer;
             id: string;
-        }> = await this.connection.transactionsRepository.findByBlockId(block.id);
+        }> = await this.transactionRepository.find({ blockId: block.id });
 
         block.transactions = transactions.map(
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
@@ -242,33 +232,31 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             .getLastBlocksByHeight(start, end, headersOnly);
 
         if (blocks.length !== limit) {
-            blocks = (await this.connection.blocksRepository.heightRangeWithTransactions(start, end)).map(block => ({
-                ...block,
-                transactions:
-                    headersOnly || !block.transactions
-                        ? undefined
-                        : block.transactions.map(
-                              (transaction: string) =>
-                                  Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
-                          ),
-            }));
+            blocks = headersOnly
+                ? await this.blockRepository.findByHeightRangeWithTransactions(start, end)
+                : await this.blockRepository.findByHeightRange(start, end);
         }
 
         return blocks;
     }
 
+    // TODO: move to block repository
     public async getBlocksForDownload(
         offset: number,
         limit: number,
         headersOnly?: boolean,
-    ): Promise<Contracts.Database.DownloadBlock[]> {
+    ): Promise<Contracts.Shared.DownloadBlock[]> {
         if (headersOnly) {
-            return (this.connection.blocksRepository.heightRange(offset, offset + limit - 1) as unknown) as Promise<
-                Contracts.Database.DownloadBlock[]
+            return (this.blockRepository.findByHeightRange(offset, offset + limit - 1) as unknown) as Promise<
+                Contracts.Shared.DownloadBlock[]
             >;
         }
 
-        return this.connection.blocksRepository.heightRangeWithTransactions(offset, offset + limit - 1);
+        // TODO: fix types
+        return (this.blockRepository.findByHeightRangeWithTransactions(
+            offset,
+            offset + limit - 1,
+        ) as unknown) as Promise<Contracts.Shared.DownloadBlock[]>;
     }
 
     /**
@@ -290,7 +278,8 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
      * @throws Error
      */
     public async getBlocksByHeight(heights: number[]) {
-        const blocks = [];
+        // TODO: add type
+        const blocks: Interfaces.IBlockData[] = [];
 
         // Map of height -> index in heights[], e.g. if
         // heights[5] == 6000000, then
@@ -315,7 +304,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         const heightsToGetFromDB: number[] = Object.keys(toGetFromDB).map(height => +height);
         if (heightsToGetFromDB.length > 0) {
-            const blocksByHeights = await this.connection.blocksRepository.findByHeights(heightsToGetFromDB);
+            const blocksByHeights = await this.blockRepository.findByHeights(heightsToGetFromDB);
 
             for (const blockFromDB of blocksByHeights) {
                 const index = toGetFromDB[blockFromDB.height];
@@ -356,33 +345,25 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         );
     }
 
-    public async getForgedTransactionsIds(ids: string[]): Promise<string[]> {
-        if (!ids.length) {
-            return [];
-        }
-
-        return (await this.connection.transactionsRepository.forged(ids)).map(
-            (transaction: Interfaces.ITransactionData) => transaction.id,
-        );
-    }
-
     public async getLastBlock(): Promise<Interfaces.IBlock> {
-        const block: Interfaces.IBlockData = await this.connection.blocksRepository.latest();
+        const block: Interfaces.IBlockData | undefined = await this.blockRepository.findLatest();
 
         if (!block) {
+            // @ts-ignore Technically, this cannot happen
             return undefined;
         }
 
         const transactions: Array<{
-            serialized: Buffer;
             id: string;
-        }> = await this.connection.transactionsRepository.latestByBlock(block.id);
+            blockId: string;
+            serialized: Buffer;
+        }> = await this.transactionRepository.findByBlockIds([block.id!]);
 
         block.transactions = transactions.map(
             ({ serialized, id }) => Transactions.TransactionFactory.fromBytesUnsafe(serialized, id).data,
         );
 
-        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block);
+        const lastBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(block)!;
 
         if (block.height === 1 && process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = true;
@@ -397,7 +378,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             .getCommonBlocks(ids);
 
         if (commonBlocks.length < ids.length) {
-            commonBlocks = await this.connection.blocksRepository.common(ids);
+            commonBlocks = ((await this.blockRepository.findCommon(ids)) as unknown) as Interfaces.IBlockData[];
         }
 
         return commonBlocks;
@@ -411,14 +392,16 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             .slice(0, 10);
 
         if (blocks.length < 10) {
-            blocks = await this.connection.blocksRepository.recent(10);
+            blocks = await this.blockRepository.findRecent(10);
         }
 
         return blocks.map(block => block.id);
     }
 
     public async getTopBlocks(count: number): Promise<Interfaces.IBlockData[]> {
-        const blocks: Interfaces.IBlockData[] = await this.connection.blocksRepository.top(count);
+        const blocks: Interfaces.IBlockData[] = ((await this.blockRepository.findTop(
+            count,
+        )) as unknown) as Interfaces.IBlockData[];
 
         await this.loadTransactionsForBlocks(blocks);
 
@@ -426,7 +409,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     public async getTransaction(id: string) {
-        return this.connection.transactionsRepository.findById(id);
+        return this.transactionRepository.findOne(id);
     }
 
     public async loadBlocksFromCurrentRound(): Promise<void> {
@@ -437,7 +420,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         await this.revertRound(block.data.height);
         this.blockState.revertBlock(block);
 
-        assert(this.blocksInCurrentRound.pop().data.id === block.data.id);
+        assert(this.blocksInCurrentRound!.pop()!.data.id === block.data.id);
 
         for (let i = block.transactions.length - 1; i >= 0; i--) {
             this.emitter.dispatch(Enums.StateEvent.TransactionReverted, block.transactions[i].data);
@@ -464,20 +447,16 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         }
     }
 
-    public async saveBlock(block: Interfaces.IBlock): Promise<void> {
-        await this.connection.saveBlock(block);
-    }
-
-    public async saveBlocks(blocks: Interfaces.IBlock[]): Promise<void> {
-        await this.connection.saveBlocks(blocks);
-    }
-
     public async saveRound(activeDelegates: Contracts.State.Wallet[]): Promise<void> {
         this.logger.info(`Saving round ${activeDelegates[0].getAttribute("delegate.round").toLocaleString()}`);
 
-        await this.connection.roundsRepository.insert(activeDelegates);
+        await this.roundRepository.save(activeDelegates);
 
         this.emitter.dispatch(Enums.StateEvent.RoundCreated, activeDelegates);
+    }
+
+    public async deleteRound(round: number): Promise<void> {
+        await this.roundRepository.delete({ round });
     }
 
     public async verifyBlockchain(): Promise<boolean> {
@@ -489,7 +468,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         if (!lastBlock) {
             errors.push("Last block is not available");
         } else {
-            const numberOfBlocks: number = await this.connection.blocksRepository.count();
+            const numberOfBlocks: number = await this.blockRepository.count();
 
             // Last block height equals the number of stored blocks
             if (lastBlock.data.height !== +numberOfBlocks) {
@@ -501,16 +480,16 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
 
         const blockStats: {
             numberOfTransactions: number;
-            totalFee: Utils.BigNumber;
-            totalAmount: Utils.BigNumber;
+            totalFee: string;
+            totalAmount: string;
             count: number;
-        } = await this.connection.blocksRepository.statistics();
+        } = await this.blockRepository.getStatistics();
 
         const transactionStats: {
             count: number;
-            totalFee: Utils.BigNumber;
-            totalAmount: Utils.BigNumber;
-        } = await this.connection.transactionsRepository.statistics();
+            totalFee: string;
+            totalAmount: string;
+        } = await this.transactionRepository.getStatistics();
 
         // Number of stored transactions equals the sum of block.numberOfTransactions in the database
         if (blockStats.numberOfTransactions !== transactionStats.count) {
@@ -543,29 +522,30 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         return !hasErrors;
     }
 
-    public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
-        const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
+    // TODO: move to somewhere else
+    // public async verifyTransaction(transaction: Interfaces.ITransaction): Promise<boolean> {
+    //     const senderId: string = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
 
-        const sender: Contracts.State.Wallet = this.walletRepository.findByAddress(senderId);
-        const transactionHandler: Handlers.TransactionHandler = await this.app
-            .get<any>("transactionHandlerRegistry")
-            .get(transaction.type, transaction.typeGroup);
+    //     const sender: Contracts.State.Wallet = this.walletRepository.findByAddress(senderId);
+    //     const transactionHandler: Handlers.TransactionHandler = await this.app
+    //         .get<any>(Container.Identifiers.TransactionHandlerRegistry)
+    //         .get(transaction.type, transaction.typeGroup);
 
-        if (!sender.publicKey) {
-            sender.publicKey = transaction.data.senderPublicKey;
+    //     if (!sender.publicKey) {
+    //         sender.publicKey = transaction.data.senderPublicKey;
 
-            this.walletRepository.reindex(sender);
-        }
+    //         this.walletRepository.reindex(sender);
+    //     }
 
-        const dbTransaction = await this.getTransaction(transaction.data.id);
+    //     const dbTransaction = await this.getTransaction(transaction.data.id);
 
-        try {
-            await transactionHandler.throwIfCannotBeApplied(transaction, sender, this.walletRepository);
-            return !dbTransaction;
-        } catch {
-            return false;
-        }
-    }
+    //     try {
+    //         await transactionHandler.throwIfCannotBeApplied(transaction, sender, this.walletRepository);
+    //         return !dbTransaction;
+    //     } catch {
+    //         return false;
+    //     }
+    // }
 
     private detectMissedBlocks(block: Interfaces.IBlock) {
         const lastBlock: Interfaces.IBlock = this.app.get<any>(Container.Identifiers.StateStore).getLastBlock();
@@ -577,10 +557,10 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
         const lastSlot: number = Crypto.Slots.getSlotNumber(lastBlock.data.timestamp);
         const currentSlot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
 
-        const missedSlots: number = Math.min(currentSlot - lastSlot - 1, this.forgingDelegates.length);
+        const missedSlots: number = Math.min(currentSlot - lastSlot - 1, this.forgingDelegates!.length);
         for (let i = 0; i < missedSlots; i++) {
             const missedSlot: number = lastSlot + i + 1;
-            const delegate: Contracts.State.Wallet = this.forgingDelegates[missedSlot % this.forgingDelegates.length];
+            const delegate: Contracts.State.Wallet = this.forgingDelegates![missedSlot % this.forgingDelegates!.length];
 
             this.logger.debug(
                 `Delegate ${delegate.getAttribute("delegate.username")} (${delegate.publicKey}) just missed a block.`,
@@ -593,18 +573,18 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     }
 
     private async initializeLastBlock(): Promise<void> {
-        let lastBlock: Interfaces.IBlock;
+        let lastBlock: Interfaces.IBlock | undefined;
         let tries = 5;
 
-        const getLastBlock = async (): Promise<Interfaces.IBlock> => {
+        const getLastBlock = async (): Promise<Interfaces.IBlock | undefined> => {
             try {
                 return await this.getLastBlock();
             } catch (error) {
                 this.logger.error(error.message);
 
                 if (tries > 0) {
-                    const block: Interfaces.IBlockData = await this.connection.blocksRepository.latest();
-                    await this.deleteBlocks([block]);
+                    const block: Interfaces.IBlockData = (await this.blockRepository.findLatest())!;
+                    await this.blockRepository.deleteBlocks([block]);
                     tries--;
                 } else {
                     this.app.terminate("Unable to deserialize last block from database.", error);
@@ -662,8 +642,8 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             return [];
         }
 
-        const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id);
-        return this.connection.transactionsRepository.latestByBlocks(ids);
+        const ids: string[] = blocks.map((block: Interfaces.IBlockData) => block.id!);
+        return this.transactionRepository.findByBlockIds(ids);
     }
 
     private async createGenesisBlock(): Promise<Interfaces.IBlock> {
@@ -671,7 +651,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getGenesisBlock();
 
-        await this.saveBlock(genesisBlock);
+        await this.blockRepository.saveBlocks([genesisBlock]);
 
         return genesisBlock;
     }
@@ -701,7 +681,7 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
             );
 
             if (producedBlocks.length === 0) {
-                const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegate.publicKey);
+                const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(delegate.publicKey!);
 
                 this.logger.debug(
                     `Delegate ${wallet.getAttribute("delegate.username")} (${wallet.publicKey}) just missed a round.`,
@@ -735,31 +715,15 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     ): Promise<Contracts.State.Wallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
-        const tempWalletRepository = this.walletRepository.clone();
-
-        const tempBlockState = this.app.resolve<BlockState>(BlockState).init(tempWalletRepository);
-        const tempWalletState = this.app.resolve<Wallets.WalletState>(Wallets.WalletState).init(tempWalletRepository);
-
-        // Revert all blocks in reverse order
-        const index: number = blocks.length - 1;
-
-        let height = 0;
-        for (let i = index; i >= 0; i--) {
-            height = blocks[i].data.height;
-
-            if (height === 1) {
-                break;
-            }
-
-            await tempBlockState.revertBlock(blocks[i]);
-        }
-
-        const delegates: Contracts.State.Wallet[] = tempWalletState.loadActiveDelegateList(roundInfo);
+        const tempWalletRepository: Contracts.State.TempWalletRepository = this.walletRepository.clone();
+        const delegates: Contracts.State.Wallet[] = await tempWalletRepository.getActiveDelegatesOfPreviousRound(
+            blocks,
+            roundInfo,
+        );
 
         for (const delegate of tempWalletRepository.allByUsername()) {
-            this.walletRepository
-                .findByUsername(delegate.getAttribute("delegate.username"))
-                .setAttribute("delegate.rank", delegate.getAttribute("delegate.rank"));
+            const delegateWallet = this.walletRepository.findByUsername(delegate.getAttribute("delegate.username"));
+            delegateWallet.setAttribute("delegate.rank", delegate.getAttribute("delegate.rank"));
         }
 
         return delegates;
@@ -768,9 +732,21 @@ export class DatabaseService implements Contracts.Database.DatabaseService {
     private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {
         this.emitter.dispatch(Enums.StateEvent.TransactionApplied, transaction.data);
 
-        (await this.app.get<any>("transactionHandlerRegistry").get(transaction.type, transaction.typeGroup)).emitEvents(
-            transaction,
-            this.emitter,
-        );
+        (
+            await this.app
+                .get<any>(Container.Identifiers.TransactionHandlerRegistry)
+                .get(transaction.type, transaction.typeGroup)
+        ).emitEvents(transaction, this.emitter);
+    }
+
+    public async disconnect(): Promise<void> {
+        this.logger.debug("Disconnecting from database");
+
+        this.emitter.dispatch(DatabaseEvent.PRE_DISCONNECT);
+
+        await this.connection.close();
+
+        this.emitter.dispatch(DatabaseEvent.POST_DISCONNECT);
+        this.logger.debug("Disconnected from database");
     }
 }

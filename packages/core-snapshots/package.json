@@ -22,7 +22,7 @@
     },
     "dependencies": {
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
-        "@arkecosystem/core-database-postgres": "^3.0.0-next.0",
+        "@arkecosystem/core-database": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "JSONStream": "^1.3.5",
         "fs-extra": "^8.1.0",

@@ -2,19 +2,16 @@
     "core": {
         "plugins": [
             {
-                "package": "@arkecosystem/core-transactions"
-            },
-            {
                 "package": "@arkecosystem/core-state"
-            },
-            {
-                "package": "@arkecosystem/core-magistrate-transactions"
             },
             {
                 "package": "@arkecosystem/core-database"
             },
             {
-                "package": "@arkecosystem/core-database-postgres"
+                "package": "@arkecosystem/core-transactions"
+            },
+            {
+                "package": "@arkecosystem/core-magistrate-transactions"
             },
             {
                 "package": "@arkecosystem/core-transaction-pool"
@@ -39,19 +36,16 @@
     "relay": {
         "plugins": [
             {
-                "package": "@arkecosystem/core-transactions"
-            },
-            {
                 "package": "@arkecosystem/core-state"
-            },
-            {
-                "package": "@arkecosystem/core-magistrate-transactions"
             },
             {
                 "package": "@arkecosystem/core-database"
             },
             {
-                "package": "@arkecosystem/core-database-postgres"
+                "package": "@arkecosystem/core-transactions"
+            },
+            {
+                "package": "@arkecosystem/core-magistrate-transactions"
             },
             {
                 "package": "@arkecosystem/core-transaction-pool"

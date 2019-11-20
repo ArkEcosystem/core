@@ -1,6 +1,6 @@
-import { Parameters } from "../business-repository";
+import { QueryParameters } from "./query-parameters";
 import { SearchParameters } from "./search-parameters";
 
 export interface SearchParameterConverter {
-    convert(params: Parameters, orderBy?: any, paginate?: any): SearchParameters;
+    convert(params: QueryParameters, orderBy?: any, paginate?: any): SearchParameters;
 }

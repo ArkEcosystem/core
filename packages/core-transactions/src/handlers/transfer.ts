@@ -20,15 +20,10 @@ export class TransferTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getReceivedTransactions();
-
+    public async bootstrap(): Promise<void> {
+        const transactions = await this.transactionRepository.findReceivedTransactions();
         for (const transaction of transactions) {
-            const wallet: Contracts.State.Wallet = walletRepository.findByAddress(transaction.recipientId);
-
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.recipientId);
             wallet.balance = wallet.balance.plus(transaction.amount);
         }
     }
@@ -40,9 +35,9 @@ export class TransferTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        return super.throwIfCannotBeApplied(transaction, sender, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
     }
 
     public hasVendorField(): boolean {
@@ -74,8 +69,10 @@ export class TransferTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         Utils.assert.defined<string>(transaction.data.recipientId);
 
         const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);
@@ -85,8 +82,10 @@ export class TransferTransactionHandler extends TransactionHandler {
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         Utils.assert.defined<string>(transaction.data.recipientId);
 
         const recipient: Contracts.State.Wallet = walletRepository.findByAddress(transaction.data.recipientId);

@@ -23,7 +23,7 @@ export class TransactionHandlerRegistry {
      * @type {Contracts.Kernel.Application}
      * @memberof Server
      */
-    // @Container.inject(Container.Identifiers.Application)
+    @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
     private readonly registeredTransactionHandlers: Map<
@@ -31,10 +31,7 @@ export class TransactionHandlerRegistry {
         TransactionHandler
     > = new Map();
 
-    // todo: we should avoid the use of constructors for initialisation as inversify uses it for injection
-    public constructor(@Container.inject(Container.Identifiers.Application) app: Contracts.Kernel.Application) {
-        this.app = app;
-
+    public init(): void {
         this.registerTransactionHandler(TransferTransactionHandler);
         this.registerTransactionHandler(SecondSignatureTransactionHandler);
         this.registerTransactionHandler(DelegateRegistrationTransactionHandler);

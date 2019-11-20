@@ -1,3 +1,4 @@
+import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
@@ -31,8 +32,8 @@ export class BlockProcessor {
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    protected readonly transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
     protected readonly transactionPool!: Contracts.TransactionPool.Connection;
@@ -80,12 +81,9 @@ export class BlockProcessor {
             try {
                 for (const transaction of block.transactions) {
                     const handler: Handlers.TransactionHandler = await this.app
-                        .get<any>("transactionHandlerRegistry")
+                        .get<any>(Container.Identifiers.TransactionHandlerRegistry)
                         .get(transaction.type, transaction.typeGroup);
-                    await handler.verify(
-                        transaction,
-                        this.app.get<any>(Container.Identifiers.DatabaseService).walletRepository,
-                    );
+                    await handler.verify(transaction);
                 }
 
                 block.verification = block.verify();
@@ -113,7 +111,7 @@ export class BlockProcessor {
 
     private async checkBlockContainsForgedTransactions(block: Interfaces.IBlock): Promise<boolean> {
         if (block.transactions.length > 0) {
-            const forgedIds: string[] = await this.database.getForgedTransactionsIds(
+            const forgedIds: string[] = await this.transactionRepository.getForgedTransactionsIds(
                 block.transactions.map(tx => {
                     AppUtils.assert.defined<string>(tx.id);
 

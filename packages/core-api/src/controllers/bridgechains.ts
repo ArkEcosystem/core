@@ -7,11 +7,11 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class BridgechainController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.WalletRepository)
+    protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const bridgechains = this.databaseService.wallets.search(Contracts.Database.SearchScope.Bridgechains, {
+        const bridgechains = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
             ...request.query,
             ...this.paginate(request),
         });
@@ -20,7 +20,7 @@ export class BridgechainController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const bridgechain = this.databaseService.wallets.search(Contracts.Database.SearchScope.Bridgechains, {
+        const bridgechain = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
             bridgechainId: request.params.id,
         }).rows[0];
 
@@ -32,7 +32,7 @@ export class BridgechainController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const bridgechains = this.databaseService.wallets.search(Contracts.Database.SearchScope.Bridgechains, {
+        const bridgechains = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
             ...request.payload,
             ...request.query,
             ...this.paginate(request),

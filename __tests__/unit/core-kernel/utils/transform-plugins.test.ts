@@ -16,9 +16,6 @@ describe("transformPlugins", () => {
             },
             {
                 package: "@arkecosystem/core-database",
-            },
-            {
-                package: "@arkecosystem/core-database-postgres",
                 options: {
                     connection: {
                         host: process.env.CORE_DB_HOST || "localhost",

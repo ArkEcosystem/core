@@ -14,11 +14,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .inSingletonScope();
 
         this.app
-            .bind("transactionHandlerRegistry")
+            .bind(Container.Identifiers.TransactionHandlerRegistry)
             .to(TransactionHandlerRegistry)
             .inSingletonScope();
 
-        // this.app.get<TransactionHandlerRegistry>("transactionHandlerRegistry").init();
+        this.app.get<TransactionHandlerRegistry>(Container.Identifiers.TransactionHandlerRegistry).init();
     }
 
     /**

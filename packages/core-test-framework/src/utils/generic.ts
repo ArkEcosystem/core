@@ -20,9 +20,7 @@ export const getLastHeight = (app: Contracts.Kernel.Application): number =>
     app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
 
 export const getSenderNonce = (app: Contracts.Kernel.Application, senderPublicKey: string): Utils.BigNumber =>
-    app
-        .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-        .walletRepository.getNonce(senderPublicKey);
+    app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository).getNonce(senderPublicKey);
 
 export const resetBlockchain = async (app: Contracts.Kernel.Application) => {
     // Resets everything so that it can be used in beforeAll to start clean a test suite
@@ -42,9 +40,7 @@ export const resetBlockchain = async (app: Contracts.Kernel.Application) => {
 
 export const getWalletNonce = (app: Contracts.Kernel.Application, publicKey: string): Utils.BigNumber => {
     try {
-        return app
-            .get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-            .walletRepository.getNonce(publicKey);
+        return app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository).getNonce(publicKey);
     } catch {
         return Utils.BigNumber.ZERO;
     }

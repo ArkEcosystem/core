@@ -14,6 +14,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
         Utils.assert.defined<number>(maxTransactionAge);
 
         this.app
+            .bind(Container.Identifiers.TransactionPoolWalletRepository)
+            .to(PoolWalletRepository)
+            .inSingletonScope();
+
+        this.app
             .bind(Container.Identifiers.TransactionPoolService)
             .to(Connection)
             .inSingletonScope();
@@ -22,7 +27,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
         // todo: clean this up, too many params that can be replaced with IoC
         this.app.get<Connection>(Container.Identifiers.TransactionPoolService).init({
             options: this.config().all(),
-            walletRepository: this.app.resolve(PoolWalletRepository),
             memory: this.app.resolve(Memory).init(maxTransactionAge),
             storage: new Storage(),
         });

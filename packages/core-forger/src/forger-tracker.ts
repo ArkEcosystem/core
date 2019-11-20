@@ -1,3 +1,4 @@
+import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Identities, Managers } from "@arkecosystem/crypto";
 
@@ -13,10 +14,13 @@ export class ForgerTracker {
     private readonly blockchainService!: Contracts.Blockchain.Blockchain;
 
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    protected readonly databaseService!: DatabaseService;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
     protected readonly transactionPoolService!: Contracts.TransactionPool.Connection;
+
+    @Container.inject(Container.Identifiers.WalletRepository)
+    protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async execute(): Promise<void> {
         const configuredDelegates: string[] | undefined = this.configRepository.get("delegates.secrets");
@@ -86,6 +90,6 @@ export class ForgerTracker {
     }
 
     private getUsername(publicKey: string): string {
-        return this.databaseService.walletRepository.findByPublicKey(publicKey).getAttribute("delegate.username");
+        return this.walletRepository.findByPublicKey(publicKey).getAttribute("delegate.username");
     }
 }

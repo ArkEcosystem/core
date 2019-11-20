@@ -1,3 +1,4 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
@@ -20,28 +21,17 @@ export class IpfsTransactionHandler extends TransactionHandler {
         return ["ipfs", "ipfs.hashes"];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
-
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
-
-            for (const transaction of transactions) {
-                Utils.assert.defined<string>(transaction.senderPublicKey);
-
-                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-
-                if (!wallet.hasAttribute("ipfs")) {
-                    wallet.setAttribute("ipfs", { hashes: {} });
-                }
-
-                Utils.assert.defined<string>(transaction.asset.ipfs);
-
-                wallet.getAttribute("ipfs.hashes", {})[transaction.asset.ipfs] = true;
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
+        for (const transaction of transactions) {
+            const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
+            if (!wallet.hasAttribute("ipfs")) {
+                wallet.setAttribute("ipfs", { hashes: {} });
             }
+
+            const ipfsHashes: Contracts.State.WalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
+            ipfsHashes[transaction.asset.ipfs!] = true;
         }
     }
 
@@ -52,14 +42,14 @@ export class IpfsTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         // TODO implement unique ipfs hash on blockchain (not just on wallet)
         // if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
         //     throw new IpfsHashAlreadyExists();
         // }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
     public async canEnterTransactionPool(
@@ -72,9 +62,11 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletRepository);
+        await super.applyToSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -93,15 +85,17 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletRepository);
+        await super.revertForSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        Utils.assert.defined<string>(transaction.data.asset?.ipfs);
+        Utils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.ipfs);
 
         delete sender.getAttribute("ipfs.hashes", {})[transaction.data.asset.ipfs];
 
@@ -110,11 +104,11 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }

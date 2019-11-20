@@ -1,3 +1,4 @@
+import { DatabaseService, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import async from "async";
@@ -32,7 +33,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     // todo: make this private, only protected because of replay
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database!: Contracts.Database.DatabaseService;
+    protected readonly database!: DatabaseService;
+
+    @Container.inject(Container.Identifiers.BlockRepository)
+    private readonly blockRepository!: Repositories.BlockRepository;
 
     // todo: make this private, only protected because of replay
     @Container.inject(Container.Identifiers.TransactionPoolService)
@@ -352,7 +356,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         await __removeBlocks(nblocks);
 
-        await this.database.deleteBlocks(removedBlocks);
+        await this.blockRepository.deleteBlocks(removedBlocks);
 
         this.queue.resume();
     }
@@ -375,7 +379,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         );
 
         try {
-            await this.database.deleteBlocks(blocks);
+            await this.blockRepository.deleteBlocks(blocks);
             await this.database.loadBlocksFromCurrentRound();
         } catch (error) {
             this.app.log.error(`Encountered error while removing blocks: ${error.message}`);
@@ -412,7 +416,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         if (acceptedBlocks.length > 0) {
             try {
-                await this.database.saveBlocks(acceptedBlocks);
+                await this.blockRepository.saveBlocks(acceptedBlocks);
             } catch (error) {
                 this.app.log.error(`Could not save ${acceptedBlocks.length} blocks to database : ${error.stack}`);
 
@@ -434,7 +438,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                 );
 
                 for (const block of acceptedBlocks.reverse()) {
-                    await this.database.blockState.revertBlock(block);
+                    await this.database.revertBlock(block);
                 }
 
                 this.state.setLastBlock(lastBlock);

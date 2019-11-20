@@ -1,5 +1,8 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
+import { QueryParameters } from "../database/search";
+import { RoundInfo } from "../shared";
+
 export interface WalletIndex {
     readonly indexer: WalletIndexer;
     index(wallet: Wallet): void;
@@ -90,6 +93,9 @@ export interface WalletIpfsAttributes {
 }
 
 export interface WalletRepository {
+    // TODO: use a inversify factory for wallets instead?
+    createWallet(address: string): Wallet;
+
     reset(): void;
 
     registerIndex(name: string, indexer: WalletIndexer): void;
@@ -126,7 +132,7 @@ export interface WalletRepository {
 
     reindex(wallet: Wallet): void;
 
-    clone(): WalletRepository;
+    clone(): TempWalletRepository;
 
     forgetByAddress(address: string): void;
 
@@ -141,4 +147,57 @@ export interface WalletRepository {
     hasByPublicKey(publicKey: string): boolean;
 
     hasByUsername(username: string): boolean;
+
+    search<T>(scope: SearchScope, params: QueryParameters): RowsPaginated<T>;
+
+    findByScope(searchScope: SearchScope, id: string): Wallet;
+
+    count(searchScope: SearchScope): number;
+
+    top(searchScope: SearchScope, params?: Record<string, any>): RowsPaginated<Wallet>;
+}
+
+export interface TempWalletRepository extends WalletRepository {
+    getActiveDelegatesOfPreviousRound(blocks: Interfaces.IBlock[], roundInfo: RoundInfo): Promise<Wallet[]>;
+}
+
+export interface WalletState {
+    init(walletRepository: WalletRepository): WalletState;
+
+    loadActiveDelegateList(roundInfo: RoundInfo): Wallet[];
+
+    buildVoteBalances(): void;
+
+    buildDelegateRanking(roundInfo?: RoundInfo): Wallet[];
+}
+
+export enum SearchScope {
+    Wallets,
+    Delegates,
+    Locks,
+    Businesses,
+    Bridgechains,
+}
+
+export interface RowsPaginated<T> {
+    rows: ReadonlyArray<T>;
+    count: number;
+}
+
+export interface SearchContext<T = any> {
+    query: Record<string, string[]>;
+    entries: ReadonlyArray<T>;
+    defaultOrder: string[];
+}
+
+export interface UnwrappedHtlcLock {
+    lockId: string;
+    senderPublicKey: string;
+    amount: Utils.BigNumber;
+    recipientId: string;
+    secretHash: string;
+    timestamp: number;
+    expirationType: number;
+    expirationValue: number;
+    vendorField: string;
 }

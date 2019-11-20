@@ -3,6 +3,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 // todo: review the implementation
+// @ts-ignore
 export class MemoryDatabaseService extends DatabaseService {
     public constructor(public walletRepository: Contracts.State.WalletRepository) {
         // @ts-ignore
@@ -16,7 +17,7 @@ export class MemoryDatabaseService extends DatabaseService {
     }
 
     public async saveRound(activeDelegates: Contracts.State.Wallet[]): Promise<void> {
-        this.logger.info(`Saving round ${activeDelegates[0].getAttribute("delegate.round").toLocaleString()}`);
+        // this.logger.info(`Saving round ${activeDelegates[0].getAttribute("delegate.round").toLocaleString()}`);
     }
 
     public async deleteRound(round: number): Promise<void> {

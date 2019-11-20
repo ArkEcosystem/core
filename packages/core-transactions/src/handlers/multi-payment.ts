@@ -1,3 +1,4 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
@@ -19,26 +20,15 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
-
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
-            for (const transaction of transactions) {
-                const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-
-                AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.asset.payments);
-
-                const payments: Interfaces.IMultiPaymentItem[] = transaction.asset.payments;
-                for (const payment of payments) {
-                    const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
-
-                    recipient.balance = recipient.balance.plus(payment.amount);
-                    sender.balance = sender.balance.minus(payment.amount);
-                }
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
+        for (const transaction of transactions) {
+            const sender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
+            for (const payment of transaction.asset.payments!) {
+                const recipient: Contracts.State.Wallet = this.walletRepository.findByAddress(payment.recipientId);
+                recipient.balance = recipient.balance.plus(payment.amount);
+                sender.balance = sender.balance.minus(payment.amount);
             }
         }
     }
@@ -50,7 +40,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
 
@@ -66,7 +56,7 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
             throw new InsufficientBalanceError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
     public async canEnterTransactionPool(
@@ -79,15 +69,18 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletRepository);
+        await super.applyToSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
 
-        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
-
-        const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
+        const totalPaymentsAmount = transaction.data.asset.payments.reduce(
+            (a, p) => a.plus(p.amount),
+            Utils.BigNumber.ZERO,
+        );
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -98,15 +91,18 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletRepository);
+        await super.revertForSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
 
-        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
-
-        const totalPaymentsAmount = payments.reduce((a, p) => a.plus(p.amount), Utils.BigNumber.ZERO);
+        const totalPaymentsAmount = transaction.data.asset.payments.reduce(
+            (a, p) => a.plus(p.amount),
+            Utils.BigNumber.ZERO,
+        );
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -117,13 +113,13 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
 
-        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
-
-        for (const payment of payments) {
+        for (const payment of transaction.data.asset.payments) {
             const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
 
             recipient.balance = recipient.balance.plus(payment.amount);
@@ -132,13 +128,13 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         AppUtils.assert.defined<Interfaces.IMultiPaymentItem[]>(transaction.data.asset?.payments);
 
-        const payments: Interfaces.IMultiPaymentItem[] = transaction.data.asset.payments;
-
-        for (const payment of payments) {
+        for (const payment of transaction.data.asset.payments) {
             const recipient: Contracts.State.Wallet = walletRepository.findByAddress(payment.recipientId);
 
             recipient.balance = recipient.balance.minus(payment.amount);

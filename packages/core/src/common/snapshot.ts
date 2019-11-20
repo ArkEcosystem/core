@@ -10,11 +10,7 @@ export const setUpLite = async (flags): Promise<Contracts.Kernel.Application> =>
     createApplication({
         flags,
         plugins: {
-            include: [
-                "@arkecosystem/core-state",
-                "@arkecosystem/core-database-postgres",
-                "@arkecosystem/core-snapshots",
-            ],
+            include: ["@arkecosystem/core-state", "@arkecosystem/core-database", "@arkecosystem/core-snapshots"],
         },
     });
 

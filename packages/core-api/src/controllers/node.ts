@@ -1,3 +1,4 @@
+import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Services, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
@@ -16,11 +17,11 @@ export class NodeController extends Controller {
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
-
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     protected readonly networkMonitor!: Contracts.P2P.INetworkMonitor;
+
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    protected readonly transactionRepository!: Repositories.TransactionRepository;
 
     public async status(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const lastBlock = this.blockchain.getLastBlock();
@@ -90,7 +91,7 @@ export class NodeController extends Controller {
 
     public async fees(request: Hapi.Request) {
         // @ts-ignore
-        const results = await this.databaseService.transactionsBusinessRepository.getFeeStatistics(request.query.days);
+        const results = await this.transactionRepository.getFeeStatistics(request.query.days);
 
         return { meta: { days: request.query.days }, data: results };
     }

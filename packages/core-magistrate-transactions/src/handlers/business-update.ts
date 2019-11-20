@@ -1,3 +1,4 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
@@ -29,35 +30,29 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         return !!Managers.configManager.getMilestone().aip11;
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
 
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
+        for (const transaction of transactions) {
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
 
-            for (const transaction of transactions) {
-                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
+            const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = wallet.getAttribute<
+                IBusinessWalletAttributes
+            >("business").businessAsset;
+            const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.asset.businessUpdate;
 
-                const businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = wallet.getAttribute<
-                    IBusinessWalletAttributes
-                >("business").businessAsset;
-                const businessUpdate: MagistrateInterfaces.IBusinessUpdateAsset = transaction.asset.businessUpdate;
-
-                wallet.setAttribute("business.businessAsset", {
-                    ...businessWalletAsset,
-                    ...businessUpdate,
-                });
-            }
+            wallet.setAttribute("business.businessAsset", {
+                ...businessWalletAsset,
+                ...businessUpdate,
+            });
         }
     }
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (!wallet.hasAttribute("business")) {
             throw new BusinessIsNotRegisteredError();
@@ -67,7 +62,7 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             throw new BusinessIsResignedError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
@@ -84,9 +79,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletRepository);
+        await super.applyToSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -108,9 +105,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletRepository);
+        await super.revertForSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -120,19 +119,13 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
             IBusinessWalletAttributes
         >("business").businessAsset;
 
-        const connection: Contracts.Database.Connection = this.app.get<Contracts.Database.Connection>(
-            Container.Identifiers.DatabaseService,
-        );
-        let reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
-        const updateTransactions: Contracts.Database.IBootstrapTransaction[] = [];
-        while (reader.hasNext()) {
-            updateTransactions.push(...(await reader.read()));
-        }
+        let reader: TransactionReader = this.getTransactionReader();
+        const updateTransactions: Models.Transaction[] = await reader.read();
 
         if (updateTransactions.length > 0) {
-            const updateTransaction: Contracts.Database.IBootstrapTransaction | undefined = updateTransactions.pop();
+            const updateTransaction: Models.Transaction | undefined = updateTransactions.pop();
 
-            Utils.assert.defined<Contracts.Database.IBootstrapTransaction>(updateTransaction);
+            Utils.assert.defined<Models.Transaction>(updateTransaction);
 
             const previousUpdate: MagistrateInterfaces.IBusinessUpdateAsset = updateTransaction.asset.businessUpdate;
 
@@ -141,17 +134,15 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
                 ...previousUpdate,
             };
         } else {
-            reader = await TransactionReader.create(connection, MagistrateTransactions.BusinessRegistrationTransaction);
-            const registerTransactions: Contracts.Database.IBootstrapTransaction[] = [];
-            while (reader.hasNext()) {
-                registerTransactions.push(...(await reader.read()));
-            }
+            reader = this.app
+                .resolve<TransactionReader>(TransactionReader)
+                .init(MagistrateTransactions.BusinessRegistrationTransaction);
 
-            const registerTransaction:
-                | Contracts.Database.IBootstrapTransaction
-                | undefined = registerTransactions.pop();
+            const registerTransactions: Models.Transaction[] = await reader.read();
 
-            Utils.assert.defined<Contracts.Database.IBootstrapTransaction>(registerTransaction);
+            const registerTransaction: Models.Transaction | undefined = registerTransactions.pop();
+
+            Utils.assert.defined<Models.Transaction>(registerTransaction);
 
             const previousRegistration: MagistrateInterfaces.IBusinessRegistrationAsset =
                 registerTransaction.asset.businessRegistration;
@@ -167,13 +158,13 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 }

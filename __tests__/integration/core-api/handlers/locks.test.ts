@@ -5,6 +5,7 @@ import { Crypto, Identities, Interfaces, Managers, Utils } from "@arkecosystem/c
 import { ApiHelpers, TransactionFactory } from "@arkecosystem/core-test-framework";
 
 import { setUp, tearDown } from "../__support__/setup";
+import { Repositories } from "@arkecosystem/core-database";
 
 let app: Contracts.Kernel.Application;
 let api: ApiHelpers;
@@ -17,28 +18,19 @@ beforeAll(async () => {
 afterAll(async () => await tearDown());
 
 describe("API 2.0 - Locks", () => {
-    let wallets;
     let lockIds;
     let walletManager;
 
     beforeEach(() => {
-        walletManager = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-            .walletRepository;
+        walletManager = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
         walletManager.reset();
-
-        wallets = [
-            walletManager.findByAddress(Identities.Address.fromPassphrase("1")),
-            walletManager.findByAddress(Identities.Address.fromPassphrase("2")),
-            walletManager.findByAddress(Identities.Address.fromPassphrase("3")),
-            walletManager.findByAddress(Identities.Address.fromPassphrase("4")),
-            walletManager.findByAddress(Identities.Address.fromPassphrase("5")),
-            walletManager.findByAddress(Identities.Address.fromPassphrase("6")),
-        ];
 
         lockIds = [];
 
-        for (let i = 0; i < wallets.length; i++) {
-            const wallet = wallets[i];
+        for (let i = 1; i < 7; i++) {
+            const wallet = walletManager.findByAddress(Identities.Address.fromPassphrase(`${i}`));
+            wallet.publicKey = Identities.PublicKey.fromPassphrase(`${i}`);
+
             const transactions = Managers.configManager.get("genesisBlock").transactions.slice(i * 10, i * 10 + i + 1);
 
             const locks = {};
@@ -59,9 +51,9 @@ describe("API 2.0 - Locks", () => {
             }
 
             wallet.setAttribute("htlc.locks", locks);
-        }
 
-        walletManager.index(wallets);
+            walletManager.reindex(wallet);
+        }
     });
 
     describe("GET /locks", () => {
@@ -235,11 +227,11 @@ describe("API 2.0 - Locks", () => {
                 })
                 .build()[0];
 
-            const databaseService = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+            const transactionRepository = app.get<Repositories.TransactionRepository>(
+                Container.Identifiers.TransactionRepository,
+            );
 
-            jest.spyOn(databaseService.transactionsBusinessRepository, "findByHtlcLocks").mockResolvedValueOnce([
-                refundTransaction as any,
-            ]);
+            jest.spyOn(transactionRepository, "findByHtlcLocks").mockResolvedValueOnce([refundTransaction as any]);
 
             const response = await api.request("POST", "locks/unlocked", {
                 ids: [lockIds[0]],

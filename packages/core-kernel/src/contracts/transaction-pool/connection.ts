@@ -9,8 +9,6 @@ export interface AddTransactionResponse {
 }
 
 export interface Connection {
-    walletRepository: any;
-
     makeProcessor(): Processor;
 
     make(): Promise<this>;

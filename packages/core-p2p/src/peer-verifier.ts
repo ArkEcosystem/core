@@ -1,3 +1,4 @@
+import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
@@ -27,7 +28,7 @@ export class PeerVerifier {
     private static readonly verifiedBlocks = new Utils.CappedSet();
 
     // todo: make use of ioc
-    private database!: Contracts.Database.DatabaseService;
+    private database!: DatabaseService;
     private logger!: Contracts.Kernel.Log.Logger;
     private logPrefix!: string;
 
@@ -45,7 +46,7 @@ export class PeerVerifier {
     public init(communicator: PeerCommunicator, peer: Contracts.P2P.Peer) {
         this.communicator = communicator;
         this.peer = peer;
-        this.database = this.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
+        this.database = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
         this.logger = this.app.log;
 
         this.logPrefix = `Peer verify ${peer.ip}:`;
@@ -404,6 +405,7 @@ export class PeerVerifier {
             // only after it has completed). So fetch the list of delegates from the wallet
             // manager.
 
+            // @ts-ignore
             delegates = this.database.walletState.loadActiveDelegateList(roundInfo);
             assert.strictEqual(
                 delegates.length,

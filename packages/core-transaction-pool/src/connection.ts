@@ -1,3 +1,4 @@
+import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
@@ -20,37 +21,32 @@ export class Connection implements Contracts.TransactionPool.Connection {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.WalletRepository)
+    private readonly walletRepository!: Contracts.State.WalletRepository;
+
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    private readonly transactionRepository!: Repositories.TransactionRepository;
+
+    @Container.inject(Container.Identifiers.TransactionPoolWalletRepository)
+    private poolWalletRepository!: PoolWalletRepository;
+
     // @todo: make this private, requires some bigger changes to tests
     public options!: Record<string, any>;
-    // @todo: make this private, requires some bigger changes to tests
-    public walletRepository!: PoolWalletRepository;
+
     private memory!: Memory;
     private storage!: Storage;
     private loggedAllowedSenders!: string[];
 
-    private databaseService!: Contracts.Database.DatabaseService;
     private emitter!: Contracts.Kernel.Events.EventDispatcher;
     private logger!: Contracts.Kernel.Log.Logger;
 
-    init({
-        options,
-        walletRepository,
-        memory,
-        storage,
-    }: {
-        options: Record<string, any>;
-        walletRepository: PoolWalletRepository;
-        memory: Memory;
-        storage: Storage;
-    }) {
+    init({ options, memory, storage }: { options: Record<string, any>; memory: Memory; storage: Storage }) {
         this.options = options;
-        this.walletRepository = walletRepository;
         this.memory = memory;
         this.storage = storage;
 
         this.loggedAllowedSenders = [];
 
-        this.databaseService = this.app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService);
         this.emitter = this.app.get<Contracts.Kernel.Events.EventDispatcher>(
             Container.Identifiers.EventDispatcherService,
         );
@@ -68,17 +64,17 @@ export class Connection implements Contracts.TransactionPool.Connection {
             this.memory.remember(transaction, true);
         }
 
-        this.emitter.listenOnce("internal.stateBuilder.finished", async () => {
-            // Remove from the pool invalid entries found in `transactionsFromDisk`.
-            if (process.env.CORE_RESET_DATABASE) {
-                this.memory.flush();
-            } else {
-                await this.validateTransactions(transactionsFromDisk);
-                await this.purgeExpired();
-            }
+        this.poolWalletRepository.initialize();
 
-            this.syncToPersistentStorage();
-        });
+        // Remove from the pool invalid entries found in `transactionsFromDisk`.
+        if (process.env.CORE_RESET_DATABASE) {
+            this.memory.flush();
+        } else {
+            await this.validateTransactions(transactionsFromDisk);
+            await this.purgeExpired();
+        }
+
+        this.syncToPersistentStorage();
 
         this.emitter.listen("internal.milestone.changed", () => this.purgeInvalidTransactions());
 
@@ -246,38 +242,34 @@ export class Connection implements Contracts.TransactionPool.Connection {
             const senderPublicKey: string = data.senderPublicKey;
 
             const transactionHandler: Handlers.TransactionHandler = await this.app
-                .get<any>("transactionHandlerRegistry")
+                .get<any>(Container.Identifiers.TransactionHandlerRegistry)
                 .get(transaction.type, transaction.typeGroup);
 
-            const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(senderPublicKey);
+            const senderWallet: Contracts.State.Wallet = this.poolWalletRepository.findByPublicKey(senderPublicKey);
 
             let recipientWallet: Contracts.State.Wallet | undefined;
 
-            if (data.recipientId && this.walletRepository.hasByAddress(data.recipientId)) {
-                recipientWallet = this.walletRepository.findByAddress(data.recipientId);
+            if (data.recipientId && this.poolWalletRepository.hasByAddress(data.recipientId)) {
+                recipientWallet = this.poolWalletRepository.findByAddress(data.recipientId);
             }
 
             if (recipientWallet) {
-                await transactionHandler.applyToRecipient(transaction, this.walletRepository);
+                await transactionHandler.applyToRecipient(transaction, this.poolWalletRepository);
             }
 
             if (exists) {
                 this.removeTransaction(transaction);
             } else if (senderWallet) {
                 try {
-                    await transactionHandler.throwIfCannotBeApplied(
-                        transaction,
-                        senderWallet,
-                        this.databaseService.walletRepository,
-                    );
-                    await transactionHandler.applyToSender(transaction, this.walletRepository);
+                    await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.walletRepository);
+                    await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
                 } catch (error) {
-                    this.walletRepository.forget(senderPublicKey);
+                    this.poolWalletRepository.forget(senderPublicKey);
 
                     if (recipientWallet) {
                         recipientWallet.publicKey
-                            ? this.walletRepository.forget(recipientWallet.publicKey)
-                            : this.walletRepository.forgetByAddress(recipientWallet.address);
+                            ? this.poolWalletRepository.forget(recipientWallet.publicKey)
+                            : this.poolWalletRepository.forgetByAddress(recipientWallet.address);
                     }
 
                     this.logger.error(
@@ -290,13 +282,13 @@ export class Connection implements Contracts.TransactionPool.Connection {
             }
 
             if (senderWallet && senderWallet.canBePurged() && (await this.getSenderSize(senderPublicKey)) === 0) {
-                this.walletRepository.forget(senderPublicKey);
+                this.poolWalletRepository.forget(senderPublicKey);
             }
         }
 
         // if delegate in poll wallet manager - apply rewards and fees
-        if (this.walletRepository.hasByPublicKey(block.data.generatorPublicKey)) {
-            const delegateWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+        if (this.poolWalletRepository.hasByPublicKey(block.data.generatorPublicKey)) {
+            const delegateWallet: Contracts.State.Wallet = this.poolWalletRepository.findByPublicKey(
                 block.data.generatorPublicKey,
             );
 
@@ -307,7 +299,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     public async buildWallets(): Promise<void> {
-        this.walletRepository.reset();
+        this.poolWalletRepository.reset();
 
         const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
 
@@ -320,21 +312,17 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 return;
             }
 
-            const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+            const senderWallet: Contracts.State.Wallet = this.poolWalletRepository.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
 
             // TODO: rework error handling
             try {
                 const transactionHandler: Handlers.TransactionHandler = await this.app
-                    .get<any>("transactionHandlerRegistry")
+                    .get<any>(Container.Identifiers.TransactionHandlerRegistry)
                     .get(transaction.type, transaction.typeGroup);
-                await transactionHandler.throwIfCannotBeApplied(
-                    transaction,
-                    senderWallet,
-                    this.databaseService.walletRepository,
-                );
-                await transactionHandler.applyToSender(transaction, this.walletRepository);
+                await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.walletRepository);
+                await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
 
@@ -350,7 +338,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         this.removeTransactionsForSender(senderPublicKey);
 
-        this.walletRepository.forget(senderPublicKey);
+        this.poolWalletRepository.forget(senderPublicKey);
     }
 
     public async purgeInvalidTransactions(): Promise<void> {
@@ -393,8 +381,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         const tempWalletRepository: Wallets.TempWalletRepository = this.app
             .resolve<Wallets.TempWalletRepository>(Wallets.TempWalletRepository)
-            .setup(this.databaseService.walletRepository)
-            .init();
+            .setup(this.walletRepository);
 
         let i = 0;
         // Copy the returned array because validateTransactions() in the loop body we may remove entries.
@@ -461,7 +448,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             const lowestFee: Utils.BigNumber = lowest.data.fee;
 
             if (lowestFee.isLessThan(fee)) {
-                await this.walletRepository.revertTransactionForSender(lowest);
+                await this.poolWalletRepository.revertTransactionForSender(lowest);
                 this.memory.forget(lowest.id, lowest.data.senderPublicKey);
             } else {
                 return {
@@ -478,12 +465,12 @@ export class Connection implements Contracts.TransactionPool.Connection {
         this.memory.remember(transaction);
 
         try {
-            await this.walletRepository.throwIfCannotBeApplied(transaction);
+            await this.poolWalletRepository.throwIfCannotBeApplied(transaction);
 
             const handler: Handlers.TransactionHandler = await this.app
-                .get<any>("transactionHandlerRegistry")
+                .get<any>(Container.Identifiers.TransactionHandlerRegistry)
                 .get(transaction.type, transaction.typeGroup);
-            await handler.applyToSender(transaction, this.walletRepository);
+            await handler.applyToSender(transaction, this.poolWalletRepository);
         } catch (error) {
             this.logger.error(error.message);
 
@@ -526,8 +513,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         if (walletRepository === undefined) {
             walletRepository = this.app
                 .resolve<Wallets.TempWalletRepository>(Wallets.TempWalletRepository)
-                .setup(this.databaseService.walletRepository)
-                .init();
+                .setup(this.walletRepository);
         }
 
         for (const transaction of unforgedTransactions) {
@@ -549,7 +535,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 }
 
                 const handler: Handlers.TransactionHandler = await this.app
-                    .get<any>("transactionHandlerRegistry")
+                    .get<any>(Container.Identifiers.TransactionHandlerRegistry)
                     .get(transaction.type, transaction.typeGroup);
 
                 await handler.applyToSender(transaction, walletRepository);
@@ -573,7 +559,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
-        const forgedIds: string[] = await this.databaseService.getForgedTransactionsIds(
+        const forgedIds: string[] = await this.transactionRepository.getForgedTransactionsIds(
             transactions.map(({ id }) => {
                 AppUtils.assert.defined<string>(id);
 
@@ -596,7 +582,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         const purge = async (transaction: Interfaces.ITransaction) => {
             this.emitter.dispatch(event, transaction.data);
 
-            await this.walletRepository.revertTransactionForSender(transaction);
+            await this.poolWalletRepository.revertTransactionForSender(transaction);
 
             AppUtils.assert.defined<Interfaces.ITransaction>(transaction.id);
 

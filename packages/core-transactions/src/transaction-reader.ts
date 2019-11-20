@@ -1,40 +1,33 @@
-import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Models, Repositories } from "@arkecosystem/core-database";
+import { Container, Utils } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
 
+// TODO: read in chunks? use cursor? typeorm
+// https://github.com/typeorm/typeorm/blob/master/docs/select-query-builder.md#streaming-result-data
+@Container.injectable()
 export class TransactionReader {
-    public static async create(
-        connection: Contracts.Database.Connection,
-        typeConstructor: Transactions.TransactionConstructor,
-    ): Promise<TransactionReader> {
-        const { type, typeGroup } = typeConstructor;
+    @Container.inject(Container.Identifiers.TransactionRepository)
+    private transactionRepository!: Repositories.TransactionRepository;
 
-        Utils.assert.defined<number>(type);
-        Utils.assert.defined<number>(typeGroup);
-
-        const reader: TransactionReader = new TransactionReader(connection, type, typeGroup);
-
-        await reader.init();
-
-        return reader;
-    }
+    private type!: number;
+    private typeGroup!: number;
+    private index: number = 0;
 
     public bufferSize: number = 1000000000;
 
-    private index: number = 0;
-    private count: number = 0;
+    public init(typeConstructor: Transactions.TransactionConstructor): TransactionReader {
+        Utils.assert.defined<number>(typeConstructor.type);
+        Utils.assert.defined<number>(typeConstructor.typeGroup);
 
-    private constructor(
-        private connection: Contracts.Database.Connection,
-        private type: number,
-        private typeGroup: number,
-    ) {}
+        this.type = typeConstructor.type;
+        this.typeGroup = typeConstructor.typeGroup;
+        this.index = 0;
 
-    public hasNext(): boolean {
-        return this.index < this.count;
+        return this;
     }
 
-    public async read(): Promise<Contracts.Database.IBootstrapTransaction[]> {
-        const transactions = await this.connection.transactionsRepository.getAssetsByType(
+    public async read(): Promise<Models.Transaction[]> {
+        const transactions = await this.transactionRepository.findByType(
             this.type,
             this.typeGroup,
             this.bufferSize,
@@ -42,10 +35,5 @@ export class TransactionReader {
         );
         this.index += transactions.length;
         return transactions;
-    }
-
-    private async init(): Promise<void> {
-        this.index = 0;
-        this.count = await this.connection.transactionsRepository.getCountOfType(this.type, this.typeGroup);
     }
 }

@@ -151,8 +151,7 @@ describe("API 2.0 - Wallets", () => {
         let lockIds;
 
         beforeAll(() => {
-            walletManager = app.get<Contracts.Database.DatabaseService>(Container.Identifiers.DatabaseService)
-                .walletRepository;
+            walletManager = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
 
             wallets = [
                 walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("1")),
@@ -344,22 +343,22 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should POST a search for wallets with the exact specified voteBalance", async () => {
-            const wr: Contracts.State.WalletRepository = app.get<Contracts.Database.DatabaseService>(
-                Container.Identifiers.DatabaseService,
-            ).walletRepository;
+            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+            );
 
             // Make sure all vote balances are at 0
-            const delegates = wr.allByUsername();
+            const delegates = walletRepository.allByUsername();
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
-                wr.reindex(delegate);
+                walletRepository.reindex(delegate);
             }
 
             // Give 2 delegates a vote weight
-            const delegate1 = wr.findByUsername("genesis_1");
+            const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.voteBalance", Utils.BigNumber.make(balance));
-            wr.reindex(delegate1);
+            walletRepository.reindex(delegate1);
 
             const response = await api.request("POST", "wallets/search", {
                 address,

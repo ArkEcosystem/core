@@ -1,3 +1,4 @@
+import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
@@ -7,11 +8,14 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class DelegatesController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.BlockRepository)
+    protected readonly blockRepository!: Repositories.BlockRepository;
+
+    @Container.inject(Container.Identifiers.WalletRepository)
+    protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const delegates = this.databaseService.wallets.search(Contracts.Database.SearchScope.Delegates, {
+        const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
             ...request.query,
             ...this.paginate(request),
         });
@@ -30,7 +34,7 @@ export class DelegatesController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const delegates = this.databaseService.wallets.search(Contracts.Database.SearchScope.Delegates, {
+        const delegates = this.walletRepository.search(Contracts.State.SearchScope.Delegates, {
             ...request.payload,
             ...request.query,
             ...this.paginate(request),
@@ -46,10 +50,15 @@ export class DelegatesController extends Controller {
             return delegate;
         }
 
-        const rows = await this.databaseService.blocksBusinessRepository.findAllByGenerator(
-            delegate.publicKey!,
-            this.paginate(request),
-        );
+        const rows = await this.blockRepository.search({
+            criteria: [
+                {
+                    field: "generatorPublicKey",
+                    operator: Repositories.Search.SearchOperator.Equal,
+                    value: delegate.publicKey!,
+                },
+            ],
+        });
 
         return this.toPagination(rows, BlockResource, request.query.transform);
     }
@@ -61,7 +70,7 @@ export class DelegatesController extends Controller {
             return delegate;
         }
 
-        const wallets = this.databaseService.wallets.search(Contracts.Database.SearchScope.Wallets, {
+        const wallets = this.walletRepository.search(Contracts.State.SearchScope.Wallets, {
             ...request.query,
             ...{ vote: delegate.publicKey },
             ...this.paginate(request),
@@ -74,7 +83,7 @@ export class DelegatesController extends Controller {
         let wallet: Contracts.State.Wallet | undefined;
 
         try {
-            wallet = this.databaseService.wallets.findById(Contracts.Database.SearchScope.Wallets, id);
+            wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
         } catch (error) {
             return Boom.notFound("Delegate not found");
         }

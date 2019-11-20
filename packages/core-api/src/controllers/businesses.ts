@@ -7,11 +7,11 @@ import { Controller } from "./controller";
 
 @Container.injectable()
 export class BusinessController extends Controller {
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: Contracts.Database.DatabaseService;
+    @Container.inject(Container.Identifiers.WalletRepository)
+    protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const businesses = this.databaseService.wallets.search(Contracts.Database.SearchScope.Businesses, {
+        const businesses = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
             ...request.query,
             ...this.paginate(request),
         });
@@ -20,7 +20,7 @@ export class BusinessController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const business = this.databaseService.wallets.search(Contracts.Database.SearchScope.Businesses, {
+        const business = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
             businessId: request.params.id,
         }).rows[0];
 
@@ -32,7 +32,7 @@ export class BusinessController extends Controller {
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const businesses = this.databaseService.wallets.search(Contracts.Database.SearchScope.Businesses, {
+        const businesses = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
             ...request.payload,
             ...request.query,
             ...this.paginate(request),

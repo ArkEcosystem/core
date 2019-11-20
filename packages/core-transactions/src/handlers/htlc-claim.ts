@@ -20,15 +20,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         return [];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const transactions = await connection.transactionsRepository.getClaimedHtlcLocks();
-
+    public async bootstrap(): Promise<void> {
+        const transactions = await this.transactionRepository.getClaimedHtlcLockBalances();
         for (const transaction of transactions) {
-            const claimWallet: Contracts.State.Wallet = walletRepository.findByAddress(transaction.recipientId);
-
+            const claimWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.recipientId);
             claimWallet.balance = claimWallet.balance.plus(transaction.amount);
         }
     }
@@ -49,16 +44,18 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await this.performGenericWalletChecks(transaction, sender, databaseWalletRepository);
+        await this.performGenericWalletChecks(transaction, sender, customWalletRepository);
 
         // Specific HTLC claim checks
-        AppUtils.assert.defined<Interfaces.IHtlcClaimAsset>(transaction.data.asset?.claim);
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
+        AppUtils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.claim);
 
         const claimAsset: Interfaces.IHtlcClaimAsset = transaction.data.asset.claim;
         const lockId: string = claimAsset.lockTransactionId;
-        const lockWallet: Contracts.State.Wallet = databaseWalletRepository.findByIndex(
+        const lockWallet: Contracts.State.Wallet = walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -95,10 +92,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const lockId: string = data.asset.claim.lockTransactionId;
 
-        const databaseService: Contracts.Database.DatabaseService = this.app.get<Contracts.Database.DatabaseService>(
-            Container.Identifiers.DatabaseService,
-        );
-        const lockWallet: Contracts.State.Wallet = databaseService.walletRepository.findByIndex(
+        const lockWallet: Contracts.State.Wallet = this.walletRepository.findByIndex(
             Contracts.State.WalletIndexes.Locks,
             lockId,
         );
@@ -131,8 +125,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
@@ -143,7 +139,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             this.app.log.warning(`Transaction forcibly applied as an exception: ${transaction.id}.`);
         }
 
-        await this.throwIfCannotBeApplied(transaction, sender, walletRepository);
+        await this.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
 
         sender.verifyTransactionNonceApply(transaction);
 
@@ -192,8 +188,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
@@ -204,17 +202,12 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         sender.nonce = sender.nonce.minus(1);
 
-        // TODO: not so good to call database from here, would need a better way
-        const databaseService: Contracts.Database.DatabaseService = this.app.get<Contracts.Database.DatabaseService>(
-            Container.Identifiers.DatabaseService,
-        );
-
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
         AppUtils.assert.defined<string>(data.asset?.claim?.lockTransactionId);
 
         const lockId: string = data.asset.claim.lockTransactionId;
-        const lockTransaction: Interfaces.ITransactionData = await databaseService.transactionsBusinessRepository.findById(
-            lockId,
-        );
+        // @ts-ignore - Type 'Transaction' is not assignable to type 'ITransactionData'.
+        const lockTransaction: Interfaces.ITransactionData = (await this.transactionRepository.findByIds([lockId]))[0];
 
         AppUtils.assert.defined<Interfaces.ITransactionData>(lockTransaction.recipientId);
 
@@ -231,7 +224,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
 
-        locks[lockTransaction.id!] = {
+        AppUtils.assert.defined<string>(lockTransaction.id);
+
+        locks[lockTransaction.id] = {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
@@ -246,11 +241,11 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {}
 }

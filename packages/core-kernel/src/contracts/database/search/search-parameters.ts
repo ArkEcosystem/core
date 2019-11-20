@@ -17,7 +17,7 @@ export interface SearchParameter {
 
 export interface SearchOrderBy {
     field: string;
-    direction: "asc" | "desc";
+    direction: "ASC" | "DESC";
 }
 
 export interface SearchPaginate {

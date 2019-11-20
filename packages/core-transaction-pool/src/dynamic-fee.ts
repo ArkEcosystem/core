@@ -27,7 +27,7 @@ export const dynamicFeeMatcher = async (
 
     if (dynamicFees.enabled) {
         const handler: Handlers.TransactionHandler = await app
-            .get<any>("transactionHandlerRegistry")
+            .get<any>(Container.Identifiers.TransactionHandlerRegistry)
             .get(transaction.type, transaction.typeGroup);
 
         const addonBytes: number = dynamicFees.addonBytes[transaction.key];

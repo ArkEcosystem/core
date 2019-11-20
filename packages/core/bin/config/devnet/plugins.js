@@ -1,15 +1,19 @@
 module.exports = {
     "@arkecosystem/core-state": {},
-    "@arkecosystem/core-magistrate-transactions": {},
-    "@arkecosystem/core-database-postgres": {
+    "@arkecosystem/core-database": {
         connection: {
+            type: "postgres",
             host: process.env.CORE_DB_HOST || "localhost",
             port: process.env.CORE_DB_PORT || 5432,
             database: process.env.CORE_DB_DATABASE || `${process.env.CORE_TOKEN}_${process.env.CORE_NETWORK_NAME}`,
-            user: process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN,
+            username: process.env.CORE_DB_USERNAME || process.env.CORE_TOKEN,
             password: process.env.CORE_DB_PASSWORD || "password",
+            entityPrefix: "public.",
+            synchronize: false,
+            logging: true,
         },
     },
+    "@arkecosystem/core-magistrate-transactions": {},
     "@arkecosystem/core-transaction-pool": {
         enabled: !process.env.CORE_TRANSACTION_POOL_DISABLED,
         maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 300,

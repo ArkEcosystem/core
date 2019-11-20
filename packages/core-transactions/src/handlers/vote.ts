@@ -1,3 +1,4 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
@@ -28,41 +29,26 @@ export class VoteTransactionHandler extends TransactionHandler {
         return ["vote"];
     }
 
-    public async bootstrap(
-        connection: Contracts.Database.Connection,
-        walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
+        for (const transaction of transactions) {
+            const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
+            const vote = transaction.asset.votes![0];
+            const hasVoted: boolean = wallet.hasAttribute("vote");
 
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
-
-            for (const transaction of transactions) {
-                const wallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.senderPublicKey);
-
-                Utils.assert.defined<string[]>(transaction.asset.votes);
-
-                const vote: string = transaction.asset.votes[0];
-
-                let walletVote: string | undefined;
-
-                if (wallet.hasAttribute("vote")) {
-                    walletVote = wallet.getAttribute("vote");
+            if (vote.startsWith("+")) {
+                if (hasVoted) {
+                    throw new AlreadyVotedError();
                 }
-
-                if (vote.startsWith("+")) {
-                    if (walletVote) {
-                        throw new AlreadyVotedError();
-                    }
-                    wallet.setAttribute("vote", vote.slice(1));
-                } else {
-                    if (!walletVote) {
-                        throw new NoVoteError();
-                    } else if (walletVote !== vote.slice(1)) {
-                        throw new UnvoteMismatchError();
-                    }
-                    wallet.forgetAttribute("vote");
+                wallet.setAttribute("vote", vote.slice(1));
+            } else {
+                if (!hasVoted) {
+                    throw new NoVoteError();
+                } else if (wallet.getAttribute("vote") !== vote.slice(1)) {
+                    throw new UnvoteMismatchError();
                 }
+                wallet.forgetAttribute("vote");
             }
         }
     }
@@ -74,7 +60,7 @@ export class VoteTransactionHandler extends TransactionHandler {
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
-        databaseWalletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         Utils.assert.defined<string[]>(transaction.data.asset?.votes);
 
@@ -98,8 +84,9 @@ export class VoteTransactionHandler extends TransactionHandler {
             }
         }
 
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
         const delegatePublicKey: string = vote.slice(1);
-        const delegateWallet: Contracts.State.Wallet = databaseWalletRepository.findByPublicKey(delegatePublicKey);
+        const delegateWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(delegatePublicKey);
 
         if (!delegateWallet.isDelegate()) {
             throw new VotedForNonDelegateError(vote);
@@ -109,7 +96,7 @@ export class VoteTransactionHandler extends TransactionHandler {
             throw new VotedForResignedDelegateError(vote);
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, databaseWalletRepository);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
@@ -137,9 +124,11 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletRepository);
+        await super.applyToSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -158,17 +147,19 @@ export class VoteTransactionHandler extends TransactionHandler {
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletRepository: Contracts.State.WalletRepository,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletRepository);
+        await super.revertForSender(transaction, customWalletRepository);
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        Utils.assert.defined<string[]>(transaction.data.asset?.votes);
+        Utils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.votes);
 
-        const vote: string = transaction.data.asset.votes[0];
+        const vote: string = transaction.data.asset?.votes[0];
 
         if (vote.startsWith("+")) {
             sender.forgetAttribute("vote");
