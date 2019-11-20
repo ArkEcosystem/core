@@ -16,8 +16,7 @@ export class BridgechainUpdateBuilder extends Transactions.TransactionBuilder<Br
 
     public bridgechainUpdateAsset(bridgechainUpdateAsset: IBridgechainUpdateAsset): BridgechainUpdateBuilder {
         this.data.asset.bridgechainUpdate = {
-            bridgechainId: bridgechainUpdateAsset.bridgechainId,
-            seedNodes: bridgechainUpdateAsset.seedNodes,
+            ...bridgechainUpdateAsset,
         };
         return this;
     }

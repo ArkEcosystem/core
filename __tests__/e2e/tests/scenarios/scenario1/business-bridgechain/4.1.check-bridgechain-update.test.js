@@ -14,5 +14,6 @@ describe("Check that the bridgechain was updated", () => {
         expect(bridgechains[0].seedNodes).toEqual(utils.bridgechainUpdateAsset.seedNodes);
         expect(bridgechains[0].bridgechainRepository).toBe(utils.bridgechainRegistrationAsset.bridgechainRepository);
         expect(bridgechains[0].genesisHash).toBe(utils.bridgechainRegistrationAsset.genesisHash);
+        expect(bridgechains[0].ports).toEqual(utils.bridgechainUpdateAsset.ports);
     });
 });

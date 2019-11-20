@@ -43,8 +43,9 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
                     "business",
                 );
 
-                const { bridgechainId, seedNodes } = transaction.asset.bridgechainUpdate;
+                const { bridgechainId, seedNodes, ports } = transaction.asset.bridgechainUpdate;
                 businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
+                businessAttributes.bridgechains[bridgechainId].bridgechainAsset.ports = ports;
 
                 walletManager.reindex(wallet);
             }
@@ -134,7 +135,14 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
-        bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
+
+        if (bridgechainUpdate.seedNodes) {
+            bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
+        }
+
+        if (bridgechainUpdate.ports) {
+            bridgechainAttributes.bridgechainAsset.ports = bridgechainUpdate.ports;
+        }
 
         walletManager.reindex(wallet);
     }
@@ -159,9 +167,10 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
         if (updateTransactions.length > 1) {
             const updateTransaction: Database.IBootstrapTransaction = updateTransactions.pop();
-            const { bridgechainId, seedNodes } = updateTransaction.asset.bridgechainUpdate;
+            const { bridgechainId, seedNodes, ports } = updateTransaction.asset.bridgechainUpdate;
             const bridgechainAttributes: IBridgechainWalletAttributes = businessAttributes.bridgechains[bridgechainId];
             bridgechainAttributes.bridgechainAsset.seedNodes = seedNodes;
+            bridgechainAttributes.bridgechainAsset.ports = ports;
         } else {
             // There are equally many bridgechain registrations as bridgechains a wallet posseses in the database.
             // By getting the index of the bridgechainId we can use it as an offset to get
@@ -198,6 +207,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
             const bridgechainAttributes: IBridgechainWalletAttributes = businessAttributes.bridgechains[bridgechainId];
             bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainRegistration.seedNodes;
+            bridgechainAttributes.bridgechainAsset.ports = bridgechainRegistration.ports;
         }
 
         walletManager.reindex(sender);

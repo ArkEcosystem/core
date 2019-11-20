@@ -24,6 +24,7 @@ describe("Bridgechain update builder", () => {
                 .bridgechainUpdateAsset({
                     bridgechainId: genesisHash,
                     seedNodes: ["192.168.1.0", "131.107.0.89"],
+                    ports: { "@arkecosystem/core-api": 12345 },
                 })
                 .sign("passphrase");
             expect(actual.build().verified).toBeTrue();
