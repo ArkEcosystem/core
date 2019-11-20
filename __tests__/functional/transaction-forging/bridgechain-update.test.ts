@@ -14,6 +14,7 @@ describe("Transaction Forging - Bridgechain update", () => {
             seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
             genesisHash: "e629fa6598d732768f7c726b4b621285f9c3b85303900aa912017db7617d8bdb",
             bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+            ports: { "@arkecosystem/core-api": 12345 },
         };
 
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
@@ -42,6 +43,7 @@ describe("Transaction Forging - Bridgechain update", () => {
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
                 bridgechainId: bridgechainRegistrationAsset.genesisHash,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
+                ports: { "@arkecosystem/core-api": 54321 },
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -83,7 +85,9 @@ describe("Transaction Forging - Bridgechain update", () => {
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             };
+
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration(bridgechainRegistrationAsset2)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -157,7 +161,9 @@ describe("Transaction Forging - Bridgechain update", () => {
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "4523540f1504cd17100c4835e85b7eefd49911580f8efff0599a8f283be6b9e3",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             };
+
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration(bridgechainRegistrationAsset)
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -242,7 +248,9 @@ describe("Transaction Forging - Bridgechain update", () => {
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "4ec9599fc203d176a301536c2e091a19bc852759b255bd6818810a42c5fed14a",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             };
+
             const bridgechainRegistration = TransactionFactory.bridgechainRegistration(bridgechainRegistrationAsset)
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
@@ -256,6 +264,7 @@ describe("Transaction Forging - Bridgechain update", () => {
             const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
                 bridgechainId: bridgechainRegistrationAsset.genesisHash,
                 seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
+                ports: { "@arkecosystem/core-api": 54321 },
             })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)

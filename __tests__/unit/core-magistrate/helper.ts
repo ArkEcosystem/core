@@ -3,6 +3,7 @@ import "jest-extended";
 import { Interfaces } from "@arkecosystem/crypto";
 import {
     IBridgechainRegistrationAsset,
+    IBridgechainUpdateAsset,
     IBusinessRegistrationAsset,
     IBusinessUpdateAsset,
 } from "../../../packages/core-magistrate-crypto/src/interfaces";
@@ -65,6 +66,7 @@ export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     seedNodes: ["74.125.224.71", "74.125.224.72", "64.233.173.193", "2001:4860:4860::8888", "2001:4860:4860::8844"],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+    ports: { "@arkecosystem/core-api": 12345 },
 };
 
 export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {
@@ -72,6 +74,7 @@ export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {
     seedNodes: ["131.107.0.89"],
     genesisHash: "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+    ports: { "@arkecosystem/core-api": 12345 },
 };
 
 export const bridgechainRegistrationAssetBad: IBridgechainRegistrationAsset = {
@@ -87,4 +90,12 @@ export const bridgechainRegistrationAssetBad: IBridgechainRegistrationAsset = {
     ],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
     bridgechainRepository: "arkecosystem1.com/repo",
+    ports: { "@arkecosystem/core-api": 12345 },
+};
+
+// Birdgechain update assets
+export const bridgechainUpdateAsset1: IBridgechainUpdateAsset = {
+    bridgechainId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+    seedNodes: ["1.1.1.1", "2.2.2.2"],
+    ports: { "@arkecosystem/core-api": 12345 },
 };
