@@ -71,6 +71,12 @@ afterAll(() => {
     jest.setTimeout(5000);
 });
 
+describe("Server initialization", () => {
+    it("should init the server with correct maxPayload value", async () => {
+        expect(server.options.maxPayload).toBe(2097152 + 1024); // unitnet milestones maxPayload + 1024 margin
+    });
+});
+
 describe("Peer socket endpoint", () => {
     describe("socket endpoints", () => {
         it("should getPeers", async () => {

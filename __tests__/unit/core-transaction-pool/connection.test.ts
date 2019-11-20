@@ -17,6 +17,7 @@ import { Connection } from "../../../packages/core-transaction-pool/src/connecti
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
 import { Storage } from "../../../packages/core-transaction-pool/src/storage";
+import { getMaxTransactionBytes } from "../../../packages/core-transaction-pool/src/utils";
 import { WalletManager } from "../../../packages/core-transaction-pool/src/wallet-manager";
 import { BlockFactory, TransactionFactory } from "../../helpers";
 import { delegates } from "../../utils/fixtures/unitnet";
@@ -524,7 +525,7 @@ describe("Connection", () => {
 
             // @FIXME: Uhm excuse me, what the?
             largeTransactions[0].data.signatures = largeTransactions[1].data.signatures = [""];
-            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+            for (let i = 0; i < getMaxTransactionBytes() * 0.6; i++) {
                 // @ts-ignore
                 largeTransactions[0].data.signatures += "1";
                 // @ts-ignore
@@ -606,7 +607,7 @@ describe("Connection", () => {
 
             // @FIXME: Uhm excuse me, what the?
             largeTransactions[0].data.signatures = largeTransactions[1].data.signatures = [""];
-            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+            for (let i = 0; i < getMaxTransactionBytes() * 0.6; i++) {
                 // @ts-ignore
                 largeTransactions[0].data.signatures += "1";
                 // @ts-ignore
