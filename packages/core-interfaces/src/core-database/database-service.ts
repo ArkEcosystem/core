@@ -38,7 +38,7 @@ export interface IDatabaseService {
 
     verifyBlockchain(): Promise<boolean>;
 
-    getActiveDelegates(roundInfo: IRoundInfo, delegates?: IWallet[]): Promise<IWallet[]>;
+    getActiveDelegates(roundInfo?: IRoundInfo, delegates?: IWallet[]): Promise<IWallet[]>;
 
     restoreCurrentRound(height: number): Promise<void>;
 
