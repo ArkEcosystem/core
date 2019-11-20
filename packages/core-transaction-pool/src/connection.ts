@@ -11,6 +11,7 @@ import { ITransactionsProcessed } from "./interfaces";
 import { Memory } from "./memory";
 import { Processor } from "./processor";
 import { Storage } from "./storage";
+import { getMaxTransactionBytes } from "./utils";
 import { WalletManager } from "./wallet-manager";
 
 export class Connection implements TransactionPool.IConnection {
@@ -148,13 +149,13 @@ export class Connection implements TransactionPool.IConnection {
     }
 
     public async getTransactionsForForging(blockSize: number): Promise<string[]> {
-        return (await this.getValidatedTransactions(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
+        return (await this.getValidatedTransactions(0, blockSize, getMaxTransactionBytes())).map(transaction =>
             transaction.serialized.toString("hex"),
         );
     }
 
     public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
-        return (await this.getValidatedTransactions(start, size, this.options.maxTransactionBytes)).map(
+        return (await this.getValidatedTransactions(start, size, getMaxTransactionBytes())).map(
             (transaction: Interfaces.ITransaction) => transaction.id,
         );
     }
@@ -173,7 +174,7 @@ export class Connection implements TransactionPool.IConnection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                    `(listed in options.allowedSenders), thus skipping throttling.`,
+                        `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -244,7 +245,7 @@ export class Connection implements TransactionPool.IConnection {
 
                     this.logger.error(
                         `[Pool] Cannot apply transaction ${transaction.id} when trying to accept ` +
-                        `block ${block.data.id}: ${error.message}`,
+                            `block ${block.data.id}: ${error.message}`,
                     );
 
                     continue;
@@ -422,7 +423,7 @@ export class Connection implements TransactionPool.IConnection {
         if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                `in the pool, id: ${transaction.id}`,
+                    `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };

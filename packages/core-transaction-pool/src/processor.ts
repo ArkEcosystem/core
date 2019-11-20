@@ -6,6 +6,7 @@ import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactio
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { IDynamicFeeMatch, ITransactionsCached, ITransactionsProcessed } from "./interfaces";
+import { getMaxTransactionBytes } from "./utils";
 
 /**
  * @TODO: this class has too many responsibilities at the moment.
@@ -94,7 +95,7 @@ export class Processor implements TransactionPool.IProcessor {
     }
 
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
-        const { maxTransactionBytes } = app.resolveOptions("transaction-pool");
+        const maxTransactionBytes: number = getMaxTransactionBytes();
 
         for (const transaction of transactions) {
             const exists: boolean = await this.pool.has(transaction.id);
