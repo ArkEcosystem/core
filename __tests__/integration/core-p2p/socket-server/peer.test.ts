@@ -4,6 +4,7 @@ import "../mocks/core-container";
 import { defaults } from "../mocks/p2p-options";
 
 import { Managers } from "@arkecosystem/crypto/src";
+import unitnetMilestones from "@arkecosystem/crypto/src/networks/unitnet/milestones.json";
 import delay from "delay";
 import SocketCluster from "socketcluster";
 import socketCluster from "socketcluster-client";
@@ -73,7 +74,7 @@ afterAll(() => {
 
 describe("Server initialization", () => {
     it("should init the server with correct maxPayload value", async () => {
-        expect(server.options.maxPayload).toBe(2097152 + 1024); // unitnet milestones maxPayload + 1024 margin
+        expect(server.options.maxPayload).toBe(unitnetMilestones[0].block.maxPayload + 1024); // unitnet milestones maxPayload + 1024 margin
     });
 });
 
