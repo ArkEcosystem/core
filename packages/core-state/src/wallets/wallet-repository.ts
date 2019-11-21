@@ -459,7 +459,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["lockId", "asc"],
         };
     }
 
