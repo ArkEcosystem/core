@@ -100,6 +100,30 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
+        const { bridgechainId }: { bridgechainId: number } = data.asset!.bridgechainUpdate;
+
+        const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
+            await pool.getTransactionsByType(
+                Enums.MagistrateTransactionType.BridgechainUpdate,
+                Enums.MagistrateTransactionGroup,
+            ),
+        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+
+        if (
+            bridgechainUpdatesInPool.some(
+                update =>
+                    update.senderPublicKey === data.senderPublicKey &&
+                    update.asset!.bridgechainUpdate.bridgechainId === bridgechainId,
+            )
+        ) {
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
+            );
+            return false;
+        }
+
         return true;
     }
 
@@ -227,11 +251,11 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

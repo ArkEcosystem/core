@@ -3,6 +3,7 @@ import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
+    Enums,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
@@ -74,6 +75,22 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
+        if (
+            await pool.senderHasTransactionsOfType(
+                data.senderPublicKey!,
+                Enums.MagistrateTransactionType.BusinessUpdate,
+                Enums.MagistrateTransactionGroup,
+            )
+        ) {
+            const wallet: Contracts.State.Wallet = (pool as any).poolWalletManager.findByPublicKey(data.senderPublicKey);
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Business update for "${wallet.getAttribute("business")}" already in the pool`,
+            );
+            return false
+        }
+
         return true;
     }
 
@@ -160,11 +177,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

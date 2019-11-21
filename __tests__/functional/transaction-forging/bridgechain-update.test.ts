@@ -44,7 +44,7 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainRegistration.id).toBeForged();
 
             // Updating a bridgechain
-            let bridgechainUpdate = TransactionFactory.init(app)
+            const bridgechainUpdate = TransactionFactory.init(app)
                 .bridgechainUpdate({
                     bridgechainId: Utils.BigNumber.ONE,
                     seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -64,9 +64,11 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainResignation).toBeAccepted();
             await snoozeForBlock(1);
             await expect(bridgechainResignation.id).toBeForged();
+        });
 
+        it("should reject bridgechain update, because bridgechain resigned [Signed with 1 Passphrase]", async () => {
             // Updating a bridgechain after resignation
-            bridgechainUpdate = TransactionFactory.init(app)
+            const bridgechainUpdate = TransactionFactory.init(app)
                 .bridgechainUpdate({
                     bridgechainId: Utils.BigNumber.ONE,
                     seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
@@ -77,6 +79,43 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainUpdate).toBeRejected();
             await snoozeForBlock(1);
             await expect(bridgechainUpdate.id).not.toBeForged();
+        });
+
+
+        it("should reject bridgechain update, because bridgechain update for same bridgechain is already in the pool [Signed with 1 Passphrase]", async () => {
+            // Registering a bridgechain
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+                name: "cryptoProject2",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                bridgechainRepository: "somerepository",
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(bridgechainRegistration).toBeAccepted();
+            await snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).toBeForged();
+
+            const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
+                bridgechainId: 3,
+                seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            const bridgechainUpdate2 = TransactionFactory.bridgechainUpdate({
+                bridgechainId: 3,
+                seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
+            })
+                .withPassphrase(secrets[0])
+                .withNonce(bridgechainUpdate.nonce.plus(1))
+                .createOne();
+
+            await expect([bridgechainUpdate, bridgechainUpdate2]).not.toBeAllAccepted();
+            await snoozeForBlock(1);
+            await expect(bridgechainUpdate.id).toBeForged();
+            await expect(bridgechainUpdate2.id).not.toBeForged();
         });
     });
 

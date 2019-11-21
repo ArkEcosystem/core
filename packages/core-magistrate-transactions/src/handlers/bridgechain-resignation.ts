@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Transactions as MagistrateTransactions, Enums } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
@@ -102,15 +102,27 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            // @ts-ignore
-            const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(data.senderPublicKey);
+        (pool as any).poolWalletManager.findByPublicKey(data.senderPublicKey);
+        const { bridgechainId }: { bridgechainId: number } = data.asset!.bridgechainResignation;
 
+        const bridgechainResignationsInPool: Interfaces.ITransactionData[] = Array.from(
+            await pool.getTransactionsByType(
+                Enums.MagistrateTransactionType.BridgechainResignation,
+                Enums.MagistrateTransactionGroup,
+            ),
+        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+
+        if (
+            bridgechainResignationsInPool.some(
+                resignation =>
+                    resignation.senderPublicKey === data.senderPublicKey &&
+                    resignation.asset!.bridgechainResignation.bridgechainId === bridgechainId,
+            )
+        ) {
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Bridgechain resignation for "${wallet.getAttribute("business")}" already in the pool`,
-            );
+                `Bridgechain resignation for bridgechainId "${bridgechainId}" already in the pool`);
 
             return false;
         }

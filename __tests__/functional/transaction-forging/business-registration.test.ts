@@ -8,8 +8,6 @@ import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framewor
 import secrets from "@packages/core-test-framework/src/internal/secrets.json";
 import * as support from "./__support__";
 
-const { passphrase } = support.passphrases;
-
 let app: Contracts.Kernel.Application;
 beforeAll(async () => (app = await support.setUp()));
 afterAll(async () => await support.tearDown());
@@ -17,23 +15,13 @@ afterAll(async () => await support.tearDown());
 describe("Transaction Forging - Business registration", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
-            // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
-                .transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
-                .withPassphrase(secrets[0])
-                .createOne();
-
-            await expect(initialFunds).toBeAccepted();
-            await snoozeForBlock(1);
-            await expect(initialFunds.id).toBeForged();
-
             // Registering a business
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
                     website: "ark.io",
                 })
-                .withPassphrase(passphrase)
+                .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
@@ -48,7 +36,7 @@ describe("Transaction Forging - Business registration", () => {
                     name: "ark",
                     website: "ark.io",
                 })
-                .withPassphrase(passphrase)
+                .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessRegistration).toBeRejected();
@@ -62,7 +50,7 @@ describe("Transaction Forging - Business registration", () => {
                 name: "\u0000ark",
                 website: "ark.io",
             })
-                .withPassphrase(passphrase)
+                .withPassphrase(secrets[1])
                 .createOne();
 
             await expect(businessRegistration).toBeRejected();
@@ -76,12 +64,37 @@ describe("Transaction Forging - Business registration", () => {
                 name: "ark+",
                 website: "ark.io",
             })
-                .withPassphrase(passphrase)
+                .withPassphrase(secrets[1])
                 .createOne();
 
             await expect(businessRegistration).toBeRejected();
             await snoozeForBlock(1);
             await expect(businessRegistration.id).not.toBeForged();
+        });
+
+
+        it("should be rejected, because business registration is already in the pool [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "ark.io",
+            })
+                .withPassphrase(secrets[1])
+                .createOne();
+
+            // Registering a business again
+            const businessRegistration2 = TransactionFactory.businessRegistration({
+                name: "ark2",
+                website: "ark.io",
+            })
+                .withPassphrase(secrets[1])
+                .withNonce(businessRegistration.nonce.plus(1))
+                .createOne();
+
+            await expect([businessRegistration, businessRegistration2]).not.toBeAllAccepted();
+            await snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
+            await expect(businessRegistration2.id).not.toBeForged();
         });
     });
 

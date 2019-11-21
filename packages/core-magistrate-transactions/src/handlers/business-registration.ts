@@ -3,6 +3,7 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
+    Enums,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
@@ -73,7 +74,13 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+        if (
+            await pool.senderHasTransactionsOfType(
+                data.senderPublicKey!,
+                Enums.MagistrateTransactionType.BusinessRegistration,
+                Enums.MagistrateTransactionGroup,
+            )
+        ) {
             // @ts-ignore
             const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(data.senderPublicKey);
 
@@ -132,13 +139,13 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     private getBusinessId(walletRepository: Contracts.State.WalletRepository): Utils.BigNumber {
         return Utils.BigNumber.make(walletRepository.getIndex(MagistrateIndex.Businesses).values().length).plus(1);

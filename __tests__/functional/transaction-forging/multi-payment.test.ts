@@ -72,7 +72,7 @@ describe("Transaction Forging - Multipayment", () => {
             .withFee(2 * 1e8)
             .create(200);
 
-        await expect(transactions).toBeAllAccepted();
+        await expect(transactions).toBeEachAccepted();
         await snoozeForBlock(70); // we need 7 blocks for the transactions to be forged (30 per block because of maxTransactionBytes)
 
         for (const transaction of transactions) {

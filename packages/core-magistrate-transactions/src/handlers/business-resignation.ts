@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Transactions as MagistrateTransactions, Enums } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
@@ -63,7 +63,13 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+        if (
+            await pool.senderHasTransactionsOfType(
+                data.senderPublicKey!,
+                Enums.MagistrateTransactionType.BusinessResignation,
+                Enums.MagistrateTransactionGroup,
+            )
+        ) {
             // @ts-ignore
             const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(data.senderPublicKey);
 
@@ -115,11 +121,11 @@ export class BusinessResignationTransactionHandler extends Handlers.TransactionH
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }
