@@ -1,6 +1,7 @@
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils, Providers } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
+import { process } from "ipaddr.js";
 
 import { Peer } from "../../peer";
 import { PeerService } from "../../types";
@@ -23,6 +24,20 @@ export const emitEvent = ({ app, req }: { app: Contracts.Kernel.Application; req
         req.data.event,
         req.data.body,
     );
+};
+
+export const isPeerOrForger = ({ app, service, req }: { app: Contracts.Kernel.Application; service: PeerService; req }): { isPeerOrForger: boolean } => {
+    const sanitizedIp = process(req.data.ip).toString();
+    return {
+        isPeerOrForger:
+            service.storage.hasPeer(sanitizedIp) ||
+            Utils.isWhitelisted(
+                app.get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                    .get("@arkecosystem/core-p2p")
+                    .config().all().remoteAccess as unknown as string[],
+                sanitizedIp
+            ),
+    };
 };
 
 export const getUnconfirmedTransactions = async ({

@@ -1,5 +1,12 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import SCWorker from "socketcluster/scworker";
+import Ajv from "ajv";
+import { cidr } from "ip";
+
+// TODO: needs `app` 
+//import { createSchemas } from "../schemas";
+
+const ajv = new Ajv();
 
 export class Worker extends SCWorker {
     private config: Record<string, any> = {};
@@ -10,7 +17,11 @@ export class Worker extends SCWorker {
         await this.loadConfiguration();
 
         // @ts-ignore
-        this.scServer.wsServer.on("connection", (ws, req) => this.handlePayload(ws, req));
+        this.scServer.wsServer.on("connection", (ws, req) => {
+            this.handlePayload(ws, req);
+            this.handlePing(ws, req);
+            this.handlePong(ws, req);
+        });
         this.scServer.on("connection", socket => this.handleConnection(socket));
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
             this.handleHandshake(req, next),
@@ -23,7 +34,25 @@ export class Worker extends SCWorker {
         this.config = data;
     }
 
+    private handlePing(ws, req) {
+        ws.on("ping", () => {
+            ws.terminate();
+        });
+    }
+
+    private handlePong(ws, req) {
+        ws.on("pong", () => {
+            ws.terminate();
+        });
+    }
+
     private handlePayload(ws, req) {
+        ws.on("ping", () => {
+            ws.terminate();
+        });
+        ws.on("pong", () => {
+            ws.terminate();
+        });
         ws.on("message", message => {
             try {
                 if (message === "#2") {
@@ -82,6 +111,15 @@ export class Worker extends SCWorker {
             return;
         }
 
+        const cidrRemoteAddress = cidr(`${req.socket.remoteAddress}/24`);
+        const sameSubnetSockets = Object.values({ ...this.scServer.clients, ...this.scServer.pendingClients }).filter(
+            client => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
+        );
+        if (sameSubnetSockets.length > this.config.maxSameSubnetPeers) {
+            req.socket.destroy();
+            return;
+        }
+
         next();
     }
 
@@ -113,7 +151,7 @@ export class Worker extends SCWorker {
         }
 
         try {
-            const [prefix, version] = req.event.split(".");
+            const [prefix, version, handler] = req.event.split(".");
 
             if (prefix !== "p2p") {
                 req.socket.terminate();
@@ -138,6 +176,24 @@ export class Worker extends SCWorker {
                     return;
                 }
             } else if (version === "peer") {
+                // @ts-ignore
+                const requestSchema = createSchemas.peer[handler];
+                if (false && ["postTransactions", "postBlock"].includes(handler)) {
+                    // has to be in the peer list to use the endpoint
+                    const {
+                        data: { isPeerOrForger },
+                    } = await this.sendToMasterAsync("p2p.internal.isPeerOrForger", {
+                        data: { ip: req.socket.remoteAddress },
+                    });
+                    if (!isPeerOrForger) {
+                        req.socket.terminate();
+                        return;
+                    }
+                } else if (requestSchema && !ajv.validate(requestSchema, req.data.data)) {
+                    req.socket.terminate();
+                    return;
+                }
+
                 this.sendToMasterAsync("p2p.internal.acceptNewPeer", {
                     data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
