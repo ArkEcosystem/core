@@ -32,9 +32,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                             additionalProperties: false,
                             properties: {
                                 name: {
-                                    type: "string",
-                                    minLength: 1,
-                                    maxLength: 40,
+                                    $ref: "genericName",
                                 },
                                 seedNodes: seedNodesSchema,
                                 genesisHash: {
@@ -81,10 +79,10 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         const buffer: ByteBuffer = new ByteBuffer(
             bridgechainName.length +
-                seedNodesBuffersLength +
-                bridgechainGenesisHash.length +
-                bridgechainRepository.length +
-                4,
+            seedNodesBuffersLength +
+            bridgechainGenesisHash.length +
+            bridgechainRepository.length +
+            4,
             true,
         );
 
