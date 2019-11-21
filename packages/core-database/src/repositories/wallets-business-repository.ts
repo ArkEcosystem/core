@@ -229,7 +229,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["publicKey", "vat"],
+            exact: ["isResigned", "publicKey", "vat"],
             like: ["name", "repository", "website"],
         };
 
@@ -260,7 +260,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["bridgechainId", "publicKey"],
+            exact: ["bridgechainId", "isResigned", "publicKey"],
             like: ["bridgechainRepository", "name"],
             every: ["seedNodes"],
         };

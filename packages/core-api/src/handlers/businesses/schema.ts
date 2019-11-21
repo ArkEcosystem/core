@@ -54,5 +54,6 @@ export const search: object = {
             .alphanum()
             .max(15),
         repository: Joi.string().max(80),
+        isResigned: Joi.bool(),
     },
 };
