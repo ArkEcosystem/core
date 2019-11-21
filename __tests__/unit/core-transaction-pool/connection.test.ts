@@ -607,7 +607,8 @@ describe("Connection", () => {
 
             // @FIXME: Uhm excuse me, what the?
             largeTransactions[0].data.signatures = largeTransactions[1].data.signatures = [""];
-            for (let i = 0; i < getMaxTransactionBytes() * 0.6; i++) {
+            const maxTransactionBytes = getMaxTransactionBytes();
+            for (let i = 0; i < maxTransactionBytes * 0.6; i++) {
                 // @ts-ignore
                 largeTransactions[0].data.signatures += "1";
                 // @ts-ignore
