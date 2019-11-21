@@ -26,7 +26,7 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
     }
 
     public walletAttributes(): ReadonlyArray<string> {
-        return ["business.bridgechians.bridgechian.resigned"];
+        return ["business.bridgechains.bridgechain.resigned"];
     }
 
     public async isActivated(): Promise<boolean> {
@@ -174,11 +174,11 @@ export class BridgechainResignationTransactionHandler extends Handlers.Transacti
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

@@ -7,7 +7,7 @@ import {
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
+import { BusinessIsResignedError, WalletIsNotBusinessError, BridgechainAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-indexes";
@@ -66,6 +66,18 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
         if (wallet.hasAttribute("business.resigned")) {
             throw new BusinessIsResignedError();
+        }
+
+        const { data }: Interfaces.ITransaction = transaction;
+        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
+
+        if (
+            bridgechains &&
+            Object.values(bridgechains).some(bridgechain => {
+                return bridgechain.bridgechainAsset.name === data!.asset!.bridgechainRegistration.name;
+            })
+        ) {
+            throw new BridgechainAlreadyRegisteredError();
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
@@ -148,13 +160,13 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     private getBridgechainId(walletRepository: Contracts.State.WalletRepository): Utils.BigNumber {
         return Utils.BigNumber.make(walletRepository.getIndex(MagistrateIndex.Bridgechains).values().length).plus(1);
