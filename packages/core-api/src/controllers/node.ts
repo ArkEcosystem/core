@@ -5,6 +5,7 @@ import Hapi from "@hapi/hapi";
 
 import { PortsResource } from "../resources";
 import { Controller } from "./controller";
+import { Handlers } from "@arkecosystem/core-transactions";
 
 @Container.injectable()
 export class NodeController extends Controller {
@@ -93,6 +94,22 @@ export class NodeController extends Controller {
         // @ts-ignore
         const results = await this.transactionRepository.getFeeStatistics(request.query.days);
 
-        return { meta: { days: request.query.days }, data: results };
+        const groupedByTypeGroup = {};
+        for (const result of results) {
+            if (!groupedByTypeGroup[result.typeGroup]) {
+                groupedByTypeGroup[result.typeGroup] = {};
+            }
+
+            const handler: Handlers.TransactionHandler = await this.app.get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+                .get(result.type, result.typeGroup);
+            groupedByTypeGroup[result.typeGroup][handler.getConstructor().key] = {
+                avg: result.avg,
+                max: result.max,
+                min: result.min,
+                sum: result.sum,
+            };
+        }
+
+        return { meta: { days: request.query.days }, data: groupedByTypeGroup };
     }
 }

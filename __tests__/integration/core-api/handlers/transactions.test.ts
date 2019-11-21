@@ -786,17 +786,27 @@ describe("API 2.0 - Transactions", () => {
 
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toEqual({
-                delegateRegistration: 2500000000,
-                delegateResignation: 2500000000,
-                ipfs: 500000000,
-                multiPayment: 10000000,
-                multiSignature: 500000000,
-                secondSignature: 500000000,
-                transfer: 10000000,
-                vote: 100000000,
-                htlcClaim: 0,
-                htlcLock: 10000000,
-                htlcRefund: 0,
+                "1": {
+                    delegateRegistration: "2500000000",
+                    delegateResignation: "2500000000",
+                    htlcClaim: "0",
+                    htlcLock: "10000000",
+                    htlcRefund: "0",
+                    ipfs: "500000000",
+                    multiPayment: "10000000",
+                    multiSignature: "500000000",
+                    secondSignature: "500000000",
+                    transfer: "10000000",
+                    vote: "100000000",
+                },
+                "2": {
+                    bridgechainRegistration: "5000000000",
+                    bridgechainResignation: "5000000000",
+                    bridgechainUpdate: "5000000000",
+                    businessRegistration: "5000000000",
+                    businessResignation: "5000000000",
+                    businessUpdate: "5000000000",
+                },
             });
         });
     });

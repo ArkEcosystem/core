@@ -63,7 +63,14 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     public async getFeeStatistics(
         days: number,
         minFee?: number,
-    ): Promise<{ type: number; fee: number; timestamp: number }[]> {
+    ): Promise<{
+        type: number;
+        typeGroup: number;
+        avg: string;
+        min: string;
+        max: string;
+        sum: string;
+    }[]> {
         minFee = minFee || 0;
 
         const age = Crypto.Slots.getTime(
