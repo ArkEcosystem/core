@@ -208,12 +208,11 @@ export abstract class TransactionHandler implements ITransactionHandler {
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
         const data: Interfaces.ITransactionData = transaction.data;
 
-        sender.balance = sender.balance.plus(data.amount).plus(data.fee);
-
         if (data.version > 1) {
             sender.verifyTransactionNonceRevert(transaction);
         }
 
+        sender.balance = sender.balance.plus(data.amount).plus(data.fee);
         sender.nonce = sender.nonce.minus(1);
     }
 
