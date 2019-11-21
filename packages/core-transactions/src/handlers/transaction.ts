@@ -181,8 +181,6 @@ export abstract class TransactionHandler implements ITransactionHandler {
             nonce = sender.nonce.plus(1);
         }
 
-        sender.nonce = nonce;
-
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
 
         if (process.env.CORE_ENV === "test") {
@@ -192,13 +190,14 @@ export abstract class TransactionHandler implements ITransactionHandler {
                 const negativeBalanceExceptions: Record<string, Record<string, string>> =
                     Managers.configManager.get("exceptions.negativeBalances") || {};
                 const negativeBalances: Record<string, string> = negativeBalanceExceptions[sender.publicKey] || {};
-                if (!newBalance.isEqualTo(negativeBalances[sender.nonce.toString()] || 0)) {
+                if (!newBalance.isEqualTo(negativeBalances[nonce.toString()] || 0)) {
                     throw new InsufficientBalanceError();
                 }
             }
         }
 
         sender.balance = newBalance;
+        sender.nonce = nonce;
     }
 
     public async revertForSender(
