@@ -62,7 +62,7 @@ class TransactionRegistry {
         }
 
         if (Array.from(this.transactionTypes.values()).some(({ key }) => key === constructor.key)) {
-            throw new TransactionKeyAlreadyRegisteredError(constructor.key);
+            throw new TransactionKeyAlreadyRegisteredError(constructor.key!);
         }
 
         this.transactionTypes.set(internalType, constructor);
