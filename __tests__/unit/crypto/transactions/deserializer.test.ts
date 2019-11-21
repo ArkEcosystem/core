@@ -339,6 +339,17 @@ describe("Transaction serializer / deserializer", () => {
             expect(transaction.verify()).toBeTrue();
             expect(TransactionFactory.fromBytes(transaction.serialized, true).verify()).toBeTrue();
         });
+
+        it("should fail if recipient on different network", () => {
+            expect(() =>
+                BuilderFactory.multiPayment()
+                    .fee("50000000")
+                    .addPayment("DBzGiUk8UVjB2dKCfGRixknB7Ki3Zhqthp", "1555")
+                    .addPayment("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", "1555")
+                    .sign("dummy passphrase")
+                    .build(),
+            ).toThrow(InvalidTransactionBytesError);
+        });
     });
 
     describe("ser/deserialize - htlc lock", () => {

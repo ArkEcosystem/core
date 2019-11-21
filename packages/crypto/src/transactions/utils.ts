@@ -15,7 +15,7 @@ export class Utils {
         return HashAlgorithms.sha256(Serializer.getBytes(transaction, options));
     }
 
-    public static getId(transaction: ITransactionData, options?: ISerializeOptions): string {
+    public static getId(transaction: ITransactionData, options: ISerializeOptions = {}): string {
         const id: string = Utils.toHash(transaction, options).toString("hex");
 
         // WORKAROUND:
@@ -25,7 +25,7 @@ export class Utils {
         // during transfer serialization, the error is bubbled up to defer the
         // `AddressNetworkByteError` until the actual id is available to call
         // `isException`.
-        if (options && options.addressError && !isException(id)) {
+        if (options.addressError && !isException(id)) {
             throw new AddressNetworkError(options.addressError);
         }
 
