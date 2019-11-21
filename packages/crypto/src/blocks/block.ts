@@ -36,8 +36,8 @@ export class Block implements IBlock {
             if (fatal) {
                 throw new BlockSchemaError(
                     data.height,
-                    `Invalid data${err.dataPath ? ' at ' + err.dataPath : ''}: ` +
-                    `${err.message}: ${JSON.stringify(err.data)}`
+                    `Invalid data${err.dataPath ? " at " + err.dataPath : ""}: ` +
+                        `${err.message}: ${JSON.stringify(err.data)}`,
                 );
             }
         }
@@ -186,9 +186,9 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block timestamp");
             }
 
-            const size: number = Serializer.size(this);
-            if (size > constants.block.maxPayload) {
-                result.errors.push(`Payload is too large: ${size} > ${constants.block.maxPayload}`);
+            const blockJsonLength: number = JSON.stringify(this.data).length;
+            if (blockJsonLength > constants.block.maxPayload) {
+                result.errors.push(`Payload is too large: ${blockJsonLength} > ${constants.block.maxPayload}`);
             }
 
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
