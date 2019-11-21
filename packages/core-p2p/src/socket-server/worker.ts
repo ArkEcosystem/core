@@ -124,6 +124,7 @@ export class Worker extends SCWorker {
             const isAppReady: boolean = (await this.sendToMasterAsync("p2p.utils.isAppReady")).data.ready;
 
             if (!isAppReady) {
+                next();
                 return;
             }
 
