@@ -5,7 +5,7 @@ import Long from "long";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainUpdateAsset } from "../interfaces";
-import { seedNodesSchema } from "./utils/bridgechain-schemas";
+import { bridgechainSchema } from "./utils/bridgechain-schema";
 
 const { schemas } = Transactions;
 
@@ -29,10 +29,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                         bridgechainUpdate: {
                             type: "object",
                             required: ["bridgechainId", "seedNodes"],
-                            properties: {
-                                bridgechainId: { bignumber: { minimum: 1 } },
-                                seedNodes: seedNodesSchema,
-                            },
+                            properties: bridgechainSchema,
                         },
                     },
                 },
