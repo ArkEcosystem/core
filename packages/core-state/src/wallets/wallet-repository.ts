@@ -488,7 +488,9 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["bridgechainId", "businessId", "name", "genesishash"],
+            exact: ["bridgechainId", "businessId", "genesisHash"],
+            like: ["bridgechainRepository", "name"],
+            every: ["seedNodes"],
         };
 
         const entries: any[] = this.getIndex("bridgechains")
