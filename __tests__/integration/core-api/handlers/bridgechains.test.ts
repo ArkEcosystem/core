@@ -25,7 +25,9 @@ describe("API 2.0 - Bridgechains", () => {
             name: "bizzz",
             website: "biz.com",
             bridgechains: {
-                "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935": bridgechainAsset,
+                "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935": {
+                    bridgechainAsset,
+                },
             },
         },
     };
