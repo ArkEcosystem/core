@@ -465,7 +465,8 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     private searchBusinesses(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["businessId", "name", "website"],
+            exact: ["businessId", "vat"],
+            like: ["name", "repository", "website"],
         };
 
         const entries: any[] = this.getIndex("businesses")
