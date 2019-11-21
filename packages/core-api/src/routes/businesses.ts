@@ -44,13 +44,19 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/businesses/{id}/bridgechains",
-        handler: controller.show,
+        handler: controller.bridgechains,
         options: {
             validate: {
                 params: {
                     id: Joi.number()
                         .integer()
                         .min(1),
+                },
+                query: {
+                    ...server.app.schemas.pagination,
+                    ...{
+                        orderBy: Joi.string(),
+                    },
                 },
             },
         },
