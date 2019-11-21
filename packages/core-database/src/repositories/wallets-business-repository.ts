@@ -258,7 +258,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["bridgechainId", "isResigned", "publicKey"],
+            exact: ["genesisHash", "isResigned", "publicKey"],
             like: ["bridgechainRepository", "name"],
             every: ["seedNodes"],
         };
@@ -266,13 +266,12 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         const entries: any[] = this.databaseServiceProvider()
             .walletManager.getIndex("bridgechains")
             .entries()
-            .reduce((acc, [bridgechainId, wallet]) => {
+            .reduce((acc, [genesisHash, wallet]) => {
                 const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
-                if (bridgechains && bridgechains[bridgechainId]) {
-                    const bridgechain: any = bridgechains[bridgechainId];
+                if (bridgechains && bridgechains[genesisHash]) {
+                    const bridgechain: any = bridgechains[genesisHash];
 
                     const bridgechainData = {
-                        bridgechainId: bridgechain.bridgechainId,
                         publicKey: wallet.publicKey,
                         ...bridgechain.bridgechainAsset,
                         isResigned: !!bridgechain.resigned,
