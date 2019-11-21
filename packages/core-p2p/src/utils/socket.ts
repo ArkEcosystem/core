@@ -28,20 +28,27 @@ export const socketEmit = async (
         throw error;
     }
 
-    const socketEmitPromise = new Promise((resolve, reject) => {
-        socket.emit(event, req, (err, val) => (err ? reject(err) : resolve(val)));
-    });
+    const socketEmitPromise = new Promise((resolve, reject) =>
+        socket.emit(event, req, (err, val) => (err ? reject(err) : resolve(val))),
+    );
 
-    const timeoutPromiseFn = (resolve, reject) => {
-        const id = setTimeout(() => {
-            clearTimeout(id);
+    let timeoutHandle: NodeJS.Timeout | undefined = undefined;
+    const timeoutPromiseFn = (_, reject) => {
+        timeoutHandle = setTimeout(() => {
+            clearTimeout(timeoutHandle!);
             const error = new Error(`Socket emit "${event}" : timed out (${timeout}ms)`);
             error.name = SocketErrors.Timeout;
             reject(error);
         }, timeout || 0);
     };
 
-    const allPromises = timeout ? [socketEmitPromise, new Promise(timeoutPromiseFn)] : [socketEmitPromise];
+    const response = await Promise.race(
+        timeout ? [socketEmitPromise, new Promise(timeoutPromiseFn)] : [socketEmitPromise],
+    );
 
-    return Promise.race(allPromises);
+    if (timeoutHandle !== undefined) {
+        clearTimeout(timeoutHandle);
+    }
+
+    return response;
 };
