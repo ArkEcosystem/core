@@ -8,8 +8,7 @@ import { NetworkState } from "./network-state";
 import { PeerCommunicator } from "./peer-communicator";
 import { PeerProcessor } from "./peer-processor";
 import { RateLimiter } from "./rate-limiter";
-import { checkDNS, checkNTP } from "./utils";
-import { buildRateLimiter } from "./utils/build-rate-limiter";
+import { buildRateLimiter, checkDNS, checkNTP } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
