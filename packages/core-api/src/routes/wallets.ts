@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
+import { walletId } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(WalletsController);
@@ -86,7 +87,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.string(),
+                    id: walletId,
                 },
             },
         },
@@ -99,7 +100,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.string(),
+                    id: walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
@@ -145,7 +146,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.string(),
+                    id: walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
@@ -194,7 +195,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.string(),
+                    id: walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
@@ -246,7 +247,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.string(),
+                    id: walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
@@ -265,7 +266,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.string(),
+                    id: walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
