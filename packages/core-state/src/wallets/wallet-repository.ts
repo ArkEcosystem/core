@@ -474,6 +474,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             .map(wallet => {
                 const business: any = wallet.getAttribute("business");
                 return {
+                    address: wallet.address,
                     businessId: business.businessId,
                     ...business.businessAsset,
                 };
