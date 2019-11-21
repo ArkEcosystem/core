@@ -19,6 +19,7 @@ export enum BlockProcessorResult {
     Accepted,
     DiscardedButCanBeBroadcasted,
     Rejected,
+    Rollback,
 }
 
 @Container.injectable()
@@ -97,7 +98,7 @@ export class BlockProcessor {
         if (!verified) {
             this.logger.warning(
                 `Block ${block.data.height.toLocaleString()} (${
-                    block.data.id
+                block.data.id
                 }) disregarded because verification failed`,
             );
 
@@ -180,9 +181,9 @@ export class BlockProcessor {
             if (!nonceBySender[sender].plus(1).isEqualTo(nonce)) {
                 this.logger.warning(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
-                        `not accepted: invalid nonce order for sender ${sender}: ` +
-                        `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
-                        `transaction ${data.id} has nonce ${nonce.toFixed()}.`,
+                    `not accepted: invalid nonce order for sender ${sender}: ` +
+                    `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
+                    `transaction ${data.id} has nonce ${nonce.toFixed()}.`,
                 );
                 return true;
             }

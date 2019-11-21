@@ -279,6 +279,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
                 .refreshPeersAfterFork();
 
             blockchain.dispatch("SUCCESS");
+            blockchain.queue.resume();
         },
 
         async rollbackDatabase() {

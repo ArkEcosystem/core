@@ -87,16 +87,17 @@ export class UnchainedHandler extends BlockHandler {
                     .getActiveDelegates(roundInfo);
 
                 if (delegates.some(delegate => delegate.publicKey === block.data.generatorPublicKey)) {
-                    this.blockchain.forkBlock(block);
+                    return BlockProcessorResult.Rollback;
                 }
 
                 return BlockProcessorResult.Rejected;
             }
 
             case UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts: {
-                this.blockchain.forkBlock(block, 5000); // TODO: find a better heuristic based on peer information
-
-                return BlockProcessorResult.DiscardedButCanBeBroadcasted;
+                this.app
+                    .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
+                    .numberOfBlocksToRollback = 5000; // TODO: find a better heuristic based on peer information
+                return BlockProcessorResult.Rollback;
             }
 
             case UnchainedBlockStatus.GeneratorMismatch:
@@ -135,7 +136,7 @@ export class UnchainedHandler extends BlockHandler {
 
             this.logger.debug(
                 `Blockchain is still not ready to accept block at height ${block.data.height.toLocaleString()} after ${
-                    BlockNotReadyCounter.maxAttempts
+                BlockNotReadyCounter.maxAttempts
                 } tries. Going to rollback. :warning:`,
             );
 

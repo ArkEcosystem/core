@@ -360,8 +360,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         if (this.transactionPool) {
             await this.transactionPool.replay(removedTransactions.reverse());
         }
-
-        this.queue.resume();
     }
 
     /**
@@ -407,12 +405,16 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return callback();
         }
 
+        let forkBlock: Interfaces.IBlock | undefined = undefined;
         for (const block of blocks) {
             lastProcessResult = await this.blockProcessor.process(block);
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(block);
             } else {
+                if (lastProcessResult === BlockProcessorResult.Rollback) {
+                    forkBlock = block;
+                }
                 break; // if one block is not accepted, the other ones won't be chained anyway
             }
         }
@@ -466,6 +468,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                     .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                     .broadcastBlock(currentBlock);
             }
+        } else if (forkBlock) {
+            this.forkBlock(forkBlock)
         }
 
         return callback(acceptedBlocks);
