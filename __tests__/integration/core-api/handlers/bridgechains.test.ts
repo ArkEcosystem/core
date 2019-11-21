@@ -58,7 +58,7 @@ describe("API 2.0 - Bridgechains", () => {
 
     describe("GET /bridgechains/:id", () => {
         it("should GET bridgechains by id (genesisHash)", async () => {
-            const response = await utils.request("GET", `bridgechains/${publicKey}`);
+            const response = await utils.request("GET", `bridgechains/${bridgechainAsset.genesisHash}`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
             expect(response.data.data.publicKey).toEqual(publicKey);
