@@ -243,10 +243,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                     address: wallet.address,
                     publicKey: wallet.publicKey,
                     ...business.businessAsset,
+                    isResigned: !!businessData.isResigned,
                 };
-                if (business.resigned) {
-                    businessData.isResigned = true;
-                }
 
                 return businessData;
             });
@@ -277,10 +275,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                         bridgechainId: bridgechain.bridgechainId,
                         publicKey: wallet.publicKey,
                         ...bridgechain.bridgechainAsset,
+                        isResigned: !!bridgechainData.isResigned,
                     };
-                    if (bridgechain.resigned) {
-                        bridgechainData.isResigned = true;
-                    }
 
                     acc.push(bridgechainData);
                 }
