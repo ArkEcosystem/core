@@ -38,7 +38,7 @@ const transactionType = (ajv: Ajv) => {
                     (!parentObject.typeGroup || parentObject.typeGroup === 1)
                 ) {
                     if (parentObject.asset && parentObject.asset.payments) {
-                        const limit: number = configManager.getMilestone().multiPaymentLimit || 500;
+                        const limit: number = configManager.getMilestone().multiPaymentLimit || 256;
                         return parentObject.asset.payments.length <= limit;
                     }
                 }
