@@ -108,6 +108,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         senderWallet.setAttribute("delegate.resigned", true);
+        walletRepository.reindex(senderWallet);
     }
 
     public async revertForSender(
@@ -127,11 +128,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }
