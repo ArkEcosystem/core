@@ -38,11 +38,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         return Managers.configManager.getMilestone().aip11 === true;
     }
 
-    public dynamicFee(
-        transaction: Interfaces.ITransaction,
-        addonBytes: number,
-        satoshiPerByte: number,
-    ): Utils.BigNumber {
+    public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
         // override dynamicFee calculation as this is a zero-fee transaction
         return Utils.BigNumber.ZERO;
     }
@@ -233,10 +229,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

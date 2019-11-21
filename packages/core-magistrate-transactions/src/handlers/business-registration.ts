@@ -6,15 +6,16 @@ import {
     Enums,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-indexes";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
-export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
+export class BusinessRegistrationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BusinessRegistrationTransaction;
     }
@@ -31,10 +32,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             "business.bridgechains",
             "business.resigned",
         ];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(): Promise<void> {

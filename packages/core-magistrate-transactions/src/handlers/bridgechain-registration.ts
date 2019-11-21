@@ -5,16 +5,17 @@ import {
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { BusinessIsResignedError, WalletIsNotBusinessError, BridgechainAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-indexes";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
-export class BridgechainRegistrationTransactionHandler extends Handlers.TransactionHandler {
+export class BridgechainRegistrationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainRegistrationTransaction;
     }
@@ -25,10 +26,6 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
     public walletAttributes(): ReadonlyArray<string> {
         return ["business.bridgechains.bridgechain"];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async bootstrap(): Promise<void> {
