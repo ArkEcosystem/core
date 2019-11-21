@@ -274,7 +274,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
 
             logger.info(`Removed ${AppUtils.pluralize("block", blocksToRemove, true)}`);
 
-            await transactionPool.buildWallets();
             await app
                 .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                 .refreshPeersAfterFork();

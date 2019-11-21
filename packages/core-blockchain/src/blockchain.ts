@@ -299,15 +299,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         );
 
         const removedBlocks: Interfaces.IBlockData[] = [];
+        const removedTransactions: Interfaces.ITransaction[] = [];
+
         const revertLastBlock = async () => {
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
             await this.database.revertBlock(lastBlock);
             removedBlocks.push(lastBlock.data);
-
-            if (this.transactionPool) {
-                await this.transactionPool.addTransactions(lastBlock.transactions);
-            }
+            removedTransactions.push(...[...lastBlock.transactions].reverse());
 
             let newLastBlock: Interfaces.IBlock;
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
@@ -357,6 +356,10 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         await __removeBlocks(nblocks);
 
         await this.blockRepository.deleteBlocks(removedBlocks);
+
+        if (this.transactionPool) {
+            await this.transactionPool.replay(removedTransactions.reverse());
+        }
 
         this.queue.resume();
     }

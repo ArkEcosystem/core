@@ -418,7 +418,7 @@ export class DatabaseService {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         await this.revertRound(block.data.height);
-        this.blockState.revertBlock(block);
+        await this.blockState.revertBlock(block);
 
         assert(this.blocksInCurrentRound!.pop()!.data.id === block.data.id);
 
