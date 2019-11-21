@@ -18,7 +18,7 @@ export class WalletState {
         if (delegates.length < maxDelegates) {
             throw new Error(
                 `Expected to find ${maxDelegates} delegates but only found ${delegates.length}. ` +
-                    `This indicates an issue with the genesis block & delegates.`,
+                `This indicates an issue with the genesis block & delegates.`,
             );
         }
 
@@ -48,11 +48,17 @@ export class WalletState {
     }
 
     public buildDelegateRanking(roundInfo?: Contracts.Shared.RoundInfo): Contracts.State.Wallet[] {
-        const delegates: Contracts.State.Wallet[] = this.walletRepository
-            .allByUsername()
-            .filter((wallet: Contracts.State.Wallet) => !wallet.hasAttribute("delegate.resigned"));
+        const delegatesActive: Contracts.State.Wallet[] = [];
 
-        let delegateWallets = delegates
+        for (const delegate of this.walletRepository.allByUsername()) {
+            if (delegate.hasAttribute("delegate.resigned")) {
+                delegate.forgetAttribute("delegate.rank");
+            } else {
+                delegatesActive.push(delegate);
+            }
+        }
+
+        let delegateSorted = delegatesActive
             .sort((a, b) => {
                 const voteBalanceA: Utils.BigNumber = a.getAttribute("delegate.voteBalance");
                 const voteBalanceB: Utils.BigNumber = b.getAttribute("delegate.voteBalance");
@@ -85,13 +91,13 @@ export class WalletState {
             );
 
         if (roundInfo) {
-            delegateWallets = delegateWallets.slice(0, roundInfo.maxDelegates);
+            delegateSorted = delegateSorted.slice(0, roundInfo.maxDelegates);
 
-            for (const delegate of delegateWallets) {
+            for (const delegate of delegateSorted) {
                 delegate.setAttribute("delegate.round", roundInfo.round);
             }
         }
 
-        return delegateWallets;
+        return delegateSorted;
     }
 }
