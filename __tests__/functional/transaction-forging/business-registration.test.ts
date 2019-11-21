@@ -19,7 +19,7 @@ describe("Transaction Forging - Business registration", () => {
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -34,7 +34,7 @@ describe("Transaction Forging - Business registration", () => {
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -48,7 +48,7 @@ describe("Transaction Forging - Business registration", () => {
             // Registering a business with unicode control characters in its name
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "\u0000ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[1])
                 .createOne();
@@ -62,7 +62,7 @@ describe("Transaction Forging - Business registration", () => {
             // Registering a business with disallowed characters in its name
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark+",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[1])
                 .createOne();
@@ -77,7 +77,7 @@ describe("Transaction Forging - Business registration", () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[1])
                 .createOne();
@@ -85,7 +85,7 @@ describe("Transaction Forging - Business registration", () => {
             // Registering a business again
             const businessRegistration2 = TransactionFactory.businessRegistration({
                 name: "ark2",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[1])
                 .withNonce(businessRegistration.nonce.plus(1))
@@ -95,6 +95,35 @@ describe("Transaction Forging - Business registration", () => {
             await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
             await expect(businessRegistration2.id).not.toBeForged();
+        });
+
+        it("should be rejected, because website is not valid uri [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "ark.io",
+            })
+                .withPassphrase(secrets[2])
+                .createOne();
+
+            await expect(businessRegistration).toBeRejected();
+            await snoozeForBlock(1);
+            await expect(businessRegistration.id).not.toBeForged();
+        });
+
+        it("should be rejected, because repository is not valid uri [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "https://ark.io",
+                repository: "http//ark.io/repo",
+            })
+                .withPassphrase(secrets[3])
+                .createOne();
+
+            await expect(businessRegistration).toBeRejected();
+            await snoozeForBlock(1);
+            await expect(businessRegistration.id).not.toBeForged();
         });
     });
 
@@ -128,7 +157,7 @@ describe("Transaction Forging - Business registration", () => {
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -144,7 +173,7 @@ describe("Transaction Forging - Business registration", () => {
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -209,7 +238,7 @@ describe("Transaction Forging - Business registration", () => {
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(signPassphrases)
@@ -225,7 +254,7 @@ describe("Transaction Forging - Business registration", () => {
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(signPassphrases)

@@ -19,7 +19,7 @@ describe("Transaction Forging - Business resignation", () => {
             let businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -41,7 +41,7 @@ describe("Transaction Forging - Business resignation", () => {
             // Reject a new registration
             businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -66,7 +66,7 @@ describe("Transaction Forging - Business resignation", () => {
             // Registering a business
             const businessRegistration = TransactionFactory.businessRegistration({
                 name: "ark",
-                website: "ark.io",
+                website: "https://ark.io",
             })
                 .withPassphrase(secrets[1])
                 .createOne();
@@ -121,7 +121,7 @@ describe("Transaction Forging - Business resignation", () => {
             let businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -157,7 +157,7 @@ describe("Transaction Forging - Business resignation", () => {
             businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -217,7 +217,7 @@ describe("Transaction Forging - Business resignation", () => {
             let businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
@@ -253,7 +253,7 @@ describe("Transaction Forging - Business resignation", () => {
             businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)

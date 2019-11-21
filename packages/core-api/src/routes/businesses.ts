@@ -23,11 +23,11 @@ export const register = (server: Hapi.Server): void => {
                         name: Joi.string()
                             .regex(/^[a-zA-Z0-9_-]+$/)
                             .max(40),
-                        website: Joi.string().max(50),
+                        website: Joi.string().max(80),
                         vat: Joi.string()
                             .alphanum()
                             .max(15),
-                        repository: Joi.string().max(50),
+                        repository: Joi.string().max(80),
                     },
                 },
             },
