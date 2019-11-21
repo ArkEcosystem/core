@@ -491,17 +491,19 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         };
 
         const entries: any[] = this.getIndex("bridgechains")
-            .values()
-            .reduce((acc: any, wallet) => {
+            .entries()
+            .reduce((acc: any, [bridgechainId, wallet]) => {
                 const business: any = wallet.getAttribute("business");
                 const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
-                for (const bridgechain of Object.values(bridgechains)) {
+                if (bridgechains && bridgechains[bridgechainId]) {
+                    const bridgechain: any = bridgechains[bridgechainId];
                     acc.push({
                         bridgechainId: bridgechain.bridgechainId,
                         businessId: business.businessId,
                         ...bridgechain.bridgechainAsset,
                     });
                 }
+
                 return acc;
             }, []);
 
