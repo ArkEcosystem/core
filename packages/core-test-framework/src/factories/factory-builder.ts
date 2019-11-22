@@ -27,13 +27,12 @@ export class FactoryBuilder {
     }
 
     /**
-     * @template T
      * @param {string} factory
-     * @param {FactoryFunction<T>} fn
+     * @param {FactoryFunction} fn
      * @returns {boolean}
      * @memberof FactoryBuilder
      */
-    public set<T>(factory: string, fn: FactoryFunction<T>): boolean {
+    public set(factory: string, fn: FactoryFunction): boolean {
         const instance: Factory = new Factory();
         instance.state("default", fn);
 

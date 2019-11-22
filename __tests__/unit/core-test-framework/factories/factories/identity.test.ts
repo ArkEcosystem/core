@@ -21,7 +21,7 @@ beforeEach(() => {
     Factories.registerIdentityFactory(factory);
 });
 
-describe("Factory", () => {
+describe("IdentityFactory", () => {
     it("should make an identity with a single passphrase", () => {
         const entity: Identity = factory.get("Identity").make<Identity>() as Identity;
 

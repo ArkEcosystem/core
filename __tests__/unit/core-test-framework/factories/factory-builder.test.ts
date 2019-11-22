@@ -6,14 +6,6 @@ let factory: FactoryBuilder;
 
 beforeEach(() => (factory = new FactoryBuilder()));
 
-interface Transaction {
-    valid: boolean;
-    hooked: boolean;
-    verified?: boolean;
-    expired?: boolean;
-    another?: string | undefined;
-}
-
 describe("FactoryBuilder", () => {
     it("should create a new entity", () => {
         factory.set("Transaction", () => ({
@@ -28,13 +20,17 @@ describe("FactoryBuilder", () => {
             valid: true,
         }));
 
-        factory.get("Transaction").state("verified", () => ({
-            verified: true,
-        }));
+        factory.get("Transaction").state("verified", ({ entity }) => {
+            entity.verified = true;
 
-        factory.get("Transaction").state("expired", () => ({
-            expired: true,
-        }));
+            return entity;
+        });
+
+        factory.get("Transaction").state("expired", ({ entity }) => {
+            entity.expired = true;
+
+            return entity;
+        });
 
         expect(
             factory
@@ -65,7 +61,7 @@ describe("FactoryBuilder", () => {
             valid: true,
         }));
 
-        factory.get("Transaction").afterMaking((entity: Transaction) => (entity.hooked = true));
+        factory.get("Transaction").afterMaking(({ entity }) => (entity.hooked = true));
 
         expect(factory.get("Transaction").make()).toEqual({
             valid: true,
@@ -82,7 +78,7 @@ describe("FactoryBuilder", () => {
             valid: false,
         }));
 
-        factory.get("Transaction").afterMakingState("invalid", (entity: Transaction) => (entity.hooked = true));
+        factory.get("Transaction").afterMakingState("invalid", ({ entity }) => (entity.hooked = true));
 
         expect(
             factory
@@ -96,7 +92,7 @@ describe("FactoryBuilder", () => {
     });
 
     it("should create a new entity and respect the passed in options", () => {
-        factory.set("Transaction", (_, options: { valid: string }) => ({
+        factory.set("Transaction", ({ options }) => ({
             valid: options.valid,
         }));
 
@@ -115,7 +111,7 @@ describe("FactoryBuilder", () => {
             valid: true,
         }));
 
-        expect(factory.get("Transaction").make(5)).toEqual(new Array(5).fill({ valid: true }));
+        expect(factory.get("Transaction").makeMany(5)).toEqual(new Array(5).fill({ valid: true }));
     });
 
     it("should throw if an unknown factory is tried to be accessed", () => {

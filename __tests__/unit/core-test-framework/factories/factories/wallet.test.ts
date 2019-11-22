@@ -19,7 +19,7 @@ beforeEach(() => {
     Factories.registerWalletFactory(factory);
 });
 
-describe("Factory", () => {
+describe("WalletFactory", () => {
     it("should make a wallet with a single passphrase", () => {
         const entity: Wallet = factory.get("Wallet").make<Wallet>() as Wallet;
 

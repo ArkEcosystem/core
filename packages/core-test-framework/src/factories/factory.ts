@@ -1,8 +1,7 @@
 import { Utils } from "@arkecosystem/core-kernel";
 import { strictEqual } from "assert";
-import deepmerge from "deepmerge";
 
-import { FactoryFunction, HookFunction } from "./types";
+import { FactoryFunction, FactoryFunctionOptions, HookFunction } from "./types";
 
 /**
  * @export
@@ -11,64 +10,64 @@ import { FactoryFunction, HookFunction } from "./types";
 export class Factory {
     /**
      * @private
-     * @type {Map<string, FactoryFunction<unknown>>}
+     * @type {Map<string, FactoryFunction>}
      * @memberof Factory
      */
-    private readonly states: Map<string, FactoryFunction<unknown>> = new Map<string, FactoryFunction<unknown>>();
+    private readonly states: Map<string, FactoryFunction> = new Map<string, FactoryFunction>();
 
     /**
      * @private
-     * @type {Map<string, Set<HookFunction<unknown>>>}
+     * @type {Map<string, Set<HookFunction>>}
      * @memberof Factory
      */
-    private readonly hooks: Map<string, Set<HookFunction<unknown>>> = new Map<string, Set<HookFunction<unknown>>>();
+    private readonly hooks: Map<string, Set<HookFunction>> = new Map<string, Set<HookFunction>>();
 
     /**
      * @private
-     * @type {{ states: Set<string>; attributes: object; options: object }}
+     * @type {{ states: Set<string>; attributes: object; options: FactoryFunctionOptions }}
      * @memberof Factory
      */
-    private readonly modifiers: { states: Set<string>; attributes: object; options: object } = {
+    private readonly modifiers: {
+        states: Set<string>;
+        attributes: object;
+        options: FactoryFunctionOptions;
+    } = {
         states: new Set<string>(["default"]),
         attributes: {},
         options: {},
     };
 
     /**
-     * @template T
      * @param {string} state
-     * @param {FactoryFunction<T>} fn
+     * @param {FactoryFunction} fn
      * @returns {boolean}
      * @memberof Factory
      */
-    public state<T>(state: string, fn: FactoryFunction<T>): boolean {
-        // @ts-ignore - this complains that we can't assign FactoryFunction<T> to FactoryFunction<unknown>
+    public state(state: string, fn: FactoryFunction): boolean {
         this.states.set(state, fn);
 
         return this.states.has(state);
     }
 
     /**
-     * @template T
-     * @param {HookFunction<T>} fn
-     * @returns {boolean}
+     * @param {HookFunction} fn
+     * @returns {void}
      * @memberof Factory
      */
-    public afterMaking<T>(fn: HookFunction<T>): boolean {
-        return this.afterMakingState("default", fn);
+    public afterMaking(fn: HookFunction): void {
+        this.afterMakingState("default", fn);
     }
 
     /**
-     * @template T
      * @param {string} state
-     * @param {HookFunction<T>} fn
-     * @returns {boolean}
+     * @param {HookFunction} fn
+     * @returns {void}
      * @memberof Factory
      */
-    public afterMakingState<T>(state: string, fn: HookFunction<T>): boolean {
+    public afterMakingState(state: string, fn: HookFunction): void {
         this.assertKnownState(state);
 
-        return this.registerHook(state, fn);
+        this.registerHook(state, fn);
     }
 
     /**
@@ -98,11 +97,11 @@ export class Factory {
     }
 
     /**
-     * @param {object} options
+     * @param {FactoryFunctionOptions} options
      * @returns {this}
      * @memberof Factory
      */
-    public withOptions(options: object): this {
+    public withOptions(options: FactoryFunctionOptions): this {
         this.modifiers.options = options;
 
         return this;
@@ -110,70 +109,97 @@ export class Factory {
 
     /**
      * @template T
-     * @param {number} [count=1]
-     * @returns {(T | T[])}
+     * @param {boolean} [resetModifiers=true]
+     * @returns {T}
      * @memberof Factory
      */
-    public make<T>(count: number = 1): T | T[] {
-        const entities: T[] = [];
-
+    public make<T>(resetModifiers: boolean = true): T {
         const states: string[] = [...this.modifiers.states.values()];
         const initialState: string | undefined = states.shift();
 
         Utils.assert.defined<string>(initialState);
 
+        const fn: FactoryFunction | undefined = this.states.get(initialState);
+
+        Utils.assert.defined<FactoryFunction>(fn);
+
+        let result: T = fn({
+            entity: undefined,
+            options: this.modifiers.options,
+        });
+
+        this.applyHooks(initialState, result);
+
+        // We apply all states in order of insertion to guarantee consistency.
+        for (const state of states) {
+            const fn: FactoryFunction | undefined = this.states.get(state);
+
+            Utils.assert.defined<FactoryFunction>(fn);
+
+            /**
+             * A FactoryFunction always has to return the modified value.
+             *
+             * We do not perform a deep merge here due to the fact that
+             * class instances would be returned for further chaining.
+             */
+            result = fn({
+                entity: result,
+                options: this.modifiers.options,
+            });
+
+            // We apply all hooks in order of insertion to guarantee consistency.
+            this.applyHooks(state, result);
+        }
+
+        for (const [key, value] of Object.entries(this.modifiers.attributes)) {
+            result[key] = value;
+        }
+
+        if (resetModifiers) {
+            this.resetModifiers();
+        }
+
+        return result;
+    }
+
+    /**
+     * @template T
+     * @param {number} count
+     * @returns {T[]}
+     * @memberof Factory
+     */
+    public makeMany<T>(count: number): T[] {
+        const entities: T[] = [];
+
         for (let i = 0; i < count; i++) {
-            const fn: FactoryFunction<T> | undefined = this.states.get(initialState) as FactoryFunction<T>;
-
-            strictEqual(fn instanceof Function, true, `Is not a function.`);
-
-            let result: T = fn(undefined, this.modifiers.options);
-
-            this.applyHooks(initialState, result);
-
-            // We apply all states in order of insertion to guarantee consistency.
-            for (const state of states) {
-                // @ts-ignore - Type 'FactoryFunction<unknown> | undefined' is not assignable to type 'FactoryFunction<T> | undefined'.
-                const fn: FactoryFunction<T> | undefined = this.states.get(state);
-
-                Utils.assert.defined<FactoryFunction<T>>(fn);
-
-                result = deepmerge(result, fn(result, this.modifiers.options));
-
-                // We apply all hooks in order of insertion to guarantee consistency.
-                this.applyHooks(state, result);
-            }
-
-            entities.push(deepmerge(result, this.modifiers.attributes) as T);
+            entities.push(this.make<T>(false));
         }
 
         this.resetModifiers();
 
-        return count === 1 ? entities[0] : entities;
+        return entities;
     }
 
     /**
      * @private
-     * @template T
      * @param {string} state
-     * @param {HookFunction<T>} fn
-     * @returns {boolean}
+     * @param {HookFunction} fn
+     * @returns {void}
      * @memberof Factory
      */
-    private registerHook<T>(state: string, fn: HookFunction<T>): boolean {
+    private registerHook(state: string, fn: HookFunction): void {
         /* istanbul ignore next */
         if (!this.hooks.has(state)) {
             this.hooks.set(state, new Set());
         }
 
-        const hooks: Set<HookFunction<T>> | undefined = this.hooks.get(state);
+        const hooks: Set<HookFunction> | undefined = this.hooks.get(state);
 
-        Utils.assert.defined<Set<HookFunction<T>>>(hooks);
+        Utils.assert.defined<Set<HookFunction>>(hooks);
 
         hooks.add(fn);
 
-        // @ts-ignore - this complains that we can't assign Set<HookFunction<T>> to Set<HookFunction<unknown>>
-        return this.hooks.set(state, hooks);
+        this.hooks.set(state, hooks);
     }
 
     /**
@@ -193,11 +219,11 @@ export class Factory {
      * @memberof Factory
      */
     private applyHooks<T>(state: string, value: T): void {
-        const hooks: Set<HookFunction<T>> | undefined = this.hooks.get(state);
+        const hooks: Set<HookFunction> | undefined = this.hooks.get(state);
 
         if (hooks) {
             for (const hook of hooks) {
-                hook(value);
+                hook({ entity: value, options: {} }); // todo: support hook options?
             }
         }
     }

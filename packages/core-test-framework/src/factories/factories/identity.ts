@@ -19,9 +19,9 @@ export const registerIdentityFactory = (factory: FactoryBuilder): void => {
         };
     });
 
-    factory.get("Identity").state("secondPassphrase", () => {
-        return {
-            secondPassphrase: generateMnemonic(),
-        };
+    factory.get("Identity").state("secondPassphrase", ({ entity }) => {
+        entity.secondPassphrase = generateMnemonic();
+
+        return entity;
     });
 };

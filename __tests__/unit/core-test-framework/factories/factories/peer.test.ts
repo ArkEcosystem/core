@@ -28,7 +28,7 @@ describe("PeerFactory", () => {
     });
 
     it("should many peers", () => {
-        const entities: Peer[] = factory.get("Peer").make<Peer>(5) as Peer[];
+        const entities: Peer[] = factory.get("Peer").makeMany<Peer>(5) as Peer[];
 
         expect(entities).toBeArrayOfSize(5);
 
