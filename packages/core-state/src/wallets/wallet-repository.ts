@@ -516,19 +516,18 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["bridgechainId", "publicKey"],
+            exact: ["genesisHash", "publicKey"],
             like: ["bridgechainRepository", "name"],
             every: ["seedNodes"],
         };
 
         const entries: any[] = this.getIndex("bridgechains")
             .entries()
-            .reduce((acc: any, [bridgechainId, wallet]) => {
+            .reduce((acc: any, [genesisHash, wallet]) => {
                 const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
-                if (bridgechains && bridgechains[bridgechainId]) {
-                    const bridgechain: any = bridgechains[bridgechainId];
+                if (bridgechains && bridgechains[genesisHash]) {
+                    const bridgechain: any = bridgechains[genesisHash];
                     acc.push({
-                        bridgechainId: bridgechain.bridgechainId,
                         publicKey: wallet.publicKey,
                         ...bridgechain.bridgechainAsset,
                     });

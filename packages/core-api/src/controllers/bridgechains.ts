@@ -21,7 +21,7 @@ export class BridgechainController extends Controller {
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const bridgechain = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
-            bridgechainId: request.params.id,
+            genesisHash: request.params.id,
         }).rows[0];
 
         if (!bridgechain) {
