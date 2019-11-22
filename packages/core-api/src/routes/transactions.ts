@@ -3,7 +3,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { TransactionsController } from "../controllers/transactions";
-import { numberFixedOrBetween, searchCriteria } from "../schemas";
+import { numberFixedOrBetween, orderBy, searchCriteria } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(TransactionsController);
@@ -18,7 +18,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         id: Joi.string()
                             .hex()
                             .length(64),
@@ -153,7 +153,7 @@ export const register = (server: Hapi.Server): void => {
                     },
                 },
                 payload: {
-                    orderBy: Joi.string(),
+                    orderBy,
                     limit: Joi.number().min(0),
                     offset: Joi.number().min(0),
                     criteria: Joi.array().items(

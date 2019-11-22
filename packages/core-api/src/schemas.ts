@@ -92,3 +92,8 @@ export const walletId = Joi.alternatives().try(
         .hex()
         .length(66),
 );
+
+export const orderBy = Joi.string().regex(
+    /^[a-z._]{1,40}:(asc|desc)$/i,
+    "orderBy query parameter (<iteratee>:<direction>)",
+);

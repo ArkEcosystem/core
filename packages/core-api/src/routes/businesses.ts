@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { BusinessController } from "../controllers/businesses";
+import { orderBy } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(BusinessController);
@@ -16,7 +17,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         businessId: Joi.number()
                             .integer()
                             .min(1),
@@ -63,7 +64,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
             },
@@ -79,7 +80,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
                 payload: {

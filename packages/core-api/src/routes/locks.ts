@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { LocksController } from "../controllers/locks";
+import { orderBy } from "../schemas";
 import { Enums } from "@arkecosystem/crypto";
 
 export const register = (server: Hapi.Server): void => {
@@ -17,7 +18,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         recipientId: Joi.string()
                             .alphanum()
                             .length(34),
@@ -68,7 +69,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
                 payload: {
@@ -127,7 +128,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
                 payload: {

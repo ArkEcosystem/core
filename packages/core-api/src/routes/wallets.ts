@@ -2,7 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
-import { walletId } from "../schemas";
+import { orderBy, walletId } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(WalletsController);
@@ -17,7 +17,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         address: Joi.string()
                             .alphanum()
                             .length(34),
@@ -53,7 +53,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         address: Joi.string()
                             .alphanum()
                             .length(34),
@@ -105,7 +105,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         id: Joi.string()
                             .hex()
                             .length(64),
@@ -151,7 +151,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         id: Joi.string()
                             .hex()
                             .length(64),
@@ -200,7 +200,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         id: Joi.string()
                             .hex()
                             .length(64),
@@ -272,7 +272,7 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         isExpired: Joi.bool(),
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
             },
@@ -288,7 +288,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
                 payload: {
