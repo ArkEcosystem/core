@@ -39,7 +39,6 @@
         "bytebuffer": "^5.0.1",
         "dayjs": "^1.8.15",
         "deepmerge": "^4.0.0",
-        "fast-memoize": "^2.5.1",
         "ipaddr.js": "^1.9.0",
         "lodash.get": "^4.4.2",
         "lodash.set": "^4.3.2",
