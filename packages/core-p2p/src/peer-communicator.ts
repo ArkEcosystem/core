@@ -17,9 +17,6 @@ import { constants } from "./constants";
 // todo: review the implementation
 @Container.injectable()
 export class PeerCommunicator {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
-
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Log.Logger;
 
@@ -31,7 +28,7 @@ export class PeerCommunicator {
 
     private outgoingRateLimiter: RateLimiter;
 
-    constructor() {
+    constructor(@Container.inject(Container.Identifiers.Application) private readonly app: Contracts.Kernel.Application) {
         this.outgoingRateLimiter = buildRateLimiter({
             // White listing anybody here means we would not throttle ourselves when sending
             // them requests, ie we could spam them.
