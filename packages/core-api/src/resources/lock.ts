@@ -30,12 +30,6 @@ export class LockResource implements Resource {
             ...resource,
             amount: resource.amount.toFixed(),
             timestamp: Utils.formatTimestamp(resource.timestamp),
-            isExpired: Utils.expirationCalculator.calculateLockExpirationStatus(
-                this.stateStore.getLastBlock(),
-                {
-                    type: resource.expirationType,
-                    value: resource.expirationValue,
-                })
         };
     }
 }

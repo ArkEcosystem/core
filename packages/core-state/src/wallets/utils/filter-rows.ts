@@ -17,7 +17,7 @@ export = <T = any>(
     return rows.filter(item => {
         if (filters.hasOwnProperty("exact")) {
             for (const elem of filters.exact) {
-                if (params[elem] && getProperty(item, elem) !== params[elem]) {
+                if (params[elem] !== undefined && getProperty(item, elem) !== params[elem]) {
                     return false;
                 }
             }

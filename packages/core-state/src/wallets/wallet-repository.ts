@@ -430,7 +430,15 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         params: Contracts.Database.QueryParameters = {},
     ): Contracts.State.SearchContext<Contracts.State.UnwrappedHtlcLock> {
         const query: Record<string, string[]> = {
-            exact: ["senderPublicKey", "lockId", "recipientId", "secretHash", "expirationType", "vendorField"],
+            exact: [
+                "expirationType",
+                "isExpired",
+                "lockId",
+                "recipientId",
+                "secretHash",
+                "senderPublicKey",
+                "vendorField",
+            ],
             between: ["expirationValue", "amount", "timestamp"],
         };
 
@@ -458,6 +466,10 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                         timestamp: lock.timestamp,
                         expirationType: lock.expiration.type,
                         expirationValue: lock.expiration.value,
+                        isExpired: AppUtils.expirationCalculator.calculateLockExpirationStatus(
+                            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
+                            lock.expiration,
+                        ),
                         vendorField: lock.vendorField!,
                     });
                 }

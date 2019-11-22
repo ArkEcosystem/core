@@ -200,5 +200,6 @@ export interface UnwrappedHtlcLock {
     timestamp: number;
     expirationType: number;
     expirationValue: number;
+    isExpired: boolean;
     vendorField: string;
 }

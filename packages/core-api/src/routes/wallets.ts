@@ -271,6 +271,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
+                        isExpired: Joi.bool(),
                         orderBy: Joi.string(),
                     },
                 },

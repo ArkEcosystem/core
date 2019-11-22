@@ -36,6 +36,7 @@ export const register = (server: Hapi.Server): void => {
                             .integer()
                             .min(0),
                         expirationType: Joi.number().only(1, 2),
+                        isExpired: Joi.bool(),
                     },
                 },
             },
@@ -110,6 +111,7 @@ export const register = (server: Hapi.Server): void => {
                             .integer()
                             .min(0),
                     }),
+                    isExpired: Joi.bool(),
                 },
             },
         },
