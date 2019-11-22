@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { LocksController } from "../controllers/locks";
+import { Enums } from "@arkecosystem/crypto";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(LocksController);
@@ -35,7 +36,7 @@ export const register = (server: Hapi.Server): void => {
                         expirationValue: Joi.number()
                             .integer()
                             .min(0),
-                        expirationType: Joi.number().only(1, 2),
+                        expirationType: Joi.number().only(...Object.values(Enums.HtlcLockExpirationType)),
                         isExpired: Joi.bool(),
                     },
                 },
@@ -102,7 +103,7 @@ export const register = (server: Hapi.Server): void => {
                     vendorField: Joi.string()
                         .min(1)
                         .max(255),
-                    expirationType: Joi.number().only(1, 2),
+                    expirationType: Joi.number().only(...Object.values(Enums.HtlcLockExpirationType)),
                     expirationValue: Joi.object().keys({
                         from: Joi.number()
                             .integer()
