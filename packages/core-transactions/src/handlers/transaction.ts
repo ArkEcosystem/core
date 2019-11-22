@@ -181,15 +181,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
-        const unexpectedNegativeBalance =
-            newBalance.isNegative() &&
-            !(
+        if (newBalance.isNegative()) {
+            const expected =
                 (process.env.CORE_ENV === "test" && Utils.isException(transaction.data)) ||
                 (process.env.CORE_ENV !== "test" &&
-                    Utils.isNegativeBalanceException(sender.publicKey, nonce, newBalance))
-            );
-        if (unexpectedNegativeBalance) {
-            throw new InsufficientBalanceError();
+                    Utils.isNegativeBalanceException(sender.publicKey, nonce, newBalance));
+
+            if (!expected) {
+                throw new InsufficientBalanceError();
+            }
         }
 
         sender.balance = newBalance;
