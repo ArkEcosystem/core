@@ -6,7 +6,7 @@ import {
     Enums,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
@@ -42,7 +42,6 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const asset: IBusinessWalletAttributes = {
                 businessAsset: transaction.asset.businessRegistration,
-                businessId: this.getBusinessId(this.walletRepository),
             };
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", asset);
@@ -109,7 +108,6 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
 
         sender.setAttribute<IBusinessWalletAttributes>("business", {
             businessAsset: transaction.data.asset?.businessRegistration,
-            businessId: this.getBusinessId(walletRepository),
         });
 
         walletRepository.reindex(sender);
@@ -143,8 +141,4 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> { }
-
-    private getBusinessId(walletRepository: Contracts.State.WalletRepository): Utils.BigNumber {
-        return Utils.BigNumber.make(walletRepository.getIndex(MagistrateIndex.Businesses).values().length).plus(1);
-    }
 }

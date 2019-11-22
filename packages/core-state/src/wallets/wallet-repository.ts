@@ -486,7 +486,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     private searchBusinesses(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["businessId", "vat"],
+            exact: ["publicKey", "vat"],
             like: ["name", "repository", "website"],
         };
 
@@ -496,7 +496,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 const business: any = wallet.getAttribute("business");
                 return {
                     address: wallet.address,
-                    businessId: business.businessId,
+                    publicKey: business.publicKey,
                     ...business.businessAsset,
                 };
             });
@@ -510,7 +510,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["bridgechainId", "businessId"],
+            exact: ["bridgechainId", "publicKey"],
             like: ["bridgechainRepository", "name"],
             every: ["seedNodes"],
         };
@@ -518,13 +518,12 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         const entries: any[] = this.getIndex("bridgechains")
             .entries()
             .reduce((acc: any, [bridgechainId, wallet]) => {
-                const business: any = wallet.getAttribute("business");
                 const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
                 if (bridgechains && bridgechains[bridgechainId]) {
                     const bridgechain: any = bridgechains[bridgechainId];
                     acc.push({
                         bridgechainId: bridgechain.bridgechainId,
-                        businessId: business.businessId,
+                        publicKey: wallet.publicKey,
                         ...bridgechain.bridgechainAsset,
                     });
                 }

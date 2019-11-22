@@ -18,9 +18,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy,
-                        businessId: Joi.number()
-                            .integer()
-                            .min(1),
+                        publicKey: Joi.string()
+                            .hex()
+                            .length(66),
                         bridgechainRepository: Joi.string().max(80),
                         genesisHash: Joi.string()
                             .hex()
@@ -49,7 +49,7 @@ export const register = (server: Hapi.Server): void => {
                 params: {
                     id: Joi.string()
                         .hex()
-                        .length(64),
+                        .length(66),
                 },
             },
         },
@@ -69,8 +69,12 @@ export const register = (server: Hapi.Server): void => {
                 },
                 payload: {
                     bridgechainRepository: Joi.string().max(80),
-                    businessId: Joi.number()
-                        .integer().positive(),
+                    publicKey: Joi.string()
+                        .hex()
+                        .length(66),
+                    genesisHash: Joi.string()
+                        .hex()
+                        .length(64),
                 },
             },
         },

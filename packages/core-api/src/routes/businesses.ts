@@ -18,9 +18,9 @@ export const register = (server: Hapi.Server): void => {
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy,
-                        businessId: Joi.number()
-                            .integer()
-                            .min(1),
+                        publicKey: Joi.string()
+                            .hex()
+                            .length(66),
                         name: Joi.string()
                             .regex(/^[a-zA-Z0-9_-]+$/)
                             .max(40),
@@ -42,9 +42,9 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.number()
-                        .integer()
-                        .min(1),
+                    id: Joi.string()
+                        .hex()
+                        .length(66),
                 },
             },
         },
@@ -57,9 +57,9 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.number()
-                        .integer()
-                        .min(1),
+                    id: Joi.string()
+                        .hex()
+                        .length(66),
                 },
                 query: {
                     ...server.app.schemas.pagination,
@@ -84,9 +84,9 @@ export const register = (server: Hapi.Server): void => {
                     },
                 },
                 payload: {
-                    businessId: Joi.number()
-                        .integer()
-                        .min(1),
+                    publicKey: Joi.string()
+                        .hex()
+                        .length(66),
                 },
             },
         },
