@@ -4,7 +4,7 @@ import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITran
 import { configManager } from "../managers/config";
 import { BigNumber, isException } from "../utils";
 import { validator } from "../validation";
-import { deserializer } from "./deserializer";
+import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
@@ -54,7 +54,7 @@ export class Block implements IBlock {
     }
 
     public static deserialize(hexString: string, headerOnly = false): IBlockData {
-        return deserializer.deserialize(hexString, headerOnly).data;
+        return Deserializer.deserialize(hexString, headerOnly).data;
     }
 
     public static serializeWithTransactions(block: IBlockData) {

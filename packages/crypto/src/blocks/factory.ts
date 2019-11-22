@@ -2,7 +2,7 @@ import { Hash, HashAlgorithms } from "../crypto";
 import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction } from "../interfaces";
 import { BigNumber } from "../utils";
 import { Block } from "./block";
-import { deserializer } from "./deserializer";
+import { Deserializer } from "./deserializer";
 
 export class BlockFactory {
     // @todo: add a proper type hint for data
@@ -52,7 +52,7 @@ export class BlockFactory {
         if (block) {
             const serialized: string = Block.serializeWithTransactions(data).toString("hex");
             const block: IBlock = new Block({
-                ...deserializer.deserialize(serialized, false, options),
+                ...Deserializer.deserialize(serialized, false, options),
                 id: data.id,
             });
             block.serialized = serialized;
@@ -64,7 +64,7 @@ export class BlockFactory {
     }
 
     private static fromSerialized(serialized: string): IBlock {
-        const deserialized: { data: IBlockData; transactions: ITransaction[] } = deserializer.deserialize(serialized);
+        const deserialized: { data: IBlockData; transactions: ITransaction[] } = Deserializer.deserialize(serialized);
 
         const validated: IBlockData | undefined = Block.applySchema(deserialized.data);
 
