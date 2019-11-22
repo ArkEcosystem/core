@@ -1,3 +1,5 @@
-export type FactoryFunction<T> = (entity?: T, options?: object) => T;
+export type FactoryFunctionOptions = Record<string, any>;
 
-export type HookFunction<T> = (entity: T, options?: object) => void;
+export type FactoryFunction<T> = ({ entity, options }: { entity?: T; options: FactoryFunctionOptions }) => T;
+
+export type HookFunction<T> = ({ entity, options }: { entity?: T; options: FactoryFunctionOptions }) => void;

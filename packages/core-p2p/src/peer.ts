@@ -22,6 +22,7 @@ export class Peer implements Contracts.P2P.Peer {
 
     public plugins: Contracts.P2P.PeerPlugins = {};
 
+    // todo: get rid of the app argument so that the entity is detached from the container.
     constructor(app: Contracts.Kernel.Application, readonly ip: string) {
         const config: Providers.PluginConfiguration | undefined = app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
