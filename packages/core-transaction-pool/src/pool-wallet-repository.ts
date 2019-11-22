@@ -34,7 +34,26 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
             );
         }
 
-        return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address);
+        return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address)!;
+    }
+
+    public findByIndex(index: string | string[], key: string): Contracts.State.Wallet {
+        const wallet = super.findByIndex(index, key);
+
+        if (wallet) {
+            return wallet;
+        }
+
+        const dbWallet = this.walletRepository.findByIndex(index, key);
+        if (dbWallet) {
+            const cloneWallet = dbWallet.clone();;
+            this.reindex(cloneWallet);
+            return cloneWallet;
+        }
+
+        // FIXME
+        // @ts-ignore
+        return undefined;
     }
 
     public forget(publicKey: string): void {
