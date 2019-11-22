@@ -42,6 +42,8 @@ beforeAll(async () => {
 
     address = Identities.Address.fromPublicKey(publicKey);
     address2 = Identities.Address.fromPublicKey("02def27da9336e7fbf63131b8d7e5c9f45b296235db035f1f4242c507398f0f21d");
+
+    validIdentifiers.address = address;
 });
 
 afterAll(async () => await tearDown());
@@ -93,15 +95,18 @@ describe("API 2.0 - Wallets", () => {
                 const response = await api.request("GET", `wallets/${value}`);
                 expect(response).toBeSuccessfulResponse();
                 expect(response.data.data).toBeObject();
+
                 const wallet = response.data.data;
+
                 api.expectWallet(wallet);
+
                 expect(wallet[identifier]).toBe(value);
             }
         });
 
         it("should fail to GET a wallet by the given invalid identifier", async () => {
             for (const value of invalidIdentifiers) {
-                api.expectError(await api.request("GET", `wallets/${value}`), 422);
+                api.expectError(await api.request("GET", `wallets/${value}`), 400);
             }
         });
 

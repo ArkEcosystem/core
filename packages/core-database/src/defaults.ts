@@ -8,7 +8,7 @@ export const defaults = {
         password: process.env.CORE_DB_PASSWORD || "password",
         entityPrefix: "public.",
         synchronize: false,
-        logging: true,
+        logging: false,
     },
     estimateTotalCount: !process.env.CORE_API_NO_ESTIMATED_TOTAL_COUNT,
 };

@@ -1,7 +1,7 @@
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import SocketCluster from "socketcluster";
 
-import { createSchemas } from "../schemas";
+import { requestSchemas } from "../schemas";
 import { PeerService } from "../types";
 import { ServerError } from "./errors";
 import { payloadProcessor } from "./payload-processor";
@@ -63,8 +63,6 @@ export const startSocketServer = async (
         const [, version, method] = req.endpoint.split(".");
 
         try {
-            const { requestSchemas } = createSchemas(app);
-
             if (requestSchemas[version]) {
                 const requestSchema = requestSchemas[version][method];
 

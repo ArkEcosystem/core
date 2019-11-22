@@ -39,6 +39,7 @@ beforeAll(async () => {
         peerMock.port = mock.port;
         peerMock.version = mock.version;
         peerMock.latency = mock.latency;
+        peerMock.state.height = mock.state.height;
 
         return peerMock;
     });

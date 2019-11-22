@@ -9,7 +9,7 @@ import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedEr
 import { PeerConfig, PeerPingResponse } from "./interfaces";
 import { PeerConnector } from "./peer-connector";
 import { PeerVerifier } from "./peer-verifier";
-import { createSchemas } from "./schemas";
+import { replySchemas } from "./schemas";
 import { isValidVersion, socketEmit, buildRateLimiter } from "./utils";
 import { RateLimiter } from "./rate-limiter";
 import { constants } from "./constants";
@@ -17,6 +17,9 @@ import { constants } from "./constants";
 // todo: review the implementation
 @Container.injectable()
 export class PeerCommunicator {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Log.Logger;
 
@@ -26,9 +29,9 @@ export class PeerCommunicator {
     @Container.inject(Container.Identifiers.PeerConnector)
     private readonly connector!: PeerConnector;
 
-    private outgoingRateLimiter: RateLimiter;
+    private outgoingRateLimiter!: RateLimiter;
 
-    constructor(@Container.inject(Container.Identifiers.Application) private readonly app: Contracts.Kernel.Application) {
+    public init() {
         this.outgoingRateLimiter = buildRateLimiter({
             // White listing anybody here means we would not throttle ourselves when sending
             // them requests, ie we could spam them.
@@ -38,8 +41,7 @@ export class PeerCommunicator {
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                 .get("@arkecosystem/core-p2p")
                 .config()
-                .all()
-                .rateLimit
+                .all().rateLimit,
         });
     }
 
@@ -110,7 +112,8 @@ export class PeerCommunicator {
                             } else {
                                 this.logger.warning(
                                     `Disconnecting from ${peerHostPort}: ` +
-                                    `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`);
+                                        `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
+                                );
                                 this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
                             }
                         }
@@ -193,7 +196,7 @@ export class PeerCommunicator {
                 .get("@arkecosystem/core-p2p")
                 .config()
                 .get<number>("getBlocksTimeout"),
-            maxPayload
+            maxPayload,
         );
 
         if (!peerBlocks) {
@@ -225,7 +228,7 @@ export class PeerCommunicator {
     }
 
     private validateReply(peer: Contracts.P2P.Peer, reply: any, endpoint: string): boolean {
-        const schema = createSchemas(this.app).replySchemas[endpoint];
+        const schema = replySchemas[endpoint];
         if (schema === undefined) {
             this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined schemas matches.`);
             return false;
@@ -284,7 +287,7 @@ export class PeerCommunicator {
         const msBeforeReCheck = 1000;
         while (await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event)) {
             this.logger.debug(
-                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`
+                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`,
             );
             await delay(msBeforeReCheck);
         }

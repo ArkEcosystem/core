@@ -70,6 +70,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).init();
 
+        this.app.get<PeerCommunicator>(Container.Identifiers.PeerCommunicator).init();
+
         this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).init();
 
         this.app

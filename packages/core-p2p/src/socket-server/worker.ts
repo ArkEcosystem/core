@@ -3,8 +3,7 @@ import SCWorker from "socketcluster/scworker";
 import Ajv from "ajv";
 import { cidr } from "ip";
 
-// TODO: needs `app` 
-//import { createSchemas } from "../schemas";
+import { requestSchemas } from "../schemas";
 
 const ajv = new Ajv();
 
@@ -176,9 +175,9 @@ export class Worker extends SCWorker {
                     return;
                 }
             } else if (version === "peer") {
-                // @ts-ignore
-                const requestSchema = createSchemas.peer[handler];
-                if (false && ["postTransactions", "postBlock"].includes(handler)) {
+                const requestSchema = requestSchemas.peer[handler];
+
+                if (["postTransactions", "postBlock"].includes(handler)) {
                     // has to be in the peer list to use the endpoint
                     const {
                         data: { isPeerOrForger },

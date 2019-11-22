@@ -168,14 +168,10 @@ export class WalletsController extends Controller {
     }
 
     private findWallet(id: string): Contracts.State.Wallet | Boom<null> {
-        let wallet: Contracts.State.Wallet | undefined;
-
         try {
-            wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
+            return this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
         } catch (error) {
-            return Boom.notFound("Wallet not found");
+            throw Boom.notFound("Wallet not found");
         }
-
-        return wallet;
     }
 }
