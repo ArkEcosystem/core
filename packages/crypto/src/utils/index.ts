@@ -22,7 +22,7 @@ export const formatSatoshi = (amount: BigNumber): string => {
  */
 export const isException = (blockOrTransaction: { id?: string }): boolean => {
     const network: number = configManager.get("network.pubKeyHash");
-    const exceptionalIds = memoize(_ => {
+    const getExceptionalIds = memoize(_ => {
         const s = new Set<string>();
         const blockIds = configManager.get("exceptions.blocks") || [];
         const transactionIds = configManager.get("exceptions.transactions") || [];
@@ -33,21 +33,21 @@ export const isException = (blockOrTransaction: { id?: string }): boolean => {
             s.add(transactionId);
         }
         return s;
-    })(network);
-    return exceptionalIds.has(blockOrTransaction.id);
+    });
+    return getExceptionalIds(network).has(blockOrTransaction.id);
 };
 
 export const isGenesisTransaction = (id: string): boolean => {
     const network: number = configManager.get("network.pubKeyHash");
-    const genesisIds = memoize(_ => {
+    const getGenesisTransactionIds = memoize(_ => {
         const s = new Set<string>();
         const genesisTransactions = configManager.get("genesisBlock.transactions") || [];
         for (const transaction of genesisTransactions) {
             s.add(transaction.id);
         }
         return s;
-    })(network);
-    return genesisIds.has(id);
+    });
+    return getGenesisTransactionIds(network).has(id);
 };
 
 export const numberToHex = (num: number, padding = 2): string => {
