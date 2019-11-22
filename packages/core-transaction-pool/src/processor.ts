@@ -102,7 +102,7 @@ export class Processor implements TransactionPool.IProcessor {
 
             if (exists) {
                 this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
-            } else if (JSON.stringify(transaction).length > maxTransactionBytes) {
+            } else if (Buffer.from(JSON.stringify(transaction)).byteLength > maxTransactionBytes) {
                 this.pushError(
                     transaction,
                     "ERR_TOO_LARGE",

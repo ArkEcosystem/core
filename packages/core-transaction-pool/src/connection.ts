@@ -402,7 +402,7 @@ export class Connection implements TransactionPool.IConnection {
             }
 
             if (maxBytes > 0) {
-                const transactionSize: number = JSON.stringify(transaction.data).length;
+                const transactionSize: number = Buffer.from(JSON.stringify(transaction.data)).byteLength;
 
                 if (transactionBytes + transactionSize > maxBytes) {
                     return data;
