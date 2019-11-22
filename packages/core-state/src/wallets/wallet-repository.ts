@@ -71,6 +71,15 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 }
             },
         );
+
+        this.registerIndex(Contracts.State.WalletIndexes.Ipfs, (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
+            if (wallet.hasAttribute("ipfs.hashes")) {
+                const hashes = wallet.getAttribute("ipfs.hashes");
+                for (const hash of Object.keys(hashes)) {
+                    index.set(hash, wallet);
+                }
+            }
+        });
     }
 
     public registerIndex(name: string, indexer: Contracts.State.WalletIndexer): void {
@@ -421,7 +430,15 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         params: Contracts.Database.QueryParameters = {},
     ): Contracts.State.SearchContext<Contracts.State.UnwrappedHtlcLock> {
         const query: Record<string, string[]> = {
-            exact: ["senderPublicKey", "lockId", "recipientId", "secretHash", "expirationType", "vendorField"],
+            exact: [
+                "expirationType",
+                "isExpired",
+                "lockId",
+                "recipientId",
+                "secretHash",
+                "senderPublicKey",
+                "vendorField",
+            ],
             between: ["expirationValue", "amount", "timestamp"],
         };
 
@@ -449,6 +466,10 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                         timestamp: lock.timestamp,
                         expirationType: lock.expiration.type,
                         expirationValue: lock.expiration.value,
+                        isExpired: AppUtils.expirationCalculator.calculateLockExpirationStatus(
+                            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
+                            lock.expiration,
+                        ),
                         vendorField: lock.vendorField!,
                     });
                 }
@@ -459,43 +480,66 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["lockId", "asc"],
         };
     }
 
-    // TODO
     private searchBusinesses(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
-        const query: Record<string, string[]> = {};
+        const query: Record<string, string[]> = {
+            exact: ["publicKey", "vat"],
+            like: ["name", "repository", "website"],
+        };
+
         const entries: any[] = this.getIndex("businesses")
             .values()
             .map(wallet => {
-                const business: Interfaces.IHtlcLocks = wallet.getAttribute("business");
-                return business;
-            })
-            .filter(business => !!business);
+                const business: any = wallet.getAttribute("business");
+                const businessData = {
+                    address: wallet.address,
+                    publicKey: business.publicKey,
+                    ...business.businessAsset,
+                };
+
+                if (business.resigned) {
+                    businessData.isResigned = true;
+                }
+
+                return businessData;
+            });
 
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["name", "asc"],
         };
     }
 
-    // TODO
     private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
-        const query: Record<string, string[]> = {};
+        const query: Record<string, string[]> = {
+            exact: ["genesisHash", "publicKey"],
+            like: ["bridgechainRepository", "name"],
+            every: ["seedNodes"],
+        };
 
-        const entries: any[][] = this.getIndex("bridgechains")
-            .values()
-            .map(wallet => {
-                return wallet.getAttribute("business.bridgechains");
-            })
-            .filter(bridgchain => !!bridgchain);
+        const entries: any[] = this.getIndex("bridgechains")
+            .entries()
+            .reduce((acc: any, [genesisHash, wallet]) => {
+                const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
+                if (bridgechains && bridgechains[genesisHash]) {
+                    const bridgechain: any = bridgechains[genesisHash];
+                    acc.push({
+                        publicKey: wallet.publicKey,
+                        ...bridgechain.bridgechainAsset,
+                    });
+                }
+
+                return acc;
+            }, []);
 
         return {
             query,
             entries,
-            defaultOrder: ["expirationValue", "asc"],
+            defaultOrder: ["name", "asc"],
         };
     }
 }

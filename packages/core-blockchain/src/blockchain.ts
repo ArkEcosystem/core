@@ -299,15 +299,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         );
 
         const removedBlocks: Interfaces.IBlockData[] = [];
+        const removedTransactions: Interfaces.ITransaction[] = [];
+
         const revertLastBlock = async () => {
             const lastBlock: Interfaces.IBlock = this.state.getLastBlock();
 
             await this.database.revertBlock(lastBlock);
             removedBlocks.push(lastBlock.data);
-
-            if (this.transactionPool) {
-                await this.transactionPool.addTransactions(lastBlock.transactions);
-            }
+            removedTransactions.push(...[...lastBlock.transactions].reverse());
 
             let newLastBlock: Interfaces.IBlock;
             if (blocksToRemove[blocksToRemove.length - 1].height === 1) {
@@ -358,7 +357,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         await this.blockRepository.deleteBlocks(removedBlocks);
 
-        this.queue.resume();
+        if (this.transactionPool) {
+            await this.transactionPool.replay(removedTransactions.reverse());
+        }
     }
 
     /**
@@ -404,12 +405,16 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             return callback();
         }
 
+        let forkBlock: Interfaces.IBlock | undefined = undefined;
         for (const block of blocks) {
             lastProcessResult = await this.blockProcessor.process(block);
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(block);
             } else {
+                if (lastProcessResult === BlockProcessorResult.Rollback) {
+                    forkBlock = block;
+                }
                 break; // if one block is not accepted, the other ones won't be chained anyway
             }
         }
@@ -463,6 +468,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                     .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                     .broadcastBlock(currentBlock);
             }
+        } else if (forkBlock) {
+            this.forkBlock(forkBlock)
         }
 
         return callback(acceptedBlocks);

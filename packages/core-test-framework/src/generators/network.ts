@@ -267,7 +267,7 @@ export class GenerateNetwork {
                     },
                 },
                 vendorFieldLength: 64,
-                multiPaymentLimit: 500,
+                multiPaymentLimit: 256,
                 aip11: true,
             },
             {

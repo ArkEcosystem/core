@@ -149,9 +149,14 @@ export class DatabaseService {
     }
 
     public async getActiveDelegates(
-        roundInfo: Contracts.Shared.RoundInfo,
+        roundInfo?: Contracts.Shared.RoundInfo,
         delegates?: Contracts.State.Wallet[],
     ): Promise<Contracts.State.Wallet[]> {
+        if (!roundInfo) {
+            const lastBlock = await this.getLastBlock();
+            roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
+        }
+
         const { round } = roundInfo;
 
         if (
@@ -188,7 +193,7 @@ export class DatabaseService {
 
         delegates = delegates.map(delegate => delegate.clone());
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-            for (let x = 0; x < 4 && i < delCount; i++, x++) {
+            for (let x = 0; x < 4 && i < delCount; i++ , x++) {
                 const newIndex = currentSeed[x] % delCount;
                 const b = delegates[newIndex];
                 delegates[newIndex] = delegates[i];
@@ -418,7 +423,7 @@ export class DatabaseService {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         await this.revertRound(block.data.height);
-        this.blockState.revertBlock(block);
+        await this.blockState.revertBlock(block);
 
         assert(this.blocksInCurrentRound!.pop()!.data.id === block.data.id);
 
@@ -575,6 +580,16 @@ export class DatabaseService {
     private async initializeLastBlock(): Promise<void> {
         let lastBlock: Interfaces.IBlock | undefined;
         let tries = 5;
+
+        // Ensure the config manager is initialized, before attempting to call `fromData`
+        // which otherwise uses potentially wrong milestones.
+        let lastHeight: number = 1;
+        const latest: Interfaces.IBlockData | undefined = await this.blockRepository.findLatest();
+        if (latest) {
+            lastHeight = latest.height;
+        }
+
+        Managers.configManager.setHeight(lastHeight);
 
         const getLastBlock = async (): Promise<Interfaces.IBlock | undefined> => {
             try {

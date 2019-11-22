@@ -78,8 +78,10 @@ export abstract class AbstractEntityRepository<Entity extends ObjectLiteral> ext
     ): Entity {
         const entity: Entity = this.create();
         for (const [key, value] of Object.entries(rawEntity)) {
+            // Replace auto-generated column name with property name, if any.
+            let columnName: string = key.replace(`${this.metadata.givenTableName}_`, "");
             const columnMetadata: ColumnMetadata | undefined = this.metadata.columns.find(
-                column => column.databaseName === key,
+                column => column.databaseName === columnName
             );
             if (columnMetadata) {
                 let propertyValue: any;

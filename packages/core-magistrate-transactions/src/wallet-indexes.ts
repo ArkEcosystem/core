@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { IBusinessWalletAttributes } from "./interfaces";
 
@@ -12,7 +12,8 @@ export const businessIndexer = (index: Contracts.State.WalletIndex, wallet: Cont
         const business: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>("business");
 
         if (business !== undefined && !business.resigned) {
-            index.set(business.businessId.toFixed(), wallet);
+            Utils.assert.defined<string>(wallet.publicKey);
+            index.set(wallet.publicKey, wallet);
         }
     }
 };
@@ -20,7 +21,7 @@ export const businessIndexer = (index: Contracts.State.WalletIndex, wallet: Cont
 export const bridgechainIndexer = (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet): void => {
     if (wallet.hasAttribute("business.bridgechains")) {
         for (const bridgechainId of Object.keys(wallet.getAttribute("business.bridgechains"))) {
-            // TODO: allow generic index values to create more sophisticated indexes like businessId -> bridgechains
+            // TODO: allow generic index values to create more sophisticated indexes like publicKey -> bridgechains
             index.set(bridgechainId, wallet);
         }
     }

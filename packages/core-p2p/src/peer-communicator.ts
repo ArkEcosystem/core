@@ -2,6 +2,7 @@ import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/cor
 import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import { SCClientSocket } from "socketcluster-client";
+import delay from "delay";
 
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
@@ -9,7 +10,9 @@ import { PeerConfig, PeerPingResponse } from "./interfaces";
 import { PeerConnector } from "./peer-connector";
 import { PeerVerifier } from "./peer-verifier";
 import { createSchemas } from "./schemas";
-import { isValidVersion, socketEmit } from "./utils";
+import { isValidVersion, socketEmit, buildRateLimiter } from "./utils";
+import { RateLimiter } from "./rate-limiter";
+import { constants } from "./constants";
 
 // todo: review the implementation
 @Container.injectable()
@@ -26,20 +29,21 @@ export class PeerCommunicator {
     @Container.inject(Container.Identifiers.PeerConnector)
     private readonly connector!: PeerConnector;
 
-    public async downloadBlocks(peer: Contracts.P2P.Peer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
-        this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
+    private outgoingRateLimiter: RateLimiter;
 
-        let blocks: Interfaces.IBlockData[];
-        try {
-            blocks = await this.getPeerBlocks(peer, { fromBlockHeight });
-        } catch {
-            this.logger.debug(
-                `Failed to download blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}.`,
-            );
-            blocks = [];
-        }
-
-        return blocks;
+    constructor() {
+        this.outgoingRateLimiter = buildRateLimiter({
+            // White listing anybody here means we would not throttle ourselves when sending
+            // them requests, ie we could spam them.
+            whitelist: [],
+            remoteAccess: [],
+            rateLimit: this.app
+                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                .get("@arkecosystem/core-p2p")
+                .config()
+                .all()
+                .rateLimit
+        });
     }
 
     public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlockJson) {
@@ -94,21 +98,27 @@ export class PeerCommunicator {
                 try {
                     let valid: boolean = false;
 
+                    const peerHostPort = `${peer.ip}:${plugin.port}`;
+
                     if (name.includes("core-api") || name.includes("core-wallet-api")) {
                         const { data, statusCode } = await Utils.http.get(
-                            `http://${peer.ip}:${plugin.port}/api/node/configuration`,
+                            `http://${peerHostPort}/api/node/configuration`,
                         );
 
                         if (statusCode === 200) {
-                            if (data.data.nethash === Managers.configManager.get("network.nethash")) {
+                            const ourNethash = Managers.configManager.get("network.nethash");
+                            const hisNethash = data.data.nethash;
+                            if (ourNethash === hisNethash) {
                                 valid = true;
                             } else {
-                                this.logger.debug("Disconnecting from peer, because api returned a different nethash.");
+                                this.logger.warning(
+                                    `Disconnecting from ${peerHostPort}: ` +
+                                    `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`);
                                 this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
                             }
                         }
                     } else {
-                        const { statusCode } = await Utils.http.get(`http://${peer.ip}:${plugin.port}/`);
+                        const { statusCode } = await Utils.http.get(`http://${peerHostPort}/`);
                         valid = statusCode === 200;
                     }
 
@@ -166,10 +176,12 @@ export class PeerCommunicator {
         peer: Contracts.P2P.Peer,
         {
             fromBlockHeight,
-            blockLimit,
+            blockLimit = constants.MAX_DOWNLOAD_BLOCKS,
             headersOnly,
         }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
+        const maxPayload = headersOnly ? blockLimit * constants.KILOBYTE : constants.DEFAULT_MAX_PAYLOAD;
+
         const peerBlocks = await this.emit(
             peer,
             "p2p.peer.getBlocks",
@@ -178,15 +190,13 @@ export class PeerCommunicator {
                 blockLimit,
                 headersOnly,
                 serialized: true,
-                headers: {
-                    "Content-Type": "application/json",
-                },
             },
             this.app
                 .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                 .get("@arkecosystem/core-p2p")
                 .config()
                 .get<number>("getBlocksTimeout"),
+            maxPayload
         );
 
         if (!peerBlocks) {
@@ -236,14 +246,18 @@ export class PeerCommunicator {
         return true;
     }
 
-    private async emit(peer: Contracts.P2P.Peer, event: string, data?: any, timeout?: number) {
+    private async emit(peer: Contracts.P2P.Peer, event: string, data?: any, timeout?: number, maxPayload?: number) {
+        await this.throttle(peer, event);
+
         let response;
         try {
             this.connector.forgetError(peer);
 
             const timeBeforeSocketCall: number = new Date().getTime();
 
-            const connection: SCClientSocket = this.connector.connect(peer);
+            maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
+            const connection: SCClientSocket = this.connector.connect(peer, maxPayload);
+
             response = await socketEmit(
                 peer.ip,
                 connection,
@@ -267,6 +281,16 @@ export class PeerCommunicator {
         }
 
         return response.data;
+    }
+
+    private async throttle(peer: Contracts.P2P.Peer, event: string): Promise<void> {
+        const msBeforeReCheck = 1000;
+        while (await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event)) {
+            this.logger.debug(
+                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`
+            );
+            await delay(msBeforeReCheck);
+        }
     }
 
     private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error): void {

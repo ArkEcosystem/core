@@ -1,9 +1,12 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Utils, Contracts } from "@arkecosystem/core-kernel";
 
 import { Resource } from "../interfaces";
 
 @Container.injectable()
 export class LockResource implements Resource {
+    @Container.inject(Container.Identifiers.StateStore)
+    protected readonly stateStore!: Contracts.State.StateStore;
+
     /**
      * Return the raw representation of the resource.
      *
@@ -26,6 +29,7 @@ export class LockResource implements Resource {
         return {
             ...resource,
             amount: resource.amount.toFixed(),
+            timestamp: Utils.formatTimestamp(resource.timestamp),
         };
     }
 }

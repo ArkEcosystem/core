@@ -1,9 +1,10 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils as CryptoUtils } from "@arkecosystem/crypto";
 
 import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import { IpfsHashAlreadyExists } from "../errors";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
@@ -32,11 +33,12 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
             const ipfsHashes: Contracts.State.WalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
             ipfsHashes[transaction.asset.ipfs!] = true;
+            this.walletRepository.reindex(wallet);
         }
     }
 
     public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
+        return Managers.configManager.getMilestone().aip11 === true;
     }
 
     public async throwIfCannotBeApplied(
@@ -44,10 +46,14 @@ export class IpfsTransactionHandler extends TransactionHandler {
         wallet: Contracts.State.Wallet,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        // TODO implement unique ipfs hash on blockchain (not just on wallet)
-        // if (wallet.ipfsHashes[transaction.data.asset.ipfs]) {
-        //     throw new IpfsHashAlreadyExists();
-        // }
+        if (CryptoUtils.isException(transaction.data.id)) {
+            return;
+        }
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+        if (walletRepository.getIndex(Contracts.State.WalletIndexes.Ipfs).has(transaction.data.asset!.ipfs!)) {
+            throw new IpfsHashAlreadyExists();
+        }
 
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
@@ -97,7 +103,12 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
         Utils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.ipfs);
 
-        delete sender.getAttribute("ipfs.hashes", {})[transaction.data.asset.ipfs];
+        const ipfsHashes = sender.getAttribute("ipfs.hashes");
+        delete ipfsHashes[transaction.data.asset.ipfs];
+
+        if (!Object.keys(ipfsHashes).length) {
+            sender.forgetAttribute("ipfs");
+        }
 
         walletRepository.reindex(sender);
     }
@@ -105,10 +116,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

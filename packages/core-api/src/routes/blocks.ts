@@ -3,6 +3,7 @@ import Joi from "@hapi/joi";
 
 import { BlocksController } from "../controllers/blocks";
 import { numberFixedOrBetween, searchCriteria } from "../schemas";
+import { orderBy } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(BlocksController);
@@ -17,7 +18,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         id: server.app.schemas.blockId,
                         version: Joi.number()
                             .integer()
@@ -110,7 +111,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         id: Joi.string()
                             .hex()
                             .length(66),

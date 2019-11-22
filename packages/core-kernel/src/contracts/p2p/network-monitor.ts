@@ -32,7 +32,7 @@ export interface INetworkMonitor {
     isBlockedByRateLimit(ip: string): Promise<boolean>;
     refreshPeersAfterFork(): Promise<void>;
     checkNetworkHealth(): Promise<NetworkStatus>;
-    syncWithNetwork(fromBlockHeight: number, maxParallelDownloads?: number): Promise<Interfaces.IBlockData[]>;
+    downloadBlocksFromHeight(fromBlockHeight: number, maxParallelDownloads?: number): Promise<Interfaces.IBlockData[]>;
     broadcastBlock(block: Interfaces.IBlock): Promise<void>;
     broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
     getServer(): SocketCluster; // remove this

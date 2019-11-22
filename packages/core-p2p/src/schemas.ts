@@ -18,6 +18,14 @@ export const createSchemas = (app: Contracts.Kernel.Application) => {
                         },
                     },
                 },
+                getPeers: {
+                    type: "object",
+                    maxProperties: 0,
+                },
+                getStatus: {
+                    type: "object",
+                    maxProperties: 0,
+                },
                 getBlocks: {
                     type: "object",
                     required: ["lastBlockHeight"],
@@ -47,12 +55,12 @@ export const createSchemas = (app: Contracts.Kernel.Application) => {
                             minItems: 1,
                             maxItems: app.isBound(Container.Identifiers.TransactionPoolService)
                                 ? app
-                                      .get<Providers.ServiceProviderRepository>(
-                                          Container.Identifiers.ServiceProviderRepository,
-                                      )
-                                      .get("transactionPool")
-                                      .config()
-                                      .get<number>("maxTransactionsPerRequest") || 40
+                                    .get<Providers.ServiceProviderRepository>(
+                                        Container.Identifiers.ServiceProviderRepository,
+                                    )
+                                    .get("transactionPool")
+                                    .config()
+                                    .get<number>("maxTransactionsPerRequest") || 40
                                 : 40,
                         },
                     },

@@ -3,17 +3,19 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
+    Enums,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { BusinessAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { MagistrateIndex } from "../wallet-indexes";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
-export class BusinessRegistrationTransactionHandler extends Handlers.TransactionHandler {
+export class BusinessRegistrationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BusinessRegistrationTransaction;
     }
@@ -32,10 +34,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         ];
     }
 
-    public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
-    }
-
     public async bootstrap(): Promise<void> {
         const reader: TransactionReader = this.getTransactionReader();
         const transactions: Models.Transaction[] = await reader.read();
@@ -44,7 +42,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const asset: IBusinessWalletAttributes = {
                 businessAsset: transaction.asset.businessRegistration,
-                businessId: this.getBusinessId(this.walletRepository),
             };
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", asset);
@@ -73,7 +70,13 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
+        if (
+            await pool.senderHasTransactionsOfType(
+                data.senderPublicKey!,
+                Enums.MagistrateTransactionType.BusinessRegistration,
+                Enums.MagistrateTransactionGroup,
+            )
+        ) {
             // @ts-ignore
             const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(data.senderPublicKey);
 
@@ -105,7 +108,6 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
 
         sender.setAttribute<IBusinessWalletAttributes>("business", {
             businessAsset: transaction.data.asset?.businessRegistration,
-            businessId: this.getBusinessId(walletRepository),
         });
 
         walletRepository.reindex(sender);
@@ -132,15 +134,11 @@ export class BusinessRegistrationTransactionHandler extends Handlers.Transaction
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
-
-    private getBusinessId(walletRepository: Contracts.State.WalletRepository): Utils.BigNumber {
-        return Utils.BigNumber.make(walletRepository.getIndex(MagistrateIndex.Businesses).values().length).plus(1);
-    }
+    ): Promise<void> { }
 }

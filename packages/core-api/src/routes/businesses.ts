@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { BusinessController } from "../controllers/businesses";
+import { orderBy } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(BusinessController);
@@ -16,10 +17,18 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
-                        businessId: Joi.number()
-                            .integer()
-                            .min(1),
+                        orderBy,
+                        publicKey: Joi.string()
+                            .hex()
+                            .length(66),
+                        name: Joi.string()
+                            .regex(/^[a-zA-Z0-9_-]+$/)
+                            .max(40),
+                        website: Joi.string().max(80),
+                        vat: Joi.string()
+                            .alphanum()
+                            .max(15),
+                        repository: Joi.string().max(80),
                     },
                 },
             },
@@ -33,9 +42,9 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.number()
-                        .integer()
-                        .min(1),
+                    id: Joi.string()
+                        .hex()
+                        .length(66),
                 },
             },
         },
@@ -44,13 +53,19 @@ export const register = (server: Hapi.Server): void => {
     server.route({
         method: "GET",
         path: "/businesses/{id}/bridgechains",
-        handler: controller.show,
+        handler: controller.bridgechains,
         options: {
             validate: {
                 params: {
-                    id: Joi.number()
-                        .integer()
-                        .min(1),
+                    id: Joi.string()
+                        .hex()
+                        .length(66),
+                },
+                query: {
+                    ...server.app.schemas.pagination,
+                    ...{
+                        orderBy,
+                    },
                 },
             },
         },
@@ -65,13 +80,13 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
                 payload: {
-                    businessId: Joi.number()
-                        .integer()
-                        .min(1),
+                    publicKey: Joi.string()
+                        .hex()
+                        .length(66),
                 },
             },
         },

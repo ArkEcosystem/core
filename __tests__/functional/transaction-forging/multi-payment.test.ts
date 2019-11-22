@@ -1,7 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Identities, Utils, Managers } from "@arkecosystem/crypto";
 
 import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 import secrets from "@packages/core-test-framework/src/internal/secrets.json";
@@ -47,7 +47,7 @@ describe("Transaction Forging - Multipayment", () => {
         await expect(transactions.id).toBeForged();
     });
 
-    it("should broadcast, accept and forge it [500 payments per tx, 200 tx] [Signed with 1 Passphase]", async () => {
+    it("should broadcast, accept and forge it [max payments per tx, 200 tx] [Signed with 1 Passphase]", async () => {
         // Initial Funds
         const initialFunds = TransactionFactory.init(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 5000 * 1e8)
@@ -58,21 +58,21 @@ describe("Transaction Forging - Multipayment", () => {
         await snoozeForBlock(1);
         await expect(initialFunds.id).toBeForged();
 
-        const payments100 = [];
-        for (let i = 1; i <= 500; i++) {
-            payments100.push({
+        const payments = [];
+        for (let i = 1; i <= Managers.configManager.getMilestone().multiPaymentLimit; i++) {
+            payments.push({
                 recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
                 amount: "1",
             });
         }
         // Submit multipayment transaction
         const transactions = TransactionFactory.init(app)
-            .multiPayment(payments100)
+            .multiPayment(payments)
             .withPassphrase(passphrase)
             .withFee(2 * 1e8)
             .create(200);
 
-        await expect(transactions).toBeAllAccepted();
+        await expect(transactions).toBeEachAccepted();
         await snoozeForBlock(70); // we need 7 blocks for the transactions to be forged (30 per block because of maxTransactionBytes)
 
         for (const transaction of transactions) {
@@ -80,7 +80,7 @@ describe("Transaction Forging - Multipayment", () => {
         }
     });
 
-    it("should NOT broadcast, accept and forge it [501 payments] [Signed with 1 Passphase]", async () => {
+    it("should NOT broadcast, accept and forge it [max + 1 payments] [Signed with 1 Passphase]", async () => {
         // Initial Funds
         const initialFunds = TransactionFactory.init(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
@@ -91,9 +91,9 @@ describe("Transaction Forging - Multipayment", () => {
         await snoozeForBlock(1);
         await expect(initialFunds.id).toBeForged();
 
-        const payments101 = [];
-        for (let i = 1; i <= 500; i++) {
-            payments101.push({
+        const payments = [];
+        for (let i = 1; i <= Managers.configManager.getMilestone().multiPaymentLimit; i++) {
+            payments.push({
                 recipientId: "AbfQq8iRSf9TFQRzQWo33dHYU7HFMS17Zd",
                 amount: "" + i,
             });
@@ -101,7 +101,7 @@ describe("Transaction Forging - Multipayment", () => {
 
         // Submit multipayment transaction
         const factory = TransactionFactory.init(app)
-            .multiPayment(payments101)
+            .multiPayment(payments)
             .withPassphrase(passphrase)
             .withFee(2 * 1e8);
 
@@ -111,7 +111,9 @@ describe("Transaction Forging - Multipayment", () => {
         });
 
         const transaction = factory.createOne();
-        expect(transaction.asset.payments.length).toBe(501);
+        expect(transaction.asset.payments.length).toBe(
+            Managers.configManager.getMilestone().multiPaymentLimit + 1
+        );
 
         await expect(transaction).not.toBeAccepted();
         await snoozeForBlock(1);

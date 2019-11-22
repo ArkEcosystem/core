@@ -273,7 +273,7 @@ $ ark network:generate --network=mynet7 --premine=120000000000 --delegates=47 --
                     },
                 },
                 vendorFieldLength: 64,
-                multiPaymentLimit: 500,
+                multiPaymentLimit: 256,
                 aip11: true,
             },
             {

@@ -23,6 +23,7 @@ export interface Connection {
     }>;
     acceptChainedBlock(block: Interfaces.IBlock): Promise<void>;
     buildWallets(): Promise<void>;
+    replay(transactions: Interfaces.ITransaction[]): Promise<void>;
     flush(): void;
     getTransaction(id: string): Promise<Interfaces.ITransaction | undefined>;
     getTransactionIdsForForging(start: number, size: number): Promise<string[]>;

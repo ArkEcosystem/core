@@ -1,7 +1,7 @@
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Enums, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -129,12 +129,11 @@ export class TransactionsController extends Controller {
             AppUtils.assert.defined<number>(typeGroup);
             AppUtils.assert.defined<string>(key);
 
-            const groupName: string | number = Enums.TransactionTypeGroup[typeGroup] || typeGroup;
-            if (typeGroups[groupName] === undefined) {
-                typeGroups[groupName] = {};
+            if (typeGroups[typeGroup] === undefined) {
+                typeGroups[typeGroup] = {};
             }
 
-            typeGroups[groupName][key[0].toUpperCase() + key.slice(1)] = type;
+            typeGroups[typeGroup][key[0].toUpperCase() + key.slice(1)] = type;
         }
 
         return { data: typeGroups };
@@ -166,8 +165,33 @@ export class TransactionsController extends Controller {
     }
 
     public async fees(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        return {
-            data: Managers.configManager.getMilestone(this.blockchain.getLastHeight()).fees.staticFees,
-        };
+        try {
+            const currentHeight: number = this.app
+                .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
+                .getLastHeight();
+
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app.get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+                .getActivatedTransactionHandlers();
+
+            const typeGroups: Record<string | number, Record<string, string>> = {};
+
+            for (const handler of activatedTransactionHandlers) {
+                const constructor = handler.getConstructor();
+
+                const { typeGroup, key } = constructor;
+                AppUtils.assert.defined<number>(typeGroup);
+                AppUtils.assert.defined<string>(key);
+
+                if (typeGroups[typeGroup] === undefined) {
+                    typeGroups[typeGroup] = {};
+                }
+
+                typeGroups[typeGroup][key] = constructor.staticFee({ height: currentHeight }).toFixed();
+            }
+
+            return { data: typeGroups };
+        } catch (error) {
+            return Boom.badImplementation(error);
+        }
     }
 }

@@ -29,14 +29,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
+        return Managers.configManager.getMilestone().aip11 === true;
     }
 
-    public dynamicFee(
-        transaction: Interfaces.ITransaction,
-        addonBytes: number,
-        satoshiPerByte: number,
-    ): Utils.BigNumber {
+    public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
         // override dynamicFee calculation as this is a zero-fee transaction
         return Utils.BigNumber.ZERO;
     }
@@ -68,12 +64,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
-        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
-        if (
-            (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
-                expiration.value <= lastBlock.data.timestamp) ||
-            (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value <= lastBlock.data.height)
-        ) {
+        if (AppUtils.expirationCalculator.calculateLockExpirationStatus(lastBlock, lock.expiration)) {
             throw new HtlcLockExpiredError();
         }
 
@@ -173,11 +164,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         strict(!newLockedBalance.isNegative());
 
-        if (newLockedBalance.isZero()) {
-            lockWallet.forgetAttribute("htlc.lockedBalance");
-        } else {
-            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
-        }
+        lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
 
         delete locks[lockId];
 
@@ -230,7 +217,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
-            vendorField: lockTransaction.vendorField,
+            vendorField: lockTransaction.vendorField
+                ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
+                : undefined,
             ...lockTransaction.asset.lock,
         };
 
@@ -242,10 +231,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

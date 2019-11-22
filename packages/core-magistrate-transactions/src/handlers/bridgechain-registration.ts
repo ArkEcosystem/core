@@ -5,16 +5,17 @@ import {
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { BusinessIsResignedError, WalletIsNotBusinessError } from "../errors";
+import { BusinessIsResignedError, WalletIsNotBusinessError, BridgechainAlreadyRegisteredError, GenesisHashAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
-import { MagistrateIndex } from "../wallet-indexes";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
+import { MagistrateIndex } from "../wallet-indexes";
 
 @Container.injectable()
-export class BridgechainRegistrationTransactionHandler extends Handlers.TransactionHandler {
+export class BridgechainRegistrationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainRegistrationTransaction;
     }
@@ -25,10 +26,6 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
 
     public walletAttributes(): ReadonlyArray<string> {
         return ["business.bridgechains.bridgechain"];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public async bootstrap(): Promise<void> {
@@ -44,9 +41,8 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
                 businessAttributes.bridgechains = {};
             }
 
-            const bridgechainId: Utils.BigNumber = this.getBridgechainId(this.walletRepository);
-            businessAttributes.bridgechains[bridgechainId.toFixed()] = {
-                bridgechainId,
+            const bridgechainId: string = transaction.asset.bridgechainRegistration.genesisHash;
+            businessAttributes.bridgechains[bridgechainId] = {
                 bridgechainAsset: transaction.asset.bridgechainRegistration,
             };
 
@@ -60,12 +56,48 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         wallet: Contracts.State.Wallet,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        if (Utils.isException(transaction.data.id)) {
+            return;
+        }
+
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }
 
         if (wallet.hasAttribute("business.resigned")) {
             throw new BusinessIsResignedError();
+        }
+
+        const { data }: Interfaces.ITransaction = transaction;
+        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
+
+        if (
+            bridgechains &&
+            Object.values(bridgechains).some(bridgechain => {
+                return (
+                    bridgechain.bridgechainAsset.name.toLowerCase() ===
+                    data.asset!.bridgechainRegistration.name.toLowerCase()
+                );
+            })
+        ) {
+            throw new BridgechainAlreadyRegisteredError();
+        }
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+        for (const wallet of walletRepository.getIndex(MagistrateIndex.Businesses).values()) {
+            const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute(
+                "business.bridgechains",
+            );
+
+            if (bridgechains) {
+                const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(bridgechains);
+
+                for (const bridgechain of bridgechainValues) {
+                    if (bridgechain.bridgechainAsset.genesisHash === data.asset!.bridgechainRegistration.genesisHash) {
+                        throw new GenesisHashAlreadyRegisteredError();
+                    }
+                }
+            }
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
@@ -107,9 +139,8 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
             transaction.data.asset?.bridgechainRegistration,
         );
 
-        const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletRepository);
-        businessAttributes.bridgechains[bridgechainId.toFixed()] = {
-            bridgechainId,
+        const bridgechainId: string = transaction.data.asset.bridgechainRegistration.genesisHash;
+        businessAttributes.bridgechains[bridgechainId] = {
             bridgechainAsset: transaction.data.asset.bridgechainRegistration,
         };
 
@@ -148,15 +179,11 @@ export class BridgechainRegistrationTransactionHandler extends Handlers.Transact
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
-
-    private getBridgechainId(walletRepository: Contracts.State.WalletRepository): Utils.BigNumber {
-        return Utils.BigNumber.make(walletRepository.getIndex(MagistrateIndex.Bridgechains).values().length).plus(1);
-    }
+    ): Promise<void> { }
 }

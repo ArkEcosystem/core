@@ -25,6 +25,7 @@ export enum WalletIndexes {
     Usernames = "usernames",
     Resignations = "resignations",
     Locks = "locks",
+    Ipfs = "ipfs",
 }
 
 export interface Wallet {
@@ -199,5 +200,6 @@ export interface UnwrappedHtlcLock {
     timestamp: number;
     expirationType: number;
     expirationValue: number;
+    isExpired: boolean;
     vendorField: string;
 }

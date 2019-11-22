@@ -2,6 +2,8 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { LocksController } from "../controllers/locks";
+import { orderBy } from "../schemas";
+import { Enums } from "@arkecosystem/crypto";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(LocksController);
@@ -16,7 +18,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                         recipientId: Joi.string()
                             .alphanum()
                             .length(34),
@@ -35,7 +37,8 @@ export const register = (server: Hapi.Server): void => {
                         expirationValue: Joi.number()
                             .integer()
                             .min(0),
-                        expirationType: Joi.number().only(1, 2),
+                        expirationType: Joi.number().only(...Object.values(Enums.HtlcLockExpirationType)),
+                        isExpired: Joi.bool(),
                     },
                 },
             },
@@ -66,7 +69,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
                 payload: {
@@ -101,7 +104,7 @@ export const register = (server: Hapi.Server): void => {
                     vendorField: Joi.string()
                         .min(1)
                         .max(255),
-                    expirationType: Joi.number().only(1, 2),
+                    expirationType: Joi.number().only(...Object.values(Enums.HtlcLockExpirationType)),
                     expirationValue: Joi.object().keys({
                         from: Joi.number()
                             .integer()
@@ -110,6 +113,7 @@ export const register = (server: Hapi.Server): void => {
                             .integer()
                             .min(0),
                     }),
+                    isExpired: Joi.bool(),
                 },
             },
         },
@@ -124,7 +128,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
                 payload: {

@@ -35,14 +35,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
+        return Managers.configManager.getMilestone().aip11 === true;
     }
 
-    public dynamicFee(
-        transaction: Interfaces.ITransaction,
-        addonBytes: number,
-        satoshiPerByte: number,
-    ): Utils.BigNumber {
+    public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
         // override dynamicFee calculation as this is a zero-fee transaction
         return Utils.BigNumber.ZERO;
     }
@@ -75,13 +71,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
-        const lastBlockEpochTimestamp: number = lastBlock.data.timestamp;
-        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
-        if (
-            (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
-                expiration.value > lastBlockEpochTimestamp) ||
-            (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value > lastBlock.data.height)
-        ) {
+        if (!AppUtils.expirationCalculator.calculateLockExpirationStatus(lastBlock, lock.expiration)) {
             throw new HtlcLockNotExpiredError();
         }
     }
@@ -169,13 +159,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
 
         const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
-        assert(!newLockedBalance.isNegative());
 
-        if (newLockedBalance.isZero()) {
-            lockWallet.forgetAttribute("htlc.lockedBalance");
-        } else {
-            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
-        }
+        assert(!newLockedBalance.isNegative());
+        lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
 
         delete locks[lockId];
 
@@ -211,7 +197,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
-        const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks", {});
+        const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks");
 
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
 
@@ -222,7 +208,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
                 amount: lockTransaction.amount,
                 recipientId: lockTransaction.recipientId,
                 timestamp: lockTransaction.timestamp,
-                vendorField: lockTransaction.vendorField,
+                vendorField: lockTransaction.vendorField
+                    ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
+                    : undefined,
                 ...lockTransaction.asset.lock,
             };
         }
@@ -233,10 +221,10 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

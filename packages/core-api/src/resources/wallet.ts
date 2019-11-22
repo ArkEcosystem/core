@@ -24,6 +24,21 @@ export class WalletResource implements Resource {
      * @memberof Resource
      */
     public transform(resource): object {
+
+        // FIXME
+        const business: any = undefined;
+        // if (app.has("core-magistrate-transactions")) {
+        //     business = wallet.getAttribute("business");
+
+        //     if (business) {
+        //         business = {
+        //             ...business.businessAsset,
+        //             publicKey: wallet.publicKey,
+        //             resigned: business.resigned,
+        //         };
+        //     }
+        // }
+
         return {
             address: resource.address,
             publicKey: resource.publicKey,
@@ -44,6 +59,7 @@ export class WalletResource implements Resource {
             multiSignature: resource.hasAttribute("multiSignature")
                 ? resource.getAttribute("multiSignature")
                 : undefined,
+            business,
         };
     }
 }

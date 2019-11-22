@@ -2,6 +2,7 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { BridgechainController } from "../controllers/bridgechains";
+import { orderBy } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(BridgechainController);
@@ -16,10 +17,23 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
-                        bridgechainId: Joi.number()
-                            .integer()
-                            .min(1),
+                        orderBy,
+                        publicKey: Joi.string()
+                            .hex()
+                            .length(66),
+                        bridgechainRepository: Joi.string().max(80),
+                        genesisHash: Joi.string()
+                            .hex()
+                            .length(64),
+                        name: Joi.string()
+                            .regex(/^[a-zA-Z0-9_-]+$/)
+                            .max(40),
+                        seedNodes: Joi.array()
+                            .unique()
+                            .min(1)
+                            .max(10)
+                            .items(Joi.string().ip()),
+
                     },
                 },
             },
@@ -33,9 +47,9 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: Joi.number()
-                        .integer()
-                        .min(1),
+                    id: Joi.string()
+                        .hex()
+                        .length(64), // id is genesisHash
                 },
             },
         },
@@ -50,13 +64,17 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy: Joi.string(),
+                        orderBy,
                     },
                 },
                 payload: {
-                    bridgechainId: Joi.number()
-                        .integer()
-                        .min(1),
+                    bridgechainRepository: Joi.string().max(80),
+                    publicKey: Joi.string()
+                        .hex()
+                        .length(66),
+                    genesisHash: Joi.string()
+                        .hex()
+                        .length(64),
                 },
             },
         },

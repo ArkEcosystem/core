@@ -6,6 +6,7 @@ import { Brackets, EntityRepository, In, SelectQueryBuilder } from "typeorm";
 import { Transaction } from "../models";
 import { AbstractEntityRepository, RepositorySearchResult } from "./repository";
 import { SearchCriteria, SearchFilter, SearchOperator, SearchPagination, SearchQueryConverter } from "./search";
+import { Block } from "@arkecosystem/crypto/dist/blocks";
 
 @EntityRepository(Transaction)
 export class TransactionRepository extends AbstractEntityRepository<Transaction> {
@@ -62,7 +63,14 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     public async getFeeStatistics(
         days: number,
         minFee?: number,
-    ): Promise<{ type: number; fee: number; timestamp: number }[]> {
+    ): Promise<{
+        type: number;
+        typeGroup: number;
+        avg: string;
+        min: string;
+        max: string;
+        sum: string;
+    }[]> {
         minFee = minFee || 0;
 
         const age = Crypto.Slots.getTime(
@@ -109,20 +117,35 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
             .getRawMany();
     }
 
-    public async findByType(type: number, typeGroup: number, limit?: number, offset?: number): Promise<Transaction[]> {
-        return this.find({
-            select: ["senderPublicKey", "timestamp", "asset", "version", "id", "fee", "amount", "recipientId"],
-            where: {
-                type,
-                typeGroup,
-            },
-            order: {
-                timestamp: "ASC",
-                sequence: "ASC",
-            },
-            skip: offset,
-            take: limit,
-        });
+    public async findByType(type: number, typeGroup: number, limit?: number, offset?: number): Promise<Array<Transaction & { blockHeight: number; blockGeneratorPublicKey: string; reward: Utils.BigNumber }>> {
+        const transactions = await this.createQueryBuilder("transactions")
+            .select()
+            .addSelect("blocks.height as \"blockHeight\"")
+            .addSelect("blocks.generatorPublicKey as \"blockGeneratorPublicKey\"")
+            .addSelect("blocks.reward as \"reward\"")
+            .addFrom(Block, "blocks")
+            .where("block_id = blocks.id")
+            .andWhere("type = :type", { type })
+            .andWhere("type_group = :typeGroup", { typeGroup })
+            .orderBy("transactions.timestamp", "ASC")
+            .addOrderBy("transactions.sequence", "ASC")
+            .skip(offset)
+            .take(limit)
+            .getRawMany();
+
+        return transactions.map(transaction => {
+            return this.rawToEntity(
+                transaction,
+                // @ts-ignore
+                (entity: any, key: string, value: number | string) => {
+                    if (key === "reward") {
+                        entity[key] = Utils.BigNumber.make(value);
+                    } else {
+                        entity[key] = value;
+                    }
+                },
+            );
+        }) as any;
     }
 
     public async findByIdAndType(type: number, id: string): Promise<Transaction | undefined> {

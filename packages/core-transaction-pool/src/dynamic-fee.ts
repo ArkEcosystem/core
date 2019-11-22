@@ -20,6 +20,9 @@ export const dynamicFeeMatcher = async (
         .config()
         .get<Record<string, any>>("dynamicFees");
 
+    const height: number = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
+        .getLastHeight();
+
     AppUtils.assert.defined<Record<string, any>>(dynamicFees);
 
     let broadcast: boolean;
@@ -31,18 +34,19 @@ export const dynamicFeeMatcher = async (
             .get(transaction.type, transaction.typeGroup);
 
         const addonBytes: number = dynamicFees.addonBytes[transaction.key];
-        const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee(
+        const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee({
             transaction,
             addonBytes,
-            dynamicFees.minFeeBroadcast,
-        );
+            satoshiPerByte: dynamicFees.minFeeBroadcast,
+            height,
+        });
 
         if (fee.isGreaterThanEqual(minFeeBroadcast)) {
             broadcast = true;
 
             app.log.debug(
                 `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
-                    fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
+                fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
             );
         } else {
@@ -55,14 +59,19 @@ export const dynamicFeeMatcher = async (
             );
         }
 
-        const minFeePool: Utils.BigNumber = handler.dynamicFee(transaction, addonBytes, dynamicFees.minFeePool);
+        const minFeePool: Utils.BigNumber = handler.dynamicFee({
+            transaction,
+            addonBytes,
+            satoshiPerByte: dynamicFees.minFeePool,
+            height
+        });
 
         if (fee.isGreaterThanEqual(minFeePool)) {
             enterPool = true;
 
             app.log.debug(
                 `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
-                    fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
+                fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
             );
         } else {

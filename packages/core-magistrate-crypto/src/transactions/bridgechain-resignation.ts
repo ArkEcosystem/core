@@ -1,7 +1,6 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import Long from "long";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainResignationAsset } from "../interfaces";
@@ -31,7 +30,9 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
                             type: "object",
                             required: ["bridgechainId"],
                             properties: {
-                                bridgechainId: { bignumber: { minimum: 1 } },
+                                bridgechainId: {
+                                    $ref: "transactionId",
+                                },
                             },
                         },
                     },
@@ -46,9 +47,8 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
 
         AppUtils.assert.defined<IBridgechainResignationAsset>(data.asset?.bridgechainResignation);
 
-        const bridgechainResignationAsset: IBridgechainResignationAsset = data.asset.bridgechainResignation;
-        const buffer: ByteBuffer = new ByteBuffer(8, true);
-        buffer.writeUint64(Long.fromString(bridgechainResignationAsset.bridgechainId.toString()));
+        const buffer: ByteBuffer = new ByteBuffer(32, true);
+        buffer.append(data.asset.bridgechainResignation.bridgechainId, "hex");
 
         return buffer;
     }
@@ -56,10 +56,9 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
 
-        const bridgechainId: Utils.BigNumber = Utils.BigNumber.make(buf.readUint64().toString());
         data.asset = {
             bridgechainResignation: {
-                bridgechainId,
+                bridgechainId: buf.readBytes(32).toString("hex"),
             },
         };
     }

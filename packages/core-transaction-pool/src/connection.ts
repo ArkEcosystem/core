@@ -201,7 +201,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                        `(listed in options.allowedSenders), thus skipping throttling.`,
+                    `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -273,8 +273,8 @@ export class Connection implements Contracts.TransactionPool.Connection {
                     }
 
                     this.logger.error(
-                        `Cannot apply transaction ${transaction.id} when trying to accept ` +
-                            `block ${block.data.id}: ${error.message}`,
+                        `[Pool] Cannot apply transaction ${transaction.id} when trying to accept ` +
+                        `block ${block.data.id}: ${error.message}`,
                     );
 
                     continue;
@@ -319,7 +319,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             // TODO: rework error handling
             try {
                 const transactionHandler: Handlers.TransactionHandler = await this.app
-                    .get<any>(Container.Identifiers.TransactionHandlerRegistry)
+                    .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
                     .get(transaction.type, transaction.typeGroup);
                 await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.walletRepository);
                 await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
@@ -366,6 +366,26 @@ export class Connection implements Contracts.TransactionPool.Connection {
         }
 
         return false;
+    }
+
+    public async replay(transactions: Interfaces.ITransaction[]): Promise<void> {
+        this.flush();
+        this.poolWalletRepository.reset();
+
+        for (const transaction of transactions) {
+            try {
+                const handler: Handlers.TransactionHandler = await this.app
+                    .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+                    .get(transaction.type, transaction.typeGroup);
+
+                await handler.applyToSender(transaction, this.poolWalletRepository);
+                await handler.applyToRecipient(transaction, this.poolWalletRepository);
+
+                this.memory.remember(transaction);
+            } catch (error) {
+                this.logger.error(`[Pool] Transaction (${transaction.id}): ${error.message}`);
+            }
+        }
     }
 
     private async getValidatedTransactions(
@@ -428,7 +448,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                    `in the pool, id: ${transaction.id}`,
+                `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
@@ -472,7 +492,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 .get(transaction.type, transaction.typeGroup);
             await handler.applyToSender(transaction, this.poolWalletRepository);
         } catch (error) {
-            this.logger.error(error.message);
+            this.logger.error(`[Pool] ${error.message}`);
 
             AppUtils.assert.defined<string>(transaction.id);
 
@@ -550,7 +570,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 this.removeTransactionById(transaction.id);
 
                 this.logger.error(
-                    `Removed ${transaction.id} before forging because it is no longer valid: ${error.message}`,
+                    `[Pool] Removed ${transaction.id} before forging because it is no longer valid: ${error.message}`,
                 );
             }
         }

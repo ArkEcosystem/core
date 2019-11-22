@@ -6,10 +6,10 @@ import {
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import {
-    BridgechainIsNotRegisteredError,
+    BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
@@ -17,9 +17,10 @@ import {
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
-export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHandler {
+export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BridgechainUpdateTransaction;
     }
@@ -32,10 +33,6 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         return [];
     }
 
-    public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
-    }
-
     public async bootstrap(): Promise<void> {
         const reader: TransactionReader = this.getTransactionReader();
         const transactions: Models.Transaction[] = await reader.read();
@@ -46,8 +43,9 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
                 "business",
             );
 
-            const { bridgechainId, seedNodes } = transaction.asset.bridgechainUpdate;
+            const { bridgechainId, seedNodes, ports } = transaction.asset.bridgechainUpdate;
             businessAttributes.bridgechains![bridgechainId].bridgechainAsset.seedNodes = seedNodes;
+            businessAttributes.bridgechains![bridgechainId].bridgechainAsset.ports = ports;
 
             this.walletRepository.reindex(wallet);
         }
@@ -78,10 +76,10 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
+            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
 
         if (!bridgechainAttributes) {
-            throw new BridgechainIsNotRegisteredError();
+            throw new BridgechainIsNotRegisteredByWalletError();
         }
 
         if (bridgechainAttributes.resigned) {
@@ -100,6 +98,30 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
+        const { bridgechainId }: { bridgechainId: string } = data.asset!.bridgechainUpdate;
+
+        const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
+            await pool.getTransactionsByType(
+                Enums.MagistrateTransactionType.BridgechainUpdate,
+                Enums.MagistrateTransactionGroup,
+            ),
+        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+
+        if (
+            bridgechainUpdatesInPool.some(
+                update =>
+                    update.senderPublicKey === data.senderPublicKey &&
+                    update.asset!.bridgechainUpdate.bridgechainId === bridgechainId,
+            )
+        ) {
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
+            );
+            return false;
+        }
+
         return true;
     }
 
@@ -127,8 +149,14 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
-        bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
+            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
+        if (bridgechainUpdate.seedNodes) {
+            bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
+        }
+
+        if (bridgechainUpdate.ports) {
+            bridgechainAttributes.bridgechainAsset.ports = bridgechainUpdate.ports;
+        }
 
         walletRepository.reindex(wallet);
     }
@@ -160,16 +188,18 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
             Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
             // @ts-ignore Property 'seedNodes' does not exist on type 'IBootstrapTransaction'.
-            const { bridgechainId, seedNodes } = updateTransaction.asset.bridgechainUpdate;
+            const { bridgechainId, seedNodes, ports } = updateTransaction.asset.bridgechainUpdate;
 
             businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
+            businessAttributes.bridgechains[bridgechainId].bridgechainAsset.ports = ports;
+
         } else {
             // There are equally many bridgechain registrations as bridgechains a wallet posseses in the database.
             // By getting the index of the bridgechainId we can use it as an offset to get
             // the actual registration transaction.
             Utils.assert.defined<Utils.BigNumber>(transaction.data.asset?.bridgechainUpdate?.bridgechainId);
 
-            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId.toFixed();
+            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId;
 
             Utils.assert.defined<IBridgechainWalletAttributes>(businessAttributes.bridgechains);
 
@@ -218,6 +248,9 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
 
             businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes =
                 bridgechainRegistration.seedNodes;
+
+            businessAttributes.bridgechains[bridgechainId].bridgechainAsset.ports =
+                bridgechainRegistration.ports;
         }
 
         walletRepository.reindex(sender);
@@ -227,11 +260,11 @@ export class BridgechainUpdateTransactionHandler extends Handlers.TransactionHan
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

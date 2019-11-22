@@ -49,6 +49,9 @@ export const startSocketServer = async (
             // details on how pingTimeout works.
             pingTimeout: Math.max(getBlocksTimeout, verifyTimeout),
             perMessageDeflate: true,
+            // we set maxPayload value to 2MB as currently the largest data going through is a block
+            // and (for now, TODO use milestone value ?) blocks are not larger than 2MB
+            maxPayload: 2 * 1024 * 1024,
         },
         ...config.server,
     });
@@ -85,18 +88,15 @@ export const startSocketServer = async (
     });
 
     // Create a timeout promise so that if socket server is not ready in 10 seconds, it rejects
-    const timeoutPromise = new Promise((resolve, reject) => {
-        const id = setTimeout(() => {
-            clearTimeout(id);
-            reject("Socket server failed to setup in 10 seconds.");
-        }, 10000);
-    });
+    const timeout: NodeJS.Timeout = setTimeout(() => {
+        throw new Error("Socket server failed to setup in 10 seconds.");
+    }, 10000);
 
-    const serverReadyPromise = new Promise((resolve, reject) => {
-        server.on("ready", () => resolve(server));
-    });
+    const serverReadyPromise = await new Promise(resolve => server.on("ready", () => resolve(server)));
+
+    clearTimeout(timeout);
 
     payloadProcessor.inject(server);
 
-    return Promise.race([serverReadyPromise, timeoutPromise]);
+    return serverReadyPromise;
 };

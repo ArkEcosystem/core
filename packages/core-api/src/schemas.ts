@@ -79,3 +79,21 @@ export const numberFixedOrBetween = Joi.alternatives(
             .min(0),
     }),
 );
+
+export const walletId = Joi.alternatives().try(
+    Joi.string()
+        .regex(/^[a-z0-9!@$&_.]+$/)
+        .min(1)
+        .max(20),
+    Joi.string()
+        .alphanum()
+        .length(34),
+    Joi.string()
+        .hex()
+        .length(66),
+);
+
+export const orderBy = Joi.string().regex(
+    /^[a-z._]{1,40}:(asc|desc)$/i,
+    "orderBy query parameter (<iteratee>:<direction>)",
+);

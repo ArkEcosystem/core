@@ -65,8 +65,12 @@ export class VoteTransactionHandler extends TransactionHandler {
         Utils.assert.defined<string[]>(transaction.data.asset?.votes);
 
         const vote: string = transaction.data.asset.votes[0];
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         let walletVote: string | undefined;
+
+        const delegatePublicKey: string = vote.slice(1);
+        const delegateWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(delegatePublicKey);
 
         if (wallet.hasAttribute("vote")) {
             walletVote = wallet.getAttribute("vote");
@@ -76,6 +80,11 @@ export class VoteTransactionHandler extends TransactionHandler {
             if (walletVote) {
                 throw new AlreadyVotedError();
             }
+
+            if (delegateWallet.hasAttribute("delegate.resigned")) {
+                throw new VotedForResignedDelegateError(vote);
+            }
+
         } else {
             if (!walletVote) {
                 throw new NoVoteError();
@@ -84,16 +93,9 @@ export class VoteTransactionHandler extends TransactionHandler {
             }
         }
 
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-        const delegatePublicKey: string = vote.slice(1);
-        const delegateWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(delegatePublicKey);
 
         if (!delegateWallet.isDelegate()) {
             throw new VotedForNonDelegateError(vote);
-        }
-
-        if (delegateWallet.hasAttribute("delegate.resigned")) {
-            throw new VotedForResignedDelegateError(vote);
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
@@ -171,10 +173,10 @@ export class VoteTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

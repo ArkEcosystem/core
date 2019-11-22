@@ -8,16 +8,22 @@ import { setUp, tearDown } from "../__support__/setup";
 
 const peers = [
     {
-        ip: "1.2.3.4",
-        port: 4000,
+        ip: "1.0.0.99",
+        port: 4002,
         version: "3.0.0-next.1",
-        latency: 1,
+        state: {
+            height: 2,
+        },
+        latency: 2,
     },
     {
-        ip: "5.6.7.8",
-        port: 4000,
+        ip: "1.0.0.98",
+        port: 4002,
         version: "3.0.0-next.0",
-        latency: 2,
+        state: {
+            height: 1,
+        },
+        latency: 1,
     },
 ];
 
@@ -65,6 +71,42 @@ describe("API 2.0 - Peers", () => {
 
         it("should GET all the peers sorted by version,desc", async () => {
             const response = await api.request("GET", "peers", { orderBy: "version:desc" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArrayOfSize(peers.length);
+            expect(response.data.data[0]).toBeObject();
+            expect(response.data.data[0].ip).toBe(peers[0].ip);
+            expect(response.data.data[1].ip).toBe(peers[1].ip);
+        });
+
+        it("should GET all the peers sorted by height,asc", async () => {
+            const response = await api.request("GET", "peers", { orderBy: "height:asc" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArrayOfSize(peers.length);
+            expect(response.data.data[0]).toBeObject();
+            expect(response.data.data[0].ip).toBe(peers[1].ip);
+            expect(response.data.data[1].ip).toBe(peers[0].ip);
+        });
+
+        it("should GET all the peers sorted by height,desc", async () => {
+            const response = await api.request("GET", "peers", { orderBy: "height:desc" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArrayOfSize(peers.length);
+            expect(response.data.data[0]).toBeObject();
+            expect(response.data.data[0].ip).toBe(peers[0].ip);
+            expect(response.data.data[1].ip).toBe(peers[1].ip);
+        });
+
+        it("should GET all the peers sorted by latency,asc", async () => {
+            const response = await api.request("GET", "peers", { orderBy: "latency:asc" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArrayOfSize(peers.length);
+            expect(response.data.data[0]).toBeObject();
+            expect(response.data.data[0].ip).toBe(peers[1].ip);
+            expect(response.data.data[1].ip).toBe(peers[0].ip);
+        });
+
+        it("should GET all the peers sorted by latency,desc", async () => {
+            const response = await api.request("GET", "peers", { orderBy: "latency:desc" });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArrayOfSize(peers.length);
             expect(response.data.data[0]).toBeObject();

@@ -3,17 +3,19 @@ import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
+    Enums,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
+import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
-export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandler {
+export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
         return MagistrateTransactions.BusinessUpdateTransaction;
     }
@@ -24,10 +26,6 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
 
     public walletAttributes(): ReadonlyArray<string> {
         return [];
-    }
-
-    public async isActivated(): Promise<boolean> {
-        return !!Managers.configManager.getMilestone().aip11;
     }
 
     public async bootstrap(): Promise<void> {
@@ -74,6 +72,22 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
+        if (
+            await pool.senderHasTransactionsOfType(
+                data.senderPublicKey!,
+                Enums.MagistrateTransactionType.BusinessUpdate,
+                Enums.MagistrateTransactionGroup,
+            )
+        ) {
+            const wallet: Contracts.State.Wallet = (pool as any).poolWalletManager.findByPublicKey(data.senderPublicKey);
+            processor.pushError(
+                data,
+                "ERR_PENDING",
+                `Business update for "${wallet.getAttribute("business")}" already in the pool`,
+            );
+            return false
+        }
+
         return true;
     }
 
@@ -160,11 +174,11 @@ export class BusinessUpdateTransactionHandler extends Handlers.TransactionHandle
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

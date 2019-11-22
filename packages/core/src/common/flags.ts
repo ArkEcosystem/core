@@ -38,11 +38,10 @@ export const flagsForger: Record<string, object> = {
     }),
     bip39: flags.string({
         description: "the plain text bip39 passphrase",
-        exclusive: ["bip38", "password"],
+        exclusive: ["bip38"],
     }),
     password: flags.string({
         description: "the password for the encrypted bip38",
-        dependsOn: ["bip38"],
     }),
     suffix: flags.string({
         hidden: true,

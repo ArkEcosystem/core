@@ -1,4 +1,4 @@
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces, Enums } from "@arkecosystem/crypto";
 
 /**
  * Calculate the expiration height of a transaction.
@@ -38,4 +38,12 @@ export const calculateTransactionExpiration = (
     const createdAtHeight: number = context.currentHeight - createdBlocksAgo;
 
     return createdAtHeight + context.maxTransactionAge;
+};
+
+export const calculateLockExpirationStatus = (lastBlock: Interfaces.IBlock, expiration: Interfaces.IHtlcExpiration): boolean => {
+    return (
+        (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
+            expiration.value <= lastBlock.data.timestamp) ||
+        (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value <= lastBlock.data.height)
+    );
 };
