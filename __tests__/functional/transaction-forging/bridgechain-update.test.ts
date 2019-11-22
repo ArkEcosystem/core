@@ -85,7 +85,6 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainUpdate.id).not.toBeForged();
         });
 
-
         it("should reject bridgechain update, because bridgechain update for same bridgechain is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a bridgechain
             const bridgechainRegistrationAsset2 = {
@@ -105,17 +104,19 @@ describe("Transaction Forging - Bridgechain update", () => {
             await snoozeForBlock(1);
             await expect(bridgechainRegistration.id).toBeForged();
 
-            const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
-                bridgechainId: bridgechainRegistrationAsset2.genesisHash,
-                seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
-            })
+            const bridgechainUpdate = TransactionFactory.init(app)
+                .bridgechainUpdate({
+                    bridgechainId: bridgechainRegistrationAsset2.genesisHash,
+                    seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
+                })
                 .withPassphrase(secrets[0])
                 .createOne();
 
-            const bridgechainUpdate2 = TransactionFactory.bridgechainUpdate({
-                bridgechainId: bridgechainRegistrationAsset2.genesisHash,
-                seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
-            })
+            const bridgechainUpdate2 = TransactionFactory.init(app)
+                .bridgechainUpdate({
+                    bridgechainId: bridgechainRegistrationAsset2.genesisHash,
+                    seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"],
+                })
                 .withPassphrase(secrets[0])
                 .withNonce(bridgechainUpdate.nonce.plus(1))
                 .createOne();

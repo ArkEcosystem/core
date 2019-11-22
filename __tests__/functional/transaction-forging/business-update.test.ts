@@ -67,10 +67,11 @@ describe("Transaction Forging - Business update", () => {
 
         it("should reject business update, because business update is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            const businessRegistration = TransactionFactory.init(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[1])
                 .createOne();
 
@@ -79,15 +80,17 @@ describe("Transaction Forging - Business update", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Updating a business
-            const businessUpdate = TransactionFactory.businessUpdate({
-                name: "ark2",
-            })
+            const businessUpdate = TransactionFactory.init(app)
+                .businessUpdate({
+                    name: "ark2",
+                })
                 .withPassphrase(secrets[1])
                 .createOne();
 
-            const businessUpdate2 = TransactionFactory.businessUpdate({
-                name: "ark2",
-            })
+            const businessUpdate2 = TransactionFactory.init(app)
+                .businessUpdate({
+                    name: "ark2",
+                })
                 .withPassphrase(secrets[1])
                 .withNonce(businessUpdate.nonce.plus(1))
                 .createOne();
@@ -99,9 +102,10 @@ describe("Transaction Forging - Business update", () => {
         });
         it("should reject business update, because updated business name contains unicode control characters [Signed with 1 Passphrase]", async () => {
             // Updating a business
-            const businessUpdate = TransactionFactory.businessUpdate({
-                name: "\u0000ark",
-            })
+            const businessUpdate = TransactionFactory.init(app)
+                .businessUpdate({
+                    name: "\u0000ark",
+                })
                 .withPassphrase(secrets[1])
                 .createOne();
 
@@ -112,9 +116,10 @@ describe("Transaction Forging - Business update", () => {
 
         it("should reject business update, because updated business name contains disallowed characters [Signed with 1 Passphrase]", async () => {
             // Updating a business
-            const businessUpdate = TransactionFactory.businessUpdate({
-                name: "ark:)",
-            })
+            const businessUpdate = TransactionFactory.init(app)
+                .businessUpdate({
+                    name: "ark:)",
+                })
                 .withPassphrase(secrets[1])
                 .createOne();
 
@@ -123,12 +128,12 @@ describe("Transaction Forging - Business update", () => {
             await expect(businessUpdate.id).not.toBeForged();
         });
 
-
         it("should be rejected, because website is not valid uri [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.businessUpdate({
-                website: "ark.io",
-            })
+            const businessRegistration = TransactionFactory.init(app)
+                .businessUpdate({
+                    website: "ark.io",
+                })
                 .withPassphrase(secrets[2])
                 .createOne();
 
@@ -139,11 +144,12 @@ describe("Transaction Forging - Business update", () => {
 
         it("should be rejected, because repository is not valid uri [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.businessUpdate({
-                name: "ark",
-                website: "https://ark.io",
-                repository: "http//ark.io/repo",
-            })
+            const businessRegistration = TransactionFactory.init(app)
+                .businessUpdate({
+                    name: "ark",
+                    website: "https://ark.io",
+                    repository: "http//ark.io/repo",
+                })
                 .withPassphrase(secrets[3])
                 .createOne();
 

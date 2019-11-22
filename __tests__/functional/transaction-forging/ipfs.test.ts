@@ -23,7 +23,8 @@ describe("Transaction Forging - IPFS", () => {
     describe("Signed with 1 Passphase", () => {
         it("should broadcast, accept and forge it", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
+            const initialFunds = TransactionFactory.init(app)
+                .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -32,7 +33,8 @@ describe("Transaction Forging - IPFS", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Submit ipfs transaction
-            const transactions = TransactionFactory.ipfs(ipfsIds[0])
+            const transactions = TransactionFactory.init(app)
+                .ipfs(ipfsIds[0])
                 .withPassphrase(passphrase)
                 .createOne();
 
@@ -43,7 +45,8 @@ describe("Transaction Forging - IPFS", () => {
 
         it("should broadcast, reject and not forge it if the hash is already registered on the blockchain", async () => {
             // Submit ipfs transaction again
-            const transactions = TransactionFactory.ipfs(ipfsIds[0])
+            const transactions = TransactionFactory.init(app)
+                .ipfs(ipfsIds[0])
                 .withPassphrase(passphrase)
                 .createOne();
 
@@ -51,7 +54,7 @@ describe("Transaction Forging - IPFS", () => {
             await snoozeForBlock(1);
             await expect(transactions.id).not.toBeForged();
         });
-    })
+    });
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         // Make a fresh wallet for the second signature tests

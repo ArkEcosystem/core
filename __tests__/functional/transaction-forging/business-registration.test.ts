@@ -28,10 +28,11 @@ describe("Transaction Forging - Business registration", () => {
             // Registering businesses
             for (const [i, name] of allowed.entries()) {
                 businessRegistrations.push(
-                    TransactionFactory.businessRegistration({
-                        name,
-                        website: "http://ark.io",
-                    })
+                    TransactionFactory.init(app)
+                        .businessRegistration({
+                            name,
+                            website: "http://ark.io",
+                        })
                         .withPassphrase(secrets[10 + i])
                         .createOne(),
                 );
@@ -61,10 +62,11 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because name business contains unicode control characters [Signed with 1 Passphrase]", async () => {
             // Registering a business with unicode control characters in its name
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "\u0000ark",
-                website: "https://ark.io",
-            })
+            const businessRegistration = TransactionFactory.init(app)
+                .businessRegistration({
+                    name: "\u0000ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[1])
                 .createOne();
 
@@ -81,10 +83,11 @@ describe("Transaction Forging - Business registration", () => {
             // Business registrations
             for (const name of disallowed) {
                 businessRegistrations.push(
-                    TransactionFactory.businessRegistration({
-                        name,
-                        website: "https://ark.io",
-                    })
+                    TransactionFactory.init(app)
+                        .businessRegistration({
+                            name,
+                            website: "https://ark.io",
+                        })
                         .withPassphrase(secrets[1])
                         .createOne(),
                 );
@@ -100,18 +103,20 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because business registration is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            const businessRegistration = TransactionFactory.init(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[1])
                 .createOne();
 
             // Registering a business again
-            const businessRegistration2 = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            const businessRegistration2 = TransactionFactory.init(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[1])
                 .withNonce(businessRegistration.nonce.plus(1))
                 .createOne();
@@ -124,10 +129,11 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because website is not valid uri [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "ark.io",
-            })
+            const businessRegistration = TransactionFactory.init(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "ark.io",
+                })
                 .withPassphrase(secrets[2])
                 .createOne();
 
@@ -138,11 +144,12 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because repository is not valid uri [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-                repository: "http//ark.io/repo",
-            })
+            const businessRegistration = TransactionFactory.init(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                    repository: "http//ark.io/repo",
+                })
                 .withPassphrase(secrets[3])
                 .createOne();
 
