@@ -149,9 +149,14 @@ export class DatabaseService {
     }
 
     public async getActiveDelegates(
-        roundInfo: Contracts.Shared.RoundInfo,
+        roundInfo?: Contracts.Shared.RoundInfo,
         delegates?: Contracts.State.Wallet[],
     ): Promise<Contracts.State.Wallet[]> {
+        if (!roundInfo) {
+            const lastBlock = await this.getLastBlock();
+            roundInfo = AppUtils.roundCalculator.calculateRound(lastBlock.data.height);
+        }
+
         const { round } = roundInfo;
 
         if (
