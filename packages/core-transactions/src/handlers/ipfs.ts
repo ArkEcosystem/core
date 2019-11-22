@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils as CryptoUtils } from "@arkecosystem/crypto";
 
 import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
@@ -46,8 +46,11 @@ export class IpfsTransactionHandler extends TransactionHandler {
         wallet: Contracts.State.Wallet,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+        if (CryptoUtils.isException(transaction.data.id)) {
+            return;
+        }
 
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
         if (walletRepository.getIndex(Contracts.State.WalletIndexes.Ipfs).has(transaction.data.asset!.ipfs!)) {
             throw new IpfsHashAlreadyExists();
         }
