@@ -77,7 +77,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()];
+            businessAttributes.bridgechains[bridgechainResignation.bridgechainId];
 
         if (!bridgechainAttributes) {
             throw new BridgechainIsNotRegisteredError();
@@ -100,7 +100,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
         (pool as any).poolWalletManager.findByPublicKey(data.senderPublicKey);
-        const { bridgechainId }: { bridgechainId: number } = data.asset!.bridgechainResignation;
+        const { bridgechainId }: { bridgechainId: string } = data.asset!.bridgechainResignation;
 
         const bridgechainResignationsInPool: Interfaces.ITransactionData[] = Array.from(
             await pool.getTransactionsByType(
@@ -150,7 +150,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
-        businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()].resigned = true;
+        businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = true;
     }
 
     public async revertForSender(
@@ -176,7 +176,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
-        businessAttributes.bridgechains[bridgechainResignation.bridgechainId.toString()].resigned = false;
+        businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = false;
     }
 
     public async applyToRecipient(

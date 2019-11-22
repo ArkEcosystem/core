@@ -69,9 +69,10 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         seedNodesBuffersLength += seedNodesBuffers.length;
 
-        const bridgechainGenesisHash: Buffer = Buffer.from(bridgechainRegistrationAsset.genesisHash, "utf8");
+        const bridgechainGenesisHash: Buffer = Buffer.from(bridgechainRegistrationAsset.genesisHash, "hex");
         const bridgechainRepository: Buffer = Buffer.from(bridgechainRegistrationAsset.bridgechainRepository, "utf8");
 
+        // TODO bytebuffer length init is probably wrong (initially should be +3 + depends on seedNodes)
         const buffer: ByteBuffer = new ByteBuffer(
             bridgechainName.length +
             seedNodesBuffersLength +
@@ -112,7 +113,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
             seedNodes.push(ip);
         }
 
-        const genesisHash: string = buf.readString(64);
+        const genesisHash: string = buf.readBytes(32).toString("hex");
         const repositoryLength: number = buf.readUint8();
         const bridgechainRepository: string = buf.readString(repositoryLength);
 

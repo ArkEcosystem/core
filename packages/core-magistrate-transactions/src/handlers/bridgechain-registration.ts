@@ -10,9 +10,9 @@ import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { BusinessIsResignedError, WalletIsNotBusinessError, BridgechainAlreadyRegisteredError, GenesisHashAlreadyRegisteredError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
-import { MagistrateIndex } from "../wallet-indexes";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
+import { MagistrateIndex } from "../wallet-indexes";
 
 @Container.injectable()
 export class BridgechainRegistrationTransactionHandler extends MagistrateTransactionHandler {
@@ -41,9 +41,8 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
                 businessAttributes.bridgechains = {};
             }
 
-            const bridgechainId: Utils.BigNumber = this.getBridgechainId(this.walletRepository);
-            businessAttributes.bridgechains[bridgechainId.toFixed()] = {
-                bridgechainId,
+            const bridgechainId: string = transaction.asset.bridgechainRegistration.genesisHash;
+            businessAttributes.bridgechains[bridgechainId] = {
                 bridgechainAsset: transaction.asset.bridgechainRegistration,
             };
 
@@ -140,9 +139,8 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             transaction.data.asset?.bridgechainRegistration,
         );
 
-        const bridgechainId: Utils.BigNumber = this.getBridgechainId(walletRepository);
-        businessAttributes.bridgechains[bridgechainId.toFixed()] = {
-            bridgechainId,
+        const bridgechainId: string = transaction.data.asset.bridgechainRegistration.genesisHash;
+        businessAttributes.bridgechains[bridgechainId] = {
             bridgechainAsset: transaction.data.asset.bridgechainRegistration,
         };
 
@@ -188,8 +186,4 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> { }
-
-    private getBridgechainId(walletRepository: Contracts.State.WalletRepository): Utils.BigNumber {
-        return Utils.BigNumber.make(walletRepository.getIndex(MagistrateIndex.Bridgechains).values().length).plus(1);
-    }
 }

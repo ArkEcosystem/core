@@ -75,7 +75,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
+            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
 
         if (!bridgechainAttributes) {
             throw new BridgechainIsNotRegisteredByWalletError();
@@ -97,7 +97,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        const { bridgechainId }: { bridgechainId: number } = data.asset!.bridgechainUpdate;
+        const { bridgechainId }: { bridgechainId: string } = data.asset!.bridgechainUpdate;
 
         const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
             await pool.getTransactionsByType(
@@ -148,7 +148,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
-            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId.toFixed()];
+            businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
         bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
 
         walletRepository.reindex(wallet);
@@ -190,7 +190,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             // the actual registration transaction.
             Utils.assert.defined<Utils.BigNumber>(transaction.data.asset?.bridgechainUpdate?.bridgechainId);
 
-            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId.toFixed();
+            const bridgechainId: string = transaction.data.asset.bridgechainUpdate.bridgechainId;
 
             Utils.assert.defined<IBridgechainWalletAttributes>(businessAttributes.bridgechains);
 

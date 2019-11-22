@@ -30,7 +30,9 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
                             type: "object",
                             required: ["bridgechainId"],
                             properties: {
-                                bridgechainId: { bignumber: { minimum: 1 } },
+                                bridgechainId: {
+                                    $ref: "transactionId",
+                                },
                             },
                         },
                     },
@@ -45,9 +47,8 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
 
         AppUtils.assert.defined<IBridgechainResignationAsset>(data.asset?.bridgechainResignation);
 
-        const bridgechainResignationAsset: IBridgechainResignationAsset = data.asset.bridgechainResignation;
-        const buffer: ByteBuffer = new ByteBuffer(4, true);
-        buffer.writeUint32(bridgechainResignationAsset.bridgechainId);
+        const buffer: ByteBuffer = new ByteBuffer(32, true);
+        buffer.append(ByteBuffer.fromHex(data.asset.bridgechainResignation.bridgechainId));
 
         return buffer;
     }
@@ -57,7 +58,7 @@ export class BridgechainResignationTransaction extends Transactions.Transaction 
 
         data.asset = {
             bridgechainResignation: {
-                bridgechainId: buf.readUint32(),
+                bridgechainId: buf.readBytes(32).toString("hex"),
             },
         };
     }

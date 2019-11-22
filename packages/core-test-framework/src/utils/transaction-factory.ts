@@ -207,7 +207,7 @@ export class TransactionFactory {
 
     public bridgechainResignation(registeredBridgechainId: string): TransactionFactory {
         const bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
-        bridgechainResignationBuilder.businessResignationAsset(registeredBridgechainId);
+        bridgechainResignationBuilder.bridgechainResignationAsset(registeredBridgechainId);
 
         this.builder = bridgechainResignationBuilder;
 

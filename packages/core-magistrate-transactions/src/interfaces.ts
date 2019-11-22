@@ -10,6 +10,5 @@ export interface IBusinessWalletAttributes {
 
 export interface IBridgechainWalletAttributes {
     bridgechainAsset: Interfaces.IBridgechainRegistrationAsset;
-    bridgechainId: Utils.BigNumber;
     resigned?: boolean;
 }
