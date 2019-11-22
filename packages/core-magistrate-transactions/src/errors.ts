@@ -49,9 +49,9 @@ export class BridgechainIsResignedError extends Errors.TransactionError {
     }
 }
 
-export class InvalidFeeError extends Errors.TransactionError {
-    constructor() {
-        super(`Failed to apply transaction, because fee is invalid.`);
+export class StaticFeeMismatchError extends Errors.TransactionError {
+    constructor(staticFee: string) {
+        super(`Failed to apply transaction, because fee doesn't match static fee ${staticFee}.`);
     }
 }
 

@@ -1,7 +1,7 @@
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoInterfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { Contracts } from "@arkecosystem/core-kernel";
-import { InvalidFeeError } from "../errors";
+import { StaticFeeMismatchError } from "../errors";
 
 export abstract class MagistrateTransactionHandler extends Handlers.TransactionHandler {
     public async isActivated(): Promise<boolean> {
@@ -21,8 +21,9 @@ export abstract class MagistrateTransactionHandler extends Handlers.TransactionH
             return;
         }
 
-        if (!transaction.data.fee.isEqualTo(this.getConstructor().staticFee())) {
-            throw new InvalidFeeError();
+        const staticFee: Utils.BigNumber = this.getConstructor().staticFee();
+        if (!transaction.data.fee.isEqualTo(staticFee)) {
+            throw new StaticFeeMismatchError(staticFee.toFixed());
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
