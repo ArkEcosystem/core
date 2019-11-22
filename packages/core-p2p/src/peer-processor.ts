@@ -35,7 +35,7 @@ export class PeerProcessor {
     private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
 
     public init() {
-        this.emitter.listen("internal.milestone.changed", () => this.updatePeersAfterMilestoneChange());
+        this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, () => this.updatePeersAfterMilestoneChange());
     }
 
     public async validateAndAcceptPeer(peer: Contracts.P2P.Peer, options: AcceptNewPeerOptions = {}): Promise<void> {
@@ -108,7 +108,7 @@ export class PeerProcessor {
                 this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port} (v${newPeer.version})`);
             }
 
-            this.emitter.dispatch(Enums.StateEvent.PeerAdded, newPeer);
+            this.emitter.dispatch(Enums.PeerEvent.Added, newPeer);
         } catch (error) {
             this.connector.disconnect(newPeer);
         } finally {

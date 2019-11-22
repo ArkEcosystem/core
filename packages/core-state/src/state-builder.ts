@@ -69,7 +69,7 @@ export class StateBuilder {
 
             this.verifyWalletsConsistency();
 
-            this.emitter.dispatch(Enums.InternalEvent.StateBuilderFinished);
+            this.emitter.dispatch(Enums.StateEvent.BuilderFinished);
         } catch (ex) {
             this.logger.error(ex.stack);
         }

@@ -233,11 +233,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.dispatch("NEWBLOCK");
             this.enqueueBlocks([block]);
 
-            this.app.events.dispatch(Enums.StateEvent.BlockReceived, block);
+            this.app.events.dispatch(Enums.BlockEvent.Received, block);
         } else {
             this.app.log.info(`Block disregarded because blockchain is not ready`);
 
-            this.app.events.dispatch(Enums.StateEvent.BlockDisregarded, block);
+            this.app.events.dispatch(Enums.BlockEvent.Disregarded, block);
         }
     }
 

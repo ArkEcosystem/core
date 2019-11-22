@@ -46,7 +46,7 @@ export const Identifiers = {
     BlockRepository: Symbol.for("Database<BlockRepository>"),
     RoundRepository: Symbol.for("Database<RoundRepository>"),
     TransactionRepository: Symbol.for("Database<TransactionRepository>"),
-    //
+    // Kernel
     ConfigRepository: Symbol.for("Repository<Config>"),
     ServiceProviderRepository: Symbol.for("Repository<ServiceProvider>"),
     // State - @todo: better names that won't clash

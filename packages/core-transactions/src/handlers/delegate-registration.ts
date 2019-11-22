@@ -124,7 +124,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
-        emitter.dispatch(AppEnums.StateEvent.DelegateRegistered, transaction.data);
+        emitter.dispatch(AppEnums.DelegateEvent.Registered, transaction.data);
     }
 
     public async canEnterTransactionPool(

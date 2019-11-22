@@ -1,6 +1,6 @@
 import { Application } from "../../contracts/kernel";
 // @ts-ignore
-import { InternalEvent, StateEvent } from "../../enums";
+import { BlockEvent, KernelEvent, StateEvent } from "../../enums";
 import { ServiceProviderCannotBeBooted } from "../../exceptions/plugins";
 import { Identifiers, inject, injectable } from "../../ioc";
 // @ts-ignore
@@ -62,10 +62,10 @@ export class BootServiceProviders implements Bootstrapper {
             }
 
             // Register the "enable/disposeWhen" listeners to be triggered on every block. Use with care!
-            this.app.events.listen(StateEvent.BlockApplied, async () => await this.changeState(name, serviceProvider));
+            this.app.events.listen(BlockEvent.Applied, async () => await this.changeState(name, serviceProvider));
 
             // We only want to trigger this if another service provider has been booted to avoid an infinite loop.
-            this.app.events.listen(InternalEvent.ServiceProviderBooted, async ({ data }) => {
+            this.app.events.listen(KernelEvent.ServiceProviderBooted, async ({ data }) => {
                 if (data.name !== name) {
                     await this.changeState(name, serviceProvider, data.name);
                 }

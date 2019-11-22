@@ -4,6 +4,7 @@ import { join } from "path";
 import * as Bootstrappers from "./bootstrap";
 import { Bootstrapper } from "./bootstrap/interfaces";
 import * as Contracts from "./contracts";
+import { KernelEvent } from "./enums";
 import { DirectoryCannotBeFound } from "./exceptions/filesystem";
 import { Identifiers } from "./ioc";
 import { ServiceProvider, ServiceProviderRepository } from "./providers";
@@ -12,7 +13,6 @@ import { ConfigRepository } from "./services/config";
 import { ServiceProvider as EventServiceProvider } from "./services/events/service-provider";
 import { JsonObject, KeyValuePair } from "./types";
 import { Constructor } from "./types/container";
-import { EventListener } from "./types/events";
 
 /**
  * @export
@@ -431,28 +431,6 @@ export class Application implements Contracts.Kernel.Application {
     }
 
     /**
-     * Register a listener to run before a bootstrapper.
-     *
-     * @param {string} bootstrapper
-     * @param {EventListener} listener
-     * @memberof Application
-     */
-    public beforeBootstrapping(bootstrapper: string, listener: EventListener) {
-        this.events.listen(`bootstrapping:${bootstrapper}`, listener);
-    }
-
-    /**
-     * Register a listener to run after a bootstrapper.
-     *
-     * @param {string} bootstrapper
-     * @param {EventListener} listener
-     * @memberof Application
-     */
-    public afterBootstrapping(bootstrapper: string, listener: EventListener) {
-        this.events.listen(`bootstrapped:${bootstrapper}`, listener);
-    }
-
-    /**
      * Run the given type of bootstrap classes.
      *
      * @param {string} type
@@ -463,11 +441,11 @@ export class Application implements Contracts.Kernel.Application {
         const bootstrappers: Array<Constructor<Bootstrapper>> = Object.values(Bootstrappers[type]);
 
         for (const bootstrapper of bootstrappers) {
-            this.events.dispatch(`bootstrapping:${bootstrapper.name}`, this);
+            this.events.dispatch(KernelEvent.Bootstrapping, { bootstrapper: bootstrapper.name });
 
             await this.resolve<Bootstrapper>(bootstrapper).bootstrap();
 
-            this.events.dispatch(`bootstrapped:${bootstrapper.name}`, this);
+            this.events.dispatch(KernelEvent.Bootstrapped, { bootstrapper: bootstrapper.name });
         }
     }
 

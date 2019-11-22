@@ -77,7 +77,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         this.syncToPersistentStorage();
 
-        this.emitter.listen("internal.milestone.changed", () => this.purgeInvalidTransactions());
+        this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, () => this.purgeInvalidTransactions());
 
         return this;
     }
@@ -124,11 +124,11 @@ export class Connection implements Contracts.TransactionPool.Connection {
         }
 
         if (added.length > 0) {
-            this.emitter.dispatch(AppEnums.StateEvent.TransactionPoolAdded, added);
+            this.emitter.dispatch(AppEnums.TransactionEvent.AddedToPool, added);
         }
 
         if (notAdded.length > 0) {
-            this.emitter.dispatch(AppEnums.StateEvent.TransactionPoolRejected, notAdded);
+            this.emitter.dispatch(AppEnums.TransactionEvent.RejectedByPool, notAdded);
         }
 
         return { added, notAdded };
@@ -145,7 +145,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         this.syncToPersistentStorageIfNecessary();
 
-        this.emitter.dispatch(AppEnums.StateEvent.TransactionPoolRemoved, id);
+        this.emitter.dispatch(AppEnums.TransactionEvent.RemovedFromPool, id);
     }
 
     public removeTransactionsById(ids: string[]): void {
@@ -343,7 +343,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     public async purgeInvalidTransactions(): Promise<void> {
-        return this.purgeTransactions(AppEnums.StateEvent.TransactionPoolRemoved, this.memory.getInvalid());
+        return this.purgeTransactions(AppEnums.TransactionEvent.RemovedFromPool, this.memory.getInvalid());
     }
 
     public async senderHasTransactionsOfType(
@@ -595,7 +595,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     private async purgeExpired(): Promise<void> {
-        return this.purgeTransactions(AppEnums.StateEvent.TransactionExpired, this.memory.getExpired());
+        return this.purgeTransactions(AppEnums.TransactionEvent.Expired, this.memory.getExpired());
     }
 
     /**

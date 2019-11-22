@@ -24,7 +24,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
         blockchainReady: () => {
             if (!stateStorage.started) {
                 stateStorage.started = true;
-                emitter.dispatch(Enums.StateEvent.StateStarted, true);
+                emitter.dispatch(Enums.StateEvent.Started, true);
             }
         },
 

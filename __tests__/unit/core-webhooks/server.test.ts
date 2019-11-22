@@ -9,7 +9,7 @@ import { startServer } from "@packages/core-webhooks/src/server";
 import { Server } from "@packages/core-webhooks/src/server/hapi";
 
 const postData = {
-    event: Enums.StateEvent.BlockForged,
+    event: Enums.BlockEvent.Forged,
     target: "https://httpbin.org/post",
     enabled: true,
     conditions: [
@@ -83,7 +83,7 @@ describe("Webhooks", () => {
 
     it("should POST a new webhook with a complex condition", async () => {
         const response = await createWebhook(server, {
-            event: Enums.StateEvent.BlockForged,
+            event: Enums.BlockEvent.Forged,
             target: "https://httpbin.org/post",
             enabled: true,
             conditions: [
@@ -103,7 +103,7 @@ describe("Webhooks", () => {
 
     it("should POST a new webhook with an empty array as condition", async () => {
         const response = await createWebhook(server, {
-            event: Enums.StateEvent.BlockForged,
+            event: Enums.BlockEvent.Forged,
             target: "https://httpbin.org/post",
             enabled: true,
             conditions: [],

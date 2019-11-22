@@ -72,7 +72,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
     }
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
-        emitter.dispatch(Enums.StateEvent.DelegateResigned, transaction.data);
+        emitter.dispatch(Enums.DelegateEvent.Resigned, transaction.data);
     }
 
     public async canEnterTransactionPool(

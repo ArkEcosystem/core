@@ -26,7 +26,6 @@ class StubServiceProvider extends ServiceProvider {
 
 let app: Application;
 let container: interfaces.Container;
-let eventDispatcher: MemoryEventDispatcher;
 let logger: Record<string, Function>;
 
 beforeEach(() => {
@@ -490,35 +489,5 @@ describe("Application", () => {
 
     it("should resolve a value from the IoC container", () => {
         expect(app.resolve(StubClass)).toBeInstanceOf(StubClass);
-    });
-
-    it("should register a [before] listener for bootstrappers", () => {
-        eventDispatcher = app.resolve<MemoryEventDispatcher>(MemoryEventDispatcher);
-        app.bind(Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
-
-        const fn = jest.fn();
-
-        app.beforeBootstrapping("dummy", fn);
-
-        expect(fn).not.toHaveBeenCalled();
-
-        eventDispatcher.dispatchSync("bootstrapping:dummy");
-
-        expect(fn).toHaveBeenCalled();
-    });
-
-    it("should register a [after] listener for bootstrappers", () => {
-        eventDispatcher = app.resolve<MemoryEventDispatcher>(MemoryEventDispatcher);
-        app.bind(Identifiers.EventDispatcherService).toConstantValue(eventDispatcher);
-
-        const fn = jest.fn();
-
-        app.afterBootstrapping("dummy", fn);
-
-        expect(fn).not.toHaveBeenCalled();
-
-        eventDispatcher.dispatchSync("bootstrapped:dummy");
-
-        expect(fn).toHaveBeenCalled();
     });
 });

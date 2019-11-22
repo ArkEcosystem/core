@@ -173,7 +173,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
                     }
 
                     this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
-                    this.emitter.dispatch(Enums.StateEvent.PeerRemoved, peer);
+                    this.emitter.dispatch(Enums.PeerEvent.Removed, peer);
 
                     return undefined;
                 }

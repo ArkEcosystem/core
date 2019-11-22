@@ -15,7 +15,7 @@ import {
     DeferredDisposeServiceProvider,
 } from "./__stubs__/service-providers";
 import { ServiceProviderCannotBeBooted } from "@packages/core-kernel/src/exceptions/plugins";
-import { InternalEvent, StateEvent } from "@packages/core-kernel/src/enums/events";
+import { BlockEvent, KernelEvent } from "@packages/core-kernel/src/enums/events";
 
 let app: Application;
 let serviceProviderRepository: ServiceProviderRepository;
@@ -81,14 +81,14 @@ describe("BootServiceProviders", () => {
 
         serviceProviderRepository.fail("stub");
 
-        await app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatch(StateEvent.BlockApplied);
+        await app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatch(BlockEvent.Applied);
 
         expect(spyBoot).not.toHaveBeenCalled();
         expect(serviceProviderRepository.deferred("stub")).toBeTrue();
     });
 
     describe("DeferredServiceProvider - bootWhen", () => {
-        it("should react to [StateEvent.BlockApplied]", async () => {
+        it("should react to [BlockEvent.Applied]", async () => {
             const serviceProvider: ServiceProvider = new DeferredServiceProvider();
             const spyBoot = jest.spyOn(serviceProvider, "boot");
             serviceProviderRepository.set("stub", serviceProvider);
@@ -99,14 +99,14 @@ describe("BootServiceProviders", () => {
 
             process.env.DEFFERED_ENABLE = "true";
 
-            await app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatch(StateEvent.BlockApplied);
+            await app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatch(BlockEvent.Applied);
 
             await sleep(500);
 
             expect(spyBoot).toHaveBeenCalled();
         });
 
-        it("should react to [InternalEvent.ServiceProviderBooted]", async () => {
+        it("should react to [KernelEvent.ServiceProviderBooted]", async () => {
             const serviceProvider: ServiceProvider = new DeferredServiceProvider();
             const spyBoot = jest.spyOn(serviceProvider, "boot");
             serviceProviderRepository.set("stub", serviceProvider);
@@ -119,14 +119,14 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "another-stub" });
+                .dispatch(KernelEvent.ServiceProviderBooted, { name: "another-stub" });
 
             await sleep(500);
 
             expect(spyBoot).toHaveBeenCalled();
         });
 
-        it("should not react to [InternalEvent.ServiceProviderBooted] if the booted provider is self", async () => {
+        it("should not react to [KernelEvent.ServiceProviderBooted] if the booted provider is self", async () => {
             const serviceProvider: ServiceProvider = new DeferredServiceProvider();
             const spyBoot = jest.spyOn(serviceProvider, "boot");
             serviceProviderRepository.set("stub", serviceProvider);
@@ -141,7 +141,7 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "stub" });
+                .dispatch(KernelEvent.ServiceProviderBooted, { name: "stub" });
 
             await sleep(500);
 
@@ -163,7 +163,7 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "expected-stub" });
+                .dispatch(KernelEvent.ServiceProviderBooted, { name: "expected-stub" });
 
             await sleep(500);
 
@@ -183,7 +183,7 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "another-stub" });
+                .dispatch(KernelEvent.ServiceProviderBooted, { name: "another-stub" });
 
             await sleep(500);
 
@@ -192,7 +192,7 @@ describe("BootServiceProviders", () => {
     });
 
     describe("DeferredServiceProvider - disposeWhen", () => {
-        it("should react to [StateEvent.BlockApplied]", async () => {
+        it("should react to [BlockEvent.Applied]", async () => {
             const serviceProvider: ServiceProvider = new DeferredServiceProvider();
             const spyDispose = jest.spyOn(serviceProvider, "dispose");
             serviceProviderRepository.set("stub", serviceProvider);
@@ -203,14 +203,14 @@ describe("BootServiceProviders", () => {
 
             process.env.DEFFERED_DISABLE = "true";
 
-            await app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatch(StateEvent.BlockApplied);
+            await app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).dispatch(BlockEvent.Applied);
 
             await sleep(500);
 
             expect(spyDispose).toHaveBeenCalled();
         });
 
-        it("should react to [InternalEvent.ServiceProviderBooted]", async () => {
+        it("should react to [KernelEvent.ServiceProviderBooted]", async () => {
             const serviceProvider: ServiceProvider = new DeferredServiceProvider();
             const spyDispose = jest.spyOn(serviceProvider, "dispose");
             serviceProviderRepository.set("stub", serviceProvider);
@@ -223,14 +223,14 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "another-stub" });
+                .dispatch(KernelEvent.ServiceProviderBooted, { name: "another-stub" });
 
             await sleep(500);
 
             expect(spyDispose).toHaveBeenCalled();
         });
 
-        it("should not react to [InternalEvent.ServiceProviderBooted] if the booted provider is self", async () => {
+        it("should not react to [KernelEvent.ServiceProviderBooted] if the booted provider is self", async () => {
             const serviceProvider: ServiceProvider = new DeferredServiceProvider();
             const spyDispose = jest.spyOn(serviceProvider, "dispose");
             serviceProviderRepository.set("stub", serviceProvider);
@@ -243,7 +243,7 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "stub" });
+                .dispatch(KernelEvent.ServiceProviderBooted, { name: "stub" });
 
             await sleep(500);
 
@@ -265,7 +265,7 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "expected-stub" });
+                .dispatch(KernelEvent.ServiceProviderBooted, { name: "expected-stub" });
 
             await sleep(500);
 
@@ -285,7 +285,7 @@ describe("BootServiceProviders", () => {
 
             await app
                 .get<MemoryEventDispatcher>(Identifiers.EventDispatcherService)
-                .dispatch(InternalEvent.ServiceProviderBooted, { name: "another-stub" });
+                .dispatch(KernelEvent.ServiceProviderBooted, { name: "another-stub" });
 
             await sleep(500);
 

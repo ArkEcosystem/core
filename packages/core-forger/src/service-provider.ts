@@ -36,7 +36,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
             this.app
                 .get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService)
-                .listen(Enums.StateEvent.BlockApplied, async () => forgerTracker.execute());
+                .listen(Enums.BlockEvent.Applied, async () => forgerTracker.execute());
         }
     }
 }

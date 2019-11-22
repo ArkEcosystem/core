@@ -1,4 +1,4 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 
 import { PeerConnector } from "./peer-connector";
 
@@ -18,7 +18,7 @@ export class EventListener {
     private readonly networkMonitor!: Contracts.P2P.INetworkMonitor;
 
     public init() {
-        this.emitter.listen("internal.p2p.disconnectPeer", ({ data }) => {
+        this.emitter.listen(Enums.PeerEvent.Disconnect, ({ data }) => {
             this.connector.disconnect(data);
 
             this.storage.forgetPeer(data);
