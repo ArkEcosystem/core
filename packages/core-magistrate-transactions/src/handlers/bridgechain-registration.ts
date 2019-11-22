@@ -57,6 +57,10 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         wallet: Contracts.State.Wallet,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        if (Utils.isException(transaction.data.id)) {
+            return;
+        }
+
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
         }
