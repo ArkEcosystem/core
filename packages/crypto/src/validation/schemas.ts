@@ -53,7 +53,7 @@ export const schemas = {
 
     genericName: {
         $id: "genericName",
-        allOf: [{ type: "string", pattern: "^[a-zA-Z0-9_-]+$" }, { minLength: 1, maxLength: 40 }],
+        allOf: [{ type: "string", pattern: "^[a-zA-Z0-9]+( [a-zA-Z0-9._-]+)*$" }, { minLength: 1, maxLength: 40 }],
     },
 
     uri: {

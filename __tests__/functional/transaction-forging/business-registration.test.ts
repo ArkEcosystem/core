@@ -59,19 +59,29 @@ describe("Transaction Forging - Business registration", () => {
         });
 
         it("should be rejected, because business name contains disallowed characters [Signed with 1 Passphrase]", async () => {
-            // Registering a business with disallowed characters in its name
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark+",
-                website: "https://ark.io",
-            })
-                .withPassphrase(secrets[1])
-                .createOne();
+            const disallowed = [" business", "business ", "busi  ness", "busi+ness"];
 
-            await expect(businessRegistration).toBeRejected();
+            const businessRegistrations = [];
+
+            // Business registrations
+            for (const name of disallowed) {
+                businessRegistrations.push(
+                    TransactionFactory.businessRegistration({
+                        name,
+                        website: "https://ark.io",
+                    })
+                        .withPassphrase(secrets[1])
+                        .createOne(),
+                );
+            }
+
+            await expect(businessRegistrations).toBeEachRejected();
             await snoozeForBlock(1);
-            await expect(businessRegistration.id).not.toBeForged();
-        });
 
+            for (const transaction of businessRegistrations) {
+                await expect(transaction.id).not.toBeForged();
+            }
+        });
 
         it("should be rejected, because business registration is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a business
