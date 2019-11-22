@@ -1,12 +1,9 @@
+import memoize from "fast-memoize";
 import { SATOSHI } from "../constants";
 import { configManager } from "../managers/config";
 import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
 import { isLocalHost, isValidPeer } from "./is-valid-peer";
-
-let genesisTransactions: { [key: string]: boolean };
-let whitelistedBlockAndTransactionIds: { [key: string]: boolean };
-let currentNetwork: number;
 
 /**
  * Get human readable string from satoshis
@@ -25,31 +22,32 @@ export const formatSatoshi = (amount: BigNumber): string => {
  */
 export const isException = (blockOrTransaction: { id?: string }): boolean => {
     const network: number = configManager.get("network.pubKeyHash");
-
-    if (!whitelistedBlockAndTransactionIds || currentNetwork !== network) {
-        currentNetwork = network;
-
-        whitelistedBlockAndTransactionIds = [
-            ...(configManager.get("exceptions.blocks") || []),
-            ...(configManager.get("exceptions.transactions") || []),
-        ].reduce((acc, curr) => Object.assign(acc, { [curr]: true }), {});
-    }
-
-    return !!whitelistedBlockAndTransactionIds[blockOrTransaction.id];
+    const exceptionalIds = memoize(_ => {
+        const s = new Set<string>();
+        const blockIds = configManager.get("exceptions.blocks") || [];
+        const transactionIds = configManager.get("exceptions.transactions") || [];
+        for (const blockId of blockIds) {
+            s.add(blockId);
+        }
+        for (const transactionId of transactionIds) {
+            s.add(transactionId);
+        }
+        return s;
+    })(network);
+    return exceptionalIds.has(blockOrTransaction.id);
 };
 
 export const isGenesisTransaction = (id: string): boolean => {
     const network: number = configManager.get("network.pubKeyHash");
-
-    if (!genesisTransactions || currentNetwork !== network) {
-        currentNetwork = network;
-
-        genesisTransactions = configManager
-            .get("genesisBlock.transactions")
-            .reduce((acc, curr) => Object.assign(acc, { [curr.id]: true }), {});
-    }
-
-    return genesisTransactions[id];
+    const genesisIds = memoize(_ => {
+        const s = new Set<string>();
+        const genesisTransactions = configManager.get("genesisBlock.transactions") || [];
+        for (const transaction of genesisTransactions) {
+            s.add(transaction.id);
+        }
+        return s;
+    })(network);
+    return genesisIds.has(id);
 };
 
 export const numberToHex = (num: number, padding = 2): string => {
