@@ -64,12 +64,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
-        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
-        if (
-            (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
-                expiration.value <= lastBlock.data.timestamp) ||
-            (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value <= lastBlock.data.height)
-        ) {
+        if (AppUtils.expirationCalculator.calculateLockExpirationStatus(lastBlock, lock.expiration)) {
             throw new HtlcLockExpiredError();
         }
 

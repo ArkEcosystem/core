@@ -71,13 +71,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
             .getLastBlock();
 
-        const lastBlockEpochTimestamp: number = lastBlock.data.timestamp;
-        const expiration: Interfaces.IHtlcExpiration = lock.expiration;
-        if (
-            (expiration.type === Enums.HtlcLockExpirationType.EpochTimestamp &&
-                expiration.value > lastBlockEpochTimestamp) ||
-            (expiration.type === Enums.HtlcLockExpirationType.BlockHeight && expiration.value > lastBlock.data.height)
-        ) {
+        if (!AppUtils.expirationCalculator.calculateLockExpirationStatus(lastBlock, lock.expiration)) {
             throw new HtlcLockNotExpiredError();
         }
     }

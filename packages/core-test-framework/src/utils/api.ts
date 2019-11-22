@@ -6,7 +6,7 @@ import secrets from "../internal/secrets.json";
 import { TransactionFactory } from "./transaction-factory";
 
 export class ApiHelpers {
-    public constructor(private readonly app: Contracts.Kernel.Application) {}
+    public constructor(private readonly app: Contracts.Kernel.Application) { }
 
     public async request(method, path, params = {}, headers = {}) {
         // Build URL params from _params_ object for GET / DELETE requests
@@ -164,6 +164,7 @@ export class ApiHelpers {
         expect(lock).toHaveProperty("secretHash");
         expect(lock).toHaveProperty("expirationType");
         expect(lock).toHaveProperty("expirationValue");
+        expect(lock).toHaveProperty("isExpired");
         expect(lock.timestamp).toBeObject();
         expect(lock.timestamp.epoch).toBeNumber();
         expect(lock.timestamp.unix).toBeNumber();

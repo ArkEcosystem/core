@@ -1,5 +1,5 @@
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
-import { calculateTransactionExpiration } from "./expiration-calculator";
+import { calculateTransactionExpiration, calculateLockExpirationStatus } from "./expiration-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { isBlockChained } from "./is-block-chained";
 import { isWhitelisted } from "./is-whitelisted";
@@ -12,7 +12,7 @@ export * from "./expiration-calculator";
 export * from "./assert";
 
 export const delegateCalculator = { calculateApproval, calculateForgedTotal };
-export const expirationCalculator = { calculateTransactionExpiration };
+export const expirationCalculator = { calculateTransactionExpiration, calculateLockExpirationStatus };
 export const roundCalculator = { calculateRound, isNewRound };
 export const supplyCalculator = { calculate };
 
