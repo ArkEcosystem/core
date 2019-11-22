@@ -96,8 +96,8 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         const buffer: ByteBuffer = new ByteBuffer(
             32 + // bridgechain id
-            seedNodesBuffersLength +
-            portsBuffersLength,
+                seedNodesBuffersLength +
+                portsBuffersLength,
             true,
         );
 
@@ -107,6 +107,13 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         for (const seedBuf of seedNodesBuffers) {
             buffer.writeUint8(seedBuf.length);
             buffer.append(seedBuf);
+        }
+
+        buffer.writeUint8(portsLength);
+        for (const [i, nameBuffer] of portNamesBuffers.entries()) {
+            buffer.writeUint8(nameBuffer.length);
+            buffer.append(nameBuffer);
+            buffer.writeUint16(portNumbers[i]);
         }
 
         return buffer;

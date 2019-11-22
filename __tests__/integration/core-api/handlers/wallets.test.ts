@@ -176,20 +176,20 @@ describe("API 2.0 - Wallets", () => {
     });
 
     describe("GET /wallets/:id/locks", () => {
-        let walletManager: Contracts.State.WalletRepository;
+        let walletRepository: Contracts.State.WalletRepository;
         let wallets;
         let lockIds;
 
         beforeAll(() => {
-            walletManager = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+            walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
 
             wallets = [
-                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("1")),
-                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("2")),
-                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("3")),
-                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("4")),
-                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("5")),
-                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("6")),
+                walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("1")),
+                walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("2")),
+                walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("3")),
+                walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("4")),
+                walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("5")),
+                walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("6")),
             ];
 
             lockIds = [];
@@ -218,7 +218,7 @@ describe("API 2.0 - Wallets", () => {
                 wallet.setAttribute("htlc.locks", locks);
             }
 
-            walletManager.index(wallets);
+            walletRepository.index(wallets);
         });
 
         it("should GET all locks for the given wallet by id", async () => {

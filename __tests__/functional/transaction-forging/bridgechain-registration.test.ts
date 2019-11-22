@@ -51,7 +51,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .bridgechainRegistration({
                     name: "cryptoProject2",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                    genesisHash: "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                     ports: { "@arkecosystem/core-api": 12345 },
                 })
@@ -62,7 +62,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .bridgechainRegistration({
                     name: "cryptoProject2",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                    genesisHash: "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                     ports: { "@arkecosystem/core-api": 12345 },
                 })
@@ -94,31 +94,13 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(bridgechainRegistration.id).not.toBeForged();
         });
 
-        it("should broadcast, accept and forge it again [Signed with 1 Passphrase]", async () => {
-            // Registering a bridgechain again
-            const bridgechainRegistration = TransactionFactory.init(app)
-                .bridgechainRegistration({
-                    name: "cryptoProject",
-                    seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                    bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-                    ports: { "@arkecosystem/core-api": 12345 },
-                })
-                .withPassphrase(secrets[0])
-                .createOne();
-
-            await expect(bridgechainRegistration).toBeAccepted();
-            await snoozeForBlock(1);
-            await expect(bridgechainRegistration.id).toBeForged();
-        });
-
         it("should reject bridgechain registration, because bridgechain name contains unicode control characters [Signed with 1 Passphrase]", async () => {
             // Bridgechain registration
             const bridgechainRegistration = TransactionFactory.init(app)
                 .bridgechainRegistration({
                     name: "\u0008mybridgechain",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                    genesisHash: "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
                     bridgechainRepository: "somerepository",
                     ports: { "@arkecosystem/core-api": 12345 },
                 })
@@ -249,7 +231,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "arkecosystem",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -264,7 +246,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .bridgechainRegistration({
                     name: "cryptoProject",
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                    genesisHash: "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                     ports: { "@arkecosystem/core-api": 12345 },
                 })
@@ -327,7 +309,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             const businessRegistration = TransactionFactory.init(app)
                 .businessRegistration({
                     name: "ark",
-                    website: "ark.io",
+                    website: "https://ark.io",
                 })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
@@ -342,7 +324,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .bridgechainRegistration({
                     name: "cryptoProject",
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                    genesisHash: "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
                     ports: { "@arkecosystem/core-api": 12345 },
                 })

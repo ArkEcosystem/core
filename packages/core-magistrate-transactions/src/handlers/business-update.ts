@@ -79,13 +79,15 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
                 Enums.MagistrateTransactionGroup,
             )
         ) {
-            const wallet: Contracts.State.Wallet = (pool as any).poolWalletManager.findByPublicKey(data.senderPublicKey);
+            const wallet: Contracts.State.Wallet = (pool as any).poolWalletRepository.findByPublicKey(
+                data.senderPublicKey,
+            );
             processor.pushError(
                 data,
                 "ERR_PENDING",
                 `Business update for "${wallet.getAttribute("business")}" already in the pool`,
             );
-            return false
+            return false;
         }
 
         return true;
@@ -174,11 +176,11 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

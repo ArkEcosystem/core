@@ -5,5 +5,5 @@ export const defaults = {
             port: process.env.CORE_P2P_PORT || 4000,
         },
     ],
-    tracker: !process.env.CORE_FORGER_TRACKER_DISABLED,
+    tracker: false,
 };

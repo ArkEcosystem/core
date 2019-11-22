@@ -27,8 +27,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
     @Container.inject(Container.Identifiers.TransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
+    // todo: make private readonly
     @Container.inject(Container.Identifiers.TransactionPoolWalletRepository)
-    private poolWalletRepository!: PoolWalletRepository;
+    public poolWalletRepository!: PoolWalletRepository;
 
     // @todo: make this private, requires some bigger changes to tests
     public options!: Record<string, any>;

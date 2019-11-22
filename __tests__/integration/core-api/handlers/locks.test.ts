@@ -19,16 +19,16 @@ afterAll(async () => await tearDown());
 
 describe("API 2.0 - Locks", () => {
     let lockIds;
-    let walletManager;
+    let walletRepository;
 
     beforeEach(() => {
-        walletManager = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
-        walletManager.reset();
+        walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+        walletRepository.reset();
 
         lockIds = [];
 
         for (let i = 1; i < 7; i++) {
-            const wallet = walletManager.findByAddress(Identities.Address.fromPassphrase(`${i}`));
+            const wallet = walletRepository.findByAddress(Identities.Address.fromPassphrase(`${i}`));
             wallet.publicKey = Identities.PublicKey.fromPassphrase(`${i}`);
 
             const transactions = Managers.configManager.get("genesisBlock").transactions.slice(i * 10, i * 10 + i + 1);
@@ -52,7 +52,7 @@ describe("API 2.0 - Locks", () => {
 
             wallet.setAttribute("htlc.locks", locks);
 
-            walletManager.reindex(wallet);
+            walletRepository.reindex(wallet);
         }
     });
 
@@ -157,7 +157,7 @@ describe("API 2.0 - Locks", () => {
 
     describe("POST /locks/search", () => {
         const createWallet = (secret: string, lock: Partial<Interfaces.IHtlcLock> = {}) => {
-            const wallet = walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase(secret));
+            const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase(secret));
             const transactionId = Crypto.HashAlgorithms.sha256(secret).toString("hex");
 
             wallet.setAttribute("htlc.locks", {
@@ -197,7 +197,7 @@ describe("API 2.0 - Locks", () => {
 
         it("should POST a search for locks with the exact vendorField", async () => {
             const wallet = createWallet("secret", { vendorField: "HTLC" });
-            walletManager.reindex(wallet);
+            walletRepository.reindex(wallet);
 
             const response = await api.request("POST", "locks/search", {
                 vendorField: "HTLC",
@@ -215,7 +215,7 @@ describe("API 2.0 - Locks", () => {
 
         it("should POST a search for locks within the timestamp range", async () => {
             const wallet = createWallet("secret", { timestamp: 5000 });
-            walletManager.reindex(wallet);
+            walletRepository.reindex(wallet);
 
             const response = await api.request("POST", "locks/search", {
                 timestamp: {

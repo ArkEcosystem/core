@@ -99,7 +99,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         pool: Contracts.TransactionPool.Connection,
         processor: Contracts.TransactionPool.Processor,
     ): Promise<boolean> {
-        (pool as any).poolWalletManager.findByPublicKey(data.senderPublicKey);
+        (pool as any).poolWalletRepository.findByPublicKey(data.senderPublicKey);
         const { bridgechainId }: { bridgechainId: string } = data.asset!.bridgechainResignation;
 
         const bridgechainResignationsInPool: Interfaces.ITransactionData[] = Array.from(
@@ -119,7 +119,8 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             processor.pushError(
                 data,
                 "ERR_PENDING",
-                `Bridgechain resignation for bridgechainId "${bridgechainId}" already in the pool`);
+                `Bridgechain resignation for bridgechainId "${bridgechainId}" already in the pool`,
+            );
 
             return false;
         }
@@ -183,11 +184,11 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }
