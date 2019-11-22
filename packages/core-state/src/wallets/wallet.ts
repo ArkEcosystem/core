@@ -1,12 +1,6 @@
 import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Errors } from "@arkecosystem/core-transactions";
-import {
-    Enums,
-    Identities,
-    Interfaces,
-    Transactions,
-    Utils,
-} from "@arkecosystem/crypto";
+import { Enums, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { cloneDeep } from "@arkecosystem/utils";
 
 // todo: review the implementation

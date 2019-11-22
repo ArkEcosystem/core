@@ -1,5 +1,5 @@
 import { calculateApproval, calculateForgedTotal } from "./delegate-calculator";
-import { calculateTransactionExpiration, calculateLockExpirationStatus } from "./expiration-calculator";
+import { calculateLockExpirationStatus, calculateTransactionExpiration } from "./expiration-calculator";
 import { formatTimestamp } from "./format-timestamp";
 import { isBlockChained } from "./is-block-chained";
 import { isWhitelisted } from "./is-whitelisted";

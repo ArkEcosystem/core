@@ -3,6 +3,8 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { QueryParameters } from "../database/search";
 import { RoundInfo } from "../shared";
 
+// todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
+
 export interface WalletIndex {
     readonly indexer: WalletIndexer;
     index(wallet: Wallet): void;
@@ -94,7 +96,7 @@ export interface WalletIpfsAttributes {
 }
 
 export interface WalletRepository {
-    // TODO: use a inversify factory for wallets instead?
+    // TODO: use an inversify factory for wallets instead?
     createWallet(address: string): Wallet;
 
     reset(): void;

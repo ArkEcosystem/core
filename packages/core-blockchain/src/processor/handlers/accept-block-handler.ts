@@ -9,7 +9,7 @@ import { BlockHandler } from "./block-handler";
 @Container.injectable()
 export class AcceptBlockHandler extends BlockHandler {
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.StateStore)
     protected readonly state!: Contracts.State.StateStore;

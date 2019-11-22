@@ -24,16 +24,14 @@ export class StateBuilder {
     private walletState!: WalletState;
 
     @Container.inject(Container.Identifiers.LogService)
-    private logger!: Contracts.Kernel.Log.Logger;
+    private logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private emitter!: Contracts.Kernel.Events.EventDispatcher;
+    private emitter!: Contracts.Kernel.EventDispatcher;
 
     public async run(): Promise<void> {
         this.logger = this.app.log;
-        this.emitter = this.app.get<Contracts.Kernel.Events.EventDispatcher>(
-            Container.Identifiers.EventDispatcherService,
-        );
+        this.emitter = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
         const transactionHandlers: Handlers.TransactionHandler[] = this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
             .getAll();
@@ -100,7 +98,10 @@ export class StateBuilder {
             .reduce((acc, curr) => Object.assign(acc, { [curr.senderPublicKey]: true }), {});
 
         for (const wallet of this.walletRepository.allByAddress()) {
-            if (wallet.balance.isLessThan(0) && (wallet.publicKey === undefined || !genesisPublicKeys[wallet.publicKey])) {
+            if (
+                wallet.balance.isLessThan(0) &&
+                (wallet.publicKey === undefined || !genesisPublicKeys[wallet.publicKey])
+            ) {
                 // Senders of whitelisted transactions that result in a negative balance,
                 // also need to be special treated during bootstrap. Therefore, specific
                 // senderPublicKey/nonce pairs are allowed to be negative.
@@ -114,7 +115,9 @@ export class StateBuilder {
 
                 AppUtils.assert.defined<Record<string, Record<string, string>>>(negativeBalanceExceptions);
 
-                const negativeBalances: Record<string, string> | undefined = wallet.publicKey ? negativeBalanceExceptions[wallet.publicKey] : undefined;
+                const negativeBalances: Record<string, string> | undefined = wallet.publicKey
+                    ? negativeBalanceExceptions[wallet.publicKey]
+                    : undefined;
                 if (negativeBalances && !wallet.balance.isEqualTo(negativeBalances[wallet.nonce.toString()] || 0)) {
                     this.logger.warning(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
                     throw new Error("Non-genesis wallet with negative balance.");

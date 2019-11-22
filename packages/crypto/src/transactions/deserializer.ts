@@ -224,4 +224,3 @@ export class Deserializer {
         return buffer;
     }
 }
-

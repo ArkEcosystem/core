@@ -1,7 +1,7 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import SCWorker from "socketcluster/scworker";
 import Ajv from "ajv";
 import { cidr } from "ip";
+import SCWorker from "socketcluster/scworker";
 
 import { requestSchemas } from "../schemas";
 

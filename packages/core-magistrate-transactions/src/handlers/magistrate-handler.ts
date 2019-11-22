@@ -1,6 +1,7 @@
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces as CryptoInterfaces, Managers, Utils } from "@arkecosystem/crypto";
-import { Contracts } from "@arkecosystem/core-kernel";
+
 import { StaticFeeMismatchError } from "../errors";
 
 export abstract class MagistrateTransactionHandler extends Handlers.TransactionHandler {

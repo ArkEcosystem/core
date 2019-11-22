@@ -42,7 +42,9 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
 
                 lockedBalance = lockedBalance.plus(transaction.amount);
 
-                const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.recipientId);
+                const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
+                    transaction.recipientId,
+                );
                 walletsToIndex[wallet.address] = wallet;
                 walletsToIndex[recipientWallet.address] = recipientWallet;
             }
@@ -156,10 +158,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

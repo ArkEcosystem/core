@@ -10,7 +10,7 @@ import { BlockHandler } from "./block-handler";
 @Container.injectable()
 export class ExceptionHandler extends BlockHandler {
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.DatabaseService)
     private readonly database!: DatabaseService;

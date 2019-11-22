@@ -8,6 +8,7 @@ export interface AddTransactionResponse {
     message?: string;
 }
 
+// todo: clean this up and split the connection into entities with small responsibilities.
 export interface Connection {
     makeProcessor(): Processor;
 

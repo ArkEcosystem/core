@@ -3,8 +3,8 @@ import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
-import { IBridgechainRegistrationAsset, IBridgechainPorts } from "../interfaces";
-import { seedNodesSchema, portsSchema } from "./utils/bridgechain-schemas";
+import { IBridgechainPorts, IBridgechainRegistrationAsset } from "../interfaces";
+import { portsSchema, seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -98,10 +98,10 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         const buffer: ByteBuffer = new ByteBuffer(
             bridgechainNameBufferLength +
-            seedNodesBuffersLength +
-            bridgechainGenesisHash.length +
-            bridgechainRepositoryBufferLength +
-            portsBuffersLength,
+                seedNodesBuffersLength +
+                bridgechainGenesisHash.length +
+                bridgechainRepositoryBufferLength +
+                portsBuffersLength,
             true,
         );
 

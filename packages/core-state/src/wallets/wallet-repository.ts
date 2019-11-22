@@ -72,14 +72,17 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             },
         );
 
-        this.registerIndex(Contracts.State.WalletIndexes.Ipfs, (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-            if (wallet.hasAttribute("ipfs.hashes")) {
-                const hashes = wallet.getAttribute("ipfs.hashes");
-                for (const hash of Object.keys(hashes)) {
-                    index.set(hash, wallet);
+        this.registerIndex(
+            Contracts.State.WalletIndexes.Ipfs,
+            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
+                if (wallet.hasAttribute("ipfs.hashes")) {
+                    const hashes = wallet.getAttribute("ipfs.hashes");
+                    for (const hash of Object.keys(hashes)) {
+                        index.set(hash, wallet);
+                    }
                 }
-            }
-        });
+            },
+        );
     }
 
     public registerIndex(name: string, indexer: Contracts.State.WalletIndexer): void {

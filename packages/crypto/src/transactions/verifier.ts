@@ -1,11 +1,11 @@
 import { Hash } from "../crypto/hash";
-import { ISchemaValidationResult, ITransactionData, IMultiSignatureAsset } from "../interfaces";
+import { DuplicateParticipantInMultiSignatureError, InvalidMultiSignatureAssetError } from "../errors";
+import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
 import { TransactionTypeFactory } from "./types";
 import { Utils } from "./utils";
-import { InvalidMultiSignatureAssetError, DuplicateParticipantInMultiSignatureError } from "../errors";
 
 export class Verifier {
     public static verify(data: ITransactionData): boolean {

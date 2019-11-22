@@ -105,7 +105,7 @@ export class StateStore implements Contracts.State.StateStore {
 
         if (Managers.configManager.isNewMilestone()) {
             this.app
-                .get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService)
+                .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
                 .dispatch(Enums.CryptoEvent.MilestoneChanged);
         }
 

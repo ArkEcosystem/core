@@ -84,7 +84,6 @@ export class VoteTransactionHandler extends TransactionHandler {
             if (delegateWallet.hasAttribute("delegate.resigned")) {
                 throw new VotedForResignedDelegateError(vote);
             }
-
         } else {
             if (!walletVote) {
                 throw new NoVoteError();
@@ -93,7 +92,6 @@ export class VoteTransactionHandler extends TransactionHandler {
             }
         }
 
-
         if (!delegateWallet.isDelegate()) {
             throw new VotedForNonDelegateError(vote);
         }
@@ -101,7 +99,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         Utils.assert.defined<string[]>(transaction.data.asset?.votes);
 
         const vote: string = transaction.data.asset.votes[0];
@@ -173,10 +171,10 @@ export class VoteTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

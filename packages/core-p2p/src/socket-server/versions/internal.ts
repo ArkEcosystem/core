@@ -1,5 +1,5 @@
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Utils, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import { process } from "ipaddr.js";
 
@@ -20,22 +20,32 @@ export const acceptNewPeer = async ({
 }): Promise<void> => service.processor.validateAndAcceptPeer({ ip: req.data.ip } as Peer);
 
 export const emitEvent = ({ app, req }: { app: Contracts.Kernel.Application; req: any }): void => {
-    app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService).dispatch(
+    app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService).dispatch(
         req.data.event,
         req.data.body,
     );
 };
 
-export const isPeerOrForger = ({ app, service, req }: { app: Contracts.Kernel.Application; service: PeerService; req }): { isPeerOrForger: boolean } => {
+export const isPeerOrForger = ({
+    app,
+    service,
+    req,
+}: {
+    app: Contracts.Kernel.Application;
+    service: PeerService;
+    req;
+}): { isPeerOrForger: boolean } => {
     const sanitizedIp = process(req.data.ip).toString();
     return {
         isPeerOrForger:
             service.storage.hasPeer(sanitizedIp) ||
             Utils.isWhitelisted(
-                app.get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
+                (app
+                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
                     .get("@arkecosystem/core-p2p")
-                    .config().all().remoteAccess as unknown as string[],
-                sanitizedIp
+                    .config()
+                    .all().remoteAccess as unknown) as string[],
+                sanitizedIp,
             ),
     };
 };

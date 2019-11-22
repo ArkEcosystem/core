@@ -38,8 +38,8 @@ export class Connection implements Contracts.TransactionPool.Connection {
     private storage!: Storage;
     private loggedAllowedSenders!: string[];
 
-    private emitter!: Contracts.Kernel.Events.EventDispatcher;
-    private logger!: Contracts.Kernel.Log.Logger;
+    private emitter!: Contracts.Kernel.EventDispatcher;
+    private logger!: Contracts.Kernel.Logger;
 
     init({ options, memory, storage }: { options: Record<string, any>; memory: Memory; storage: Storage }) {
         this.options = options;
@@ -48,9 +48,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         this.loggedAllowedSenders = [];
 
-        this.emitter = this.app.get<Contracts.Kernel.Events.EventDispatcher>(
-            Container.Identifiers.EventDispatcherService,
-        );
+        this.emitter = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
         this.logger = this.app.log;
 
         return this;

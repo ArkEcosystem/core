@@ -117,7 +117,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
         async init() {
             // todo: turn the state machine into a class so that injection can be used
             logger = app.log;
-            emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
+            emitter = app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
             database = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
             transactionPool = app.get<Contracts.TransactionPool.Connection>(
                 Container.Identifiers.TransactionPoolService,
@@ -243,7 +243,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
                 }
             } else {
                 if (empty) {
-                    logger.info(`Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`);
+                    logger.info(
+                        `Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`,
+                    );
                 } else {
                     logger.warning(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                     logger.warning(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock)}`);

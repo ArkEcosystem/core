@@ -1,9 +1,9 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import {
+    Enums,
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
-    Enums,
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
@@ -61,7 +61,7 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BusinessRegistered, transaction.data);
     }
 
@@ -134,11 +134,11 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

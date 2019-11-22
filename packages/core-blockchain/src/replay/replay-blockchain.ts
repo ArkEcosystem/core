@@ -10,7 +10,7 @@ import { MemoryDatabaseService } from "./memory-database-service";
 // todo: review the implementation
 @Container.injectable()
 export class ReplayBlockchain extends Blockchain {
-    private logger!: Contracts.Kernel.Log.Logger;
+    private logger!: Contracts.Kernel.Logger;
     private localDatabase!: DatabaseService;
     private walletRepository!: Wallets.WalletRepository;
     private walletState!: Wallets.WalletState; // @todo: review and/or remove

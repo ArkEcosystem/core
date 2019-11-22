@@ -62,7 +62,11 @@ export abstract class TransactionHandler {
 
     public abstract async isActivated(): Promise<boolean>;
 
-    public dynamicFee({ addonBytes, satoshiPerByte, transaction }: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
+    public dynamicFee({
+        addonBytes,
+        satoshiPerByte,
+        transaction,
+    }: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
         addonBytes = addonBytes || 0;
 
         if (satoshiPerByte <= 0) {
@@ -270,7 +274,7 @@ export abstract class TransactionHandler {
     /**
      * Database Service
      */
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void { }
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {}
 
     /**
      * Transaction Pool logic

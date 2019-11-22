@@ -343,22 +343,22 @@ export class Application implements Contracts.Kernel.Application {
      * todo: remove after initial migration - ioc/injection should be used to access those
      *
      * @readonly
-     * @type {Contracts.Kernel.Log.Logger}
+     * @type {Contracts.Kernel.Logger}
      * @memberof Application
      */
-    public get log(): Contracts.Kernel.Log.Logger {
-        return this.get<Contracts.Kernel.Log.Logger>(Identifiers.LogService);
+    public get log(): Contracts.Kernel.Logger {
+        return this.get<Contracts.Kernel.Logger>(Identifiers.LogService);
     }
 
     /**
      * todo: remove after initial migration - ioc/injection should be used to access those
      *
      * @readonly
-     * @type {Contracts.Kernel.Events.EventDispatcher}
+     * @type {Contracts.Kernel.EventDispatcher}
      * @memberof Application
      */
-    public get events(): Contracts.Kernel.Events.EventDispatcher {
-        return this.get<Contracts.Kernel.Events.EventDispatcher>(Identifiers.EventDispatcherService);
+    public get events(): Contracts.Kernel.EventDispatcher {
+        return this.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService);
     }
 
     /**

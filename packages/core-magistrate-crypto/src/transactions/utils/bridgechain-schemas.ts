@@ -21,5 +21,5 @@ export const portsSchema = {
             minimum: 0,
             maximum: 65535,
         },
-    }
-}
+    },
+};

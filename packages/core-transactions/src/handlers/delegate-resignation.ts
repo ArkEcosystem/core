@@ -71,7 +71,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(Enums.DelegateEvent.Resigned, transaction.data);
     }
 
@@ -128,11 +128,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

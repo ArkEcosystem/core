@@ -2,9 +2,9 @@ import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Utils as CryptoUtils } from "@arkecosystem/crypto";
 
+import { IpfsHashAlreadyExists } from "../errors";
 import { TransactionReader } from "../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
-import { IpfsHashAlreadyExists } from "../errors";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
@@ -116,10 +116,10 @@ export class IpfsTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

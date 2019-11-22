@@ -1,5 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
+// todo: check if this interface is still needed or if we can ditch it.
 export interface Processor {
     validate(transactions: Interfaces.ITransactionData[]): Promise<ProcessorResult>;
 

@@ -36,10 +36,10 @@ export class DatabaseService {
     private readonly walletState!: Contracts.State.WalletState;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     // TODO: make private readonly
     public blocksInCurrentRound: Interfaces.IBlock[] | undefined = undefined;
@@ -193,7 +193,7 @@ export class DatabaseService {
 
         delegates = delegates.map(delegate => delegate.clone());
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-            for (let x = 0; x < 4 && i < delCount; i++ , x++) {
+            for (let x = 0; x < 4 && i < delCount; i++, x++) {
                 const newIndex = currentSeed[x] % delCount;
                 const b = delegates[newIndex];
                 delegates[newIndex] = delegates[i];

@@ -46,7 +46,7 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
 
         const dbWallet = this.walletRepository.findByIndex(index, key);
         if (dbWallet) {
-            const cloneWallet = dbWallet.clone();;
+            const cloneWallet = dbWallet.clone();
             this.reindex(cloneWallet);
             return cloneWallet;
         }

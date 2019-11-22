@@ -1,9 +1,9 @@
+import { Enums } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { LocksController } from "../controllers/locks";
 import { orderBy } from "../schemas";
-import { Enums } from "@arkecosystem/crypto";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(LocksController);

@@ -1,4 +1,4 @@
-import { Container, Utils, Contracts } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import { Resource } from "../interfaces";
 

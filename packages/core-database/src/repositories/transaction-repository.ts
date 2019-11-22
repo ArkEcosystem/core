@@ -1,12 +1,12 @@
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Enums } from "@arkecosystem/crypto";
+import { Block } from "@arkecosystem/crypto/dist/blocks";
 import dayjs from "dayjs";
 import { Brackets, EntityRepository, In, SelectQueryBuilder } from "typeorm";
 
 import { Transaction } from "../models";
 import { AbstractEntityRepository, RepositorySearchResult } from "./repository";
 import { SearchCriteria, SearchFilter, SearchOperator, SearchPagination, SearchQueryConverter } from "./search";
-import { Block } from "@arkecosystem/crypto/dist/blocks";
 
 @EntityRepository(Transaction)
 export class TransactionRepository extends AbstractEntityRepository<Transaction> {
@@ -63,14 +63,16 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
     public async getFeeStatistics(
         days: number,
         minFee?: number,
-    ): Promise<{
-        type: number;
-        typeGroup: number;
-        avg: string;
-        min: string;
-        max: string;
-        sum: string;
-    }[]> {
+    ): Promise<
+        {
+            type: number;
+            typeGroup: number;
+            avg: string;
+            min: string;
+            max: string;
+            sum: string;
+        }[]
+    > {
         minFee = minFee || 0;
 
         const age = Crypto.Slots.getTime(
@@ -117,12 +119,17 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
             .getRawMany();
     }
 
-    public async findByType(type: number, typeGroup: number, limit?: number, offset?: number): Promise<Array<Transaction & { blockHeight: number; blockGeneratorPublicKey: string; reward: Utils.BigNumber }>> {
+    public async findByType(
+        type: number,
+        typeGroup: number,
+        limit?: number,
+        offset?: number,
+    ): Promise<Array<Transaction & { blockHeight: number; blockGeneratorPublicKey: string; reward: Utils.BigNumber }>> {
         const transactions = await this.createQueryBuilder("transactions")
             .select()
-            .addSelect("blocks.height as \"blockHeight\"")
-            .addSelect("blocks.generatorPublicKey as \"blockGeneratorPublicKey\"")
-            .addSelect("blocks.reward as \"reward\"")
+            .addSelect('blocks.height as "blockHeight"')
+            .addSelect('blocks.generatorPublicKey as "blockGeneratorPublicKey"')
+            .addSelect('blocks.reward as "reward"')
             .addFrom(Block, "blocks")
             .where("block_id = blocks.id")
             .andWhere("type = :type", { type })

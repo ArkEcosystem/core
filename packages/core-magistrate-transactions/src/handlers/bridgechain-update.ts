@@ -89,7 +89,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BridgechainUpdate, transaction.data);
     }
 
@@ -192,7 +192,6 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
             businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
             businessAttributes.bridgechains[bridgechainId].bridgechainAsset.ports = ports;
-
         } else {
             // There are equally many bridgechain registrations as bridgechains a wallet posseses in the database.
             // By getting the index of the bridgechainId we can use it as an offset to get
@@ -249,8 +248,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes =
                 bridgechainRegistration.seedNodes;
 
-            businessAttributes.bridgechains[bridgechainId].bridgechainAsset.ports =
-                bridgechainRegistration.ports;
+            businessAttributes.bridgechains[bridgechainId].bridgechainAsset.ports = bridgechainRegistration.ports;
         }
 
         walletRepository.reindex(sender);
@@ -260,11 +258,11 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

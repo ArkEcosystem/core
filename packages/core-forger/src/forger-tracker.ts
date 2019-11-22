@@ -8,7 +8,7 @@ export class ForgerTracker {
     protected readonly configRepository!: Services.Config.ConfigRepository;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchainService!: Contracts.Blockchain.Blockchain;

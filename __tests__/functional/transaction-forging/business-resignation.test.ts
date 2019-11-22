@@ -39,10 +39,11 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessResignation.id).toBeForged();
 
             // Reject a new registration
-            businessRegistration = TransactionFactory.init(app).businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            businessRegistration = TransactionFactory.init(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[0])
                 .createOne();
 
@@ -52,7 +53,8 @@ describe("Transaction Forging - Business resignation", () => {
         });
 
         it("should reject business resignation, because business resigned [Signed with 1 Passphrase]", async () => {
-            const businessResignation = TransactionFactory.init(app).businessResignation()
+            const businessResignation = TransactionFactory.init(app)
+                .businessResignation()
                 .businessResignation()
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -64,10 +66,11 @@ describe("Transaction Forging - Business resignation", () => {
 
         it("should reject business resignation, because business resignation is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app).businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            const businessRegistration = TransactionFactory.init(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[1])
                 .createOne();
 
@@ -75,11 +78,13 @@ describe("Transaction Forging - Business resignation", () => {
             await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
 
-            const businessResignation = TransactionFactory.init(app).businessResignation()
+            const businessResignation = TransactionFactory.init(app)
+                .businessResignation()
                 .withPassphrase(secrets[1])
                 .createOne();
 
-            const businessResignation2 = TransactionFactory.init(app).businessResignation()
+            const businessResignation2 = TransactionFactory.init(app)
+                .businessResignation()
                 .withPassphrase(secrets[1])
                 .withNonce(businessResignation.nonce.plus(1))
                 .createOne();

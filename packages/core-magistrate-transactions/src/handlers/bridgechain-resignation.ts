@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Transactions as MagistrateTransactions, Enums } from "@arkecosystem/core-magistrate-crypto";
+import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
@@ -90,7 +90,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BridgechainResigned, transaction.data);
     }
 

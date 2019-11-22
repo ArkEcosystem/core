@@ -82,7 +82,6 @@ export class PeerConnector {
             .config()
             .get<number>("getBlocksTimeout");
 
-
         const verifyTimeout: number | undefined = this.app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
             .get("p2p")

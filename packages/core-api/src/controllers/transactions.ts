@@ -170,7 +170,8 @@ export class TransactionsController extends Controller {
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastHeight();
 
-            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app.get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
+                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
                 .getActivatedTransactionHandlers();
 
             const typeGroups: Record<string | number, Record<string, string>> = {};

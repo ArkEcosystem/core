@@ -255,8 +255,8 @@ describe("Block", () => {
                 .withVersion(1)
                 .withTimestamp(
                     optionsDefault.timestamp +
-                    3600 +
-                    configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
+                        3600 +
+                        configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
                 )
                 .withPassphrase("super cool passphrase")
                 .create();
@@ -285,8 +285,8 @@ describe("Block", () => {
                 .withVersion(1)
                 .withTimestamp(
                     optionsDefault.timestamp +
-                    3601 +
-                    configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
+                        3601 +
+                        configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
                 )
                 .withPassphrase("super cool passphrase")
                 .create();
@@ -316,8 +316,8 @@ describe("Block", () => {
                 .withVersion(1)
                 .withTimestamp(
                     optionsDefault.timestamp +
-                    3601 +
-                    configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
+                        3601 +
+                        configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
                 )
                 .withPassphrase("super cool passphrase")
                 .create();
@@ -344,8 +344,8 @@ describe("Block", () => {
                 .withVersion(1)
                 .withTimestamp(
                     optionsDefault.timestamp +
-                    3601 +
-                    configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
+                        3601 +
+                        configManager.getMilestone(optionsDefault.previousBlock.height).blocktime,
                 )
                 .withPassphrase("super cool passphrase")
                 .create();

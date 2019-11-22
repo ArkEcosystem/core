@@ -14,7 +14,7 @@ export class Client {
     private host: RelayHost;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     init(hosts: RelayHost[]) {
         this.hosts = hosts.map(host => {

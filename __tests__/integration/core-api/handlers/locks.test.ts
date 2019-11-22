@@ -44,7 +44,7 @@ describe("API 2.0 - Locks", () => {
                     secretHash: transaction.id,
                     expiration: {
                         type: j % 2 === 0 ? 1 : 2,
-                        value: !j ? 0 : (100 * (j + 1)),
+                        value: !j ? 0 : 100 * (j + 1),
                     },
                     timestamp: (i + 1) * 100000,
                 };

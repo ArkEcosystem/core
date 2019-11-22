@@ -1,11 +1,11 @@
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Services, Utils } from "@arkecosystem/core-kernel";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { PortsResource } from "../resources";
 import { Controller } from "./controller";
-import { Handlers } from "@arkecosystem/core-transactions";
 
 @Container.injectable()
 export class NodeController extends Controller {
@@ -100,7 +100,8 @@ export class NodeController extends Controller {
                 groupedByTypeGroup[result.typeGroup] = {};
             }
 
-            const handler: Handlers.TransactionHandler = await this.app.get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+            const handler: Handlers.TransactionHandler = await this.app
+                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
                 .get(result.type, result.typeGroup);
             groupedByTypeGroup[result.typeGroup][handler.getConstructor().key] = {
                 avg: result.avg,

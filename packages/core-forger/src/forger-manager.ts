@@ -13,7 +13,7 @@ export class ForgerManager {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     private client!: Client;
     private delegates: Delegate[] = [];
@@ -209,7 +209,7 @@ export class ForgerManager {
 
         this.logger.debug(
             `Received ${AppUtils.pluralize("transaction", transactions.length, true)} from the pool containing ${
-            response.poolSize
+                response.poolSize
             }`,
         );
 

@@ -28,7 +28,7 @@ export class BlockProcessor {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.BlockchainService)
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
@@ -98,7 +98,7 @@ export class BlockProcessor {
         if (!verified) {
             this.logger.warning(
                 `Block ${block.data.height.toLocaleString()} (${
-                block.data.id
+                    block.data.id
                 }) disregarded because verification failed`,
             );
 
@@ -181,9 +181,9 @@ export class BlockProcessor {
             if (!nonceBySender[sender].plus(1).isEqualTo(nonce)) {
                 this.logger.warning(
                     `Block { height: ${block.data.height.toLocaleString()}, id: ${block.data.id} } ` +
-                    `not accepted: invalid nonce order for sender ${sender}: ` +
-                    `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
-                    `transaction ${data.id} has nonce ${nonce.toFixed()}.`,
+                        `not accepted: invalid nonce order for sender ${sender}: ` +
+                        `preceding nonce: ${nonceBySender[sender].toFixed()}, ` +
+                        `transaction ${data.id} has nonce ${nonce.toFixed()}.`,
                 );
                 return true;
             }

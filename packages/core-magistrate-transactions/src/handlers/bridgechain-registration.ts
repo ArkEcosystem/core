@@ -8,16 +8,16 @@ import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
-    BusinessIsResignedError,
-    WalletIsNotBusinessError,
     BridgechainAlreadyRegisteredError,
+    BusinessIsResignedError,
     GenesisHashAlreadyRegisteredError,
+    WalletIsNotBusinessError,
 } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
+import { MagistrateIndex } from "../wallet-indexes";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
-import { MagistrateIndex } from "../wallet-indexes";
 
 @Container.injectable()
 export class BridgechainRegistrationTransactionHandler extends MagistrateTransactionHandler {
@@ -110,7 +110,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BridgechainRegistered, transaction.data);
     }
 

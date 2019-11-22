@@ -4,6 +4,7 @@ import { Container } from "./container";
 import { EventDispatcher } from "./events";
 import { Logger } from "./log";
 
+// todo: remove this interface as it serves no purpose. Every package depends on core-kernel so it can import the application directly.
 export interface Application {
     /**
      * Get an instance of the application container.

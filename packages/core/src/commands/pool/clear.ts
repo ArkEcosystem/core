@@ -1,11 +1,12 @@
+import Command from "@oclif/command";
+import { confirm } from "cli-ux/lib/prompt";
 import { readdirSync } from "fs";
 import { removeSync } from "fs-extra";
-import { CommandFlags } from "../../types";
-import { abortRunningProcess } from "../../common/process";
-import { parseWithNetwork } from "../../common/parser";
-import Command from "@oclif/command";
+
 import { flagsNetwork } from "../../common/flags";
-import { confirm } from "cli-ux/lib/prompt";
+import { parseWithNetwork } from "../../common/parser";
+import { abortRunningProcess } from "../../common/process";
+import { CommandFlags } from "../../types";
 
 export class ClearCommand extends Command {
     public static description: string = "Clear the transaction pool";
@@ -30,7 +31,6 @@ export class ClearCommand extends Command {
             if (confirmed) {
                 this.removeFiles(paths.data);
             }
-
         } catch (err) {
             this.error(err.message);
         }

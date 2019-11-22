@@ -7,11 +7,11 @@ export interface ConfigLoader {
      * @returns {Promise<void>}
      * @memberof ConfigLoader
      */
-    loadConfiguration(): Promise<void>;
+    loadEnvironmentVariables(): Promise<void>;
 
     /**
      * @returns {Promise<void>}
      * @memberof ConfigLoader
      */
-    loadEnvironmentVariables(): Promise<void>;
+    loadConfiguration(): Promise<void>;
 }

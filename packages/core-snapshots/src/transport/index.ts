@@ -65,7 +65,7 @@ export const exportTable = async (app: Contracts.Kernel.Application, table, opti
 };
 
 export const importTable = async (app: Contracts.Kernel.Application, table, options) => {
-    const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
+    const emitter = app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
     const sourceFile = utils.getFilePath(table, options.meta.folder);
     const gunzip = zlib.createGunzip();

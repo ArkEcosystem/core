@@ -6,7 +6,7 @@ import { PeerConnector } from "./peer-connector";
 @Container.injectable()
 export class EventListener {
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerConnector)
     private readonly connector!: PeerConnector;

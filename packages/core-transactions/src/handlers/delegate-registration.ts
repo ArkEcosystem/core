@@ -123,7 +123,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.Events.EventDispatcher): void {
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(AppEnums.DelegateEvent.Registered, transaction.data);
     }
 

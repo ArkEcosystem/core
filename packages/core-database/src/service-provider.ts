@@ -44,7 +44,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     private async connect(): Promise<Connection> {
         const options: Record<string, any> = this.config().all();
         this.app
-            .get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService)
+            .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
             .dispatch(DatabaseEvent.PRE_CONNECT);
 
         return createConnection({

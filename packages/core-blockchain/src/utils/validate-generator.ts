@@ -8,7 +8,7 @@ export const validateGenerator = async (
     block: Interfaces.IBlock,
 ): Promise<boolean> => {
     const database: DatabaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
-    const logger: Contracts.Kernel.Log.Logger = app.log;
+    const logger: Contracts.Kernel.Logger = app.log;
 
     const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(block.data.height);
     const delegates: Contracts.State.Wallet[] = await database.getActiveDelegates(roundInfo);

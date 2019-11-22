@@ -36,10 +36,10 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     public readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerCommunicator)
     private readonly communicator!: PeerCommunicator;
@@ -365,8 +365,8 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         // We must return an uninterrupted sequence of blocks, starting from `fromBlockHeight`,
         // with sequential heights, without gaps.
 
-        let downloadJobs = [];
-        let downloadResults: any = [];
+        const downloadJobs = [];
+        const downloadResults: any = [];
         let someJobFailed: boolean = false;
         let chunksHumanReadable: string = "";
 

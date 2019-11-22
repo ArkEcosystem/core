@@ -29,7 +29,7 @@ export class PeerVerifier {
 
     // todo: make use of ioc
     private database!: DatabaseService;
-    private logger!: Contracts.Kernel.Log.Logger;
+    private logger!: Contracts.Kernel.Logger;
     private logPrefix!: string;
 
     private communicator!: PeerCommunicator;

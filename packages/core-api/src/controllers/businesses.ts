@@ -2,7 +2,7 @@ import { Container, Contracts } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
-import { BusinessResource, BridgechainResource } from "../resources";
+import { BridgechainResource, BusinessResource } from "../resources";
 import { Controller } from "./controller";
 
 @Container.injectable()

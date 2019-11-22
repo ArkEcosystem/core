@@ -3,8 +3,8 @@ import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
-import { IBridgechainUpdateAsset, IBridgechainPorts } from "../interfaces";
-import { seedNodesSchema, portsSchema } from "./utils/bridgechain-schemas";
+import { IBridgechainPorts, IBridgechainUpdateAsset } from "../interfaces";
+import { portsSchema, seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 

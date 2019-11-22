@@ -81,11 +81,11 @@ export class RegisterServiceProviders implements Bootstrapper {
         if (Object.keys(configSchema).length > 0) {
             const config: PluginConfiguration = serviceProvider.config();
 
-            const validator: Kernel.Validation.Validator | undefined = this.app
+            const validator: Kernel.Validator | undefined = this.app
                 .get<ValidationManager>(Identifiers.ValidationManager)
                 .driver();
 
-            assert.defined<Kernel.Validation.Validator>(validator);
+            assert.defined<Kernel.Validator>(validator);
 
             validator.validate(config.all(), configSchema);
 

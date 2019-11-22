@@ -469,7 +469,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
                     .broadcastBlock(currentBlock);
             }
         } else if (forkBlock) {
-            this.forkBlock(forkBlock)
+            this.forkBlock(forkBlock);
         }
 
         return callback(acceptedBlocks);

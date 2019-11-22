@@ -41,7 +41,7 @@ export class RestoreCommand extends Command {
             flags.blocks = await chooseSnapshot(paths.data, "What snapshot do you want to restore?");
         }
 
-        const emitter = app.get<Contracts.Kernel.Events.EventDispatcher>(Container.Identifiers.EventDispatcherService);
+        const emitter = app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
         const progressBar = new cliProgress.Bar(
             {

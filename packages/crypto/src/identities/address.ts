@@ -2,9 +2,9 @@ import { HashAlgorithms } from "../crypto";
 import { PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
+import { NetworkType } from "../types";
 import { Base58 } from "../utils/base58";
 import { PublicKey } from "./public-key";
-import { NetworkType } from "../types";
 
 export class Address {
     public static fromPassphrase(passphrase: string, networkVersion?: number): string {

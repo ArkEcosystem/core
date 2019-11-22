@@ -24,7 +24,6 @@ export class WalletResource implements Resource {
      * @memberof Resource
      */
     public transform(resource): object {
-
         // FIXME
         const business: any = undefined;
         // if (app.has("core-magistrate-transactions")) {

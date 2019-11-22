@@ -1,7 +1,7 @@
 import { Interfaces } from "@arkecosystem/crypto";
 import got from "got";
 
-export { };
+export {};
 
 declare global {
     namespace jest {
@@ -43,7 +43,7 @@ expect.extend({
             message: () =>
                 // @ts-ignore
                 `expected ${transaction.id} ${this.isNot ? "not" : ""} to be accepted ${
-                error ? "(error: " + error + ")" : ""
+                    error ? "(error: " + error + ")" : ""
                 }`,
         };
     },
@@ -70,7 +70,7 @@ expect.extend({
             message: () =>
                 // @ts-ignore
                 `expected all transactions ${this.isNot ? "not" : ""} to be accepted ${
-                error ? "(error: " + error + ")" : ""
+                    error ? "(error: " + error + ")" : ""
                 }`,
         };
     },
@@ -101,7 +101,7 @@ expect.extend({
             message: () =>
                 // @ts-ignore
                 `expected transactions ${this.isNot ? "not" : ""} to be accepted ${
-                error ? "(error: " + error + ")" : ""
+                    error ? "(error: " + error + ")" : ""
                 }`,
         };
     },

@@ -1,18 +1,18 @@
 import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
-import { SCClientSocket } from "socketcluster-client";
 import delay from "delay";
+import { SCClientSocket } from "socketcluster-client";
 
+import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { PeerConfig, PeerPingResponse } from "./interfaces";
 import { PeerConnector } from "./peer-connector";
 import { PeerVerifier } from "./peer-verifier";
-import { replySchemas } from "./schemas";
-import { isValidVersion, socketEmit, buildRateLimiter } from "./utils";
 import { RateLimiter } from "./rate-limiter";
-import { constants } from "./constants";
+import { replySchemas } from "./schemas";
+import { buildRateLimiter, isValidVersion, socketEmit } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
@@ -21,10 +21,10 @@ export class PeerCommunicator {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
-    private readonly emitter!: Contracts.Kernel.Events.EventDispatcher;
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerConnector)
     private readonly connector!: PeerConnector;

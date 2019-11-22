@@ -20,8 +20,7 @@ export const dynamicFeeMatcher = async (
         .config()
         .get<Record<string, any>>("dynamicFees");
 
-    const height: number = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-        .getLastHeight();
+    const height: number = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
 
     AppUtils.assert.defined<Record<string, any>>(dynamicFees);
 
@@ -46,7 +45,7 @@ export const dynamicFeeMatcher = async (
 
             app.log.debug(
                 `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
-                fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
+                    fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
             );
         } else {
@@ -63,7 +62,7 @@ export const dynamicFeeMatcher = async (
             transaction,
             addonBytes,
             satoshiPerByte: dynamicFees.minFeePool,
-            height
+            height,
         });
 
         if (fee.isGreaterThanEqual(minFeePool)) {
@@ -71,7 +70,7 @@ export const dynamicFeeMatcher = async (
 
             app.log.debug(
                 `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
-                fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
+                    fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
             );
         } else {

@@ -58,7 +58,7 @@ export class UnchainedHandler extends BlockHandler {
     protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Log.Logger;
+    private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
@@ -94,9 +94,9 @@ export class UnchainedHandler extends BlockHandler {
             }
 
             case UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts: {
-                this.app
-                    .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
-                    .numberOfBlocksToRollback = 5000; // TODO: find a better heuristic based on peer information
+                this.app.get<Contracts.State.StateStore>(
+                    Container.Identifiers.StateStore,
+                ).numberOfBlocksToRollback = 5000; // TODO: find a better heuristic based on peer information
                 return BlockProcessorResult.Rollback;
             }
 
@@ -136,7 +136,7 @@ export class UnchainedHandler extends BlockHandler {
 
             this.logger.debug(
                 `Blockchain is still not ready to accept block at height ${block.data.height.toLocaleString()} after ${
-                BlockNotReadyCounter.maxAttempts
+                    BlockNotReadyCounter.maxAttempts
                 } tries. Going to rollback. :warning:`,
             );
 
