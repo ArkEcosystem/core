@@ -5,21 +5,21 @@ import { Action } from "./action";
 
 /**
  * @export
- * @class Actions
+ * @class Triggers
  */
 @injectable()
-export class Actions {
+export class Triggers {
     /**
-     * All of the registered actions.
+     * All of the registered triggers.
      *
      * @private
      * @type {Map<string, Action>}
      * @memberof Actions
      */
-    private readonly actions: Map<string, Action> = new Map<string, Action>();
+    private readonly triggers: Map<string, Action> = new Map<string, Action>();
 
     /**
-     * Register a new action.
+     * Register a new trigger.
      *
      * @param {string} name
      * @param {Function} fn
@@ -27,22 +27,22 @@ export class Actions {
      * @memberof Actions
      */
     public bind(name: string, fn: Function): Action {
-        if (this.actions.has(name)) {
-            throw new InvalidArgumentException(`The given action [${name}] is already registered.`);
+        if (this.triggers.has(name)) {
+            throw new InvalidArgumentException(`The given trigger [${name}] is already registered.`);
         }
 
         if (this.usesReservedBindingName(name)) {
-            throw new InvalidArgumentException(`The given action [${name}] is reserved.`);
+            throw new InvalidArgumentException(`The given trigger [${name}] is reserved.`);
         }
 
-        const action: Action = new Action(fn);
-        this.actions.set(name, action);
+        const trigger: Action = new Action(fn);
+        this.triggers.set(name, trigger);
 
-        return action;
+        return trigger;
     }
 
     /**
-     * Get an action.
+     * Get an trigger.
      *
      * @param {string} name
      * @returns {Action}
@@ -51,15 +51,15 @@ export class Actions {
     public get(name: string): Action {
         this.throwIfActionIsMissing(name);
 
-        const action: Action | undefined = this.actions.get(name);
+        const trigger: Action | undefined = this.triggers.get(name);
 
-        assert.defined<Action>(action);
+        assert.defined<Action>(trigger);
 
-        return action;
+        return trigger;
     }
 
     /**
-     * Call an action by the given name and execute its hooks in sequence.
+     * Call an trigger by the given name and execute its hooks in sequence.
      *
      * @template T
      * @param {string} name
@@ -85,16 +85,16 @@ export class Actions {
     }
 
     /**
-     * Call all hooks for the given action and type in sequence.
+     * Call all hooks for the given trigger and type in sequence.
      *
      * @private
      * @param {string} type
-     * @param {string} action
+     * @param {string} trigger
      * @returns {Promise<void>}
      * @memberof Actions
      */
-    private async callHooks(type: string, action: string): Promise<void> {
-        const hooks: Set<Function> = this.get(action).hooks(type);
+    private async callHooks(type: string, trigger: string): Promise<void> {
+        const hooks: Set<Function> = this.get(trigger).hooks(type);
 
         if (!hooks.size) {
             return;
@@ -106,20 +106,20 @@ export class Actions {
     }
 
     /**
-     * Throw an exception if the given action doesn't exist.
+     * Throw an exception if the given trigger doesn't exist.
      *
      * @private
      * @param {string} name
      * @memberof Actions
      */
     private throwIfActionIsMissing(name: string): void {
-        if (!this.actions.has(name)) {
-            throw new InvalidArgumentException(`The given action [${name}] is not available.`);
+        if (!this.triggers.has(name)) {
+            throw new InvalidArgumentException(`The given trigger [${name}] is not available.`);
         }
     }
 
     /**
-     * Determine if the given action name is reserved.
+     * Determine if the given trigger name is reserved.
      *
      * @private
      * @param {string} name

@@ -22,7 +22,6 @@ export const Identifiers = {
     QueueManager: Symbol.for("Manager<Queue>"),
     ValidationManager: Symbol.for("Manager<Validation>"),
     // Services
-    ActionService: Symbol.for("Service<Actions>"),
     BlockchainService: Symbol.for("Service<Blockchain>"),
     CacheService: Symbol.for("Service<Cache>"),
     ConfigService: Symbol.for("Service<Config>"),
@@ -37,23 +36,24 @@ export const Identifiers = {
     SnapshotService: Symbol.for("Service<Snapshot>"),
     TransactionPoolService: Symbol.for("Service<TransactionPool>"),
     TransactionPoolWalletRepository: Symbol.for("Repository<PoolWallet>"),
+    TriggerService: Symbol.for("Service<Actions>"),
     ValidationService: Symbol.for("Service<Validation>"),
     // Database
     DatabaseConnection: Symbol.for("Database<Connection>"),
     // Repositories
     WalletRepository: Symbol.for("Repository<Wallet>"),
     // Database - @todo add database prefix?
-    BlockRepository: Symbol.for("Repository<Block>"),
-    TransactionRepository: Symbol.for("Repository<Transaction>"),
-    RoundRepository: Symbol.for("Repository<Round>"),
+    BlockRepository: Symbol.for("Database<BlockRepository>"),
+    RoundRepository: Symbol.for("Database<RoundRepository>"),
+    TransactionRepository: Symbol.for("Database<TransactionRepository>"),
     //
     ConfigRepository: Symbol.for("Repository<Config>"),
     ServiceProviderRepository: Symbol.for("Repository<ServiceProvider>"),
     // State - @todo: better names that won't clash
-    StateBlockStore: Symbol.for("State<BlockStore>"),
-    StateTransactionStore: Symbol.for("State<TransactionStore>"),
-    StateStore: Symbol.for("State<StateStore>"),
     BlockState: Symbol.for("State<Block>"),
+    StateBlockStore: Symbol.for("State<BlockStore>"),
+    StateStore: Symbol.for("State<StateStore>"),
+    StateTransactionStore: Symbol.for("State<TransactionStore>"),
     WalletState: Symbol.for("State<Wallet>"),
     // P2P - @todo: better names that won't clash
     PeerCommunicator: Symbol.for("Peer<Communicator>"),

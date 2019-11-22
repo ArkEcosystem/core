@@ -1,6 +1,6 @@
 import { Identifiers } from "../../ioc";
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
-import { Actions } from "./actions";
+import { Triggers } from "./triggers";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**
@@ -11,8 +11,8 @@ export class ServiceProvider extends BaseServiceProvider {
      */
     public async register(): Promise<void> {
         this.app
-            .bind<Actions>(Identifiers.ActionService)
-            .to(Actions)
+            .bind<Triggers>(Identifiers.TriggerService)
+            .to(Triggers)
             .inSingletonScope();
     }
 }
