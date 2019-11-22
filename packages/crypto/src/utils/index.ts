@@ -43,12 +43,12 @@ export const formatSatoshi = (amount: BigNumber): string => {
  * Check if the given block or transaction id is an exception.
  */
 export const isException = (blockOrTransaction: { id?: string }): boolean => {
-    const network: number = configManager.get("network.pubKeyHash");
+    const network: number = configManager.get("network");
     return getExceptionIds(network).has(blockOrTransaction.id);
 };
 
 export const isGenesisTransaction = (id: string): boolean => {
-    const network: number = configManager.get("network.pubKeyHash");
+    const network: number = configManager.get("network");
     return getGenesisTransactionIds(network).has(id);
 };
 
