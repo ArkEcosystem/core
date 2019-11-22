@@ -74,7 +74,7 @@ afterAll(() => {
 
 describe("Server initialization", () => {
     it("should init the server with correct maxPayload value", async () => {
-        expect(server.options.maxPayload).toBe(unitnetMilestones[0].block.maxPayload + 1024); // unitnet milestones maxPayload + 1024 margin
+        expect(server.options.maxPayload).toBe(unitnetMilestones[0].block.maxPayload + 10 * 1024); // unitnet milestones maxPayload + 1024 margin
     });
 });
 
