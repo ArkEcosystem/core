@@ -5,6 +5,28 @@ import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
 import { isLocalHost, isValidPeer } from "./is-valid-peer";
 
+const getExceptionIds = memoize(_ => {
+    const s = new Set<string>();
+    const blockIds = configManager.get("exceptions.blocks") || [];
+    const transactionIds = configManager.get("exceptions.transactions") || [];
+    for (const blockId of blockIds) {
+        s.add(blockId);
+    }
+    for (const transactionId of transactionIds) {
+        s.add(transactionId);
+    }
+    return s;
+});
+
+const getGenesisTransactionIds = memoize(_ => {
+    const s = new Set<string>();
+    const genesisTransactions = configManager.get("genesisBlock.transactions") || [];
+    for (const transaction of genesisTransactions) {
+        s.add(transaction.id);
+    }
+    return s;
+});
+
 /**
  * Get human readable string from satoshis
  */
@@ -22,31 +44,11 @@ export const formatSatoshi = (amount: BigNumber): string => {
  */
 export const isException = (blockOrTransaction: { id?: string }): boolean => {
     const network: number = configManager.get("network.pubKeyHash");
-    const getExceptionalIds = memoize(_ => {
-        const s = new Set<string>();
-        const blockIds = configManager.get("exceptions.blocks") || [];
-        const transactionIds = configManager.get("exceptions.transactions") || [];
-        for (const blockId of blockIds) {
-            s.add(blockId);
-        }
-        for (const transactionId of transactionIds) {
-            s.add(transactionId);
-        }
-        return s;
-    });
-    return getExceptionalIds(network).has(blockOrTransaction.id);
+    return getExceptionIds(network).has(blockOrTransaction.id);
 };
 
 export const isGenesisTransaction = (id: string): boolean => {
     const network: number = configManager.get("network.pubKeyHash");
-    const getGenesisTransactionIds = memoize(_ => {
-        const s = new Set<string>();
-        const genesisTransactions = configManager.get("genesisBlock.transactions") || [];
-        for (const transaction of genesisTransactions) {
-            s.add(transaction.id);
-        }
-        return s;
-    });
     return getGenesisTransactionIds(network).has(id);
 };
 
