@@ -49,7 +49,7 @@ export const register = (server: Hapi.Server): void => {
                 params: {
                     id: Joi.string()
                         .hex()
-                        .length(66),
+                        .length(64), // id is genesisHash
                 },
             },
         },
