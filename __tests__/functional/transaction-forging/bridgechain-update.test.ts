@@ -1,7 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Utils } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
 import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";

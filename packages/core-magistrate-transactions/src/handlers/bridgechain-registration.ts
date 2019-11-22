@@ -7,7 +7,12 @@ import {
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
-import { BusinessIsResignedError, WalletIsNotBusinessError, BridgechainAlreadyRegisteredError, GenesisHashAlreadyRegisteredError } from "../errors";
+import {
+    BusinessIsResignedError,
+    WalletIsNotBusinessError,
+    BridgechainAlreadyRegisteredError,
+    GenesisHashAlreadyRegisteredError,
+} from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
@@ -69,28 +74,30 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         }
 
         const { data }: Interfaces.ITransaction = transaction;
-        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
 
-        if (
-            bridgechains &&
-            Object.values(bridgechains).some(bridgechain => {
-                return (
-                    bridgechain.bridgechainAsset.name.toLowerCase() ===
-                    data.asset!.bridgechainRegistration.name.toLowerCase()
-                );
-            })
-        ) {
-            throw new BridgechainAlreadyRegisteredError();
-        }
-
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-        for (const wallet of walletRepository.getIndex(MagistrateIndex.Businesses).values()) {
+        if (wallet.hasAttribute("business.bridgechains")) {
             const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute(
                 "business.bridgechains",
             );
 
-            if (bridgechains) {
-                const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(bridgechains);
+            if (
+                Object.values(bridgechains).some(bridgechain => {
+                    return (
+                        bridgechain.bridgechainAsset.name.toLowerCase() ===
+                        data.asset!.bridgechainRegistration.name.toLowerCase()
+                    );
+                })
+            ) {
+                throw new BridgechainAlreadyRegisteredError();
+            }
+        }
+
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+        for (const wallet of walletRepository.getIndex(MagistrateIndex.Businesses).values()) {
+            if (wallet.hasAttribute("business.bridgechains")) {
+                const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(
+                    wallet.getAttribute("business.bridgechains"),
+                );
 
                 for (const bridgechain of bridgechainValues) {
                     if (bridgechain.bridgechainAsset.genesisHash === data.asset!.bridgechainRegistration.genesisHash) {
@@ -179,11 +186,11 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }
