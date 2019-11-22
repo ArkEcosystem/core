@@ -4,6 +4,7 @@ import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
 import { Base58 } from "../utils/base58";
 import { PublicKey } from "./public-key";
+import { NetworkType } from "../types";
 
 export class Address {
     public static fromPassphrase(passphrase: string, networkVersion?: number): string {
@@ -30,6 +31,10 @@ export class Address {
         buffer.copy(payload, 1);
 
         return this.fromBuffer(payload);
+    }
+
+    public static fromWIF(wif: string, network?: NetworkType): string {
+        return Address.fromPublicKey(PublicKey.fromWIF(wif, network));
     }
 
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
