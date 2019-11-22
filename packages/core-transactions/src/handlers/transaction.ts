@@ -4,7 +4,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import assert from "assert";
 import {
     ColdWalletError,
     InsufficientBalanceError,
@@ -182,18 +181,15 @@ export abstract class TransactionHandler implements ITransactionHandler {
         }
 
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
-
-        if (process.env.CORE_ENV === "test") {
-            assert(Utils.isException(transaction.data) || !newBalance.isNegative());
-        } else {
-            if (newBalance.isNegative()) {
-                const negativeBalanceExceptions: Record<string, Record<string, string>> =
-                    Managers.configManager.get("exceptions.negativeBalances") || {};
-                const negativeBalances: Record<string, string> = negativeBalanceExceptions[sender.publicKey] || {};
-                if (!newBalance.isEqualTo(negativeBalances[nonce.toString()] || 0)) {
-                    throw new InsufficientBalanceError();
-                }
-            }
+        const unexpectedNegativeBalance =
+            newBalance.isNegative() &&
+            !(
+                (process.env.CORE_ENV === "test" && Utils.isException(transaction.data)) ||
+                (process.env.CORE_ENV !== "test" &&
+                    Utils.isNegativeBalanceException(sender.publicKey, nonce, newBalance))
+            );
+        if (unexpectedNegativeBalance) {
+            throw new InsufficientBalanceError();
         }
 
         sender.balance = newBalance;

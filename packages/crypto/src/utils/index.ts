@@ -52,6 +52,26 @@ export const isGenesisTransaction = (id: string): boolean => {
     return getGenesisTransactionIds(network).has(id);
 };
 
+export const isNegativeBalanceException = (
+    senderPublicKey: string,
+    nonce: BigNumber,
+    newBalance: BigNumber,
+): boolean => {
+    const byPublicKey: Record<string, Record<string, string>> = configManager.get("exceptions.negativeBalances");
+    if (!byPublicKey) {
+        return false;
+    }
+    const byNonce: Record<string, string> = byPublicKey[senderPublicKey];
+    if (!byNonce) {
+        return false;
+    }
+    const expectedBalance = byNonce[nonce.toString()];
+    if (!expectedBalance) {
+        return false;
+    }
+    return newBalance.isEqualTo(expectedBalance);
+};
+
 export const numberToHex = (num: number, padding = 2): string => {
     const indexHex: string = Number(num).toString(16);
 
