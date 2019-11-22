@@ -164,11 +164,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         strict(!newLockedBalance.isNegative());
 
-        if (newLockedBalance.isZero()) {
-            lockWallet.forgetAttribute("htlc.lockedBalance");
-        } else {
-            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
-        }
+        lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
 
         delete locks[lockId];
 
@@ -221,7 +217,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             amount: lockTransaction.amount,
             recipientId: lockTransaction.recipientId,
             timestamp: lockTransaction.timestamp,
-            vendorField: lockTransaction.vendorField,
+            vendorField: lockTransaction.vendorField
+                ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
+                : undefined,
             ...lockTransaction.asset.lock,
         };
 

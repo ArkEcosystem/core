@@ -159,13 +159,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
 
         const newLockedBalance: Utils.BigNumber = lockedBalance.minus(locks[lockId].amount);
-        assert(!newLockedBalance.isNegative());
 
-        if (newLockedBalance.isZero()) {
-            lockWallet.forgetAttribute("htlc.lockedBalance");
-        } else {
-            lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
-        }
+        assert(!newLockedBalance.isNegative());
+        lockWallet.setAttribute("htlc.lockedBalance", newLockedBalance);
 
         delete locks[lockId];
 
@@ -201,7 +197,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         const lockedBalance: Utils.BigNumber = lockWallet.getAttribute("htlc.lockedBalance");
         lockWallet.setAttribute("htlc.lockedBalance", lockedBalance.plus(lockTransaction.amount));
 
-        const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks", {});
+        const locks: Interfaces.IHtlcLocks | undefined = lockWallet.getAttribute("htlc.locks");
 
         AppUtils.assert.defined<Interfaces.IHtlcLockAsset>(lockTransaction.asset?.lock);
 
@@ -212,7 +208,9 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
                 amount: lockTransaction.amount,
                 recipientId: lockTransaction.recipientId,
                 timestamp: lockTransaction.timestamp,
-                vendorField: lockTransaction.vendorField,
+                vendorField: lockTransaction.vendorField
+                    ? Buffer.from(lockTransaction.vendorField, "hex").toString("utf8")
+                    : undefined,
                 ...lockTransaction.asset.lock,
             };
         }
