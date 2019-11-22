@@ -54,3 +54,9 @@ export class InvalidFeeError extends Errors.TransactionError {
         super(`Failed to apply transaction, because fee is invalid.`);
     }
 }
+
+export class GenesisHashAlreadyRegisteredError extends Errors.TransactionError {
+    constructor() {
+        super(`Failed to apply transaction, because genesis hash is already registered by another bridgechain.`);
+    }
+}
