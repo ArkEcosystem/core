@@ -19,6 +19,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
             seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
             genesisHash: "4fc82b26aecb47d2868c4efbe3581732a3e7cbcc6c2efb32062c08170a05eeb8",
             bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+            ports: { "@arkecosystem/core-api": 12345 },
         };
 
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
@@ -75,6 +76,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 bridgechainRepository: "www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             };
 
             const bridgechainRegistration = TransactionFactory.init(app)
@@ -150,6 +152,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             };
 
             const bridgechainRegistration = TransactionFactory.init(app)
@@ -240,6 +243,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             };
 
             const bridgechainRegistration = TransactionFactory.init(app)

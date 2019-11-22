@@ -35,6 +35,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    ports: { "@arkecosystem/core-api": 12345 },
                 })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -51,6 +52,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -60,6 +62,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             })
                 .withPassphrase(secrets[0])
                 .withNonce(bridgechainRegistration.nonce.plus(1))
@@ -96,6 +99,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    ports: { "@arkecosystem/core-api": 12345 },
                 })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -112,6 +116,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 bridgechainRepository: "somerepository",
+                ports: { "@arkecosystem/core-api": 12345 },
             })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -134,6 +139,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                         seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                         genesisHash: `ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39${i}`,
                         bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                        ports: { "@arkecosystem/core-api": 12345 },
                     })
                         .withPassphrase(secrets[0])
                         .createOne(),
@@ -166,6 +172,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    ports: { "@arkecosystem/core-api": 12345 },
                 })
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -194,6 +201,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                 bridgechainRepository: "repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
             })
                 .withPassphrase(secrets[5])
                 .createOne();
@@ -251,6 +259,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    ports: { "@arkecosystem/core-api": 12345 },
                 })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -328,6 +337,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    ports: { "@arkecosystem/core-api": 12345 },
                 })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
