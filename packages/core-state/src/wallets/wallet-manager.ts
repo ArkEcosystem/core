@@ -378,19 +378,11 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public increaseDelegateVoteBalance(voterWallet: State.IWallet, amount: Utils.BigNumber): void {
-        const delegatePublicKey = voterWallet.getAttribute<string>("vote");
-        const delegateWallet = this.findByPublicKey(delegatePublicKey);
-        const oldDelegateVoteBalance = delegateWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
-        const newDelegateVoteBalance = oldDelegateVoteBalance.plus(amount);
-        delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
+        this.changeDelegateVoteBalance(voterWallet, amount);
     }
 
     public decreaseDelegateVoteBalance(voterWallet: State.IWallet, amount: Utils.BigNumber): void {
-        const delegatePublicKey = voterWallet.getAttribute<string>("vote");
-        const delegateWallet = this.findByPublicKey(delegatePublicKey);
-        const oldDelegateVoteBalance = delegateWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
-        const newDelegateVoteBalance = oldDelegateVoteBalance.minus(amount);
-        delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
+        this.changeDelegateVoteBalance(voterWallet, amount.times(-1));
     }
 
     public canBePurged(wallet: State.IWallet): boolean {
@@ -450,6 +442,14 @@ export class WalletManager implements State.IWalletManager {
         }
 
         return delegatesSorted;
+    }
+
+    private changeDelegateVoteBalance(voterWallet: State.IWallet, amount: Utils.BigNumber): void {
+        const delegatePublicKey = voterWallet.getAttribute<string>("vote");
+        const delegateWallet = this.findByPublicKey(delegatePublicKey);
+        const oldDelegateVoteBalance = delegateWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+        const newDelegateVoteBalance = oldDelegateVoteBalance.plus(amount);
+        delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
     }
 
     /**
