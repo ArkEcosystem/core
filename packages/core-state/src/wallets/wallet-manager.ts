@@ -381,7 +381,7 @@ export class WalletManager implements State.IWalletManager {
         const delegatePublicKey = voterWallet.getAttribute<string>("vote");
         const delegateWallet = this.findByPublicKey(delegatePublicKey);
         const oldDelegateVoteBalance = delegateWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
-        const newDelegateVoteBalance = oldDelegateVoteBalance.minus(amount);
+        const newDelegateVoteBalance = oldDelegateVoteBalance.plus(amount);
         delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
     }
 
