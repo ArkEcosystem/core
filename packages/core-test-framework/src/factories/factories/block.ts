@@ -1,9 +1,8 @@
 import { Delegate } from "@arkecosystem/core-forger";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
-import { FactoryBuilder } from "../factory-builder";
-
 import secrets from "../../internal/secrets.json";
+import { FactoryBuilder } from "../factory-builder";
 
 export const registerBlockFactory = (factory: FactoryBuilder): void => {
     factory.set("Block", ({ options }) => {

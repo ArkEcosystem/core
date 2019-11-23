@@ -1,45 +1,19 @@
 import "jest-extended";
 
-import { sleep } from "@arkecosystem/utils";
-
 import { Logger } from "@packages/core-kernel/src/contracts/kernel/log";
 import capcon from "capture-console";
 
-import { readdirSync } from "fs-extra";
-import { dirSync, setGracefulCleanup } from "tmp";
-import { PinoLogger } from "@packages/core-kernel/src/services/log/drivers";
+import { MemoryLogger } from "@packages/core-kernel/src/services/log/drivers/memory";
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
-import { ConfigRepository } from "@packages/core-kernel/src/services/config";
+import { Container } from "@packages/core-kernel/src/ioc";
 
 let logger: Logger;
 let message: string;
 
-let app: Application;
-
 beforeEach(async () => {
-    const options = {
-        app: {
-            services: {
-                log: {
-                    levels: {
-                        console: process.env.CORE_LOG_LEVEL || "emergency",
-                        file: process.env.CORE_LOG_LEVEL_FILE || "emergency",
-                    },
-                    fileRotator: {
-                        interval: "1d",
-                    },
-                },
-            },
-        },
-    };
+    const app = new Application(new Container());
 
-    app = new Application(new Container());
-    app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
-    app.get<ConfigRepository>(Identifiers.ConfigRepository).merge(options);
-    app.bind("path.log").toConstantValue(dirSync().name);
-
-    logger = await app.resolve<Logger>(PinoLogger).make(options);
+    logger = await app.resolve<Logger>(MemoryLogger).make();
 });
 
 afterEach(() => (message = undefined));
@@ -55,8 +29,6 @@ beforeAll(() => {
     // @ts-ignore
     capcon.startCapture(console._stderr, stderr => (message = stderr.toString()));
 });
-
-afterAll(() => setGracefulCleanup());
 
 describe("Logger", () => {
     it("should not be logged if empty", () => {
@@ -137,38 +109,5 @@ describe("Logger", () => {
 
         logger.info("non_silent_message");
         expect(message).toMatch(/non_silent_message/);
-    });
-
-    it("should rotate the log 3 times", async () => {
-        const app = new Application(new Container());
-        app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-jestnet");
-        app.get<ConfigRepository>(Identifiers.ConfigRepository).merge({
-            app: {
-                services: {
-                    log: {
-                        levels: {
-                            console: process.env.CORE_LOG_LEVEL || "emergency",
-                            file: process.env.CORE_LOG_LEVEL_FILE || "emergency",
-                        },
-                        fileRotator: {
-                            interval: "1s",
-                        },
-                    },
-                },
-            },
-        });
-        app.useLogPath(dirSync().name);
-
-        const logger = await app.resolve(PinoLogger).make();
-
-        for (let i = 0; i < 3; i++) {
-            logger.info(`Test ${i + 1}`);
-
-            await sleep(1000);
-        }
-
-        const files = readdirSync(app.logPath());
-        expect(files.filter(file => file.endsWith(".log.gz"))).toHaveLength(3);
-        expect(files).toHaveLength(5);
     });
 });

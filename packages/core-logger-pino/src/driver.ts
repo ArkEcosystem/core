@@ -1,3 +1,4 @@
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import chalk, { Chalk } from "chalk";
 import { WriteStream } from "fs";
 import pino, { PrettyOptions } from "pino";
@@ -9,30 +10,16 @@ import split from "split2";
 import { PassThrough } from "stream";
 import { inspect } from "util";
 
-import { Application } from "../../../contracts/kernel";
-import { Logger } from "../../../contracts/kernel/log";
-import { Identifiers, inject, injectable } from "../../../ioc";
-import { isEmpty } from "../../../utils";
-import { ConfigRepository } from "../../config";
-
 // todo: review the implementation
-@injectable()
-export class PinoLogger implements Logger {
+@Container.injectable()
+export class PinoLogger implements Contracts.Kernel.Logger {
     /**
      * @private
-     * @type {Application}
+     * @type {Contracts.Kernel.Application}
      * @memberof PinoLogger
      */
-    @inject(Identifiers.Application)
-    private readonly app!: Application;
-
-    /**
-     * @private
-     * @type {ConfigRepository}
-     * @memberof PinoLogger
-     */
-    @inject(Identifiers.ConfigRepository)
-    private readonly configRepository!: ConfigRepository;
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
 
     /**
      * @private
@@ -72,12 +59,11 @@ export class PinoLogger implements Logger {
     private silentConsole: boolean = false;
 
     /**
-     * @returns {Promise<Logger>}
+     * @param {*} options
+     * @returns {Promise<Contracts.Kernel.Logger>}
      * @memberof PinoLogger
      */
-    public async make(): Promise<Logger> {
-        const options: any = this.configRepository.get("app.services.log");
-
+    public async make(options?: any): Promise<Contracts.Kernel.Logger> {
         const stream: PassThrough = new PassThrough();
         this.logger = pino(
             {
@@ -124,30 +110,6 @@ export class PinoLogger implements Logger {
         }
 
         return this;
-    }
-
-    /**
-     * @param {string} level
-     * @param {*} message
-     * @returns {boolean}
-     * @memberof Logger
-     */
-    public log(level: string, message: any): boolean {
-        if (this.silentConsole) {
-            return false;
-        }
-
-        if (isEmpty(message)) {
-            return false;
-        }
-
-        if (typeof message !== "string") {
-            message = inspect(message, { depth: 1 });
-        }
-
-        this.logger[level](message);
-
-        return true;
     }
 
     /**
@@ -223,6 +185,28 @@ export class PinoLogger implements Logger {
     }
 
     /**
+     * @param {string} level
+     * @param {*} message
+     * @returns {boolean}
+     * @memberof Logger
+     */
+    private log(level: string, message: any): void {
+        if (this.silentConsole) {
+            return;
+        }
+
+        if (Utils.isEmpty(message)) {
+            return;
+        }
+
+        if (typeof message !== "string") {
+            message = inspect(message, { depth: 1 });
+        }
+
+        this.logger[level](message);
+    }
+
+    /**
      * @private
      * @param {string} level
      * @param {PrettyOptions} [prettyOptions]
@@ -295,6 +279,12 @@ export class PinoLogger implements Logger {
         );
     }
 
+    /**
+     * @private
+     * @param {string} level
+     * @returns {boolean}
+     * @memberof PinoLogger
+     */
     private isValidLevel(level: string): boolean {
         return ["emergency", "alert", "critical", "error", "warning", "notice", "info", "debug"].includes(level);
     }

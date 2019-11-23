@@ -35,14 +35,8 @@
         "nanomatch": "^1.2.13",
         "nsfw": "^1.2.5",
         "p-queue": "^6.2.0",
-        "pino": "^5.13.5",
-        "pino-pretty": "^3.2.2",
-        "pump": "^3.0.0",
-        "readable-stream": "^3.4.0",
         "reflect-metadata": "^0.1.13",
-        "rotating-file-stream": "^1.4.6",
         "semver": "^6.3.0",
-        "split2": "^3.1.1",
         "type-fest": "^0.8.1"
     },
     "devDependencies": {
@@ -50,11 +44,7 @@
         "@types/fs-extra": "^8.0.1",
         "@types/got": "^9.6.7",
         "@types/log-process-errors": "^4.1.0",
-        "@types/pino": "^5.20.0",
-        "@types/pump": "^1.1.0",
-        "@types/readable-stream": "^2.3.5",
-        "@types/semver": "^6.0.2",
-        "@types/split2": "^2.1.6"
+        "@types/semver": "^6.0.2"
     },
     "publishConfig": {
         "access": "public"

@@ -1,6 +1,6 @@
 import { Logger } from "../../contracts/kernel/log";
 import { Manager } from "../../support/manager";
-import { PinoLogger } from "./drivers";
+import { MemoryLogger } from "./drivers";
 
 /**
  * @export
@@ -9,14 +9,14 @@ import { PinoLogger } from "./drivers";
  */
 export class LogManager extends Manager<Logger> {
     /**
-     * Create an instance of the Pino driver.
+     * Create an instance of the Memory driver.
      *
      * @protected
      * @returns {Promise<Logger>}
      * @memberof LogManager
      */
-    protected async createPinoDriver(): Promise<Logger> {
-        return this.app.resolve(PinoLogger).make();
+    protected async createMemoryDriver(): Promise<Logger> {
+        return this.app.resolve(MemoryLogger).make();
     }
 
     /**
@@ -27,6 +27,6 @@ export class LogManager extends Manager<Logger> {
      * @memberof LogManager
      */
     protected getDefaultDriver(): string {
-        return "pino";
+        return "memory";
     }
 }

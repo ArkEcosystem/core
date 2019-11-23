@@ -17,8 +17,5 @@ export * from "./load-configuration";
 export * from "./load-cryptography";
 // export * from "./watch-configuration";
 
-// Service Providers - Foundation
-export * from "./register-base-service-providers";
-
 // Service Providers - Application
 export * from "./load-service-providers";

@@ -7,7 +7,6 @@ import { extname } from "path";
 import { Application } from "../../../contracts/kernel";
 import { ConfigLoader } from "../../../contracts/kernel/config";
 import { Validator } from "../../../contracts/kernel/validation";
-import { defaults } from "../../../defaults";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
@@ -127,11 +126,6 @@ export class LocalConfigLoader implements ConfigLoader {
         this.configRepository.set("app.flags", {
             ...this.app.get<JsonObject>(Identifiers.ConfigFlags),
             ...get(this.validationService.valid(), `${processType}.flags`, {}),
-        });
-
-        this.configRepository.set("app.services", {
-            ...defaults.services,
-            ...get(this.validationService.valid(), `${processType}.services`, {}),
         });
 
         this.configRepository.set("app.plugins", get(this.validationService.valid(), `${processType}.plugins`, []));

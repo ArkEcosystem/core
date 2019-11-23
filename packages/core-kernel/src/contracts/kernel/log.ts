@@ -9,11 +9,11 @@ export interface Logger {
     /**
      * Create a new instance of the logger.
      *
-     * @param {*} options
+     * @param {*} [options]
      * @returns {Promise<Logger>}
      * @memberof Logger
      */
-    make(options: any): Promise<Logger>;
+    make(options?: any): Promise<Logger>;
 
     /**
      * System is unusable.
@@ -89,15 +89,6 @@ export interface Logger {
      * @memberof Logger
      */
     debug(message: any): void;
-
-    /**
-     * Logs with an arbitrary level.
-     *
-     * @param {string} level
-     * @param {*} message
-     * @memberof Logger
-     */
-    log(level: string, message: any): void;
 
     /**
      * @param {boolean} suppress
