@@ -9,6 +9,7 @@ export const index: object = {
             publicKey: Joi.string()
                 .hex()
                 .length(66),
+            isResigned: Joi.bool(),
         },
     },
 };
@@ -31,6 +32,7 @@ export const bridgechains: object = {
         ...pagination,
         ...{
             orderBy,
+            isResigned: Joi.bool(),
         },
     },
 };
@@ -54,5 +56,6 @@ export const search: object = {
             .alphanum()
             .max(15),
         repository: Joi.string().max(80),
+        isResigned: Joi.bool(),
     },
 };

@@ -229,7 +229,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["publicKey", "vat"],
+            exact: ["isResigned", "publicKey", "vat"],
             like: ["name", "repository", "website"],
         };
 
@@ -243,10 +243,8 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                     address: wallet.address,
                     publicKey: wallet.publicKey,
                     ...business.businessAsset,
+                    isResigned: !!business.resigned,
                 };
-                if (business.resigned) {
-                    businessData.isResigned = true;
-                }
 
                 return businessData;
             });
@@ -260,7 +258,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBridgechains(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["bridgechainId", "publicKey"],
+            exact: ["genesisHash", "isResigned", "publicKey"],
             like: ["bridgechainRepository", "name"],
             every: ["seedNodes"],
         };
@@ -268,19 +266,16 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
         const entries: any[] = this.databaseServiceProvider()
             .walletManager.getIndex("bridgechains")
             .entries()
-            .reduce((acc, [bridgechainId, wallet]) => {
+            .reduce((acc, [genesisHash, wallet]) => {
                 const bridgechains: any[] = wallet.getAttribute("business.bridgechains");
-                if (bridgechains && bridgechains[bridgechainId]) {
-                    const bridgechain: any = bridgechains[bridgechainId];
+                if (bridgechains && bridgechains[genesisHash]) {
+                    const bridgechain: any = bridgechains[genesisHash];
 
                     const bridgechainData = {
-                        bridgechainId: bridgechain.bridgechainId,
                         publicKey: wallet.publicKey,
                         ...bridgechain.bridgechainAsset,
+                        isResigned: !!bridgechain.resigned,
                     };
-                    if (bridgechain.resigned) {
-                        bridgechainData.isResigned = true;
-                    }
 
                     acc.push(bridgechainData);
                 }
