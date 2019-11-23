@@ -18,16 +18,19 @@ describe("API 2.0 - Businesses", () => {
             website: "biz.com",
             bridgechains: {
                 "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935": {
-                    name: "arkecosystem1",
-                    seedNodes: [
-                        "74.125.224.71",
-                        "74.125.224.72",
-                        "64.233.173.193",
-                        "2001:4860:4860::8888",
-                        "2001:4860:4860::8844",
-                    ],
-                    genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-                    bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                    bridgechainAsset: {
+                        name: "arkecosystem1",
+                        seedNodes: [
+                            "74.125.224.71",
+                            "74.125.224.72",
+                            "64.233.173.193",
+                            "2001:4860:4860::8888",
+                            "2001:4860:4860::8844",
+                        ],
+                        genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+                        bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                        ports: { "@arkecosystem/core-api": 4003 },
+                    },
                 },
             },
         },
@@ -87,6 +90,18 @@ describe("API 2.0 - Businesses", () => {
             expect(response.data.data[0].publicKey).toBe(publicKey);
             expect(response.data.data[0].name).toEqual(businessAttribute.businessAsset.name);
             expect(response.data.data[0].website).toEqual(businessAttribute.businessAsset.website);
+        });
+
+        it("should POST a search for businesses by isResigned", async () => {
+            const response = await utils.request("POST", "businesses/search", {
+                isResigned: false,
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+
+            for (const business of response.data.data) {
+                expect(business.isResigned).toBeFalse();
+            }
         });
     });
 });
