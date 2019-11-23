@@ -291,11 +291,6 @@ export class WalletManager implements State.IWalletManager {
     }
 
     public async applyTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        const transactionHandler: Handlers.TransactionHandler = await Handlers.Registry.get(
-            transaction.type,
-            transaction.typeGroup,
-        );
-
         let lockWallet: State.IWallet;
         let lockTransaction: Interfaces.ITransactionData;
         if (
@@ -307,20 +302,17 @@ export class WalletManager implements State.IWalletManager {
             lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         }
 
+        const transactionHandler = await Handlers.Registry.get(transaction.type, transaction.typeGroup);
         await transactionHandler.apply(transaction, this);
 
-        const sender: State.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
-        const recipient: State.IWallet = this.findByAddress(transaction.data.recipientId);
+        const sender = this.findByPublicKey(transaction.data.senderPublicKey);
+        const recipient = this.findByAddress(transaction.data.recipientId);
 
         this.updateVoteBalances(sender, recipient, transaction.data, lockWallet, lockTransaction, false);
     }
 
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        const transactionHandler: TransactionInterfaces.ITransactionHandler = await Handlers.Registry.get(
-            transaction.type,
-            transaction.typeGroup,
-        );
-
+        const transactionHandler = await Handlers.Registry.get(transaction.type, transaction.typeGroup);
         await transactionHandler.revert(transaction, this);
 
         let lockWallet: State.IWallet;
@@ -334,10 +326,9 @@ export class WalletManager implements State.IWalletManager {
             lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         }
 
-        const sender: State.IWallet = this.findByPublicKey(transaction.data.senderPublicKey);
-        const recipient: State.IWallet = this.findByAddress(transaction.data.recipientId);
+        const sender = this.findByPublicKey(transaction.data.senderPublicKey);
+        const recipient = this.findByAddress(transaction.data.recipientId);
 
-        // Revert vote balance updates
         this.updateVoteBalances(sender, recipient, transaction.data, lockWallet, lockTransaction, true);
     }
 
