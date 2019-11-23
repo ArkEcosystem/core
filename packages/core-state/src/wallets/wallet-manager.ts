@@ -242,10 +242,8 @@ export class WalletManager implements State.IWalletManager {
     public buildVoteBalances(): void {
         for (const voter of this.allByPublicKey()) {
             if (voter.hasVoted()) {
-                const delegate: State.IWallet = this.findByPublicKey(voter.getAttribute<string>("vote"));
-                const voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
-                const lockedBalance = voter.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
-                delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance).plus(lockedBalance));
+                this.increaseDelegateVoteBalance(voter, voter.balance);
+                this.increaseDelegateVoteBalance(voter, voter.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO));
             }
         }
     }
