@@ -80,8 +80,8 @@ describe("Wallet Manager", () => {
             walletManager.reindex(generatorWallet);
 
             // @ts-ignore
-            jest.spyOn(walletManager, "applyBlockGeneratorWallet");
-            jest.spyOn(walletManager, "revertBlockGeneratorWallet");
+            jest.spyOn(walletManager, "applyBlockToGeneratorWallet");
+            jest.spyOn(walletManager, "revertBlockToGeneratorWallet");
             jest.spyOn(walletManager, "applyTransaction").mockImplementation();
             jest.spyOn(walletManager, "revertTransaction").mockImplementation();
 
@@ -102,7 +102,7 @@ describe("Wallet Manager", () => {
             it("should aplly the block of the delegate", async () => {
                 await walletManager.applyBlock(block);
 
-                expect(walletManager.applyBlockGeneratorWallet).toHaveBeenCalledWith(block);
+                expect(walletManager.applyBlockToGeneratorWallet).toHaveBeenCalledWith(block);
 
                 const delegate = generatorWallet.getAttribute<State.IWalletDelegateAttributes>("delegate");
                 expect(delegate.producedBlocks).toBe(101);
@@ -191,7 +191,7 @@ describe("Wallet Manager", () => {
             it("should revert the block of the delegate", async () => {
                 await walletManager.revertBlock(block);
 
-                expect(walletManager.revertBlockGeneratorWallet).toHaveBeenCalledWith(block);
+                expect(walletManager.revertBlockToGeneratorWallet).toHaveBeenCalledWith(block);
 
                 const delegate = generatorWallet.getAttribute<State.IWalletDelegateAttributes>("delegate");
                 expect(delegate.producedBlocks).toBe(99);

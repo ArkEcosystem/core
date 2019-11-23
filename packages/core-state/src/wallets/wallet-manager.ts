@@ -258,7 +258,7 @@ export class WalletManager implements State.IWalletManager {
                 await this.applyTransaction(transaction);
                 appliedTransactions.push(transaction);
             }
-            this.applyBlockGeneratorWallet(block);
+            this.applyBlockToGeneratorWallet(block);
         } catch (error) {
             this.logger.error("Failed to apply all transactions in block - reverting latest transactions");
             for (const transaction of appliedTransactions.reverse()) {
@@ -278,7 +278,7 @@ export class WalletManager implements State.IWalletManager {
                 await this.revertTransaction(transaction);
                 revertedTransactions.push(transaction);
             }
-            this.revertBlockGeneratorWallet(block);
+            this.revertBlockToGeneratorWallet(block);
         } catch (error) {
             this.logger.error("Failed to revert all transaction in block - applying latest transactions back");
             for (const transaction of revertedTransactions.reverse()) {
@@ -332,7 +332,7 @@ export class WalletManager implements State.IWalletManager {
         this.updateVoteBalances(sender, recipient, transaction.data, lockWallet, lockTransaction, true);
     }
 
-    public applyBlockGeneratorWallet(block: Interfaces.IBlock) {
+    public applyBlockToGeneratorWallet(block: Interfaces.IBlock) {
         if (!this.has(block.data.generatorPublicKey)) {
             app.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
         }
@@ -350,7 +350,7 @@ export class WalletManager implements State.IWalletManager {
         }
     }
 
-    public revertBlockGeneratorWallet(block: Interfaces.IBlock) {
+    public revertBlockToGeneratorWallet(block: Interfaces.IBlock) {
         if (!this.has(block.data.generatorPublicKey)) {
             app.forceExit(`Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`);
         }

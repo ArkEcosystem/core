@@ -129,9 +129,9 @@ export interface IWalletManager {
 
     revertTransaction(transaction: Interfaces.ITransaction): Promise<void>;
 
-    applyBlockGeneratorWallet(block: Interfaces.IBlock): void;
+    applyBlockToGeneratorWallet(block: Interfaces.IBlock): void;
 
-    revertBlockGeneratorWallet(block: Interfaces.IBlock): void;
+    revertBlockToGeneratorWallet(block: Interfaces.IBlock): void;
 
     increaseDelegateVoteBalance(wallet: IWallet, amount: Utils.BigNumber): void;
 
