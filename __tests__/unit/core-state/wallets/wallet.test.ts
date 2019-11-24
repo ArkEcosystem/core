@@ -1,7 +1,6 @@
 import "jest-extended";
 
-import { State } from "@arkecosystem/core-interfaces";
-import { Constants, Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Constants, Enums, Managers, Utils } from "@arkecosystem/crypto";
 import { configManager } from "@arkecosystem/crypto/src/managers";
 import clonedeep from "lodash.clonedeep";
 import { Wallet } from "../../../../packages/core-state/src/wallets";
@@ -23,127 +22,6 @@ describe("Models - Wallet", () => {
             expect(wallet.toString()).toBe(
                 `${address} (${balance} ${Managers.configManager.get("network.client.symbol")})`,
             );
-        });
-    });
-
-    describe("apply block", () => {
-        let testWallet: Wallet;
-        let delegate: State.IWalletDelegateAttributes;
-        let block;
-
-        beforeEach(() => {
-            testWallet = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
-            testWallet.publicKey = "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece";
-            testWallet.balance = Utils.BigNumber.ZERO;
-
-            delegate = {
-                producedBlocks: 0,
-                forgedFees: Utils.BigNumber.ZERO,
-                forgedRewards: Utils.BigNumber.ZERO,
-            } as State.IWalletDelegateAttributes;
-
-            testWallet.setAttribute("delegate", delegate);
-
-            block = {
-                id: 1,
-                generatorPublicKey: testWallet.publicKey,
-                reward: Utils.BigNumber.make(1000000000),
-                totalFee: Utils.BigNumber.make(1000000000),
-            };
-        });
-
-        it("should apply correct block", () => {
-            testWallet.applyBlock(block);
-            expect(testWallet.balance).toEqual(block.reward.plus(block.totalFee));
-
-            const delegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
-            expect(delegate.producedBlocks).toBe(1);
-            expect(delegate.forgedFees).toEqual(block.totalFee);
-            expect(delegate.forgedRewards).toEqual(block.totalFee);
-            expect(delegate.lastBlock).toBeObject();
-        });
-
-        it("should not apply incorrect block", () => {
-            block.generatorPublicKey = ("a" as any).repeat(66);
-            const originalWallet = Object.assign(new Wallet(testWallet.address), testWallet);
-            const delegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
-            const original: State.IWalletDelegateAttributes = originalWallet.getAttribute("delegate");
-
-            testWallet.applyBlock(block);
-
-            expect(testWallet.balance).toEqual(originalWallet.balance);
-
-            expect(delegate.producedBlocks).toBe(0);
-            expect(delegate.forgedFees).toEqual(original.forgedFees);
-            expect(delegate.forgedRewards).toEqual(original.forgedRewards);
-            expect(delegate.lastBlock).toBe(original.lastBlock);
-        });
-    });
-
-    describe("revert block", () => {
-        const walletInit = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
-        walletInit.balance = Utils.BigNumber.make(1000 * SATOSHI);
-        walletInit.publicKey = "02337316a26d8d49ec27059bd0589c49ba474029c3627715380f4df83fb431aece";
-        walletInit.setAttribute("delegate", {
-            forgedFees: Utils.BigNumber.make(10 * SATOSHI),
-            forgedRewards: Utils.BigNumber.make(50 * SATOSHI),
-            producedBlocks: 1,
-            lastBlock: { id: 1234856 },
-        });
-
-        const block = ({
-            id: 1,
-            generatorPublicKey: walletInit.publicKey,
-            reward: Utils.BigNumber.make(2 * SATOSHI),
-            totalFee: Utils.BigNumber.make(1 * SATOSHI),
-        } as unknown) as Interfaces.IBlockData;
-
-        let testWallet: Wallet;
-
-        beforeEach(() => {
-            testWallet = new Wallet(walletInit.address);
-            testWallet = clonedeep(Object.assign(testWallet, walletInit));
-        });
-
-        it("should revert block if generator public key matches the wallet public key", () => {
-            const success = testWallet.revertBlock(block);
-            const initDelegate: State.IWalletDelegateAttributes = walletInit.getAttribute("delegate");
-            const testDelegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
-
-            expect(success).toBeTrue();
-            expect(testWallet.balance).toEqual(walletInit.balance.minus(block.reward).minus(block.totalFee));
-
-            expect(testDelegate.producedBlocks).toBe(initDelegate.producedBlocks - 1);
-            expect(testDelegate.forgedFees).toEqual(initDelegate.forgedFees.minus(block.totalFee));
-            expect(testDelegate.forgedRewards).toEqual(initDelegate.forgedRewards.minus(block.reward));
-            expect(testDelegate.lastBlock).toBeUndefined();
-        });
-
-        it("should revert block if generator public key matches the wallet address", () => {
-            testWallet.publicKey = undefined;
-            const initDelegate: State.IWalletDelegateAttributes = walletInit.getAttribute("delegate");
-            const testDelegate: State.IWalletDelegateAttributes = testWallet.getAttribute("delegate");
-
-            const success = testWallet.revertBlock(block);
-
-            expect(success).toBeTrue();
-            expect(testWallet.balance).toEqual(walletInit.balance.minus(block.reward).minus(block.totalFee));
-
-            expect(testDelegate.producedBlocks).toBe(initDelegate.producedBlocks - 1);
-            expect(testDelegate.forgedFees).toEqual(initDelegate.forgedFees.minus(block.totalFee));
-            expect(testDelegate.forgedRewards).toEqual(initDelegate.forgedRewards.minus(block.reward));
-            expect(testDelegate.lastBlock).toBeUndefined();
-        });
-
-        it("should not revert block if generator public key doesn't match the wallet address / publicKey", () => {
-            const invalidWallet = Object.assign({}, walletInit, { publicKey: undefined, address: undefined });
-            testWallet = Object.assign(testWallet, invalidWallet);
-            const success = testWallet.revertBlock(block);
-
-            expect(success).toBeFalse();
-            for (const key of Object.keys(invalidWallet)) {
-                expect(testWallet[key]).toBe(invalidWallet[key]);
-            }
         });
     });
 

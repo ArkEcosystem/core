@@ -19,9 +19,6 @@ export interface IWallet {
     balance: Utils.BigNumber;
     nonce: Utils.BigNumber;
 
-    applyBlock(block: Interfaces.IBlockData): boolean;
-    revertBlock(block: Interfaces.IBlockData): boolean;
-
     auditApply(transaction: Interfaces.ITransactionData): any[];
     toString(): string;
 
@@ -131,6 +128,14 @@ export interface IWalletManager {
     applyTransaction(transaction: Interfaces.ITransaction): Promise<void>;
 
     revertTransaction(transaction: Interfaces.ITransaction): Promise<void>;
+
+    applyBlockToGeneratorWallet(block: Interfaces.IBlock): void;
+
+    revertBlockToGeneratorWallet(block: Interfaces.IBlock): void;
+
+    increaseDelegateVoteBalance(wallet: IWallet, amount: Utils.BigNumber): void;
+
+    decreaseDelegateVoteBalance(wallet: IWallet, amount: Utils.BigNumber): void;
 
     canBePurged(wallet: IWallet): boolean;
 

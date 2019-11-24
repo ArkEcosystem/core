@@ -14,7 +14,9 @@ import wallets from "../__fixtures__/wallets.json";
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;
 
-const block3 = fixtures.blocks2to100[1];
+const block3 = Object.assign({}, fixtures.blocks2to100[1], {
+    totalFee: Utils.BigNumber.make(17 * SATOSHI),
+});
 const block = BlockFactory.fromData(block3);
 
 const walletData1 = wallets[0];
@@ -51,57 +53,62 @@ describe("Wallet Manager", () => {
     });
 
     describe("block processing", () => {
-        let delegateMock;
+        let generatorWallet: State.IWallet;
         let block2: Interfaces.IBlock;
 
-        const delegatePublicKey = block3.generatorPublicKey; // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
+        const generatorPublicKey = block3.generatorPublicKey; // '0299deebff24ebf2bb53ad78f3ea3ada5b3c8819132e191b02c263ee4aa4af3d9b'
 
         const txs: Interfaces.ITransaction[] = [];
         for (let i = 0; i < 3; i++) {
             txs[i] = Transactions.BuilderFactory.vote()
                 .sign(Math.random().toString(36))
-                .votesAsset([`+${delegatePublicKey}`])
+                .votesAsset([`+${generatorPublicKey}`])
                 .build();
         }
 
         beforeEach(() => {
-            delegateMock = {
-                applyBlock: jest.fn(),
-                revertBlock: jest.fn(),
-                publicKey: delegatePublicKey,
-                isDelegate: () => false,
-                getAttribute: jest.fn(),
-            };
+            generatorWallet = new Wallet(Identities.Address.fromPublicKey(generatorPublicKey));
+            generatorWallet.publicKey = generatorPublicKey;
+            generatorWallet.setAttribute<State.IWalletDelegateAttributes>("delegate", {
+                username: "generator",
+                voteBalance: Utils.BigNumber.ZERO,
+                forgedFees: Utils.BigNumber.make(100 * SATOSHI),
+                forgedRewards: Utils.BigNumber.make(50 * SATOSHI),
+                producedBlocks: 100,
+                rank: undefined,
+            });
+            walletManager.reindex(generatorWallet);
 
             // @ts-ignore
-            jest.spyOn(walletManager, "findByPublicKey").mockReturnValue(delegateMock);
+            jest.spyOn(walletManager, "applyBlockToGeneratorWallet");
+            jest.spyOn(walletManager, "revertBlockToGeneratorWallet");
             jest.spyOn(walletManager, "applyTransaction").mockImplementation();
             jest.spyOn(walletManager, "revertTransaction").mockImplementation();
 
-            const { data } = block;
-            data.transactions = [];
-            data.transactions.push(txs[0].data);
-            data.transactions.push(txs[1].data);
-            data.transactions.push(txs[2].data);
-            data.numberOfTransactions = 3; // NOTE: if transactions are added to a fixture the NoT needs to be increased
-            block2 = BlockFactory.fromData(data);
-
-            walletManager.reindex(delegateMock);
+            block.data.transactions = [txs[0].data, txs[1].data, txs[2].data];
+            block.data.numberOfTransactions = 3; // NOTE: if transactions are added to a fixture the NoT needs to be increased
+            block2 = BlockFactory.fromData(block.data);
+            block2.data.reward = Utils.BigNumber.make(11 * SATOSHI);
         });
 
         describe("applyBlock", () => {
-            it("should apply sequentially the transactions of the block", async () => {
+            it("should apply transactions of the block in order", async () => {
                 await walletManager.applyBlock(block2);
-
                 for (let i = 0; i < block2.transactions.length; i++) {
                     expect(walletManager.applyTransaction).toHaveBeenNthCalledWith(i + 1, block2.transactions[i]);
                 }
             });
 
-            it("should apply the block data to the delegate", async () => {
+            it("should aplly the block of the delegate", async () => {
                 await walletManager.applyBlock(block);
 
-                expect(delegateMock.applyBlock).toHaveBeenCalledWith(block.data);
+                expect(walletManager.applyBlockToGeneratorWallet).toHaveBeenCalledWith(block);
+
+                const delegate = generatorWallet.getAttribute<State.IWalletDelegateAttributes>("delegate");
+                expect(delegate.producedBlocks).toBe(101);
+                expect(delegate.forgedFees).toEqual(Utils.BigNumber.make(100 * SATOSHI).plus(block.data.totalFee));
+                expect(delegate.forgedRewards).toEqual(Utils.BigNumber.make(50 * SATOSHI).plus(block.data.reward));
+                expect(delegate.lastBlock).toBeObject();
             });
 
             describe("when 1 transaction fails while applying it", () => {
@@ -173,9 +180,25 @@ describe("Wallet Manager", () => {
         });
 
         describe("revertBlock", () => {
-            it.todo("should revert all transactions of the block");
+            it("should apply transactions of the block in reverse order", async () => {
+                await walletManager.revertBlock(block2);
+                const reversedTransactions = block2.transactions.slice().reverse();
+                for (let i = 0; i < reversedTransactions.length; i++) {
+                    expect(walletManager.revertTransaction).toHaveBeenNthCalledWith(i + 1, reversedTransactions[i]);
+                }
+            });
 
-            it.todo("should revert the block of the delegate");
+            it("should revert the block of the delegate", async () => {
+                await walletManager.revertBlock(block);
+
+                expect(walletManager.revertBlockToGeneratorWallet).toHaveBeenCalledWith(block);
+
+                const delegate = generatorWallet.getAttribute<State.IWalletDelegateAttributes>("delegate");
+                expect(delegate.producedBlocks).toBe(99);
+                expect(delegate.forgedFees).toEqual(Utils.BigNumber.make(100 * SATOSHI).minus(block.data.totalFee));
+                expect(delegate.forgedRewards).toEqual(Utils.BigNumber.make(50 * SATOSHI).minus(block.data.reward));
+                expect(delegate.lastBlock).toBeUndefined(); // actually it shouldn't
+            });
 
             it("should return the current block", async () => {
                 expect(walletManager.getCurrentBlock()).toBeUndefined();
