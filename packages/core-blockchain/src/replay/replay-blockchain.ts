@@ -104,23 +104,31 @@ export class ReplayBlockchain extends Blockchain {
             Managers.configManager.get("genesisBlock"),
         );
 
-        const { transactions }: Interfaces.IBlock = genesisBlock;
-        for (const transaction of transactions) {
-            if (
-                transaction.type === Enums.TransactionType.Transfer &&
-                transaction.typeGroup === Enums.TransactionTypeGroup.Core
-            ) {
-                const recipient: State.IWallet = this.walletManager.findByAddress(transaction.data.recipientId);
-                recipient.balance = new Utils.BigNumber(transaction.data.amount);
+        for (const transaction of genesisBlock.transactions) {
+            if (transaction.typeGroup !== Enums.TransactionTypeGroup.Core) {
+                throw new Error("TODO: non-core genesis transaction");
             }
-        }
 
-        for (const transaction of transactions) {
-            const sender: State.IWallet = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
-            sender.balance = sender.balance.minus(transaction.data.amount).minus(transaction.data.fee);
+            const recipient = this.walletManager.findByAddress(transaction.data.recipientId);
+            const sender = this.walletManager.findByPublicKey(transaction.data.senderPublicKey);
 
-            if (transaction.typeGroup === Enums.TransactionTypeGroup.Core) {
-                if (transaction.type === Enums.TransactionType.DelegateRegistration) {
+            sender.balance = sender.balance.minus(transaction.data.fee);
+            if (sender.hasVoted()) {
+                this.walletManager.decreaseDelegateVoteBalance(sender, transaction.data.fee);
+            }
+
+            switch (transaction.type) {
+                case Enums.TransactionType.Transfer:
+                    sender.balance = sender.balance.minus(transaction.data.amount);
+                    if (sender.hasVoted()) {
+                        this.walletManager.decreaseDelegateVoteBalance(sender, transaction.data.amount);
+                    }
+                    recipient.balance = recipient.balance.plus(transaction.data.amount);
+                    if (recipient.hasVoted()) {
+                        this.walletManager.increaseDelegateVoteBalance(recipient, transaction.data.amount);
+                    }
+                    break;
+                case Enums.TransactionType.DelegateRegistration:
                     sender.setAttribute("delegate", {
                         username: transaction.data.asset.delegate.username,
                         voteBalance: Utils.BigNumber.ZERO,
@@ -130,14 +138,16 @@ export class ReplayBlockchain extends Blockchain {
                         round: 0,
                     });
                     this.walletManager.reindex(sender);
-                } else if (transaction.type === Enums.TransactionType.Vote) {
-                    const vote = transaction.data.asset.votes[0];
-                    sender.setAttribute("vote", vote.slice(1));
-                }
+                    break;
+                case Enums.TransactionType.Vote:
+                    if (sender.hasVoted()) {
+                        this.walletManager.decreaseDelegateVoteBalance(sender, sender.balance);
+                    }
+                    sender.setAttribute("vote", transaction.data.asset.votes[0].slice(1));
+                    this.walletManager.increaseDelegateVoteBalance(sender, sender.balance);
+                    break;
             }
         }
-
-        this.walletManager.buildVoteBalances();
 
         this.state.setLastBlock(genesisBlock);
 
