@@ -2,8 +2,6 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { Wallet } from "./wallets";
-
 // todo: review the implementation and make use of ioc
 @Container.injectable()
 export class BlockState {
@@ -21,7 +19,7 @@ export class BlockState {
             const generator: string = Identities.Address.fromPublicKey(generatorPublicKey);
 
             if (block.data.height === 1) {
-                delegate = new Wallet(generator, this.app);
+                delegate = this.walletRepository.createWallet(generator);
                 delegate.publicKey = generatorPublicKey;
 
                 this.walletRepository.reindex(delegate);
@@ -42,7 +40,7 @@ export class BlockState {
                 appliedTransactions.push(transaction);
             }
 
-            const applied: boolean = delegate.applyBlock(block.data);
+            const applied: boolean = this.applyBlockToDelegate(delegate, block.data);
 
             // If the block has been applied to the delegate, the balance is increased
             // by reward + totalFee. In which case the vote balance of the
@@ -85,7 +83,7 @@ export class BlockState {
                 revertedTransactions.push(transaction);
             }
 
-            const reverted: boolean = delegate.revertBlock(block.data);
+            const reverted: boolean = this.revertBlockFromDelegate(delegate, block.data);
 
             // If the block has been reverted, the balance is decreased
             // by reward + totalFee. In which case the vote balance of the
@@ -204,6 +202,47 @@ export class BlockState {
         lockTransaction: Interfaces.ITransactionData,
     ): void {
         return this.updateVoteBalances(sender, recipient, transaction, lockWallet, lockTransaction, true);
+    }
+
+    public applyBlockToDelegate(wallet: Contracts.State.Wallet, block: Interfaces.IBlockData): boolean {
+        if (
+            block.generatorPublicKey === wallet.publicKey ||
+            Identities.Address.fromPublicKey(block.generatorPublicKey) === wallet.address
+        ) {
+            wallet.balance = wallet.balance.plus(block.reward).plus(block.totalFee);
+
+            const delegate: Contracts.State.WalletDelegateAttributes = wallet.getAttribute("delegate");
+            delegate.producedBlocks++;
+            delegate.forgedFees = delegate.forgedFees.plus(block.totalFee);
+            delegate.forgedRewards = delegate.forgedRewards.plus(block.reward);
+            delegate.lastBlock = block;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public revertBlockFromDelegate(wallet: Contracts.State.Wallet, block: Interfaces.IBlockData): boolean {
+        if (
+            block.generatorPublicKey === wallet.publicKey ||
+            Identities.Address.fromPublicKey(block.generatorPublicKey) === wallet.address
+        ) {
+            wallet.balance = wallet.balance.minus(block.reward).minus(block.totalFee);
+
+            const delegate: Contracts.State.WalletDelegateAttributes = wallet.getAttribute("delegate");
+
+            delegate.forgedFees = delegate.forgedFees.minus(block.totalFee);
+            delegate.forgedRewards = delegate.forgedRewards.minus(block.reward);
+            delegate.producedBlocks--;
+
+            // TODO: get it back from database?
+            delegate.lastBlock = undefined;
+
+            return true;
+        }
+
+        return false;
     }
 
     /**

@@ -11,6 +11,7 @@ import {
     LegacyMultiSignatureError,
     SenderWalletMismatchError,
     UnexpectedMultiSignatureError,
+    UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "../errors";
 import { TransactionReader } from "../transaction-reader";
@@ -54,7 +55,7 @@ export abstract class TransactionHandler {
         const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         if (senderWallet.hasMultiSignature()) {
-            transaction.isVerified = senderWallet.verifySignatures(transaction.data);
+            transaction.isVerified = this.verifySignatures(senderWallet, transaction.data);
         }
 
         return transaction.isVerified;
@@ -88,7 +89,7 @@ export abstract class TransactionHandler {
             return;
         }
 
-        sender.verifyTransactionNonceApply(transaction);
+        this.verifyTransactionNonceApply(sender, transaction);
 
         if (
             sender.balance
@@ -141,7 +142,7 @@ export abstract class TransactionHandler {
                 transaction.data.senderPublicKey,
             );
 
-            if (dbSender.getAttribute("multiSignature").legacy) {
+            if (dbSender.getAttribute<any>("multiSignature").legacy) {
                 throw new LegacyMultiSignatureError();
             }
 
@@ -149,7 +150,7 @@ export abstract class TransactionHandler {
                 throw new UnexpectedMultiSignatureError();
             }
 
-            if (!dbSender.verifySignatures(data, dbSender.getAttribute("multiSignature"))) {
+            if (!this.verifySignatures(dbSender, data, dbSender.getAttribute("multiSignature"))) {
                 throw new InvalidMultiSignatureError();
             }
         } else if (transaction.data.signatures && !isMultiSignatureRegistration) {
@@ -209,7 +210,7 @@ export abstract class TransactionHandler {
         await this.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
 
         if (data.version && data.version > 1) {
-            sender.verifyTransactionNonceApply(transaction);
+            this.verifyTransactionNonceApply(sender, transaction);
 
             AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
 
@@ -255,7 +256,7 @@ export abstract class TransactionHandler {
         sender.balance = sender.balance.plus(data.amount).plus(data.fee);
 
         if (data.version && data.version > 1) {
-            sender.verifyTransactionNonceRevert(transaction);
+            this.verifyTransactionNonceRevert(sender, transaction);
         }
 
         sender.nonce = sender.nonce.minus(1);
@@ -319,5 +320,55 @@ export abstract class TransactionHandler {
 
     protected getTransactionReader(): TransactionReader {
         return this.app.resolve<TransactionReader>(TransactionReader).init(this.getConstructor());
+    }
+
+    /**
+     * @param {Contracts.State.Wallet} wallet
+     * @param {Interfaces.ITransactionData} transaction
+     * @param {Interfaces.IMultiSignatureAsset} [multiSignature]
+     * @returns {boolean}
+     * @memberof TransactionHandler
+     */
+    public verifySignatures(
+        wallet: Contracts.State.Wallet,
+        transaction: Interfaces.ITransactionData,
+        multiSignature?: Interfaces.IMultiSignatureAsset,
+    ): boolean {
+        return Transactions.Verifier.verifySignatures(
+            transaction,
+            multiSignature || wallet.getAttribute("multiSignature"),
+        );
+    }
+
+    /**
+     * Verify that the transaction's nonce is the wallet nonce plus one, so that the
+     * transaction can be applied to the wallet. Throw an exception if it is not.
+     *
+     * @param {Interfaces.ITransaction} transaction
+     * @memberof Wallet
+     */
+    protected verifyTransactionNonceApply(wallet: Contracts.State.Wallet, transaction: Interfaces.ITransaction): void {
+        const version: number = transaction.data.version || 1;
+        const nonce: AppUtils.BigNumber = transaction.data.nonce || AppUtils.BigNumber.ZERO;
+
+        if (version > 1 && !wallet.nonce.plus(1).isEqualTo(nonce)) {
+            throw new UnexpectedNonceError(nonce, wallet, false);
+        }
+    }
+
+    /**
+     * Verify that the transaction's nonce is the same as the wallet nonce, so that the
+     * transaction can be reverted from the wallet. Throw an exception if it is not.
+     *
+     * @param {Interfaces.ITransaction} transaction
+     * @memberof Wallet
+     */
+    protected verifyTransactionNonceRevert(wallet: Contracts.State.Wallet, transaction: Interfaces.ITransaction): void {
+        const version: number = transaction.data.version || 1;
+        const nonce: AppUtils.BigNumber = transaction.data.nonce || AppUtils.BigNumber.ZERO;
+
+        if (version > 1 && !wallet.nonce.isEqualTo(nonce)) {
+            throw new UnexpectedNonceError(nonce, wallet, true);
+        }
     }
 }

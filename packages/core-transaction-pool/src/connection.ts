@@ -280,7 +280,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 }
             }
 
-            if (senderWallet && senderWallet.canBePurged() && (await this.getSenderSize(senderPublicKey)) === 0) {
+            if (senderWallet && this.canBePurged(senderWallet) && (await this.getSenderSize(senderPublicKey)) === 0) {
                 this.poolWalletRepository.forget(senderPublicKey);
             }
         }
@@ -664,5 +664,21 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 }
             }
         }
+    }
+
+    public canBePurged(wallet: Contracts.State.Wallet): boolean {
+        const attributes: object = wallet.getAttributes();
+
+        const hasAttributes: boolean = !!attributes && Object.keys(attributes).length > 0;
+
+        if (wallet.hasAttribute("htlc.lockedBalance")) {
+            const lockedBalance: AppUtils.BigNumber = wallet.getAttribute("htlc.lockedBalance");
+
+            if (!lockedBalance.isZero()) {
+                return false;
+            }
+        }
+
+        return wallet.balance.isZero() && !hasAttributes;
     }
 }

@@ -31,51 +31,99 @@ export enum WalletIndexes {
 }
 
 export interface Wallet {
+    /**
+     * @type {string}
+     * @memberof Wallet
+     */
     address: string;
+
+    /**
+     * @type {(string | undefined)}
+     * @memberof Wallet
+     */
     publicKey: string | undefined;
+
+    /**
+     * @type {Utils.BigNumber}
+     * @memberof Wallet
+     */
     balance: Utils.BigNumber;
+
+    /**
+     * @type {Utils.BigNumber}
+     * @memberof Wallet
+     */
     nonce: Utils.BigNumber;
 
-    applyBlock(block: Interfaces.IBlockData): boolean;
-    revertBlock(block: Interfaces.IBlockData): boolean;
-
-    auditApply(transaction: Interfaces.ITransactionData): any[];
-    toString(): string;
-
+    /**
+     * @memberof Wallet
+     */
     getAttributes();
+
+    /**
+     * @template T
+     * @param {string} key
+     * @param {T} [defaultValue]
+     * @returns {T}
+     * @memberof Wallet
+     */
     getAttribute<T = any>(key: string, defaultValue?: T): T;
+
+    /**
+     * @template T
+     * @param {string} key
+     * @param {T} value
+     * @returns {boolean}
+     * @memberof Wallet
+     */
     setAttribute<T = any>(key: string, value: T): boolean;
+
+    /**
+     * @param {string} key
+     * @returns {boolean}
+     * @memberof Wallet
+     */
     forgetAttribute(key: string): boolean;
+
+    /**
+     * @param {string} key
+     * @returns {boolean}
+     * @memberof Wallet
+     */
     hasAttribute(key: string): boolean;
 
+    /**
+     * @returns {boolean}
+     * @memberof Wallet
+     */
     isDelegate(): boolean;
+
+    /**
+     * @returns {boolean}
+     * @memberof Wallet
+     */
     hasVoted(): boolean;
+
+    /**
+     * @returns {boolean}
+     * @memberof Wallet
+     */
     hasSecondSignature(): boolean;
+
+    /**
+     * @returns {boolean}
+     * @memberof Wallet
+     */
     hasMultiSignature(): boolean;
 
-    canBePurged(): boolean;
-
+    /**
+     * @returns {Wallet}
+     * @memberof Wallet
+     */
     clone(): Wallet;
-
-    verifySignatures(
-        transaction: Interfaces.ITransactionData,
-        multisignature?: Interfaces.IMultiSignatureAsset,
-    ): boolean;
-
-    /**
-     * Verify that the transaction's nonce is the wallet nonce plus one, so that the
-     * transaction can be applied to the wallet.
-     * Throw an exception if it is not.
-     */
-    verifyTransactionNonceApply(transaction: Interfaces.ITransaction): void;
-
-    /**
-     * Verify that the transaction's nonce is the same as the wallet nonce, so that the
-     * transaction can be reverted from the wallet.
-     * Throw an exception if it is not.
-     */
-    verifyTransactionNonceRevert(transaction: Interfaces.ITransaction): void;
 }
+
+export type WalletFactory = (address: string) => Wallet;
 
 export interface WalletDelegateAttributes {
     username: string;

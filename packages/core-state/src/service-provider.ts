@@ -1,14 +1,16 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 
 import { BlockState } from "./block-state";
 import { StateBuilder } from "./state-builder";
 import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
-import { WalletRepository, WalletState } from "./wallets";
+import { Wallet, WalletRepository, WalletState } from "./wallets";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        this.registerFactories();
+
         this.app
             .bind(Container.Identifiers.WalletRepository)
             .to(WalletRepository)
@@ -39,5 +41,18 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async bootWhen(serviceProvider?: string): Promise<boolean> {
         return serviceProvider === "@arkecosystem/core-database";
+    }
+
+    private registerFactories(): void {
+        this.app
+            .bind(Container.Identifiers.WalletFactory)
+            .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
+                new Wallet(
+                    address,
+                    new Services.Attributes.AttributeMap(
+                        context.container.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
+                    ),
+                ),
+            );
     }
 }

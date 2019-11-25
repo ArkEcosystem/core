@@ -132,7 +132,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         await this.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
 
-        sender.verifyTransactionNonceApply(transaction);
+        this.verifyTransactionNonceApply(sender, transaction);
 
         AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
 
@@ -185,7 +185,7 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const data: Interfaces.ITransactionData = transaction.data;
 
-        sender.verifyTransactionNonceRevert(transaction);
+        this.verifyTransactionNonceRevert(sender, transaction);
 
         sender.nonce = sender.nonce.minus(1);
 

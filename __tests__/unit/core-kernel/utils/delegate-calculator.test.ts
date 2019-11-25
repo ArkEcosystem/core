@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { Container, Services } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@arkecosystem/core-test-framework";
 
-import { Wallet } from "@packages/core-state/src/wallets";
+import { Wallets } from "@arkecosystem/core-state";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import { calculateApproval, calculateForgedTotal } from "@packages/core-kernel/src/utils/delegate-calculator";
 
@@ -25,10 +25,18 @@ beforeAll(() => {
     Managers.configManager.set("genesisBlock.totalAmount", 1000000 * 1e8);
 });
 
+const createWallet = (address: string): Contracts.State.Wallet =>
+    new Wallets.Wallet(
+        address,
+        new Services.Attributes.AttributeMap(
+            sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
+        ),
+    );
+
 describe("Delegate Calculator", () => {
     describe("calculateApproval", () => {
         it("should calculate correctly with a height", () => {
-            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7", sandbox.app);
+            const delegate = createWallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,
@@ -39,7 +47,7 @@ describe("Delegate Calculator", () => {
         });
 
         it("should calculate correctly with 2 decimals", () => {
-            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7", sandbox.app);
+            const delegate = createWallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,
@@ -52,7 +60,7 @@ describe("Delegate Calculator", () => {
 
     describe("calculateForgedTotal", () => {
         it("should calculate correctly", () => {
-            const delegate = new Wallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7", sandbox.app);
+            const delegate = createWallet("D61xc3yoBQDitwjqUspMPx1ooET6r1XLt7");
 
             delegate.setAttribute("delegate", {
                 producedBlocks: 0,

@@ -1,7 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
 import { Blocks, Managers } from "@arkecosystem/crypto";
-import { Contracts, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Contracts, Container, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { ApiHelpers, Generators } from "@arkecosystem/core-test-framework";
 
@@ -48,6 +48,14 @@ beforeEach(() => {
 
     walletRepository.reindex(wallet);
 });
+
+const createWallet = (address: string): Contracts.State.Wallet =>
+    new Wallets.Wallet(
+        address,
+        new Services.Attributes.AttributeMap(
+            app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
+        ),
+    );
 
 describe("API 2.0 - Delegates", () => {
     describe("GET /delegates", () => {
@@ -171,7 +179,7 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should fail to GET a delegate by the given identifier if the resource is not a delegate (has no username)", async () => {
-            const wallet = new Wallets.Wallet("non_delegate_address", app);
+            const wallet = createWallet("non_delegate_address");
 
             const walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
             walletRepository.index([wallet]);

@@ -1,10 +1,11 @@
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Wallets } from "@arkecosystem/core-state";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Utils } from "@arkecosystem/crypto";
 
 export const generateRound = (app: Contracts.Kernel.Application, publicKeys: string[], round: number) =>
     publicKeys.map((publicKey: string, i: number) => {
-        const wallet = new Wallets.Wallet(Identities.Address.fromPublicKey(publicKey), app);
+        const wallet = app.get<Contracts.State.WalletFactory>(Container.Identifiers.WalletFactory)(
+            Identities.Address.fromPublicKey(publicKey),
+        );
         wallet.publicKey = publicKey;
 
         wallet.setAttribute("delegate", {

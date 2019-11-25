@@ -1,4 +1,4 @@
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import { EntityRepository, Repository } from "typeorm";
 
 import { Round } from "../models";
@@ -13,13 +13,15 @@ export class RoundRepository extends Repository<Round> {
         });
     }
 
-    public async save(delegateWallets: Contracts.State.Wallet[]): Promise<never> {
-        return (super.save(
-            delegateWallets.map(delegate => ({
-                publicKey: delegate.publicKey,
+    public async save(delegates: Contracts.State.Wallet[]): Promise<never> {
+        const round: { publicKey: string; balance: Utils.BigNumber; round: number }[] = delegates.map(
+            (delegate: Contracts.State.Wallet) => ({
+                publicKey: delegate.publicKey!,
                 balance: delegate.getAttribute("delegate.voteBalance"),
                 round: delegate.getAttribute("delegate.round"),
-            })),
-        ) as unknown) as never;
+            }),
+        );
+
+        return super.save(round) as never;
     }
 }

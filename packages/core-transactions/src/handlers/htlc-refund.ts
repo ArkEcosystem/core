@@ -135,7 +135,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         await this.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
 
-        sender.verifyTransactionNonceApply(transaction);
+        this.verifyTransactionNonceApply(sender, transaction);
 
         AppUtils.assert.defined<AppUtils.BigNumber>(data.nonce);
 
@@ -178,7 +178,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
-        sender.verifyTransactionNonceRevert(transaction);
+        this.verifyTransactionNonceRevert(sender, transaction);
 
         sender.nonce = sender.nonce.minus(1);
 

@@ -4,7 +4,6 @@ import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
 import { TempWalletRepository } from "./temp-wallet-repository";
 import { searchEntries } from "./utils/search-entries";
-import { Wallet } from "./wallet";
 import { WalletIndex } from "./wallet-index";
 
 // todo: review the implementation
@@ -17,7 +16,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     // TODO: use a inversify factory for wallets instead?
     public createWallet(address: string): Contracts.State.Wallet {
-        return new Wallet(address, this.app);
+        return this.app.get<Contracts.State.WalletFactory>(Container.Identifiers.WalletFactory)(address);
     }
 
     public constructor() {
@@ -76,7 +75,8 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             Contracts.State.WalletIndexes.Ipfs,
             (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
                 if (wallet.hasAttribute("ipfs.hashes")) {
-                    const hashes = wallet.getAttribute("ipfs.hashes");
+                    const hashes: object = wallet.getAttribute("ipfs.hashes");
+
                     for (const hash of Object.keys(hashes)) {
                         index.set(hash, wallet);
                     }
@@ -141,7 +141,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         const index: Contracts.State.WalletIndex = this.getIndex(Contracts.State.WalletIndexes.Addresses);
 
         if (address && !index.has(address)) {
-            index.set(address, new Wallet(address, this.app));
+            index.set(address, this.createWallet(address));
         }
 
         const wallet: Contracts.State.Wallet | undefined = index.get(address);

@@ -2,7 +2,6 @@ import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
 import { BlockState } from "../block-state";
-import { Wallet } from "./wallet";
 import { WalletRepository } from "./wallet-repository";
 import { WalletState } from "./wallet-state";
 
@@ -63,7 +62,7 @@ export class TempWalletRepository extends WalletRepository {
 
                 index.set(key, wallet.clone());
             } else if (indexName === Contracts.State.WalletIndexes.Addresses) {
-                index.set(key, new Wallet(key, this.app));
+                index.set(key, this.createWallet(key));
             }
         }
 
