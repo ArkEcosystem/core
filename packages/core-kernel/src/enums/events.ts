@@ -16,6 +16,18 @@ export enum KernelEvent {
  * @export
  * @enum {number}
  */
+export enum CacheEvent {
+    Flushed = "cache.flushed",
+    Forgotten = "cache.forgotten",
+    Hit = "cache.hit",
+    Missed = "cache.missed",
+    Written = "cache.written",
+}
+
+/**
+ * @export
+ * @enum {number}
+ */
 export enum CryptoEvent {
     MilestoneChanged = "crypto.milestone.changed",
 }

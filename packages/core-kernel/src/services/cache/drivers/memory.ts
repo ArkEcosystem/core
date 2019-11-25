@@ -1,6 +1,8 @@
+import { EventDispatcher } from "../../../contracts/kernel";
 import { CacheStore } from "../../../contracts/kernel/cache";
+import { CacheEvent } from "../../../enums";
 import { NotImplemented } from "../../../exceptions/runtime";
-import { injectable } from "../../../ioc";
+import { Identifiers, inject, injectable } from "../../../ioc";
 
 /**
  * @export
@@ -9,6 +11,14 @@ import { injectable } from "../../../ioc";
  */
 @injectable()
 export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
+    /**
+     * @private
+     * @type {EventDispatcher}
+     * @memberof BlockJob
+     */
+    @inject(Identifiers.EventDispatcherService)
+    private readonly eventDispatcher!: EventDispatcher;
+
     /**
      * @private
      * @type {Map<K, T>}
@@ -65,7 +75,13 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      * @memberof MemoryCacheStore
      */
     public async get(key: K): Promise<T | undefined> {
-        return this.store.get(key);
+        const value: T | undefined = this.store.get(key);
+
+        value
+            ? this.eventDispatcher.dispatch(CacheEvent.Hit, { key, value })
+            : this.eventDispatcher.dispatch(CacheEvent.Missed, { key });
+
+        return value;
     }
 
     /**
@@ -90,6 +106,10 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      */
     public async put(key: K, value: T, seconds?: number): Promise<boolean> {
         this.store.set(key, value);
+
+        if (this.has(key)) {
+            this.eventDispatcher.dispatch(CacheEvent.Written, { key, value, seconds });
+        }
 
         return this.has(key);
     }
@@ -183,6 +203,10 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
     public async forget(key: K): Promise<boolean> {
         this.store.delete(key);
 
+        if (this.missing(key)) {
+            this.eventDispatcher.dispatch(CacheEvent.Forgotten, { key });
+        }
+
         return this.missing(key);
     }
 
@@ -205,6 +229,8 @@ export class MemoryCacheStore<K, T> implements CacheStore<K, T> {
      */
     public async flush(): Promise<boolean> {
         this.store.clear();
+
+        this.eventDispatcher.dispatch(CacheEvent.Flushed);
 
         return this.store.size === 0;
     }

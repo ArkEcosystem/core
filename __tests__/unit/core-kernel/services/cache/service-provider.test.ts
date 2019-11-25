@@ -4,10 +4,16 @@ import { Application } from "@packages/core-kernel/src/application";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/services/cache";
 import { MemoryCacheStore } from "@packages/core-kernel/src/services/cache/drivers/memory";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 let app: Application;
+beforeEach(() => {
+    app = new Application(new Container());
 
-beforeEach(() => (app = new Application(new Container())));
+    app.bind(Identifiers.EventDispatcherService)
+        .to(MemoryEventDispatcher)
+        .inSingletonScope();
+});
 
 describe("CacheServiceProvider", () => {
     it(".register", async () => {

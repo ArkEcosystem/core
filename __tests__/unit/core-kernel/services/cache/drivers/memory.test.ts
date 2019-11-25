@@ -1,6 +1,10 @@
 import "jest-extended";
+
+import { Application } from "@packages/core-kernel/src/application";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryCacheStore } from "@packages/core-kernel/src/services/cache/drivers/memory";
 import { NotImplemented } from "@packages/core-kernel/src/exceptions/runtime";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 const items: Record<string, number> = {
     "1": 1,
@@ -14,8 +18,17 @@ const itemsBool: boolean[] = new Array(5).fill(true);
 const itemsTruthy: boolean[] = new Array(5).fill(true);
 const itemsFalsey: boolean[] = new Array(5).fill(false);
 
+let app: Application;
 let store: MemoryCacheStore<string, number>;
-beforeEach(() => (store = new MemoryCacheStore<string, number>()));
+beforeEach(() => {
+    app = new Application(new Container());
+
+    app.bind(Identifiers.EventDispatcherService)
+        .to(MemoryEventDispatcher)
+        .inSingletonScope();
+
+    store = app.resolve(MemoryCacheStore);
+});
 
 describe("MemoryCacheStore", () => {
     it("should make a new instance", async () => {
