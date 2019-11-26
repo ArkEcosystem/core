@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { Identifiers } from "@arkecosystem/core-api";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
 import secrets from "../internal/secrets.json";
@@ -30,7 +31,7 @@ export class ApiHelpers {
         };
 
         // @ts-ignore
-        const response = await this.app.get("api.http").inject(injectOptions);
+        const response = await this.app.get(Identifiers.HTTP).inject(injectOptions);
 
         const data = typeof response.result === "string" ? JSON.parse(response.result) : response.result;
 
