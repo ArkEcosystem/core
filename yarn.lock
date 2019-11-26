@@ -11511,10 +11511,10 @@ rollup@^1.17.0:
     "@types/node" "*"
     acorn "^7.1.0"
 
-rotating-file-stream@^1.4.2:
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/rotating-file-stream/-/rotating-file-stream-1.4.4.tgz#395914051c257d198a2db04cc630cb9f77087f18"
-  integrity sha512-AApEU3nLetgH5ghthiwoo3StYRme2E20mOqycqSy2rTp6j7bskrV90enJX39UdlkZVcE/ZEBvaac7iOnjo1rbw==
+rotating-file-stream@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/rotating-file-stream/-/rotating-file-stream-2.0.0.tgz#68ffb5abcf5b46009dc26d70b7675b9913310f77"
+  integrity sha512-CICpV69VCUujsdLdD6bqig7A9NjQU+HXRlt4YOqArg7wZynmvVOFYuL7tFF7UQEE7rUxy8G4RrRgo0tX1RU5uw==
 
 router-ips@^1.0.0:
   version "1.0.0"

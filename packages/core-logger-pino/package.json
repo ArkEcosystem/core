@@ -26,7 +26,7 @@
         "pino-pretty": "^3.2.0",
         "pump": "^3.0.0",
         "readable-stream": "^3.4.0",
-        "rotating-file-stream": "^1.4.2",
+        "rotating-file-stream": "^2.0.0",
         "split2": "^3.1.1"
     },
     "devDependencies": {
