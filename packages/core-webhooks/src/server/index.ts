@@ -1,137 +1,267 @@
-import { Contracts, Utils } from "@arkecosystem/core-kernel";
+// import { badData } from "@hapi/boom";
+import { Container, Contracts, Types, Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
+import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse } from "@hapi/hapi";
 import { randomBytes } from "crypto";
 
 import { Database } from "../database";
+import { Identifiers } from "../identifiers";
 import { Webhook } from "../interfaces";
-import { Server } from "./hapi";
 import { whitelist } from "./plugins/whitelist";
 import * as schema from "./schema";
 import * as utils from "./utils";
 
-export const startServer = async (app: Contracts.Kernel.Application, config): Promise<Server> => {
-    const server = app.resolve<Server>(Server);
+/**
+ * @export
+ * @class Server
+ */
+@Container.injectable()
+export class Server {
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Server
+     */
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
 
-    await server.init("Webhook API", {
-        host: config.host,
-        port: config.port,
-        routes: {
-            cors: true,
-        },
-    });
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Server
+     */
+    @Container.inject(Identifiers.Database)
+    private readonly database!: Database;
 
-    await server.register({
-        plugin: whitelist,
-        options: {
-            whitelist: config.whitelist,
-        },
-    });
+    /**
+     * @private
+     * @type {HapiServer}
+     * @memberof Server
+     */
+    private server: HapiServer;
 
-    server.route({
-        method: "GET",
-        path: "/api/webhooks",
-        handler: () => {
-            return {
-                data: app
-                    .get<Database>("webhooks.db")
-                    .all()
-                    .map(webhook => {
+    /**
+     * @param {string} name
+     * @param {Types.JsonObject} optionsServer
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async register(optionsServer: Types.JsonObject): Promise<void> {
+        this.server = new HapiServer(this.getServerOptions(optionsServer));
+        this.server.app.database = this.database;
+
+        this.server.ext({
+            type: "onPreHandler",
+            async method(request, h) {
+                request.headers["content-type"] = "application/json";
+
+                return h.continue;
+            },
+        });
+
+        await this.registerPlugins(optionsServer);
+
+        await this.registerRoutes();
+    }
+
+    /**
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async start(): Promise<void> {
+        try {
+            await this.server.start();
+
+            this.app.log.info(`Webhook Server started at ${this.server.info.uri}`);
+        } catch (error) {
+            await this.app.terminate(`Failed to start Webhook Server!`, error);
+        }
+    }
+
+    /**
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async stop(): Promise<void> {
+        try {
+            await this.server.stop();
+
+            this.app.log.info(`Webhook Server stopped at ${this.server.info.uri}`);
+        } catch (error) {
+            await this.app.terminate(`Failed to stop Webhook Server!`, error);
+        }
+    }
+
+    /**
+     * @param {(string | ServerInjectOptions)} options
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async inject(options: string | ServerInjectOptions): Promise<ServerInjectResponse> {
+        return this.server.inject(options);
+    }
+
+    /**
+     * @private
+     * @param {Record<string, any>} options
+     * @returns {object}
+     * @memberof Server
+     */
+    private getServerOptions(options: Record<string, any>): object {
+        options = { ...options };
+
+        delete options.enabled;
+
+        return {
+            // ...{
+            //     routes: {
+            //         stripTrailingSlash: true,
+            //         payload: {
+            //             /* istanbul ignore next */
+            //             async failAction(request, h, err) {
+            //                 return badData(err.message);
+            //             },
+            //         },
+            //         validate: {
+            //             /* istanbul ignore next */
+            //             async failAction(request, h, err) {
+            //                 return badData(err.message);
+            //             },
+            //         },
+            //     },
+            // },
+            ...options,
+        };
+    }
+
+    /**
+     * @private
+     * @param {Types.JsonObject} config
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    private async registerPlugins(config: Types.JsonObject): Promise<void> {
+        await this.server.register({
+            plugin: whitelist,
+            options: {
+                whitelist: config.whitelist,
+            },
+        });
+    }
+
+    /**
+     * @private
+     * @returns {void}
+     * @memberof Server
+     */
+    private registerRoutes(): void {
+        this.server.route({
+            method: "GET",
+            path: "/",
+            handler() {
+                return { data: "Hello World!" };
+            },
+        });
+
+        this.server.route({
+            method: "GET",
+            path: "/api/webhooks",
+            handler: request => {
+                return {
+                    data: request.server.app.database.all().map(webhook => {
                         webhook = { ...webhook };
                         delete webhook.token;
                         return webhook;
                     }),
-            };
-        },
-    });
-
-    server.route({
-        method: "POST",
-        path: "/api/webhooks",
-        handler(request: any, h) {
-            const token: string = randomBytes(32).toString("hex");
-
-            return h
-                .response(
-                    utils.respondWithResource({
-                        ...app.get<Database>("webhooks.db").create({
-                            ...request.payload,
-                            ...{ token: token.substring(0, 32) },
-                        }),
-                        ...{ token },
-                    }),
-                )
-                .code(201);
-        },
-        options: {
-            plugins: {
-                pagination: {
-                    enabled: false,
-                },
+                };
             },
-            validate: schema.store,
-        },
-    });
+        });
 
-    server.route({
-        method: "GET",
-        path: "/api/webhooks/{id}",
-        async handler(request) {
-            if (!app.get<Database>("webhooks.db").hasById(request.params.id)) {
-                return Boom.notFound();
-            }
+        this.server.route({
+            method: "POST",
+            path: "/api/webhooks",
+            handler(request: any, h) {
+                const token: string = randomBytes(32).toString("hex");
 
-            const webhook: Webhook | undefined = Utils.cloneDeep(
-                app.get<Database>("webhooks.db").findById(request.params.id),
-            );
+                return h
+                    .response(
+                        utils.respondWithResource({
+                            ...request.server.app.database.create({
+                                ...request.payload,
+                                ...{ token: token.substring(0, 32) },
+                            }),
+                            ...{ token },
+                        }),
+                    )
+                    .code(201);
+            },
+            options: {
+                plugins: {
+                    pagination: {
+                        enabled: false,
+                    },
+                },
+                validate: schema.store,
+            },
+        });
 
-            if (!webhook) {
-                return Boom.badImplementation();
-            }
+        this.server.route({
+            method: "GET",
+            path: "/api/webhooks/{id}",
+            async handler(request) {
+                if (!request.server.app.database.hasById(request.params.id)) {
+                    return Boom.notFound();
+                }
 
-            delete webhook.token;
+                const webhook: Webhook | undefined = Utils.cloneDeep(
+                    request.server.app.database.findById(request.params.id),
+                );
 
-            return utils.respondWithResource(webhook);
-        },
-        options: {
-            validate: schema.show,
-        },
-    });
+                if (!webhook) {
+                    return Boom.badImplementation();
+                }
 
-    server.route({
-        method: "PUT",
-        path: "/api/webhooks/{id}",
-        handler: (request, h) => {
-            if (!app.get<Database>("webhooks.db").hasById(request.params.id)) {
-                return Boom.notFound();
-            }
+                delete webhook.token;
 
-            app.get<Database>("webhooks.db").update(request.params.id, request.payload as Webhook);
+                return utils.respondWithResource(webhook);
+            },
+            options: {
+                validate: schema.show,
+            },
+        });
 
-            return h.response(undefined).code(204);
-        },
-        options: {
-            validate: schema.update,
-        },
-    });
+        this.server.route({
+            method: "PUT",
+            path: "/api/webhooks/{id}",
+            handler: (request, h) => {
+                if (!request.server.app.database.hasById(request.params.id)) {
+                    return Boom.notFound();
+                }
 
-    server.route({
-        method: "DELETE",
-        path: "/api/webhooks/{id}",
-        handler: (request, h) => {
-            if (!app.get<Database>("webhooks.db").hasById(request.params.id)) {
-                return Boom.notFound();
-            }
+                request.server.app.database.update(request.params.id, request.payload as Webhook);
 
-            app.get<Database>("webhooks.db").destroy(request.params.id);
+                return h.response(undefined).code(204);
+            },
+            options: {
+                validate: schema.update,
+            },
+        });
 
-            return h.response(undefined).code(204);
-        },
-        options: {
-            validate: schema.destroy,
-        },
-    });
+        this.server.route({
+            method: "DELETE",
+            path: "/api/webhooks/{id}",
+            handler: (request, h) => {
+                if (!request.server.app.database.hasById(request.params.id)) {
+                    return Boom.notFound();
+                }
 
-    await server.start();
+                request.server.app.database.destroy(request.params.id);
 
-    return server;
-};
+                return h.response(undefined).code(204);
+            },
+            options: {
+                validate: schema.destroy,
+            },
+        });
+    }
+}

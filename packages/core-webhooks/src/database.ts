@@ -6,16 +6,32 @@ import uuidv4 from "uuid/v4";
 
 import { Webhook } from "./interfaces";
 
-// todo: review the implementation and check for issues with mutability
+/**
+ * @export
+ * @class Database
+ */
 @Container.injectable()
 export class Database {
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Database
+     */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    /**
+     * @private
+     * @type {lowdb.LowdbSync<any>}
+     * @memberof Database
+     */
     private database: lowdb.LowdbSync<any>;
 
-    public init() {
-        const adapterFile = this.app.cachePath("webhooks.json");
+    /**
+     * @memberof Database
+     */
+    public boot() {
+        const adapterFile: string = this.app.cachePath("webhooks.json");
 
         if (!existsSync(adapterFile)) {
             ensureFileSync(adapterFile);
@@ -25,14 +41,28 @@ export class Database {
         this.database.defaults({ webhooks: [] }).write();
     }
 
+    /**
+     * @returns {Webhook[]}
+     * @memberof Database
+     */
     public all(): Webhook[] {
         return this.database.get("webhooks", []).value();
     }
 
+    /**
+     * @param {string} id
+     * @returns {boolean}
+     * @memberof Database
+     */
     public hasById(id: string): boolean {
         return !!this.findById(id);
     }
 
+    /**
+     * @param {string} id
+     * @returns {(Webhook | undefined)}
+     * @memberof Database
+     */
     public findById(id: string): Webhook | undefined {
         try {
             return this.database
@@ -44,6 +74,11 @@ export class Database {
         }
     }
 
+    /**
+     * @param {string} event
+     * @returns {Webhook[]}
+     * @memberof Database
+     */
     public findByEvent(event: string): Webhook[] {
         return this.database
             .get("webhooks")
@@ -51,6 +86,11 @@ export class Database {
             .value();
     }
 
+    /**
+     * @param {Webhook} data
+     * @returns {(Webhook | undefined)}
+     * @memberof Database
+     */
     public create(data: Webhook): Webhook | undefined {
         data.id = uuidv4();
 
@@ -62,6 +102,12 @@ export class Database {
         return this.findById(data.id);
     }
 
+    /**
+     * @param {string} id
+     * @param {Webhook} data
+     * @returns {Webhook}
+     * @memberof Database
+     */
     public update(id: string, data: Webhook): Webhook {
         return this.database
             .get("webhooks")
@@ -70,6 +116,10 @@ export class Database {
             .write();
     }
 
+    /**
+     * @param {string} id
+     * @memberof Database
+     */
     public destroy(id: string): void {
         this.database
             .get("webhooks")

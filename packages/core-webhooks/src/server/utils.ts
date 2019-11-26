@@ -2,6 +2,10 @@ import Boom from "@hapi/boom";
 
 import { Webhook } from "../interfaces";
 
+/**
+ * @param {*} model
+ * @returns {Webhook}
+ */
 export const transformResource = (model): Webhook => {
     return {
         id: model.id,
@@ -13,6 +17,9 @@ export const transformResource = (model): Webhook => {
     };
 };
 
-export const respondWithResource = data => {
-    return data ? { data: transformResource(data) } : Boom.notFound();
-};
+/**
+ * @param {*} data
+ * @returns {{ data: Webhook }}
+ */
+export const respondWithResource = (data): { data: Webhook } =>
+    data ? { data: transformResource(data) } : Boom.notFound();

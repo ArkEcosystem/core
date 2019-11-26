@@ -1,12 +1,14 @@
 import "jest-extended";
 
+import { dirSync, setGracefulCleanup } from "tmp";
+
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { Enums } from "@packages/core-kernel/src";
 import { Database } from "@packages/core-webhooks/src/database";
-import { dirSync, setGracefulCleanup } from "tmp";
-import { startServer } from "@packages/core-webhooks/src/server";
-import { Server } from "@packages/core-webhooks/src/server/hapi";
+import { Identifiers as WebhookIdentifiers } from "@packages/core-webhooks/src/identifiers";
+import { Server } from "@packages/core-webhooks/src/server";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 const postData = {
     event: Enums.BlockEvent.Forged,
@@ -35,35 +37,40 @@ const request = async (server: Server, method, path, payload = {}) => {
 const createWebhook = (server, data?: any) => request(server, "POST", "webhooks", data || postData);
 
 let server: Server;
-let container: interfaces.Container;
 
 beforeEach(async () => {
-    container = new Container();
+    const app: Application = new Application(new Container());
 
-    const app: Application = new Application(container);
-    app.bind(Identifiers.LogService).toConstantValue({ info: jest.fn(), debug: jest.fn() });
+    app.bind(Identifiers.EventDispatcherService)
+        .to(MemoryEventDispatcher)
+        .inSingletonScope();
+
+    app.bind(Identifiers.LogService).toConstantValue({ info: jest.fn(), notice: jest.fn(), debug: jest.fn() });
+
     app.bind("path.cache").toConstantValue(dirSync().name);
 
-    app.bind<Database>("webhooks.db")
+    app.bind<Database>(WebhookIdentifiers.Database)
         .to(Database)
         .inSingletonScope();
 
-    app.get<Database>("webhooks.db").init();
+    app.get<Database>(WebhookIdentifiers.Database).boot();
 
-    container.snapshot();
+    // Setup Server...
+    app.bind(WebhookIdentifiers.Server)
+        .to(Server)
+        .inSingletonScope();
 
-    server = await startServer(app, {
+    server = app.get<Server>(WebhookIdentifiers.Server);
+
+    server.register({
         host: "0.0.0.0",
         port: 4004,
-        whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     });
+
+    await server.start();
 });
 
-afterEach(async () => {
-    container.restore();
-
-    await server.stop();
-});
+afterEach(async () => server.stop());
 
 afterAll(() => setGracefulCleanup());
 

@@ -1,8 +1,9 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces } from "@packages/core-kernel/src/ioc";
+import { Container } from "@packages/core-kernel/src/ioc";
 import { Database } from "@packages/core-webhooks/src/database";
+import { Identifiers } from "@packages/core-webhooks/src/identifiers";
 import { Webhook } from "@packages/core-webhooks/src/interfaces";
 import { dirSync, setGracefulCleanup } from "tmp";
 
@@ -22,25 +23,19 @@ const dummyWebhook: Webhook = {
 };
 
 let app: Application;
-let container: interfaces.Container;
 let database: Database;
 
 beforeEach(() => {
-    container = new Container();
-    container.snapshot();
-
-    app = new Application(container);
+    app = new Application(new Container());
     app.bind("path.cache").toConstantValue(dirSync().name);
 
-    app.bind<Database>("webhooks.db")
+    app.bind<Database>(Identifiers.Database)
         .to(Database)
         .inSingletonScope();
 
-    database = app.get<Database>("webhooks.db");
-    database.init();
+    database = app.get<Database>(Identifiers.Database);
+    database.boot();
 });
-
-afterEach(() => container.restore());
 
 afterAll(() => setGracefulCleanup());
 
