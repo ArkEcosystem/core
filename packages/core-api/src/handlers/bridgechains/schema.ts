@@ -9,6 +9,7 @@ export const index: object = {
             publicKey: Joi.string()
                 .hex()
                 .length(66),
+            isResigned: Joi.bool(),
         },
     },
 };
@@ -44,5 +45,6 @@ export const search: object = {
             .min(1)
             .max(10)
             .items(Joi.string().ip()),
+        isResigned: Joi.bool(),
     },
 };

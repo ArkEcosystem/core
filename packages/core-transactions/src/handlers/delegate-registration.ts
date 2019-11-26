@@ -30,6 +30,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             "delegate.round",
             "delegate.username",
             "delegate.voteBalance",
+            "delegate.forgedFees",
+            "delegate.forgedRewards",
             "delegate.forgedTotal",
             "delegate.approval",
         ];
