@@ -1,18 +1,7 @@
-import { Contracts } from "@arkecosystem/core-kernel";
 import { existsSync, lstatSync, readdirSync } from "fs-extra";
 import prompts from "prompts";
 
 import { abort } from "./cli";
-import { createApplication } from "./create-application";
-
-// todo: review the implementation
-export const setUpLite = async (flags): Promise<Contracts.Kernel.Application> =>
-    createApplication({
-        flags,
-        plugins: {
-            include: ["@arkecosystem/core-state", "@arkecosystem/core-database", "@arkecosystem/core-snapshots"],
-        },
-    });
 
 // todo: review the implementation
 export const chooseSnapshot = async (dataPath: string, message: string) => {

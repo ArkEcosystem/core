@@ -18,7 +18,7 @@ jest.mock("@arkecosystem/core-kernel", () => ({
     },
 }));
 
-describe("RollbackCommand", () => {
+describe.skip("RollbackCommand", () => {
     it("should call [rollbackByHeight] if a height is given", async () => {
         app.isBound = jest.fn().mockReturnValue(true);
 

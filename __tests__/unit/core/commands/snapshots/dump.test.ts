@@ -18,7 +18,7 @@ jest.mock("@arkecosystem/core-kernel", () => ({
     },
 }));
 
-describe("DumpCommand", () => {
+describe.skip("DumpCommand", () => {
     it("should be called if the snapshot service is available", async () => {
         app.isBound = jest.fn().mockReturnValue(true);
 

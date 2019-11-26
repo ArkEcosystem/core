@@ -23,7 +23,7 @@ jest.mock("@arkecosystem/core-kernel", () => ({
 
 afterAll(() => setGracefulCleanup());
 
-describe("VerifyCommand", () => {
+describe.skip("VerifyCommand", () => {
     it("should be called if a snapshot is specified via flag", async () => {
         app.isBound = jest.fn().mockReturnValue(true);
 

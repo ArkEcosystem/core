@@ -88,9 +88,6 @@ describe("transformPlugins", () => {
             {
                 package: "@arkecosystem/core-forger",
             },
-            {
-                package: "@arkecosystem/core-snapshots",
-            },
         ]);
 
         expect(transformed).toEqual({

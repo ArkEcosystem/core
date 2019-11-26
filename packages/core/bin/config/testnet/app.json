@@ -79,18 +79,5 @@
                 "package": "@arkecosystem/core-forger"
             }
         ]
-    },
-    "snapshot": {
-        "plugins": [
-            {
-                "package": "@arkecosystem/core-logger-pino"
-            },
-            {
-                "package": "@arkecosystem/core-database"
-            },
-            {
-                "package": "@arkecosystem/core-snapshots"
-            }
-        ]
     }
 }

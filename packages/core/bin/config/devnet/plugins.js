@@ -58,5 +58,4 @@ module.exports = {
         },
     },
     "@arkecosystem/core-forger": {},
-    "@arkecosystem/core-snapshots": {},
 };
