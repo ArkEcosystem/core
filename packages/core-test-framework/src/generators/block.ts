@@ -1,4 +1,4 @@
-import { Delegate } from "@arkecosystem/core-forger";
+import { DelegateFactory } from "@arkecosystem/core-forger";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { Signer } from "../internal/signer";
@@ -35,7 +35,7 @@ export const generateBlocks = (flags: any = {}): Interfaces.IBlockJson[] => {
 
     for (let i = 0; i < flags.number; i++) {
         const milestone = Managers.configManager.getMilestone(previousBlock.height);
-        const delegate = new Delegate(flags.passphrase, Managers.configManager.get("network.pubKeyHash"));
+        const delegate = DelegateFactory.fromBIP39(flags.passphrase);
 
         const transactions = [];
         for (let i = 0; i < flags.transactions; i++) {

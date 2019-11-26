@@ -2,14 +2,13 @@ import "jest-extended";
 
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import { Delegate } from "../../../../packages/core-forger/src/delegate";
-import { Block, BlockFactory } from "../../../../packages/crypto/src/blocks";
-import { Slots } from "../../../../packages/crypto/src/crypto";
-import { IBlock } from "../../../../packages/crypto/src/interfaces";
-import { configManager } from "../../../../packages/crypto/src/managers";
-import * as networks from "../../../../packages/crypto/src/networks";
-import { testnet } from "../../../../packages/crypto/src/networks";
-import { NetworkName } from "../../../../packages/crypto/src/types";
+import { BIP39 } from "@packages/core-forger/src/methods/bip39";
+import { Block, BlockFactory } from "@packages/crypto/src/blocks";
+import { Slots } from "@packages/crypto/src/crypto";
+import { IBlock } from "@packages/crypto/src/interfaces";
+import { configManager } from "@packages/crypto/src/managers";
+import * as networks from "@packages/crypto/src/networks";
+import { NetworkName } from "@packages/crypto/src/types";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { dummyBlock, dummyBlock2, dummyBlockSize } from "../fixtures/block";
 
@@ -85,7 +84,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with too much transactions", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -108,7 +107,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with duplicate transactions", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -163,7 +162,7 @@ describe("Block", () => {
         });
 
         it("should verify a block with expiring transactions", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -187,7 +186,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with expired transactions", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -211,7 +210,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with expired transaction timestamp", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -238,7 +237,7 @@ describe("Block", () => {
         });
 
         it("should verify a block with future transaction timestamp if within blocktime", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -268,7 +267,7 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with future transaction timestamp", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -299,7 +298,7 @@ describe("Block", () => {
         });
 
         it("should accept block with future transaction timestamp if milestone is active", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {
@@ -328,7 +327,7 @@ describe("Block", () => {
         });
 
         it("should reject block with future transaction timestamp if milestone is not active", () => {
-            const delegate = new Delegate("super cool passphrase", testnet.network);
+            const delegate = new BIP39("super cool passphrase");
             const optionsDefault = {
                 timestamp: 12345689,
                 previousBlock: {

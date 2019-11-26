@@ -28,6 +28,7 @@ export const Identifiers = {
     DatabaseService: Symbol.for("Service<Database>"),
     EventDispatcherService: Symbol.for("Service<EventDispatcher>"),
     FilesystemService: Symbol.for("Service<Filesystem>"),
+    ForgerService: Symbol.for("Service<Forger>"),
     LogService: Symbol.for("Service<Log>"),
     MixinService: Symbol.for("Service<Mixin>"),
     PipelineService: Symbol.for("Service<Pipeline>"),

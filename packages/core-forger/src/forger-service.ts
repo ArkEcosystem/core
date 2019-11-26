@@ -3,52 +3,86 @@ import { NetworkStateStatus } from "@arkecosystem/core-p2p";
 import { Blocks, Crypto, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { Client } from "./client";
-import { Delegate } from "./delegate";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
+import { Delegate } from "./interfaces";
 
 // todo: review the implementation - quite a mess right now with quite a few responsibilities
 @Container.injectable()
-export class ForgerManager {
+export class ForgerService {
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof ForgerService
+     */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof ForgerService
+     */
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
+    /**
+     * @private
+     * @type {Client}
+     * @memberof ForgerService
+     */
     private client!: Client;
+
+    /**
+     * @private
+     * @type {Delegate[]}
+     * @memberof ForgerService
+     */
     private delegates: Delegate[] = [];
+
+    /**
+     * @private
+     * @type {{ [key: string]: string }}
+     * @memberof ForgerService
+     */
     private usernames: { [key: string]: string } = {};
+
+    /**
+     * @private
+     * @type {boolean}
+     * @memberof ForgerService
+     */
     private isStopped: boolean = false;
+
+    /**
+     * @private
+     * @type {(Contracts.P2P.CurrentRound | undefined)}
+     * @memberof ForgerService
+     */
     private round: Contracts.P2P.CurrentRound | undefined;
+
+    /**
+     * @private
+     * @type {boolean}
+     * @memberof ForgerService
+     */
     private initialized: boolean = false;
 
-    init(options) {
+    /**
+     * @param {*} options
+     * @memberof ForgerService
+     */
+    register(options): void {
         this.client = this.app.resolve<Client>(Client);
-        this.client.init(options.hosts);
+        this.client.register(options.hosts);
     }
 
-    public async startForging(bip38?: string, password?: string): Promise<void> {
-        const secrets = this.app.config("delegates").secrets;
-
-        if (!bip38 && (!secrets || !secrets.length || !Array.isArray(secrets))) {
-            this.logger.warning('No delegate found! Please check your "delegates.json" file and try again.');
-            return;
-        }
-
-        this.delegates = AppUtils.uniq<string>(secrets.map(secret => secret.trim())).map(
-            passphrase => new Delegate(passphrase, Managers.configManager.get("network"), password),
-        );
-
-        if (bip38) {
-            this.logger.info("BIP38 Delegate loaded");
-
-            this.delegates.push(new Delegate(bip38, Managers.configManager.get("network"), password));
-        }
-
-        if (!this.delegates) {
-            this.logger.warning('No delegate found! Please check your "delegates.json" file and try again.');
-            return;
-        }
+    /**
+     * @param {Delegate[]} delegates
+     * @returns {Promise<void>}
+     * @memberof ForgerService
+     */
+    public async boot(delegates: Delegate[]): Promise<void> {
+        this.delegates = delegates;
 
         let timeout: number = 2000;
         try {
@@ -62,11 +96,22 @@ export class ForgerManager {
         }
     }
 
-    public async stopForging(): Promise<void> {
+    /**
+     * @returns {Promise<void>}
+     * @memberof ForgerService
+     */
+    public async dispose(): Promise<void> {
         this.isStopped = true;
+
+        this.client.dispose();
     }
 
-    // @todo: make this private
+    /**
+     * todo: make this private
+     *
+     * @returns {Promise<void>}
+     * @memberof ForgerService
+     */
     public async checkSlot(): Promise<void> {
         try {
             if (this.isStopped) {
@@ -139,6 +184,13 @@ export class ForgerManager {
         }
     }
 
+    /**
+     * @param {Delegate} delegate
+     * @param {Contracts.P2P.CurrentRound} round
+     * @param {Contracts.P2P.NetworkState} networkState
+     * @returns {Promise<void>}
+     * @memberof ForgerService
+     */
     public async forgeNewBlock(
         delegate: Delegate,
         round: Contracts.P2P.CurrentRound,
@@ -194,6 +246,10 @@ export class ForgerManager {
         }
     }
 
+    /**
+     * @returns {Promise<Interfaces.ITransactionData[]>}
+     * @memberof ForgerService
+     */
     public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
         const response: Contracts.P2P.ForgingTransactions = await this.client.getTransactions();
 
@@ -216,6 +272,12 @@ export class ForgerManager {
         return transactions;
     }
 
+    /**
+     * @param {Contracts.P2P.NetworkState} networkState
+     * @param {Delegate} delegate
+     * @returns {boolean}
+     * @memberof ForgerService
+     */
     public isForgingAllowed(networkState: Contracts.P2P.NetworkState, delegate: Delegate): boolean {
         if (networkState.status === NetworkStateStatus.Unknown) {
             this.logger.info("Failed to get network state from client. Will not forge.");
@@ -263,10 +325,21 @@ export class ForgerManager {
         return true;
     }
 
+    /**
+     * @private
+     * @param {string} publicKey
+     * @returns {(Delegate | undefined)}
+     * @memberof ForgerService
+     */
     private isActiveDelegate(publicKey: string): Delegate | undefined {
         return this.delegates.find(delegate => delegate.publicKey === publicKey);
     }
 
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof ForgerService
+     */
     private async loadRound(): Promise<void> {
         this.round = await this.client.getRound();
 
@@ -292,10 +365,19 @@ export class ForgerManager {
         this.initialized = true;
     }
 
+    /**
+     * @private
+     * @param {number} timeout
+     * @memberof ForgerService
+     */
     private checkLater(timeout: number): void {
         setTimeout(() => this.checkSlot(), timeout);
     }
 
+    /**
+     * @private
+     * @memberof ForgerService
+     */
     private printLoadedDelegates(): void {
         const activeDelegates: Delegate[] = this.delegates.filter(delegate => {
             AppUtils.assert.defined<string>(delegate.publicKey);

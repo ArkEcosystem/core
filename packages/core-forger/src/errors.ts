@@ -1,3 +1,8 @@
+/**
+ * @export
+ * @class ForgerError
+ * @extends {Error}
+ */
 export class ForgerError extends Error {
     constructor(message: string) {
         super(message);
@@ -16,12 +21,22 @@ export class ForgerError extends Error {
     }
 }
 
+/**
+ * @export
+ * @class RelayCommunicationError
+ * @extends {ForgerError}
+ */
 export class RelayCommunicationError extends ForgerError {
     constructor(endpoint: string, message: string) {
         super(`Request to ${endpoint} failed, because of '${message}'.`);
     }
 }
 
+/**
+ * @export
+ * @class HostNoResponseError
+ * @extends {ForgerError}
+ */
 export class HostNoResponseError extends ForgerError {
     constructor(host: string) {
         super(`${host} didn't respond. Trying again later.`);

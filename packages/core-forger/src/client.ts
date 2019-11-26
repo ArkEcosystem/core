@@ -7,17 +7,40 @@ import { HostNoResponseError, RelayCommunicationError } from "./errors";
 import { RelayHost } from "./interfaces";
 
 // todo: review the implementation and make use of ioc
+/**
+ * @export
+ * @class Client
+ */
 @Container.injectable()
 export class Client {
+    /**
+     * @type {RelayHost[]}
+     * @memberof Client
+     */
     public hosts: RelayHost[] = [];
+
+    /**
+     * @private
+     * @type {RelayHost}
+     * @memberof Client
+     */
     // @ts-ignore
     private host: RelayHost;
 
+    /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof Client
+     */
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
-    init(hosts: RelayHost[]) {
-        this.hosts = hosts.map(host => {
+    /**
+     * @param {RelayHost[]} hosts
+     * @memberof Client
+     */
+    register(hosts: RelayHost[]) {
+        this.hosts = hosts.map((host: RelayHost) => {
             host.socket = socketCluster.create({
                 ...host,
                 autoReconnectOptions: {
@@ -38,6 +61,24 @@ export class Client {
         this.host = this.hosts[0];
     }
 
+    /**
+     * @memberof Client
+     */
+    dispose(): void {
+        for (const host of this.hosts) {
+            const socket: socketCluster.SCClientSocket | undefined = host.socket;
+
+            if (socket) {
+                socket.disconnect();
+            }
+        }
+    }
+
+    /**
+     * @param {Interfaces.IBlockJson} block
+     * @returns {Promise<void>}
+     * @memberof Client
+     */
     public async broadcastBlock(block: Interfaces.IBlockJson): Promise<void> {
         this.logger.debug(
             `Broadcasting block ${block.height.toLocaleString()} (${block.id}) with ${
@@ -52,6 +93,10 @@ export class Client {
         }
     }
 
+    /**
+     * @returns {Promise<void>}
+     * @memberof Client
+     */
     public async syncWithNetwork(): Promise<void> {
         await this.selectHost();
 
@@ -64,6 +109,10 @@ export class Client {
         }
     }
 
+    /**
+     * @returns {Promise<Contracts.P2P.CurrentRound>}
+     * @memberof Client
+     */
     public async getRound(): Promise<Contracts.P2P.CurrentRound> {
         await this.selectHost();
 
@@ -80,10 +129,24 @@ export class Client {
         }
     }
 
+    /**
+     * @returns {Promise<Contracts.P2P.ForgingTransactions>}
+     * @memberof Client
+     */
+    /**
+     * @returns {Promise<Contracts.P2P.ForgingTransactions>}
+     * @memberof Client
+     */
     public async getTransactions(): Promise<Contracts.P2P.ForgingTransactions> {
         return this.emit<Contracts.P2P.ForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
     }
 
+    /**
+     * @param {string} event
+     * @param {({ error: string } | { activeDelegates: string[] } | Interfaces.IBlockData | Interfaces.ITransactionData)} body
+     * @returns {Promise<void>}
+     * @memberof Client
+     */
     public async emitEvent(
         event: string,
         body: { error: string } | { activeDelegates: string[] } | Interfaces.IBlockData | Interfaces.ITransactionData,
@@ -110,6 +173,10 @@ export class Client {
         }
     }
 
+    /**
+     * @returns {Promise<void>}
+     * @memberof Client
+     */
     public async selectHost(): Promise<void> {
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
@@ -131,6 +198,15 @@ export class Client {
         throw new HostNoResponseError(this.hosts.map(host => host.hostname).join());
     }
 
+    /**
+     * @private
+     * @template T
+     * @param {string} event
+     * @param {Record<string, any>} [data={}]
+     * @param {number} [timeout=4000]
+     * @returns {Promise<T>}
+     * @memberof Client
+     */
     private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
             Utils.assert.defined<socketCluster.SCClientSocket>(this.host.socket);
