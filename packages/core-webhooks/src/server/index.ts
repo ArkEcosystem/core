@@ -1,4 +1,4 @@
-// import { badData } from "@hapi/boom";
+import { badData } from "@hapi/boom";
 import { Container, Contracts, Types, Utils } from "@arkecosystem/core-kernel";
 import Boom from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse } from "@hapi/hapi";
@@ -111,25 +111,28 @@ export class Server {
         options = { ...options };
 
         delete options.enabled;
+        delete options.whitelist;
 
         return {
-            // ...{
-            //     routes: {
-            //         stripTrailingSlash: true,
-            //         payload: {
-            //             /* istanbul ignore next */
-            //             async failAction(request, h, err) {
-            //                 return badData(err.message);
-            //             },
-            //         },
-            //         validate: {
-            //             /* istanbul ignore next */
-            //             async failAction(request, h, err) {
-            //                 return badData(err.message);
-            //             },
-            //         },
-            //     },
-            // },
+            ...{
+                router: {
+                    stripTrailingSlash: true,
+                },
+                routes: {
+                    payload: {
+                        /* istanbul ignore next */
+                        async failAction(request, h, err) {
+                            return badData(err.message);
+                        },
+                    },
+                    validate: {
+                        /* istanbul ignore next */
+                        async failAction(request, h, err) {
+                            return badData(err.message);
+                        },
+                    },
+                },
+            },
             ...options,
         };
     }
