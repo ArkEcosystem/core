@@ -39,6 +39,8 @@ export const Identifiers = {
     TransactionPoolWalletRepository: Symbol.for("Repository<PoolWallet>"),
     TriggerService: Symbol.for("Service<Actions>"),
     ValidationService: Symbol.for("Service<Validation>"),
+    // Factories
+    CacheFactory: Symbol.for("Factory<CacheStore>"),
     // Database
     DatabaseConnection: Symbol.for("Database<Connection>"),
     // Repositories

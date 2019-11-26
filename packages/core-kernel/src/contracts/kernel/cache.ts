@@ -6,7 +6,7 @@
  * @template K
  * @template T
  */
-export interface CacheStore<K = string, T = any> {
+export interface CacheStore<K, T> {
     /**
      * Create a new instance of the cache store.
      *
