@@ -2,7 +2,6 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { WalletsController } from "../controllers/wallets";
-import { orderBy, walletId } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(WalletsController);
@@ -17,7 +16,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         address: Joi.string()
                             .alphanum()
                             .length(34),
@@ -53,7 +52,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         address: Joi.string()
                             .alphanum()
                             .length(34),
@@ -87,7 +86,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: walletId,
+                    id: server.app.schemas.walletId,
                 },
             },
         },
@@ -100,12 +99,12 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: walletId,
+                    id: server.app.schemas.walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         id: Joi.string()
                             .hex()
                             .length(64),
@@ -146,12 +145,12 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: walletId,
+                    id: server.app.schemas.walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         id: Joi.string()
                             .hex()
                             .length(64),
@@ -195,12 +194,12 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: walletId,
+                    id: server.app.schemas.walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         id: Joi.string()
                             .hex()
                             .length(64),
@@ -247,7 +246,7 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: walletId,
+                    id: server.app.schemas.walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
@@ -266,13 +265,13 @@ export const register = (server: Hapi.Server): void => {
         options: {
             validate: {
                 params: {
-                    id: walletId,
+                    id: server.app.schemas.walletId,
                 },
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
                         isExpired: Joi.bool(),
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                     },
                 },
             },
@@ -288,7 +287,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                     },
                 },
                 payload: {

@@ -53,47 +53,40 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
             .min(0)
             .max(100),
     }),
+    searchCriteria: (field: string, value: any, operator: string[]) =>
+        Joi.object().keys({
+            field: Joi.string()
+                .only(field)
+                .required(),
+            value: value.required(),
+            operator: Joi.string()
+                .only(operator)
+                .required(),
+        }),
+    numberFixedOrBetween: Joi.alternatives(
+        Joi.number()
+            .integer()
+            .min(0),
+        Joi.object().keys({
+            from: Joi.number()
+                .integer()
+                .min(0),
+            to: Joi.number()
+                .integer()
+                .min(0),
+        }),
+    ),
+    walletId: Joi.alternatives().try(
+        Joi.string()
+            .regex(/^[a-z0-9!@$&_.]+$/)
+            .min(1)
+            .max(20),
+        Joi.string()
+            .alphanum()
+            .length(34),
+        Joi.string()
+            .hex()
+            .length(66),
+    ),
+    orderBy: Joi.string().regex(/^[a-z._]{1,40}:(asc|desc)$/i, "orderBy query parameter (<iteratee>:<direction>)"),
 });
-
-export const searchCriteria = (field: string, value: any, operator: string[]) =>
-    Joi.object().keys({
-        field: Joi.string()
-            .only(field)
-            .required(),
-        value: value.required(),
-        operator: Joi.string()
-            .only(operator)
-            .required(),
-    });
-
-export const numberFixedOrBetween = Joi.alternatives(
-    Joi.number()
-        .integer()
-        .min(0),
-    Joi.object().keys({
-        from: Joi.number()
-            .integer()
-            .min(0),
-        to: Joi.number()
-            .integer()
-            .min(0),
-    }),
-);
-
-export const walletId = Joi.alternatives().try(
-    Joi.string()
-        .regex(/^[a-z0-9!@$&_.]+$/)
-        .min(1)
-        .max(20),
-    Joi.string()
-        .alphanum()
-        .length(34),
-    Joi.string()
-        .hex()
-        .length(66),
-);
-
-export const orderBy = Joi.string().regex(
-    /^[a-z._]{1,40}:(asc|desc)$/i,
-    "orderBy query parameter (<iteratee>:<direction>)",
-);

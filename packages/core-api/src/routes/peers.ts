@@ -2,7 +2,6 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { PeersController } from "../controllers/peers";
-import { orderBy } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(PeersController);
@@ -19,7 +18,7 @@ export const register = (server: Hapi.Server): void => {
                     ...{
                         ip: Joi.string().ip(),
                         version: Joi.string(),
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                     },
                 },
             },

@@ -1071,10 +1071,17 @@
   dependencies:
     "@hapi/hoek" "8.x.x"
 
-"@hapi/boom@7.x.x", "@hapi/boom@^7.4.2", "@hapi/boom@^7.4.3":
+"@hapi/boom@7.x.x", "@hapi/boom@^7.4.3":
   version "7.4.11"
   resolved "https://registry.yarnpkg.com/@hapi/boom/-/boom-7.4.11.tgz#37af8417eb9416aef3367aa60fa04a1a9f1fc262"
   integrity sha512-VSU/Cnj1DXouukYxxkes4nNJonCnlogHvIff1v1RVoN4xzkKhMXX+GRmb3NyH1iar10I9WFPDv2JPwfH3GaV0A==
+  dependencies:
+    "@hapi/hoek" "8.x.x"
+
+"@hapi/boom@^8.0.1":
+  version "8.0.1"
+  resolved "https://registry.yarnpkg.com/@hapi/boom/-/boom-8.0.1.tgz#13f1f2f2a3abfb0787c79e35e238c8aff6aa1661"
+  integrity sha512-SnBM2GzEYEA6AGFKXBqNLWXR3uNBui0bkmklYXX1gYtevVhDTy2uakwkSauxvIWMtlANGRhzChYg95If3FWCwA==
   dependencies:
     "@hapi/hoek" "8.x.x"
 
@@ -1141,7 +1148,7 @@
   resolved "https://registry.yarnpkg.com/@hapi/formula/-/formula-1.2.0.tgz#994649c7fea1a90b91a0a1e6d983523f680e10cd"
   integrity sha512-UFbtbGPjstz0eWHb+ga/GM3Z9EzqKXFWIbSOFURU0A/Gku0Bky4bCk9/h//K2Xr3IrCfjFNhMm4jyZ5dbCewGA==
 
-"@hapi/hapi@^18.3.2":
+"@hapi/hapi@^18.3.2", "@hapi/hapi@^18.4.0":
   version "18.4.0"
   resolved "https://registry.yarnpkg.com/@hapi/hapi/-/hapi-18.4.0.tgz#607c33e31741bacba107011e2e24eaf431d8cc7a"
   integrity sha512-uk9zqknRLcNVQKgrPURm85DqkdroWP8eDRekh/IPoKvC4VjdZSn6EH2eUriOwyud/CldeBS3HDIJ/PtRj3VxDQ==
@@ -1190,7 +1197,7 @@
     "@hapi/cryptiles" "4.x.x"
     "@hapi/hoek" "8.x.x"
 
-"@hapi/joi@15.x.x", "@hapi/joi@^15.1.0", "@hapi/joi@^15.1.1":
+"@hapi/joi@15.x.x", "@hapi/joi@^15.1.1":
   version "15.1.1"
   resolved "https://registry.yarnpkg.com/@hapi/joi/-/joi-15.1.1.tgz#c675b8a71296f02833f8d6d243b34c57b8ce19d7"
   integrity sha512-entf8ZMOK8sc+8YfeOlM8pCfg3b5+WZIKBfUaaJT8UsjAAPjartzxIYm3TIbjvA4u+u++KbcXD38k682nVHDAQ==
@@ -1204,6 +1211,17 @@
   version "16.1.7"
   resolved "https://registry.yarnpkg.com/@hapi/joi/-/joi-16.1.7.tgz#360857223a87bb1f5f67691537964c1b4908ed93"
   integrity sha512-anaIgnZhNooG3LJLrTFzgGALTiO97zRA1UkvQHm9KxxoSiIzCozB3RCNCpDnfhTJD72QlrHA8nwGmNgpFFCIeg==
+  dependencies:
+    "@hapi/address" "^2.1.2"
+    "@hapi/formula" "^1.2.0"
+    "@hapi/hoek" "^8.2.4"
+    "@hapi/pinpoint" "^1.0.2"
+    "@hapi/topo" "^3.1.3"
+
+"@hapi/joi@^16.1.8":
+  version "16.1.8"
+  resolved "https://registry.yarnpkg.com/@hapi/joi/-/joi-16.1.8.tgz#84c1f126269489871ad4e2decc786e0adef06839"
+  integrity sha512-wAsVvTPe+FwSrsAurNt5vkg3zo+TblvC5Bb1zMVK6SJzZqw9UrJnexxR+76cpePmtUZKHAPxcQ2Bf7oVHyahhg==
   dependencies:
     "@hapi/address" "^2.1.2"
     "@hapi/formula" "^1.2.0"
@@ -2610,7 +2628,7 @@
     "@types/tough-cookie" "*"
     form-data "^2.5.0"
 
-"@types/hapi__boom@^7.4.0", "@types/hapi__boom@^7.4.1":
+"@types/hapi__boom@^7.4.1":
   version "7.4.1"
   resolved "https://registry.yarnpkg.com/@types/hapi__boom/-/hapi__boom-7.4.1.tgz#06439d7637245dcbe6dd6548d2a91f2c1243d80b"
   integrity sha512-x/ZK824GomII7Yoei/nMoB46NQcSfGe0iVpZK3uUivxIAfUUSzRvu8RQO7ZkKapIgzgshHZc+GR+z/BQ8l2VLg==
@@ -2620,12 +2638,17 @@
   resolved "https://registry.yarnpkg.com/@types/hapi__joi/-/hapi__joi-16.0.1.tgz#ec227341ec7ce2091066cccebc3b14f6c527ba6b"
   integrity sha512-U4I9Pfk4qH6TCXlg55qOc3F730QndZi86hGWlZHPHY7b3J+MCDIAO6EejbkaLWk7U15v+jn2J3GRVKD4ruhS2Q==
 
-"@types/hapi__joi@^15.0.2", "@types/hapi__joi@^15.0.3":
+"@types/hapi__joi@^15.0.3":
   version "15.0.4"
   resolved "https://registry.yarnpkg.com/@types/hapi__joi/-/hapi__joi-15.0.4.tgz#49e2e1e6da15ade0fdd6db4daf94aecb07bb391b"
   integrity sha512-VSS6zc7AIOdHVXmqKaGNPYl8eGrMvWi0R5pt3evJL3UdxO8XS28/XAkBXNyLQoymHxhMd4bF3o1U9mZkWDeN8w==
   dependencies:
     "@types/hapi__joi" "*"
+
+"@types/hapi__joi@^16.0.3":
+  version "16.0.3"
+  resolved "https://registry.yarnpkg.com/@types/hapi__joi/-/hapi__joi-16.0.3.tgz#8ed6a0bd3a3fc40c0b5ff41b399004c5f9bb0b0b"
+  integrity sha512-gPxCfPcdZx9220GP4MFlhyBonQuyy8c/NZkGJkdtGipaExFzNLGYzkH2eG+yo0eEoVWdSC/JxhokSR/IHfap8Q==
 
 "@types/hapi__sntp@^3.1.0":
   version "3.1.0"
@@ -2940,13 +2963,6 @@
   version "2.3.5"
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.5.tgz#9da44ed75571999b65c37b60c9b2b88db54c585d"
   integrity sha512-SCcK7mvGi3+ZNz833RRjFIxrn4gI1PPR3NtuIS+6vMkvmsGjosqTJwRt5bAEFLRz+wtJMWv8+uOnZf2hi2QXTg==
-
-"@types/uuid@^3.4.5":
-  version "3.4.5"
-  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-3.4.5.tgz#d4dc10785b497a1474eae0ba7f0cb09c0ddfd6eb"
-  integrity sha512-MNL15wC3EKyw1VLF+RoVO4hJJdk9t/Hlv3rt1OL65Qvuadm4BYo6g9ZJQqoq7X8NBFSsQXgAujWciovh2lpVjA==
-  dependencies:
-    "@types/node" "*"
 
 "@types/uuid@^3.4.6":
   version "3.4.6"

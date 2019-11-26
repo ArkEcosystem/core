@@ -3,7 +3,6 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { TransactionsController } from "../controllers/transactions";
-import { numberFixedOrBetween, orderBy, searchCriteria } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(TransactionsController);
@@ -18,7 +17,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         id: Joi.string()
                             .hex()
                             .length(64),
@@ -153,47 +152,51 @@ export const register = (server: Hapi.Server): void => {
                     },
                 },
                 payload: {
-                    orderBy,
+                    orderBy: server.app.schemas.orderBy,
                     limit: Joi.number().min(0),
                     offset: Joi.number().min(0),
                     criteria: Joi.array().items(
-                        searchCriteria(
+                        server.app.schemas.searchCriteria(
                             "id",
                             Joi.string()
                                 .hex()
                                 .length(64),
                             ["equal", "in", "like"],
                         ),
-                        searchCriteria("blockId", server.app.schemas.blockId, ["equal", "in", "like"]),
-                        searchCriteria(
+                        server.app.schemas.searchCriteria("blockId", server.app.schemas.blockId, [
+                            "equal",
+                            "in",
+                            "like",
+                        ]),
+                        server.app.schemas.searchCriteria(
                             "type",
                             Joi.number()
                                 .integer()
                                 .min(0),
                             ["equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
                         ),
-                        searchCriteria(
+                        server.app.schemas.searchCriteria(
                             "typeGroup",
                             Joi.number()
                                 .integer()
                                 .min(0),
                             ["equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
                         ),
-                        searchCriteria(
+                        server.app.schemas.searchCriteria(
                             "version",
                             Joi.number()
                                 .integer()
                                 .positive(),
                             ["equal", "in", "like", "lessThanEqual", "greaterThanEqual"],
                         ),
-                        searchCriteria(
+                        server.app.schemas.searchCriteria(
                             "senderPublicKey",
                             Joi.string()
                                 .hex()
                                 .length(66),
                             ["equal", "in", "like"],
                         ),
-                        searchCriteria(
+                        server.app.schemas.searchCriteria(
                             "senderId",
                             Joi.alternatives(
                                 server.app.schemas.address,
@@ -205,7 +208,7 @@ export const register = (server: Hapi.Server): void => {
                             ),
                             ["equal", "in", "like"],
                         ),
-                        searchCriteria(
+                        server.app.schemas.searchCriteria(
                             "recipientId",
                             Joi.alternatives(
                                 server.app.schemas.address,
@@ -217,8 +220,12 @@ export const register = (server: Hapi.Server): void => {
                             ),
                             ["equal", "in", "like"],
                         ),
-                        searchCriteria("vendorField", Joi.string().max(255, "utf8"), ["equal", "in", "like"]),
-                        searchCriteria("nonce", numberFixedOrBetween, [
+                        server.app.schemas.searchCriteria("vendorField", Joi.string().max(255, "utf8"), [
+                            "equal",
+                            "in",
+                            "like",
+                        ]),
+                        server.app.schemas.searchCriteria("nonce", server.app.schemas.numberFixedOrBetween, [
                             "between",
                             "equal",
                             "in",
@@ -226,7 +233,7 @@ export const register = (server: Hapi.Server): void => {
                             "lessThanEqual",
                             "greaterThanEqual",
                         ]),
-                        searchCriteria("amount", numberFixedOrBetween, [
+                        server.app.schemas.searchCriteria("amount", server.app.schemas.numberFixedOrBetween, [
                             "between",
                             "equal",
                             "in",
@@ -234,7 +241,7 @@ export const register = (server: Hapi.Server): void => {
                             "lessThanEqual",
                             "greaterThanEqual",
                         ]),
-                        searchCriteria("fee", numberFixedOrBetween, [
+                        server.app.schemas.searchCriteria("fee", server.app.schemas.numberFixedOrBetween, [
                             "between",
                             "equal",
                             "in",
@@ -242,7 +249,7 @@ export const register = (server: Hapi.Server): void => {
                             "lessThanEqual",
                             "greaterThanEqual",
                         ]),
-                        searchCriteria("timestamp", numberFixedOrBetween, [
+                        server.app.schemas.searchCriteria("timestamp", server.app.schemas.numberFixedOrBetween, [
                             "between",
                             "equal",
                             "in",
@@ -250,7 +257,7 @@ export const register = (server: Hapi.Server): void => {
                             "lessThanEqual",
                             "greaterThanEqual",
                         ]),
-                        searchCriteria("asset", Joi.object(), ["contains"]),
+                        server.app.schemas.searchCriteria("asset", Joi.object(), ["contains"]),
                     ),
                 },
             },

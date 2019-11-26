@@ -29,6 +29,9 @@
                 "package": "@arkecosystem/core-api"
             },
             {
+                "package": "@arkecosystem/core-magistrate-api"
+            },
+            {
                 "package": "@arkecosystem/core-webhooks"
             },
             {
@@ -64,6 +67,9 @@
             },
             {
                 "package": "@arkecosystem/core-api"
+            },
+            {
+                "package": "@arkecosystem/core-magistrate-api"
             },
             {
                 "package": "@arkecosystem/core-webhooks"

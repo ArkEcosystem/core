@@ -1,5 +1,5 @@
-import { badData } from "@hapi/boom";
 import { Container, Contracts, Types, Utils } from "@arkecosystem/core-kernel";
+import { badData } from "@hapi/boom";
 import Boom from "@hapi/boom";
 import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse } from "@hapi/hapi";
 import { randomBytes } from "crypto";

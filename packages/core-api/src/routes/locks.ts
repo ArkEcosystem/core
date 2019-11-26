@@ -3,7 +3,6 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { LocksController } from "../controllers/locks";
-import { orderBy } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(LocksController);
@@ -18,7 +17,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         recipientId: Joi.string()
                             .alphanum()
                             .length(34),
@@ -69,7 +68,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                     },
                 },
                 payload: {
@@ -128,7 +127,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                     },
                 },
                 payload: {

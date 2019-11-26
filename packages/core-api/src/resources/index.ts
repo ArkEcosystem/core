@@ -1,6 +1,4 @@
 export * from "./block";
-export * from "./bridgechain";
-export * from "./business";
 export * from "./delegate";
 export * from "./fee-statistics";
 export * from "./lock";

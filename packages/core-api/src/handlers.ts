@@ -18,12 +18,6 @@ export = {
         for (const handler of handlers) {
             handler.register(server);
         }
-
-        // // TODO: hook into core-api instead in V3
-        // if (app.has("core-magistrate-transactions")) {
-        //     Businesses.register(server);
-        //     Bridgechains.register(server);
-        // }
     },
     name: "Public API",
     version: "2.0.0",

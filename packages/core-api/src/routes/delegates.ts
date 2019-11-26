@@ -3,7 +3,6 @@ import Hapi from "@hapi/hapi";
 import Joi from "@hapi/joi";
 
 import { DelegatesController } from "../controllers/delegates";
-import { orderBy } from "../schemas";
 
 export const register = (server: Hapi.Server): void => {
     const controller = server.app.app.resolve(DelegatesController);
@@ -18,7 +17,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         type: Joi.string().valid("resigned", "never-forged"),
                         address: Joi.string()
                             .alphanum()
@@ -73,7 +72,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         address: Joi.string()
                             .alphanum()
                             .length(34),
@@ -115,7 +114,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                         id: server.app.schemas.blockId,
                         version: Joi.number()
                             .integer()
@@ -163,7 +162,7 @@ export const register = (server: Hapi.Server): void => {
                 query: {
                     ...server.app.schemas.pagination,
                     ...{
-                        orderBy,
+                        orderBy: server.app.schemas.orderBy,
                     },
                 },
                 payload: {

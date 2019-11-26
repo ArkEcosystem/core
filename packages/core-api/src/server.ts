@@ -149,8 +149,10 @@ export class Server {
 
         return {
             ...{
-                routes: {
+                router: {
                     stripTrailingSlash: true,
+                },
+                routes: {
                     payload: {
                         /* istanbul ignore next */
                         async failAction(request, h, err) {
