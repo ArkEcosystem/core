@@ -1,6 +1,6 @@
 import { Validator } from "../../contracts/kernel/validation";
 import { Manager } from "../../support/manager";
-import { JoiValidator } from "./drivers";
+import { JoiValidator } from "./drivers/joi";
 
 /**
  * @export

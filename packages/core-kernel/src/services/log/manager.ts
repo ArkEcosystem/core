@@ -1,6 +1,6 @@
 import { Logger } from "../../contracts/kernel/log";
 import { Manager } from "../../support/manager";
-import { MemoryLogger } from "./drivers";
+import { MemoryLogger } from "./drivers/memory";
 
 /**
  * @export
