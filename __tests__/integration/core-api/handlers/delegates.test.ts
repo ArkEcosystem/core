@@ -1,9 +1,10 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Blocks, Managers } from "@arkecosystem/crypto";
+import { Interfaces, Managers } from "@arkecosystem/crypto";
 import { Contracts, Container, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
-import { ApiHelpers, Generators } from "@packages/core-test-framework/src";
+
+import { ApiHelpers, Factories } from "@packages/core-test-framework/src";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
 import { Repositories } from "@arkecosystem/core-database";
@@ -558,9 +559,11 @@ describe("API 2.0 - Delegates", () => {
 
     describe("GET /delegates/:id/blocks", () => {
         it("should GET all blocks for a delegate by the given identifier", async () => {
-            const block2 = Blocks.BlockFactory.fromJson(
-                Generators.generateBlocks({ network: Managers.configManager.all() })[0],
-            );
+            const block2: Interfaces.IBlock = Factories.factory("Block")
+                .withOptions({
+                    config: Managers.configManager.all(),
+                })
+                .make();
 
             // save a new block so that we can make the request with generatorPublicKey
             await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([block2]);

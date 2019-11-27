@@ -3,9 +3,10 @@ import "@packages/core-test-framework/src/matchers";
 import { setUp, tearDown } from "../__support__/setup";
 
 import { Contracts, Container } from "@arkecosystem/core-kernel";
-import { ApiHelpers, Generators } from "@packages/core-test-framework/src";
-import { Blocks, Managers } from "@arkecosystem/crypto";
+import { Interfaces,Managers } from "@arkecosystem/crypto";
 import { Repositories } from "@arkecosystem/core-database";
+
+import { ApiHelpers, Factories } from "@packages/core-test-framework/src";
 
 let genesisBlock;
 
@@ -223,9 +224,11 @@ describe("API 2.0 - Blocks", () => {
         });
 
         it("should POST a search for blocks with the exact specified previousBlock", async () => {
-            const block2 = Blocks.BlockFactory.fromJson(
-                Generators.generateBlocks({ network: Managers.configManager.all() })[0],
-            );
+            const block2: Interfaces.IBlock = Factories.factory("Block")
+                .withOptions({
+                    config: Managers.configManager.all(),
+                })
+                .make();
 
             // save a new block so that we can make the request with previousBlock
             await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([block2]);
@@ -481,9 +484,11 @@ describe("API 2.0 - Blocks", () => {
         });
 
         it("should POST a search for blocks with the exact specified totalAmount", async () => {
-            const nextBlock = Blocks.BlockFactory.fromJson(
-                Generators.generateBlocks({ network: Managers.configManager.all() })[0],
-            );
+            const nextBlock: Interfaces.IBlock = Factories.factory("Block")
+                .withOptions({
+                    config: Managers.configManager.all(),
+                })
+                .make();
 
             await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([nextBlock]);
 
@@ -513,9 +518,11 @@ describe("API 2.0 - Blocks", () => {
         });
 
         it("should POST a search for blocks with the specified totalAmount range", async () => {
-            const nextBlock = Blocks.BlockFactory.fromJson(
-                Generators.generateBlocks({ network: Managers.configManager.all() })[0],
-            );
+            const nextBlock: Interfaces.IBlock = Factories.factory("Block")
+                .withOptions({
+                    config: Managers.configManager.all(),
+                })
+                .make();
 
             await app.get<Repositories.BlockRepository>(Container.Identifiers.BlockRepository).saveBlocks([nextBlock]);
 

@@ -1,14 +1,14 @@
 import "jest-extended";
 
 import ajv from "ajv";
-import { ITransactionData } from "../../../../packages/crypto/src/interfaces/transactions";
+import { IBlock, ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { BigNumber } from "../../../../packages/crypto/src/utils";
 import { validator } from "../../../../packages/crypto/src/validation";
 
-import { Generators } from "@packages/core-test-framework/src";
+import { Factories, Generators } from "@packages/core-test-framework/src";
 
 describe("validator", () => {
     describe("validate", () => {
@@ -262,37 +262,33 @@ describe("validator", () => {
             });
 
             it("should be ok", () => {
-                expect(
-                    validator.validate(
-                        "block",
-                        Generators.generateBlocks({
-                            transactions: 10,
-                            network: new Generators.GenerateNetwork().generateCrypto(), // todo: somehow get rid of this - node module cache mess
-                            nonce: "0",
-                        })[0],
-                    ).error,
-                ).toBeUndefined();
+                const block: IBlock = Factories.factory("Block")
+                    .withOptions({
+                        config: configManager.all(),
+                        nonce: "0",
+                        transactionsCount: 10,
+                    })
+                    .make();
 
+                expect(validator.validate("block", block.toJson()).error).toBeUndefined();
                 expect(validator.validate("block", configManager.get("genesisBlock")).error).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                // todo: completely wrap this into a function to hide the generation and setting of the config?
-                const config = new Generators.GenerateNetwork().generateCrypto();
-                configManager.setConfig(config);
+                const block: IBlock = Factories.factory("Block")
+                    .withOptions({
+                        config: configManager.all(),
+                        nonce: "0",
+                        transactionsCount: 10,
+                    })
+                    .make();
 
-                const block = Generators.generateBlocks({
-                    transactions: 10,
-                    network: config, // todo: somehow get rid of this - node module cache mess
-                    nonce: "0",
-                })[0];
-
-                block.numberOfTransactions = 1;
-                expect(validator.validate("block", block).error).not.toBeUndefined();
-                block.numberOfTransactions = 11;
-                expect(validator.validate("block", block).error).not.toBeUndefined();
-                block.numberOfTransactions = 10;
-                expect(validator.validate("block", block).error).toBeUndefined();
+                block.data.numberOfTransactions = 1;
+                expect(validator.validate("block", block.toJson()).error).not.toBeUndefined();
+                block.data.numberOfTransactions = 11;
+                expect(validator.validate("block", block.toJson()).error).not.toBeUndefined();
+                block.data.numberOfTransactions = 10;
+                expect(validator.validate("block", block.toJson()).error).toBeUndefined();
                 block.transactions[0] = {} as any;
                 expect(validator.validate("block", block).error).not.toBeUndefined();
                 block.transactions[0] = 1234 as any;
