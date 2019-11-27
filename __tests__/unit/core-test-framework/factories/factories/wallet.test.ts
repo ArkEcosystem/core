@@ -1,15 +1,7 @@
 import "jest-extended";
 
+import { Wallets } from "@arkecosystem/core-state";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
-
-interface Wallet {
-    address: string;
-    publicKey: string;
-    privateKey: string;
-    wif: string;
-    passphrase: string;
-    secondPassphrase?: string;
-}
 
 let factory: FactoryBuilder;
 
@@ -20,36 +12,23 @@ beforeEach(() => {
 });
 
 describe("WalletFactory", () => {
-    it("should make a wallet with a single passphrase", () => {
-        const entity: Wallet = factory.get("Wallet").make<Wallet>() as Wallet;
+    it("should make a wallet", () => {
+        const entity: Wallets.Wallet = factory.get("Wallet").make<Wallets.Wallet>();
 
-        expect(entity).toContainAllKeys(["address", "publicKey", "privateKey", "wif", "passphrase"]);
+        expect(entity).toBeInstanceOf(Wallets.Wallet);
         expect(entity.address).toBeString();
         expect(entity.publicKey).toBeString();
-        expect(entity.privateKey).toBeString();
-        expect(entity.wif).toBeString();
-        expect(entity.passphrase).toBeString();
     });
 
-    it("should make a wallet with a second passphrase", () => {
-        const entity: Wallet = factory
+    it("should make a wallet with a second public key", () => {
+        const entity: Wallets.Wallet = factory
             .get("Wallet")
-            .withStates("secondPassphrase")
-            .make<Wallet>() as Wallet;
+            .withStates("secondPublicKey")
+            .make<Wallets.Wallet>();
 
-        expect(entity).toContainAllKeys([
-            "address",
-            "publicKey",
-            "privateKey",
-            "wif",
-            "passphrase",
-            "secondPassphrase",
-        ]);
+        expect(entity).toBeInstanceOf(Wallets.Wallet);
         expect(entity.address).toBeString();
         expect(entity.publicKey).toBeString();
-        expect(entity.privateKey).toBeString();
-        expect(entity.wif).toBeString();
-        expect(entity.passphrase).toBeString();
-        expect(entity.secondPassphrase).toBeString();
+        expect(entity.getAttribute("secondPublicKey")).toBeString();
     });
 });
