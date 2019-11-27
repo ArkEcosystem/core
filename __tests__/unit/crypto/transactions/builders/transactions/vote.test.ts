@@ -1,5 +1,7 @@
 import "jest-extended";
 
+import { Factories, Generators } from "@packages/core-test-framework/src";
+
 import { configManager } from "@packages/crypto/src/managers";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { Keys } from "@packages/crypto/src/identities";
@@ -7,20 +9,20 @@ import { BuilderFactory, VoteTransaction } from "@packages/crypto/src/transactio
 import { VoteBuilder } from "@packages/crypto/src/transactions/builders/transactions/vote";
 import * as Utils from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework";
-
 let builder: VoteBuilder;
 let identity;
 
-beforeEach(() => {
+beforeAll(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
     const config = new Generators.GenerateNetwork().generateCrypto();
     configManager.setConfig(config);
 
-    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
-
-    builder = BuilderFactory.vote();
+    identity = Factories.factory("Identity")
+        .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
+        .make();
 });
+
+beforeEach(() => (builder = BuilderFactory.vote()));
 
 describe("Vote Transaction", () => {
     describe("verify", () => {
@@ -64,9 +66,10 @@ describe("Vote Transaction", () => {
 
     describe("sign", () => {
         it("establishes the recipient id", () => {
-            jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
+            jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
 
             builder.sign(identity.bip39);
+
             expect(builder.data.recipientId).toBe(identity.address);
         });
     });

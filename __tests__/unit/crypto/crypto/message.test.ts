@@ -1,19 +1,26 @@
 import "jest-extended";
 
-import { configManager } from "../../../../packages/crypto/src/managers/config";
-import { Message } from "../../../../packages/crypto/src/crypto/message";
+import { configManager } from "@packages/crypto/src/managers";
+import { Message } from "@packages/crypto/src/crypto/message";
 
-import { Generators } from "@packages/core-test-framework";
+import { Factories, Generators } from "@packages/core-test-framework/src";
 
+let config;
 let identity;
 let signedMessageEntries;
 
-beforeEach(() => {
+beforeAll(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = new Generators.GenerateNetwork().generateCrypto();
-    configManager.setConfig(config);
+    config = new Generators.GenerateNetwork().generateCrypto();
 
-    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
+    configManager.setConfig(config);
+});
+
+beforeEach(() => {
+    identity = Factories.factory("Identity")
+        .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
+        .make();
+
     signedMessageEntries = [
         ["publicKey", identity.publicKey],
         [
@@ -27,7 +34,7 @@ beforeEach(() => {
 describe("Message", () => {
     describe("sign", () => {
         it("should sign a message", () => {
-            expect(Message.sign("test", identity.bip39)).toContainAllEntries(signedMessageEntries);
+            expect(Message.sign("test", identity.passphrase)).toContainAllEntries(signedMessageEntries);
         });
     });
 
@@ -37,15 +44,16 @@ describe("Message", () => {
         });
 
         it("should sign a message and match passphrase", () => {
-            const signedMessage = Message.sign("test", identity.bip39);
+            const signedMessage = Message.sign("test", identity.passphrase);
             const signedWifMessage = Message.signWithWif("test", identity.wif);
+
             expect(signedMessage).toEqual(signedWifMessage);
         });
     });
 
     describe("verify", () => {
         it("should verify a signed message", () => {
-            const signedMessage = Message.sign("test", identity.bip39);
+            const signedMessage = Message.sign("test", identity.passphrase);
             expect(Message.verify(signedMessage)).toBe(true);
         });
 

@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@arkecosystem/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 import { Wallets } from "@arkecosystem/core-state";
 import { Managers, Utils } from "@arkecosystem/crypto";

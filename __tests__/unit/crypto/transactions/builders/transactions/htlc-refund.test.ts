@@ -7,7 +7,7 @@ import { HtlcRefundBuilder } from "@packages/crypto/src/transactions/builders/tr
 import { HtlcRefundTransaction } from "@packages/crypto/src/transactions/types/htlc-refund";
 import { BigNumber } from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: HtlcRefundBuilder;
 

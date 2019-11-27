@@ -8,7 +8,7 @@ import { TransactionSchema } from "../../../../packages/crypto/src/transactions/
 import { BigNumber } from "../../../../packages/crypto/src/utils";
 import { validator } from "../../../../packages/crypto/src/validation";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 describe("validator", () => {
     describe("validate", () => {

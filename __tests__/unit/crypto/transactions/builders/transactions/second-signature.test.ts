@@ -7,20 +7,22 @@ import { Keys } from "@packages/crypto/src/identities";
 import { BuilderFactory, SecondSignatureRegistrationTransaction } from "@packages/crypto/src/transactions";
 import { SecondSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/second-signature";
 
-import { Generators } from "@packages/core-test-framework";
+import { Factories, Generators } from "@packages/core-test-framework/src";
 
 let builder: SecondSignatureBuilder;
 let identity;
 
-beforeEach(() => {
+beforeAll(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
     const config = new Generators.GenerateNetwork().generateCrypto();
     configManager.setConfig(config);
 
-    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
-
-    builder = BuilderFactory.secondSignature();
+    identity = Factories.factory("Identity")
+        .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
+        .make();
 });
+
+beforeEach(() => (builder = BuilderFactory.secondSignature()));
 
 describe("Second Signature Transaction", () => {
     describe("verify", () => {
@@ -44,7 +46,7 @@ describe("Second Signature Transaction", () => {
 
     describe("signatureAsset", () => {
         it("establishes the signature on the asset", () => {
-            jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
+            jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
 
             builder.signatureAsset(identity.bip39);
 

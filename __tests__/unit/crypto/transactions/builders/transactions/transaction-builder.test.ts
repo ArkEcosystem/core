@@ -3,7 +3,15 @@ import { configManager } from "@packages/crypto/src/managers";
 import { BuilderFactory, Signer } from "@packages/crypto/src/transactions";
 import { BigNumber } from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework";
+import { Factories, Generators } from "@packages/core-test-framework/src";
+
+let config;
+beforeAll(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    config = new Generators.GenerateNetwork().generateCrypto();
+
+    configManager.setConfig(config);
+});
 
 describe.each([
     BuilderFactory.transfer,
@@ -23,17 +31,16 @@ describe.each([
         let identitySecond;
 
         beforeEach(() => {
-            // todo: completely wrap this into a function to hide the generation and setting of the config?
-            const config = new Generators.GenerateNetwork().generateCrypto();
-            configManager.setConfig(config);
+            identity = Factories.factory("Identity")
+                .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
+                .make();
 
-            identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
-            identitySecond = Generators.generateIdentity("this is a top secret second passphrase", config.network);
+            identitySecond = Factories.factory("Identity")
+                .withOptions({ passphrase: "this is a top secret second passphrase", network: config.network })
+                .make();
         });
 
-        afterEach(() => {
-            jest.restoreAllMocks();
-        });
+        afterEach(() => jest.restoreAllMocks());
 
         describe("inherits TransactionBuilder", () => {
             it("should have the essential properties", () => {
@@ -156,12 +163,14 @@ describe.each([
             });
 
             it("establishes the public key of the sender", () => {
+                const spyKeys = jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
                 const spySign = jest.spyOn(Signer, "sign").mockImplementationOnce(jest.fn());
 
                 const builder = provider();
                 builder.sign(identity.bip39);
 
                 expect(builder.data.senderPublicKey).toBe(identity.keys.publicKey);
+                expect(spyKeys).toHaveBeenCalledWith(identity.bip39);
                 expect(spySign).toHaveBeenCalledWith((builder as any).getSigningObject(), identity.keys);
             });
         });

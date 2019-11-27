@@ -7,7 +7,7 @@ import { BuilderFactory, MultiPaymentTransaction } from "@packages/crypto/src/tr
 import { MultiPaymentBuilder } from "@packages/crypto/src/transactions/builders/transactions/multi-payment";
 import { BigNumber } from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: MultiPaymentBuilder;
 

@@ -9,7 +9,7 @@ import { configManager } from "../../../../packages/crypto/src/managers";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { createRandomTx } from "./__support__";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 beforeEach(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?

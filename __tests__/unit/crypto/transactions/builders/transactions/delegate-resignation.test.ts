@@ -7,7 +7,7 @@ import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
 import { DelegateResignationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-resignation";
 import { BigNumber } from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: DelegateResignationBuilder;
 

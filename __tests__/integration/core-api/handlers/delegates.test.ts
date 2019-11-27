@@ -3,7 +3,7 @@ import "@packages/core-test-framework/src/matchers";
 import { Blocks, Managers } from "@arkecosystem/crypto";
 import { Contracts, Container, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
-import { ApiHelpers, Generators } from "@arkecosystem/core-test-framework";
+import { ApiHelpers, Generators } from "@packages/core-test-framework/src";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
 import { Repositories } from "@arkecosystem/core-database";

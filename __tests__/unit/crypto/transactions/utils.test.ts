@@ -18,7 +18,7 @@ import {
 import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 let transactionData: ITransactionData;
 let transactionDataJSON;

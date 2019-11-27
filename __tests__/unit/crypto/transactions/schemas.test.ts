@@ -9,7 +9,7 @@ import { TransactionTypeFactory } from "../../../../packages/crypto/src/transact
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 let transaction;
 let transactionSchema: TransactionSchema;

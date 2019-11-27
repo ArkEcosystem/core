@@ -400,6 +400,7 @@ export class GenerateNetwork {
             fee: "0",
             timestamp: 0,
         });
+
         transaction.signature = Transactions.Signer.sign(transaction, wallet.keys);
         transaction.id = Transactions.Utils.getId(transaction);
 

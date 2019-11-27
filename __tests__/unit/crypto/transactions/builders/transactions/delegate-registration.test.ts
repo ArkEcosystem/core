@@ -7,7 +7,7 @@ import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
 import { DelegateRegistrationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-registration";
 import { BigNumber } from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: DelegateRegistrationBuilder;
 

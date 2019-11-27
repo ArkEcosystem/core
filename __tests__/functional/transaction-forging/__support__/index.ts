@@ -6,7 +6,7 @@ import secrets from "@packages/core-test-framework/src/internal/secrets.json";
 
 jest.setTimeout(1200000);
 
-import { Sandbox } from "@arkecosystem/core-test-framework";
+import { Sandbox } from "@packages/core-test-framework/src";
 import { DatabaseService } from "@arkecosystem/core-database";
 
 const sandbox: Sandbox = new Sandbox();

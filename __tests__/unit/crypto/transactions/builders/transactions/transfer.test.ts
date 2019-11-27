@@ -9,20 +9,22 @@ import { devnet } from "@packages/crypto/src/networks";
 import { BuilderFactory, TransferTransaction } from "@packages/crypto/src/transactions";
 import { TransferBuilder } from "@packages/crypto/src/transactions/builders/transactions/transfer";
 
-import { Generators } from "@packages/core-test-framework";
+import { Factories, Generators } from "@packages/core-test-framework/src";
 
 let builder: TransferBuilder;
 let identity;
 
-beforeEach(() => {
+beforeAll(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
     const config = new Generators.GenerateNetwork().generateCrypto();
     configManager.setConfig(config);
 
-    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
-
-    builder = BuilderFactory.transfer();
+    identity = Factories.factory("Identity")
+        .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
+        .make();
 });
+
+beforeEach(() => (builder = BuilderFactory.transfer()));
 
 describe("Transfer Transaction", () => {
     describe("verify", () => {

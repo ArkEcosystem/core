@@ -6,7 +6,7 @@ import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { HtlcLockBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-lock";
 import { HtlcLockTransaction } from "@packages/crypto/src/transactions/types/htlc-lock";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 const { EpochTimestamp } = HtlcLockExpirationType;
 

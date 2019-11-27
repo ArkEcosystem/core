@@ -5,7 +5,7 @@ import { configManager } from "../../../../packages/crypto/src/managers";
 import { Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 
-import { Generators } from "@packages/core-test-framework";
+import { Factories, Generators } from "@packages/core-test-framework/src";
 
 const transaction = TransactionFactory.init()
     .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
@@ -21,7 +21,9 @@ beforeEach(() => {
     const config = new Generators.GenerateNetwork().generateCrypto();
     configManager.setConfig(config);
 
-    identity = Generators.generateIdentity("this is a top secret passphrase", config.network);
+    identity = Factories.factory("Identity")
+        .withOptions({ passphrase: "this is a top secret passphrase" })
+        .make();
 });
 
 describe("Hash", () => {

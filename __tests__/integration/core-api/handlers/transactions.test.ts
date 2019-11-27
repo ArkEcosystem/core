@@ -8,7 +8,7 @@ import { generateMnemonic } from "bip39";
 
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import secrets from "@packages/core-test-framework/src/internal/secrets.json";
-import { ApiHelpers, getWalletNonce } from "@arkecosystem/core-test-framework";
+import { ApiHelpers, getWalletNonce } from "@packages/core-test-framework/src";
 import { Contracts } from "@arkecosystem/core-kernel";
 
 export const generateWallets = quantity => {

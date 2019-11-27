@@ -20,7 +20,7 @@ import { Deserializer } from "../../../../packages/crypto/src/transactions/deser
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {

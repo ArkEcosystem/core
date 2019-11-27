@@ -7,7 +7,7 @@ import { BuilderFactory, MultiSignatureRegistrationTransaction } from "@packages
 import { MultiSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/multi-signature";
 import * as Utils from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework";
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: MultiSignatureBuilder;
 
