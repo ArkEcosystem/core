@@ -1,7 +1,7 @@
 import { CacheStore as Contract } from "../../contracts/kernel";
 import { Identifiers, interfaces } from "../../ioc";
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
-import { MemoryCacheStore } from "./drivers";
+import { MemoryCacheStore } from "./drivers/memory";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**
