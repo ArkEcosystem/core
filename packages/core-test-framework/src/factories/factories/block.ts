@@ -7,16 +7,18 @@ import { FactoryBuilder } from "../factory-builder";
 
 export const registerBlockFactory = (factory: FactoryBuilder): void => {
     factory.set("Block", ({ options }) => {
-        const signer = new Signer(options.config, options.nonce);
-
-        const previousBlock = Managers.configManager.get("genesisBlock");
+        const previousBlock = options.config?.genesisBlock || Managers.configManager.get("genesisBlock");
 
         const { blocktime, reward } = Managers.configManager.getMilestone(previousBlock.height);
 
         const transactions = options.transactions || [];
 
         if (options.transactionsCount) {
-            const genesisWallets = previousBlock.transactions.map(t => t.recipientId).filter(a => !!a);
+            const signer = new Signer(options.config, options.nonce);
+
+            const genesisWallets = previousBlock.transactions
+                .map(transaction => transaction.recipientId)
+                .filter((address: string) => !!address);
 
             for (let i = 0; i < options.transactionsCount; i++) {
                 transactions.push(

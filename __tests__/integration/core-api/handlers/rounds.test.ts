@@ -1,10 +1,7 @@
 import "@packages/core-test-framework/src/matchers";
 
 import { Contracts, Container } from "@arkecosystem/core-kernel";
-import { ApiHelpers, Generators } from "@packages/core-test-framework/src";
-import { Identities } from "@arkecosystem/crypto";
-
-import secrets from "@packages/core-test-framework/src/internal/secrets.json";
+import { ApiHelpers, Factories } from "@packages/core-test-framework/src";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
 import { DatabaseService } from "@arkecosystem/core-database";
@@ -17,13 +14,7 @@ beforeAll(async () => {
 
     const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     await databaseService.buildWallets();
-    await databaseService.saveRound(
-        Generators.generateRound(
-            app,
-            secrets.map(secret => Identities.PublicKey.fromPassphrase(secret)),
-            1,
-        ),
-    );
+    await databaseService.saveRound(Factories.factory("Round").make());
     await (databaseService as any).initializeActiveDelegates(1);
 
     await calculateRanks();
