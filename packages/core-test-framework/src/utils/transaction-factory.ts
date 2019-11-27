@@ -15,6 +15,7 @@ interface IPassphrasePair {
     secondPassphrase: string;
 }
 
+// todo: eventually replace this by the use of real factories
 export class TransactionFactory {
     private builder: any;
     private network: Types.NetworkName = "testnet";
