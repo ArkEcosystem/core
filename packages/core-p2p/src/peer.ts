@@ -1,18 +1,48 @@
-import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 import dayjs, { Dayjs } from "dayjs";
 
 import { PeerVerificationResult } from "./peer-verifier";
 
-// todo: review the implementation
+/**
+ * @export
+ * @class Peer
+ * @implements {Contracts.P2P.Peer}
+ */
 export class Peer implements Contracts.P2P.Peer {
+    /**
+     * @type {Contracts.P2P.PeerPorts}
+     * @memberof Peer
+     */
     public readonly ports: Contracts.P2P.PeerPorts = {};
-    public port: number;
 
+    /**
+     * @type {(string | undefined)}
+     * @memberof Peer
+     */
     public version: string | undefined;
+
+    /**
+     * @type {(number | undefined)}
+     * @memberof Peer
+     */
     public latency: number | undefined;
+
+    /**
+     * @type {(Dayjs | undefined)}
+     * @memberof Peer
+     */
     public lastPinged: Dayjs | undefined;
+
+    /**
+     * @type {(PeerVerificationResult | undefined)}
+     * @memberof Peer
+     */
     public verificationResult: PeerVerificationResult | undefined;
 
+    /**
+     * @type {Contracts.P2P.PeerState}
+     * @memberof Peer
+     */
     public state: Contracts.P2P.PeerState = {
         height: undefined,
         forgingAllowed: undefined,
@@ -20,40 +50,56 @@ export class Peer implements Contracts.P2P.Peer {
         header: {},
     };
 
+    /**
+     * @type {Contracts.P2P.PeerPlugins}
+     * @memberof Peer
+     */
     public plugins: Contracts.P2P.PeerPlugins = {};
 
-    // todo: get rid of the app argument so that the entity is detached from the container.
-    constructor(app: Contracts.Kernel.Application, readonly ip: string) {
-        const config: Providers.PluginConfiguration | undefined = app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("p2p")
-            .config();
+    /**
+     * @param {string} ip
+     * @param {number} port
+     * @memberof Peer
+     */
+    public constructor(readonly ip: string, readonly port: number) {}
 
-        Utils.assert.defined<Providers.PluginConfiguration>(config);
-
-        const port: number | undefined = config.get<number>("server.port");
-
-        Utils.assert.defined<number>(port);
-
-        this.port = port;
-    }
-
-    get url(): string {
+    /**
+     * @readonly
+     * @type {string}
+     * @memberof Peer
+     */
+    public get url(): string {
         return `${this.port % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.port}`;
     }
 
+    /**
+     * @returns {boolean}
+     * @memberof Peer
+     */
     public isVerified(): boolean {
         return this.verificationResult instanceof PeerVerificationResult;
     }
 
+    /**
+     * @returns {boolean}
+     * @memberof Peer
+     */
     public isForked(): boolean {
         return !!(this.isVerified() && this.verificationResult && this.verificationResult.forked);
     }
 
+    /**
+     * @returns {boolean}
+     * @memberof Peer
+     */
     public recentlyPinged(): boolean {
         return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
     }
 
+    /**
+     * @returns {Contracts.P2P.PeerBroadcast}
+     * @memberof Peer
+     */
     public toBroadcast(): Contracts.P2P.PeerBroadcast {
         return {
             ip: this.ip,

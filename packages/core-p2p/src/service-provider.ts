@@ -2,6 +2,7 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 
 import { EventListener } from "./event-listener";
 import { NetworkMonitor } from "./network-monitor";
+import { Peer } from "./peer";
 import { PeerCommunicator } from "./peer-communicator";
 import { PeerConnector } from "./peer-connector";
 import { PeerProcessor } from "./peer-processor";
@@ -11,6 +12,8 @@ import { payloadProcessor } from "./socket-server/payload-processor";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        this.registerFactories();
+
         this.registerServices();
 
         if (process.env.DISABLE_P2P_SERVER) {
@@ -40,6 +43,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    private registerFactories(): void {
+        this.app
+            .bind(Container.Identifiers.PeerFactory)
+            .toFactory<Peer>(() => (ip: string) => new Peer(ip, this.config().get<number>("server.port")!));
     }
 
     private registerServices(): void {

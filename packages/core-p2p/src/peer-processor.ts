@@ -1,10 +1,9 @@
 import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
-import { Peer } from "./peer";
 import { PeerCommunicator } from "./peer-communicator";
 import { PeerConnector } from "./peer-connector";
-import { AcceptNewPeerOptions } from "./types";
+import { AcceptNewPeerOptions, PeerFactory } from "./types";
 import { isValidVersion, isWhitelisted } from "./utils";
 
 // todo: review the implementation
@@ -91,7 +90,7 @@ export class PeerProcessor {
             return;
         }
 
-        const newPeer: Contracts.P2P.Peer = new Peer(this.app, peer.ip);
+        const newPeer: Contracts.P2P.Peer = this.app.get<PeerFactory>(Container.Identifiers.PeerFactory)(peer.ip);
 
         try {
             this.storage.setPendingPeer(peer);

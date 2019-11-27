@@ -1,4 +1,5 @@
 import { NetworkMonitor } from "./network-monitor";
+import { Peer } from "./peer";
 import { PeerCommunicator } from "./peer-communicator";
 import { PeerConnector } from "./peer-connector";
 import { PeerProcessor } from "./peer-processor";
@@ -16,3 +17,5 @@ export interface AcceptNewPeerOptions {
     seed?: boolean;
     lessVerbose?: boolean;
 }
+
+export type PeerFactory = (ip: string) => Peer;

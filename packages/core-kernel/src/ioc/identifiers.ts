@@ -41,6 +41,7 @@ export const Identifiers = {
     ValidationService: Symbol.for("Service<Validation>"),
     // Factories
     CacheFactory: Symbol.for("Factory<Cache>"),
+    PeerFactory: Symbol.for("Factory<Peer>"),
     PipelineFactory: Symbol.for("Factory<Pipeline>"),
     QueueFactory: Symbol.for("Factory<Queue>"),
     // Database
