@@ -1,7 +1,8 @@
 import "jest-extended";
 
+import { Utils } from "@arkecosystem/core-kernel";
+import { Blocks } from "@arkecosystem/crypto";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
-import { Interfaces } from "@arkecosystem/crypto";
 
 let factory: FactoryBuilder;
 
@@ -13,44 +14,26 @@ beforeEach(() => {
 
 describe("BlockFactory", () => {
     it("should create a single block", () => {
-        const entity: Interfaces.IBlockJson = factory.get("Block").make();
+        const entity: Blocks.Block = factory.get("Block").make();
 
-        expect(entity).toContainAllKeys([
-            "blockSignature",
-            "generatorPublicKey",
-            "height",
-            "id",
-            "idHex",
-            "numberOfTransactions",
-            "payloadHash",
-            "payloadLength",
-            "previousBlock",
-            "previousBlockHex",
-            "reward",
-            "serialized",
-            "timestamp",
-            "totalAmount",
-            "totalFee",
-            "transactions",
-            "version",
-        ]);
+        expect(entity).toBeInstanceOf(Blocks.Block);
+        expect(entity.data.blockSignature).toBeString();
+        expect(entity.data.generatorPublicKey).toBeString();
+        expect(entity.data.height).toBeNumber();
+        expect(entity.data.id).toBeString();
+        expect(entity.data.idHex).toBeString();
+        expect(entity.data.numberOfTransactions).toBeNumber();
+        expect(entity.data.payloadHash).toBeString();
+        expect(entity.data.payloadLength).toBeNumber();
+        expect(entity.data.previousBlock).toBeString();
+        expect(entity.data.previousBlockHex).toBeString();
+        expect(entity.data.reward).toBeInstanceOf(Utils.BigNumber);
+        expect(entity.data.timestamp).toBeNumber();
+        expect(entity.data.totalAmount).toBeInstanceOf(Utils.BigNumber);
+        expect(entity.data.totalFee).toBeInstanceOf(Utils.BigNumber);
+        expect(entity.data.version).toBeNumber();
 
-        expect(entity.blockSignature).toBeString();
-        expect(entity.generatorPublicKey).toBeString();
-        expect(entity.height).toBeNumber();
-        expect(entity.id).toBeString();
-        expect(entity.idHex).toBeString();
-        expect(entity.numberOfTransactions).toBeNumber();
-        expect(entity.payloadHash).toBeString();
-        expect(entity.payloadLength).toBeNumber();
-        expect(entity.previousBlock).toBeString();
-        expect(entity.previousBlockHex).toBeString();
-        expect(entity.reward).toBeString();
         expect(entity.serialized).toBeString();
-        expect(entity.timestamp).toBeNumber();
-        expect(entity.totalAmount).toBeString();
-        expect(entity.totalFee).toBeString();
         expect(entity.transactions).toBeArray();
-        expect(entity.version).toBeNumber();
     });
 });

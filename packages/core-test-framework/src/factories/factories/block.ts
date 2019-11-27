@@ -10,13 +10,10 @@ export const registerBlockFactory = (factory: FactoryBuilder): void => {
 
         const { blocktime, reward } = Managers.configManager.getMilestone(previousBlock.height);
 
-        // todo: support transactions via factory calls
-        const newBlock = DelegateFactory.fromBIP39(options.passphrase || secrets[0]).forge([], {
+        return DelegateFactory.fromBIP39(options.passphrase || secrets[0]).forge(options.transactions || [], {
             previousBlock,
             timestamp: Crypto.Slots.getSlotNumber(Crypto.Slots.getTime()) * options.blocktime || blocktime,
             reward: options.reward || reward,
         })!;
-
-        return { ...newBlock.toJson(), ...{ serialized: newBlock.serialized } };
     });
 };
