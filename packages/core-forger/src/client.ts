@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
-import { NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
+import { codec, NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
 import { Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
@@ -20,6 +20,7 @@ export class Client {
                     initialDelay: 1000,
                     maxDelay: 1000,
                 },
+                codecEngine: codec,
             });
 
             host.socket.on("error", err => {

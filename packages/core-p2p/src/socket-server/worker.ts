@@ -3,6 +3,7 @@ import Ajv from "ajv";
 import { cidr } from "ip";
 import SCWorker from "socketcluster/scworker";
 import { requestSchemas } from "../schemas";
+import { codec } from "../utils/sc-codec";
 
 const ajv = new Ajv();
 
@@ -11,6 +12,8 @@ export class Worker extends SCWorker {
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
+
+        this.scServer.setCodecEngine(codec);
 
         await this.loadConfiguration();
 
@@ -53,14 +56,14 @@ export class Worker extends SCWorker {
         });
         ws.on("message", message => {
             try {
-                if (message === "#2") {
+                const parsed = codec.decode(message);
+                if (parsed === "#2") {
                     const timeNow: number = new Date().getTime() / 1000;
                     if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
                         ws.terminate();
                     }
                     ws._lastPingTime = timeNow;
-                } else {
-                    const parsed = JSON.parse(message);
+                } else if (typeof parsed === "object") {
                     if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
@@ -69,6 +72,8 @@ export class Worker extends SCWorker {
                     ) {
                         ws.terminate();
                     }
+                } else {
+                    ws.terminate();
                 }
             } catch (error) {
                 ws.terminate();

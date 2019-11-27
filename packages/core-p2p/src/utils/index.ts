@@ -5,3 +5,4 @@ export { isWhitelisted } from "./is-whitelisted";
 export { socketEmit } from "./socket";
 export { validateJSON } from "./validate-json";
 export { isValidVersion } from "./is-valid-version";
+export { codec } from "./sc-codec";
