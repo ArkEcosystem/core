@@ -1,15 +1,15 @@
 import { Application } from "../../contracts/kernel";
 import { Identifiers, inject, injectable } from "../../ioc";
-import { Cache, Filesystem, Log, Queue, Schedule, Triggers, Validation } from "../../services";
+import { Cache, Filesystem, Log, Pipeline, Queue, Schedule, Triggers, Validation } from "../../services";
 import { Bootstrapper } from "../interfaces";
 
 /**
  * @export
- * @class RegisterCoreServiceProviders
+ * @class RegisterBaseServiceProviders
  * @implements {Bootstrapper}
  */
 @injectable()
-export class RegisterCoreServiceProviders implements Bootstrapper {
+export class RegisterBaseServiceProviders implements Bootstrapper {
     /**
      * The application instance.
      *
@@ -23,7 +23,7 @@ export class RegisterCoreServiceProviders implements Bootstrapper {
     /**
      * @param {Kernel.Application} app
      * @returns {Promise<void>}
-     * @memberof RegisterCoreServiceProviders
+     * @memberof RegisterBaseServiceProviders
      */
     public async bootstrap(): Promise<void> {
         await this.app.resolve(Log.ServiceProvider).register();
@@ -33,6 +33,8 @@ export class RegisterCoreServiceProviders implements Bootstrapper {
         await this.app.resolve(Filesystem.ServiceProvider).register();
 
         await this.app.resolve(Cache.ServiceProvider).register();
+
+        await this.app.resolve(Pipeline.ServiceProvider).register();
 
         await this.app.resolve(Queue.ServiceProvider).register();
 

@@ -1,27 +1,27 @@
 import "jest-extended";
 
-import { Application, Container } from "@packages/core-kernel";
-import { Pipeline, Stage } from "@packages/core-kernel/src/services/pipeline";
+import { Application, Container, Contracts } from "@packages/core-kernel/src";
+import { MemoryPipeline } from "@packages/core-kernel/src/services/pipeline/drivers/memory";
 
 let app: Application;
-let pipeline: Pipeline;
+let pipeline: Contracts.Kernel.Pipeline;
 beforeEach(() => {
     app = new Application(new Container.Container());
 
-    pipeline = new Pipeline();
+    pipeline = new MemoryPipeline();
 });
 
 describe("Pipeline", () => {
     describe("Class", () => {
         describe("instantiated", () => {
             it("should apply all stages (async)", async () => {
-                class RemoveDash implements Stage {
+                class RemoveDash implements Contracts.Kernel.Stage {
                     async process(payload: string) {
                         return payload.replace("_", "");
                     }
                 }
 
-                class RemoveUnderscore implements Stage {
+                class RemoveUnderscore implements Contracts.Kernel.Stage {
                     async process(payload: string) {
                         return payload.replace("-", " ");
                     }
@@ -36,13 +36,13 @@ describe("Pipeline", () => {
             });
 
             it("should apply all stages (sync)", () => {
-                class RemoveDash implements Stage {
+                class RemoveDash implements Contracts.Kernel.Stage {
                     process(payload: string) {
                         return payload.replace("_", "");
                     }
                 }
 
-                class RemoveUnderscore implements Stage {
+                class RemoveUnderscore implements Contracts.Kernel.Stage {
                     process(payload: string) {
                         return payload.replace("-", " ");
                     }
@@ -60,14 +60,14 @@ describe("Pipeline", () => {
         describe("resolved", () => {
             it("should apply all stages (async)", async () => {
                 @Container.injectable()
-                class RemoveDash implements Stage {
+                class RemoveDash implements Contracts.Kernel.Stage {
                     async process(payload: string) {
                         return payload.replace("_", "");
                     }
                 }
 
                 @Container.injectable()
-                class RemoveUnderscore implements Stage {
+                class RemoveUnderscore implements Contracts.Kernel.Stage {
                     async process(payload: string) {
                         return payload.replace("-", " ");
                     }
@@ -83,14 +83,14 @@ describe("Pipeline", () => {
 
             it("should apply all stages (sync)", () => {
                 @Container.injectable()
-                class RemoveDash implements Stage {
+                class RemoveDash implements Contracts.Kernel.Stage {
                     process(payload: string) {
                         return payload.replace("_", "");
                     }
                 }
 
                 @Container.injectable()
-                class RemoveUnderscore implements Stage {
+                class RemoveUnderscore implements Contracts.Kernel.Stage {
                     process(payload: string) {
                         return payload.replace("-", " ");
                     }
