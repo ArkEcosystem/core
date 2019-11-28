@@ -1,4 +1,4 @@
-import { Enums, Providers, Types } from "@arkecosystem/core-kernel";
+import { Providers, Types } from "@arkecosystem/core-kernel";
 
 import { Database } from "./database";
 import { Identifiers } from "./identifiers";
@@ -65,8 +65,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     private startListeners(): void {
-        for (const event of Object.values(Enums.StateEvent)) {
-            this.app.events.listen(event, async payload => this.app.resolve(Listener).listen(event, payload));
-        }
+        this.app.events.listen("*", this.app.resolve(Listener));
     }
 }

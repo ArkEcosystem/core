@@ -1,8 +1,5 @@
-import PQueue from "p-queue";
-
-import { Queue } from "../../../contracts/kernel/queue";
+import { Queue, QueueJob } from "../../../contracts/kernel/queue";
 import { injectable } from "../../../ioc";
-import { assert } from "../../../utils";
 
 /**
  * @export
@@ -13,187 +10,175 @@ import { assert } from "../../../utils";
 export class MemoryQueue implements Queue {
     /**
      * @private
-     * @type {Map<string, PQueue>}
+     * @type {(QueueJob[])}
      * @memberof MemoryQueue
      */
-    private readonly queues: Map<string, PQueue> = new Map<string, PQueue>();
+    private readonly jobs: QueueJob[] = [];
 
     /**
      * @private
-     * @type {string}
+     * @type {Promise<any[]>}
      * @memberof MemoryQueue
      */
-    private defaultQueue: string = "default";
+    private lastQueue?: Promise<any[]>;
+
+    /**
+     * @private
+     * @type {any[]}
+     * @memberof MemoryQueue
+     */
+    private lastResults: any[] = [];
+
+    /**
+     * @private
+     * @type {boolean}
+     * @memberof MemoryQueue
+     */
+    private isRunning: boolean = false;
+
+    /**
+     * @private
+     * @type {number}
+     * @memberof MemoryQueue
+     */
+    private index: number = -1;
 
     /**
      * Start the queue.
      *
-     * @param {string} [queue]
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async start(queue?: string): Promise<void> {
-        await this.firstOrCreate(queue).start();
+    public async start(): Promise<void> {
+        this.lastQueue = this.lastQueue || this.processFromIndex(0);
     }
 
     /**
      * Stop the queue.
      *
-     * @param {string} [queue]
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async stop(queue?: string): Promise<void> {
-        await this.queues.delete(queue || this.defaultQueue);
+    public async stop(): Promise<void> {
+        await this.pause();
+
+        this.clear();
     }
 
     /**
      * Pause the queue.
      *
-     * @param {string} [queue]
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async pause(queue?: string): Promise<void> {
-        await this.firstOrCreate(queue).pause();
+    public async pause(): Promise<void> {
+        this.isRunning = false;
+    }
+
+    /**
+     * Resume the queue.
+     *
+     * @returns {Promise<void>}
+     * @memberof MemoryQueue
+     */
+    public async resume(): Promise<void> {
+        this.lastQueue = this.processFromIndex(this.index, this.lastResults);
     }
 
     /**
      * Clear the queue.
      *
-     * @param {string} [queue]
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async clear(queue?: string): Promise<void> {
-        await this.firstOrCreate(queue).clear();
+    public async clear(): Promise<void> {
+        this.index = -1;
+        this.isRunning = false;
+        this.lastQueue = undefined;
+        this.jobs.splice(0);
     }
 
     /**
-     * Push a new job onto the default queue.
+     * Push a new job onto the queue.
      *
      * @template T
-     * @param {() => PromiseLike<T>} fn
+     * @param {QueueJob} job
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async push<T = any>(fn: () => PromiseLike<T>): Promise<void> {
-        this.firstOrCreate(this.defaultQueue).add(fn);
+    public async push(job: QueueJob): Promise<void> {
+        this.jobs.push(job);
     }
 
     /**
-     * Push a new job onto the given queue.
-     *
-     * @template T
-     * @param {string} queue
-     * @param {() => PromiseLike<T>} fn
-     * @returns {Promise<void>}
-     * @memberof MemoryQueue
-     */
-    public async pushOn<T>(queue: string, fn: () => PromiseLike<T>): Promise<void> {
-        this.firstOrCreate(queue).add(fn);
-    }
-
-    /**
-     * Push a new job onto the default queue after a delay.
+     * Push a new job onto the queue after a delay.
      *
      * @template T
      * @param {number} delay
-     * @param {() => PromiseLike<T>} fn
+     * @param {QueueJob} job
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async later<T>(delay: number, fn: () => PromiseLike<T>): Promise<void> {
-        setTimeout(() => this.push(fn), delay);
+    public async later(delay: number, job: QueueJob): Promise<void> {
+        setTimeout(() => this.push(job), delay);
     }
 
     /**
-     * Push a new job onto the given queue after a delay.
+     * Push an array of jobs onto the queue.
      *
-     * @template T
-     * @param {string} queue
-     * @param {number} delay
-     * @param {() => PromiseLike<T>} fn
+     * @param {QueueJob[]} jobs
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async laterOn<T>(queue: string, delay: number, fn: () => PromiseLike<T>): Promise<void> {
-        setTimeout(() => this.pushOn(queue, fn), delay);
+    public async bulk(jobs: QueueJob[]): Promise<void> {
+        for (const job of jobs) {
+            this.jobs.push(job);
+        }
     }
 
     /**
-     * Push an array of jobs onto the default queue.
+     * Get the size of the queue.
      *
-     * @template T
-     * @param {(() => PromiseLike<T>)[]} functions
-     * @returns {Promise<void>}
-     * @memberof MemoryQueue
-     */
-    public async bulk<T>(functions: (() => PromiseLike<T>)[]): Promise<void> {
-        this.firstOrCreate(this.defaultQueue).addAll(functions);
-    }
-
-    /**
-     * Push an array of jobs onto the given queue.
-     *
-     * @template T
-     * @param {string} queue
-     * @param {(() => PromiseLike<T>)[]} functions
-     * @returns {Promise<void>}
-     * @memberof MemoryQueue
-     */
-    public async bulkOn<T>(queue: string, functions: (() => PromiseLike<T>)[]): Promise<void> {
-        this.firstOrCreate(queue).addAll(functions);
-    }
-
-    /**
-     * Get the size of the given queue.
-     *
-     * @param {string} queue
      * @returns {number}
      * @memberof MemoryQueue
      */
-    public size(queue?: string): number {
-        return this.firstOrCreate(queue).size;
-    }
-
-    /**
-     * Get the connection name for the queue.
-     *
-     * @returns {string}
-     * @memberof MemoryQueue
-     */
-    public getDefaultQueue(): string {
-        return this.defaultQueue;
-    }
-
-    /**
-     * Set the connection name for the queue.
-     *
-     * @param {string} name
-     * @memberof MemoryQueue
-     */
-    public setDefaultQueue(name: string): void {
-        this.defaultQueue = name;
+    public size(): number {
+        return this.jobs.length;
     }
 
     /**
      * @private
-     * @param {string} name
-     * @returns {PQueue}
+     * @param {number} from
+     * @param {any[]} [lastResults=[]]
+     * @param {boolean} [isRunning=true]
+     * @returns {Promise<any[]>}
      * @memberof MemoryQueue
      */
-    private firstOrCreate(name?: string): PQueue {
-        name = name || this.defaultQueue;
+    private async processFromIndex(from: number, lastResults: any[] = [], isRunning: boolean = true): Promise<any[]> {
+        this.lastResults = lastResults;
 
-        if (!this.queues.has(name)) {
-            this.queues.set(name, new PQueue({ autoStart: false }));
+        if (from < this.jobs.length) {
+            this.index = from;
+
+            if (isRunning) {
+                this.isRunning = isRunning;
+
+                try {
+                    lastResults.push(await this.jobs[from].handle());
+
+                    return this.processFromIndex(from + 1, lastResults, this.isRunning);
+                } catch (error) {
+                    this.isRunning = false;
+
+                    throw new Error(
+                        `Queue halted at job #${from + 1} due to error in handler ${this.jobs[this.index]}.`,
+                    );
+                }
+            }
+        } else {
+            this.isRunning = false;
         }
 
-        const queue: PQueue | undefined = this.queues.get(name);
-
-        assert.defined<PQueue>(queue);
-
-        return queue;
+        return this.lastResults;
     }
 }

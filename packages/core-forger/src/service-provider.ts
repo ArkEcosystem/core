@@ -74,8 +74,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
         if (this.config().get("tracker") === true) {
             this.app
                 .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
-                .listen(Enums.BlockEvent.Applied, async () =>
-                    this.app.resolve<DelegateTracker>(DelegateTracker).execute(delegates),
+                .listen(
+                    Enums.BlockEvent.Applied,
+                    this.app.resolve<DelegateTracker>(DelegateTracker).initialize(delegates),
                 );
         }
     }

@@ -30,11 +30,11 @@ export class Listener {
      * @param {string} event
      * @memberof Listener
      */
-    public async listen(event: string, payload: object): Promise<void> {
-        const webhooks: Webhook[] = this.getWebhooks(event, payload);
+    public async handle({ name, data }): Promise<void> {
+        const webhooks: Webhook[] = this.getWebhooks(name, data);
 
         for (const webhook of webhooks) {
-            await this.broadcast(webhook, payload);
+            await this.broadcast(webhook, data);
         }
     }
 

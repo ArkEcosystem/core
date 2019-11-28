@@ -1,9 +1,33 @@
 import mm from "micromatch";
 
-import { EventDispatcher as EventDispatcherContract } from "../../../contracts/kernel/events";
+import { EventDispatcher as EventDispatcherContract, EventListener, EventName } from "../../../contracts/kernel/events";
 import { injectable } from "../../../ioc";
-import { EventListener, EventName } from "../../../types/events";
 import { assert } from "../../../utils";
+
+/**
+ * @class OnceListener
+ * @implements {EventListener}
+ */
+class OnceListener implements EventListener {
+    /**
+     * @param {EventDispatcherContract} dispatcher
+     * @param {EventListener} listener
+     * @memberof OnceListener
+     */
+    public constructor(
+        private readonly dispatcher: EventDispatcherContract,
+        private readonly listener: EventListener,
+    ) {}
+
+    /**
+     * @param {*} {name}
+     * @returns {Promise<void>}
+     * @memberof OnceListener
+     */
+    public async handle({ name }): Promise<void> {
+        this.dispatcher.forget(name, this.listener);
+    }
+}
 
 /**
  * @export
@@ -52,11 +76,9 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
      * @memberof MemoryEventDispatcher
      */
     public listenOnce(name: EventName, listener: EventListener): void {
-        const off: () => void = this.listen(name, data => {
-            off();
+        this.listen(name, listener);
 
-            listener(data);
-        });
+        this.listen(name, new OnceListener(this, listener));
     }
 
     /**
@@ -138,7 +160,7 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
         const resolvers: Array<Promise<void>> = [];
 
         for (const listener of this.getListenersByPattern(event)) {
-            resolvers.push(new Promise(resolve => resolve(listener({ name: event, data }))));
+            resolvers.push(new Promise(resolve => resolve(listener.handle({ name: event, data }))));
         }
 
         await Promise.all(resolvers);
@@ -155,10 +177,7 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
         await Promise.resolve();
 
         for (const listener of this.getListenersByPattern(event)) {
-            await listener({
-                name: event,
-                data,
-            });
+            await listener.handle({ name: event, data });
         }
     }
 
@@ -170,10 +189,7 @@ export class MemoryEventDispatcher implements EventDispatcherContract {
      */
     public dispatchSync<T = any>(event: EventName, data?: T): void {
         for (const listener of this.getListenersByPattern(event)) {
-            listener({
-                name: event,
-                data,
-            });
+            listener.handle({ name: event, data });
         }
     }
 

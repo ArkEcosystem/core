@@ -1,10 +1,19 @@
 import "jest-extended";
 
+import { Contracts } from "@packages/core-kernel/src";
 import { Application } from "@packages/core-kernel/src/application";
 import { KernelEvent } from "@packages/core-kernel/src/enums/events";
 import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+
+class StubListener implements Contracts.Kernel.EventListener {
+    public constructor(private readonly method?) {}
+
+    public handle(): void {
+        this.method();
+    }
+}
 
 class StubServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}
@@ -121,15 +130,15 @@ describe("ServiceProviderRepository", () => {
         const spyRegister = jest.spyOn(serviceProvider, "register");
         serviceProviderRepository.set("stub", serviceProvider);
 
-        let fired: boolean = false;
+        let fired: jest.Mock = jest.fn();
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
             KernelEvent.ServiceProviderRegistered,
-            () => (fired = true),
+            new StubListener(fired),
         );
 
         await serviceProviderRepository.register("stub");
 
-        expect(fired).toBeTrue();
+        expect(fired).toHaveBeenCalled();
         expect(spyRegister).toHaveBeenCalled();
     });
 
@@ -138,15 +147,15 @@ describe("ServiceProviderRepository", () => {
         const spyBoot = jest.spyOn(serviceProvider, "boot");
         serviceProviderRepository.set("stub", serviceProvider);
 
-        let fired: boolean = false;
+        let fired: jest.Mock = jest.fn();
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
             KernelEvent.ServiceProviderBooted,
-            () => (fired = true),
+            new StubListener(fired),
         );
 
         await serviceProviderRepository.boot("stub");
 
-        expect(fired).toBeTrue();
+        expect(fired).toHaveBeenCalled();
         expect(spyBoot).toHaveBeenCalled();
         expect(serviceProviderRepository.loaded("stub")).toBeTrue();
         expect(serviceProviderRepository.failed("stub")).toBeFalse();
@@ -158,15 +167,15 @@ describe("ServiceProviderRepository", () => {
         const spyDispose = jest.spyOn(serviceProvider, "dispose");
         serviceProviderRepository.set("stub", serviceProvider);
 
-        let fired: boolean = false;
+        let fired: jest.Mock = jest.fn();
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
             KernelEvent.ServiceProviderDisposed,
-            () => (fired = true),
+            new StubListener(fired),
         );
 
         await serviceProviderRepository.dispose("stub");
 
-        expect(fired).toBeTrue();
+        expect(fired).toHaveBeenCalled();
         expect(spyDispose).toHaveBeenCalled();
         expect(serviceProviderRepository.loaded("stub")).toBeFalse();
         expect(serviceProviderRepository.failed("stub")).toBeFalse();

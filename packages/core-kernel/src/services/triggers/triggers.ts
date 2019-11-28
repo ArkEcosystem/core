@@ -1,5 +1,6 @@
 import { InvalidArgumentException } from "../../exceptions/logic";
 import { injectable } from "../../ioc";
+import { ActionArguments } from "../../types";
 import { assert } from "../../utils";
 import { Action } from "./action";
 
@@ -26,7 +27,7 @@ export class Triggers {
      * @returns {Action}
      * @memberof Actions
      */
-    public bind(name: string, fn: Function): Action {
+    public bind(name: string, action: Action): Action {
         if (this.triggers.has(name)) {
             throw new InvalidArgumentException(`The given trigger [${name}] is already registered.`);
         }
@@ -35,10 +36,9 @@ export class Triggers {
             throw new InvalidArgumentException(`The given trigger [${name}] is reserved.`);
         }
 
-        const trigger: Action = new Action(fn);
-        this.triggers.set(name, trigger);
+        this.triggers.set(name, action);
 
-        return trigger;
+        return action;
     }
 
     /**
@@ -67,7 +67,7 @@ export class Triggers {
      * @returns {(Promise<T | undefined>)}
      * @memberof Actions
      */
-    public async call<T>(name: string, ...args: Array<any>): Promise<T | undefined> {
+    public async call<T>(name: string, args: ActionArguments = {}): Promise<T | undefined> {
         this.throwIfActionIsMissing(name);
 
         await this.callHooks("before", name);

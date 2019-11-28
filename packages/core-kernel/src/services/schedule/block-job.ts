@@ -1,9 +1,10 @@
-import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
 
 import { EventDispatcher } from "../../contracts/kernel/events";
 import { BlockEvent } from "../../enums";
 import { Identifiers, inject, injectable } from "../../ioc";
 import { Job } from "./interfaces";
+import { ExecuteCallbackWhenReady } from "./listeners";
 
 /**
  * @export
@@ -32,11 +33,7 @@ export class BlockJob implements Job {
      * @memberof BlockJob
      */
     public execute(callback: Function): void {
-        this.events.listen(BlockEvent.Received, async ({ data }: { data: Interfaces.IBlockData }) => {
-            if (data.height % this.blockCount === 0) {
-                await callback();
-            }
-        });
+        this.events.listen(BlockEvent.Received, new ExecuteCallbackWhenReady(callback, this.blockCount));
     }
 
     /**

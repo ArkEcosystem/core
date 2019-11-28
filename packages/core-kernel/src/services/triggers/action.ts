@@ -1,4 +1,6 @@
-export class Action {
+import { ActionArguments } from "../../types";
+
+export abstract class Action {
     /**
      * @private
      * @type {Set<Function>}
@@ -21,18 +23,13 @@ export class Action {
     private readonly afterHooks: Set<Function> = new Set<Function>();
 
     /**
-     * @param {Function} fn
+     * @abstract
+     * @template T
+     * @param {ActionArguments} args
+     * @returns {T}
      * @memberof Action
      */
-    public constructor(private readonly fn: Function) {}
-
-    /**
-     * @returns {Function}
-     * @memberof Action
-     */
-    public execute<T>(...args: any[]): T {
-        return this.fn(args);
-    }
+    public abstract execute<T>(args: ActionArguments): T;
 
     /**
      * @param {Function} fn

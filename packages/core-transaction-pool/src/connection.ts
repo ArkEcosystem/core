@@ -7,6 +7,7 @@ import { strictEqual } from "assert";
 import differenceWith from "lodash.differencewith";
 
 import { TransactionsProcessed } from "./interfaces";
+import { PurgeInvalidTransactions } from "./listeners";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
 import { Processor } from "./processor";
@@ -75,7 +76,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         this.syncToPersistentStorage();
 
-        this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, () => this.purgeInvalidTransactions());
+        this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, new PurgeInvalidTransactions(this));
 
         return this;
     }

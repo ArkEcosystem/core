@@ -1,438 +1,382 @@
 import "jest-extended";
+
+import { Contracts } from "@packages/core-kernel/src";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
+class DummyClass implements Contracts.Kernel.EventListener {
+    public constructor(private readonly method?) {}
+
+    public handle(): void {
+        this.method();
+    }
+}
+
 let emitter: MemoryEventDispatcher;
+
 beforeEach(() => (emitter = new MemoryEventDispatcher()));
 
-describe(".listen", () => {
-    it("should add an event listener", async () => {
-        const calls: number[] = [];
-        emitter.listen("firstEvent", () => calls.push(1));
-        emitter.listen("firstEvent", () => calls.push(2));
+describe("MemoryEventDispatcher", () => {
+    let dummyCaller: jest.Mock;
+    let dummyListener: any;
 
-        await emitter.dispatch("firstEvent");
-
-        expect(calls).toEqual([1, 2]);
+    beforeEach(() => {
+        dummyCaller = jest.fn();
+        dummyListener = new DummyClass(dummyCaller);
     });
 
-    it("should return an unsubcribe method for an event listener", async () => {
-        const calls: number[] = [];
-        const listener = () => calls.push(1);
+    describe(".listen", () => {
+        it("should add an event listener", async () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
 
-        const off = emitter.listen("firstEvent", listener);
-        await emitter.dispatch("firstEvent");
-        expect(calls).toEqual([1]);
+            await emitter.dispatch("firstEvent");
 
-        off();
-        await emitter.dispatch("firstEvent");
-        expect(calls).toEqual([1]);
-    });
+            expect(dummyCaller).toHaveBeenCalledTimes(2);
+        });
 
-    it("should prevent duplicate listeners", async () => {
-        const calls: number[] = [];
-        const listener = () => calls.push(1);
+        it("should return an unsubcribe method for an event listener", async () => {
+            const off = emitter.listen("firstEvent", dummyListener);
+            await emitter.dispatch("firstEvent");
+            expect(dummyCaller).toHaveBeenCalled();
 
-        emitter.listen("firstEvent", listener);
-        emitter.listen("firstEvent", listener);
-        emitter.listen("firstEvent", listener);
+            off();
+            await emitter.dispatch("firstEvent");
+            expect(dummyCaller).toHaveBeenCalledTimes(1);
+        });
 
-        await emitter.dispatch("firstEvent");
+        it("should prevent duplicate listeners", async () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("firstEvent", dummyListener);
 
-        expect(calls).toEqual([1]);
-    });
+            await emitter.dispatch("firstEvent");
 
-    describe("Wildcard", () => {
-        it("should add a wildcard listener", async () => {
-            emitter.listen("*", ({ name, data }) => {
-                expect(name).toBe("firstEvent");
-                expect(data).toEqual(true);
+            expect(dummyCaller).toHaveBeenCalled();
+        });
+
+        describe("Wildcard", () => {
+            it("should add a wildcard listener", async () => {
+                emitter.listen("*", dummyListener);
+
+                await emitter.dispatch("firstEvent");
+                await emitter.dispatchSeq("firstEvent");
+
+                expect(dummyCaller).toHaveBeenCalledTimes(2);
             });
-
-            await emitter.dispatch("firstEvent", true);
-            await emitter.dispatchSeq("firstEvent", true);
         });
     });
-});
 
-describe(".listenMany", () => {
-    it("should add many event listeners", async () => {
-        const calls: number[] = [];
-        emitter.listenMany([
-            ["firstEvent", () => calls.push(1)],
-            ["firstEvent", () => calls.push(2)],
-        ]);
+    describe(".listenMany", () => {
+        it("should add many event listeners", async () => {
+            emitter.listenMany([
+                ["firstEvent", dummyListener],
+                ["firstEvent", new DummyClass(dummyCaller)],
+            ]);
 
-        await emitter.dispatch("firstEvent");
+            await emitter.dispatch("firstEvent");
 
-        expect(calls).toEqual([1, 2]);
-    });
-
-    it("should prevent duplicate listeners", async () => {
-        const calls: number[] = [];
-        const listener = () => calls.push(1);
-
-        emitter.listenMany(new Array(5).fill(["firstEvent", listener]));
-
-        await emitter.dispatch("firstEvent");
-
-        expect(calls).toEqual([1]);
-    });
-});
-
-describe(".listenOnce", () => {
-    it("should listen once", async () => {
-        let unicorn: boolean = false;
-
-        expect(unicorn).toBeFalse();
-
-        emitter.listenOnce("firstEvent", ({ data }) => (unicorn = data));
-
-        emitter.dispatchSync("firstEvent", true);
-
-        expect(unicorn).toBeTrue();
-
-        emitter.dispatchSync("firstEvent", false);
-
-        expect(unicorn).toBeTrue();
-    });
-});
-
-describe(".forget", () => {
-    it("should remove an event listener", () => {
-        const calls: number[] = [];
-        const listener = () => calls.push(1);
-
-        emitter.listen("firstEvent", listener);
-
-        emitter.dispatchSync("firstEvent");
-
-        expect(calls).toEqual([1]);
-
-        emitter.forget("firstEvent", listener);
-
-        emitter.dispatchSync("firstEvent");
-
-        expect(calls).toEqual([1]);
-    });
-});
-
-describe(".dispatch", () => {
-    it("should emit one event", async () => {
-        emitter.listen("firstEvent", ({ data }) => expect(data).toEqual(true));
-
-        await emitter.dispatch("firstEvent", true);
-    });
-
-    it("should emit multiple events", async () => {
-        let count = 0;
-
-        emitter.listen("firstEvent", () => {
-            if (++count >= 5) {
-                expect(count).toBe(5);
-            }
+            expect(dummyCaller).toHaveBeenCalledTimes(2);
         });
 
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("firstEvent");
+        it("should prevent duplicate listeners", async () => {
+            emitter.listenMany(new Array(5).fill(["firstEvent", dummyListener]));
+
+            await emitter.dispatch("firstEvent");
+
+            expect(dummyCaller).toHaveBeenCalled();
+        });
     });
 
-    it("should not execute an event listener without await", async () => {
-        let unicorn: boolean = false;
+    describe(".listenOnce", () => {
+        it("should listen once", async () => {
+            emitter.listenOnce("firstEvent", dummyListener);
 
-        emitter.listen("firstEvent", () => (unicorn = true));
+            emitter.dispatchSync("firstEvent");
+            emitter.dispatchSync("firstEvent");
+            emitter.dispatchSync("firstEvent");
 
-        emitter.dispatch("firstEvent");
+            expect(dummyCaller).toHaveBeenCalled();
 
-        expect(unicorn).toBeFalse();
-    });
-});
+            emitter.dispatchSync("firstEvent");
+            emitter.dispatchSync("firstEvent");
+            emitter.dispatchSync("firstEvent");
 
-describe(".dispatchSeq", () => {
-    it("should execute a wildcard listener with await", async () => {
-        let unicorn: boolean = false;
-
-        emitter.listen("*", () => (unicorn = true));
-
-        await emitter.dispatchSeq("firstEvent");
-
-        expect(unicorn).toBeTrue();
+            expect(dummyCaller).toHaveBeenCalledTimes(1);
+        });
     });
 
-    it("should not execute an event listener without await (async behaviour)", async () => {
-        let unicorn: boolean = false;
+    describe(".forget", () => {
+        it("should remove an event listener", () => {
+            emitter.listen("firstEvent", dummyListener);
 
-        emitter.listen("firstEvent", () => (unicorn = true));
+            emitter.dispatchSync("firstEvent");
 
-        emitter.dispatchSeq("firstEvent");
+            expect(dummyCaller).toHaveBeenCalled();
 
-        expect(unicorn).toBeFalse();
+            emitter.forget("firstEvent", dummyListener);
+
+            emitter.dispatchSync("firstEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(1);
+        });
     });
 
-    it("should emit all events in sequence", async () => {
-        const events: number[] = [];
+    describe(".dispatch", () => {
+        it("should emit one event", async () => {
+            emitter.listen("firstEvent", dummyListener);
 
-        const listener = async (data: any) => {
-            events.push(data);
+            await emitter.dispatch("firstEvent");
 
-            if (events.length >= 3) {
-                expect(events).toEqual([1, 2, 3]);
-            }
-        };
+            expect(dummyCaller).toHaveBeenCalled();
+        });
 
-        emitter.listen("firstEvent", () => listener(1));
-        emitter.listen("firstEvent", () => listener(2));
-        emitter.listen("firstEvent", () => listener(3));
+        it("should emit multiple events", async () => {
+            emitter.listen("firstEvent", dummyListener);
 
-        await emitter.dispatchSeq("firstEvent");
-    });
-});
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("firstEvent");
 
-describe(".dispatchSync", () => {
-    it("should execute an event listener without await", () => {
-        let unicorn: boolean = false;
+            expect(dummyCaller).toHaveBeenCalledTimes(5);
+        });
 
-        emitter.listen("firstEvent", () => (unicorn = true));
+        it("should not execute an event listener without await", async () => {
+            emitter.listen("firstEvent", dummyListener);
 
-        emitter.dispatchSync("firstEvent");
+            emitter.dispatch("firstEvent");
 
-        expect(unicorn).toBeTrue();
-    });
-
-    it("should execute a wildcard listener without await", () => {
-        let unicorn: boolean = false;
-
-        emitter.listen("*", () => (unicorn = true));
-
-        emitter.dispatchSync("firstEvent");
-
-        expect(unicorn).toBeTrue();
+            expect(dummyCaller).not.toHaveBeenCalled();
+        });
     });
 
-    it("should emit all events in sequence", () => {
-        const events: number[] = [];
+    describe(".dispatchSeq", () => {
+        it("should execute a wildcard listener with await", async () => {
+            emitter.listen("*", dummyListener);
 
-        const listener = async (data: any) => {
-            events.push(data);
+            await emitter.dispatchSeq("firstEvent");
 
-            if (events.length >= 3) {
-                expect(events).toEqual([1, 2, 3]);
-            }
-        };
+            expect(dummyCaller).toHaveBeenCalled();
+        });
 
-        emitter.listen("firstEvent", () => listener(1));
-        emitter.listen("firstEvent", () => listener(2));
-        emitter.listen("firstEvent", () => listener(3));
+        it("should not execute an event listener without await (async behaviour)", async () => {
+            emitter.listen("firstEvent", dummyListener);
 
-        emitter.dispatchSync("firstEvent");
-    });
-});
+            emitter.dispatchSeq("firstEvent");
 
-describe(".dispatchMany", () => {
-    it("should emit all events", async () => {
-        const events: number[] = [];
+            expect(dummyCaller).not.toHaveBeenCalled();
+        });
 
-        const listener = async (data: any) => {
-            events.push(data);
+        it("should emit all events in sequence", async () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
 
-            if (events.length >= 6) {
-                expect(events).toEqual([1, 2, 3, 4, 5, 6]);
-            }
-        };
+            await emitter.dispatchSeq("firstEvent");
 
-        emitter.listen("firstEvent", () => listener(1));
-        emitter.listen("firstEvent", () => listener(2));
-        emitter.listen("firstEvent", () => listener(3));
-
-        emitter.listen("secondEvent", () => listener(4));
-        emitter.listen("secondEvent", () => listener(5));
-        emitter.listen("secondEvent", () => listener(6));
-
-        await emitter.dispatchMany([
-            ["firstEvent", undefined],
-            ["secondEvent", undefined],
-        ]);
-    });
-});
-
-describe(".dispatchManySeq", () => {
-    it("should emit all events", async () => {
-        const events: number[] = [];
-
-        const listener = async (data: any) => {
-            events.push(data);
-
-            if (events.length >= 6) {
-                expect(events).toEqual([1, 2, 3, 4, 5, 6]);
-            }
-        };
-
-        emitter.listen("firstEvent", () => listener(1));
-        emitter.listen("firstEvent", () => listener(2));
-        emitter.listen("firstEvent", () => listener(3));
-
-        emitter.listen("secondEvent", () => listener(4));
-        emitter.listen("secondEvent", () => listener(5));
-        emitter.listen("secondEvent", () => listener(6));
-
-        await emitter.dispatchManySeq([
-            ["firstEvent", undefined],
-            ["secondEvent", undefined],
-        ]);
-    });
-});
-
-describe(".dispatchManySync", () => {
-    it("should emit all events", async () => {
-        const events: number[] = [];
-
-        const listener = async (data: any) => {
-            events.push(data);
-
-            if (events.length >= 6) {
-                expect(events).toEqual([1, 2, 3, 4, 5, 6]);
-            }
-        };
-
-        emitter.listen("firstEvent", () => listener(1));
-        emitter.listen("firstEvent", () => listener(2));
-        emitter.listen("firstEvent", () => listener(3));
-
-        emitter.listen("secondEvent", () => listener(4));
-        emitter.listen("secondEvent", () => listener(5));
-        emitter.listen("secondEvent", () => listener(6));
-
-        emitter.dispatchManySync([
-            ["firstEvent", undefined],
-            ["secondEvent", undefined],
-        ]);
-    });
-});
-
-describe(".flush", () => {
-    it("should clear all listeners", async () => {
-        const calls: string[] = [];
-
-        emitter.listen("firstEvent", () => calls.push("firstEvent"));
-        emitter.listen("secondEvent", () => calls.push("secondEvent"));
-        emitter.listen("*", () => calls.push("any"));
-
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("secondEvent");
-
-        expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent"]);
-
-        emitter.flush();
-
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("secondEvent");
-
-        expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent"]);
-    });
-});
-
-describe(".forget", () => {
-    it("should clear all listeners for an event", async () => {
-        const calls: string[] = [];
-
-        emitter.listen("firstEvent", () => calls.push("firstEvent"));
-        emitter.listen("secondEvent", () => calls.push("secondEvent"));
-        emitter.listen("*", () => calls.push("any"));
-
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("secondEvent");
-
-        expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent"]);
-
-        emitter.forget("firstEvent");
-
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("secondEvent");
-
-        expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent", "any", "any", "secondEvent"]);
-    });
-});
-
-describe(".forgetMany", () => {
-    it("should forget the given listeners by name", async () => {
-        const calls: string[] = [];
-
-        emitter.listen("firstEvent", () => calls.push("firstEvent"));
-        emitter.listen("secondEvent", () => calls.push("secondEvent"));
-        emitter.listen("*", () => calls.push("any"));
-
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("secondEvent");
-
-        expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent"]);
-
-        emitter.forgetMany(["firstEvent", "secondEvent"]);
-
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("secondEvent");
-
-        expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent", "any", "any"]);
+            expect(dummyCaller).toHaveBeenCalledTimes(3);
+        });
     });
 
-    it("should forget the given listeners by name and function signature", async () => {
-        const calls: string[] = [];
+    describe(".dispatchSync", () => {
+        it("should execute an event listener without await", () => {
+            emitter.listen("firstEvent", dummyListener);
 
-        const firstEvent = () => calls.push("firstEvent");
-        const secondEvent = () => calls.push("secondEvent");
+            emitter.dispatchSync("firstEvent");
 
-        emitter.listen("firstEvent", firstEvent);
-        emitter.listen("secondEvent", secondEvent);
-        emitter.listen("*", () => calls.push("any"));
+            expect(dummyCaller).toHaveBeenCalled();
+        });
 
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("secondEvent");
+        it("should execute a wildcard listener without await", () => {
+            emitter.listen("*", dummyListener);
 
-        expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent"]);
+            emitter.dispatchSync("firstEvent");
 
-        emitter.forgetMany([
-            ["firstEvent", firstEvent],
-            ["secondEvent", secondEvent],
-        ]);
+            expect(dummyCaller).toHaveBeenCalled();
+        });
 
-        await emitter.dispatch("firstEvent");
-        await emitter.dispatch("secondEvent");
+        it("should emit all events in sequence", () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
 
-        expect(calls).toEqual(["any", "firstEvent", "any", "secondEvent", "any", "any"]);
-    });
-});
+            emitter.dispatchSync("firstEvent");
 
-describe(".getListeners", () => {
-    it("should return all listeners for the given event", () => {
-        const listener = (): null => null;
-
-        emitter.listen("firstEvent", listener);
-
-        expect(emitter.getListeners("firstEvent")).toEqual([listener]);
-    });
-});
-
-describe(".hasListeners", () => {
-    it("should return true if a listener is registered", () => {
-        emitter.listen("firstEvent", () => {});
-
-        expect(emitter.hasListeners("firstEvent")).toBeTrue();
+            expect(dummyCaller).toHaveBeenCalledTimes(3);
+        });
     });
 
-    it("should return false if no listener is registered", () => {
-        expect(emitter.hasListeners("firstEvent")).toBeFalse();
+    describe(".dispatchMany", () => {
+        it("should emit all events", async () => {
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+
+            await emitter.dispatchMany([
+                ["firstEvent", undefined],
+                ["secondEvent", undefined],
+            ]);
+
+            expect(dummyCaller).toHaveBeenCalledTimes(6);
+        });
     });
-});
 
-describe(".countListeners", () => {
-    it("should return the total listener count", () => {
-        emitter.listen("firstEvent", () => null);
-        emitter.listen("secondEvent", () => null);
-        emitter.listen("*", () => null);
+    describe(".dispatchManySeq", () => {
+        it("should emit all events", async () => {
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
 
-        expect(emitter.countListeners("firstEvent")).toBe(2);
-        expect(emitter.countListeners("secondEvent")).toBe(2);
-        expect(emitter.countListeners()).toBe(3);
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+
+            await emitter.dispatchManySeq([
+                ["firstEvent", undefined],
+                ["secondEvent", undefined],
+            ]);
+
+            expect(dummyCaller).toHaveBeenCalledTimes(6);
+        });
+    });
+
+    describe(".dispatchManySync", () => {
+        it("should emit all events", async () => {
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+            emitter.listen("firstEvent", new DummyClass(dummyCaller));
+
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+            emitter.listen("secondEvent", new DummyClass(dummyCaller));
+
+            emitter.dispatchManySync([
+                ["firstEvent", undefined],
+                ["secondEvent", undefined],
+            ]);
+
+            expect(dummyCaller).toHaveBeenCalledTimes(6);
+        });
+    });
+
+    describe(".flush", () => {
+        it("should clear all listeners", async () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("secondEvent", dummyListener);
+            emitter.listen("*", dummyListener);
+
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("secondEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(4);
+
+            emitter.flush();
+
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("secondEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(4);
+        });
+    });
+
+    describe(".forget", () => {
+        it("should clear all listeners for an event", async () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("secondEvent", dummyListener);
+            emitter.listen("*", dummyListener);
+
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("secondEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(4);
+
+            emitter.forget("firstEvent");
+
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("secondEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(7);
+        });
+    });
+
+    describe(".forgetMany", () => {
+        it("should forget the given listeners by name", async () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("secondEvent", dummyListener);
+            emitter.listen("*", dummyListener);
+
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("secondEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(4);
+
+            emitter.forgetMany(["firstEvent", "secondEvent"]);
+
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("secondEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(6);
+        });
+
+        it("should forget the given listeners by name and function signature", async () => {
+            const firstEvent = new DummyClass(dummyCaller);
+            const secondEvent = new DummyClass(dummyCaller);
+
+            emitter.listen("firstEvent", firstEvent);
+            emitter.listen("secondEvent", secondEvent);
+            emitter.listen("*", new DummyClass(dummyCaller));
+
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("secondEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(4);
+
+            emitter.forgetMany([
+                ["firstEvent", firstEvent],
+                ["secondEvent", secondEvent],
+            ]);
+
+            await emitter.dispatch("firstEvent");
+            await emitter.dispatch("secondEvent");
+
+            expect(dummyCaller).toHaveBeenCalledTimes(6);
+        });
+    });
+
+    describe(".getListeners", () => {
+        it("should return all listeners for the given event", () => {
+            emitter.listen("firstEvent", dummyListener);
+
+            expect(emitter.getListeners("firstEvent")).toEqual([dummyListener]);
+        });
+    });
+
+    describe(".hasListeners", () => {
+        it("should return true if a listener is registered", () => {
+            emitter.listen("firstEvent", dummyListener);
+
+            expect(emitter.hasListeners("firstEvent")).toBeTrue();
+        });
+
+        it("should return false if no listener is registered", () => {
+            expect(emitter.hasListeners("firstEvent")).toBeFalse();
+        });
+    });
+
+    describe(".countListeners", () => {
+        it("should return the total listener count", () => {
+            emitter.listen("firstEvent", dummyListener);
+            emitter.listen("secondEvent", dummyListener);
+            emitter.listen("*", dummyListener);
+
+            expect(emitter.countListeners("firstEvent")).toBe(2);
+            expect(emitter.countListeners("secondEvent")).toBe(2);
+            expect(emitter.countListeners()).toBe(3);
+        });
     });
 });

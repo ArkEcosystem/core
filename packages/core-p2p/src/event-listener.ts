@@ -1,28 +1,21 @@
 import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 
-import { PeerConnector } from "./peer-connector";
+import { DisconnectPeer } from "./listeners";
 
 // todo: review the implementation
 @Container.injectable()
 export class EventListener {
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
+
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
-
-    @Container.inject(Container.Identifiers.PeerConnector)
-    private readonly connector!: PeerConnector;
-
-    @Container.inject(Container.Identifiers.PeerStorage)
-    private readonly storage!: Contracts.P2P.PeerStorage;
 
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     private readonly networkMonitor!: Contracts.P2P.INetworkMonitor;
 
     public init() {
-        this.emitter.listen(Enums.PeerEvent.Disconnect, ({ data }) => {
-            this.connector.disconnect(data);
-
-            this.storage.forgetPeer(data);
-        });
+        this.emitter.listen(Enums.PeerEvent.Disconnect, this.app.resolve(DisconnectPeer));
 
         const exitHandler = () => this.networkMonitor.stopServer();
 

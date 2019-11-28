@@ -59,10 +59,28 @@ export class DelegateTracker {
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**
+     * @private
+     * @type {Delegate[]}
+     * @memberof DelegateTracker
+     */
+    private delegates: Delegate[] = [];
+
+    /**
+     * @param {Delegate[]} delegates
+     * @returns {this}
+     * @memberof DelegateTracker
+     */
+    public initialize(delegates: Delegate[]): this {
+        this.delegates = delegates;
+
+        return this;
+    }
+
+    /**
      * @returns {Promise<void>}
      * @memberof DelegateTracker
      */
-    public async execute(delegates: Delegate[]): Promise<void> {
+    public async handle(): Promise<void> {
         // Arrange...
         const { height, timestamp } = this.blockchainService.getLastBlock().data;
         const delegatesCount = Managers.configManager.getMilestone(height).activeDelegates;
@@ -92,7 +110,7 @@ export class DelegateTracker {
         );
 
         let secondsToNextRound: number | undefined;
-        for (const delegate of delegates) {
+        for (const delegate of this.delegates) {
             let secondsToForge: number = 0;
             for (let i = 0; i < nextForgers.length; i++) {
                 if (nextForgers[i] === delegate.publicKey) {

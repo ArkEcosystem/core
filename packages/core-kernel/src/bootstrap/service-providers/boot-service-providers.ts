@@ -1,3 +1,4 @@
+import { Contracts } from "../..";
 import { Application } from "../../contracts/kernel";
 // @ts-ignore
 import { BlockEvent, KernelEvent, StateEvent } from "../../enums";
@@ -7,6 +8,7 @@ import { Identifiers, inject, injectable } from "../../ioc";
 import { ServiceProvider, ServiceProviderRepository } from "../../providers";
 import { assert } from "../../utils";
 import { Bootstrapper } from "../interfaces";
+import { ChangeServiceProviderState } from "./listeners";
 
 // todo: review the implementation
 /**
@@ -61,37 +63,15 @@ export class BootServiceProviders implements Bootstrapper {
                 this.serviceProviders.defer(name);
             }
 
+            const eventListener: Contracts.Kernel.EventListener = this.app
+                .resolve(ChangeServiceProviderState)
+                .initialize(serviceProviderName, serviceProvider);
+
             // Register the "enable/disposeWhen" listeners to be triggered on every block. Use with care!
-            this.app.events.listen(BlockEvent.Applied, async () => await this.changeState(name, serviceProvider));
+            this.app.events.listen(BlockEvent.Applied, eventListener);
 
             // We only want to trigger this if another service provider has been booted to avoid an infinite loop.
-            this.app.events.listen(KernelEvent.ServiceProviderBooted, async ({ data }) => {
-                if (data.name !== name) {
-                    await this.changeState(name, serviceProvider, data.name);
-                }
-            });
-        }
-    }
-
-    /**
-     * @private
-     * @param {string} name
-     * @param {ServiceProvider} serviceProvider
-     * @param {string} [previous]
-     * @returns {Promise<void>}
-     * @memberof BootServiceProviders
-     */
-    private async changeState(name: string, serviceProvider: ServiceProvider, previous?: string): Promise<void> {
-        if (this.serviceProviders.failed(name)) {
-            return;
-        }
-
-        if (this.serviceProviders.loaded(name) && (await serviceProvider.disposeWhen(previous))) {
-            await this.serviceProviders.dispose(name);
-        }
-
-        if (this.serviceProviders.deferred(name) && (await serviceProvider.bootWhen(previous))) {
-            await this.serviceProviders.boot(name);
+            this.app.events.listen(KernelEvent.ServiceProviderBooted, eventListener);
         }
     }
 }

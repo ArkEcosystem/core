@@ -1,4 +1,4 @@
-import { Queue } from "../../../contracts/kernel/queue";
+import { Queue, QueueJob } from "../../../contracts/kernel/queue";
 import { injectable } from "../../../ioc";
 
 /**
@@ -11,122 +11,85 @@ export class NullQueue implements Queue {
     /**
      * Start the queue.
      *
-     * @param {string} [queue]
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async start(queue?: string): Promise<void> {
-        //
+    public async start(): Promise<void> {
+        return;
     }
 
     /**
      * Stop the queue.
      *
-     * @param {string} [queue]
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async stop(queue?: string): Promise<void> {
-        //
+    public async stop(): Promise<void> {
+        return;
     }
 
     /**
      * Pause the queue.
      *
-     * @param {string} [queue]
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async pause(queue?: string): Promise<void> {
-        //
+    public async pause(): Promise<void> {
+        return;
+    }
+
+    /**
+     * Resume the queue.
+     *
+     * @returns {Promise<void>}
+     * @memberof MemoryQueue
+     */
+    public async resume(): Promise<void> {
+        return;
     }
 
     /**
      * Clear the queue.
      *
-     * @param {string} [queue]
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async clear(queue?: string): Promise<void> {
-        //
+    public async clear(): Promise<void> {
+        return;
     }
 
     /**
      * Push a new job onto the default queue.
      *
-     * @template T
-     * @param {() => PromiseLike<T>} fn
+     * @param {QueueJob} job
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async push<T = any>(fn: () => PromiseLike<T>): Promise<void> {
-        //
-    }
-
-    /**
-     * Push a new job onto the given queue.
-     *
-     * @template T
-     * @param {string} queue
-     * @param {() => PromiseLike<T>} fn
-     * @returns {Promise<void>}
-     * @memberof MemoryQueue
-     */
-    public async pushOn<T>(queue: string, fn: () => PromiseLike<T>): Promise<void> {
-        //
+    public async push(job: QueueJob): Promise<void> {
+        return;
     }
 
     /**
      * Push a new job onto the default queue after a delay.
      *
-     * @template T
      * @param {number} delay
-     * @param {() => PromiseLike<T>} fn
+     * @param {QueueJob} job
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async later<T>(delay: number, fn: () => PromiseLike<T>): Promise<void> {
-        //
-    }
-
-    /**
-     * Push a new job onto the given queue after a delay.
-     *
-     * @template T
-     * @param {string} queue
-     * @param {number} delay
-     * @param {() => PromiseLike<T>} fn
-     * @returns {Promise<void>}
-     * @memberof MemoryQueue
-     */
-    public async laterOn<T>(queue: string, delay: number, fn: () => PromiseLike<T>): Promise<void> {
-        //
+    public async later(delay: number, job: QueueJob): Promise<void> {
+        return;
     }
 
     /**
      * Push an array of jobs onto the default queue.
      *
-     * @template T
-     * @param {(() => PromiseLike<T>)[]} functions
+     * @param {(QueueJob)[]} jobs
      * @returns {Promise<void>}
      * @memberof MemoryQueue
      */
-    public async bulk<T>(functions: (() => PromiseLike<T>)[]): Promise<void> {
-        //
-    }
-
-    /**
-     * Push an array of jobs onto the given queue.
-     *
-     * @template T
-     * @param {string} queue
-     * @param {(() => PromiseLike<T>)[]} functions
-     * @returns {Promise<void>}
-     * @memberof MemoryQueue
-     */
-    public async bulkOn<T>(queue: string, functions: (() => PromiseLike<T>)[]): Promise<void> {
-        //
+    public async bulk(jobs: QueueJob[]): Promise<void> {
+        return;
     }
 
     /**
@@ -136,27 +99,7 @@ export class NullQueue implements Queue {
      * @returns {number}
      * @memberof MemoryQueue
      */
-    public size(queue?: string): number {
+    public size(): number {
         return 0;
-    }
-
-    /**
-     * Get the connection name for the queue.
-     *
-     * @returns {string}
-     * @memberof MemoryQueue
-     */
-    public getDefaultQueue(): string {
-        return "";
-    }
-
-    /**
-     * Set the connection name for the queue.
-     *
-     * @param {string} name
-     * @memberof MemoryQueue
-     */
-    public setDefaultQueue(name: string): void {
-        //
     }
 }

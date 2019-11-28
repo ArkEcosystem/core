@@ -1,4 +1,11 @@
-import { EventListener, EventName } from "../../types/events";
+export type EventName = string | symbol;
+
+/**
+ * @interface EventListener
+ */
+export interface EventListener {
+    handle(payload: { name: EventName; data: any }): void;
+}
 
 /**
  * @export

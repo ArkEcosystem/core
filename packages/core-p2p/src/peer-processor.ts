@@ -1,10 +1,11 @@
 import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
+import { DisconnectInvalidPeers } from "./listeners";
 import { PeerCommunicator } from "./peer-communicator";
 import { PeerConnector } from "./peer-connector";
 import { AcceptNewPeerOptions, PeerFactory } from "./types";
-import { isValidVersion, isWhitelisted } from "./utils";
+import { isWhitelisted } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
@@ -34,7 +35,7 @@ export class PeerProcessor {
     private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
 
     public init() {
-        this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, () => this.updatePeersAfterMilestoneChange());
+        this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));
     }
 
     public async validateAndAcceptPeer(peer: Contracts.P2P.Peer, options: AcceptNewPeerOptions = {}): Promise<void> {
@@ -74,15 +75,6 @@ export class PeerProcessor {
         }
 
         return true;
-    }
-
-    private updatePeersAfterMilestoneChange(): void {
-        const peers: Contracts.P2P.Peer[] = this.storage.getPeers();
-        for (const peer of peers) {
-            if (!isValidVersion(this.app, peer)) {
-                this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
-            }
-        }
     }
 
     private async acceptNewPeer(peer, options: AcceptNewPeerOptions = {}): Promise<void> {

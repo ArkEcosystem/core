@@ -1,6 +1,5 @@
-import { EventDispatcher as EventDispatcherContract } from "../../../contracts/kernel/events";
+import { EventDispatcher as EventDispatcherContract, EventListener, EventName } from "../../../contracts/kernel/events";
 import { injectable } from "../../../ioc";
-import { EventListener, EventName } from "../../../types/events";
 
 /**
  * @export
