@@ -8,8 +8,8 @@ import {
     registerTransactionFactory,
     registerWalletFactory,
 } from "./factories";
-import { FactoryBuilder } from "./factory-builder";
 import { Factory } from "./factory";
+import { FactoryBuilder } from "./factory-builder";
 
 const createFactory = memoize(
     (): FactoryBuilder => {

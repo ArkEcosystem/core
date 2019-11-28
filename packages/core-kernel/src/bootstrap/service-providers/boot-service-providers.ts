@@ -90,7 +90,6 @@ export class BootServiceProviders implements Bootstrapper {
             await this.serviceProviders.dispose(name);
         }
 
-        /* istanbul ignore else */
         if (this.serviceProviders.deferred(name) && (await serviceProvider.bootWhen(previous))) {
             await this.serviceProviders.boot(name);
         }

@@ -44,17 +44,14 @@ $ ark config:forger:bip38 --bip39="..." --password="..."
                 type: "password",
                 name: "bip39",
                 message: "Please enter your delegate passphrase",
-                validate: /* istanbul ignore next */ value =>
-                    /* istanbul ignore next */ !validateMnemonic(value)
-                        ? "Failed to verify the given passphrase as BIP39 compliant."
-                        : true,
+                validate: value =>
+                    !validateMnemonic(value) ? "Failed to verify the given passphrase as BIP39 compliant." : true,
             },
             {
                 type: "password",
                 name: "password",
                 message: "Please enter your desired BIP38 password",
-                validate: /* istanbul ignore next */ value =>
-                    typeof value !== "string" ? "The BIP38 password has to be a string." : true,
+                validate: value => (typeof value !== "string" ? "The BIP38 password has to be a string." : true),
             },
             {
                 type: "confirm",

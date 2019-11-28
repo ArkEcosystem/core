@@ -40,7 +40,7 @@ $ ark config:publish --network=mainnet
                 type: "select",
                 name: "network",
                 message: "What network do you want to operate on?",
-                /* istanbul ignore next */
+
                 choices: Object.keys(Networks).map(network => ({ title: network, value: network })),
             },
             {

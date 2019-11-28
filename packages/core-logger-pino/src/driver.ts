@@ -230,18 +230,15 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                 try {
                     const json = JSON.parse(chunk);
 
-                    /* istanbul ignore else */
                     if (getLevel(json.level) >= getLevel(level)) {
                         const line: string | undefined = pinoPretty(json);
 
-                        /* istanbul ignore else */
                         if (line !== undefined) {
                             return cb(undefined, line.replace("USERLVL", formatLevel(json.level)));
                         }
                     }
                 } catch {}
 
-                /* istanbul ignore next */
                 return cb();
             },
         });

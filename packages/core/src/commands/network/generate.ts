@@ -509,7 +509,6 @@ $ ark network:generate --network=mynet7 --premine=120000000000 --delegates=47 --
             byteBuffer.writeByte(generatorByte);
         }
 
-        /* istanbul ignore next */
         if (genesisBlock.blockSignature) {
             for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
                 byteBuffer.writeByte(blockSignatureByte);

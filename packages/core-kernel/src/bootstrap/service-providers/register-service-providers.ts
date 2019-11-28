@@ -145,13 +145,11 @@ export class RegisterServiceProviders implements Bootstrapper {
                 return false;
             }
 
-            /* istanbul ignore else */
             if (constraint) {
                 const version: string | undefined = serviceProviders.get(name).version();
 
                 assert.defined<string>(version);
 
-                /* istanbul ignore else */
                 if (!semver.satisfies(version, constraint)) {
                     const error: DependencyVersionOutOfRange = new DependencyVersionOutOfRange(
                         name,

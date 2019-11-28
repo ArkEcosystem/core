@@ -12,7 +12,7 @@ export const init: Hook<"init"> = async function({ id }): Promise<void> {
 
     // const state = await checkForUpdates(this);
 
-    // /* istanbul ignore else */
+    //
     // if (state.ready) {
     //     this.warn(
     //         `${state.name} update available from ${Chalk.greenBright(state.currentVersion)} to ${Chalk.greenBright(

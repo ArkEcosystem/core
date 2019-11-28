@@ -155,7 +155,6 @@ export class JoiValidator implements Validator {
         for (const error of this.resultError) {
             const errorKey: string | number = error.path[0];
 
-            /* istanbul ignore else */
             if (!Array.isArray(errors[errorKey])) {
                 errors[errorKey] = [];
             }

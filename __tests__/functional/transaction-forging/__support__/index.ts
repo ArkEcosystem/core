@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Contracts, Container } from "@arkecosystem/core-kernel";
 import { Utils, Identities } from "@arkecosystem/crypto";
-import secrets from "@packages/core-test-framework/src/internal/secrets.json";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 
 jest.setTimeout(1200000);
 

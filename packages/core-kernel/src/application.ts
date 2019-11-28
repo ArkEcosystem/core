@@ -382,7 +382,6 @@ export class Application implements Contracts.Kernel.Application {
     public rebind<T>(
         serviceIdentifier: Contracts.Kernel.Container.ServiceIdentifier<T>,
     ): Contracts.Kernel.Container.BindingToSyntax<T> {
-        /* istanbul ignore else */
         if (this.container.isBound(serviceIdentifier)) {
             this.container.unbind(serviceIdentifier);
         }

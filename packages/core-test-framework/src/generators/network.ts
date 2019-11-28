@@ -6,7 +6,7 @@ import { resolve } from "path";
 import { dirSync } from "tmp";
 
 import { ConfigPaths } from "../app/types";
-import secrets from "../internal/secrets.json";
+import secrets from "../internal/passphrases.json";
 
 interface Wallet {
     address: string;
@@ -504,7 +504,6 @@ export class GenerateNetwork {
             byteBuffer.writeByte(generatorByte);
         }
 
-        /* istanbul ignore next */
         if (genesisBlock.blockSignature) {
             for (const blockSignatureByte of Buffer.from(genesisBlock.blockSignature, "hex")) {
                 byteBuffer.writeByte(blockSignatureByte);

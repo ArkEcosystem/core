@@ -7,7 +7,7 @@ import bs58 from "bs58";
 import Chance from "chance";
 import { createHash } from "crypto";
 
-import secrets from "../../internal/secrets.json";
+import secrets from "../../internal/passphrases.json";
 import { FactoryBuilder } from "../factory-builder";
 import { FactoryFunctionOptions } from "../types";
 
@@ -38,11 +38,42 @@ const multiSign = ({ entity, options }: FactoryFunctionOptions) => {
     return entity;
 };
 
+const applyModifiers = (entity, options) => {
+    if (options.version) {
+        entity.version(options.version);
+    }
+
+    if (entity.data.version > 1 && options.nonce) {
+        entity.nonce(options.nonce);
+    }
+
+    if (options.fee) {
+        entity.fee(options.fee.toFixed());
+    }
+
+    if (options.timestamp) {
+        entity.data.timestamp = options.timestamp;
+    }
+
+    if (options.senderPublicKey) {
+        entity.senderPublicKey(options.senderPublicKey);
+    }
+
+    if (options.expiration) {
+        entity.expiration(options.expiration);
+    }
+
+    return entity;
+};
+
 export const registerTransferFactory = (factory: FactoryBuilder): void => {
     factory.set("Transfer", ({ options }) =>
-        Transactions.BuilderFactory.transfer()
-            .amount(Utils.BigNumber.make(options.amount || 1).toFixed())
-            .recipientId(options.recipientId || Identities.Address.fromPassphrase(secrets[0])),
+        applyModifiers(
+            Transactions.BuilderFactory.transfer()
+                .amount(Utils.BigNumber.make(options.amount || 1).toFixed())
+                .recipientId(options.recipientId || Identities.Address.fromPassphrase(secrets[0])),
+            options,
+        ),
     );
 
     factory
@@ -56,7 +87,10 @@ export const registerTransferFactory = (factory: FactoryBuilder): void => {
 
 export const registerSecondSignatureFactory = (factory: FactoryBuilder): void => {
     factory.set("SecondSignature", ({ options }) =>
-        Transactions.BuilderFactory.secondSignature().signatureAsset(options.passphrase || secrets[1]),
+        applyModifiers(
+            Transactions.BuilderFactory.secondSignature().signatureAsset(options.passphrase || secrets[1]),
+            options,
+        ),
     );
 
     factory.get("SecondSignature").state("sign", sign);
@@ -87,9 +121,12 @@ export const registerDelegateResignationFactory = (factory: FactoryBuilder): voi
 
 export const registerVoteFactory = (factory: FactoryBuilder): void => {
     factory.set("Vote", ({ options }) =>
-        Transactions.BuilderFactory.vote().votesAsset([
-            `+${options.publicKey || Identities.PublicKey.fromPassphrase(secrets[1])}`,
-        ]),
+        applyModifiers(
+            Transactions.BuilderFactory.vote().votesAsset([
+                `+${options.publicKey || Identities.PublicKey.fromPassphrase(secrets[1])}`,
+            ]),
+            options,
+        ),
     );
 
     factory.get("Vote").state("sign", sign);
@@ -99,9 +136,12 @@ export const registerVoteFactory = (factory: FactoryBuilder): void => {
 
 export const registerUnvoteFactory = (factory: FactoryBuilder): void => {
     factory.set("Unvote", ({ options }) =>
-        Transactions.BuilderFactory.vote().votesAsset([
-            `-${options.publicKey || Identities.PublicKey.fromPassphrase(secrets[1])}`,
-        ]),
+        applyModifiers(
+            Transactions.BuilderFactory.vote().votesAsset([
+                `-${options.publicKey || Identities.PublicKey.fromPassphrase(secrets[1])}`,
+            ]),
+            options,
+        ),
     );
 
     factory.get("Unvote").state("sign", sign);
@@ -111,7 +151,7 @@ export const registerUnvoteFactory = (factory: FactoryBuilder): void => {
 
 export const registerMultiSignatureFactory = (factory: FactoryBuilder): void => {
     factory.set("MultiSignature", ({ options }) => {
-        const builder = Transactions.BuilderFactory.multiSignature();
+        const builder = applyModifiers(Transactions.BuilderFactory.multiSignature(), options);
 
         const publicKeys: string[] = options.publicKeys || [
             Identities.PublicKey.fromPassphrase(secrets[0]),
@@ -135,7 +175,10 @@ export const registerMultiSignatureFactory = (factory: FactoryBuilder): void => 
 
 export const registerIpfsFactory = (factory: FactoryBuilder): void => {
     factory.set("Ipfs", ({ options }) =>
-        Transactions.BuilderFactory.ipfs().ipfsAsset(options.id || bs58.encode(Buffer.from(randomHash(), "hex"))),
+        applyModifiers(
+            Transactions.BuilderFactory.ipfs().ipfsAsset(options.id || bs58.encode(Buffer.from(randomHash(), "hex"))),
+            options,
+        ),
     );
 
     factory.get("Ipfs").state("sign", sign);
@@ -145,13 +188,16 @@ export const registerIpfsFactory = (factory: FactoryBuilder): void => {
 
 export const registerHtlcLockFactory = (factory: FactoryBuilder): void => {
     factory.set("HtlcLock", ({ options }) =>
-        Transactions.BuilderFactory.htlcLock().htlcLockAsset({
-            secretHash: options.secretHash || randomHash(),
-            expiration: options.expiration || {
-                type: Enums.HtlcLockExpirationType.EpochTimestamp,
-                value: Math.floor(Date.now() / 1000),
-            },
-        }),
+        applyModifiers(
+            Transactions.BuilderFactory.htlcLock().htlcLockAsset({
+                secretHash: options.secretHash || randomHash(),
+                expiration: options.expiration || {
+                    type: Enums.HtlcLockExpirationType.EpochTimestamp,
+                    value: Math.floor(Date.now() / 1000),
+                },
+            }),
+            options,
+        ),
     );
 
     factory.get("HtlcLock").state("sign", sign);
@@ -161,14 +207,17 @@ export const registerHtlcLockFactory = (factory: FactoryBuilder): void => {
 
 export const registerHtlcClaimFactory = (factory: FactoryBuilder): void => {
     factory.set("HtlcClaim", ({ options }) =>
-        Transactions.BuilderFactory.htlcClaim().htlcClaimAsset({
-            lockTransactionId: options.lockTransactionId || randomHash(),
-            unlockSecret:
-                options.unlockSecret ||
-                Math.random()
-                    .toString(36)
-                    .substring(8),
-        }),
+        applyModifiers(
+            Transactions.BuilderFactory.htlcClaim().htlcClaimAsset({
+                lockTransactionId: options.lockTransactionId || randomHash(),
+                unlockSecret:
+                    options.unlockSecret ||
+                    Math.random()
+                        .toString(36)
+                        .substring(8),
+            }),
+            options,
+        ),
     );
 
     factory.get("HtlcClaim").state("sign", sign);
@@ -178,9 +227,12 @@ export const registerHtlcClaimFactory = (factory: FactoryBuilder): void => {
 
 export const registerHtlcRefundFactory = (factory: FactoryBuilder): void => {
     factory.set("HtlcRefund", ({ options }) =>
-        Transactions.BuilderFactory.htlcRefund().htlcRefundAsset({
-            lockTransactionId: options.lockTransactionId || randomHash(),
-        }),
+        applyModifiers(
+            Transactions.BuilderFactory.htlcRefund().htlcRefundAsset({
+                lockTransactionId: options.lockTransactionId || randomHash(),
+            }),
+            options,
+        ),
     );
 
     factory.get("HtlcRefund").state("sign", sign);
@@ -190,9 +242,12 @@ export const registerHtlcRefundFactory = (factory: FactoryBuilder): void => {
 
 export const registerMultiPaymentFactory = (factory: FactoryBuilder): void => {
     factory.set("MultiPayment", ({ options }) =>
-        Transactions.BuilderFactory.multiPayment().addPayment(
-            options.recipientId || Identities.Address.fromPassphrase(secrets[0]),
-            Utils.BigNumber.make(options.amount || 1).toFixed(),
+        applyModifiers(
+            Transactions.BuilderFactory.multiPayment().addPayment(
+                options.recipientId || Identities.Address.fromPassphrase(secrets[0]),
+                Utils.BigNumber.make(options.amount || 1).toFixed(),
+            ),
+            options,
         ),
     );
 
@@ -209,10 +264,13 @@ export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): vo
     } catch {}
 
     factory.set("BusinessRegistration", ({ options }) =>
-        new MagistrateBuilders.BusinessRegistrationBuilder().businessRegistrationAsset({
-            name: options.name || chance.first(),
-            website: options.website || chance.domain(),
-        }),
+        applyModifiers(
+            new MagistrateBuilders.BusinessRegistrationBuilder().businessRegistrationAsset({
+                name: options.name || chance.first(),
+                website: options.website || chance.domain(),
+            }),
+            options,
+        ),
     );
 
     factory.get("BusinessRegistration").state("sign", sign);
@@ -225,7 +283,9 @@ export const registerBusinessResignationFactory = (factory: FactoryBuilder): voi
         Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
     } catch {}
 
-    factory.set("BusinessResignation", () => new MagistrateBuilders.BusinessResignationBuilder());
+    factory.set("BusinessResignation", ({ options }) =>
+        applyModifiers(new MagistrateBuilders.BusinessResignationBuilder(), options),
+    );
 
     factory.get("BusinessResignation").state("sign", sign);
     factory.get("BusinessResignation").state("secondSign", secondSign);
@@ -238,12 +298,15 @@ export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => 
     } catch {}
 
     factory.set("BusinessUpdate", ({ options }) =>
-        new MagistrateBuilders.BusinessUpdateBuilder().businessUpdateAsset({
-            name: options.name || chance.first(),
-            website: options.website || chance.domain(),
-            vat: options.vat,
-            repository: options.repository || chance.domain(),
-        }),
+        applyModifiers(
+            new MagistrateBuilders.BusinessUpdateBuilder().businessUpdateAsset({
+                name: options.name || chance.first(),
+                website: options.website || chance.domain(),
+                vat: options.vat,
+                repository: options.repository || chance.domain(),
+            }),
+            options,
+        ),
     );
 
     factory.get("BusinessUpdate").state("sign", sign);
@@ -259,13 +322,16 @@ export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder):
     } catch {}
 
     factory.set("BridgechainRegistration", ({ options }) =>
-        new MagistrateBuilders.BridgechainRegistrationBuilder().bridgechainRegistrationAsset({
-            name: options.name || chance.first(),
-            seedNodes: options.seedNodes || [chance.ip(), chance.ip(), chance.ip()],
-            genesisHash: options.genesisHash || randomHash(),
-            bridgechainRepository: options.bridgechainRepository || chance.domain(),
-            ports: options.ports || { "@arkecosystem/core-api": chance.port() },
-        }),
+        applyModifiers(
+            new MagistrateBuilders.BridgechainRegistrationBuilder().bridgechainRegistrationAsset({
+                name: options.name || chance.first(),
+                seedNodes: options.seedNodes || [chance.ip(), chance.ip(), chance.ip()],
+                genesisHash: options.genesisHash || randomHash(),
+                bridgechainRepository: options.bridgechainRepository || chance.domain(),
+                ports: options.ports || { "@arkecosystem/core-api": chance.port() },
+            }),
+            options,
+        ),
     );
 
     factory.get("BridgechainRegistration").state("sign", sign);
@@ -281,8 +347,11 @@ export const registerBridgechainResignationFactory = (factory: FactoryBuilder): 
     } catch {}
 
     factory.set("BridgechainResignation", ({ options }) =>
-        new MagistrateBuilders.BridgechainResignationBuilder().bridgechainResignationAsset(
-            options.genesisHash || randomHash(),
+        applyModifiers(
+            new MagistrateBuilders.BridgechainResignationBuilder().bridgechainResignationAsset(
+                options.genesisHash || randomHash(),
+            ),
+            options,
         ),
     );
 
@@ -297,11 +366,14 @@ export const registerBridgechainUpdateFactory = (factory: FactoryBuilder): void 
     } catch {}
 
     factory.set("BridgechainUpdate", ({ options }) =>
-        new MagistrateBuilders.BridgechainUpdateBuilder().bridgechainUpdateAsset({
-            bridgechainId: options.bridgechainId || randomHash(),
-            seedNodes: options.seedNodes || [chance.ip(), chance.ip(), chance.ip()],
-            ports: options.ports || { "@arkecosystem/core-api": chance.port() },
-        }),
+        applyModifiers(
+            new MagistrateBuilders.BridgechainUpdateBuilder().bridgechainUpdateAsset({
+                bridgechainId: options.bridgechainId || randomHash(),
+                seedNodes: options.seedNodes || [chance.ip(), chance.ip(), chance.ip()],
+                ports: options.ports || { "@arkecosystem/core-api": chance.port() },
+            }),
+            options,
+        ),
     );
 
     factory.get("BridgechainUpdate").state("sign", sign);

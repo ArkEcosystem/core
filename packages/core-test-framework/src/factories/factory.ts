@@ -188,7 +188,6 @@ export class Factory {
      * @memberof Factory
      */
     private registerHook(state: string, fn: HookFunction): void {
-        /* istanbul ignore next */
         if (!this.hooks.has(state)) {
             this.hooks.set(state, new Set());
         }

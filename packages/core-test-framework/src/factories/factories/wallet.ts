@@ -2,8 +2,8 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Identities } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
-import { FactoryBuilder } from "../factory-builder";
 import { knownAttributes } from "../../internal/wallet-attributes";
+import { FactoryBuilder } from "../factory-builder";
 
 export const registerWalletFactory = (factory: FactoryBuilder): void => {
     factory.set("Wallet", ({ options }) => {

@@ -5,7 +5,7 @@ import {
 } from "@arkecosystem/core-magistrate-crypto";
 import { Identities, Interfaces, Managers, Transactions, Types, Utils } from "@arkecosystem/crypto";
 
-import secrets from "../internal/secrets.json";
+import secrets from "../internal/passphrases.json";
 import { getWalletNonce } from "./generic";
 
 const defaultPassphrase: string = secrets[0];

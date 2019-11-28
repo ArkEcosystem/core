@@ -3,7 +3,7 @@ import "jest-extended";
 import { Identifiers } from "@arkecosystem/core-api";
 import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
-import secrets from "../internal/secrets.json";
+import secrets from "../internal/passphrases.json";
 import { TransactionFactory } from "./transaction-factory";
 
 export class ApiHelpers {

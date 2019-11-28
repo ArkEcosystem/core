@@ -16,7 +16,6 @@ export const parseWithNetwork = async ({ args, flags }): Promise<{ args: any; fl
     if (!flags.network) {
         let config: string = getEnvPaths(flags.token).config;
 
-        /* istanbul ignore else */
         if (process.env.CORE_PATH_CONFIG) {
             config = process.env.CORE_PATH_CONFIG;
         }

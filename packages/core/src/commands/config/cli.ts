@@ -32,7 +32,6 @@ $ ark config:cli --channel=next
     public async run(): Promise<void> {
         const { flags } = this.parse(CommandLineInterfaceCommand);
 
-        /* istanbul ignore else */
         if (flags.token) {
             configManager.set("token", flags.token as string);
         }

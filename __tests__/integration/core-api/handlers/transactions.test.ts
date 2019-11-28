@@ -7,7 +7,7 @@ import { Repositories } from "@arkecosystem/core-database";
 import { generateMnemonic } from "bip39";
 
 import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-import secrets from "@packages/core-test-framework/src/internal/secrets.json";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import { ApiHelpers, getWalletNonce } from "@packages/core-test-framework/src";
 import { Contracts } from "@arkecosystem/core-kernel";
 

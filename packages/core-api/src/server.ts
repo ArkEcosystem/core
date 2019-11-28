@@ -154,13 +154,11 @@ export class Server {
                 },
                 routes: {
                     payload: {
-                        /* istanbul ignore next */
                         async failAction(request, h, err) {
                             return badData(err.message);
                         },
                     },
                     validate: {
-                        /* istanbul ignore next */
                         async failAction(request, h, err) {
                             return badData(err.message);
                         },

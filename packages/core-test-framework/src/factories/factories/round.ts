@@ -2,9 +2,9 @@ import { Utils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Identities } from "@arkecosystem/crypto";
 
-import { FactoryBuilder } from "../factory-builder";
-import passphrases from "../../internal/secrets.json";
+import passphrases from "../../internal/passphrases.json";
 import { knownAttributes } from "../../internal/wallet-attributes";
+import { FactoryBuilder } from "../factory-builder";
 
 export const registerRoundFactory = (factory: FactoryBuilder): void => {
     factory.set("Round", ({ options }) => {
