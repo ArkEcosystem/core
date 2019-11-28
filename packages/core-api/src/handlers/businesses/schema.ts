@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-import { orderBy, pagination } from "../shared/schemas";
+import { orderBy, pagination, walletId } from "../shared/schemas";
 
 export const index: object = {
     query: {
@@ -16,17 +16,13 @@ export const index: object = {
 
 export const show: object = {
     params: {
-        id: Joi.string()
-            .hex()
-            .length(66),
+        id: walletId,
     },
 };
 
 export const bridgechains: object = {
     params: {
-        id: Joi.string()
-            .hex()
-            .length(66),
+        id: walletId,
     },
     query: {
         ...pagination,
