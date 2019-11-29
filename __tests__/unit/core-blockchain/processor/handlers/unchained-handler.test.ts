@@ -20,16 +20,12 @@ describe("Exception handler", () => {
                     publicKey: blocks2to100[0].generatorPublicKey,
                 },
             ]);
-            // @ts-ignore
-            const forkBlock = jest.spyOn(blockchain, "forkBlock").mockReturnValue(true);
-
             const sameBlockDifferentId = BlockFactory.fromData(blocks2to100[0]);
             sameBlockDifferentId.data.id = "7536951";
 
             const handler = new UnchainedHandler(blockchain as any, sameBlockDifferentId, true);
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.Rejected);
-            expect(forkBlock).toHaveBeenCalled();
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.Rollback);
         });
 
         it("should log that blocks are being discarded when discarding blocks with height > current + 1", async () => {
@@ -40,7 +36,7 @@ describe("Exception handler", () => {
 
             const handler = new UnchainedHandler(blockchain as any, BlockFactory.fromData(blocks2to100[5]), true);
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
             expect(loggerDebug).toHaveBeenCalledWith("Discarded 5 chunks of downloaded blocks.");
         });
     });

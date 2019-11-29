@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import {
-    MalformedTransactionBytesError,
+    InvalidTransactionBytesError,
     TransactionSchemaError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
@@ -46,7 +46,7 @@ describe("TransactionFactory", () => {
         });
 
         it("should fail to create a transaction from hex that contains malformed bytes", () => {
-            expect(() => TransactionFactory.fromHex("deadbeef")).toThrowError(MalformedTransactionBytesError);
+            expect(() => TransactionFactory.fromHex("deadbeef")).toThrowError(InvalidTransactionBytesError);
         });
     });
 
@@ -57,7 +57,7 @@ describe("TransactionFactory", () => {
 
         it("should fail to create a transaction from a buffer that contains malformed bytes", () => {
             expect(() => TransactionFactory.fromBytes(Buffer.from("deadbeef"))).toThrowError(
-                MalformedTransactionBytesError,
+                InvalidTransactionBytesError,
             );
         });
     });
@@ -69,7 +69,7 @@ describe("TransactionFactory", () => {
 
         it("should fail to create a transaction from a buffer that contains malformed bytes", () => {
             expect(() => TransactionFactory.fromBytesUnsafe(Buffer.from("deadbeef"))).toThrowError(
-                MalformedTransactionBytesError,
+                InvalidTransactionBytesError,
             );
         });
 
@@ -80,6 +80,7 @@ describe("TransactionFactory", () => {
 
             const transaction = TransactionFactory.fromBytesUnsafe(bytes, id);
             expect(transaction).toBeInstanceOf(Transaction);
+            delete transactionDataJSON.typeGroup;
             expect(transaction.toJson()).toEqual(transactionDataJSON);
         });
     });
@@ -100,13 +101,13 @@ describe("TransactionFactory", () => {
 
         // Old tests
         it("should match transaction id", () => {
-            [0, 1, 2, 3]
-                .map(type => createRandomTx(type))
-                .forEach(transaction => {
-                    const originalId = transaction.data.id;
-                    const newTransaction = TransactionFactory.fromData(transaction.data);
-                    expect(newTransaction.data.id).toEqual(originalId);
-                });
+            configManager.setFromPreset("testnet");
+            for (let i = 0; i < 3; i++) {
+                const transaction = createRandomTx(i);
+                const originalId = transaction.data.id;
+                const newTransaction = TransactionFactory.fromData(transaction.data);
+                expect(newTransaction.data.id).toEqual(originalId);
+            }
         });
 
         it("should throw when getting garbage", () => {
@@ -124,7 +125,7 @@ describe("TransactionFactory", () => {
             expect(() =>
                 TransactionFactory.fromJson({
                     ...transactionJson,
-                    ...{ fee: "something" },
+                    ...{ senderPublicKey: "something" },
                 }),
             ).toThrowError(TransactionSchemaError);
         });

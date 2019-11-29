@@ -1,7 +1,15 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
     "@arkecosystem/core-logger-pino": {},
+    "@arkecosystem/core-p2p": {
+        server: {
+            port: process.env.CORE_P2P_PORT || 4000,
+        },
+        minimumVersions: [">=2.0.0"],
+        minimumNetworkReach: 5,
+    },
     "@arkecosystem/core-state": {},
+    "@arkecosystem/core-magistrate-transactions":{},
     "@arkecosystem/core-database-postgres": {
         connection: {
             host: process.env.CORE_DB_HOST || "localhost",
@@ -19,13 +27,6 @@ module.exports = {
             minFeePool: 1000,
             minFeeBroadcast: 1000,
         },
-    },
-    "@arkecosystem/core-p2p": {
-        server: {
-            port: process.env.CORE_P2P_PORT || 4000,
-        },
-        minimumVersions: [">=2.0.0"],
-        minimumNetworkReach: 5,
     },
     "@arkecosystem/core-blockchain": {},
     "@arkecosystem/core-api": {

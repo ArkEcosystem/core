@@ -1,5 +1,9 @@
 import "../../../utils";
 
+import { app } from "@arkecosystem/core-container";
+import { Database, State } from "@arkecosystem/core-interfaces";
+import { Identities, Utils } from "@arkecosystem/crypto";
+import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
@@ -8,6 +12,24 @@ const address = "AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo";
 const publicKey = "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647";
 const balance = 245098000000000;
 const address2 = "AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD";
+
+const validIdentifiers = {
+    username,
+    address,
+    publicKey,
+};
+
+const invalidIdentifiers = [
+    "invalid-username",
+    "invalidUsername",
+    "longAndInvalidUsername",
+    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc__",
+    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc___",
+    "AG8kwwk4TsYfA2HdwaWBVAJQBj6Vhdc____",
+    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxx",
+    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxxx",
+    "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8fxxxx",
+];
 
 beforeAll(async () => await setUp());
 afterAll(async () => await tearDown());
@@ -52,14 +74,22 @@ describe("API 2.0 - Wallets", () => {
     });
 
     describe("GET /wallets/:id", () => {
-        it("should GET a wallet by the given identifier", async () => {
-            const response = await utils.request("GET", `wallets/${address}`);
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeObject();
+        it("should GET a wallet by the given valid identifier", async () => {
+            for (const [identifier, value] of Object.entries(validIdentifiers)) {
+                const response = await utils.request("GET", `wallets/${value}`);
+                expect(response).toBeSuccessfulResponse();
+                expect(response.data.data).toBeObject();
 
-            const wallet = response.data.data;
-            utils.expectWallet(wallet);
-            expect(wallet.address).toBe(address);
+                const wallet = response.data.data;
+                utils.expectWallet(wallet);
+                expect(wallet[identifier]).toBe(value);
+            }
+        });
+
+        it("should fail to GET a wallet by the given invalid identifier", async () => {
+            for (const value of invalidIdentifiers) {
+                utils.expectError(await utils.request("GET", `wallets/${value}`), 422);
+            }
         });
 
         describe("when requesting an unknown address", () => {
@@ -81,14 +111,10 @@ describe("API 2.0 - Wallets", () => {
 
             utils.expectTransaction(response.data.data[0]);
         });
-
-        it("should fail to GET all the transactions for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/transactions"), 404);
-        });
     });
 
     describe("GET /wallets/:id/transactions/sent", () => {
-        it("should GET all the sent transactions for the given wallet by id", async () => {
+        it("should GET all the send transactions for the given wallet by id", async () => {
             const response = await utils.request("GET", `wallets/${address}/transactions/sent`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
@@ -99,7 +125,7 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should fail to GET all the sent transactions for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/transactions/sent"), 404);
+            utils.expectError(await utils.request("GET", "wallets/fake_address/transactions/sent"), 404);
         });
     });
 
@@ -113,7 +139,7 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should fail to GET all the received transactions for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/transactions/received"), 404);
+            utils.expectError(await utils.request("GET", "wallets/fake_address/transactions/received"), 404);
         });
     });
 
@@ -127,7 +153,79 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should fail to GET all the votes for the given wallet if it doesn't exist", async () => {
-            utils.expectError(await utils.request("GET", "wallets/fake-address/votes"), 404);
+            utils.expectError(await utils.request("GET", "wallets/fake_address/votes"), 404);
+        });
+    });
+
+    describe("GET /wallets/:id/locks", () => {
+        let walletManager: State.IWalletManager;
+        let wallets;
+        let lockIds;
+
+        beforeAll(() => {
+            walletManager = app.resolvePlugin<Database.IDatabaseService>("database").walletManager;
+
+            wallets = [
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("1")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("2")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("3")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("4")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("5")),
+                walletManager.findByPublicKey(Identities.PublicKey.fromPassphrase("6")),
+            ];
+
+            lockIds = [];
+
+            for (let i = 0; i < wallets.length; i++) {
+                const wallet = wallets[i];
+                const transactions = genesisBlock.transactions.slice(i * 10, i * 10 + i + 1);
+
+                const locks = {};
+                for (let j = 0; j < transactions.length; j++) {
+                    const transaction = transactions[j];
+                    lockIds.push(transaction.id);
+
+                    locks[transaction.id] = {
+                        amount: Utils.BigNumber.make(10 * (j + 1)),
+                        recipientId: wallet.address,
+                        secretHash: transaction.id,
+                        expiration: {
+                            type: j % 2 === 0 ? 1 : 2,
+                            value: 100 * (j + 1),
+                        },
+                        timestamp: 0,
+                    };
+                }
+
+                wallet.setAttribute("htlc.locks", locks);
+            }
+
+            walletManager.index(wallets);
+        });
+
+        it("should GET all locks for the given wallet by id", async () => {
+            const response = await utils.request("GET", `wallets/${wallets[0].address}/locks`);
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+            utils.expectLock(response.data.data[0]);
+        });
+
+        it("should fail to GET locks for the given wallet if it doesn't exist", async () => {
+            utils.expectError(await utils.request("GET", "wallets/fake_address/locks"), 404);
+        });
+
+        it("should GET all locks for the given wallet in the given order", async () => {
+            const response = await utils.request("GET", `wallets/${wallets[5].address}/locks`, {
+                orderBy: "amount:desc",
+            });
+
+            for (let i = 0; i < response.data.data.length - 1; i++) {
+                const lockA = response.data.data[i];
+                const lockB = response.data.data[i + 1];
+
+                expect(Utils.BigNumber.make(lockA.amount).isGreaterThanEqual(lockB.amount)).toBeTrue();
+            }
         });
     });
 

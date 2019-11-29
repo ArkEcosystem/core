@@ -46,9 +46,19 @@ export class Transaction extends Model {
             supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
         },
         {
-            name: "vendor_field_hex",
-            prop: "vendorFieldHex",
-            supportedOperators: [Database.SearchOperator.OP_LIKE],
+            name: "type_group",
+            prop: "typeGroup",
+            supportedOperators: [Database.SearchOperator.OP_EQ, Database.SearchOperator.OP_IN],
+        },
+        {
+            name: "vendor_field",
+            prop: "vendorField",
+            init: col => col.value !== undefined ? Buffer.from(col.value, 'utf8') : undefined,
+            supportedOperators: [
+                Database.SearchOperator.OP_EQ,
+                Database.SearchOperator.OP_IN,
+                Database.SearchOperator.OP_LIKE
+            ],
             def: undefined,
         },
         {
@@ -79,6 +89,16 @@ export class Transaction extends Model {
                 return col.value;
             },
             supportedOperators: [Database.SearchOperator.OP_CONTAINS],
+        },
+        {
+            name: "nonce",
+            init: col => col.value !== undefined ? Utils.BigNumber.make(col.value).toFixed() : undefined,
+            supportedOperators: [
+                Database.SearchOperator.OP_LTE,
+                Database.SearchOperator.OP_GTE,
+                Database.SearchOperator.OP_EQ,
+            ],
+            def: undefined,
         },
     ];
 

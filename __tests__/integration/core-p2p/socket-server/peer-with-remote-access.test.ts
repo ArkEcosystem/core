@@ -56,6 +56,7 @@ describe("Peer socket endpoint", () => {
             for (let i = 0; i < 300; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 });
                 expect(data.state.height).toBeNumber();
             }

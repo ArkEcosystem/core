@@ -2,7 +2,8 @@ import "jest-extended";
 
 import { app } from "@arkecosystem/core-container";
 import { httpie } from "@arkecosystem/core-utils";
-import { Managers, Transactions } from "@arkecosystem/crypto";
+import { Managers } from "@arkecosystem/crypto";
+import { TransactionFactory } from "../../helpers";
 import { ApiHelpers } from "../../utils/helpers/api";
 
 class Helpers {
@@ -64,6 +65,7 @@ class Helpers {
         expect(transaction).toHaveProperty("id");
         expect(transaction).toHaveProperty("blockId");
         expect(transaction).toHaveProperty("type");
+        expect(transaction).toHaveProperty("typeGroup");
         expect(transaction).toHaveProperty("amount");
         expect(transaction).toHaveProperty("fee");
         expect(transaction).toHaveProperty("sender");
@@ -124,20 +126,34 @@ class Helpers {
         expect(wallet).toBeObject();
         expect(wallet).toHaveProperty("address");
         expect(wallet).toHaveProperty("publicKey");
+        expect(wallet).toHaveProperty("nonce");
         expect(wallet).toHaveProperty("balance");
         expect(wallet).toHaveProperty("isDelegate");
         expect(wallet).toHaveProperty("vote");
     }
 
+    public expectLock(lock) {
+        expect(lock).toBeObject();
+        expect(lock).toHaveProperty("lockId");
+        expect(lock).toHaveProperty("senderPublicKey");
+        expect(lock).toHaveProperty("recipientId");
+        expect(lock).toHaveProperty("amount");
+        expect(lock).toHaveProperty("secretHash");
+        expect(lock).toHaveProperty("expirationType");
+        expect(lock).toHaveProperty("expirationValue");
+        expect(lock).toHaveProperty("isExpired");
+        expect(lock.timestamp).toBeObject();
+        expect(lock.timestamp.epoch).toBeNumber();
+        expect(lock.timestamp.unix).toBeNumber();
+        expect(lock.timestamp.human).toBeString();
+    }
+
     public async createTransaction() {
         Managers.configManager.setConfig(Managers.NetworkManager.findByName("testnet"));
 
-        const transaction = Transactions.BuilderFactory.transfer()
-            .amount("100000000")
-            .recipientId("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1")
-            .vendorField("test")
-            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
-            .getStruct();
+        const transaction = TransactionFactory.transfer("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 100000000, "test")
+            .withPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .createOne();
 
         await httpie.post("http://127.0.0.1:4003/api/transactions", {
             body: {

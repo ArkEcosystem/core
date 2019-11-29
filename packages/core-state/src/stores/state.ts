@@ -2,7 +2,7 @@
 
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
 
@@ -102,12 +102,13 @@ export class StateStore implements State.IStateStore {
             app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("internal.milestone.changed");
         }
 
-        Transactions.TransactionRegistry.updateStaticFees(block.data.height);
-
         // Delete oldest block if size exceeds the maximum
         if (this.lastBlocks.size > app.resolveOptions("state").storage.maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
+
+        this.noBlockCounter = 0;
+        this.p2pUpdateCounter = 0;
     }
 
     /**
@@ -199,10 +200,10 @@ export class StateStore implements State.IStateStore {
     }
 
     /**
-     * Remove the given transaction ids from the cache.
+     * Drop all cached transaction ids.
      */
-    public removeCachedTransactionIds(transactionIds: string[]): void {
-        this.cachedTransactionIds = this.cachedTransactionIds.subtract(transactionIds);
+    public clearCachedTransactionIds(): void {
+        this.cachedTransactionIds = this.cachedTransactionIds.clear();
     }
 
     /**
@@ -236,7 +237,9 @@ export class StateStore implements State.IStateStore {
     public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
         if (this.blockPing) {
             app.resolvePlugin<Logger.ILogger>("logger").info(
-                `Block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${this.blockPing.count} times`,
+                `Previous block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
+                    this.blockPing.count
+                } times`,
             );
         }
 

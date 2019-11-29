@@ -1,4 +1,5 @@
 import { app } from "@arkecosystem/core-container";
+import { Managers } from "@arkecosystem/crypto";
 import { plugin } from "../../../../packages/core-database-postgres/src/plugin";
 import { plugin as pluginDatabase } from "../../../../packages/core-database/src/plugin";
 import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
@@ -12,6 +13,8 @@ export const setUp = async () => {
     });
 
     process.env.CORE_RESET_DATABASE = "1";
+
+    Managers.configManager.getMilestone().aip11 = false;
 
     await registerWithContainer(pluginDatabase);
 

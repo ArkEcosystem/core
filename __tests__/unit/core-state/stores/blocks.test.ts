@@ -1,19 +1,21 @@
-import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces, Managers } from "@arkecosystem/crypto";
 import { BlockStore } from "../../../../packages/core-state/src/stores/blocks";
-import { genesisBlock as GB } from "../../../utils/config/testnet/genesisBlock";
+import { BlockFactory } from '../../../helpers';
 
 Managers.configManager.setFromPreset("testnet");
 
 describe("BlockStore", () => {
     it("should push and get a block", () => {
-        const genesisBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(GB);
+        const block: Interfaces.IBlock = BlockFactory.createDummy();
+        block.data.height = 1;
+        block.data.previousBlock = undefined;
 
         const store = new BlockStore(100);
-        store.set(genesisBlock);
+        store.set(block);
 
         expect(store.count()).toBe(1);
-        expect(store.get(genesisBlock.data.id)).toEqual(genesisBlock.data);
-        expect(store.get(genesisBlock.data.height)).toEqual(genesisBlock.data);
+        expect(store.get(block.data.id)).toEqual(block.data);
+        expect(store.get(block.data.height)).toEqual(block.data);
     });
 
     it("should fail to push a block if its height is not 1 and there is no last block", () => {

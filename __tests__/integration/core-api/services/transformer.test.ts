@@ -8,7 +8,7 @@ import transactionRaw from "./transaction-raw.json";
 import transactionTransformed from "./transaction-transformed.json";
 
 Managers.configManager.setFromPreset("testnet");
-
+Managers.configManager.getMilestone().aip11 = false;
 const genesisTransaction = Transactions.TransactionFactory.fromData(genesisBlock.transactions[0]);
 delete genesisBlock.transactions;
 

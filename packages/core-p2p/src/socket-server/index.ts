@@ -1,7 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import SocketCluster from "socketcluster";
-import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
 import { ServerError } from "./errors";
 import { payloadProcessor } from "./payload-processor";
@@ -13,6 +12,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
     // when testing we also need to get socket files from dist folder
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
+    // https://socketcluster.io/#!/docs/api-socketcluster
     const server: SocketCluster = new SocketCluster({
         ...{
             appName: "core-p2p",
@@ -22,6 +22,9 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             workerController: __dirname + `${relativeSocketPath}/worker.js`,
             workers: 2,
             wsEngine: "ws",
+            // See https://github.com/SocketCluster/socketcluster/issues/506 about
+            // details on how pingTimeout works.
+            pingTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
             perMessageDeflate: true,
             // we set maxPayload value to 2MB as currently the largest data going through is a block
             // and (for now, TODO use milestone value ?) blocks are not larger than 2MB
@@ -54,32 +57,22 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 return res(error);
             }
 
-            if (error.name === SocketErrors.Validation) {
-                return res(error);
-            }
-
-            if (error.name === SocketErrors.AppNotReady) {
-                return res(error);
-            }
-
             app.resolvePlugin<Logger.ILogger>("logger").error(error.message);
+
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
     });
 
     // Create a timeout promise so that if socket server is not ready in 10 seconds, it rejects
-    const timeoutPromise = new Promise((resolve, reject) => {
-        const id = setTimeout(() => {
-            clearTimeout(id);
-            reject("Socket server failed to setup in 10 seconds.");
-        }, 10000);
-    });
+    const timeout: NodeJS.Timeout = setTimeout(() => {
+        throw new Error("Socket server failed to setup in 10 seconds.");
+    }, 10000);
 
-    const serverReadyPromise = new Promise((resolve, reject) => {
-        server.on("ready", () => resolve(server));
-    });
+    const serverReadyPromise = await new Promise(resolve => server.on("ready", () => resolve(server)));
+
+    clearTimeout(timeout);
 
     payloadProcessor.inject(server);
 
-    return Promise.race([serverReadyPromise, timeoutPromise]);
+    return serverReadyPromise;
 };

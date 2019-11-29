@@ -21,12 +21,15 @@ export const transformTransaction = (model, transform) => {
     const sender: string = databaseService.walletManager.findByPublicKey(data.senderPublicKey).address;
 
     const lastBlock: Interfaces.IBlock = blockchain.getLastBlock();
+    const timestamp: number = data.version === 1 ? data.timestamp : model.timestamp;
+    const nonce: string = data.nonce ? data.nonce.toFixed() : model.nonce ? model.nonce : undefined;
 
     return {
         id: data.id,
         blockId: model.blockId,
         version: data.version,
         type: data.type,
+        typeGroup: data.typeGroup,
         amount: data.amount.toFixed(),
         fee: data.fee.toFixed(),
         sender,
@@ -38,6 +41,7 @@ export const transformTransaction = (model, transform) => {
         vendorField: data.vendorField,
         asset: data.asset,
         confirmations: model.block ? lastBlock.data.height - model.block.height + 1 : 0,
-        timestamp: formatTimestamp(data.timestamp),
+        timestamp: timestamp !== undefined ? formatTimestamp(timestamp) : undefined,
+        nonce,
     };
 };

@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-tester-cli",
-    "version": "2.5.28",
+    "version": "2.6.0-next.6",
     "description": "Tester CLI for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -28,9 +28,9 @@
         "tester": "./bin/run"
     },
     "dependencies": {
-        "@arkecosystem/core-forger": "^2.5.28",
-        "@arkecosystem/core-utils": "^2.5.28",
-        "@arkecosystem/crypto": "^2.5.28",
+        "@arkecosystem/core-forger": "^2.6.0-next.6",
+        "@arkecosystem/core-utils": "^2.6.0-next.6",
+        "@arkecosystem/crypto": "^2.6.0-next.6",
         "@oclif/command": "^1.5.16",
         "@oclif/config": "^1.13.2",
         "@oclif/plugin-help": "^2.2.0",
@@ -38,6 +38,7 @@
         "bip39": "^3.0.2",
         "clipboardy": "^2.1.0",
         "delay": "^4.3.0",
+        "lodash.chunk": "^4.2.0",
         "pino": "^5.12.6",
         "pino-pretty": "^3.2.0",
         "pluralize": "^8.0.0"
@@ -45,7 +46,7 @@
     "devDependencies": {
         "@types/bip39": "^2.4.2",
         "@types/clipboardy": "^2.0.1",
-        "@types/lodash.fill": "^3.4.6",
+        "@types/lodash.chunk": "^4.2.6",
         "@types/pino": "^5.20.0",
         "@types/pluralize": "^0.0.29"
     },

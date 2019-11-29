@@ -1,6 +1,5 @@
 module.exports = {
-    delegates: [
-        {
+    delegates: [{
             passphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
             address: "ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo",
             publicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",

@@ -8,7 +8,7 @@
         "publicKey": "0308c0d019cd9c0c59618e3b86afc584078b54a85a025c9f30a8bdc82cdc8e1252"
     },
     {
-        "address": "fake-address",
-        "publicKey": "fake-publicKey"
+        "address": "fake_address",
+        "publicKey": "fake_publicKey"
     }
 ]

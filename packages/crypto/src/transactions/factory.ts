@@ -1,8 +1,19 @@
 // tslint:disable:member-ordering
-import { MalformedTransactionBytesError, TransactionSchemaError, TransactionVersionError } from "../errors";
-import { ITransaction, ITransactionData, ITransactionJson } from "../interfaces";
+import {
+    DuplicateParticipantInMultiSignatureError,
+    InvalidTransactionBytesError,
+    TransactionSchemaError,
+    TransactionVersionError,
+} from "../errors";
+import {
+    IDeserializeOptions,
+    ISerializeOptions,
+    ITransaction,
+    ITransactionData,
+    ITransactionJson,
+} from "../interfaces";
 import { BigNumber, isException } from "../utils";
-import { deserializer } from "./deserializer";
+import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 import { TransactionTypeFactory } from "./types";
 import { Utils } from "./utils";
@@ -26,13 +37,14 @@ export class TransactionFactory {
      */
     public static fromBytesUnsafe(buffer: Buffer, id?: string): ITransaction {
         try {
-            const transaction = deserializer.deserialize(buffer);
-            transaction.data.id = id || Utils.getId(transaction.data);
+            const options: IDeserializeOptions | ISerializeOptions = { acceptLegacyVersion: true };
+            const transaction = Deserializer.deserialize(buffer, options);
+            transaction.data.id = id || Utils.getId(transaction.data, options);
             transaction.isVerified = true;
 
             return transaction;
         } catch (error) {
-            throw new MalformedTransactionBytesError();
+            throw new InvalidTransactionBytesError(error.message);
         }
     }
 
@@ -54,8 +66,8 @@ export class TransactionFactory {
         const transaction: ITransaction = TransactionTypeFactory.create(value);
 
         const { version } = transaction.data;
-        if (!version || version === 1) {
-            deserializer.applyV1Compatibility(transaction.data);
+        if (version === 1) {
+            Deserializer.applyV1Compatibility(transaction.data);
         }
 
         Serializer.serialize(transaction);
@@ -65,7 +77,7 @@ export class TransactionFactory {
 
     private static fromSerialized(serialized: string, strict: boolean = true): ITransaction {
         try {
-            const transaction = deserializer.deserialize(serialized);
+            const transaction = Deserializer.deserialize(serialized);
             transaction.data.id = Utils.getId(transaction.data);
 
             const { value, error } = Verifier.verifySchema(transaction.data, strict);
@@ -78,11 +90,15 @@ export class TransactionFactory {
 
             return transaction;
         } catch (error) {
-            if (error instanceof TransactionVersionError || error instanceof TransactionSchemaError) {
+            if (
+                error instanceof TransactionVersionError ||
+                error instanceof TransactionSchemaError ||
+                error instanceof DuplicateParticipantInMultiSignatureError
+            ) {
                 throw error;
             }
 
-            throw new MalformedTransactionBytesError();
+            throw new InvalidTransactionBytesError(error.message);
         }
     }
 }

@@ -1,10 +1,31 @@
+import memoize from "fast-memoize";
 import { SATOSHI } from "../constants";
-import { IBlockData, ITransactionData } from "../interfaces";
-import { configManager } from "../managers";
+import { configManager } from "../managers/config";
+import { Base58 } from "./base58";
 import { BigNumber } from "./bignum";
+import { isLocalHost, isValidPeer } from "./is-valid-peer";
 
-let genesisTransactions: { [key: string]: boolean };
-let currentNetwork: number;
+const getExceptionIds = memoize(_ => {
+    const s = new Set<string>();
+    const blockIds = configManager.get("exceptions.blocks") || [];
+    const transactionIds = configManager.get("exceptions.transactions") || [];
+    for (const blockId of blockIds) {
+        s.add(blockId);
+    }
+    for (const transactionId of transactionIds) {
+        s.add(transactionId);
+    }
+    return s;
+});
+
+const getGenesisTransactionIds = memoize(_ => {
+    const s = new Set<string>();
+    const genesisTransactions = configManager.get("genesisBlock.transactions") || [];
+    for (const transaction of genesisTransactions) {
+        s.add(transaction.id);
+    }
+    return s;
+});
 
 /**
  * Get human readable string from satoshis
@@ -21,50 +42,14 @@ export const formatSatoshi = (amount: BigNumber): string => {
 /**
  * Check if the given block or transaction id is an exception.
  */
-export const isException = (blockOrTransaction: IBlockData | ITransactionData): boolean => {
-    return ["blocks", "transactions"].some(key => {
-        const exceptions = configManager.get(`exceptions.${key}`);
-        return Array.isArray(exceptions) && exceptions.includes(blockOrTransaction.id);
-    });
-};
-
-/**
- * Sort transactions by type, then id.
- */
-export const sortTransactions = (transactions: ITransactionData[]): ITransactionData[] => {
-    return transactions.sort((a, b) => {
-        if (a.type < b.type) {
-            return -1;
-        }
-
-        if (a.type > b.type) {
-            return 1;
-        }
-
-        if (a.id < b.id) {
-            return -1;
-        }
-
-        if (a.id > b.id) {
-            return 1;
-        }
-
-        return 0;
-    });
+export const isException = (blockOrTransaction: { id?: string }): boolean => {
+    const network: number = configManager.get("network");
+    return getExceptionIds(network).has(blockOrTransaction.id);
 };
 
 export const isGenesisTransaction = (id: string): boolean => {
-    const network: number = configManager.get("network.pubKeyHash");
-
-    if (!genesisTransactions || currentNetwork !== network) {
-        currentNetwork = network;
-
-        genesisTransactions = configManager
-            .get("genesisBlock.transactions")
-            .reduce((acc, curr) => Object.assign(acc, { [curr.id]: true }), {});
-    }
-
-    return genesisTransactions[id];
+    const network: number = configManager.get("network");
+    return getGenesisTransactionIds(network).has(id);
 };
 
 export const numberToHex = (num: number, padding = 2): string => {
@@ -75,4 +60,18 @@ export const numberToHex = (num: number, padding = 2): string => {
 
 export const maxVendorFieldLength = (height?: number): number => configManager.getMilestone(height).vendorFieldLength;
 
-export { BigNumber };
+export const isSupportedTansactionVersion = (version: number): boolean => {
+    const aip11: boolean = configManager.getMilestone().aip11;
+
+    if (aip11 && version !== 2) {
+        return false;
+    }
+
+    if (!aip11 && version !== 1) {
+        return false;
+    }
+
+    return true;
+};
+
+export { Base58, BigNumber, isValidPeer, isLocalHost };

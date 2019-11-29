@@ -1,11 +1,11 @@
 import "../../../../../packages/core-jest-matchers/src/transactions/types/transfer";
 
 import { Enums } from "@arkecosystem/crypto";
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 describe(".toBeTransferType", () => {
     test("passes when given a valid transaction", () => {
-        expect({ type: TransactionTypes.Transfer }).toBeTransferType();
+        expect({ type: TransactionType.Transfer }).toBeTransferType();
     });
 
     test("fails when given an invalid transaction", () => {

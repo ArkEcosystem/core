@@ -26,6 +26,18 @@ describe("Identities - Address", () => {
         });
     });
 
+    describe("fromWIF", () => {
+        it("should pass with a valid wif", () => {
+            expect(Address.fromWIF(data.wif)).toBe(data.address);
+        });
+
+        it("should fail with an invalid wif", () => {
+            expect(() => {
+                Address.fromWIF("invalid");
+            }).toThrow(Error);
+        });
+    });
+
     describe("fromMultiSignatureAddress", () => {
         it("should be ok", () => {
             expect(
@@ -83,6 +95,23 @@ describe("Identities - Address", () => {
     describe("fromPrivateKey", () => {
         it("should be OK", () => {
             expect(Address.fromPrivateKey(Keys.fromPassphrase(passphrase))).toBe(data.address);
+        });
+    });
+
+    describe("toBuffer", () => {
+        it("should be OK", () => {
+            expect(Address.toBuffer("DMS861mLRrtH47QUMVif3C2rBCAdHbmwsi").addressError).toBeUndefined();
+        });
+
+        it("should not be OK", () => {
+            expect(Address.toBuffer("AdVSe37niA3uFUPgCgMUH2tMsHF4LpLoiX").addressError).not.toBeUndefined();
+        });
+    });
+
+    describe("fromBuffer", () => {
+        it("should be OK", () => {
+            const { addressBuffer } = Address.toBuffer("DMS861mLRrtH47QUMVif3C2rBCAdHbmwsi");
+            expect(Address.fromBuffer(addressBuffer)).toEqual("DMS861mLRrtH47QUMVif3C2rBCAdHbmwsi");
         });
     });
 

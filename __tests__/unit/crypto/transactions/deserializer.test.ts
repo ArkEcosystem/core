@@ -1,28 +1,39 @@
 import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
-import { Utils } from "../../../../packages/crypto/src";
+import Long from "long";
+import { Enums, Errors, Utils } from "../../../../packages/crypto/src";
+import { Hash } from "../../../../packages/crypto/src/crypto";
 import {
-    MalformedTransactionBytesError,
+    InvalidTransactionBytesError,
     TransactionSchemaError,
     TransactionVersionError,
     UnkownTransactionError,
 } from "../../../../packages/crypto/src/errors";
-import { Keys } from "../../../../packages/crypto/src/identities";
-import { ITransaction } from "../../../../packages/crypto/src/interfaces";
+import { Address, Keys, PublicKey } from "../../../../packages/crypto/src/identities";
+import { IKeyPair, ITransaction, ITransactionData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionFactory, Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
+import { TransactionFactory, Utils as TransactionUtils, Verifier } from "../../../../packages/crypto/src/transactions";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
-import { deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
+import { Deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
 
-describe("Transaction serializer / deserializer", () => {
+describe("Transaction serializer / Deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
-        const fieldsToCheck = ["version", "network", "type", "timestamp", "senderPublicKey", "fee", "amount"];
+        const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount"];
+        if (deserialized.data.version === 1) {
+            fieldsToCheck.push("timestamp");
+        } else {
+            fieldsToCheck.push("typeGroup");
+            fieldsToCheck.push("nonce");
+        }
+
         for (const field of fieldsToCheck) {
             expect(deserialized.data[field].toString()).toEqual(expected[field].toString());
         }
+
+        expect(Verifier.verify(deserialized.data)).toBeTrue();
     };
 
     describe("ser/deserialize - transfer", () => {
@@ -30,33 +41,18 @@ describe("Transaction serializer / deserializer", () => {
             .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
             .amount("10000")
             .fee("50000000")
-            .vendorField("yo")
-            .version(1)
+            .vendorField("cool vendor field")
             .network(30)
             .sign("dummy passphrase")
             .getStruct();
 
         it("should ser/deserialize giving back original fields", () => {
             const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
+            const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, transfer);
 
             expect(deserialized.data.vendorField).toBe(transfer.vendorField);
-            expect(deserialized.data.recipientId).toBe(transfer.recipientId);
-        });
-
-        it("should ser/deserialize giving back original fields - with vendorFieldHex", () => {
-            delete transfer.vendorField;
-            const vendorField = "cool vendor field";
-            transfer.vendorFieldHex = Buffer.from(vendorField, "utf8").toString("hex");
-
-            const serialized = TransactionFactory.fromData(transfer).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, transfer);
-
-            expect(deserialized.data.vendorField).toBe(vendorField);
             expect(deserialized.data.recipientId).toBe(transfer.recipientId);
         });
 
@@ -68,7 +64,6 @@ describe("Transaction serializer / deserializer", () => {
                 .amount("10000")
                 .fee("50000000")
                 .vendorField("y".repeat(255))
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -78,7 +73,6 @@ describe("Transaction serializer / deserializer", () => {
 
             expect(deserialized.verified).toBeTrue();
             expect(deserialized.data.vendorField).toHaveLength(255);
-            expect(deserialized.data.vendorFieldHex).toHaveLength(510);
             expect(deserialized.data.vendorField).toEqual("y".repeat(255));
 
             configManager.getMilestone().vendorFieldLength = 64;
@@ -89,7 +83,6 @@ describe("Transaction serializer / deserializer", () => {
                 .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
                 .amount("10000")
                 .fee("50000000")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
@@ -107,13 +100,12 @@ describe("Transaction serializer / deserializer", () => {
             const secondSignature = BuilderFactory.secondSignature()
                 .signatureAsset("signature")
                 .fee("50000000")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
 
             const serialized = TransactionFactory.fromData(secondSignature).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
+            const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, secondSignature);
 
@@ -125,13 +117,12 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const delegateRegistration = BuilderFactory.delegateRegistration()
                 .usernameAsset("homer")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
 
             const serialized = TransactionFactory.fromData(delegateRegistration).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
+            const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, delegateRegistration);
 
@@ -144,13 +135,12 @@ describe("Transaction serializer / deserializer", () => {
             const vote = BuilderFactory.vote()
                 .votesAsset(["+02bcfa0951a92e7876db1fb71996a853b57f996972ed059a950d910f7d541706c9"])
                 .fee("50000000")
-                .version(1)
                 .network(30)
                 .sign("dummy passphrase")
                 .getStruct();
 
             const serialized = TransactionFactory.fromData(vote).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
+            const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, vote);
 
@@ -202,17 +192,27 @@ describe("Transaction serializer / deserializer", () => {
             checkCommonFields(deserialized, multiSignatureRegistration);
         });
 
+        it("should fail to verify", () => {
+            const transaction = TransactionFactory.fromData(multiSignatureRegistration);
+            configManager.getMilestone().aip11 = false;
+            expect(transaction.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(transaction.verify()).toBeTrue();
+        });
+
         it("should not deserialize a malformed signature", () => {
             const transaction = TransactionFactory.fromData(multiSignatureRegistration);
             transaction.serialized = transaction.serialized.slice(0, transaction.serialized.length - 2);
 
             expect(() => TransactionFactory.fromBytes(transaction.serialized)).toThrowError(
-                MalformedTransactionBytesError,
+                InvalidTransactionBytesError,
             );
         });
     });
 
     describe("ser/deserialize - ipfs", () => {
+        let ipfsTransaction;
+
         const ipfsIds = [
             "QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w",
             "QmYSK2JyM3RyDyB52caZCTKFR3HKniEcMnNJYdk8DQ6KKB",
@@ -224,64 +224,31 @@ describe("Transaction serializer / deserializer", () => {
             configManager.setFromPreset("testnet");
         });
 
-        it("should ser/deserialize giving back original fields", () => {
-            const ipfs = BuilderFactory.ipfs()
+        beforeEach(() => {
+            ipfsTransaction = BuilderFactory.ipfs()
                 .fee("50000000")
                 .version(2)
                 .network(23)
                 .ipfsAsset(ipfsIds[0])
                 .sign("dummy passphrase")
                 .getStruct();
-
-            const serialized = TransactionFactory.fromData(ipfs).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, ipfs);
-
-            expect(deserialized.data.asset).toEqual(ipfs.asset);
         });
-    });
 
-    describe.skip("ser/deserialize - timelock transfer", () => {
         it("should ser/deserialize giving back original fields", () => {
-            const timelockTransfer = BuilderFactory.timelockTransfer()
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
-                .amount("10000")
-                .fee("50000000")
-                .version(1)
-                .network(23)
-                .timelock(12, 0x00)
-                .sign("dummy passphrase")
-                .getStruct();
+            const serialized = TransactionFactory.fromData(ipfsTransaction).serialized.toString("hex");
+            const deserialized = Deserializer.deserialize(serialized);
 
-            // expect(timelockTransfer).toEqual({})
-            const serialized = TransactionFactory.fromData(timelockTransfer).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
+            checkCommonFields(deserialized, ipfsTransaction);
 
-            checkCommonFields(deserialized, timelockTransfer);
-
-            expect(deserialized.data.timelockType).toEqual(timelockTransfer.timelockType);
-            expect(deserialized.data.timelock).toEqual(timelockTransfer.timelock);
+            expect(deserialized.data.asset).toEqual(ipfsTransaction.asset);
         });
-    });
 
-    describe.skip("ser/deserialize - multi payment", () => {
-        it("should ser/deserialize giving back original fields", () => {
-            const multiPayment = BuilderFactory.multiPayment()
-                .fee("50000000")
-                .version(1)
-                .network(23)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 1555)
-                .addPayment("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F", 5000)
-                .sign("dummy passphrase")
-                .getStruct();
-
-            const serialized = TransactionFactory.fromData(multiPayment).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
-
-            checkCommonFields(deserialized, multiPayment);
-
-            expect(deserialized.data.asset).toEqual(multiPayment.asset);
+        it("should fail to verify", () => {
+            const transaction = TransactionFactory.fromData(ipfsTransaction);
+            configManager.getMilestone().aip11 = false;
+            expect(transaction.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(transaction.verify()).toBeTrue();
         });
     });
 
@@ -289,59 +256,371 @@ describe("Transaction serializer / deserializer", () => {
         it("should ser/deserialize giving back original fields", () => {
             const delegateResignation = BuilderFactory.delegateResignation()
                 .fee("50000000")
-                .version(1)
                 .network(23)
                 .sign("dummy passphrase")
                 .getStruct();
 
             const serialized = TransactionFactory.fromData(delegateResignation).serialized.toString("hex");
-            const deserialized = deserializer.deserialize(serialized);
+            const deserialized = Deserializer.deserialize(serialized);
 
             checkCommonFields(deserialized, delegateResignation);
+        });
+
+        it("should fail to verify", () => {
+            const delegateResignation = BuilderFactory.delegateResignation()
+                .fee("50000000")
+                .network(23)
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(delegateResignation.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(delegateResignation.verify()).toBeTrue();
+        });
+    });
+
+    describe("ser/deserialize - multi payment", () => {
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const multiPayment = BuilderFactory.multiPayment()
+                .fee("50000000")
+                .network(23)
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "1555")
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "5000")
+                .vendorField("Multipayment")
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(multiPayment).serialized.toString("hex");
+            const deserialized = Deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, multiPayment);
+        });
+
+        it("should fail to verify", () => {
+            const multiPayment = BuilderFactory.multiPayment()
+                .fee("50000000")
+                .network(23)
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "1555")
+                .addPayment("AW5wtiimZntaNvxH6QBi7bBpH2rDtFeD8C", "5000")
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(multiPayment.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(multiPayment.verify()).toBeTrue();
+        });
+
+        it("should fail if more than hardcoded maximum of payments", () => {
+            const multiPayment = BuilderFactory.multiPayment()
+                .fee("50000000")
+                .network(23);
+
+            for (let i = 0; i < configManager.getMilestone().multiPaymentLimit; i++) {
+                multiPayment.addPayment(Address.fromPassphrase(`recipient-${i}`), "1");
+            }
+
+            expect(() => multiPayment.addPayment(Address.fromPassphrase("recipientBad"), "1")).toThrow(
+                Errors.MaximumPaymentCountExceededError,
+            );
+
+            const transaction = multiPayment.sign("dummy passphrase").build();
+            expect(transaction.verify()).toBeTrue();
+            expect(TransactionFactory.fromBytes(transaction.serialized, true).verify()).toBeTrue();
+        });
+
+        it("should fail if recipient on different network", () => {
+            expect(() =>
+                BuilderFactory.multiPayment()
+                    .fee("50000000")
+                    .addPayment("DBzGiUk8UVjB2dKCfGRixknB7Ki3Zhqthp", "1555")
+                    .addPayment("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", "1555")
+                    .sign("dummy passphrase")
+                    .build(),
+            ).toThrow(InvalidTransactionBytesError);
+        });
+    });
+
+    describe("ser/deserialize - htlc lock", () => {
+        const htlcLockAsset = {
+            secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+            expiration: {
+                type: Enums.HtlcLockExpirationType.EpochTimestamp,
+                value: Math.floor(Date.now() / 1000),
+            },
+        };
+
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const htlcLock = BuilderFactory.htlcLock()
+                .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
+                .amount("10000")
+                .fee("50000000")
+                .network(23)
+                .vendorField("HTLC")
+                .htlcLockAsset(htlcLockAsset)
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(htlcLock).serialized.toString("hex");
+            const deserialized = Deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, htlcLock);
+
+            expect(deserialized.data.asset).toEqual(htlcLock.asset);
+        });
+
+        it("should fail to verify", () => {
+            const htlcLock = BuilderFactory.htlcLock()
+                .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
+                .amount("10000")
+                .fee("50000000")
+                .network(23)
+                .htlcLockAsset(htlcLockAsset)
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(htlcLock.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(htlcLock.verify()).toBeTrue();
+        });
+    });
+
+    describe("ser/deserialize - htlc claim", () => {
+        const htlcClaimAsset = {
+            lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+            unlockSecret: "my secret that should be 32bytes",
+        };
+
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const htlcClaim = BuilderFactory.htlcClaim()
+                .fee("0")
+                .network(23)
+                .htlcClaimAsset(htlcClaimAsset)
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(htlcClaim).serialized.toString("hex");
+            const deserialized = Deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, htlcClaim);
+
+            expect(deserialized.data.asset).toEqual(htlcClaim.asset);
+        });
+
+        it("should fail to verify", () => {
+            const htlcClaim = BuilderFactory.htlcClaim()
+                .fee("0")
+                .network(23)
+                .htlcClaimAsset(htlcClaimAsset)
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(htlcClaim.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(htlcClaim.verify()).toBeTrue();
+        });
+    });
+
+    describe("ser/deserialize - htlc refund", () => {
+        const htlcRefundAsset = {
+            lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
+        };
+
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
+        it("should ser/deserialize giving back original fields", () => {
+            const htlcRefund = BuilderFactory.htlcRefund()
+                .fee("0")
+                .network(23)
+                .htlcRefundAsset(htlcRefundAsset)
+                .sign("dummy passphrase")
+                .getStruct();
+
+            const serialized = TransactionFactory.fromData(htlcRefund).serialized.toString("hex");
+            const deserialized = Deserializer.deserialize(serialized);
+
+            checkCommonFields(deserialized, htlcRefund);
+
+            expect(deserialized.data.asset).toEqual(htlcRefund.asset);
+        });
+
+        it("should fail to verify", () => {
+            const htlcRefund = BuilderFactory.htlcRefund()
+                .fee("0")
+                .network(23)
+                .htlcRefundAsset(htlcRefundAsset)
+                .sign("dummy passphrase")
+                .build();
+
+            configManager.getMilestone().aip11 = false;
+            expect(htlcRefund.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            expect(htlcRefund.verify()).toBeTrue();
         });
     });
 
     describe("deserialize - others", () => {
+        beforeAll(() => {
+            configManager.setFromPreset("testnet");
+        });
+
         it("should throw if type is not supported", () => {
-            const serializeWrongType = transaction => {
+            const serializeWrongType = (transaction: ITransactionData) => {
                 // copy-paste from transaction serializer, common stuff
                 const buffer = new ByteBuffer(512, true);
-                buffer.writeByte(0xff); // fill, to disambiguate from v1
-                buffer.writeByte(transaction.version || 0x01); // version
+                buffer.writeByte(0xff);
+                buffer.writeByte(2);
                 buffer.writeByte(transaction.network);
-                buffer.writeByte(transaction.type);
-                buffer.writeUint32(transaction.timestamp);
+                buffer.writeUint32(Enums.TransactionTypeGroup.Core);
+                buffer.writeUint16(transaction.type);
+                buffer.writeUint64(Long.fromString(transaction.nonce.toFixed()));
                 buffer.append(transaction.senderPublicKey, "hex");
-                buffer.writeUint64(+Utils.BigNumber.make(transaction.fee).toFixed());
+                buffer.writeUint64(Long.fromString(Utils.BigNumber.make(transaction.fee).toFixed()));
                 buffer.writeByte(0x00);
 
                 return Buffer.from(buffer.flip().toBuffer());
             };
             const transactionWrongType = BuilderFactory.transfer()
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+                .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
                 .amount("10000")
                 .fee("50000000")
                 .vendorField("yo")
-                .version(1)
-                .network(30)
+                .network(23)
                 .sign("dummy passphrase")
                 .getStruct();
             transactionWrongType.type = 55;
 
             const serialized = serializeWrongType(transactionWrongType).toString("hex");
-            expect(() => deserializer.deserialize(serialized)).toThrow(UnkownTransactionError);
+            expect(() => Deserializer.deserialize(serialized)).toThrow(UnkownTransactionError);
+        });
+    });
+
+    describe("deserialize Schnorr / ECDSA", () => {
+        const builderWith = (
+            hasher: (buffer: Buffer, keys: IKeyPair) => string,
+            hasher2?: (buffer: Buffer, keys: IKeyPair) => string,
+        ) => {
+            const keys = Keys.fromPassphrase("secret");
+
+            const builder = BuilderFactory.transfer()
+                .senderPublicKey(keys.publicKey)
+                .recipientId(Address.fromPublicKey(keys.publicKey))
+                .amount("10000")
+                .fee("50000000");
+
+            const buffer = TransactionUtils.toHash(builder.data, {
+                excludeSignature: true,
+                excludeSecondSignature: true,
+            });
+
+            builder.data.signature = hasher(buffer, keys);
+
+            if (hasher2) {
+                const keys = Keys.fromPassphrase("secret 2");
+                const buffer = TransactionUtils.toHash(builder.data, {
+                    excludeSecondSignature: true,
+                });
+
+                builder.data.secondSignature = hasher2(buffer, keys);
+            }
+
+            return builder;
+        };
+
+        it("should deserialize a V2 transaction signed with Schnorr", () => {
+            const builder = builderWith(Hash.signSchnorr);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(() => (transaction = builder.build())).not.toThrow();
+            expect(transaction.verify()).toBeTrue();
+        });
+
+        it("should deserialize a V2 transaction signed with ECDSA", () => {
+            const builder = builderWith(Hash.signECDSA);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(builder.data.signature).not.toHaveLength(64);
+            expect(() => (transaction = builder.build())).not.toThrow();
+            expect(transaction.verify()).toBeTrue();
+        });
+
+        it("should deserialize a V2 transaction when signed with Schnorr/Schnorr", () => {
+            const builder = builderWith(Hash.signSchnorr, Hash.signSchnorr);
+
+            let transaction: ITransaction;
+            expect(builder.data.version).toBe(2);
+            expect(() => (transaction = builder.build())).not.toThrow();
+
+            expect(transaction.verify()).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction.data, PublicKey.fromPassphrase("secret 2"))).toBeTrue();
+            expect(Verifier.verifySecondSignature(transaction.data, PublicKey.fromPassphrase("secret 3"))).toBeFalse();
+        });
+
+        it("should throw when V2 transaction is signed with Schnorr and ECDSA", () => {
+            let builder = builderWith(Hash.signSchnorr, Hash.signECDSA);
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+
+            builder = builderWith(Hash.signECDSA, Hash.signSchnorr);
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+        });
+
+        it("should throw when V2 transaction is signed with Schnorr and AIP11 not active", () => {
+            const builder = builderWith(Hash.signSchnorr);
+
+            configManager.getMilestone().aip11 = false;
+            expect(builder.data.version).toBe(2);
+            expect(() => builder.build()).toThrow();
+
+            configManager.getMilestone().aip11 = true;
+        });
+
+        it("should throw when V1 transaction is signed with Schnorr", () => {
+            configManager.getMilestone().aip11 = false;
+
+            const builder = builderWith(Hash.signSchnorr);
+            const buffer = TransactionUtils.toHash(builder.data, {
+                excludeSignature: true,
+                excludeSecondSignature: true,
+            });
+
+            builder.data.signature = builder.data.signature = Hash.signSchnorr(buffer, Keys.fromPassphrase("secret"));
+
+            expect(builder.data.version).toBe(1);
+            expect(() => builder.build()).toThrow();
+
+            configManager.getMilestone().aip11 = true;
         });
     });
 
     describe("serialize - others", () => {
         it("should throw if type is not supported", () => {
             const transactionWrongType = BuilderFactory.transfer()
-                .recipientId("D5q7YfEFDky1JJVQQEy4MGyiUhr5cGg47F")
+                .recipientId("APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq")
                 .amount("10000")
                 .fee("50000000")
                 .vendorField("yo")
-                .version(1)
-                .network(30)
+                .network(23)
                 .sign("dummy passphrase")
                 .getStruct();
             transactionWrongType.type = 55;
@@ -351,6 +630,8 @@ describe("Transaction serializer / deserializer", () => {
     });
 
     describe("getBytesV1", () => {
+        beforeAll(() => (configManager.getMilestone().aip11 = false));
+        afterAll(() => (configManager.getMilestone().aip11 = true));
         let bytes;
 
         // it('should return Buffer of simply transaction and buffer must be 292 length', () => {

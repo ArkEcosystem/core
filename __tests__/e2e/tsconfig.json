@@ -1,0 +1,4 @@
+{
+    "extends": "../../tsconfig.json",
+    "include": ["../helpers/transaction-factory.ts"]
+}

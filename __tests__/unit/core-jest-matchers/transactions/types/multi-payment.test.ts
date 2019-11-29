@@ -1,11 +1,11 @@
 import "../../../../../packages/core-jest-matchers/src/transactions/types/multi-payment";
 
 import { Enums } from "@arkecosystem/crypto";
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 describe(".toBeMultiPaymentType", () => {
     test("passes when given a valid transaction", () => {
-        expect({ type: TransactionTypes.MultiPayment }).toBeMultiPaymentType();
+        expect({ type: TransactionType.MultiPayment }).toBeMultiPaymentType();
     });
 
     test("fails when given an invalid transaction", () => {

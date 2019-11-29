@@ -57,6 +57,7 @@ export class Config {
                     outlookTable: Joi.object(),
                     transactionIdFixTable: Joi.object(),
                     wrongTransactionOrder: Joi.object(),
+                    negativeBalances: Joi.object(),
                 }).default({
                     exceptions: {},
                 }),
@@ -94,9 +95,7 @@ export class Config {
 
         if (error) {
             throw new Error(
-                `An invalid network configuration was provided or is inaccessible due to it's security settings. ${
-                    error.message
-                }.`,
+                `An invalid network configuration was provided or is inaccessible due to it's security settings. ${error.message}.`,
             );
         }
 

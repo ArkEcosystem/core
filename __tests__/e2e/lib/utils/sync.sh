@@ -4,9 +4,9 @@
 # The one with empty db (node2) should sync from the others (node0, node1).
 # To use with devnet just replace mainnet by devnet and download devnet snapshot instead of mainnet.
 
-# install nvm and use node 11
+# install nvm and use node 10
 wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-source ~/.bashrc && nvm install 11 && nvm use 11
+source ~/.bashrc && nvm install 10 && nvm use 10
 
 # install yarn
 curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
@@ -26,7 +26,7 @@ git clone https://github.com/ArkEcosystem/core.git && cd core && git checkout de
 yarn && yarn bootstrap && yarn build && cd __tests__/e2e && yarn install
 
 # generate files for 3 nodes (relays) network based on mainnet config
-yarn generate -c 3 -v 11 -n mainnet -r
+yarn generate -c 3 -v 10 -n mainnet -r
 
 # make some files executable
 sudo chmod +x dist/docker*

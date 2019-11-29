@@ -3,14 +3,14 @@ import "jest-extended";
 import "../mocks/core-container";
 import { defaults } from "../mocks/p2p-options";
 
-import { Blocks, Managers } from "@arkecosystem/crypto/src";
+import { Managers } from "@arkecosystem/crypto/src";
 import delay from "delay";
 import SocketCluster from "socketcluster";
 import socketCluster from "socketcluster-client";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
+import { BlockFactory } from "../../../helpers";
 import { createPeerService } from "../../../helpers/peers";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
-import { genesisBlock } from "../../../utils/config/unitnet/genesisBlock";
 import { wallets } from "../../../utils/fixtures/unitnet/wallets";
 
 Managers.configManager.setFromPreset("unitnet");
@@ -35,6 +35,8 @@ beforeAll(async () => {
     defaults.remoteAccess = []; // empty for rate limit tests
 
     const { service, processor } = createPeerService();
+
+    jest.setTimeout(10000);
 
     server = await startSocketServer(service, { server: { port: 4007, workers: 1 } });
     await delay(1000);
@@ -65,6 +67,8 @@ beforeAll(async () => {
 afterAll(() => {
     socket.destroy();
     server.destroy();
+
+    jest.setTimeout(5000);
 });
 
 describe("Peer socket endpoint", () => {
@@ -72,6 +76,7 @@ describe("Peer socket endpoint", () => {
         it("should getPeers", async () => {
             const { data } = await emit("p2p.peer.getPeers", {
                 headers,
+                data: {},
             });
 
             expect(data).toBeArray();
@@ -80,30 +85,31 @@ describe("Peer socket endpoint", () => {
         it("should getStatus", async () => {
             const { data } = await emit("p2p.peer.getStatus", {
                 headers,
+                data: {},
             });
 
             expect(data.state.height).toBe(1);
         });
 
-        describe("postBlock", async () => {
+        describe("postBlock", () => {
             it("should postBlock successfully", async () => {
+                await delay(1000);
                 const { data } = await emit("p2p.peer.postBlock", {
-                    data: { block: Blocks.BlockFactory.fromData(genesisBlock).toJson() },
+                    data: { block: BlockFactory.createDummy().toJson() },
                     headers,
                 });
 
                 expect(data).toEqual({});
             });
 
-            await delay(1000);
-
             it("should throw validation error when sending wrong data", async () => {
+                await delay(1000);
                 await expect(
                     emit("p2p.peer.postBlock", {
                         data: {},
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "CoreValidationError");
+                ).rejects.toHaveProperty("name", "BadConnectionError");
             });
         });
 
@@ -204,6 +210,7 @@ describe("Peer socket endpoint", () => {
             for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 });
                 expect(data.state.height).toBeNumber();
             }
@@ -211,6 +218,7 @@ describe("Peer socket endpoint", () => {
             for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 });
                 expect(data.state.height).toBeNumber();
             }
@@ -221,6 +229,7 @@ describe("Peer socket endpoint", () => {
             for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 });
                 expect(data.state.height).toBeNumber();
             }
@@ -228,14 +237,15 @@ describe("Peer socket endpoint", () => {
             await expect(
                 emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 }),
-            ).rejects.toHaveProperty("name", "CoreRateLimitExceededError");
+            ).rejects.toHaveProperty("name", "BadConnectionError");
         });
 
         it("should cancel the request when exceeding rate limit on a certain endpoint", async () => {
             await delay(1000);
 
-            const block = Blocks.BlockFactory.fromData(genesisBlock).toJson();
+            const block = BlockFactory.createDummy().toJson();
 
             await emit("p2p.peer.postBlock", {
                 headers,
@@ -247,15 +257,16 @@ describe("Peer socket endpoint", () => {
                     headers,
                     data: { block },
                 }),
-            ).rejects.toHaveProperty("name", "CoreRateLimitExceededError");
+            ).rejects.toHaveProperty("name", "BadConnectionError");
 
             await expect(
                 emit("p2p.peer.getStatus", {
                     headers,
+                    data: {},
                 }),
             ).toResolve();
 
-            await delay(1000);
+            await delay(4000);
 
             await expect(
                 emit("p2p.peer.postBlock", {
@@ -270,9 +281,10 @@ describe("Peer socket endpoint", () => {
 
             await expect(
                 emit(
-                    "p2p.peer.eventNameIsTooLongSoShouldCloseTheConnectionWithCode4413AsItTheEventNameExceedsTheMaximumPermittedLengthSizeOf128Characters",
+                    "p2p.internal.eventNameIsTooLongSoShouldCloseTheConnectionWithCode4413AsItTheEventNameExceedsTheMaximumPermittedLengthSizeOf128Characters",
                     {
                         headers,
+                        data: {},
                     },
                 ),
             ).rejects.toHaveProperty("name", "BadConnectionError");
@@ -284,6 +296,7 @@ describe("Peer socket endpoint", () => {
             await expect(
                 emit("p3p.peer.getStatus", {
                     headers,
+                    data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
         });
@@ -294,16 +307,7 @@ describe("Peer socket endpoint", () => {
             await expect(
                 emit("p2p.invalid.getStatus", {
                     headers,
-                }),
-            ).rejects.toHaveProperty("name", "BadConnectionError");
-        });
-
-        it("should close the connection if an external connection accesses an internal endpoint", async () => {
-            await delay(1000);
-
-            await expect(
-                emit("p2p.internal.acceptNewPeer", {
-                    headers,
+                    data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
         });
@@ -313,6 +317,7 @@ describe("Peer socket endpoint", () => {
 
             await emit("p2p.peer.getPeers", {
                 headers,
+                data: {},
             });
 
             expect(socket.state).toBe("open");
@@ -321,8 +326,9 @@ describe("Peer socket endpoint", () => {
                 await expect(
                     emit("p2p.peer.getPeers", {
                         headers,
+                        data: {},
                     }),
-                ).rejects.toContainAnyEntries([["name", "CoreRateLimitExceededError"], ["name", "BadConnectionError"]]);
+                ).rejects.toHaveProperty("name", "BadConnectionError");
             }
 
             expect(socket.state).not.toBe("open");

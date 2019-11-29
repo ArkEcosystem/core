@@ -1,7 +1,13 @@
 module.exports = {
     "@arkecosystem/core-event-emitter": {},
     "@arkecosystem/core-logger-pino": {},
+    "@arkecosystem/core-p2p": {
+        server: {
+            port: process.env.CORE_P2P_PORT || 4001,
+        },
+    },
     "@arkecosystem/core-state": {},
+    "@arkecosystem/core-magistrate-transactions": {},
     "@arkecosystem/core-database-postgres": {
         connection: {
             host: process.env.CORE_DB_HOST || "localhost",
@@ -26,15 +32,12 @@ module.exports = {
                 vote: 100,
                 multiSignature: 500,
                 ipfs: 250,
-                timelockTransfer: 500,
                 multiPayment: 500,
                 delegateResignation: 100,
+                htlcLock: 100,
+                htlcClaim: 0,
+                htlcRefund: 0,
             },
-        },
-    },
-    "@arkecosystem/core-p2p": {
-        server: {
-            port: process.env.CORE_P2P_PORT || 4001,
         },
     },
     "@arkecosystem/core-blockchain": {},

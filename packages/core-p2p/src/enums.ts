@@ -17,18 +17,12 @@ export enum NetworkStateStatus {
     Default,
     BelowMinimumPeers,
     Test,
+    ColdStart,
     Unknown,
 }
 
 export enum SocketErrors {
     Timeout = "CoreTimeoutError",
     SocketNotOpen = "CoreSocketNotOpenError",
-    WrongEndpoint = "CoreWrongEndpointError",
-    AppNotReady = "CoreAppNotReadyError",
-    HeadersRequired = "CoreHeadersRequiredError",
-    Unknown = "CoreUnknownError",
     Validation = "CoreValidationError",
-    RateLimitExceeded = "CoreRateLimitExceededError",
-    Forbidden = "CoreForbiddenError",
-    InvalidMessagePayload = "CoreInvalidMessagePayloadError",
 }

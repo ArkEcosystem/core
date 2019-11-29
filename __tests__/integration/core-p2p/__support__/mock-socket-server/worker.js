@@ -41,6 +41,26 @@ class Worker extends SCWorker {
             this.mocks = [];
             res();
         });
+
+        socket.on("mock.terminate.add", async (data, res) => {
+            this.scServer.addMiddleware(this.scServer.MIDDLEWARE_EMIT, this.middlewareTerminate);
+            res();
+        });
+
+        socket.on("mock.terminate.remove", async (data, res) => {
+            this.scServer.removeMiddleware(this.scServer.MIDDLEWARE_EMIT, this.middlewareTerminate);
+            res();
+        });
+
+        socket.on("mock.terminate.remove", async (data, res) => {
+            socket.off(data.endpoint);
+            res();
+        });
+    }
+
+    middlewareTerminate(req, next) {
+        req.socket.terminate();
+        return;
     }
 }
 

@@ -18,15 +18,18 @@
                 "delegateRegistration": 2500000000,
                 "vote": 100000000,
                 "multiSignature": 500000000,
-                "ipfs": 0,
-                "timelockTransfer": 0,
-                "multiPayment": 0,
-                "delegateResignation": 2500000000
+                "ipfs": 500000000,
+                "multiPayment": 10000000,
+                "delegateResignation": 2500000000,
+                "htlcLock": 10000000,
+                "htlcClaim": 0,
+                "htlcRefund": 0
             }
         },
         "ignoreInvalidSecondSignatureField": true,
         "ignoreExpiredTransactions": true,
-        "vendorFieldLength": 64
+        "vendorFieldLength": 64,
+        "multiPaymentLimit": 128
     },
     {
         "height": 10800,
@@ -68,6 +71,19 @@
         "height": 2850000,
         "block": {
             "acceptExpiredTransactionTimestamps": false
+        }
+    },
+    {
+        "height": 3963000,
+        "p2p": {
+            "minimumVersions": ["^2.6 || ^2.6.0-next.0"]
+        }
+    },
+    {
+        "height": 4006000,
+        "aip11": true,
+        "p2p": {
+            "minimumVersions": ["^2.6 || ^2.6.0-next.5"]
         }
     }
 ]

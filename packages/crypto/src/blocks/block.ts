@@ -4,25 +4,49 @@ import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITran
 import { configManager } from "../managers/config";
 import { BigNumber, isException } from "../utils";
 import { validator } from "../validation";
-import { deserializer } from "./deserializer";
+import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
     public static applySchema(data: IBlockData): IBlockData {
-        const { value, error } = validator.validate("block", data);
+        let result = validator.validate("block", data);
 
-        if (
-            error &&
-            !(isException(value) || data.transactions.some((transaction: ITransactionData) => isException(transaction)))
-        ) {
-            throw new BlockSchemaError(data.height, error);
+        if (!result.error) {
+            return result.value;
         }
 
-        return value;
+        result = validator.validateException("block", data);
+
+        for (const err of result.errors) {
+            let fatal = false;
+
+            const match = err.dataPath.match(/\.transactions\[([0-9]+)\]/);
+            if (match === null) {
+                if (!isException(data)) {
+                    fatal = true;
+                }
+            } else {
+                const txIndex = match[1];
+                const tx = data.transactions[txIndex];
+                if (tx.id === undefined || !isException(tx)) {
+                    fatal = true;
+                }
+            }
+
+            if (fatal) {
+                throw new BlockSchemaError(
+                    data.height,
+                    `Invalid data${err.dataPath ? ' at ' + err.dataPath : ''}: ` +
+                    `${err.message}: ${JSON.stringify(err.data)}`
+                );
+            }
+        }
+
+        return result.value;
     }
 
     public static deserialize(hexString: string, headerOnly: boolean = false): IBlockData {
-        return deserializer.deserialize(hexString, headerOnly).data;
+        return Deserializer.deserialize(hexString, headerOnly).data;
     }
 
     public static serializeWithTransactions(block: IBlockData) {
@@ -62,7 +86,7 @@ export class Block implements IBlock {
         const constants = configManager.getMilestone(data.height);
         const idHex: string = Block.getIdHex(data);
 
-        return constants.block.idFullSha256 ? idHex : BigNumber.make(idHex, 16).toFixed();
+        return constants.block.idFullSha256 ? idHex : BigNumber.make(`0x${idHex}`).toString();
     }
 
     public serialized: string;
@@ -119,9 +143,9 @@ export class Block implements IBlock {
 
     public toJson(): IBlockJson {
         const data: IBlockJson = JSON.parse(JSON.stringify(this.data));
-        data.reward = this.data.reward.toFixed();
-        data.totalAmount = this.data.totalAmount.toFixed();
-        data.totalFee = this.data.totalFee.toFixed();
+        data.reward = this.data.reward.toString();
+        data.totalAmount = this.data.totalAmount.toString();
+        data.totalFee = this.data.totalFee.toString();
         data.transactions = this.transactions.map(transaction => transaction.toJson());
 
         return data;
@@ -162,7 +186,11 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block timestamp");
             }
 
-            let size: number = 0;
+            const size: number = Serializer.size(this);
+            if (size > constants.block.maxPayload) {
+                result.errors.push(`Payload is too large: ${size} > ${constants.block.maxPayload}`);
+            }
+
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
             if (invalidTransactions.length > 0) {
                 result.errors.push("One or more transactions are not verified:");
@@ -219,7 +247,6 @@ export class Block implements IBlock {
 
                 totalAmount = totalAmount.plus(transaction.data.amount);
                 totalFee = totalFee.plus(transaction.data.fee);
-                size += bytes.length;
 
                 payloadBuffers.push(bytes);
             }
@@ -230,10 +257,6 @@ export class Block implements IBlock {
 
             if (!totalFee.isEqualTo(block.totalFee)) {
                 result.errors.push("Invalid total fee");
-            }
-
-            if (size > constants.block.maxPayload) {
-                result.errors.push("Payload is too large");
             }
 
             if (HashAlgorithms.sha256(payloadBuffers).toString("hex") !== block.payloadHash) {

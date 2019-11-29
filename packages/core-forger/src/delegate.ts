@@ -1,6 +1,5 @@
 import { Blocks, Crypto, Identities, Interfaces, Types, Utils } from "@arkecosystem/crypto";
 import forge from "node-forge";
-import { authenticator } from "otplib";
 import wif from "wif";
 
 export class Delegate {
@@ -39,19 +38,13 @@ export class Delegate {
         this.iterations = 5000;
 
         if (Crypto.bip38.verify(passphrase)) {
-            try {
-                this.keys = Delegate.decryptPassphrase(passphrase, network, password);
-                this.publicKey = this.keys.publicKey;
-                this.address = Identities.Address.fromPublicKey(this.keys.publicKey, network.pubKeyHash);
-                this.otpSecret = authenticator.generateSecret();
-                this.bip38 = true;
+            this.keys = Delegate.decryptPassphrase(passphrase, network, password);
+            this.publicKey = this.keys.publicKey;
+            this.address = Identities.Address.fromPublicKey(this.keys.publicKey, network.pubKeyHash);
+            this.otpSecret = forge.random.getBytesSync(128);
+            this.bip38 = true;
 
-                this.encryptKeysWithOtp();
-            } catch (error) {
-                this.publicKey = undefined;
-                this.keys = undefined;
-                this.address = undefined;
-            }
+            this.encryptKeysWithOtp();
         } else {
             this.keys = Identities.Keys.fromPassphrase(passphrase);
             this.publicKey = this.keys.publicKey;
@@ -60,12 +53,11 @@ export class Delegate {
     }
 
     public encryptKeysWithOtp(): void {
-        this.otp = authenticator.generate(this.otpSecret);
-
         const wifKey: string = Identities.WIF.fromKeys(this.keys, this.network);
 
-        this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
         this.keys = undefined;
+        this.otp = forge.random.getBytesSync(16);
+        this.encryptedKeys = this.encryptDataWithOtp(wifKey, this.otp);
     }
 
     public decryptKeysWithOtp(): void {
@@ -88,8 +80,7 @@ export class Delegate {
             };
 
             const payloadBuffers: Buffer[] = [];
-            const sortedTransactions = Utils.sortTransactions(transactions);
-            for (const transaction of sortedTransactions) {
+            for (const transaction of transactions) {
                 transactionData.amount = transactionData.amount.plus(transaction.amount);
                 transactionData.fee = transactionData.fee.plus(transaction.fee);
                 payloadBuffers.push(Buffer.from(transaction.id, "hex"));
@@ -107,13 +98,13 @@ export class Delegate {
                     previousBlock: options.previousBlock.id,
                     previousBlockHex: options.previousBlock.idHex,
                     height: options.previousBlock.height + 1,
-                    numberOfTransactions: sortedTransactions.length,
+                    numberOfTransactions: transactions.length,
                     totalAmount: transactionData.amount,
                     totalFee: transactionData.fee,
                     reward: options.reward,
-                    payloadLength: 32 * sortedTransactions.length,
+                    payloadLength: 32 * transactions.length,
                     payloadHash: Crypto.HashAlgorithms.sha256(payloadBuffers).toString("hex"),
-                    transactions: sortedTransactions,
+                    transactions,
                 },
                 this.keys,
             );
@@ -133,7 +124,7 @@ export class Delegate {
             "AES-CBC",
             forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
         );
-        cipher.start({ iv: forge.util.decode64(this.otp) });
+        cipher.start({ iv: this.otp });
         cipher.update(forge.util.createBuffer(content));
         cipher.finish();
 
@@ -145,7 +136,7 @@ export class Delegate {
             "AES-CBC",
             forge.pkcs5.pbkdf2(password, this.otpSecret, this.iterations, this.keySize),
         );
-        decipher.start({ iv: forge.util.decode64(this.otp) });
+        decipher.start({ iv: this.otp });
         decipher.update(forge.util.createBuffer(forge.util.decode64(cipherText)));
         decipher.finish();
 

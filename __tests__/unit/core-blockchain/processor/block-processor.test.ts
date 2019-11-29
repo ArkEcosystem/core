@@ -45,11 +45,11 @@ describe("Block processor", () => {
     describe("getHandler", () => {
         it("should return ExceptionHandler if block is an exception", async () => {
             const exceptionBlock = BlockFactory.fromData(blockTemplate);
-            exceptionBlock.data.id = "998877";
+            exceptionBlock.data.id = "10370119864814436559";
 
-            jest.spyOn(Managers.configManager, "get").mockReturnValueOnce(["998877"]);
-
+            Managers.configManager.setFromPreset("mainnet");
             expect(await blockProcessor.getHandler(exceptionBlock)).toBeInstanceOf(ExceptionHandler);
+            Managers.configManager.setFromPreset("testnet");
         });
 
         it("should return VerificationFailedHandler if block failed verification", async () => {
@@ -274,6 +274,37 @@ describe("Block processor", () => {
                 // if we try to process the block, it should be 'discarded but can be broadcasted'
                 const result = await blockProcessor.process(blockLowerHeight);
                 expect(result).toBe(BlockProcessorResult.DiscardedButCanBeBroadcasted);
+            });
+        });
+
+        describe("Nonce", () => {
+            beforeEach(() => {
+                const lastBlock = BlockFactory.fromData(getBlock([]));
+
+                jest.spyOn(blockchain, "getLastBlock").mockReturnValue(lastBlock);
+            });
+            afterEach(() => {
+                jest.restoreAllMocks();
+            });
+
+            it("should reject a block with invalid nonce order", async () => {
+                const getActiveDelegatesBackup = database.getActiveDelegates;
+                database.getActiveDelegates = jest.fn(() => [delegates[0]]);
+
+                const transactions = TransactionFactory.transfer(delegates[1].address)
+                    .withNetwork("unitnet")
+                    .withPassphrase(delegates[0].passphrase)
+                    .create(2);
+
+                const block = BlockFactory.fromData(getBlock([transactions[1], transactions[0]]));
+                block.verification.verified = true;
+
+                const handler = await blockProcessor.getHandler(block);
+                expect(handler instanceof handlers.NonceOutOfOrderHandler).toBeTrue();
+
+                expect(await handler.execute()).toBe(BlockProcessorResult.Rejected);
+
+                database.getActiveDelegates = getActiveDelegatesBackup;
             });
         });
     });

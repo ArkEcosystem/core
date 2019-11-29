@@ -1,6 +1,6 @@
 import { Enums } from "@arkecosystem/crypto";
 
-const { DelegateRegistration } = Enums.TransactionTypes;
+const { DelegateRegistration } = Enums.TransactionType;
 
 export {};
 

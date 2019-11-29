@@ -1,17 +1,16 @@
 /* tslint:disable:jsdoc-format max-line-length */
 
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
-
 import { isBlockChained, roundCalculator } from "@arkecosystem/core-utils";
-import { Blocks, Interfaces, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import pluralize from "pluralize";
 import { blockchainMachine } from "./machines/blockchain";
 
 import { Blockchain } from "./blockchain";
 
-const { BlockFactory } = Blocks;
 const config = app.getConfig();
 const emitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
 const logger = app.resolvePlugin<Logger.ILogger>("logger");
@@ -31,7 +30,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
     blockchainReady: () => {
         if (!stateStorage.started) {
             stateStorage.started = true;
-            emitter.emit("state:started", true);
+            emitter.emit(ApplicationEvents.StateStarted, true);
         }
     },
 
@@ -73,9 +72,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             } else {
                 stateStorage.p2pUpdateCounter++;
             }
-        }
-
-        if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
+        } else if (stateStorage.lastDownloadedBlock && blockchain.isSynced(stateStorage.lastDownloadedBlock)) {
             stateStorage.noBlockCounter = 0;
             stateStorage.p2pUpdateCounter = 0;
 
@@ -123,7 +120,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
     async init() {
         try {
-            const block: Interfaces.IBlock = await blockchain.database.getLastBlock();
+            const block: Interfaces.IBlock = blockchain.state.getLastBlock();
 
             if (!blockchain.database.restoredDatabaseIntegrity) {
                 logger.info("Verifying database integrity");
@@ -159,7 +156,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
 
             if (stateStorage.networkStart) {
                 await blockchain.database.buildWallets();
-                await blockchain.database.applyRound(block.data.height);
+                await blockchain.database.restoreCurrentRound(block.data.height);
                 await blockchain.transactionPool.buildWallets();
                 await blockchain.p2p.getMonitor().start();
 
@@ -169,7 +166,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             if (process.env.NODE_ENV === "test") {
                 logger.verbose("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
-                stateStorage.setLastBlock(BlockFactory.fromJson(config.get("genesisBlock")));
                 await blockchain.database.buildWallets();
                 await blockchain.p2p.getMonitor().start();
 
@@ -202,7 +198,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             stateStorage.lastDownloadedBlock || stateStorage.getLastBlock().data;
         const blocks: Interfaces.IBlockData[] = await blockchain.p2p
             .getMonitor()
-            .syncWithNetwork(lastDownloadedBlock.height);
+            .downloadBlocksFromHeight(lastDownloadedBlock.height);
 
         if (blockchain.isStopped) {
             return;
@@ -229,9 +225,6 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
                 )}`,
             );
 
-            stateStorage.noBlockCounter = 0;
-            stateStorage.p2pUpdateCounter = 0;
-
             try {
                 blockchain.enqueueBlocks(blocks);
                 blockchain.dispatch("DOWNLOADED");
@@ -244,7 +237,9 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
             }
         } else {
             if (empty) {
-                logger.info("No new block found on this peer");
+                logger.info(
+                    `Could not download any blocks from any peer from height ${lastDownloadedBlock.height + 1}`,
+                );
             } else {
                 logger.warn(`Downloaded block not accepted: ${JSON.stringify(blocks[0])}`);
                 logger.warn(`Last downloaded block: ${JSON.stringify(lastDownloadedBlock)}`);
@@ -261,26 +256,23 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => ({
         }
     },
 
-    async analyseFork() {
-        logger.info("Analysing fork");
-    },
-
     async startForkRecovery() {
         logger.info("Starting fork recovery");
-
         blockchain.clearAndStopQueue();
 
         const random: number = 4 + Math.floor(Math.random() * 99); // random int inside [4, 102] range
+        const blocksToRemove: number = stateStorage.numberOfBlocksToRollback || random;
 
-        await blockchain.removeBlocks(stateStorage.numberOfBlocksToRollback || random);
+        await blockchain.removeBlocks(blocksToRemove);
+
         stateStorage.numberOfBlocksToRollback = undefined;
 
-        logger.info(`Removed ${pluralize("block", random, true)}`);
+        logger.info(`Removed ${pluralize("block", blocksToRemove, true)}`);
 
-        await blockchain.transactionPool.buildWallets();
         await blockchain.p2p.getMonitor().refreshPeersAfterFork();
 
         blockchain.dispatch("SUCCESS");
+        blockchain.queue.resume();
     },
 
     async rollbackDatabase() {

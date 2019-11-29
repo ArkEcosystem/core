@@ -1,14 +1,14 @@
-import { TransactionTypes } from "../../../enums";
 import { IMultiSignatureAsset, ITransactionData } from "../../../interfaces";
-import { feeManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
+import { MultiSignatureRegistrationTransaction } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {
     constructor() {
         super();
 
-        this.data.type = TransactionTypes.MultiSignature;
+        this.data.type = MultiSignatureRegistrationTransaction.type;
+        this.data.typeGroup = MultiSignatureRegistrationTransaction.typeGroup;
         this.data.version = 2;
         this.data.fee = BigNumber.ZERO;
         this.data.amount = BigNumber.ZERO;
@@ -22,7 +22,7 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
 
         if (publicKeys.length <= 16) {
             publicKeys.push(publicKey);
-            this.data.fee = feeManager.getForTransaction(this.data);
+            this.data.fee = MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
         }
 
         return this;
@@ -36,7 +36,7 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
 
     public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
         this.data.asset.multiSignature = multiSignature;
-        this.data.fee = feeManager.getForTransaction(this.data);
+        this.data.fee = MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
 
         return this;
     }

@@ -1,8 +1,9 @@
-import bs58check from "bs58check";
 import { HashAlgorithms } from "../crypto";
 import { PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
 import { configManager } from "../managers";
+import { NetworkType } from "../types";
+import { Base58 } from "../utils/base58";
 import { PublicKey } from "./public-key";
 
 export class Address {
@@ -25,7 +26,11 @@ export class Address {
         payload.writeUInt8(networkVersion, 0);
         buffer.copy(payload, 1);
 
-        return bs58check.encode(payload);
+        return this.fromBuffer(payload);
+    }
+
+    public static fromWIF(wif: string, network?: NetworkType): string {
+        return Address.fromPublicKey(PublicKey.fromWIF(wif, network));
     }
 
     public static fromMultiSignatureAsset(asset: IMultiSignatureAsset, networkVersion?: number): string {
@@ -36,13 +41,31 @@ export class Address {
         return Address.fromPublicKey(privateKey.publicKey, networkVersion);
     }
 
+    public static fromBuffer(buffer: Buffer): string {
+        return Base58.encodeCheck(buffer);
+    }
+
+    public static toBuffer(address: string): { addressBuffer: Buffer; addressError?: string } {
+        const buffer: Buffer = Base58.decodeCheck(address);
+        const networkVersion: number = configManager.get("network.pubKeyHash");
+        const result: { addressBuffer: Buffer; addressError?: string } = {
+            addressBuffer: buffer,
+        };
+
+        if (buffer[0] !== networkVersion) {
+            result.addressError = `Expected address network byte ${networkVersion}, but got ${buffer[0]}.`;
+        }
+
+        return result;
+    }
+
     public static validate(address: string, networkVersion?: number): boolean {
         if (!networkVersion) {
             networkVersion = configManager.get("network.pubKeyHash");
         }
 
         try {
-            return bs58check.decode(address)[0] === networkVersion;
+            return Base58.decodeCheck(address)[0] === networkVersion;
         } catch (err) {
             return false;
         }

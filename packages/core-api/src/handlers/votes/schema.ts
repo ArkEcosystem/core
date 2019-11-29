@@ -1,12 +1,11 @@
 import Joi from "@hapi/joi";
-import { blockId } from "../shared/schemas/block-id";
-import { pagination } from "../shared/schemas/pagination";
+import { blockId, orderBy, pagination } from "../shared/schemas";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: Joi.string(),
+            orderBy,
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -32,7 +31,7 @@ export const index: object = {
             fee: Joi.number()
                 .integer()
                 .min(0),
-            vendorFieldHex: Joi.string().hex(),
+            vendorField: Joi.string().max(255, "utf8"),
             transform: Joi.bool().default(true),
         },
     },

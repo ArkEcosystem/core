@@ -1,22 +1,18 @@
 import "jest-extended";
 
-import { Utils } from "../../../../packages/crypto/src";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
+import { TransactionFactory } from '../../../helpers/transaction-factory';
 import { identity } from "../../../utils/identities";
 
-const transaction = {
-    type: 0,
-    amount: Utils.BigNumber.make(1000),
-    fee: Utils.BigNumber.make(2000),
-    recipientId: "AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff",
-    timestamp: 141738,
-    asset: {},
-    senderPublicKey: identity.publicKey,
-};
+const transaction = TransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+    .withVersion(2)
+    .withFee(2000)
+    .withPassphrase("secret")
+    .createOne();
 
-beforeEach(() => configManager.setFromPreset("devnet"));
+beforeEach(() => configManager.setFromPreset("testnet"));
 
 describe("Hash", () => {
     describe("ECDSA", () => {
@@ -27,7 +23,7 @@ describe("Hash", () => {
             expect(Hash.verifyECDSA(hash, signature, identity.publicKey)).toBeTrue();
 
             expect(signature).toEqual(
-                "3044022044fee22e0c9b653320ed91bc0a1151de2c4701a55b7d2682fbdd08e028947ba4022012bb0fe6e8d1d99c9a1a494dbfae05cee219743e6a55e41199b53b351e8ae2b9",
+                "30450221008682af02d5f3c6302af14f3239a997022f69c28a5e3282603d5f25912ccd3b47022023cec266362f5bb91e6a2f2fcb62f4c61829dfd7a096432ff8b4a54a83577444",
             );
         });
 
@@ -40,7 +36,7 @@ describe("Hash", () => {
             ).toBeTrue();
 
             expect(signature).toEqual(
-                "3044022044fee22e0c9b653320ed91bc0a1151de2c4701a55b7d2682fbdd08e028947ba4022012bb0fe6e8d1d99c9a1a494dbfae05cee219743e6a55e41199b53b351e8ae2b9",
+                "30450221008682af02d5f3c6302af14f3239a997022f69c28a5e3282603d5f25912ccd3b47022023cec266362f5bb91e6a2f2fcb62f4c61829dfd7a096432ff8b4a54a83577444",
             );
         });
     });
@@ -53,7 +49,7 @@ describe("Hash", () => {
             expect(Hash.verifySchnorr(hash, signature, identity.publicKey)).toBeTrue();
 
             expect(signature).toEqual(
-                "b335d8630413fdf5f8f739d3b2d3bcc19cfdb811acf0c769cc2b2faf477c1e053b6974ccaba086fc6e1dd0cfc16bba2f18ab3d8b6624f16479886d9e4cfeb95e",
+                "dd78ce399058357fc3ca881d38e54efc1b6841719106aa55fb186186fa0f3330bc37c8cb2bd8e48d272f1f9532df89a6b5f69945c56d05947bd3186e872db99a",
             );
         });
 
@@ -66,7 +62,7 @@ describe("Hash", () => {
             ).toBeTrue();
 
             expect(signature).toEqual(
-                "b335d8630413fdf5f8f739d3b2d3bcc19cfdb811acf0c769cc2b2faf477c1e053b6974ccaba086fc6e1dd0cfc16bba2f18ab3d8b6624f16479886d9e4cfeb95e",
+                "dd78ce399058357fc3ca881d38e54efc1b6841719106aa55fb186186fa0f3330bc37c8cb2bd8e48d272f1f9532df89a6b5f69945c56d05947bd3186e872db99a",
             );
         });
     });

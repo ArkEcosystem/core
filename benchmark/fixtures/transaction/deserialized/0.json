@@ -6,7 +6,7 @@
     "senderPublicKey": "03d7dfe44e771039334f4712fb95ad355254f674c8f5d286503199157b7bf7c357",
     "fee": "10000000",
     "amount": "200000000",
-    "vendorFieldHex": "5472616e73616374696f6e2037",
+    "vendorField": "5472616e73616374696f6e2037",
     "expiration": 0,
     "recipientId": "APyFYXxXtUrvZFnEuwLopfst94GMY5Zkeq",
     "signature": "3045022100bac5b7699748a891b39ff5439e16ea1a694e93954b248be6b8082da01e5386310220129eb06a58b9f80d36ea3cdc903e6cc0240bbe1d371339ffe15c87742af1427d",

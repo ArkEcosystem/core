@@ -11,6 +11,10 @@ jest.mock("@arkecosystem/core-container", () => {
                     genesisBlock: {
                         totalAmount: 1000000 * 1e8,
                     },
+                    all: () => ({
+                        genesisBlock: { totalAmount: 1000000 * 1e8 },
+                        milestones: [{ height: 1, reward: 2 * 1e8 }],
+                    }),
                 };
             },
             resolvePlugin: name => {

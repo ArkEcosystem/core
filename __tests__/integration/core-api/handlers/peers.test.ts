@@ -8,29 +8,37 @@ import { utils } from "../utils";
 const peers = [
     {
         ip: "1.0.0.99",
-        port: 4000,
+        port: 4002,
         version: "2.4.0-next.3",
+        state: {
+            height: 2,
+        },
+        latency: 2,
     },
     {
         ip: "1.0.0.98",
-        port: 4000,
+        port: 4002,
         version: "2.4.0-next.1",
+        state: {
+            height: 1,
+        },
+        latency: 1,
     },
 ];
 
 beforeAll(async () => {
     await setUp();
 
-    const peerMocks = peers
-        .map(mock => {
-            const peerMock = new Peer(mock.ip);
-            (peerMock as any).port = mock.port;
-            peerMock.version = mock.version;
-            return peerMock;
-        })
-        .reduce((result, mock) => ({ ...result, [mock.ip]: mock }), {});
+    const peerMocks = JSON.parse(JSON.stringify(peers)).map(mock => {
+        const peer = new Peer(mock.ip);
+        (peer as any).port = mock.port;
 
-    for (const peerMock of Object.values(peerMocks)) {
+        delete mock.port;
+
+        return Object.assign(peer, mock);
+    });
+
+    for (const peerMock of peerMocks) {
         app.resolvePlugin("p2p")
             .getStorage()
             .setPeer(peerMock);
@@ -59,6 +67,42 @@ describe("API 2.0 - Peers", () => {
 
         it("should GET all the peers sorted by version,desc", async () => {
             const response = await utils.request("GET", "peers", { orderBy: "version:desc" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArrayOfSize(peers.length);
+            expect(response.data.data[0]).toBeObject();
+            expect(response.data.data[0].ip).toBe(peers[0].ip);
+            expect(response.data.data[1].ip).toBe(peers[1].ip);
+        });
+
+        it("should GET all the peers sorted by height,asc", async () => {
+            const response = await utils.request("GET", "peers", { orderBy: "height:asc" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArrayOfSize(peers.length);
+            expect(response.data.data[0]).toBeObject();
+            expect(response.data.data[0].ip).toBe(peers[1].ip);
+            expect(response.data.data[1].ip).toBe(peers[0].ip);
+        });
+
+        it("should GET all the peers sorted by height,desc", async () => {
+            const response = await utils.request("GET", "peers", { orderBy: "height:desc" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArrayOfSize(peers.length);
+            expect(response.data.data[0]).toBeObject();
+            expect(response.data.data[0].ip).toBe(peers[0].ip);
+            expect(response.data.data[1].ip).toBe(peers[1].ip);
+        });
+
+        it("should GET all the peers sorted by latency,asc", async () => {
+            const response = await utils.request("GET", "peers", { orderBy: "latency:asc" });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArrayOfSize(peers.length);
+            expect(response.data.data[0]).toBeObject();
+            expect(response.data.data[0].ip).toBe(peers[1].ip);
+            expect(response.data.data[1].ip).toBe(peers[0].ip);
+        });
+
+        it("should GET all the peers sorted by latency,desc", async () => {
+            const response = await utils.request("GET", "peers", { orderBy: "latency:desc" });
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArrayOfSize(peers.length);
             expect(response.data.data[0]).toBeObject();

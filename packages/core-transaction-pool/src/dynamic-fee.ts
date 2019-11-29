@@ -1,40 +1,37 @@
 import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
-import { Enums, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
-import camelCase from "lodash.camelcase";
+import { Logger, State } from "@arkecosystem/core-interfaces";
+import { Handlers } from "@arkecosystem/core-transactions";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { IDynamicFeeMatch } from "./interfaces";
 
-export const calculateMinimumFee = (satoshiPerByte: number, transaction: Interfaces.ITransaction): Utils.BigNumber => {
-    if (satoshiPerByte <= 0) {
-        satoshiPerByte = 1;
-    }
-
-    const key: string = camelCase(
-        transaction.type in Enums.TransactionTypes
-            ? Enums.TransactionTypes[transaction.type]
-            : transaction.constructor.name.replace("Transaction", ""),
-    );
-
-    const addonBytes: number = app.resolveOptions("transaction-pool").dynamicFees.addonBytes[key];
-    const transactionSizeInBytes: number = transaction.serialized.length / 2;
-
-    return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
-};
-
 // @TODO: better name
-export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynamicFeeMatch => {
+export const dynamicFeeMatcher = async (transaction: Interfaces.ITransaction): Promise<IDynamicFeeMatch> => {
     const fee: Utils.BigNumber = transaction.data.fee;
     const id: string = transaction.id;
 
     const { dynamicFees } = app.resolveOptions("transaction-pool");
+    const height: number = app
+        .resolvePlugin<State.IStateService>("state")
+        .getStore()
+        .getLastHeight();
 
     let broadcast: boolean;
     let enterPool: boolean;
 
     if (dynamicFees.enabled) {
-        const minFeeBroadcast: Utils.BigNumber = calculateMinimumFee(dynamicFees.minFeeBroadcast, transaction);
+        const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
+            transaction.type,
+            transaction.typeGroup,
+        );
+        const addonBytes: number = app.resolveOptions("transaction-pool").dynamicFees.addonBytes[transaction.key];
+        const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee({
+            transaction,
+            addonBytes,
+            satoshiPerByte: dynamicFees.minFeeBroadcast,
+            height,
+        });
 
-        if (fee.isGreaterThanOrEqualTo(minFeeBroadcast)) {
+        if (fee.isGreaterThanEqual(minFeeBroadcast)) {
             broadcast = true;
 
             app.resolvePlugin<Logger.ILogger>("logger").debug(
@@ -52,9 +49,14 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
             );
         }
 
-        const minFeePool: Utils.BigNumber = calculateMinimumFee(dynamicFees.minFeePool, transaction);
+        const minFeePool: Utils.BigNumber = handler.dynamicFee({
+            transaction,
+            addonBytes,
+            satoshiPerByte: dynamicFees.minFeePool,
+            height,
+        });
 
-        if (fee.isGreaterThanOrEqualTo(minFeePool)) {
+        if (fee.isGreaterThanEqual(minFeePool)) {
             enterPool = true;
 
             app.resolvePlugin<Logger.ILogger>("logger").debug(
@@ -72,8 +74,7 @@ export const dynamicFeeMatcher = (transaction: Interfaces.ITransaction): IDynami
             );
         }
     } else {
-        const staticFee: Utils.BigNumber = Managers.feeManager.getForTransaction(transaction.data);
-
+        const staticFee: Utils.BigNumber = transaction.staticFee;
         if (fee.isEqualTo(staticFee)) {
             broadcast = true;
             enterPool = true;

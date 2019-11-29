@@ -1,15 +1,13 @@
+import { P2P } from "@arkecosystem/core-interfaces";
 import Ajv from "ajv";
 import { cidr } from "ip";
 import SCWorker from "socketcluster/scworker";
-import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
-import { RateLimiter } from "./rate-limiter";
 
 const ajv = new Ajv();
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
-    private rateLimiter: RateLimiter;
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
@@ -17,7 +15,11 @@ export class Worker extends SCWorker {
         await this.loadConfiguration();
 
         // @ts-ignore
-        this.scServer.wsServer.on("connection", (ws, req) => this.handlePayload(ws, req));
+        this.scServer.wsServer.on("connection", (ws, req) => {
+            this.handlePayload(ws, req);
+            this.handlePing(ws, req);
+            this.handlePong(ws, req);
+        });
         this.scServer.on("connection", socket => this.handleConnection(socket));
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
             this.handleHandshake(req, next),
@@ -27,39 +29,18 @@ export class Worker extends SCWorker {
 
     private async loadConfiguration(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
-
         this.config = data;
-        this.rateLimiter = new RateLimiter({
-            whitelist: [...this.config.whitelist, ...this.config.remoteAccess],
-            configurations: {
-                global: {
-                    rateLimit: this.config.rateLimit,
-                    blockDuration: 60 * 1, // 1 minute ban for now
-                },
-                endpoints: [
-                    {
-                        rateLimit: 1,
-                        duration: 4,
-                        endpoint: "p2p.peer.postBlock",
-                    },
-                    {
-                        rateLimit: 1,
-                        endpoint: "p2p.peer.getBlocks",
-                    },
-                    {
-                        rateLimit: 1,
-                        endpoint: "p2p.peer.getPeers",
-                    },
-                    {
-                        rateLimit: 2,
-                        endpoint: "p2p.peer.getStatus",
-                    },
-                    {
-                        rateLimit: 5,
-                        endpoint: "p2p.peer.getCommonBlocks",
-                    },
-                ],
-            },
+    }
+
+    private handlePing(ws, req) {
+        ws.on("ping", () => {
+            ws.terminate();
+        });
+    }
+
+    private handlePong(ws, req) {
+        ws.on("pong", () => {
+            ws.terminate();
         });
     }
 
@@ -72,14 +53,10 @@ export class Worker extends SCWorker {
         });
         ws.on("message", message => {
             try {
-                const InvalidMessagePayloadError: Error = this.createError(
-                    SocketErrors.InvalidMessagePayload,
-                    "The message contained an invalid payload",
-                );
                 if (message === "#2") {
                     const timeNow: number = new Date().getTime() / 1000;
                     if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                        throw InvalidMessagePayloadError;
+                        ws.terminate();
                     }
                     ws._lastPingTime = timeNow;
                 } else {
@@ -90,7 +67,7 @@ export class Worker extends SCWorker {
                         (typeof parsed.cid !== "number" &&
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
                     ) {
-                        throw InvalidMessagePayloadError;
+                        ws.terminate();
                     }
                 }
             } catch (error) {
@@ -117,10 +94,16 @@ export class Worker extends SCWorker {
     }
 
     private async handleHandshake(req, next): Promise<void> {
-        const isBlocked = await this.rateLimiter.isBlocked(req.socket.remoteAddress);
-        const isBlacklisted = (this.config.blacklist || []).includes(req.socket.remoteAddress);
-        if (isBlocked || isBlacklisted) {
-            next(this.createError(SocketErrors.Forbidden, "Blocked due to rate limit or blacklisted."));
+        const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
+            "p2p.internal.isBlockedByRateLimit",
+            {
+                data: { ip: req.socket.remoteAddress },
+            },
+        );
+
+        const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
+        if (data.blocked || isBlacklisted) {
+            req.socket.destroy();
             return;
         }
 
@@ -137,40 +120,45 @@ export class Worker extends SCWorker {
     }
 
     private async handleEmit(req, next): Promise<void> {
-        if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
-            if (await this.rateLimiter.isBlocked(req.socket.remoteAddress)) {
+        if (req.event.length > 128) {
+            req.socket.terminate();
+            return;
+        }
+
+        const { data }: { data: P2P.IRateLimitStatus } = await this.sendToMasterAsync(
+            "p2p.internal.getRateLimitStatus",
+            {
+                data: {
+                    ip: req.socket.remoteAddress,
+                    endpoint: req.event,
+                },
+            },
+        );
+
+        if (data.exceededLimitOnEndpoint) {
+            req.socket.terminate();
+            return;
+        }
+
+        // ensure basic format of incoming data, req.data must be as { data, headers }
+        if (typeof req.data !== "object" || typeof req.data.data !== "object" || typeof req.data.headers !== "object") {
+            req.socket.terminate();
+            return;
+        }
+
+        try {
+            const [prefix, version, handler] = req.event.split(".");
+
+            if (prefix !== "p2p") {
                 req.socket.terminate();
                 return;
             }
 
-            return next(this.createError(SocketErrors.RateLimitExceeded, "Rate limit exceeded"));
-        }
-
-        // @TODO: check if this is still needed
-        if (!req.data) {
-            return next(this.createError(SocketErrors.HeadersRequired, "Request data and is mandatory"));
-        }
-
-        try {
-            if (req.event.length > 128) {
-                req.socket.disconnect(4413, "Payload Too Large");
-                return;
-            }
-
-            const [prefix, version, handler] = req.event.split(".");
-
-            if (prefix !== "p2p") {
-                req.socket.disconnect(4404, "Not Found");
-                return;
-            }
-
             // Check that blockchain, tx-pool and p2p are ready
-            const isAppReady: any = await this.sendToMasterAsync("p2p.utils.isAppReady");
-
-            for (const [plugin, ready] of Object.entries(isAppReady.data)) {
-                if (!ready) {
-                    return next(this.createError(SocketErrors.AppNotReady, `${plugin} isn't ready!`));
-                }
+            const isAppReady: boolean = (await this.sendToMasterAsync("p2p.utils.isAppReady")).data.ready;
+            if (!isAppReady) {
+                next(new Error("App is not ready."));
+                return;
             }
 
             if (version === "internal") {
@@ -203,9 +191,11 @@ export class Worker extends SCWorker {
                 this.sendToMasterAsync("p2p.internal.acceptNewPeer", {
                     data: { ip: req.socket.remoteAddress },
                     headers: req.data.headers,
+                }).catch(ex => {
+                    this.log(`Failed to accept new peer ${req.socket.remoteAddress}: ${ex.message}`, "debug");
                 });
             } else {
-                req.socket.disconnect(4400, "Bad Request");
+                req.socket.terminate();
                 return;
             }
 
@@ -216,11 +206,8 @@ export class Worker extends SCWorker {
         } catch (e) {
             this.log(e.message, "error");
 
-            if (e.name === SocketErrors.Validation) {
-                return next(e);
-            }
-
-            return next(this.createError(SocketErrors.Unknown, "Unknown error"));
+            req.socket.terminate();
+            return;
         }
 
         next();
@@ -246,13 +233,6 @@ export class Worker extends SCWorker {
                 (err, res) => (err ? reject(err) : resolve(res)),
             );
         });
-    }
-
-    private createError(name, message): Error {
-        const error: Error = new Error(message);
-        error.name = name;
-
-        return error;
     }
 }
 

@@ -1,4 +1,5 @@
-import { Blockchain, Container, Database } from "@arkecosystem/core-interfaces";
+import { Blockchain, Container, Database, State } from "@arkecosystem/core-interfaces";
+import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
@@ -24,30 +25,28 @@ afterAll(async () => {
     await tearDownFull();
 });
 
-describe("throwIfApplyingFails", () => {
-    it("should add an error for delegate registration when username is already taken", () => {
+describe("throwIfCannotBeApplied", () => {
+    it("should add an error for delegate registration when username is already taken", async () => {
         const delegateReg = TransactionFactory.delegateRegistration("genesis_11")
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
             .build()[0];
 
-        expect(() => poolWalletManager.throwIfApplyingFails(delegateReg)).toThrow(
-            JSON.stringify([
-                `Failed to apply transaction, because the username '${
-                    delegateReg.data.asset.delegate.username
-                }' is already registered.`,
-            ]),
+        const username: string = delegateReg.data.asset.delegate.username;
+
+        await expect(poolWalletManager.throwIfCannotBeApplied(delegateReg)).rejects.toThrow(
+            `Failed to apply transaction, because the username '${username}' is already registered.`,
         );
     });
 
-    it("should add an error when voting for a delegate that doesn't exist", () => {
+    it("should add an error when voting for a delegate that doesn't exist", async () => {
         const vote = TransactionFactory.vote(wallets[12].keys.publicKey)
             .withNetwork("unitnet")
             .withPassphrase(wallets[11].passphrase)
             .build()[0];
 
-        expect(() => poolWalletManager.throwIfApplyingFails(vote)).toThrow(
-            JSON.stringify([`Failed to apply transaction, because only delegates can be voted.`]),
+        await expect(poolWalletManager.throwIfCannotBeApplied(vote)).rejects.toThrow(
+            `Failed to apply transaction, because only delegates can be voted.`,
         );
     });
 });
@@ -74,8 +73,8 @@ describe("applyPoolTransactionToSender", () => {
             poolWalletManager.reindex(delegateWallet);
             poolWalletManager.reindex(newWallet);
 
-            const transactionHandler = Handlers.Registry.get(transfer.type);
-            transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
+            const transactionHandler = await Handlers.Registry.get(transfer.type);
+            await transactionHandler.applyToSender(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - 0.1 * 10 ** 8);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -103,8 +102,8 @@ describe("applyPoolTransactionToSender", () => {
             poolWalletManager.reindex(delegateWallet);
             poolWalletManager.reindex(newWallet);
 
-            const transactionHandler = Handlers.Registry.get(transfer.type);
-            transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
+            const transactionHandler = await Handlers.Registry.get(transfer.type);
+            await transactionHandler.applyToSender(transfer, poolWalletManager);
 
             expect(+delegateWallet.balance).toBe(+delegate0.balance - amount1 - fee);
             expect(newWallet.balance.isZero()).toBeTrue();
@@ -118,9 +117,9 @@ describe("applyPoolTransactionToSender", () => {
             const poolWallets = walletsGen.map(w => poolWalletManager.findByAddress(w.address));
 
             expect(+delegateWallet.balance).toBe(+delegate.balance);
-            poolWallets.forEach(w => {
+            for (const w of poolWallets) {
                 expect(+w.balance).toBe(0);
-            });
+            }
 
             const transfers = [
                 {
@@ -137,12 +136,12 @@ describe("applyPoolTransactionToSender", () => {
                 },
             ];
 
-            transfers.forEach(t => {
+            for (const t of transfers) {
                 const transfer = TransactionFactory.transfer(t.to.address, t.amount)
                     .withNetwork("unitnet")
                     .withPassphrase(t.from.passphrase)
                     .build()[0];
-                const transactionHandler = Handlers.Registry.get(transfer.type);
+                const transactionHandler = await Handlers.Registry.get(transfer.type);
 
                 // This is normally refused because it's a cold wallet, but since we want
                 // to test if chained transfers are refused, pretent it is not a cold wallet.
@@ -151,18 +150,18 @@ describe("applyPoolTransactionToSender", () => {
                     .walletManager.findByPublicKey(transfer.data.senderPublicKey);
 
                 try {
-                    poolWalletManager.throwIfApplyingFails(transfer);
-                    transactionHandler.applyToSenderInPool(transfer, poolWalletManager);
+                    await poolWalletManager.throwIfCannotBeApplied(transfer);
+                    await transactionHandler.applyToSender(transfer, poolWalletManager);
                     expect(t.from).toBe(delegate);
                 } catch (error) {
                     expect(t.from).toBe(walletsGen[0]);
-                    expect(error.message).toEqual(JSON.stringify(["Insufficient balance in the wallet."]));
+                    expect(error.message).toEqual("Insufficient balance in the wallet.");
                 }
 
                 (container.resolvePlugin<Database.IDatabaseService>("database").walletManager as any).forgetByPublicKey(
                     transfer.data.senderPublicKey,
                 );
-            });
+            }
 
             expect(+delegateWallet.balance).toBe(delegate.balance - (100 + 0.1) * satoshi);
             expect(poolWallets[0].balance.isZero()).toBeTrue();
@@ -222,5 +221,36 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         expect(+transferDelegateWallet.balance).toBe(+transferDelegate.balance - transferAmount - totalFee);
 
         expect(+delegateWallet.balance).toBe(+forgingDelegate.balance + reward + totalFee); // balance increased by reward + fee
+    });
+});
+
+describe("findByIndex", () => {
+    describe("when transaction pool wallet manager does not find a wallet by index", () => {
+        it("should get the wallet from database wallet manager if it exists", async () => {
+            const publicKey = "02664fe58caa4a960ed74169a5968a5f69587ba50b75087d268f5788af3a5bf56d";
+            const address = Identities.Address.fromPublicKey(publicKey);
+            const lockId = "cd08f14f049ea0ff0661635929ed267275e71509561c78d72a55a0bbccc48c30";
+            const walletWithHtlcLock = Object.assign(new Wallets.Wallet(address), {
+                attributes: {
+                    htlc: {
+                        locks: {
+                            [lockId]: {
+                                amount: Utils.BigNumber.make(10),
+                                recipientId: address,
+                                secretHash: lockId,
+                                expiration: {
+                                    type: 1,
+                                    value: 100,
+                                },
+                            },
+                        },
+                    },
+                },
+            });
+            container.resolvePlugin<Database.IDatabaseService>("database").walletManager.reindex(walletWithHtlcLock);
+
+            const poolWallet = poolWalletManager.findByIndex(State.WalletIndexes.Locks, lockId);
+            expect(poolWallet).toEqual(walletWithHtlcLock);
+        });
     });
 });

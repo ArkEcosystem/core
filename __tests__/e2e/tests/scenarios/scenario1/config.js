@@ -8,5 +8,11 @@ module.exports = {
         "insufficient-balance",
         //'pool-restart',
         "transactions-valid",
+        "htlc-claim",
+        "htlc-refund",
+        "multisignature",
+        "multisig-htlc-claim",
+        "multisig-htlc-refund",
+        "business-bridgechain"
     ],
 };

@@ -1,12 +1,12 @@
 import "../../../../../packages/core-jest-matchers/src/transactions/types/delegate-registration";
 
 import { Enums } from "@arkecosystem/crypto";
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 describe(".toBeDelegateRegistrationType", () => {
     test("passes when given a delegate transaction", () => {
         expect({
-            type: TransactionTypes.DelegateRegistration,
+            type: TransactionType.DelegateRegistration,
         }).toBeDelegateRegistrationType();
     });
 

@@ -3,8 +3,9 @@
 import { app } from "@arkecosystem/core-container";
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Utils } from "@arkecosystem/crypto";
 import { Peer } from "./peer";
-import { isValidPeer, isWhitelisted } from "./utils";
+import { isValidVersion, isWhitelisted } from "./utils";
 
 export class PeerProcessor implements P2P.IPeerProcessor {
     public server: any;
@@ -29,6 +30,10 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.communicator = communicator;
         this.connector = connector;
         this.storage = storage;
+
+        this.emitter.on("internal.milestone.changed", () => {
+            this.updatePeersAfterMilestoneChange();
+        });
     }
 
     public async validateAndAcceptPeer(peer: P2P.IPeer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
@@ -43,7 +48,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
             return false;
         }
 
-        if (!isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
+        if (!Utils.isValidPeer(peer) || this.storage.hasPendingPeer(peer.ip)) {
             return false;
         }
 
@@ -69,6 +74,15 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         return true;
     }
 
+    private updatePeersAfterMilestoneChange(): void {
+        const peers: P2P.IPeer[] = this.storage.getPeers();
+        for (const peer of peers) {
+            if (!isValidVersion(peer)) {
+                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+            }
+        }
+    }
+
     private async acceptNewPeer(peer, options: P2P.IAcceptNewPeerOptions = {}): Promise<void> {
         if (this.storage.getPeer(peer.ip)) {
             return;
@@ -79,12 +93,12 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            await this.communicator.ping(newPeer, 3000);
+            await this.communicator.ping(newPeer, app.resolveOptions("p2p").verifyTimeout);
 
             this.storage.setPeer(newPeer);
 
-            if (!options.lessVerbose) {
-                this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port}`);
+            if (!options.lessVerbose || process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                this.logger.debug(`Accepted new peer ${newPeer.ip}:${newPeer.port} (v${newPeer.version})`);
             }
 
             this.emitter.emit(ApplicationEvents.PeerAdded, newPeer);

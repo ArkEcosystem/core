@@ -1,37 +1,32 @@
 import { app } from "@arkecosystem/core-container";
 import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
 import { httpie } from "@arkecosystem/core-utils";
-import { Interfaces, Transactions, Validation } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
+import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
 import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
 import { IPeerConfig, IPeerPingResponse } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
+import { RateLimiter } from "./rate-limiter";
 import { replySchemas } from "./schemas";
-import { isValidVersion, socketEmit } from "./utils";
+import { buildRateLimiter, isValidVersion, socketEmit } from "./utils";
 
 export class PeerCommunicator implements P2P.IPeerCommunicator {
     private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
     private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    private outgoingRateLimiter: RateLimiter;
 
-    constructor(private readonly connector: P2P.IPeerConnector) {}
-
-    public async downloadBlocks(peer: P2P.IPeer, fromBlockHeight: number): Promise<Interfaces.IBlockData[]> {
-        this.logger.debug(`Downloading blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}`);
-
-        let blocks: Interfaces.IBlockData[];
-        try {
-            blocks = await this.getPeerBlocks(peer, { fromBlockHeight });
-        } catch {
-            this.logger.debug(
-                `Failed to download blocks from height ${fromBlockHeight.toLocaleString()} via ${peer.ip}.`,
-            );
-            blocks = [];
-        }
-
-        return blocks;
+    constructor(private readonly connector: P2P.IPeerConnector) {
+        this.outgoingRateLimiter = buildRateLimiter({
+            // White listing anybody here means we would not throttle ourselves when sending
+            // them requests, ie we could spam them.
+            whitelist: [],
+            remoteAccess: [],
+            rateLimit: app.resolveOptions("p2p").rateLimit,
+        });
     }
 
     public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlockJson) {
@@ -84,9 +79,32 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
-                    const { status } = await httpie.get(`http://${peer.ip}:${plugin.port}/`);
+                    let valid: boolean = false;
 
-                    if (status === 200) {
+                    const peerHostPort = `${peer.ip}:${plugin.port}`;
+
+                    if (name.includes("core-api") || name.includes("core-wallet-api")) {
+                        const { body, status } = await httpie.get(`http://${peerHostPort}/api/node/configuration`);
+
+                        if (status === 200) {
+                            const ourNethash = Managers.configManager.get("network.nethash");
+                            const hisNethash = body.data.nethash;
+                            if (ourNethash === hisNethash) {
+                                valid = true;
+                            } else {
+                                this.logger.warn(
+                                    `Disconnecting from ${peerHostPort}: ` +
+                                    `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
+                                );
+                                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                            }
+                        }
+                    } else {
+                        const { status } = await httpie.get(`http://${peerHostPort}/`);
+                        valid = status === 200;
+                    }
+
+                    if (valid) {
                         peer.ports[name] = plugin.port;
                     }
                 } catch (error) {
@@ -141,9 +159,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         {
             fromBlockHeight,
             blockLimit = constants.MAX_DOWNLOAD_BLOCKS,
-            timeoutMsec,
             headersOnly,
-        }: { fromBlockHeight: number; blockLimit?: number; timeoutMsec?: number; headersOnly?: boolean },
+        }: { fromBlockHeight: number; blockLimit?: number; headersOnly?: boolean },
     ): Promise<Interfaces.IBlockData[]> {
         const maxPayload = headersOnly ? blockLimit * constants.KILOBYTE : constants.DEFAULT_MAX_PAYLOAD;
 
@@ -156,7 +173,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 headersOnly,
                 serialized: true,
             },
-            timeoutMsec || 10000,
+            app.resolveOptions("p2p").getBlocksTimeout,
             maxPayload,
         );
 
@@ -167,26 +184,16 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return [];
         }
 
-        // To stay backward compatible, don't assume peers respond with serialized transactions just yet.
-        // TODO: remove with 2.6
         for (const block of peerBlocks) {
             if (!block.transactions) {
                 continue;
             }
 
-            let transactions: Interfaces.ITransactionData[] = [];
-
-            try {
-                transactions = block.transactions.map(transaction => {
-                    const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
-                    data.blockId = block.id;
-                    return data;
-                });
-            } catch {
-                transactions = block.transactions;
-            }
-
-            block.transactions = transactions;
+            block.transactions = block.transactions.map(transaction => {
+                const { data } = Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex"));
+                data.blockId = block.id;
+                return data;
+            });
         }
 
         return peerBlocks;
@@ -207,7 +214,10 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
         const { error } = Validation.validator.validate(schema, reply);
         if (error) {
-            this.logger.error(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
+            if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
+                this.logger.debug(`Got unexpected reply from ${peer.url}/${endpoint}: ${error}`);
+            }
+
             return false;
         }
 
@@ -215,6 +225,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number, maxPayload?: number) {
+        await this.throttle(peer, event);
+
         let response;
         try {
             this.connector.forgetError(peer);
@@ -248,6 +260,16 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return response.data;
     }
 
+    private async throttle(peer: P2P.IPeer, event: string): Promise<void> {
+        const msBeforeReCheck = 1000;
+        while (await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event)) {
+            this.logger.debug(
+                `Throttling outgoing requests to ${peer.ip}/${event} to avoid triggering their rate limit`,
+            );
+            await delay(msBeforeReCheck);
+        }
+    }
+
     private handleSocketError(peer: P2P.IPeer, event: string, error: Error): void {
         if (!error.name) {
             return;
@@ -260,7 +282,6 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 this.logger.debug(`Socket data validation error (peer ${peer.ip}) : ${error.message}`);
                 break;
             case "Error":
-            case "CoreRateLimitExceededError":
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Response error (peer ${peer.ip}/${event}) : ${error.message}`);
                 }

@@ -1,6 +1,6 @@
 import { Enums } from "@arkecosystem/crypto";
 
-const { Ipfs } = Enums.TransactionTypes;
+const { Ipfs } = Enums.TransactionType;
 
 export {};
 

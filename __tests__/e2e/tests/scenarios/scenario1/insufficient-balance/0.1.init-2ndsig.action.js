@@ -1,8 +1,9 @@
 "use strict";
 
-const { Managers, Transactions } = require("@arkecosystem/crypto");
+const { Managers } = require("@arkecosystem/crypto");
 const utils = require("./utils");
 const testUtils = require("../../../../lib/utils/test-utils");
+const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
 
 /**
  * 2nd signature registration for future transfer with 2nd signature
@@ -13,11 +14,10 @@ module.exports = async options => {
     Managers.configManager.setFromPreset("testnet");
 
     const transactions = [
-        Transactions.BuilderFactory.secondSignature()
-            .signatureAsset(utils.transfer2ndsigSender2.passphrase)
-            .fee(5 * Math.pow(10, 8))
-            .sign(utils.transfer2ndsigSender.passphrase)
-            .getStruct(),
+        TransactionFactory.secondSignature(utils.transfer2ndsigSender2.passphrase)
+            .withFee(5 * Math.pow(10, 8))
+            .withPassphrase(utils.transfer2ndsigSender.passphrase)
+            .createOne(),
     ];
 
     await testUtils.POST("transactions", { transactions });

@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { httpie } from "@arkecosystem/core-utils";
-import { Managers } from "@arkecosystem/crypto";
+import { Identities, Managers } from "@arkecosystem/crypto";
 import nock from "nock";
 import { IpfsCommand } from "../../../../../packages/core-tester-cli/src/commands/send/ipfs";
 import { arkToSatoshi, captureTransactions, toFlags } from "../../shared";
@@ -45,7 +45,11 @@ describe("Commands - Ipfs", () => {
             .filter(tx => tx.type === 5)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(opts.ipfsFee));
-                expect(tx.asset.ipfs).toEqual(`Qm${tx.senderPublicKey.slice(0, 44)}`);
+                expect(tx.asset.ipfs).toEqual(
+                    `Qm${Identities.Address.fromPublicKey(tx.senderPublicKey)
+                        .repeat(2)
+                        .slice(0, 44)}`,
+                );
             });
     });
 
@@ -65,7 +69,11 @@ describe("Commands - Ipfs", () => {
             .filter(tx => tx.type === 5)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(5));
-                expect(tx.asset.ipfs).toEqual(`Qm${tx.senderPublicKey.slice(0, 44)}`);
+                expect(tx.asset.ipfs).toEqual(
+                    `Qm${Identities.Address.fromPublicKey(tx.senderPublicKey)
+                        .repeat(2)
+                        .slice(0, 44)}`,
+                );
             });
     });
 });

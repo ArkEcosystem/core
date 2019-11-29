@@ -1,4 +1,4 @@
 {
-  "extends": ["config:base", ":preserveSemverRanges"],
-  "baseBranches": ["develop"]
+    "extends": ["config:base", ":preserveSemverRanges"],
+    "baseBranches": ["develop"]
 }

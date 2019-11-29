@@ -27,7 +27,7 @@ describe("Accept handler", () => {
             const loggerInfo = jest.spyOn(logger, "info");
             blockchain.state.forkedBlock = BlockFactory.fromData(blocks2to100[0]);
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.Accepted);
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.Accepted);
             expect(loggerInfo).toHaveBeenCalledWith("Successfully recovered from fork");
             expect(blockchain.state.forkedBlock).toBe(undefined);
         });
@@ -40,7 +40,7 @@ describe("Accept handler", () => {
                 throw new Error("¯_(ツ)_/¯");
             });
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.Accepted);
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.Accepted);
             expect(loggerWarn).toHaveBeenCalledWith("Issue applying block to transaction pool");
         });
 
@@ -54,7 +54,7 @@ describe("Accept handler", () => {
                 throw new Error("¯_(ツ)_/¯");
             });
 
-            expect(await handler.execute()).toBe(BlockProcessorResult.Rejected);
+            await expect(handler.execute()).resolves.toBe(BlockProcessorResult.Rejected);
             expect(loggerWarn).toHaveBeenCalledWith(`Refused new block ${JSON.stringify(block.data)}`);
         });
     });

@@ -1,8 +1,23 @@
-import { Enums, Interfaces, Utils } from "@arkecosystem/crypto";
-import { IWallet } from "../../core-state/wallets";
+import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { ITransactionsPaginated } from "../business-repository";
-import { ISearchOrderBy, ISearchPaginate, ISearchParameters } from "../search";
+import { ISearchParameters } from "../search";
 import { IRepository } from "./repository";
+
+export interface IBootstrapTransaction {
+    id: string;
+    version: number;
+    timestamp: number;
+    senderPublicKey: string;
+    recipientId: string;
+    fee: string;
+    amount: string;
+    vendorField: string;
+    asset: Interfaces.ITransactionAsset;
+    blockId: string;
+    blockGeneratorPublicKey: string;
+    blockHeight: number;
+    blockReward: string;
+}
 
 export interface ITransactionsRepository extends IRepository {
     findById(id: string): Promise<Interfaces.ITransactionData>;
@@ -35,13 +50,23 @@ export interface ITransactionsRepository extends IRepository {
         }>
     >;
 
-    getAssetsByType(type: Enums.TransactionTypes | number): Promise<any>;
+    getCountOfType(type: number, typeGroup?: number): Promise<number>;
+
+    getAssetsByType(type: number, typeGroup: number, limit: number, offset: number): Promise<IBootstrapTransaction[]>;
+
+    getOpenHtlcLocks(): Promise<any>;
+
+    getRefundedHtlcLocks(): Promise<any>;
+
+    getClaimedHtlcLocks(): Promise<any>;
 
     getReceivedTransactions(): Promise<any>;
 
     getSentTransactions(): Promise<any>;
 
     forged(ids: string[]): Promise<Interfaces.ITransactionData[]>;
+
+    findByHtlcLocks(lockIds: string[]): Promise<Interfaces.ITransactionData[]>;
 
     statistics(): Promise<{
         count: number;
@@ -55,12 +80,6 @@ export interface ITransactionsRepository extends IRepository {
     ): Promise<Array<{ type: number; fee: number; timestamp: number }>>;
 
     deleteByBlockId(blockIds: string[], db: any): Promise<void>;
-
-    findAllByWallet(
-        wallet: IWallet,
-        paginate?: ISearchPaginate,
-        orderBy?: ISearchOrderBy[],
-    ): Promise<ITransactionsPaginated>;
 
     search(parameters: ISearchParameters): Promise<ITransactionsPaginated>;
 }

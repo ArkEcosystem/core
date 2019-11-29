@@ -8,5 +8,3 @@ WHERE
   round BETWEEN ${startRound} AND ${endRound}
 ORDER BY
   round, balance DESC, public_key
-OFFSET
-  ${skipRoundRows}

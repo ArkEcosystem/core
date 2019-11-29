@@ -5,13 +5,13 @@ import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 const transactionsRepository = databaseService.transactionsBusinessRepository;
 
 const index = async request => {
-    const transactions = await transactionsRepository.findAllByType(TransactionTypes.Vote, {
+    const transactions = await transactionsRepository.findAllByType(TransactionType.Vote, {
         ...request.query,
         ...paginate(request),
     });
@@ -20,7 +20,7 @@ const index = async request => {
 };
 
 const show = async request => {
-    const transaction = await transactionsRepository.findByTypeAndId(TransactionTypes.Vote, request.params.id);
+    const transaction = await transactionsRepository.findByTypeAndId(TransactionType.Vote, request.params.id);
 
     if (!transaction) {
         return Boom.notFound("Vote not found");

@@ -3,7 +3,7 @@ export const getStorage = {
     updateNetworkStatus: () => undefined,
     // tslint:disable-next-line: no-empty
     checkNetworkHealth: () => {},
-    syncWithNetwork: () => [],
+    downloadBlocksFromHeight: () => [],
     refreshPeersAfterFork: () => undefined,
     broadcastBlock: () => undefined,
     hasPeers: () => false,

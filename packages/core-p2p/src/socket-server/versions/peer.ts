@@ -104,14 +104,12 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Data
     const reqBlockHeight: number = +req.data.lastBlockHeight + 1;
     const reqBlockLimit: number = +req.data.blockLimit || 400;
     const reqHeadersOnly: boolean = !!req.data.headersOnly;
-    const reqSerialized: boolean = !!req.data.serialized; // TODO: remove in 2.6 and only return serialized blocks
 
-    let blocks: Interfaces.IBlockData[] | Database.IDownloadBlock[];
-    if (reqSerialized) {
-        blocks = await database.getBlocksForDownload(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
-    } else {
-        blocks = await database.getBlocks(reqBlockHeight, reqBlockLimit, reqHeadersOnly);
-    }
+    const blocks: Database.IDownloadBlock[] = await database.getBlocksForDownload(
+        reqBlockHeight,
+        reqBlockLimit,
+        reqHeadersOnly,
+    );
 
     app.resolvePlugin<Logger.ILogger>("logger").info(
         `${mapAddr(req.headers.remoteAddress)} has downloaded ${pluralize(
@@ -121,5 +119,5 @@ export const getBlocks = async ({ req }): Promise<Interfaces.IBlockData[] | Data
         )} from height ${reqBlockHeight.toLocaleString()}`,
     );
 
-    return blocks || [];
+    return blocks;
 };

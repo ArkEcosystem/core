@@ -61,6 +61,12 @@ describe("Filter Rows", () => {
         });
     });
 
+    describe("every", () => {
+        it("match objects that include all values of the parameters", () => {
+            expect(filterRows(rows, { c: ["dummy-3", "dummy-1", "dummy-4"] }, { every: ["c"] })).toEqual([rows[2]]);
+        });
+    });
+
     // This filter is not used yet
     describe("any", () => {
         it("match objects that include some values of the parameters", () => {

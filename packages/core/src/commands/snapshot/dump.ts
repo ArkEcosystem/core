@@ -24,9 +24,13 @@ export class DumpCommand extends BaseCommand {
     };
 
     public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(DumpCommand);
+        const { flags, paths } = await this.parseWithNetwork(DumpCommand);
 
-        await setUpLite(flags);
+        this.abortRunningProcess(`${flags.token}-core`);
+        this.abortRunningProcess(`${flags.token}-forger`);
+        this.abortRunningProcess(`${flags.token}-relay`);
+
+        await setUpLite(flags, paths);
 
         if (!app.has("snapshots")) {
             this.error("The @arkecosystem/core-snapshots plugin is not installed.");

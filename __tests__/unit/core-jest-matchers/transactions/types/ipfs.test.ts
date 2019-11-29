@@ -1,11 +1,11 @@
 import "../../../../../packages/core-jest-matchers/src/transactions/types/ipfs";
 
 import { Enums } from "@arkecosystem/crypto";
-const { TransactionTypes } = Enums;
+const { TransactionType } = Enums;
 
 describe(".toBeIpfsType", () => {
     test("passes when given a valid transaction", () => {
-        expect({ type: TransactionTypes.Ipfs }).toBeIpfsType();
+        expect({ type: TransactionType.Ipfs }).toBeIpfsType();
     });
 
     test("fails when given an invalid transaction", () => {

@@ -14,7 +14,7 @@ export const startServer = async config => {
                 relativeTo: __dirname,
                 path: "templates",
             }),
-        [require("vision")],
+        [require("@hapi/vision")],
     );
 
     server.route({

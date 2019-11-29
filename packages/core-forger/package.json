@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-forger",
-    "version": "2.5.28",
+    "version": "2.6.0-next.6",
     "description": "Forger for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -21,17 +21,17 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.5.28",
-        "@arkecosystem/core-event-emitter": "^2.5.28",
-        "@arkecosystem/core-interfaces": "^2.5.28",
-        "@arkecosystem/core-p2p": "^2.5.28",
-        "@arkecosystem/core-utils": "^2.5.28",
-        "@arkecosystem/crypto": "^2.5.28",
+        "@arkecosystem/core-container": "^2.6.0-next.6",
+        "@arkecosystem/core-event-emitter": "^2.6.0-next.6",
+        "@arkecosystem/core-interfaces": "^2.6.0-next.6",
+        "@arkecosystem/core-p2p": "^2.6.0-next.6",
+        "@arkecosystem/core-state": "^2.6.0-next.6",
+        "@arkecosystem/core-utils": "^2.6.0-next.6",
+        "@arkecosystem/crypto": "^2.6.0-next.6",
         "delay": "^4.3.0",
         "lodash.isempty": "^4.4.0",
         "lodash.uniq": "^4.5.0",
         "node-forge": "^0.9.0",
-        "otplib": "^11.0.1",
         "pluralize": "^8.0.0",
         "socketcluster-client": "^14.2.2",
         "wif": "^2.0.6"
@@ -39,8 +39,7 @@
     "devDependencies": {
         "@types/lodash.isempty": "^4.4.6",
         "@types/lodash.uniq": "^4.5.6",
-        "@types/node-forge": "^0.8.4",
-        "@types/otplib": "^7.0.0",
+        "@types/node-forge": "^0.9.0",
         "@types/pluralize": "^0.0.29",
         "@types/socketcluster-client": "^13.0.3",
         "@types/wif": "^2.0.1"

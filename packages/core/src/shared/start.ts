@@ -1,6 +1,5 @@
 import cli from "cli-ux";
 
-import { freemem, totalmem } from "os";
 import { BaseCommand } from "../commands/command";
 import { processManager } from "../process-manager";
 import { CommandFlags, ProcessOptions } from "../types";
@@ -38,10 +37,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
 
             flagsProcess.name = processName;
 
-            const totalMemGb: number = totalmem() / Math.pow(1024, 3);
-            const freeMemGb: number = freemem() / Math.pow(1024, 3);
-            const potato: boolean = totalMemGb < 2 || freeMemGb < 1.5;
-
             processManager.start(
                 {
                     ...options,
@@ -50,7 +45,6 @@ export abstract class AbstractStartCommand extends BaseCommand {
                             NODE_ENV: "production",
                             CORE_ENV: flags.env,
                         },
-                        node_args: potato ? { max_old_space_size: 500 } : undefined,
                     },
                 },
                 flagsProcess,

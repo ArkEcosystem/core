@@ -1,5 +1,5 @@
 import { Enums } from "@arkecosystem/crypto";
-const { DelegateResignation } = Enums.TransactionTypes;
+const { DelegateResignation } = Enums.TransactionType;
 
 export {};
 

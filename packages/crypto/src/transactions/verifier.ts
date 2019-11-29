@@ -1,5 +1,6 @@
 import { Hash } from "../crypto/hash";
-import { ISchemaValidationResult, ITransactionData } from "../interfaces";
+import { DuplicateParticipantInMultiSignatureError, InvalidMultiSignatureAssetError } from "../errors";
+import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData } from "../interfaces";
 import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
@@ -12,7 +13,7 @@ export class Verifier {
             return true;
         }
 
-        if (data.type >= 4 && data.type <= 99 && !configManager.getMilestone().aip11) {
+        if (configManager.getMilestone().aip11 && (!data.version || data.version === 1)) {
             return false;
         }
 
@@ -27,12 +28,52 @@ export class Verifier {
         }
 
         const hash: Buffer = Utils.toHash(transaction, { excludeSecondSignature: true });
+        return this.internalVerifySignature(hash, secondSignature, publicKey);
+    }
 
-        if (transaction.version === 2) {
-            return Hash.verifySchnorr(hash, secondSignature, publicKey);
-        } else {
-            return Hash.verifyECDSA(hash, secondSignature, publicKey);
+    public static verifySignatures(transaction: ITransactionData, multiSignature: IMultiSignatureAsset): boolean {
+        if (!multiSignature) {
+            throw new InvalidMultiSignatureAssetError();
         }
+
+        const { publicKeys, min }: IMultiSignatureAsset = multiSignature;
+        const { signatures }: ITransactionData = transaction;
+
+        const hash: Buffer = Utils.toHash(transaction, {
+            excludeSignature: true,
+            excludeSecondSignature: true,
+            excludeMultiSignature: true,
+        });
+
+        const publicKeyIndexes: { [index: number]: boolean } = {};
+        let verified: boolean = false;
+        let verifiedSignatures: number = 0;
+        for (let i = 0; i < signatures.length; i++) {
+            const signature: string = signatures[i];
+            const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
+
+            if (!publicKeyIndexes[publicKeyIndex]) {
+                publicKeyIndexes[publicKeyIndex] = true;
+            } else {
+                throw new DuplicateParticipantInMultiSignatureError();
+            }
+
+            const partialSignature: string = signature.slice(2, 130);
+            const publicKey: string = publicKeys[publicKeyIndex];
+
+            if (Hash.verifySchnorr(hash, partialSignature, publicKey)) {
+                verifiedSignatures++;
+            }
+
+            if (verifiedSignatures === min) {
+                verified = true;
+                break;
+            } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
+                break;
+            }
+        }
+
+        return verified;
     }
 
     public static verifyHash(data: ITransactionData): boolean {
@@ -47,15 +88,20 @@ export class Verifier {
             excludeSecondSignature: true,
         });
 
-        if (data.version === 2) {
-            return Hash.verifySchnorr(hash, signature, senderPublicKey);
-        } else {
-            return Hash.verifyECDSA(hash, signature, senderPublicKey);
-        }
+        return this.internalVerifySignature(hash, signature, senderPublicKey);
     }
 
     public static verifySchema(data: ITransactionData, strict: boolean = true): ISchemaValidationResult {
-        const { $id } = TransactionTypeFactory.get(data.type).getSchema();
+        const { $id } = TransactionTypeFactory.get(data.type, data.typeGroup).getSchema();
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
+    }
+
+    private static internalVerifySignature(hash: Buffer, signature: string, publicKey: string): boolean {
+        const isSchnorr = Buffer.from(signature, "hex").byteLength === 64;
+        if (isSchnorr) {
+            return Hash.verifySchnorr(hash, signature, publicKey);
+        }
+
+        return Hash.verifyECDSA(hash, signature, publicKey);
     }
 }

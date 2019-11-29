@@ -10,8 +10,8 @@ export class StateStoreStub implements State.IStateStore {
     public started: boolean;
     public forkedBlock: Interfaces.IBlock | undefined;
     public wakeUpTimeout: any;
-    public noBlockCounter: number;
-    public p2pUpdateCounter: number;
+    public noBlockCounter: number = 0;
+    public p2pUpdateCounter: number = 0;
     public numberOfBlocksToRollback: number | undefined;
     public networkStart: boolean;
 
@@ -76,7 +76,7 @@ export class StateStoreStub implements State.IStateStore {
         };
     }
 
-    public removeCachedTransactionIds(transactionIds: string[]): void {}
+    public clearCachedTransactionIds(): void {}
 
     public reset(): void {}
 

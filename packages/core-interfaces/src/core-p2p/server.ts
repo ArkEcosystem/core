@@ -1,5 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
-import { IDelegateWallet } from "../core-state";
+import { IWallet } from "../core-state";
 
 export interface IResponse<T> {
     data: T;
@@ -9,9 +9,9 @@ export interface ICurrentRound {
     current: number;
     reward: string;
     timestamp: number;
-    delegates: IDelegateWallet[];
-    currentForger: IDelegateWallet;
-    nextForger: IDelegateWallet;
+    delegates: IWallet[];
+    currentForger: IWallet;
+    nextForger: IWallet;
     lastBlock: Interfaces.IBlockData;
     canForge: boolean;
 }
