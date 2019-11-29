@@ -18,7 +18,7 @@ beforeEach(() => {
 
 describe("Verifier", () => {
     describe("verify", () => {
-        const transaction = TransactionFactory.init()
+        const transaction = TransactionFactory.initialize()
             .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
             .withVersion(2)
             .withFee(2000)
@@ -86,7 +86,7 @@ describe("Verifier", () => {
     describe("verifySecondSignature", () => {
         const keys2 = Keys.fromPassphrase("secret two");
 
-        const transaction = TransactionFactory.init()
+        const transaction = TransactionFactory.initialize()
             .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
             .withVersion(2)
             .withFee(2000)

@@ -5,7 +5,7 @@ import { configManager } from "@packages/core/src/common/config-manager";
 import execa from "../../../../../__mocks__/execa";
 
 describe("CommandLineInterfaceCommand", () => {
-    beforeEach(() => configManager.setup({ configDir: dirSync().name, version: "3.0.0-next.0" }));
+    beforeEach(() => configManager.initialize({ configDir: dirSync().name, version: "3.0.0-next.0" }));
 
     afterAll(() => setGracefulCleanup());
 

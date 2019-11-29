@@ -30,7 +30,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     private pool!: Contracts.TransactionPool.Connection;
 
-    public init(pool: Contracts.TransactionPool.Connection) {
+    public initialize(pool: Contracts.TransactionPool.Connection) {
         this.pool = pool;
 
         return this;

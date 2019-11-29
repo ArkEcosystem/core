@@ -656,7 +656,7 @@ describe("API 2.0 - Transactions", () => {
         let transactions;
 
         beforeEach(() => {
-            transactions = TransactionFactory.init(app)
+            transactions = TransactionFactory.initialize(app)
                 .transfer(delegates[1].address)
                 .withNetwork("testnet")
                 .withPassphrase(delegates[0].secret)
@@ -681,7 +681,7 @@ describe("API 2.0 - Transactions", () => {
 
         // FIXME
         it.skip("should POST 2 transactions double spending and get only 1 accepted and broadcasted", async () => {
-            const transactions = TransactionFactory.init(app)
+            const transactions = TransactionFactory.initialize(app)
                 .transfer(
                     delegates[1].address,
                     300000000000000 - 5098000000000, // a bit less than the delegates' balance
@@ -712,12 +712,12 @@ describe("API 2.0 - Transactions", () => {
             const amountPlusFee = Math.floor(+sender.balance / txNumber);
             const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee;
 
-            const transactions = TransactionFactory.init(app)
+            const transactions = TransactionFactory.initialize(app)
                 .transfer(receivers[0].address, amountPlusFee - transferFee)
                 .withPassphrase(sender.secret)
                 .create(txNumber - 1);
 
-            const lastTransaction = TransactionFactory.init(app)
+            const lastTransaction = TransactionFactory.initialize(app)
                 .transfer(receivers[0].address, lastAmountPlusFee - transferFee)
                 .withNonce(transactions[transactions.length - 1].nonce)
                 .withPassphrase(sender.secret)
@@ -746,14 +746,14 @@ describe("API 2.0 - Transactions", () => {
                 const amountPlusFee = Math.floor(+sender.balance / txNumber);
                 const lastAmountPlusFee = +sender.balance - (txNumber - 1) * amountPlusFee + 1;
 
-                const transactions = TransactionFactory.init(app)
+                const transactions = TransactionFactory.initialize(app)
                     .transfer(receivers[0].address, amountPlusFee - transferFee)
                     .withNetwork("testnet")
                     .withPassphrase(sender.secret)
                     .create(txNumber - 1);
 
                 const senderNonce = getWalletNonce(app, sender.publicKey);
-                const lastTransaction = TransactionFactory.init(app)
+                const lastTransaction = TransactionFactory.initialize(app)
                     .transfer(receivers[1].address, lastAmountPlusFee - transferFee)
                     .withNetwork("testnet")
                     .withPassphrase(sender.secret)

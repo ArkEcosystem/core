@@ -61,7 +61,7 @@ export class BlockProcessor {
         if (!isChained) {
             return this.app
                 .resolve<UnchainedHandler>(UnchainedHandler)
-                .init(isValidGenerator)
+                .initialize(isValidGenerator)
                 .execute(block);
         }
 

@@ -152,7 +152,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         } else {
             reader = this.app
                 .resolve<TransactionReader>(TransactionReader)
-                .init(MagistrateTransactions.BusinessRegistrationTransaction);
+                .initialize(MagistrateTransactions.BusinessRegistrationTransaction);
 
             const registerTransactions: Models.Transaction[] = await reader.read();
 

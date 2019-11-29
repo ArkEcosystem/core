@@ -66,7 +66,7 @@ export class UnchainedHandler extends BlockHandler {
     private isValidGenerator: boolean = false;
 
     // todo: remove the need for this method
-    public init(isValidGenerator: boolean): this {
+    public initialize(isValidGenerator: boolean): this {
         this.isValidGenerator = isValidGenerator;
 
         return this;

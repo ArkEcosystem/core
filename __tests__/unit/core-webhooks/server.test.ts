@@ -67,10 +67,10 @@ beforeEach(async () => {
         port: 4004,
     });
 
-    await server.start();
+    await server.boot();
 });
 
-afterEach(async () => server.stop());
+afterEach(async () => server.dispose());
 
 afterAll(() => setGracefulCleanup());
 

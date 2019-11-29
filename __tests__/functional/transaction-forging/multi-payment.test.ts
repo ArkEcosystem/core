@@ -27,7 +27,7 @@ afterAll(async () => await support.tearDown());
 describe("Transaction Forging - Multipayment", () => {
     it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
         // Initial Funds
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -37,7 +37,7 @@ describe("Transaction Forging - Multipayment", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Submit multipayment transaction
-        const transactions = TransactionFactory.init(app)
+        const transactions = TransactionFactory.initialize(app)
             .multiPayment(payments)
             .withPassphrase(passphrase)
             .createOne();
@@ -49,7 +49,7 @@ describe("Transaction Forging - Multipayment", () => {
 
     it("should broadcast, accept and forge it [max payments per tx, 200 tx] [Signed with 1 Passphase]", async () => {
         // Initial Funds
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 5000 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -66,7 +66,7 @@ describe("Transaction Forging - Multipayment", () => {
             });
         }
         // Submit multipayment transaction
-        const transactions = TransactionFactory.init(app)
+        const transactions = TransactionFactory.initialize(app)
             .multiPayment(payments)
             .withPassphrase(passphrase)
             .withFee(2 * 1e8)
@@ -82,7 +82,7 @@ describe("Transaction Forging - Multipayment", () => {
 
     it("should NOT broadcast, accept and forge it [max + 1 payments] [Signed with 1 Passphase]", async () => {
         // Initial Funds
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -100,7 +100,7 @@ describe("Transaction Forging - Multipayment", () => {
         }
 
         // Submit multipayment transaction
-        const factory = TransactionFactory.init(app)
+        const factory = TransactionFactory.initialize(app)
             .multiPayment(payments)
             .withPassphrase(passphrase)
             .withFee(2 * 1e8);
@@ -123,7 +123,7 @@ describe("Transaction Forging - Multipayment", () => {
         const passphrase = secondPassphrase;
 
         // Initial Funds
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -133,7 +133,7 @@ describe("Transaction Forging - Multipayment", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Register a second passphrase
-        const secondSignature = TransactionFactory.init(app)
+        const secondSignature = TransactionFactory.initialize(app)
             .secondSignature(secondPassphrase)
             .withPassphrase(passphrase)
             .createOne();
@@ -143,7 +143,7 @@ describe("Transaction Forging - Multipayment", () => {
         await expect(secondSignature.id).toBeForged();
 
         // Submit multipayment transaction
-        const transactions = TransactionFactory.init(app)
+        const transactions = TransactionFactory.initialize(app)
             .multiPayment(payments)
             .withPassphrasePair({ passphrase, secondPassphrase })
             .createOne();
@@ -155,7 +155,7 @@ describe("Transaction Forging - Multipayment", () => {
 
     it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
         // Funds to register a multi signature wallet
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(secrets[3]), 50 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -172,7 +172,7 @@ describe("Transaction Forging - Multipayment", () => {
             Identities.PublicKey.fromPassphrase(passphrases[2]),
         ];
 
-        const multiSignature = TransactionFactory.init(app)
+        const multiSignature = TransactionFactory.initialize(app)
             .multiSignature(participants, 3)
             .withPassphrase(secrets[3])
             .withPassphraseList(passphrases)
@@ -186,7 +186,7 @@ describe("Transaction Forging - Multipayment", () => {
         const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
         const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-        const multiSignatureFunds = TransactionFactory.init(app)
+        const multiSignatureFunds = TransactionFactory.initialize(app)
             .transfer(multiSigAddress, 20 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -196,7 +196,7 @@ describe("Transaction Forging - Multipayment", () => {
         await expect(multiSignatureFunds.id).toBeForged();
 
         // Submit multipayment transaction
-        const transactions = TransactionFactory.init(app)
+        const transactions = TransactionFactory.initialize(app)
             .multiPayment(payments)
             .withSenderPublicKey(multiSigPublicKey)
             .withPassphraseList(passphrases)

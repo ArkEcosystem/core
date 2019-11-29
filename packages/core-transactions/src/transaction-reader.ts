@@ -15,7 +15,7 @@ export class TransactionReader {
 
     public bufferSize: number = 1000000000;
 
-    public init(typeConstructor: Transactions.TransactionConstructor): TransactionReader {
+    public initialize(typeConstructor: Transactions.TransactionConstructor): TransactionReader {
         Utils.assert.defined<number>(typeConstructor.type);
         Utils.assert.defined<number>(typeConstructor.typeGroup);
 

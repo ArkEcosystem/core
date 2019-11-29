@@ -21,7 +21,7 @@ export class TransactionHandlerRegistry {
         Map<number, TransactionHandler>
     > = new Map();
 
-    public init(): void {
+    public initialize(): void {
         this.registerTransactionHandler(One.TransferTransactionHandler);
         this.registerTransactionHandler(Two.TransferTransactionHandler);
 

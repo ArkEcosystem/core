@@ -8,7 +8,7 @@ import { WalletState } from "./wallet-state";
 export class TempWalletRepository extends WalletRepository {
     private walletRepository!: Contracts.State.WalletRepository;
 
-    public setup(walletRepository: Contracts.State.WalletRepository) {
+    public initialize(walletRepository: Contracts.State.WalletRepository) {
         this.walletRepository = walletRepository;
 
         this.index(this.walletRepository.allByUsername());

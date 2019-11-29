@@ -16,7 +16,7 @@ beforeEach(() => {
 describe("Signer", () => {
     describe("sign", () => {
         const keys = Keys.fromPassphrase("secret");
-        const transaction = TransactionFactory.init()
+        const transaction = TransactionFactory.initialize()
             .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
             .withVersion(2)
             .withFee(2000)

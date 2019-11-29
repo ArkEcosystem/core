@@ -10,7 +10,7 @@ export interface Blockchain {
      * @param  {Object} options
      * @return {void}
      */
-    init(options: { networkStart?: boolean }): this;
+    initialize(options: { networkStart?: boolean }): this;
 
     /**
      * Dispatch an event to transition the state machine.
@@ -23,9 +23,9 @@ export interface Blockchain {
      * Start the blockchain and wait for it to be ready.
      * @return {void}
      */
-    start(skipStartedCheck): Promise<boolean>;
+    boot(skipStartedCheck): Promise<boolean>;
 
-    stop(): Promise<void>;
+    dispose(): Promise<void>;
 
     /**
      * Set wakeup timeout to check the network for new blocks.

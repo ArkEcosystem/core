@@ -16,7 +16,7 @@ afterAll(async () => await support.tearDown());
 describe("Transaction Forging - Delegate Registration", () => {
     it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
         // Initial Funds
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -26,7 +26,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Register a delegate
-        const transactions = TransactionFactory.init(app)
+        const transactions = TransactionFactory.initialize(app)
             .delegateRegistration()
             .withPassphrase(passphrase)
             .createOne();
@@ -41,7 +41,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         const passphrase = secondPassphrase;
 
         // Initial Funds
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -51,7 +51,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Register a second passphrase
-        const secondSignature = TransactionFactory.init(app)
+        const secondSignature = TransactionFactory.initialize(app)
             .secondSignature(secondPassphrase)
             .withPassphrase(passphrase)
             .createOne();
@@ -61,7 +61,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         await expect(secondSignature.id).toBeForged();
 
         // Register a delegate
-        const delegateRegistration = TransactionFactory.init(app)
+        const delegateRegistration = TransactionFactory.initialize(app)
             .delegateRegistration()
             .withPassphrasePair({ passphrase, secondPassphrase })
             .createOne();
@@ -73,7 +73,7 @@ describe("Transaction Forging - Delegate Registration", () => {
 
     it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
         // Funds to register a multi signature wallet
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(secrets[3]), 50 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -90,7 +90,7 @@ describe("Transaction Forging - Delegate Registration", () => {
             Identities.PublicKey.fromPassphrase(passphrases[2]),
         ];
 
-        const multiSignature = TransactionFactory.init(app)
+        const multiSignature = TransactionFactory.initialize(app)
             .multiSignature(participants, 3)
             .withPassphrase(secrets[3])
             .withPassphraseList(passphrases)
@@ -104,7 +104,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
         const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-        const multiSignatureFunds = TransactionFactory.init(app)
+        const multiSignatureFunds = TransactionFactory.initialize(app)
             .transfer(multiSigAddress, 30 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -114,7 +114,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         await expect(multiSignatureFunds.id).toBeForged();
 
         // Try to register a delegate which should fail
-        const delegateRegistration = TransactionFactory.init(app)
+        const delegateRegistration = TransactionFactory.initialize(app)
             .delegateRegistration()
             .withSenderPublicKey(multiSigPublicKey)
             .withPassphraseList(passphrases)
@@ -125,7 +125,7 @@ describe("Transaction Forging - Delegate Registration", () => {
         await expect(delegateRegistration.id).not.toBeForged();
 
         // createOne transfer to assert multi sig wallet can still send funds
-        const transfer = TransactionFactory.init(app)
+        const transfer = TransactionFactory.initialize(app)
             .transfer(multiSigAddress, 29 * 1e8)
             .withSenderPublicKey(multiSigPublicKey)
             .withPassphraseList(passphrases)

@@ -34,7 +34,7 @@ export class PeerProcessor {
     @Container.inject(Container.Identifiers.ServiceProviderRepository)
     private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
 
-    public init() {
+    public initialize() {
         this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));
     }
 

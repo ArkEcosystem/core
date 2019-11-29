@@ -174,7 +174,7 @@ export class ApiHelpers {
 
     // todo: fix the use of the factory
     public async createTransfer(passphrase?: string, nonce: number = 0) {
-        const transaction = TransactionFactory.init()
+        const transaction = TransactionFactory.initialize()
             .transfer("AZFEPTWnn2Sn8wDZgCRF8ohwKkrmk2AZi1", 100000000, "test")
             .withPassphrase(passphrase || secrets[0])
             .withNonce(Utils.BigNumber.make(nonce))

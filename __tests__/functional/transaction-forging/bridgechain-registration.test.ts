@@ -16,7 +16,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "arkecosystem",
                     website: "https://ark.io",
@@ -29,7 +29,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Registering a bridgechain
-            const bridgechainRegistration = TransactionFactory.init(app)
+            const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "cryptoProject",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -47,7 +47,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
 
         it("should reject bridgechain registration, because bridgechain registration with same name is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a bridgechain
-            const bridgechainRegistration = TransactionFactory.init(app)
+            const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "cryptoProject2",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -58,7 +58,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 .withPassphrase(secrets[0])
                 .createOne();
 
-            const bridgechainRegistration2 = TransactionFactory.init(app)
+            const bridgechainRegistration2 = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "cryptoProject2",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -78,7 +78,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
 
         it("should reject bridgechain registration, because bridgechain with same name is already registered (case insensitive) [Signed with 1 Passphrase]", async () => {
             // Bridgechain registration
-            const bridgechainRegistration = TransactionFactory.init(app)
+            const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "CRYPTOPROJECT",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -96,7 +96,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
 
         it("should reject bridgechain registration, because bridgechain name contains unicode control characters [Signed with 1 Passphrase]", async () => {
             // Bridgechain registration
-            const bridgechainRegistration = TransactionFactory.init(app)
+            const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "\u0008mybridgechain",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -120,7 +120,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             // Bridgechain registrations
             for (const [i, name] of disallowed.entries()) {
                 bridgechainRegistrations.push(
-                    TransactionFactory.init(app)
+                    TransactionFactory.initialize(app)
                         .bridgechainRegistration({
                             name,
                             seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -143,7 +143,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
 
         it("should reject bridgechain registration, because business resigned [Signed with 1 Passphrase]", async () => {
             // Business resignation
-            const businessResignation = TransactionFactory.init(app)
+            const businessResignation = TransactionFactory.initialize(app)
                 .businessResignation()
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -153,7 +153,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(businessResignation.id).toBeForged();
 
             // Bridgechain resignation
-            const bridgechainRegistration = TransactionFactory.init(app)
+            const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "cryptoProject",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -171,7 +171,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
 
         it("should reject bridgechain registration, because bridgechainRepository is invalid uri [Signed with 1 Passphrase]", async () => {
             // Business registration
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "arkecosystem",
                     website: "https://ark.io",
@@ -184,7 +184,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Bridgechain registration
-            const bridgechainRegistration = TransactionFactory.init(app)
+            const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "cryptoProject",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -208,7 +208,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             const secondPassphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 150 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -218,7 +218,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
-            const secondSignature = TransactionFactory.init(app)
+            const secondSignature = TransactionFactory.initialize(app)
                 .secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
                 .createOne();
@@ -228,7 +228,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(secondSignature.id).toBeForged();
 
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "arkecosystem",
                     website: "https://ark.io",
@@ -242,7 +242,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Registering a bridgechain
-            const bridgechainRegistration = TransactionFactory.init(app)
+            const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "cryptoProject",
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
@@ -272,7 +272,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
 
         it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
             // Funds to register a multi signature wallet
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -282,7 +282,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Registering a multi-signature wallet
-            const multiSignature = TransactionFactory.init(app)
+            const multiSignature = TransactionFactory.initialize(app)
                 .multiSignature(participants, 3)
                 .withPassphrase(passphrase)
                 .withPassphraseList(passphrases)
@@ -296,7 +296,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
             const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-            const multiSignatureFunds = TransactionFactory.init(app)
+            const multiSignatureFunds = TransactionFactory.initialize(app)
                 .transfer(multiSigAddress, 100 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -306,7 +306,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(multiSignatureFunds.id).toBeForged();
 
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -320,7 +320,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Registering a bridgechain
-            const bridgechainRegistration = TransactionFactory.init(app)
+            const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
                     name: "cryptoProject",
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],

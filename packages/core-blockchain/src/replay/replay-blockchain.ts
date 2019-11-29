@@ -24,11 +24,12 @@ export class ReplayBlockchain extends Blockchain {
     }
 
     // todo: rename after IoC issues are resolved
-    public setup() {
+    // @ts-ignore
+    public initialize() {
         // @ts-ignore
-        this.walletRepository = this.app.resolve(Wallets.WalletRepository).init();
+        this.walletRepository = this.app.resolve(Wallets.WalletRepository).initialize();
         // @ts-ignore
-        this.walletState = this.app.resolve<Wallets.WalletState>(Wallets.WalletState).init(this.walletRepository);
+        this.walletState = this.app.resolve<Wallets.WalletState>(Wallets.WalletState).initialize(this.walletRepository);
         // @ts-ignore
         this.memoryDatabase = new MemoryDatabaseService(this.walletRepository);
 

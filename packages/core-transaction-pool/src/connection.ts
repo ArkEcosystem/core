@@ -42,7 +42,15 @@ export class Connection implements Contracts.TransactionPool.Connection {
     private emitter!: Contracts.Kernel.EventDispatcher;
     private logger!: Contracts.Kernel.Logger;
 
-    init({ options, memory, storage }: { options: Record<string, any>; memory: Memory; storage: Storage }) {
+    public initialize({
+        options,
+        memory,
+        storage,
+    }: {
+        options: Record<string, any>;
+        memory: Memory;
+        storage: Storage;
+    }) {
         this.options = options;
         this.memory = memory;
         this.storage = storage;
@@ -87,7 +95,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     public makeProcessor(): Contracts.TransactionPool.Processor {
-        return this.app.resolve<Processor>(Processor).init(this);
+        return this.app.resolve<Processor>(Processor).initialize(this);
     }
 
     public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
@@ -201,7 +209,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                    `(listed in options.allowedSenders), thus skipping throttling.`,
+                        `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -274,7 +282,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
                     this.logger.error(
                         `[Pool] Cannot apply transaction ${transaction.id} when trying to accept ` +
-                        `block ${block.data.id}: ${error.message}`,
+                            `block ${block.data.id}: ${error.message}`,
                     );
 
                     continue;
@@ -401,7 +409,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         const tempWalletRepository: Wallets.TempWalletRepository = this.app
             .resolve<Wallets.TempWalletRepository>(Wallets.TempWalletRepository)
-            .setup(this.walletRepository);
+            .initialize(this.walletRepository);
 
         let i = 0;
         // Copy the returned array because validateTransactions() in the loop body we may remove entries.
@@ -448,7 +456,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                `in the pool, id: ${transaction.id}`,
+                    `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
@@ -530,12 +538,16 @@ export class Connection implements Contracts.TransactionPool.Connection {
         const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
-        const unforgedTransactions: Interfaces.ITransaction[] = differenceWith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
+        const unforgedTransactions: Interfaces.ITransaction[] = differenceWith(
+            transactions,
+            forgedIds,
+            (t, forgedId) => t.id === forgedId,
+        );
 
         if (walletRepository === undefined) {
             walletRepository = this.app
                 .resolve<Wallets.TempWalletRepository>(Wallets.TempWalletRepository)
-                .setup(this.walletRepository);
+                .initialize(this.walletRepository);
         }
 
         for (const transaction of unforgedTransactions) {

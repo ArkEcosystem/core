@@ -68,7 +68,7 @@ export class Server {
      * @returns {Promise<void>}
      * @memberof Server
      */
-    public async start(): Promise<void> {
+    public async boot(): Promise<void> {
         try {
             await this.server.start();
 
@@ -82,7 +82,7 @@ export class Server {
      * @returns {Promise<void>}
      * @memberof Server
      */
-    public async stop(): Promise<void> {
+    public async dispose(): Promise<void> {
         try {
             await this.server.stop();
 

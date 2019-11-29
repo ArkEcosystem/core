@@ -21,7 +21,7 @@ afterAll(async () => await support.tearDown());
 describe("Transaction Forging - Multi Signature Registration", () => {
     it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
         // Funds to register a multi signature wallet
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -38,7 +38,7 @@ describe("Transaction Forging - Multi Signature Registration", () => {
             Identities.PublicKey.fromPassphrase(passphrases[2]),
         ];
 
-        const multiSignature = TransactionFactory.init(app)
+        const multiSignature = TransactionFactory.initialize(app)
             .multiSignature(participants, 3)
             .withPassphrase(passphrase)
             .withPassphraseList(passphrases)
@@ -52,7 +52,7 @@ describe("Transaction Forging - Multi Signature Registration", () => {
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         const passphrase = secrets[2];
         // Make a fresh wallet for the second signature tests
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -62,7 +62,7 @@ describe("Transaction Forging - Multi Signature Registration", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Register a second passphrase
-        const secondSignature = TransactionFactory.init(app)
+        const secondSignature = TransactionFactory.initialize(app)
             .secondSignature(secondPassphrase)
             .withPassphrase(passphrase)
             .createOne();
@@ -79,7 +79,7 @@ describe("Transaction Forging - Multi Signature Registration", () => {
             Identities.PublicKey.fromPassphrase(passphrases[2]),
         ];
 
-        const multiSignature = TransactionFactory.init(app)
+        const multiSignature = TransactionFactory.initialize(app)
             .multiSignature(participants, 3)
             .withPassphraseList(passphrases)
             .withPassphrasePair({ passphrase, secondPassphrase })
@@ -92,7 +92,7 @@ describe("Transaction Forging - Multi Signature Registration", () => {
 
     it("should reject before AIP11 milestone and accept after AIP11 milestone", async () => {
         const passphrase = secrets[6];
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -109,7 +109,7 @@ describe("Transaction Forging - Multi Signature Registration", () => {
             Identities.PublicKey.fromPassphrase(passphrases[2]),
         ];
 
-        const multiSignature = TransactionFactory.init(app)
+        const multiSignature = TransactionFactory.initialize(app)
             .multiSignature(participants, 3)
             .withPassphraseList(passphrases)
             .withPassphrase(passphrase)

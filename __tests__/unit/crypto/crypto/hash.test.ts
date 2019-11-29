@@ -7,7 +7,7 @@ import { TransactionFactory } from "@packages/core-test-framework/src/utils/tran
 
 import { Factories, Generators } from "@packages/core-test-framework/src";
 
-const transaction = TransactionFactory.init()
+const transaction = TransactionFactory.initialize()
     .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
     .withVersion(2)
     .withFee(2000)

@@ -239,7 +239,7 @@ describe("API 2.0 - Locks", () => {
 
     describe("POST /locks/unlocked", () => {
         it("should find matching transactions for the given lock ids", async () => {
-            const refundTransaction = TransactionFactory.init(app)
+            const refundTransaction = TransactionFactory.initialize(app)
                 .htlcRefund({
                     lockTransactionId: lockIds[0],
                 })

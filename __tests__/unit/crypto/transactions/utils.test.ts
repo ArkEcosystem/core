@@ -190,7 +190,7 @@ describe("Transaction", () => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
             configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
 
-            transaction = TestTransactionFactory.init()
+            transaction = TestTransactionFactory.initialize()
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
@@ -219,7 +219,7 @@ describe("Transaction", () => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
             configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
 
-            transaction = TestTransactionFactory.init()
+            transaction = TestTransactionFactory.initialize()
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")

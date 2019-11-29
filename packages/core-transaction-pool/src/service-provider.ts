@@ -25,9 +25,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         // Initialise the connection with some defaults
         // todo: clean this up, too many params that can be replaced with IoC
-        this.app.get<Connection>(Container.Identifiers.TransactionPoolService).init({
+        this.app.get<Connection>(Container.Identifiers.TransactionPoolService).initialize({
             options: this.config().all(),
-            memory: this.app.resolve(Memory).init(maxTransactionAge),
+            memory: this.app.resolve(Memory).initialize(maxTransactionAge),
             storage: new Storage(),
         });
     }

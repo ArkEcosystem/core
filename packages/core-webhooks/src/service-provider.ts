@@ -41,7 +41,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async boot(): Promise<void> {
-        await this.app.get<any>(Identifiers.Server).start();
+        await this.app.get<any>(Identifiers.Server).boot();
     }
 
     /**
@@ -49,7 +49,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async dispose(): Promise<void> {
-        await this.app.get<any>(Identifiers.Server).stop();
+        await this.app.get<any>(Identifiers.Server).dispose();
     }
 
     /**

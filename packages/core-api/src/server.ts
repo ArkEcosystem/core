@@ -44,7 +44,7 @@ export class Server {
      * @returns {Promise<void>}
      * @memberof Server
      */
-    public async init(name: string, optionsServer: Types.JsonObject): Promise<void> {
+    public async initialize(name: string, optionsServer: Types.JsonObject): Promise<void> {
         this.name = name;
         this.server = new HapiServer(this.getServerOptions(optionsServer));
         this.server.app.app = this.app;
@@ -79,7 +79,7 @@ export class Server {
      * @returns {Promise<void>}
      * @memberof Server
      */
-    public async start(): Promise<void> {
+    public async boot(): Promise<void> {
         try {
             await this.server.start();
 
@@ -93,7 +93,7 @@ export class Server {
      * @returns {Promise<void>}
      * @memberof Server
      */
-    public async stop(): Promise<void> {
+    public async dispose(): Promise<void> {
         try {
             await this.server.stop();
 

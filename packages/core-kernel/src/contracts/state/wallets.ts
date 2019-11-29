@@ -213,7 +213,7 @@ export interface TempWalletRepository extends WalletRepository {
 }
 
 export interface WalletState {
-    init(walletRepository: WalletRepository): WalletState;
+    initialize(walletRepository: WalletRepository): WalletState;
 
     loadActiveDelegateList(roundInfo: RoundInfo): Wallet[];
 

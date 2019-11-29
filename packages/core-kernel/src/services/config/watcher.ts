@@ -53,7 +53,7 @@ export class Watcher {
      * @returns {Promise<void>}
      * @memberof Watcher
      */
-    public async start(): Promise<void> {
+    public async boot(): Promise<void> {
         const configFiles: string[] = [".env", "delegates.json", "peers.json", "plugins.js", "plugins.json"];
 
         this.watcher = await nsfw(this.app.configPath(), (events: FileEvent[]) => {
@@ -71,7 +71,7 @@ export class Watcher {
      * @returns {Promise<void>}
      * @memberof Watcher
      */
-    public async stop(): Promise<void> {
+    public async dispose(): Promise<void> {
         return this.watcher.stop();
     }
 }

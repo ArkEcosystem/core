@@ -255,7 +255,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     }
 
     public clone(): Contracts.State.TempWalletRepository {
-        return this.app.resolve<TempWalletRepository>(TempWalletRepository).setup(this);
+        return this.app.resolve<TempWalletRepository>(TempWalletRepository).initialize(this);
     }
 
     public reset(): void {

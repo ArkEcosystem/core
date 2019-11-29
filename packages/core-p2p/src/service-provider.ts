@@ -34,11 +34,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
             ),
         );
 
-        payloadProcessor.init();
+        payloadProcessor.initialize();
     }
 
     public async dispose(): Promise<void> {
-        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).stopServer();
+        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).dispose();
     }
 
     public async required(): Promise<boolean> {
@@ -77,11 +77,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .to(NetworkMonitor)
             .inSingletonScope();
 
-        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).init();
+        this.app.get<NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).initialize();
 
-        this.app.get<PeerCommunicator>(Container.Identifiers.PeerCommunicator).init();
+        this.app.get<PeerCommunicator>(Container.Identifiers.PeerCommunicator).initialize();
 
-        this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).init();
+        this.app.get<PeerProcessor>(Container.Identifiers.PeerProcessor).initialize();
 
         this.app
             .bind("p2p.event-listener")

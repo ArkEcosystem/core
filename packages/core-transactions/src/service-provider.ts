@@ -18,7 +18,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .to(TransactionHandlerRegistry)
             .inSingletonScope();
 
-        this.app.get<TransactionHandlerRegistry>(Container.Identifiers.TransactionHandlerRegistry).init();
+        this.app.get<TransactionHandlerRegistry>(Container.Identifiers.TransactionHandlerRegistry).initialize();
     }
 
     /**

@@ -52,7 +52,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
 
     private rateLimiter!: RateLimiter;
 
-    public init() {
+    public initialize() {
         this.config = this.app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
             .get("@arkecosystem/core-p2p")
@@ -71,15 +71,7 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         this.server = server;
     }
 
-    public stopServer(): void {
-        if (this.server) {
-            this.server.removeAllListeners();
-            this.server.destroy();
-            this.server = undefined;
-        }
-    }
-
-    public async start(): Promise<void> {
+    public async boot(): Promise<void> {
         await this.checkDNSConnectivity(this.config.dns);
         await this.checkNTPConnectivity(this.config.ntp);
 
@@ -102,6 +94,14 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
         await Utils.sleep(1000);
 
         this.initializing = false;
+    }
+
+    public dispose(): void {
+        if (this.server) {
+            this.server.removeAllListeners();
+            this.server.destroy();
+            this.server = undefined;
+        }
     }
 
     public async updateNetworkStatus(initialRun?: boolean): Promise<void> {

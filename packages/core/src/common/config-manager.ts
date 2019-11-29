@@ -8,7 +8,7 @@ export class ConfigManager {
     // @ts-ignore
     private file: string;
 
-    public setup(config: Record<string, any>) {
+    public initialize(config: Record<string, any>) {
         this.config = config;
         this.file = `${config.configDir}/config.json`;
 

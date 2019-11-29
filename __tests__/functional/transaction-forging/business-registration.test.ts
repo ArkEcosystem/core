@@ -28,7 +28,7 @@ describe("Transaction Forging - Business registration", () => {
             // Registering businesses
             for (const [i, name] of allowed.entries()) {
                 businessRegistrations.push(
-                    TransactionFactory.init(app)
+                    TransactionFactory.initialize(app)
                         .businessRegistration({
                             name,
                             website: "http://ark.io",
@@ -47,7 +47,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because wallet is already a business [Signed with 1 Passphrase]", async () => {
             // Registering a business again
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark.io",
                     website: "https://ark.io",
@@ -62,7 +62,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because name business contains unicode control characters [Signed with 1 Passphrase]", async () => {
             // Registering a business with unicode control characters in its name
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "\u0000ark",
                     website: "https://ark.io",
@@ -83,7 +83,7 @@ describe("Transaction Forging - Business registration", () => {
             // Business registrations
             for (const name of disallowed) {
                 businessRegistrations.push(
-                    TransactionFactory.init(app)
+                    TransactionFactory.initialize(app)
                         .businessRegistration({
                             name,
                             website: "https://ark.io",
@@ -103,7 +103,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because business registration is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -112,7 +112,7 @@ describe("Transaction Forging - Business registration", () => {
                 .createOne();
 
             // Registering a business again
-            const businessRegistration2 = TransactionFactory.init(app)
+            const businessRegistration2 = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -129,7 +129,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because website is not valid uri [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "ark.io",
@@ -144,7 +144,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because repository is not valid uri [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -166,7 +166,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 150 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -176,7 +176,7 @@ describe("Transaction Forging - Business registration", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
-            const secondSignature = TransactionFactory.init(app)
+            const secondSignature = TransactionFactory.initialize(app)
                 .secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
                 .createOne();
@@ -186,7 +186,7 @@ describe("Transaction Forging - Business registration", () => {
             await expect(secondSignature.id).toBeForged();
 
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -202,7 +202,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because wallet is already a business [Signed with 2 Passphrases]", async () => {
             // Registering a business again
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -233,7 +233,7 @@ describe("Transaction Forging - Business registration", () => {
         let multiSigPublicKey;
         it("should broadcast, accept and forge it [3 of 5]", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -243,7 +243,7 @@ describe("Transaction Forging - Business registration", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Registering a multi-signature wallet
-            const multiSignature = TransactionFactory.init(app)
+            const multiSignature = TransactionFactory.initialize(app)
                 .multiSignature(participants, 3)
                 .withPassphrase(passphrase)
                 .withPassphraseList(registerPassphrases)
@@ -257,7 +257,7 @@ describe("Transaction Forging - Business registration", () => {
             multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
             multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-            const multiSignatureFunds = TransactionFactory.init(app)
+            const multiSignatureFunds = TransactionFactory.initialize(app)
                 .transfer(multiSigAddress, 100 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -267,7 +267,7 @@ describe("Transaction Forging - Business registration", () => {
             await expect(multiSignatureFunds.id).toBeForged();
 
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -283,7 +283,7 @@ describe("Transaction Forging - Business registration", () => {
 
         it("should be rejected, because wallet is already a business [3 of 5]", async () => {
             // Registering a business again
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",

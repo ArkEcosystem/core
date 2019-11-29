@@ -31,7 +31,7 @@ export class PeerCommunicator {
 
     private outgoingRateLimiter!: RateLimiter;
 
-    public init() {
+    public initialize() {
         this.outgoingRateLimiter = buildRateLimiter({
             // White listing anybody here means we would not throttle ourselves when sending
             // them requests, ie we could spam them.
@@ -71,7 +71,7 @@ export class PeerCommunicator {
                 throw new PeerVerificationFailedError();
             }
 
-            const peerVerifier = this.app.resolve(PeerVerifier).init(this, peer);
+            const peerVerifier = this.app.resolve(PeerVerifier).initialize(this, peer);
 
             if (deadline <= new Date().getTime()) {
                 throw new PeerPingTimeoutError(timeoutMsec);

@@ -94,7 +94,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
                 .withPassphrase("super cool passphrase")
@@ -117,7 +117,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
                 .withPassphrase("super cool passphrase")
@@ -172,7 +172,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("DB4gFuDztmdGALMb8i1U4Z4R5SktxpNTAY", 10)
                 .withNetwork("devnet")
                 .withTimestamp(optionsDefault.timestamp)
@@ -196,7 +196,7 @@ describe("Block", () => {
                 },
                 reward: Utils.BigNumber.make(0),
             };
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 10)
                 .withNetwork("testnet")
                 .withVersion(2)
@@ -221,7 +221,7 @@ describe("Block", () => {
                 reward: Utils.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
@@ -248,7 +248,7 @@ describe("Block", () => {
                 reward: Utils.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
@@ -278,7 +278,7 @@ describe("Block", () => {
                 reward: Utils.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("testnet")
                 .withVersion(1)
@@ -309,7 +309,7 @@ describe("Block", () => {
                 reward: Utils.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("mainnet")
                 .withVersion(1)
@@ -337,7 +337,7 @@ describe("Block", () => {
                 reward: Utils.BigNumber.make(0),
             };
 
-            const transactions = TransactionFactory.init()
+            const transactions = TransactionFactory.initialize()
                 .transfer("ANYiQJSPSoDT8U9Quh5vU8timD2RM7RS38", 1)
                 .withNetwork("mainnet")
                 .withVersion(1)

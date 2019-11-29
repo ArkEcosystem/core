@@ -38,7 +38,7 @@ export class TransactionFactory {
         this.app = app;
     }
 
-    public static init(app?: Contracts.Kernel.Application): TransactionFactory {
+    public static initialize(app?: Contracts.Kernel.Application): TransactionFactory {
         return new TransactionFactory(app);
     }
 

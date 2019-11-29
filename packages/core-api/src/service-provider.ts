@@ -18,21 +18,21 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
     public async boot(): Promise<void> {
         if (this.config().get("server.http.enabled")) {
-            await this.app.get<Server>(Identifiers.HTTP).start();
+            await this.app.get<Server>(Identifiers.HTTP).boot();
         }
 
         if (this.config().get("server.https.enabled")) {
-            await this.app.get<Server>(Identifiers.HTTPS).start();
+            await this.app.get<Server>(Identifiers.HTTPS).boot();
         }
     }
 
     public async dispose(): Promise<void> {
         if (this.config().get("server.http.enabled")) {
-            await this.app.get<Server>(Identifiers.HTTP).stop();
+            await this.app.get<Server>(Identifiers.HTTP).dispose();
         }
 
         if (this.config().get("server.https.enabled")) {
-            await this.app.get<Server>(Identifiers.HTTPS).stop();
+            await this.app.get<Server>(Identifiers.HTTPS).dispose();
         }
     }
 
@@ -44,7 +44,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         const server: Server = this.app.get<Server>(id);
 
-        await server.init(`Public API (${type.toUpperCase()})`, {
+        await server.initialize(`Public API (${type.toUpperCase()})`, {
             ...this.config().get(`server.${type}`),
             ...{
                 routes: {

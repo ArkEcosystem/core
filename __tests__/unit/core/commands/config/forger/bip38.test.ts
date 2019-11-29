@@ -16,7 +16,7 @@ describe("BIP38Command", () => {
 
         writeJSONSync(`${process.env.CORE_PATH_CONFIG}/delegates.json`, {});
 
-        configManager.setup({
+        configManager.initialize({
             configDir: process.env.CORE_PATH_CONFIG,
             version: "3.0.0-next.0",
         });

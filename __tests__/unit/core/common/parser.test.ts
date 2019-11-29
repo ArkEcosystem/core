@@ -7,7 +7,7 @@ import { ensureDirSync } from "fs-extra";
 import prompts from "prompts";
 
 beforeEach(() => {
-    configManager.setup({ configDir: dirSync().name, version: "3.0.0", bin: "ark" });
+    configManager.initialize({ configDir: dirSync().name, version: "3.0.0", bin: "ark" });
 });
 
 afterAll(() => setGracefulCleanup());

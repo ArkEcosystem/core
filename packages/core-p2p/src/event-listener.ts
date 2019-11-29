@@ -14,10 +14,10 @@ export class EventListener {
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
     private readonly networkMonitor!: Contracts.P2P.INetworkMonitor;
 
-    public init() {
+    public initialize() {
         this.emitter.listen(Enums.PeerEvent.Disconnect, this.app.resolve(DisconnectPeer));
 
-        const exitHandler = () => this.networkMonitor.stopServer();
+        const exitHandler = () => this.networkMonitor.dispose();
 
         process.on("SIGINT", exitHandler);
         process.on("exit", exitHandler);

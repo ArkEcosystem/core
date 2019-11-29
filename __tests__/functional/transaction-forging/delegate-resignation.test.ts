@@ -21,7 +21,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             const passphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
                 .createOne();
@@ -31,7 +31,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a delegate
-            const transactionsRegister = TransactionFactory.init(app)
+            const transactionsRegister = TransactionFactory.initialize(app)
                 .delegateRegistration()
                 .withPassphrase(passphrase)
                 .createOne();
@@ -41,7 +41,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(transactionsRegister.id).toBeForged();
 
             // Resign a delegate
-            const transactionsResign = TransactionFactory.init(app)
+            const transactionsResign = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrase(passphrase)
                 .createOne();
@@ -56,7 +56,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             const passphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
                 .createOne();
@@ -66,7 +66,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Resign a delegate
-            const transactionsResign = TransactionFactory.init(app)
+            const transactionsResign = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrase(passphrase)
                 .createOne();
@@ -81,7 +81,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             const passphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
                 .createOne();
@@ -91,7 +91,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a delegate
-            const transactionsRegister = TransactionFactory.init(app)
+            const transactionsRegister = TransactionFactory.initialize(app)
                 .delegateRegistration()
                 .withPassphrase(passphrase)
                 .createOne();
@@ -101,7 +101,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(transactionsRegister.id).toBeForged();
 
             // Resign a delegate
-            const transactionsResign1 = TransactionFactory.init(app)
+            const transactionsResign1 = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrase(passphrase)
                 .createOne();
@@ -111,7 +111,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(transactionsResign1.id).toBeForged();
 
             // Resign a delegate
-            const transactionsResign2 = TransactionFactory.init(app)
+            const transactionsResign2 = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrase(passphrase)
                 .createOne();
@@ -126,7 +126,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             const passphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
                 .createOne();
@@ -136,7 +136,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a delegate
-            const transactionsRegister = TransactionFactory.init(app)
+            const transactionsRegister = TransactionFactory.initialize(app)
                 .delegateRegistration()
                 .withPassphrase(passphrase)
                 .createOne();
@@ -153,7 +153,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             }
 
             // Resign a delegate
-            const transactionsResign = TransactionFactory.init(app)
+            const transactionsResign = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrase(passphrase)
                 .createOne();
@@ -175,7 +175,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             const secondPassphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
                 .createOne();
@@ -185,7 +185,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
-            const secondSignature = TransactionFactory.init(app)
+            const secondSignature = TransactionFactory.initialize(app)
                 .secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
                 .createOne();
@@ -195,7 +195,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(secondSignature.id).toBeForged();
 
             // Register a delegate
-            const transactionsRegister = TransactionFactory.init(app)
+            const transactionsRegister = TransactionFactory.initialize(app)
                 .delegateRegistration()
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();
@@ -205,7 +205,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(transactionsRegister.id).toBeForged();
 
             // Resign a delegate
-            const transactionsResign = TransactionFactory.init(app)
+            const transactionsResign = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();
@@ -221,7 +221,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             const secondPassphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
                 .createOne();
@@ -231,7 +231,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
-            const secondSignature = TransactionFactory.init(app)
+            const secondSignature = TransactionFactory.initialize(app)
                 .secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
                 .createOne();
@@ -241,7 +241,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(secondSignature.id).toBeForged();
 
             // Resign a delegate
-            const transactionsResign = TransactionFactory.init(app)
+            const transactionsResign = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();
@@ -257,7 +257,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             const secondPassphrase = generateMnemonic();
 
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 100 * 1e8)
                 .withPassphrase(genesisPassphrase)
                 .createOne();
@@ -267,7 +267,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
-            const secondSignature = TransactionFactory.init(app)
+            const secondSignature = TransactionFactory.initialize(app)
                 .secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
                 .createOne();
@@ -277,7 +277,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(secondSignature.id).toBeForged();
 
             // Register a delegate
-            const transactionsRegister = TransactionFactory.init(app)
+            const transactionsRegister = TransactionFactory.initialize(app)
                 .delegateRegistration()
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();
@@ -287,7 +287,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(transactionsRegister.id).toBeForged();
 
             // Resign a delegate
-            const transactionsResign1 = TransactionFactory.init(app)
+            const transactionsResign1 = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();
@@ -297,7 +297,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(transactionsResign1.id).toBeForged();
 
             // Resign a delegate
-            const transactionsResign2 = TransactionFactory.init(app)
+            const transactionsResign2 = TransactionFactory.initialize(app)
                 .delegateResignation()
                 .withPassphrasePair({ passphrase, secondPassphrase })
                 .createOne();

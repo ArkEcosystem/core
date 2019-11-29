@@ -14,7 +14,7 @@ export interface IRateLimitStatus {
 }
 
 export interface INetworkMonitor {
-    start(): Promise<void>;
+    boot(): Promise<void>;
     updateNetworkStatus(initialRun?: boolean): Promise<void>;
     cleansePeers({
         fast,
@@ -39,5 +39,5 @@ export interface INetworkMonitor {
     setServer(server: SocketCluster): void; // remove this
     isColdStart(): boolean;
     completeColdStart(): void;
-    stopServer(): void;
+    dispose(): void;
 }

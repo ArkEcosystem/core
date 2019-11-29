@@ -319,7 +319,7 @@ export abstract class TransactionHandler {
     }
 
     protected getTransactionReader(): TransactionReader {
-        return this.app.resolve<TransactionReader>(TransactionReader).init(this.getConstructor());
+        return this.app.resolve<TransactionReader>(TransactionReader).initialize(this.getConstructor());
     }
 
     /**

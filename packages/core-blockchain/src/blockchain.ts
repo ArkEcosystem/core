@@ -47,7 +47,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @param  {Object} options
      * @return {void}
      */
-    init(options: { networkStart?: boolean }): this {
+    public initialize(options: { networkStart?: boolean }): this {
         this.isStopped = true;
 
         // flag to force a network start
@@ -132,7 +132,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * Start the blockchain and wait for it to be ready.
      * @return {void}
      */
-    public async start(skipStartedCheck = false): Promise<boolean> {
+    public async boot(skipStartedCheck = false): Promise<boolean> {
         this.app.log.info("Starting Blockchain Manager :chains:");
 
         this.dispatch("START");
@@ -153,7 +153,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         return true;
     }
 
-    public async stop(): Promise<void> {
+    public async dispose(): Promise<void> {
         if (!this.isStopped) {
             this.app.log.info("Stopping Blockchain Manager :chains:");
 

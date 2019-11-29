@@ -36,7 +36,7 @@ describe("Watcher", () => {
 
         await sleep(1000);
 
-        await watcher.start();
+        await watcher.boot();
 
         expect(spyReboot).not.toHaveBeenCalled();
 
@@ -46,6 +46,6 @@ describe("Watcher", () => {
 
         expect(spyReboot).toHaveBeenCalled();
 
-        await watcher.stop();
+        await watcher.dispose();
     });
 });

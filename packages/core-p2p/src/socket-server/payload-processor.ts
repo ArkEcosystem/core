@@ -21,7 +21,7 @@ class PayloadProcessor {
     private maxPayloadOverflowQueueSize = 50;
     private listener: any;
 
-    public init() {
+    public initialize() {
         if (existsSync(this.payloadDatabasePath)) {
             unlinkSync(this.payloadDatabasePath);
         }

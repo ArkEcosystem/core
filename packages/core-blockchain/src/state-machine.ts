@@ -164,7 +164,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
                     await database.buildWallets();
                     await database.restoreCurrentRound(block.data.height);
                     await transactionPool.buildWallets();
-                    await app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
+                    await app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
                     return blockchain.dispatch("STARTED");
                 }
@@ -173,7 +173,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
                     logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
                     await database.buildWallets();
-                    await app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
+                    await app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
                     return blockchain.dispatch("STARTED");
                 }
@@ -189,7 +189,7 @@ blockchainMachine.actionMap = (blockchain: Blockchain) => {
                 await database.restoreCurrentRound(block.data.height);
                 await transactionPool.buildWallets();
 
-                await app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).start();
+                await app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
                 return blockchain.dispatch("STARTED");
             } catch (error) {

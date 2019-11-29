@@ -37,7 +37,7 @@ export class Memory {
     };
 
     private maxTransactionAge!: number;
-    public init(maxTransactionAge: number) {
+    public initialize(maxTransactionAge: number) {
         this.maxTransactionAge = maxTransactionAge;
 
         return this;

@@ -43,7 +43,7 @@ export class PeerVerifier {
     //     this.logPrefix = `Peer verify ${peer.ip}:`;
     // }
 
-    public init(communicator: PeerCommunicator, peer: Contracts.P2P.Peer) {
+    public initialize(communicator: PeerCommunicator, peer: Contracts.P2P.Peer) {
         this.communicator = communicator;
         this.peer = peer;
         this.database = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);

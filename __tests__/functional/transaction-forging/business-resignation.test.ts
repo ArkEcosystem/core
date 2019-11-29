@@ -16,7 +16,7 @@ describe("Transaction Forging - Business resignation", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            let businessRegistration = TransactionFactory.init(app)
+            let businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -29,7 +29,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Resigning a business
-            const businessResignation = TransactionFactory.init(app)
+            const businessResignation = TransactionFactory.initialize(app)
                 .businessResignation()
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -39,7 +39,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessResignation.id).toBeForged();
 
             // Reject a new registration
-            businessRegistration = TransactionFactory.init(app)
+            businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -53,7 +53,7 @@ describe("Transaction Forging - Business resignation", () => {
         });
 
         it("should reject business resignation, because business resigned [Signed with 1 Passphrase]", async () => {
-            const businessResignation = TransactionFactory.init(app)
+            const businessResignation = TransactionFactory.initialize(app)
                 .businessResignation()
                 .businessResignation()
                 .withPassphrase(secrets[0])
@@ -66,7 +66,7 @@ describe("Transaction Forging - Business resignation", () => {
 
         it("should reject business resignation, because business resignation is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.init(app)
+            const businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -78,12 +78,12 @@ describe("Transaction Forging - Business resignation", () => {
             await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
 
-            const businessResignation = TransactionFactory.init(app)
+            const businessResignation = TransactionFactory.initialize(app)
                 .businessResignation()
                 .withPassphrase(secrets[1])
                 .createOne();
 
-            const businessResignation2 = TransactionFactory.init(app)
+            const businessResignation2 = TransactionFactory.initialize(app)
                 .businessResignation()
                 .withPassphrase(secrets[1])
                 .withNonce(businessResignation.nonce.plus(1))
@@ -103,7 +103,7 @@ describe("Transaction Forging - Business resignation", () => {
 
         it("should broadcast, accept and forge it [Signed with 2 Passphrases] ", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 250 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -113,7 +113,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
-            const secondSignature = TransactionFactory.init(app)
+            const secondSignature = TransactionFactory.initialize(app)
                 .secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
                 .createOne();
@@ -123,7 +123,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(secondSignature.id).toBeForged();
 
             // Registering a business
-            let businessRegistration = TransactionFactory.init(app)
+            let businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -137,7 +137,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Resigning a business
-            let businessResignation = TransactionFactory.init(app)
+            let businessResignation = TransactionFactory.initialize(app)
                 .businessResignation()
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -148,7 +148,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessResignation.id).toBeForged();
 
             // Reject a second resignation
-            businessResignation = TransactionFactory.init(app)
+            businessResignation = TransactionFactory.initialize(app)
                 .businessResignation()
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
@@ -159,7 +159,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessResignation.id).not.toBeForged();
 
             // Reject a new registration
-            businessRegistration = TransactionFactory.init(app)
+            businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -185,7 +185,7 @@ describe("Transaction Forging - Business resignation", () => {
 
         it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
             // Funds to register a multi signature wallet
-            const initialFunds = TransactionFactory.init(app)
+            const initialFunds = TransactionFactory.initialize(app)
                 .transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -195,7 +195,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(initialFunds.id).toBeForged();
 
             // Registering a multi-signature wallet
-            const multiSignature = TransactionFactory.init(app)
+            const multiSignature = TransactionFactory.initialize(app)
                 .multiSignature(participants, 3)
                 .withPassphrase(passphrase)
                 .withPassphraseList(passphrases)
@@ -209,7 +209,7 @@ describe("Transaction Forging - Business resignation", () => {
             const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
             const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-            const multiSignatureFunds = TransactionFactory.init(app)
+            const multiSignatureFunds = TransactionFactory.initialize(app)
                 .transfer(multiSigAddress, 300 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
@@ -219,7 +219,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(multiSignatureFunds.id).toBeForged();
 
             // Registering a business
-            let businessRegistration = TransactionFactory.init(app)
+            let businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",
@@ -233,7 +233,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessRegistration.id).toBeForged();
 
             // Resigning a business
-            let businessResignation = TransactionFactory.init(app)
+            let businessResignation = TransactionFactory.initialize(app)
                 .businessResignation()
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
@@ -244,7 +244,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessResignation.id).toBeForged();
 
             // Reject a second resignation
-            businessResignation = TransactionFactory.init(app)
+            businessResignation = TransactionFactory.initialize(app)
                 .businessResignation()
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
@@ -255,7 +255,7 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessResignation.id).not.toBeForged();
 
             // Reject a new registration
-            businessRegistration = TransactionFactory.init(app)
+            businessRegistration = TransactionFactory.initialize(app)
                 .businessRegistration({
                     name: "ark",
                     website: "https://ark.io",

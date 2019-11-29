@@ -20,7 +20,7 @@ afterAll(async () => await support.tearDown());
 
 describe("Transaction Forging - Transfer", () => {
     it("should broadcast, accept and forge it [Signed with 1 Passphase]", async () => {
-        const transaction = TransactionFactory.init(app)
+        const transaction = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[0])
             .createOne();
@@ -32,7 +32,7 @@ describe("Transaction Forging - Transfer", () => {
 
     it("should broadcast, accept and forge it [Signed with 2 Passphrases]", async () => {
         // Funds to register a second passphrase
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -42,7 +42,7 @@ describe("Transaction Forging - Transfer", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Register a second passphrase
-        const secondSignature = TransactionFactory.init(app)
+        const secondSignature = TransactionFactory.initialize(app)
             .secondSignature(secondPassphrase)
             .withPassphrase(passphrase)
             .createOne();
@@ -52,7 +52,7 @@ describe("Transaction Forging - Transfer", () => {
         await expect(secondSignature.id).toBeForged();
 
         // Submit a transfer with 2 passprhases
-        const transfer = TransactionFactory.init(app)
+        const transfer = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrasePair(support.passphrases)
             .createOne();
@@ -64,7 +64,7 @@ describe("Transaction Forging - Transfer", () => {
 
     it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
         // Funds to register a multi signature wallet
-        const initialFunds = TransactionFactory.init(app)
+        const initialFunds = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(secrets[3]), 50 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -81,7 +81,7 @@ describe("Transaction Forging - Transfer", () => {
             Identities.PublicKey.fromPassphrase(passphrases[2]),
         ];
 
-        const multiSignature = TransactionFactory.init(app)
+        const multiSignature = TransactionFactory.initialize(app)
             .multiSignature(participants, 3)
             .withPassphrase(secrets[3])
             .withPassphraseList(passphrases)
@@ -95,7 +95,7 @@ describe("Transaction Forging - Transfer", () => {
         const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
         const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-        const multiSignatureFunds = TransactionFactory.init(app)
+        const multiSignatureFunds = TransactionFactory.initialize(app)
             .transfer(multiSigAddress, 20 * 1e8)
             .withPassphrase(secrets[0])
             .createOne();
@@ -105,7 +105,7 @@ describe("Transaction Forging - Transfer", () => {
         await expect(multiSignatureFunds.id).toBeForged();
 
         // Create outgoing multi signature wallet transfer
-        const multiSigTransfer = TransactionFactory.init(app)
+        const multiSigTransfer = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase), 10 * 1e8)
             .withSenderPublicKey(multiSigPublicKey)
             .withPassphraseList(passphrases)
@@ -119,7 +119,7 @@ describe("Transaction Forging - Transfer", () => {
     it("should broadcast, accept and forge it [Expiration]", async () => {
         await snoozeForBlock(1);
 
-        const transfer = TransactionFactory.init(app)
+        const transfer = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withExpiration(getLastHeight(app) + 2)
             .withPassphrase(secrets[0])
@@ -133,13 +133,13 @@ describe("Transaction Forging - Transfer", () => {
     it("should not broadcast, accept and forge it [Expired]", async () => {
         await snoozeForBlock(1);
 
-        const transfer = TransactionFactory.init(app)
+        const transfer = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[0])
             .withExpiration(getLastHeight(app))
             .createOne();
 
-        const transfer2 = TransactionFactory.init(app)
+        const transfer2 = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[1])
             .withExpiration(getLastHeight(app) + 1)
@@ -152,7 +152,7 @@ describe("Transaction Forging - Transfer", () => {
     });
 
     it("should accept V1 before AIP11 milestone and reject after AIP11 milestone", async () => {
-        const transfer = TransactionFactory.init(app)
+        const transfer = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[0])
             .createOne();
@@ -161,7 +161,7 @@ describe("Transaction Forging - Transfer", () => {
         await snoozeForBlock(1);
         await expect(transfer.id).toBeForged();
 
-        const transfersLegacyWithoutNonce = TransactionFactory.init(app)
+        const transfersLegacyWithoutNonce = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withVersion(1)
             .withPassphrase(secrets[0])
@@ -188,7 +188,7 @@ describe("Transaction Forging - Transfer", () => {
         await expect(transfersLegacyWithoutNonce[1].id).not.toBeForged();
 
         // and accepts V2
-        const transferWithNonce = TransactionFactory.init(app)
+        const transferWithNonce = TransactionFactory.initialize(app)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[1])
             .createOne();
