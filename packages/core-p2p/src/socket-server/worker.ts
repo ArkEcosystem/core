@@ -9,6 +9,7 @@ const ajv = new Ajv();
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
+    private ipLastError: Record<string, number> = {};
     private rateLimiter: RateLimiter;
 
     public async run() {
@@ -64,13 +65,13 @@ export class Worker extends SCWorker {
     }
 
     private handlePayload(ws, req) {
-        ws.on("ping", () => {
-            ws.terminate();
+        ws.prependListener("ping", () => {
+            this.setErrorForIpAndTerminate(ws, req);
         });
-        ws.on("pong", () => {
-            ws.terminate();
+        ws.prependListener("pong", () => {
+            this.setErrorForIpAndTerminate(ws, req);
         });
-        ws.on("message", message => {
+        ws.prependListener("message", message => {
             try {
                 const InvalidMessagePayloadError: Error = this.createError(
                     SocketErrors.InvalidMessagePayload,
@@ -82,6 +83,10 @@ export class Worker extends SCWorker {
                         throw InvalidMessagePayloadError;
                     }
                     ws._lastPingTime = timeNow;
+                } else if (message.length < 10) {
+                    // except for #2 message, we should have JSON with some required properties
+                    // (see below) which implies that message length should be longer than 10 chars
+                    this.setErrorForIpAndTerminate(ws, req);
                 } else {
                     const parsed = JSON.parse(message);
                     if (
@@ -90,13 +95,18 @@ export class Worker extends SCWorker {
                         (typeof parsed.cid !== "number" &&
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
                     ) {
-                        throw InvalidMessagePayloadError;
+                        this.setErrorForIpAndTerminate(ws, req);
                     }
                 }
             } catch (error) {
-                ws.terminate();
+                this.setErrorForIpAndTerminate(ws, req);
             }
         });
+    }
+
+    private setErrorForIpAndTerminate(ws, req): void {
+        this.ipLastError[req.socket.remoteAddress] = Date.now();
+        ws.terminate();
     }
 
     private async handleConnection(socket): Promise<void> {
@@ -117,14 +127,20 @@ export class Worker extends SCWorker {
     }
 
     private async handleHandshake(req, next): Promise<void> {
-        const isBlocked = await this.rateLimiter.isBlocked(req.socket.remoteAddress);
-        const isBlacklisted = (this.config.blacklist || []).includes(req.socket.remoteAddress);
+        const ip = req.socket.remoteAddress;
+        if (this.ipLastError[ip] && this.ipLastError[ip] > Date.now() - 60 * 1000) {
+            req.socket.destroy();
+            return;
+        }
+
+        const isBlocked = await this.rateLimiter.isBlocked(ip);
+        const isBlacklisted = (this.config.blacklist || []).includes(ip);
         if (isBlocked || isBlacklisted) {
             next(this.createError(SocketErrors.Forbidden, "Blocked due to rate limit or blacklisted."));
             return;
         }
 
-        const cidrRemoteAddress = cidr(`${req.socket.remoteAddress}/24`);
+        const cidrRemoteAddress = cidr(`${ip}/24`);
         const sameSubnetSockets = Object.values({ ...this.scServer.clients, ...this.scServer.pendingClients }).filter(
             client => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
         );
