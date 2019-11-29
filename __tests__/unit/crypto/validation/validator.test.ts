@@ -258,7 +258,7 @@ describe("validator", () => {
                 TransactionTypeFactory.get(0); // Make sure registry is loaded, since it adds the "transactions" schema.
 
                 // todo: completely wrap this into a function to hide the generation and setting of the config?
-                configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+                configManager.setConfig(Generators.generateCryptoConfigRaw());
             });
 
             it("should be ok", () => {

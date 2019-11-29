@@ -1,11 +1,11 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../../errors";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
-import { Two } from "../index";
 import { TransactionReader } from "../../transaction-reader";
-import { Models } from "@arkecosystem/core-database";
+import { Two } from "../index";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
@@ -127,11 +127,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

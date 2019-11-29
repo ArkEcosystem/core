@@ -2,9 +2,7 @@ import "jest-extended";
 
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { devnet } from "../../../../packages/crypto/src/networks";
-import {
-    TransactionFactory,
-} from "../../../../packages/crypto/src/transactions";
+import { TransactionFactory } from "../../../../packages/crypto/src/transactions";
 import { BigNumber } from "../../../../packages/crypto/src/utils";
 import { Two } from "../../../../packages/crypto/src/transactions/types";
 
@@ -151,7 +149,9 @@ describe("Transaction", () => {
             );
             expect(Two.IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
             expect(Two.MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
-            expect(Two.DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
+            expect(Two.DelegateResignationTransaction.staticFee()).toEqual(
+                BigNumber.make(staticFees.delegateResignation),
+            );
 
             configManager.setHeight(1);
             staticFees = configManager.getMilestone().fees.staticFees;
@@ -169,7 +169,9 @@ describe("Transaction", () => {
             );
             expect(Two.IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
             expect(Two.MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
-            expect(Two.DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
+            expect(Two.DelegateResignationTransaction.staticFee()).toEqual(
+                BigNumber.make(staticFees.delegateResignation),
+            );
 
             devnet.milestones.pop();
         });

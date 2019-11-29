@@ -14,7 +14,7 @@ let builder: HtlcLockBuilder;
 
 beforeEach(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = new Generators.GenerateNetwork().generateCrypto();
+    const config = Generators.generateCryptoConfigRaw();
     configManager.setConfig(config);
 
     builder = BuilderFactory.htlcLock();

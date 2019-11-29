@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Managers, Utils, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { HtlcLockExpiredError } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
@@ -158,10 +158,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

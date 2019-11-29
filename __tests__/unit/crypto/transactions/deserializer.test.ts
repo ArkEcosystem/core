@@ -165,7 +165,7 @@ describe("Transaction serializer / deserializer", () => {
 
         beforeEach(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
 
             const participant1 = Keys.fromPassphrase("secret 1");
             const participant2 = Keys.fromPassphrase("secret 2");
@@ -226,7 +226,7 @@ describe("Transaction serializer / deserializer", () => {
 
         beforeAll(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         beforeEach(() => {
@@ -288,7 +288,7 @@ describe("Transaction serializer / deserializer", () => {
     describe("ser/deserialize - multi payment", () => {
         beforeAll(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -363,7 +363,7 @@ describe("Transaction serializer / deserializer", () => {
 
         beforeAll(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -410,7 +410,7 @@ describe("Transaction serializer / deserializer", () => {
 
         beforeAll(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -451,7 +451,7 @@ describe("Transaction serializer / deserializer", () => {
 
         beforeAll(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -488,7 +488,7 @@ describe("Transaction serializer / deserializer", () => {
     describe("deserialize - others", () => {
         beforeAll(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should throw if type is not supported", () => {

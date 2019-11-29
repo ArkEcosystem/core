@@ -14,7 +14,7 @@ const sandbox: Sandbox = new Sandbox();
 export const setUp = async (): Promise<Contracts.Kernel.Application> => {
     process.env.CORE_RESET_DATABASE = "1";
 
-    await sandbox.setUp(async ({ app }) => {
+    await sandbox.boot(async ({ app }) => {
         await app.bootstrap({
             flags: {
                 token: "ark",
@@ -76,7 +76,7 @@ export const tearDown = async (): Promise<void> => {
     // const databaseService = sandbox.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
     // await databaseService.reset();
 
-    await sandbox.tearDown();
+    await sandbox.dispose();
 };
 
 export const passphrases = {

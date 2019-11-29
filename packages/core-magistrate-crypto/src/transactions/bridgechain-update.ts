@@ -97,8 +97,8 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         const buffer: ByteBuffer = new ByteBuffer(
             32 + // bridgechain id
-            seedNodesBuffersLength +
-            portsBuffersLength,
+                seedNodesBuffersLength +
+                portsBuffersLength,
             true,
         );
 

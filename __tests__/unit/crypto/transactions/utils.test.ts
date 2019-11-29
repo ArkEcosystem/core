@@ -164,7 +164,7 @@ describe("Transaction", () => {
 
         it("should throw when getting an unsupported version", () => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
 
             const transaction = BuilderFactory.transfer()
                 .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
@@ -188,7 +188,7 @@ describe("Transaction", () => {
 
         beforeEach(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
 
             transaction = TestTransactionFactory.initialize()
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
@@ -217,7 +217,7 @@ describe("Transaction", () => {
 
         beforeEach(() => {
             // todo: completely wrap this into a function to hide the generation and setting of the config?
-            configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
 
             transaction = TestTransactionFactory.initialize()
                 .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)

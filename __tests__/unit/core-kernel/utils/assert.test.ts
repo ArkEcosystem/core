@@ -6,7 +6,7 @@ import { Generators } from "@packages/core-test-framework/src";
 let block: Interfaces.IBlock;
 beforeAll(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
-    Managers.configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+    Managers.configManager.setConfig(Generators.generateCryptoConfigRaw());
 
     // Black Magic to get the genesis block to pass
     Managers.configManager.getMilestone().aip11 = false;

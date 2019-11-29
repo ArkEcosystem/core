@@ -1,90 +1,58 @@
-import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
-import { generateMnemonic } from "bip39";
+import { Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
-import { copyFileSync, ensureDirSync, existsSync, writeJSONSync } from "fs-extra";
+import { ensureDirSync, existsSync, writeJSONSync } from "fs-extra";
 import { resolve } from "path";
 import { dirSync } from "tmp";
 
-import { ConfigPaths } from "../app/types";
-import secrets from "../internal/passphrases.json";
+import { CryptoConfigPaths, Wallet } from "../contracts";
+import { Generator } from "./generator";
 
-interface Wallet {
-    address: string;
-    passphrase: string;
-    keys: Interfaces.IKeyPair;
-    username: string | undefined;
-}
-
-// todo: copy the config into a temp dir
-// todo: remove the config after tests finish
-export class GenerateNetwork {
-    private defaults: Record<string, any> = {
-        network: "unitnet",
-        premine: "15300000000000000",
-        delegates: 51,
-        blocktime: 8,
-        maxTxPerBlock: 150,
-        maxBlockPayload: 2097152,
-        rewardHeight: 75600,
-        rewardAmount: 200000000,
-        pubKeyHash: 23,
-        wif: 186,
-        token: "UARK",
-        symbol: "UѦ",
-        explorer: "http://uexplorer.ark.io",
-        distribute: true,
-    };
-
-    public generate(opts: Record<string, any>): ConfigPaths {
-        opts = { ...this.defaults, ...opts };
-
-        const coreConfigDest: string = resolve(__dirname, `${dirSync().name}/${opts.network}`);
-        const cryptoConfigDest: string = resolve(__dirname, `${dirSync().name}/${opts.network}`);
-
-        if (existsSync(coreConfigDest)) {
-            throw new Error(`${coreConfigDest} already exists.`);
-        }
+export class CryptoGenerator extends Generator {
+    public generate(): CryptoConfigPaths {
+        const cryptoConfigDest: string = resolve(__dirname, `${dirSync().name}/${this.options.crypto.network}`);
 
         if (existsSync(cryptoConfigDest)) {
             throw new Error(`${cryptoConfigDest} already exists.`);
         }
 
-        ensureDirSync(coreConfigDest);
         ensureDirSync(cryptoConfigDest);
 
-        const delegates: any[] = this.generateCoreDelegates(opts.delegates, opts.pubKeyHash);
+        const delegates: any[] = this.generateCoreDelegates(
+            this.options.crypto.delegates,
+            this.options.crypto.pubKeyHash,
+        );
 
-        const genesisBlock = this.generateCryptoGenesisBlock(
-            this.createWallet(opts.pubKeyHash),
+        const genesisBlock = this.generateGenesisBlock(
+            this.createWallet(this.options.crypto.pubKeyHash),
             delegates,
-            opts.pubKeyHash,
-            opts.premine,
-            opts.distribute,
+            this.options.crypto.pubKeyHash,
+            this.options.crypto.premine,
+            this.options.crypto.distribute,
         );
 
         writeJSONSync(
             resolve(cryptoConfigDest, "network.json"),
-            this.generateCryptoNetwork(
-                opts.network,
-                opts.pubKeyHash,
+            this.generateNetwork(
+                this.options.crypto.network,
+                this.options.crypto.pubKeyHash,
                 genesisBlock.payloadHash,
-                opts.wif,
-                opts.token,
-                opts.symbol,
-                opts.explorer,
+                this.options.crypto.wif,
+                this.options.crypto.token,
+                this.options.crypto.symbol,
+                this.options.crypto.explorer,
             ),
             { spaces: 4 },
         );
 
         writeJSONSync(
             resolve(cryptoConfigDest, "milestones.json"),
-            this.generateCryptoMilestones(
-                opts.delegates,
-                opts.blocktime,
-                opts.maxTxPerBlock,
-                opts.maxBlockPayload,
-                opts.rewardHeight,
-                opts.rewardAmount,
+            this.generateMilestones(
+                this.options.crypto.delegates,
+                this.options.crypto.blocktime,
+                this.options.crypto.maxTxPerBlock,
+                this.options.crypto.maxBlockPayload,
+                this.options.crypto.rewardHeight,
+                this.options.crypto.rewardAmount,
             ),
             { spaces: 4 },
         );
@@ -93,116 +61,16 @@ export class GenerateNetwork {
 
         writeJSONSync(resolve(cryptoConfigDest, "exceptions.json"), {});
 
-        writeJSONSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 4 });
-
-        writeJSONSync(
-            resolve(coreConfigDest, "delegates.json"),
-            { secrets: delegates.map(d => d.passphrase) },
-            { spaces: 4 },
-        );
-
-        // include this file in the package so it works once published on npm
-        copyFileSync(resolve(__dirname, "../../../core/bin/config/testnet/.env"), resolve(coreConfigDest, ".env"));
-
-        // include this file in the package so it works once published on npm
-        copyFileSync(
-            resolve(__dirname, "../../../core/bin/config/testnet/app.json"),
-            resolve(coreConfigDest, "app.json"),
-        );
-
         return {
-            core: {
-                root: coreConfigDest,
-                env: resolve(coreConfigDest, ".env"),
-                app: resolve(coreConfigDest, "app.js"),
-                delegates: resolve(coreConfigDest, "delegates.json"),
-                peers: resolve(coreConfigDest, "peers.json"),
-            },
-            crypto: {
-                root: cryptoConfigDest,
-                exceptions: resolve(cryptoConfigDest, "exceptions.json"),
-                genesisBlock: resolve(cryptoConfigDest, "genesisBlock.json"),
-                milestones: resolve(cryptoConfigDest, "milestones.json"),
-                network: resolve(cryptoConfigDest, "network.json"),
-            },
+            root: cryptoConfigDest,
+            exceptions: resolve(cryptoConfigDest, "exceptions.json"),
+            genesisBlock: resolve(cryptoConfigDest, "genesisBlock.json"),
+            milestones: resolve(cryptoConfigDest, "milestones.json"),
+            network: resolve(cryptoConfigDest, "network.json"),
         };
     }
 
-    public generateCore(opts: Record<string, any> = {}) {
-        opts = { ...this.defaults, ...opts };
-
-        const coreConfigDest: string = resolve(__dirname, `${dirSync().name}/${opts.network}`);
-
-        if (existsSync(coreConfigDest)) {
-            throw new Error(`${coreConfigDest} already exists.`);
-        }
-
-        const delegates: any[] = this.generateCoreDelegates(opts.delegates, opts.pubKeyHash);
-
-        ensureDirSync(coreConfigDest);
-
-        // write
-        writeJSONSync(resolve(coreConfigDest, "peers.json"), { list: [] }, { spaces: 4 });
-
-        writeJSONSync(
-            resolve(coreConfigDest, "delegates.json"),
-            { secrets: delegates.map(d => d.passphrase) },
-            { spaces: 4 },
-        );
-
-        // include this file in the package so it works once published on npm
-        copyFileSync(resolve(__dirname, "../../../core/bin/config/testnet/.env"), resolve(coreConfigDest, ".env"));
-
-        // include this file in the package so it works once published on npm
-        copyFileSync(
-            resolve(__dirname, "../../../core/bin/config/testnet/app.json"),
-            resolve(coreConfigDest, "app.json"),
-        );
-
-        return {
-            root: coreConfigDest,
-            env: resolve(coreConfigDest, ".env"),
-            app: resolve(coreConfigDest, "app.js"),
-            delegates: resolve(coreConfigDest, "delegates.json"),
-            peers: resolve(coreConfigDest, "peers.json"),
-        };
-    }
-
-    public generateCrypto(opts?: Record<string, any>) {
-        opts = { ...this.defaults, ...opts };
-
-        const genesisBlock = this.generateCryptoGenesisBlock(
-            this.createWallet(opts.pubKeyHash),
-            this.generateCoreDelegates(opts.delegates, opts.pubKeyHash),
-            opts.pubKeyHash,
-            opts.premine,
-            opts.distribute,
-        );
-
-        return {
-            exceptions: {},
-            genesisBlock,
-            milestones: this.generateCryptoMilestones(
-                opts.delegates,
-                opts.blocktime,
-                opts.maxTxPerBlock,
-                opts.maxBlockPayload,
-                opts.rewardHeight,
-                opts.rewardAmount,
-            ),
-            network: this.generateCryptoNetwork(
-                opts.network,
-                opts.pubKeyHash,
-                genesisBlock.payloadHash,
-                opts.wif,
-                opts.token,
-                opts.symbol,
-                opts.explorer,
-            ),
-        };
-    }
-
-    private generateCryptoNetwork(
+    private generateNetwork(
         name: string,
         pubKeyHash: number,
         nethash: string,
@@ -231,7 +99,7 @@ export class GenerateNetwork {
         };
     }
 
-    private generateCryptoMilestones(
+    private generateMilestones(
         activeDelegates: number,
         blocktime: number,
         maxTransactions: number,
@@ -287,12 +155,12 @@ export class GenerateNetwork {
         ];
     }
 
-    private generateCryptoGenesisBlock(
+    private generateGenesisBlock(
         genesisWallet,
         delegates,
         pubKeyHash: number,
         totalPremine: string,
-        distribute: number,
+        distribute: boolean,
     ) {
         const premineWallet: Wallet = this.createWallet(pubKeyHash);
 
@@ -314,33 +182,6 @@ export class GenerateNetwork {
         );
 
         return this.createGenesisBlock(premineWallet.keys, transactions, 0);
-    }
-
-    private generateCoreDelegates(activeDelegates: number, pubKeyHash: number): Wallet[] {
-        const wallets: Wallet[] = [];
-        for (let i = 0; i < activeDelegates; i++) {
-            const delegateWallet: Wallet = this.createWallet(pubKeyHash, secrets[i]);
-            delegateWallet.username = `genesis_${i + 1}`;
-
-            wallets.push(delegateWallet);
-        }
-
-        return wallets;
-    }
-
-    private createWallet(pubKeyHash: number, passphrase?: string): Wallet {
-        if (!passphrase) {
-            passphrase = generateMnemonic();
-        }
-
-        const keys: Interfaces.IKeyPair = Identities.Keys.fromPassphrase(passphrase);
-
-        return {
-            address: Identities.Address.fromPublicKey(keys.publicKey, pubKeyHash),
-            passphrase,
-            keys,
-            username: undefined,
-        };
     }
 
     private createTransferTransaction(sender: Wallet, recipient: Wallet, amount: string, pubKeyHash: number): any {

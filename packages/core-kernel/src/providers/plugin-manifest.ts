@@ -54,4 +54,14 @@ export class PluginManifest {
     public has(key: string): boolean {
         return has(this.manifest, key);
     }
+
+    /**
+     * @param {PackageJson} manifest
+     * @memberof PluginManifest
+     */
+    public merge(manifest: PackageJson): this {
+        this.manifest = { ...this.manifest, ...manifest };
+
+        return this;
+    }
 }

@@ -45,7 +45,7 @@ export const dynamicFeeMatcher = async (
 
             app.log.debug(
                 `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
-                fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
+                    fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
             );
         } else {
@@ -70,7 +70,7 @@ export const dynamicFeeMatcher = async (
 
             app.log.debug(
                 `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
-                fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
+                    fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
             );
         } else {

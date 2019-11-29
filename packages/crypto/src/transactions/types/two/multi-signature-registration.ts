@@ -1,11 +1,11 @@
-import * as schemas from "../schemas";
 import ByteBuffer from "bytebuffer";
 
-import { BigNumber } from "../../../utils/bignum";
-import { ITransactionData, ISerializeOptions, IMultiSignatureAsset } from "../../../interfaces";
+import { TransactionType, TransactionTypeGroup } from "../../../enums";
+import { IMultiSignatureAsset, ISerializeOptions, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
+import { BigNumber } from "../../../utils/bignum";
+import * as schemas from "../schemas";
 import { Transaction } from "../transaction";
-import { TransactionTypeGroup, TransactionType } from "../../../enums";
 
 export class MultiSignatureRegistrationTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
@@ -21,7 +21,7 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
 
     public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {
         if (feeContext.data?.asset?.multiSignature) {
-            return super.staticFee(feeContext).times(feeContext!.data!.asset!.multiSignature!.publicKeys.length + 1);
+            return super.staticFee(feeContext).times(feeContext.data.asset.multiSignature.publicKeys.length + 1);
         }
 
         return super.staticFee(feeContext);
@@ -33,7 +33,7 @@ export class MultiSignatureRegistrationTransaction extends Transaction {
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
-        const { min, publicKeys } = data!.asset!.multiSignature!;
+        const { min, publicKeys } = data.asset!.multiSignature!;
         const buffer: ByteBuffer = new ByteBuffer(2 + publicKeys.length * 33);
 
         buffer.writeUint8(min);

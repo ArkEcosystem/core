@@ -1,12 +1,12 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
+
 import { TransactionReader } from "../../transaction-reader";
-import { Models } from "@arkecosystem/core-database";
 import { One } from "../index";
 
 @Container.injectable()
 export class DelegateRegistrationTransactionHandler extends One.DelegateRegistrationTransactionHandler {
-
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.Two.DelegateRegistrationTransaction;
     }
@@ -52,5 +52,4 @@ export class DelegateRegistrationTransactionHandler extends One.DelegateRegistra
             wallet.setAttribute("delegate.lastBlock", block);
         }
     }
-
 }

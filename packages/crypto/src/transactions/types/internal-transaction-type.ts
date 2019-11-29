@@ -16,7 +16,7 @@ export class InternalTransactionType {
         return this.types.get(compositeType)!;
     }
 
-    private constructor(public readonly type: number, public readonly typeGroup: number) { }
+    private constructor(public readonly type: number, public readonly typeGroup: number) {}
 
     public toString(): string {
         if (this.typeGroup === TransactionTypeGroup.Core) {

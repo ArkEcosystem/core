@@ -1,12 +1,12 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container } from "@arkecosystem/core-kernel";
 import { Transactions } from "@arkecosystem/crypto";
+
 import { TransactionReader } from "../../transaction-reader";
-import { Models } from "@arkecosystem/core-database";
 import { One } from "../index";
 
 @Container.injectable()
 export class SecondSignatureRegistrationTransactionHandler extends One.SecondSignatureRegistrationTransactionHandler {
-
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.Two.SecondSignatureRegistrationTransaction;
     }
@@ -19,5 +19,4 @@ export class SecondSignatureRegistrationTransactionHandler extends One.SecondSig
             wallet.setAttribute("secondPublicKey", transaction.asset.signature!.publicKey);
         }
     }
-
 }

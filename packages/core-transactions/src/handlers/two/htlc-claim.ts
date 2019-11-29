@@ -1,10 +1,10 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Utils, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { strict } from "assert";
 
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../../errors";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 import { Two } from "../index";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
 export class HtlcClaimTransactionHandler extends TransactionHandler {
@@ -231,10 +231,10 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

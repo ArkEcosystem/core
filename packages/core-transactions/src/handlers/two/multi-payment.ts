@@ -1,10 +1,10 @@
+import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Utils, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import { InsufficientBalanceError } from "../../errors";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 import { TransactionReader } from "../../transaction-reader";
-import { Models } from "@arkecosystem/core-database";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
 export class MultiPaymentTransactionHandler extends TransactionHandler {

@@ -1,9 +1,10 @@
-import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
-import { Transactions, Interfaces, Utils } from "@arkecosystem/crypto";
-import { TransactionReader } from "../../transaction-reader";
 import { Models } from "@arkecosystem/core-database";
-import { MultiSignatureAlreadyRegisteredError, LegacyMultiSignatureError } from "../../errors";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
+import { LegacyMultiSignatureError, MultiSignatureAlreadyRegisteredError } from "../../errors";
+import { TransactionReader } from "../../transaction-reader";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
@@ -26,7 +27,8 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         const transactions: Models.Transaction[] = await reader.read();
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            const multiSignature: Contracts.State.WalletMultiSignatureAttributes = transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+            const multiSignature: Contracts.State.WalletMultiSignatureAttributes =
+                transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
             multiSignature.legacy = true;
 
             if (wallet.hasMultiSignature()) {
@@ -64,11 +66,17 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         return false;
     }
 
-    public async applyToRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository | undefined): Promise<void> {
+    public async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        customWalletRepository?: Contracts.State.WalletRepository | undefined,
+    ): Promise<void> {
         return;
     }
 
-    public async revertForRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository | undefined): Promise<void> {
+    public async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        customWalletRepository?: Contracts.State.WalletRepository | undefined,
+    ): Promise<void> {
         return;
     }
 }

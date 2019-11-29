@@ -8,14 +8,13 @@ import {
     VotedForNonDelegateError,
     VotedForResignedDelegateError,
 } from "../../errors";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 import { One } from "../index";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class VoteTransactionHandler extends TransactionHandler {
-
     public walletAttributes(): ReadonlyArray<string> {
         return ["vote"];
     }
@@ -150,10 +149,10 @@ export class VoteTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletRepository: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

@@ -57,6 +57,7 @@ export class RegisterServiceProviders implements Bootstrapper {
                 }
             } catch (error) {
                 console.error(error.stack);
+
                 // Determine if the plugin is required to decide how to handle errors.
                 const isRequired: boolean = await serviceProvider.required();
 

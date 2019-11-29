@@ -1,6 +1,9 @@
 import { Contracts, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@packages/core-test-framework/src";
 import { Utils } from "@arkecosystem/crypto";
+
+import { ServiceProvider } from "@packages/core-api/src";
+import { Sandbox } from "@packages/core-test-framework/src";
+import { resolve } from "path";
 
 const sandbox: Sandbox = new Sandbox();
 
@@ -10,37 +13,97 @@ export const setUp = async () => {
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
     process.env.CORE_RESET_DATABASE = "1";
 
-    await sandbox.setUp(async ({ app }) => {
-        await app.bootstrap({
-            flags: {
-                token: "ark",
-                network: "unitnet",
-                env: "test",
-                processType: "core",
-            },
-            plugins: {
-                exclude: [
-                    // "@arkecosystem/core-api",
-                    "@arkecosystem/core-forger",
-                    "@arkecosystem/core-webhooks",
-                ],
-                options: {
-                    "@arkecosystem/core-blockchain": {
-                        networkStart: true,
-                    },
+    await sandbox
+        .withCoreOptions({
+            app: {
+                core: {
+                    plugins: [
+                        {
+                            package: "@arkecosystem/core-state",
+                        },
+                        {
+                            package: "@arkecosystem/core-database",
+                        },
+                        {
+                            package: "@arkecosystem/core-transactions",
+                        },
+                        {
+                            package: "@arkecosystem/core-magistrate-transactions",
+                        },
+                        {
+                            package: "@arkecosystem/core-transaction-pool",
+                        },
+                        {
+                            package: "@arkecosystem/core-p2p",
+                        },
+                        {
+                            package: "@arkecosystem/core-blockchain",
+                        },
+                        {
+                            package: "@arkecosystem/core-forger",
+                        },
+                    ],
+                },
+                relay: {
+                    plugins: [
+                        {
+                            package: "@arkecosystem/core-state",
+                        },
+                        {
+                            package: "@arkecosystem/core-database",
+                        },
+                        {
+                            package: "@arkecosystem/core-transactions",
+                        },
+                        {
+                            package: "@arkecosystem/core-magistrate-transactions",
+                        },
+                        {
+                            package: "@arkecosystem/core-transaction-pool",
+                        },
+                        {
+                            package: "@arkecosystem/core-p2p",
+                        },
+                        {
+                            package: "@arkecosystem/core-blockchain",
+                        },
+                    ],
+                },
+                forger: {
+                    plugins: [
+                        {
+                            package: "@arkecosystem/core-forger",
+                        },
+                    ],
                 },
             },
+        })
+        .boot(async ({ app }) => {
+            await app.bootstrap({
+                flags: {
+                    token: "ark",
+                    network: "unitnet",
+                    env: "test",
+                    processType: "core",
+                },
+            });
+
+            // We need to manually register the service provider from source so that jest can collect coverage.
+            sandbox.registerServiceProvider({
+                name: "@arkecosystem/core-api",
+                path: resolve(__dirname, "../../../../packages/core-api"),
+                klass: ServiceProvider,
+            });
+
+            await app.boot();
+
+            await AppUtils.sleep(1000); // give some more time for api server to be up
         });
-
-        await app.boot();
-
-        await AppUtils.sleep(1000); // give some more time for api server to be up
-    });
 
     return sandbox.app;
 };
 
-export const tearDown = async () => sandbox.tearDown();
+export const tearDown = async () => sandbox.dispose();
 
 export const calculateRanks = async () => {
     const walletRepository = sandbox.app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);

@@ -99,10 +99,10 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         const buffer: ByteBuffer = new ByteBuffer(
             bridgechainNameBufferLength +
-            seedNodesBuffersLength +
-            bridgechainGenesisHash.length +
-            bridgechainRepositoryBufferLength +
-            portsBuffersLength,
+                seedNodesBuffersLength +
+                bridgechainGenesisHash.length +
+                bridgechainRepositoryBufferLength +
+                portsBuffersLength,
             true,
         );
 

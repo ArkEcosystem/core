@@ -1,10 +1,10 @@
-import { Transactions } from "@arkecosystem/crypto";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Transactions } from "@arkecosystem/crypto";
+
 import { One } from "../index";
 
 @Container.injectable()
 export class TransferTransactionHandler extends One.TransferTransactionHandler {
-
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.Two.TransferTransaction;
     }
@@ -16,5 +16,4 @@ export class TransferTransactionHandler extends One.TransferTransactionHandler {
             wallet.balance = wallet.balance.plus(transaction.amount);
         }
     }
-
 }

@@ -26,7 +26,9 @@ export class TransactionTypeFactory {
         }
 
         // Either there is a match for the provided version or use the first available constructor as a fallback
-        const constructor: TransactionConstructor | undefined = this.transactionTypes.get(internalType)?.get(version || 1);
+        const constructor: TransactionConstructor | undefined = this.transactionTypes
+            .get(internalType)
+            ?.get(version || 1);
         return constructor ?? [...this.transactionTypes.get(internalType)!.values()][0];
     }
 }

@@ -2,8 +2,8 @@ import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel
 import { Enums, Transactions } from "@arkecosystem/crypto";
 
 import { DeactivatedTransactionHandlerError, InvalidTransactionTypeError } from "../errors";
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 import { One, Two } from ".";
+import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
 
 // todo: review the implementation
 @Container.injectable()
@@ -52,8 +52,19 @@ export class TransactionHandlerRegistry {
         return [...this.registeredTransactionHandlers.values()];
     }
 
-    public async get({ type, typeGroup, version }: { type: number, typeGroup?: number, version?: number }): Promise<TransactionHandler> {
-        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(type, typeGroup);
+    public async get({
+        type,
+        typeGroup,
+        version,
+    }: {
+        type: number;
+        typeGroup?: number;
+        version?: number;
+    }): Promise<TransactionHandler> {
+        const internalType: Transactions.InternalTransactionType = Transactions.InternalTransactionType.from(
+            type,
+            typeGroup,
+        );
         version = version ?? 1;
 
         Utils.assert.defined<Transactions.InternalTransactionType>(internalType);
@@ -62,12 +73,18 @@ export class TransactionHandlerRegistry {
             throw new InvalidTransactionTypeError(internalType.toString());
         }
 
-        const handler: Map<number, TransactionHandler> | undefined = this.registeredTransactionHandlers.get(internalType)!;
+        const handler: Map<number, TransactionHandler> | undefined = this.registeredTransactionHandlers.get(
+            internalType,
+        );
+
+        Utils.assert.defined<Map<number, TransactionHandler>>(handler);
+
         if (!handler.has(version)) {
             throw new InvalidTransactionTypeError(internalType.toString());
         }
 
         const handlerVersion: TransactionHandler = handler.get(version)!;
+
         if (!(await handlerVersion.isActivated())) {
             throw new DeactivatedTransactionHandlerError(internalType);
         }
@@ -114,9 +131,10 @@ export class TransactionHandlerRegistry {
         }
 
         for (const attribute of handler.walletAttributes()) {
-
             // TODO: scope attribute by `handler.getConstructor().key` to distinguish between duplicate attributes ?
-            if (!this.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).has(attribute)) {
+            if (
+                !this.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).has(attribute)
+            ) {
                 this.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set(attribute);
             }
         }
@@ -138,13 +156,16 @@ export class TransactionHandlerRegistry {
         const internalType:
             | Transactions.InternalTransactionType
             | undefined = Transactions.InternalTransactionType.from(
-                transactionConstructor.type,
-                transactionConstructor.typeGroup,
-            );
+            transactionConstructor.type,
+            transactionConstructor.typeGroup,
+        );
 
         Utils.assert.defined<Transactions.InternalTransactionType>(internalType);
 
-        if (!this.registeredTransactionHandlers.has(internalType) && !this.registeredTransactionHandlers.get(internalType)!.has(transactionConstructor.version)) {
+        if (
+            !this.registeredTransactionHandlers.has(internalType) &&
+            !this.registeredTransactionHandlers.get(internalType)!.has(transactionConstructor.version)
+        ) {
             throw new InvalidTransactionTypeError(internalType.toString());
         }
 

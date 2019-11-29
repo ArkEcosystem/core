@@ -13,7 +13,7 @@ import { Generators } from "@packages/core-test-framework/src";
 
 beforeEach(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
-    configManager.setConfig(new Generators.GenerateNetwork().generateCrypto());
+    configManager.setConfig(Generators.generateCryptoConfigRaw());
 });
 
 describe("Verifier", () => {

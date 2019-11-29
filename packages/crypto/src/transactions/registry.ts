@@ -1,17 +1,11 @@
 import {
     TransactionAlreadyRegisteredError,
     TransactionKeyAlreadyRegisteredError,
-    UnkownTransactionError,
     TransactionVersionAlreadyRegisteredError,
+    UnkownTransactionError,
 } from "../errors";
 import { validator } from "../validation";
-import {
-    One,
-    Two,
-
-    Transaction,
-    TransactionTypeFactory,
-} from "./types";
+import { One, Transaction, TransactionTypeFactory, Two } from "./types";
 import { InternalTransactionType } from "./types/internal-transaction-type";
 
 export type TransactionConstructor = typeof Transaction;

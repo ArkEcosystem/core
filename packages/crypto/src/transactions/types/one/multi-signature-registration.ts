@@ -1,11 +1,11 @@
-import { TransactionType, TransactionTypeGroup } from "../../../enums";
-import * as schemas from "../schemas";
-import { Transaction } from "../transaction";
 import ByteBuffer from "bytebuffer";
 
-import { BigNumber } from "../../../utils/bignum";
+import { TransactionType, TransactionTypeGroup } from "../../../enums";
+import { IMultiSignatureLegacyAsset, ISerializeOptions, ITransactionData } from "../../../interfaces";
 import { isException } from "../../../utils";
-import { ITransactionData, ISerializeOptions, IMultiSignatureLegacyAsset } from "../../../interfaces";
+import { BigNumber } from "../../../utils/bignum";
+import * as schemas from "../schemas";
+import { Transaction } from "../transaction";
 
 export abstract class MultiSignatureRegistrationTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
@@ -19,7 +19,7 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
 
     public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {
         if (feeContext.data?.asset?.multiSignatureLegacy) {
-            return super.staticFee(feeContext).times(feeContext!.data!.asset!.multiSignatureLegacy!.keysgroup.length + 1);
+            return super.staticFee(feeContext).times(feeContext.data.asset.multiSignatureLegacy.keysgroup.length + 1);
         }
 
         return super.staticFee(feeContext);
@@ -34,10 +34,8 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
 
-        const legacyAsset: IMultiSignatureLegacyAsset = data!.asset!.multiSignatureLegacy!;
-        const joined: string = legacyAsset.keysgroup
-            .map(k => (k.startsWith("+") ? k.slice(1) : k))
-            .join("");
+        const legacyAsset: IMultiSignatureLegacyAsset = data.asset!.multiSignatureLegacy!;
+        const joined: string = legacyAsset.keysgroup.map(k => (k.startsWith("+") ? k.slice(1) : k)).join("");
         const keysgroupBuffer: Buffer = Buffer.from(joined, "hex");
         const buffer: ByteBuffer = new ByteBuffer(keysgroupBuffer.length + 3, true);
 

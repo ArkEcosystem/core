@@ -1,5 +1,5 @@
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Utils, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
     NotSupportedForMultiSignatureWalletError,
@@ -15,7 +15,6 @@ const { TransactionType, TransactionTypeGroup } = Enums;
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
-
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
@@ -183,10 +182,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> { }
+    ): Promise<void> {}
 }

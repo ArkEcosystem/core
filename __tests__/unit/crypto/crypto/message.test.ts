@@ -11,7 +11,7 @@ let signedMessageEntries;
 
 beforeAll(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
-    config = new Generators.GenerateNetwork().generateCrypto();
+    config = Generators.generateCryptoConfigRaw();
 
     configManager.setConfig(config);
 });

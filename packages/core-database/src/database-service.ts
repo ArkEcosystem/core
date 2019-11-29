@@ -193,7 +193,7 @@ export class DatabaseService {
 
         delegates = delegates.map(delegate => delegate.clone());
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-            for (let x = 0; x < 4 && i < delCount; i++ , x++) {
+            for (let x = 0; x < 4 && i < delCount; i++, x++) {
                 const newIndex = currentSeed[x] % delCount;
                 const b = delegates[newIndex];
                 delegates[newIndex] = delegates[i];
@@ -747,11 +747,10 @@ export class DatabaseService {
     private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {
         this.emitter.dispatch(Enums.TransactionEvent.Applied, transaction.data);
 
-        (
-            await this.app
-                .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(transaction.data)
-        ).emitEvents(transaction, this.emitter);
+        (await this.app.get<any>(Container.Identifiers.TransactionHandlerRegistry).get(transaction.data)).emitEvents(
+            transaction,
+            this.emitter,
+        );
     }
 
     public async disconnect(): Promise<void> {

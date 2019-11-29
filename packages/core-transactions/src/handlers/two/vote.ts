@@ -1,10 +1,11 @@
-import { Transactions } from "@arkecosystem/crypto";
-import { TransactionHandlerConstructor } from "../transaction";
-import { Container } from "@arkecosystem/core-kernel";
-import { TransactionReader } from "../../transaction-reader";
 import { Models } from "@arkecosystem/core-database";
+import { Container } from "@arkecosystem/core-kernel";
+import { Transactions } from "@arkecosystem/crypto";
+
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../../errors";
+import { TransactionReader } from "../../transaction-reader";
 import { One, Two } from "../index";
+import { TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
 export class VoteTransactionHandler extends One.VoteTransactionHandler {
@@ -39,5 +40,4 @@ export class VoteTransactionHandler extends One.VoteTransactionHandler {
             }
         }
     }
-
 }

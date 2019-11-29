@@ -111,7 +111,6 @@ export class Validator {
             ajv.removeSchema(schema.$id);
             ajv.removeSchema(`${schema.$id}Signed`);
             ajv.removeSchema(`${schema.$id}Strict`);
-
         }
 
         this.transactionSchemas.set(schema.$id, schema);

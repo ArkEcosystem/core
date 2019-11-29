@@ -1,8 +1,14 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Transactions, Identities, Interfaces, Managers } from "@arkecosystem/crypto";
-import { TransactionReader } from "../../transaction-reader";
 import { Models } from "@arkecosystem/core-database";
-import { MultiSignatureAlreadyRegisteredError, MultiSignatureMinimumKeysError, MultiSignatureKeyCountMismatchError, InvalidMultiSignatureError } from "../../errors";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+
+import {
+    InvalidMultiSignatureError,
+    MultiSignatureAlreadyRegisteredError,
+    MultiSignatureKeyCountMismatchError,
+    MultiSignatureMinimumKeysError,
+} from "../../errors";
+import { TransactionReader } from "../../transaction-reader";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
@@ -148,5 +154,4 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
         recipientWallet.forgetAttribute("multiSignature");
     }
-
 }
