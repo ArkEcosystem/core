@@ -33,6 +33,7 @@ export abstract class Transaction implements ITransaction {
 
     public static type: number | undefined = undefined;
     public static typeGroup: number | undefined = undefined;
+    public static version: number = 1;
     public static key: string | undefined = undefined;
 
     public static getSchema(): TransactionSchema {

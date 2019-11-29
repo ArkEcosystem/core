@@ -3,17 +3,10 @@ import "jest-extended";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { devnet } from "../../../../packages/crypto/src/networks";
 import {
-    DelegateRegistrationTransaction,
-    DelegateResignationTransaction,
-    IpfsTransaction,
-    MultiPaymentTransaction,
-    MultiSignatureRegistrationTransaction,
-    SecondSignatureRegistrationTransaction,
     TransactionFactory,
-    TransferTransaction,
-    VoteTransaction,
 } from "../../../../packages/crypto/src/transactions";
 import { BigNumber } from "../../../../packages/crypto/src/utils";
+import { Two } from "../../../../packages/crypto/src/transactions/types";
 
 describe("Transaction", () => {
     describe("should deserialize correctly some tests transactions", () => {
@@ -145,38 +138,38 @@ describe("Transaction", () => {
             configManager.setHeight(100000000);
 
             let { staticFees } = configManager.getMilestone().fees;
-            expect(TransferTransaction.staticFee()).toEqual(BigNumber.make(1234));
-            expect(SecondSignatureRegistrationTransaction.staticFee()).toEqual(
+            expect(Two.TransferTransaction.staticFee()).toEqual(BigNumber.make(1234));
+            expect(Two.SecondSignatureRegistrationTransaction.staticFee()).toEqual(
                 BigNumber.make(staticFees.secondSignature),
             );
-            expect(DelegateRegistrationTransaction.staticFee()).toEqual(
+            expect(Two.DelegateRegistrationTransaction.staticFee()).toEqual(
                 BigNumber.make(staticFees.delegateRegistration),
             );
-            expect(VoteTransaction.staticFee()).toEqual(BigNumber.make(staticFees.vote));
-            expect(MultiSignatureRegistrationTransaction.staticFee()).toEqual(
+            expect(Two.VoteTransaction.staticFee()).toEqual(BigNumber.make(staticFees.vote));
+            expect(Two.MultiSignatureRegistrationTransaction.staticFee()).toEqual(
                 BigNumber.make(staticFees.multiSignature),
             );
-            expect(IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
-            expect(MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
-            expect(DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
+            expect(Two.IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
+            expect(Two.MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
+            expect(Two.DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
 
             configManager.setHeight(1);
             staticFees = configManager.getMilestone().fees.staticFees;
 
-            expect(TransferTransaction.staticFee()).toEqual(BigNumber.make(staticFees.transfer));
-            expect(SecondSignatureRegistrationTransaction.staticFee()).toEqual(
+            expect(Two.TransferTransaction.staticFee()).toEqual(BigNumber.make(staticFees.transfer));
+            expect(Two.SecondSignatureRegistrationTransaction.staticFee()).toEqual(
                 BigNumber.make(staticFees.secondSignature),
             );
-            expect(DelegateRegistrationTransaction.staticFee()).toEqual(
+            expect(Two.DelegateRegistrationTransaction.staticFee()).toEqual(
                 BigNumber.make(staticFees.delegateRegistration),
             );
-            expect(VoteTransaction.staticFee()).toEqual(BigNumber.make(staticFees.vote));
-            expect(MultiSignatureRegistrationTransaction.staticFee()).toEqual(
+            expect(Two.VoteTransaction.staticFee()).toEqual(BigNumber.make(staticFees.vote));
+            expect(Two.MultiSignatureRegistrationTransaction.staticFee()).toEqual(
                 BigNumber.make(staticFees.multiSignature),
             );
-            expect(IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
-            expect(MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
-            expect(DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
+            expect(Two.IpfsTransaction.staticFee()).toEqual(BigNumber.make(staticFees.ipfs));
+            expect(Two.MultiPaymentTransaction.staticFee()).toEqual(BigNumber.make(staticFees.multiPayment));
+            expect(Two.DelegateResignationTransaction.staticFee()).toEqual(BigNumber.make(staticFees.delegateResignation));
 
             devnet.milestones.pop();
         });

@@ -193,7 +193,7 @@ export class DatabaseService {
 
         delegates = delegates.map(delegate => delegate.clone());
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-            for (let x = 0; x < 4 && i < delCount; i++, x++) {
+            for (let x = 0; x < 4 && i < delCount; i++ , x++) {
                 const newIndex = currentSeed[x] % delCount;
                 const b = delegates[newIndex];
                 delegates[newIndex] = delegates[i];
@@ -533,8 +533,8 @@ export class DatabaseService {
 
     //     const sender: Contracts.State.Wallet = this.walletRepository.findByAddress(senderId);
     //     const transactionHandler: Handlers.TransactionHandler = await this.app
-    //         .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-    //         .get(transaction.type, transaction.typeGroup);
+    //         .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+    //         .get(transaction.data);
 
     //     if (!sender.publicKey) {
     //         sender.publicKey = transaction.data.senderPublicKey;
@@ -750,7 +750,7 @@ export class DatabaseService {
         (
             await this.app
                 .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(transaction.type, transaction.typeGroup)
+                .get(transaction.data)
         ).emitEvents(transaction, this.emitter);
     }
 

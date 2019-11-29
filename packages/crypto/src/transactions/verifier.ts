@@ -4,7 +4,7 @@ import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData } from 
 import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
-import { TransactionTypeFactory } from "./types";
+import { TransactionTypeFactory } from "./types/factory";
 import { Utils } from "./utils";
 
 export class Verifier {
@@ -95,7 +95,7 @@ export class Verifier {
     }
 
     public static verifySchema(data: ITransactionData, strict = true): ISchemaValidationResult {
-        const transactionType = TransactionTypeFactory.get(data.type, data.typeGroup);
+        const transactionType = TransactionTypeFactory.get(data.type, data.typeGroup, data.version);
 
         if (!transactionType) {
             throw new Error();

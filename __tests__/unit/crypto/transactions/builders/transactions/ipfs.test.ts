@@ -3,7 +3,8 @@ import "jest-extended";
 import { configManager } from "@packages/crypto/src/managers";
 import { Utils } from "@arkecosystem/crypto";
 import { TransactionType } from "@packages/crypto/src/enums";
-import { BuilderFactory, IpfsTransaction } from "@packages/crypto/src/transactions";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
 import { IPFSBuilder } from "@packages/crypto/src/transactions/builders/transactions/ipfs";
 
 import { Generators } from "@packages/core-test-framework/src";
@@ -21,7 +22,7 @@ beforeEach(() => {
 describe("IPFS Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.Ipfs);
-        expect(builder).toHaveProperty("data.fee", IpfsTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.IpfsTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.asset", {});
     });

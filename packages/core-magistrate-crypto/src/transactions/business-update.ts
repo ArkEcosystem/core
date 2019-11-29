@@ -12,6 +12,7 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
     public static typeGroup: number = MagistrateTransactionGroup;
     public static type: number = MagistrateTransactionType.BusinessUpdate;
     public static key: string = "businessUpdate";
+    public static version: number = 2;
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {

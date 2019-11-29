@@ -6,7 +6,8 @@ import { configManager } from "@packages/crypto/src/managers";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { Keys, WIF } from "@packages/crypto/src/identities";
 import { devnet } from "@packages/crypto/src/networks";
-import { BuilderFactory, TransferTransaction } from "@packages/crypto/src/transactions";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
 import { TransferBuilder } from "@packages/crypto/src/transactions/builders/transactions/transfer";
 
 import { Factories, Generators } from "@packages/core-test-framework/src";
@@ -102,7 +103,7 @@ describe("Transfer Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.Transfer);
-        expect(builder).toHaveProperty("data.fee", TransferTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.TransferTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);
         expect(builder).toHaveProperty("data.senderPublicKey", undefined);

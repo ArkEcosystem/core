@@ -12,6 +12,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
     public static typeGroup: number = MagistrateTransactionGroup;
     public static type: number = MagistrateTransactionType.BridgechainRegistration;
     public static key: string = "bridgechainRegistration";
+    public static version: number = 2;
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
@@ -98,10 +99,10 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         const buffer: ByteBuffer = new ByteBuffer(
             bridgechainNameBufferLength +
-                seedNodesBuffersLength +
-                bridgechainGenesisHash.length +
-                bridgechainRepositoryBufferLength +
-                portsBuffersLength,
+            seedNodesBuffersLength +
+            bridgechainGenesisHash.length +
+            bridgechainRepositoryBufferLength +
+            portsBuffersLength,
             true,
         );
 

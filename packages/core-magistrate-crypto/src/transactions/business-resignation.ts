@@ -9,6 +9,7 @@ export class BusinessResignationTransaction extends Transactions.Transaction {
     public static typeGroup: number = MagistrateTransactionGroup;
     public static type: number = MagistrateTransactionType.BusinessResignation;
     public static key: string = "businessResignation";
+    public static version: number = 2;
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {

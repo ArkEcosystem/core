@@ -102,7 +102,7 @@ export class NodeController extends Controller {
 
             const handler: Handlers.TransactionHandler = await this.app
                 .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(result.type, result.typeGroup);
+                .get(result);
             groupedByTypeGroup[result.typeGroup][handler.getConstructor().key] = {
                 avg: result.avg,
                 max: result.max,

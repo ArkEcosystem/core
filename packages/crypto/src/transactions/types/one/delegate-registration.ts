@@ -1,15 +1,16 @@
 import ByteBuffer from "bytebuffer";
 
-import { TransactionType, TransactionTypeGroup } from "../../enums";
-import { ISerializeOptions } from "../../interfaces";
-import { BigNumber } from "../../utils/bignum";
-import * as schemas from "./schemas";
-import { Transaction } from "./transaction";
+import { TransactionType, TransactionTypeGroup } from "../../../enums";
+import { ISerializeOptions } from "../../../interfaces";
+import { BigNumber } from "../../../utils/bignum";
+import * as schemas from "../schemas";
+import { Transaction } from "../transaction";
 
-export class DelegateRegistrationTransaction extends Transaction {
+export abstract class DelegateRegistrationTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.DelegateRegistration;
     public static key = "delegateRegistration";
+    public static version: number = 1;
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.delegateRegistration;

@@ -2,7 +2,8 @@ import "jest-extended";
 
 import { configManager } from "@packages/crypto/src/managers";
 import { TransactionType } from "@packages/crypto/src/enums";
-import { DelegateRegistrationTransaction, Utils } from "@packages/crypto/src/transactions";
+import { Utils } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
 import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
 import { DelegateRegistrationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-registration";
 import { BigNumber } from "@packages/crypto/src/utils";
@@ -49,7 +50,7 @@ describe("Delegate Registration Transaction", () => {
         it("should have its specific properties", () => {
             expect(builder).toHaveProperty("data.type", TransactionType.DelegateRegistration);
             expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
-            expect(builder).toHaveProperty("data.fee", DelegateRegistrationTransaction.staticFee());
+            expect(builder).toHaveProperty("data.fee", Two.DelegateRegistrationTransaction.staticFee());
             expect(builder).toHaveProperty("data.recipientId", undefined);
             expect(builder).toHaveProperty("data.senderPublicKey", undefined);
             expect(builder).toHaveProperty("data.asset", { delegate: {} });

@@ -1,26 +1,26 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
-import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../errors";
-import { TransactionReader } from "../transaction-reader";
-import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../../errors";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
+import { Two } from "../index";
+import { TransactionReader } from "../../transaction-reader";
+import { Models } from "@arkecosystem/core-database";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class DelegateResignationTransactionHandler extends TransactionHandler {
+    public walletAttributes(): ReadonlyArray<string> {
+        return ["delegate.resigned"];
+    }
+
     public getConstructor(): Transactions.TransactionConstructor {
-        return Transactions.DelegateResignationTransaction;
+        return Transactions.Two.DelegateResignationTransaction;
     }
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
-        return [DelegateRegistrationTransactionHandler];
-    }
-
-    public walletAttributes(): ReadonlyArray<string> {
-        return ["delegate.resigned"];
+        return [Two.DelegateRegistrationTransactionHandler];
     }
 
     public async bootstrap(): Promise<void> {
@@ -32,7 +32,6 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             this.walletRepository.reindex(wallet);
         }
     }
-
     public async isActivated(): Promise<boolean> {
         return Managers.configManager.getMilestone().aip11 === true;
     }
@@ -128,11 +127,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

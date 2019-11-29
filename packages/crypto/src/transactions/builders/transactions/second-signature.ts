@@ -1,16 +1,16 @@
 import { Keys } from "../../../identities";
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { SecondSignatureRegistrationTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {
     constructor() {
         super();
 
-        this.data.type = SecondSignatureRegistrationTransaction.type;
-        this.data.typeGroup = SecondSignatureRegistrationTransaction.typeGroup;
-        this.data.fee = SecondSignatureRegistrationTransaction.staticFee();
+        this.data.type = Two.SecondSignatureRegistrationTransaction.type;
+        this.data.typeGroup = Two.SecondSignatureRegistrationTransaction.typeGroup;
+        this.data.fee = Two.SecondSignatureRegistrationTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;
         this.data.senderPublicKey = undefined;

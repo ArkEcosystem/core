@@ -9,7 +9,7 @@ import { ISerializeOptions } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { isSupportedTansactionVersion } from "../utils";
-import { TransactionTypeFactory } from "./types";
+import { TransactionTypeFactory } from "./types/factory";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Serializer {

@@ -1,15 +1,15 @@
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { DelegateRegistrationTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateRegistrationBuilder extends TransactionBuilder<DelegateRegistrationBuilder> {
     constructor() {
         super();
 
-        this.data.type = DelegateRegistrationTransaction.type;
-        this.data.typeGroup = DelegateRegistrationTransaction.typeGroup;
-        this.data.fee = DelegateRegistrationTransaction.staticFee();
+        this.data.type = Two.DelegateRegistrationTransaction.type;
+        this.data.typeGroup = Two.DelegateRegistrationTransaction.typeGroup;
+        this.data.fee = Two.DelegateRegistrationTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;
         this.data.senderPublicKey = undefined;

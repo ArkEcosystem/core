@@ -112,9 +112,9 @@ export class TransactionKeyAlreadyRegisteredError extends CryptoError {
     }
 }
 
-export class CoreTransactionTypeGroupImmutableError extends CryptoError {
-    constructor() {
-        super(`The Core transaction type group is immutable.`);
+export class TransactionVersionAlreadyRegisteredError extends CryptoError {
+    constructor(name: string, version: number) {
+        super(`Transaction type ${name} is already registered in version ${version}.`);
     }
 }
 
@@ -146,8 +146,8 @@ export class PreviousBlockIdFormatError extends CryptoError {
     constructor(thisBlockHeight: number, previousBlockId: string) {
         super(
             `The config denotes that the block at height ${thisBlockHeight - 1} ` +
-                `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
-                `contains previous block id "${previousBlockId}"`,
+            `must use full SHA256 block id, but the next block (at ${thisBlockHeight}) ` +
+            `contains previous block id "${previousBlockId}"`,
         );
     }
 }

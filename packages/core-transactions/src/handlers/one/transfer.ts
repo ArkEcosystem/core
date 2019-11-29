@@ -1,17 +1,13 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
-import { isRecipientOnActiveNetwork } from "../utils";
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import { isRecipientOnActiveNetwork } from "../../utils";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class TransferTransactionHandler extends TransactionHandler {
-    public getConstructor(): Transactions.TransactionConstructor {
-        return Transactions.TransferTransaction;
-    }
-
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
@@ -20,12 +16,12 @@ export class TransferTransactionHandler extends TransactionHandler {
         return [];
     }
 
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.One.TransferTransaction;
+    }
+
     public async bootstrap(): Promise<void> {
-        const transactions = await this.transactionRepository.findReceivedTransactions();
-        for (const transaction of transactions) {
-            const wallet: Contracts.State.Wallet = this.walletRepository.findByAddress(transaction.recipientId);
-            wallet.balance = wallet.balance.plus(transaction.amount);
-        }
+        return;
     }
 
     public async isActivated(): Promise<boolean> {

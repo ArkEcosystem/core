@@ -4,7 +4,7 @@ import { configManager } from "@packages/crypto/src/managers";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { HtlcClaimBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-claim";
-import { HtlcClaimTransaction } from "@packages/crypto/src/transactions/types/htlc-claim";
+import { Two } from "@packages/crypto/src/transactions/types";
 import { BigNumber } from "@packages/crypto/src/utils";
 
 import { Generators } from "@packages/core-test-framework/src";
@@ -22,7 +22,7 @@ beforeEach(() => {
 describe("Htlc claim Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.HtlcClaim);
-        expect(builder).toHaveProperty("data.fee", HtlcClaimTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.HtlcClaimTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", BigNumber.make(0));
         expect(builder).toHaveProperty("data.asset", {});
     });

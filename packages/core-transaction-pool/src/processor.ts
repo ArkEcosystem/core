@@ -155,8 +155,8 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     Utils.assert.defined<string>(transactionInstance.data.id);
 
                     const handler: Handlers.TransactionHandler = await this.app
-                        .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-                        .get(transactionInstance.type, transactionInstance.typeGroup);
+                        .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+                        .get(transactionInstance.data);
 
                     if (await handler.verify(transactionInstance, this.poolWalletRepository)) {
                         try {
@@ -261,8 +261,8 @@ export class Processor implements Contracts.TransactionPool.Processor {
         try {
             // @TODO: this leaks private members, refactor this
             const handler: Handlers.TransactionHandler = await this.app
-                .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(transaction.type, transaction.typeGroup);
+                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+                .get(transaction);
             return handler.canEnterTransactionPool(transaction, this.pool, this);
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {

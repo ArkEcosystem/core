@@ -1,19 +1,13 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
-import { NotSupportedForMultiSignatureWalletError, SecondSignatureAlreadyRegisteredError } from "../errors";
-import { TransactionReader } from "../transaction-reader";
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import { NotSupportedForMultiSignatureWalletError, SecondSignatureAlreadyRegisteredError } from "../../errors";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
-export class SecondSignatureTransactionHandler extends TransactionHandler {
-    public getConstructor(): Transactions.TransactionConstructor {
-        return Transactions.SecondSignatureRegistrationTransaction;
-    }
-
+export class SecondSignatureRegistrationTransactionHandler extends TransactionHandler {
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
@@ -22,13 +16,12 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         return ["secondPublicKey"];
     }
 
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.One.SecondSignatureRegistrationTransaction;
+    }
+
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
-        for (const transaction of transactions) {
-            const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-            wallet.setAttribute("secondPublicKey", transaction.asset.signature!.publicKey);
-        }
+        return;
     }
 
     public async isActivated(): Promise<boolean> {
@@ -102,10 +95,10 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

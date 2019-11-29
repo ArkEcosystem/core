@@ -3,7 +3,8 @@ import "jest-extended";
 import { configManager } from "@packages/crypto/src/managers";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { TransactionVersionError } from "@packages/crypto/src/errors";
-import { BuilderFactory, MultiSignatureRegistrationTransaction } from "@packages/crypto/src/transactions";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
 import { MultiSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/multi-signature";
 import * as Utils from "@packages/crypto/src/utils";
 
@@ -71,7 +72,7 @@ describe("Multi Signature Transaction", () => {
     });
 
     describe("multiSignatureAsset", () => {
-        const multiSignatureFee = MultiSignatureRegistrationTransaction.staticFee();
+        const multiSignatureFee = Two.MultiSignatureRegistrationTransaction.staticFee();
         const multiSignature = {
             publicKeys: ["key a", "key b", "key c"],
             min: 1,

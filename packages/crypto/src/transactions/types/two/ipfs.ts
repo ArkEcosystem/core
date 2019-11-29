@@ -1,17 +1,18 @@
 import { base58 } from "bstring";
 import ByteBuffer from "bytebuffer";
 
-import { TransactionType, TransactionTypeGroup } from "../../enums";
-import { ISerializeOptions } from "../../interfaces";
-import { configManager } from "../../managers";
-import { BigNumber } from "../../utils/bignum";
-import * as schemas from "./schemas";
-import { Transaction } from "./transaction";
+import { TransactionType, TransactionTypeGroup } from "../../../enums";
+import { ISerializeOptions } from "../../../interfaces";
+import { configManager } from "../../../managers";
+import { BigNumber } from "../../../utils/bignum";
+import * as schemas from "../schemas";
+import { Transaction } from "../transaction";
 
-export class IpfsTransaction extends Transaction {
+export abstract class IpfsTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.Ipfs;
     public static key = "ipfs";
+    public static version: number = 2;
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.ipfs;

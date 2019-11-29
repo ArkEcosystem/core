@@ -32,7 +32,7 @@ export class StateBuilder {
     public async run(): Promise<void> {
         this.logger = this.app.log;
         this.emitter = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
-        const transactionHandlers: Handlers.TransactionHandler[] = this.app
+        const transactionHandlers: Map<number, Handlers.TransactionHandler>[] = this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
             .getAll();
         const steps = transactionHandlers.length + 3;
@@ -46,15 +46,15 @@ export class StateBuilder {
 
             const capitalize = (key: string) => key[0].toUpperCase() + key.slice(1);
             for (let i = 0; i < transactionHandlers.length; i++) {
-                const transactionHandler = transactionHandlers[i];
+                const transactionHandlerVersions = [...transactionHandlers[i].values()];
 
-                const constructoKey: string | undefined = transactionHandler.getConstructor().key;
+                const constructorKey: string | undefined = transactionHandlerVersions[0].getConstructor().key;
+                AppUtils.assert.defined<string>(constructorKey);
 
-                AppUtils.assert.defined<string>(constructoKey);
-
-                this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${capitalize(constructoKey)}`);
-
-                await transactionHandler.bootstrap();
+                this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${capitalize(constructorKey)}`);
+                for (const version of transactionHandlerVersions) {
+                    await version.bootstrap();
+                }
             }
 
             this.logger.info(`State Generation - Step ${steps} of ${steps}: Vote Balances & Delegate Ranking`);

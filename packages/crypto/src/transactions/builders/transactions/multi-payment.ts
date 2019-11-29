@@ -2,16 +2,16 @@ import { MaximumPaymentCountExceededError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
-import { MultiPaymentTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
     constructor() {
         super();
 
-        this.data.type = MultiPaymentTransaction.type;
-        this.data.typeGroup = MultiPaymentTransaction.typeGroup;
-        this.data.fee = MultiPaymentTransaction.staticFee();
+        this.data.type = Two.MultiPaymentTransaction.type;
+        this.data.typeGroup = Two.MultiPaymentTransaction.typeGroup;
+        this.data.fee = Two.MultiPaymentTransaction.staticFee();
         this.data.vendorField = undefined;
         this.data.asset = {
             payments: [],

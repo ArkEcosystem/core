@@ -201,7 +201,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                        `(listed in options.allowedSenders), thus skipping throttling.`,
+                    `(listed in options.allowedSenders), thus skipping throttling.`,
                 );
 
                 this.loggedAllowedSenders.push(senderPublicKey);
@@ -242,8 +242,8 @@ export class Connection implements Contracts.TransactionPool.Connection {
             const senderPublicKey: string = data.senderPublicKey;
 
             const transactionHandler: Handlers.TransactionHandler = await this.app
-                .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(transaction.type, transaction.typeGroup);
+                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+                .get(transaction.data);
 
             const senderWallet: Contracts.State.Wallet = this.poolWalletRepository.findByPublicKey(senderPublicKey);
 
@@ -274,7 +274,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
                     this.logger.error(
                         `[Pool] Cannot apply transaction ${transaction.id} when trying to accept ` +
-                            `block ${block.data.id}: ${error.message}`,
+                        `block ${block.data.id}: ${error.message}`,
                     );
 
                     continue;
@@ -320,7 +320,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             try {
                 const transactionHandler: Handlers.TransactionHandler = await this.app
                     .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                    .get(transaction.type, transaction.typeGroup);
+                    .get(transaction.data);
                 await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.walletRepository);
                 await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
             } catch (error) {
@@ -376,7 +376,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             try {
                 const handler: Handlers.TransactionHandler = await this.app
                     .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                    .get(transaction.type, transaction.typeGroup);
+                    .get(transaction.data);
 
                 await handler.applyToSender(transaction, this.poolWalletRepository);
                 await handler.applyToRecipient(transaction, this.poolWalletRepository);
@@ -448,7 +448,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         if (await this.has(transaction.id)) {
             this.logger.debug(
                 "Transaction pool: ignoring attempt to add a transaction that is already " +
-                    `in the pool, id: ${transaction.id}`,
+                `in the pool, id: ${transaction.id}`,
             );
 
             return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
@@ -488,8 +488,8 @@ export class Connection implements Contracts.TransactionPool.Connection {
             await this.poolWalletRepository.throwIfCannotBeApplied(transaction);
 
             const handler: Handlers.TransactionHandler = await this.app
-                .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(transaction.type, transaction.typeGroup);
+                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+                .get(transaction.data);
             await handler.applyToSender(transaction, this.poolWalletRepository);
         } catch (error) {
             this.logger.error(`[Pool] ${error.message}`);
@@ -530,7 +530,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
-        const unforgedTransactions = differenceWith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
+        const unforgedTransactions: Interfaces.ITransaction[] = differenceWith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
 
         if (walletRepository === undefined) {
             walletRepository = this.app
@@ -547,7 +547,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 strictEqual(transaction.id, deserialized.id);
 
                 const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(
-                    transaction.data.senderPublicKey,
+                    transaction.data.senderPublicKey!,
                 );
 
                 let recipient: Contracts.State.Wallet | undefined;
@@ -557,8 +557,8 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 }
 
                 const handler: Handlers.TransactionHandler = await this.app
-                    .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-                    .get(transaction.type, transaction.typeGroup);
+                    .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+                    .get(transaction.data);
 
                 await handler.applyToSender(transaction, walletRepository);
 
@@ -569,7 +569,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 validTransactions.push(transaction);
             } catch (error) {
                 console.error(error.stack);
-                this.removeTransactionById(transaction.id);
+                this.removeTransactionById(transaction.id!);
 
                 this.logger.error(
                     `[Pool] Removed ${transaction.id} before forging because it is no longer valid: ${error.message}`,

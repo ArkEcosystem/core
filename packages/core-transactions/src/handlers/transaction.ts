@@ -209,6 +209,7 @@ export abstract class TransactionHandler {
 
         await this.throwIfCannotBeApplied(transaction, sender, customWalletRepository);
 
+        // TODO: extract version specific code
         if (data.version && data.version > 1) {
             this.verifyTransactionNonceApply(sender, transaction);
 
@@ -255,9 +256,8 @@ export abstract class TransactionHandler {
 
         sender.balance = sender.balance.plus(data.amount).plus(data.fee);
 
-        if (data.version && data.version > 1) {
-            this.verifyTransactionNonceRevert(sender, transaction);
-        }
+        // TODO: extract version specific code
+        this.verifyTransactionNonceRevert(sender, transaction);
 
         sender.nonce = sender.nonce.minus(1);
     }
@@ -275,7 +275,7 @@ export abstract class TransactionHandler {
     /**
      * Database Service
      */
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {}
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void { }
 
     /**
      * Transaction Pool logic

@@ -3,8 +3,9 @@ import "jest-extended";
 import { configManager } from "@packages/crypto/src/managers";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { MaximumPaymentCountExceededError } from "@packages/crypto/src/errors";
-import { BuilderFactory, MultiPaymentTransaction } from "@packages/crypto/src/transactions";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { MultiPaymentBuilder } from "@packages/crypto/src/transactions/builders/transactions/multi-payment";
+import { Two } from "@packages/crypto/src/transactions/types";
 import { BigNumber } from "@packages/crypto/src/utils";
 
 import { Generators } from "@packages/core-test-framework/src";
@@ -22,7 +23,7 @@ beforeEach(() => {
 describe("Multi Payment Transaction", () => {
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.MultiPayment);
-        expect(builder).toHaveProperty("data.fee", MultiPaymentTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.MultiPaymentTransaction.staticFee());
         expect(builder).toHaveProperty("data.asset.payments", []);
         expect(builder).toHaveProperty("data.vendorField", undefined);
     });

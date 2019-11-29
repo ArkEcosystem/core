@@ -30,7 +30,7 @@ export const dynamicFeeMatcher = async (
     if (dynamicFees.enabled) {
         const handler: Handlers.TransactionHandler = await app
             .get<any>(Container.Identifiers.TransactionHandlerRegistry)
-            .get(transaction.type, transaction.typeGroup);
+            .get(transaction.data);
 
         const addonBytes: number = dynamicFees.addonBytes[transaction.key];
         const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee({
@@ -45,7 +45,7 @@ export const dynamicFeeMatcher = async (
 
             app.log.debug(
                 `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
-                    fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
+                fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
             );
         } else {
@@ -70,7 +70,7 @@ export const dynamicFeeMatcher = async (
 
             app.log.debug(
                 `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
-                    fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
+                fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
                 } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
             );
         } else {

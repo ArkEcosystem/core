@@ -1,23 +1,23 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Managers, Utils, Transactions } from "@arkecosystem/crypto";
 
-import { InsufficientBalanceError } from "../errors";
-import { TransactionReader } from "../transaction-reader";
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import { InsufficientBalanceError } from "../../errors";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
+import { TransactionReader } from "../../transaction-reader";
+import { Models } from "@arkecosystem/core-database";
 
 @Container.injectable()
 export class MultiPaymentTransactionHandler extends TransactionHandler {
-    public getConstructor(): Transactions.TransactionConstructor {
-        return Transactions.MultiPaymentTransaction;
-    }
-
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
 
     public walletAttributes(): ReadonlyArray<string> {
         return [];
+    }
+
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.Two.MultiPaymentTransaction;
     }
 
     public async bootstrap(): Promise<void> {

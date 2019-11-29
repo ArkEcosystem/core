@@ -12,6 +12,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public static typeGroup: number = MagistrateTransactionGroup;
     public static type = MagistrateTransactionType.BridgechainUpdate;
     public static key: string = "bridgechainUpdate";
+    public static version: number = 2;
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
@@ -96,8 +97,8 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         const buffer: ByteBuffer = new ByteBuffer(
             32 + // bridgechain id
-                seedNodesBuffersLength +
-                portsBuffersLength,
+            seedNodesBuffersLength +
+            portsBuffersLength,
             true,
         );
 

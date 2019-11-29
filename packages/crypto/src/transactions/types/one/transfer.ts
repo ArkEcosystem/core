@@ -1,17 +1,18 @@
 import ByteBuffer from "bytebuffer";
 import Long from "long";
 
-import { TransactionType, TransactionTypeGroup } from "../../enums";
-import { Address } from "../../identities";
-import { ISerializeOptions } from "../../interfaces";
-import { BigNumber } from "../../utils/bignum";
-import * as schemas from "./schemas";
-import { Transaction } from "./transaction";
+import { TransactionType, TransactionTypeGroup } from "../../../enums";
+import { Address } from "../../../identities";
+import { ISerializeOptions } from "../../../interfaces";
+import { BigNumber } from "../../../utils/bignum";
+import * as schemas from "../schemas";
+import { Transaction } from "../transaction";
 
-export class TransferTransaction extends Transaction {
+export abstract class TransferTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.Transfer;
     public static key = "transfer";
+    public static version: number = 1;
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.transfer;

@@ -68,7 +68,7 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
 
         const handler: Handlers.TransactionHandler = await this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-            .get(transaction.type, transaction.typeGroup);
+            .get(transaction.data);
 
         return handler.throwIfCannotBeApplied(transaction, sender);
     }
@@ -76,7 +76,7 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
     public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
         const handler: Handlers.TransactionHandler = await this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-            .get(transaction.type, transaction.typeGroup);
+            .get(transaction.data);
         return handler.revertForSender(transaction, this);
     }
 

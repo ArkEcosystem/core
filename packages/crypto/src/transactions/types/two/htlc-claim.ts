@@ -1,16 +1,17 @@
 import ByteBuffer from "bytebuffer";
 
-import { TransactionType, TransactionTypeGroup } from "../../enums";
-import { ISerializeOptions } from "../../interfaces";
-import { configManager } from "../../managers";
-import { BigNumber } from "../../utils/bignum";
-import * as schemas from "./schemas";
-import { Transaction } from "./transaction";
+import { TransactionType, TransactionTypeGroup } from "../../../enums";
+import { ISerializeOptions } from "../../../interfaces";
+import { configManager } from "../../../managers";
+import { BigNumber } from "../../../utils/bignum";
+import * as schemas from "../schemas";
+import { Transaction } from "../transaction";
 
-export class HtlcClaimTransaction extends Transaction {
+export abstract class HtlcClaimTransaction extends Transaction {
     public static typeGroup: number = TransactionTypeGroup.Core;
     public static type: number = TransactionType.HtlcClaim;
     public static key = "htlcClaim";
+    public static version: number = 2;
 
     public static getSchema(): schemas.TransactionSchema {
         return schemas.htlcClaim;

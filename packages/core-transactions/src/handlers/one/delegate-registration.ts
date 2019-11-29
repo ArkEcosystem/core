@@ -1,15 +1,13 @@
-import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Utils, Transactions } from "@arkecosystem/crypto";
 
 import {
     NotSupportedForMultiSignatureWalletError,
     WalletIsAlreadyDelegateError,
     WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
-} from "../errors";
-import { TransactionReader } from "../transaction-reader";
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+} from "../../errors";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 const { TransactionType, TransactionTypeGroup } = Enums;
 
@@ -17,9 +15,6 @@ const { TransactionType, TransactionTypeGroup } = Enums;
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
-    public getConstructor(): Transactions.TransactionConstructor {
-        return Transactions.DelegateRegistrationTransaction;
-    }
 
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
@@ -41,46 +36,12 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         ];
     }
 
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.One.DelegateRegistrationTransaction;
+    }
+
     public async bootstrap(): Promise<void> {
-        const reader: TransactionReader = this.getTransactionReader();
-        const transactions: Models.Transaction[] = await reader.read();
-
-        for (const transaction of transactions) {
-            const wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
-
-            wallet.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
-                username: transaction.asset.delegate!.username,
-                voteBalance: Utils.BigNumber.ZERO,
-                forgedFees: Utils.BigNumber.ZERO,
-                forgedRewards: Utils.BigNumber.ZERO,
-                producedBlocks: 0,
-                rank: undefined,
-            });
-
-            this.walletRepository.reindex(wallet);
-        }
-
-        const forgedBlocks = await this.blockRepository.getDelegatesForgedBlocks();
-        const lastForgedBlocks = await this.blockRepository.getLastForgedBlocks();
-        for (const block of forgedBlocks) {
-            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(block.generatorPublicKey);
-
-            // Genesis wallet is empty
-            if (!wallet.hasAttribute("delegate")) {
-                continue;
-            }
-
-            const delegate: Contracts.State.WalletDelegateAttributes = wallet.getAttribute("delegate");
-            delegate.forgedFees = delegate.forgedFees.plus(block.totalFees);
-            delegate.forgedRewards = delegate.forgedRewards.plus(block.totalRewards);
-            delegate.producedBlocks += +block.totalProduced;
-        }
-
-        for (const block of lastForgedBlocks) {
-            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(block.generatorPublicKey);
-
-            wallet.setAttribute("delegate.lastBlock", block);
-        }
+        return;
     }
 
     public async isActivated(): Promise<boolean> {
@@ -222,10 +183,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

@@ -101,19 +101,24 @@ export class Validator {
     }
 
     private extendTransactionSchema(ajv: Ajv.Ajv, schema: TransactionSchema, remove?: boolean) {
+        if (ajv.getSchema(schema.$id)) {
+            remove = true;
+        }
+
         if (remove) {
             this.transactionSchemas.delete(schema.$id);
 
             ajv.removeSchema(schema.$id);
             ajv.removeSchema(`${schema.$id}Signed`);
             ajv.removeSchema(`${schema.$id}Strict`);
-        } else {
-            this.transactionSchemas.set(schema.$id, schema);
 
-            ajv.addSchema(schema);
-            ajv.addSchema(signedSchema(schema));
-            ajv.addSchema(strictSchema(schema));
         }
+
+        this.transactionSchemas.set(schema.$id, schema);
+
+        ajv.addSchema(schema);
+        ajv.addSchema(signedSchema(schema));
+        ajv.addSchema(strictSchema(schema));
 
         this.updateTransactionArray(ajv);
     }

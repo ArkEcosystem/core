@@ -5,7 +5,8 @@ import { Factories, Generators } from "@packages/core-test-framework/src";
 import { configManager } from "@packages/crypto/src/managers";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { Keys } from "@packages/crypto/src/identities";
-import { BuilderFactory, VoteTransaction } from "@packages/crypto/src/transactions";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
 import { VoteBuilder } from "@packages/crypto/src/transactions/builders/transactions/vote";
 import * as Utils from "@packages/crypto/src/utils";
 
@@ -48,7 +49,7 @@ describe("Vote Transaction", () => {
 
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.Vote);
-        expect(builder).toHaveProperty("data.fee", VoteTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.VoteTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);
         expect(builder).toHaveProperty("data.senderPublicKey", undefined);

@@ -1,23 +1,23 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Managers, Utils, Transactions } from "@arkecosystem/crypto";
 
-import { HtlcLockExpiredError } from "../errors";
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import { HtlcLockExpiredError } from "../../errors";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class HtlcLockTransactionHandler extends TransactionHandler {
-    public getConstructor(): Transactions.TransactionConstructor {
-        return Transactions.HtlcLockTransaction;
-    }
-
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
 
     public walletAttributes(): ReadonlyArray<string> {
         return ["htlc.locks", "htlc.lockedBalance"];
+    }
+
+    public getConstructor(): Transactions.TransactionConstructor {
+        return Transactions.Two.HtlcLockTransaction;
     }
 
     public async bootstrap(): Promise<void> {
@@ -158,10 +158,10 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {}
+    ): Promise<void> { }
 }
