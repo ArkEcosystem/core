@@ -3,7 +3,7 @@ import Joi from "@hapi/joi";
 const customJoi = Joi.extend(joi => ({
     base: joi.array(),
     name: "orderBy",
-    coerce: (value, state, options) => (value.split ? value.split(":") : value),
+    coerce: (value, state, options) => (value && value.split ? value.split(":") : undefined),
 }));
 
 export const orderBy = customJoi
