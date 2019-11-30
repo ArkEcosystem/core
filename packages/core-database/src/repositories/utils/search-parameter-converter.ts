@@ -42,14 +42,15 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
     }
 
     private parseOrderBy(searchParameters: Database.ISearchParameters, orderBy?: any) {
-        if (orderBy && typeof orderBy === "string") {
-            const fieldDirection = orderBy.split(":").map(o => o.toLowerCase());
-            if (fieldDirection.length === 2 && (fieldDirection[1] === "asc" || fieldDirection[1] === "desc")) {
-                searchParameters.orderBy.push({
-                    field: snakeCase(fieldDirection[0]),
-                    direction: fieldDirection[1] as "asc" | "desc",
-                });
-            }
+        if (
+            Array.isArray(orderBy) &&
+            orderBy.length === 2 &&
+            (orderBy[1] === "asc" || orderBy[1] === "desc")
+        ) {
+            searchParameters.orderBy.push({
+                field: orderBy[0],
+                direction: orderBy[1] as "asc" | "desc",
+            });
         }
     }
 

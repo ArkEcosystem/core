@@ -33,7 +33,7 @@ describe("Transactions Business Repository", () => {
                     id: "id",
                     offset: 10,
                     limit: 1000,
-                    orderBy: "id:asc",
+                    orderBy: ["id", "asc"],
                 },
                 "asc",
             );

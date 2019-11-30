@@ -104,7 +104,7 @@ describe("Wallet Repository - Delegates", () => {
             const wallets = generateWallets();
             walletManager.index(wallets);
 
-            const { count, rows } = search({ offset: 10, limit: 10, orderBy: "rate:desc" });
+            const { count, rows } = search({ offset: 10, limit: 10, orderBy: ["rate", "desc"] });
             expect(count).toBe(52);
             expect(rows).toHaveLength(10);
             expect((rows as any).sort((a, b) => a.rate > b.rate)).toEqual(rows);

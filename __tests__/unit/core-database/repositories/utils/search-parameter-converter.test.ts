@@ -87,7 +87,7 @@ describe("SearchParameterConverter", () => {
 
     it("should parse orderBy & paginate from params", () => {
         const params = {
-            orderBy: "field:asc",
+            orderBy: ["field", "asc"],
             offset: 20,
             limit: 50,
         };
