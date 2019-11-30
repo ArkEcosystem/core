@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-import { orderBy, pagination } from "../shared/schemas";
+import { genericName, orderBy, pagination } from "../shared/schemas";
 
 export const index: object = {
     query: {
@@ -37,9 +37,7 @@ export const search: object = {
         genesisHash: Joi.string()
             .hex()
             .length(64),
-        name: Joi.string()
-            .regex(/^[a-zA-Z0-9_-]+$/)
-            .max(40),
+        name: genericName,
         seedNodes: Joi.array()
             .unique()
             .min(1)

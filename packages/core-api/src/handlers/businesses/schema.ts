@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-import { orderBy, pagination } from "../shared/schemas";
+import { genericName, orderBy, pagination } from "../shared/schemas";
 
 export const index: object = {
     query: {
@@ -48,9 +48,7 @@ export const search: object = {
         publicKey: Joi.string()
             .hex()
             .length(66),
-        name: Joi.string()
-            .regex(/^[a-zA-Z0-9_-]+$/)
-            .max(40),
+        name: genericName,
         website: Joi.string().max(80),
         vat: Joi.string()
             .alphanum()
