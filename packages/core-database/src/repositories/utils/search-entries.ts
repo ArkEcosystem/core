@@ -40,11 +40,11 @@ const applyOrder = (
 ): [CallbackFunctionVariadicVoidReturn | string, string] => {
     const assignOrder = (params, value) => (params.orderBy = value);
 
-    if (!params.orderBy || orderBy.length !== 2) {
+    if (!params.orderBy || params.orderBy.length !== 2) {
         return assignOrder(params, defaultOrder);
     }
 
-    return assignOrder(params, [manipulateIteratee(orderBy[0]), orderBy[1]]);
+    return assignOrder(params, [manipulateIteratee(params.orderBy[0]), params.orderBy[1]]);
 };
 
 const manipulateIteratee = (iteratee): any => {
