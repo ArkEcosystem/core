@@ -1,6 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination, walletId } from "../shared/schemas";
+import { address, blockId, orderBy, pagination, publicKey, walletId } from "../shared/schemas";
 
 const config = app.getConfig();
 
@@ -35,18 +35,10 @@ export const index: object = {
         ...{
             orderBy,
             type: Joi.string().valid("resigned", "never-forged"),
-            address: Joi.string()
-                .alphanum()
-                .length(34),
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
-            secondPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            vote: Joi.string()
-                .hex()
-                .length(66),
+            address,
+            publicKey,
+            secondPublicKey: publicKey,
+            vote: publicKey,
             username: schemaUsername,
             balance: Joi.number()
                 .integer()
@@ -75,12 +67,8 @@ export const search: object = {
         },
     },
     payload: {
-        address: Joi.string()
-            .alphanum()
-            .length(34),
-        publicKey: Joi.string()
-            .hex()
-            .length(66),
+        address,
+        publicKey,
         username: schemaUsername,
         usernames: Joi.array()
             .unique()
@@ -131,9 +119,7 @@ export const blocks: object = {
                 .integer()
                 .min(0),
             payloadHash: Joi.string().hex(),
-            generatorPublicKey: Joi.string()
-                .hex()
-                .length(66),
+            generatorPublicKey: publicKey,
             blockSignature: Joi.string().hex(),
             transform: Joi.bool().default(true),
         },
@@ -148,18 +134,10 @@ export const voters: object = {
         ...pagination,
         ...{
             orderBy,
-            address: Joi.string()
-                .alphanum()
-                .length(34),
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
-            secondPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            vote: Joi.string()
-                .hex()
-                .length(66),
+            address,
+            publicKey,
+            secondPublicKey: publicKey,
+            vote: publicKey,
             username: schemaUsername,
             balance: Joi.number()
                 .integer()
