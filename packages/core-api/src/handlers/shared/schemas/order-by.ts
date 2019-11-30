@@ -1,6 +1,58 @@
 import Joi from "@hapi/joi";
 
-export const orderBy = Joi.string().regex(
-    /^[a-z._]{1,40}:(asc|desc)$/i,
-    "orderBy query parameter (<iteratee>:<direction>)",
-);
+const customJoi = Joi.extend(joi => ({
+    base: joi.array(),
+    name: "orderBy",
+    coerce: (value, state, options) => (value.split ? value.split(":") : value),
+}));
+
+export const orderBy = customJoi
+    .array()
+    .orderBy()
+    .length(2)
+    .items(
+        Joi.string()
+            .valid(
+                "address",
+                "amount",
+                "approval",
+                "balance",
+                "blockId",
+                "confirmations",
+                "expirationType",
+                "expirationValue",
+                "fee",
+                "forgedFees",
+                "forgedRewards",
+                "forgedTotal",
+                "generatorPublicKey",
+                "height",
+                "id",
+                "isDelegate",
+                "isResigned",
+                "latency",
+                "lockedBalance",
+                "nonce",
+                "producedBlocks",
+                "publicKey",
+                "rank",
+                "recipient",
+                "sender",
+                "senderPublicKey",
+                "signature",
+                "signSignature",
+                "timestamp",
+                "transactions",
+                "type",
+                "typeGroup",
+                "username",
+                "vendorField",
+                "version",
+                "voteBalance",
+                "votes",
+            )
+            .required(),
+        Joi.string()
+            .valid("asc", "desc")
+            .required(),
+    );
