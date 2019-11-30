@@ -87,7 +87,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
     }
 
     public top(scope: Database.SearchScope, params: Database.IParameters = {}): Database.IRowsPaginated<State.IWallet> {
-        return this.search(scope, { ...params, ...{ orderBy: "balance:desc" } });
+        return this.search(scope, { ...params, ...{ orderBy: ["balance", "desc"] } });
     }
 
     private searchWallets(params: Database.IParameters): ISearchContext<State.IWallet> {
