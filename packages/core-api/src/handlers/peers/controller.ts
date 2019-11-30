@@ -28,9 +28,9 @@ export class PeersController extends Controller {
             offset = 0;
         }
 
-        const [iteratee, direction] = request.query.orderBy as string[];
-
         if (request.query.orderBy && request.query.orderBy.length === 2) {
+            const [iteratee, direction] = request.query.orderBy as string[];
+
             switch (iteratee) {
                 case "version": {
                     result =
