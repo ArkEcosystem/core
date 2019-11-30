@@ -7,7 +7,6 @@ const customJoi = Joi.extend(joi => ({
 }));
 
 export const orderBy = customJoi
-    .array()
     .orderBy()
     .length(2)
     .items(

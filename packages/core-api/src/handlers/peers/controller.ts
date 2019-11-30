@@ -28,28 +28,22 @@ export class PeersController extends Controller {
             offset = 0;
         }
 
-        const order: string = request.query.orderBy as string;
-        if (order) {
-            const orderByMapped = order.split(":").map(p => p.toLowerCase());
-
-            switch (orderByMapped[0]) {
+        const order: string = request.query.orderBy as string[];
+        if (order && order.length === 2) {
+            switch (order[0]) {
                 case "version": {
                     result =
-                        orderByMapped[1] === "asc"
-                            ? result.sort((a, b) => semver.compare(a[orderByMapped[0]], b[orderByMapped[0]]))
-                            : result.sort((a, b) => semver.rcompare(a[orderByMapped[0]], b[orderByMapped[0]]));
+                        order[1] === "asc"
+                            ? result.sort((a, b) => semver.compare(a[order[0]], b[order[0]]))
+                            : result.sort((a, b) => semver.rcompare(a[order[0]], b[order[0]]));
                     break;
                 }
                 case "height": {
-                    result = orderBy(
-                        result,
-                        el => el.state[orderByMapped[0]],
-                        orderByMapped[1] === "asc" ? "asc" : "desc",
-                    );
+                    result = orderBy(result, el => el.state[order[0]], order[1] === "asc" ? "asc" : "desc");
                     break;
                 }
                 case "latency": {
-                    result = orderBy(result, orderByMapped[0], orderByMapped[1] === "asc" ? "asc" : "desc");
+                    result = orderBy(result, order[0], order[1] === "asc" ? "asc" : "desc");
                     break;
                 }
                 default: {
