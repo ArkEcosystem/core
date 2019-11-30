@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination } from "../shared/schemas";
+import { address, blockId, orderBy, pagination, publicKey } from "../shared/schemas";
 
 export const index: object = {
     query: {
