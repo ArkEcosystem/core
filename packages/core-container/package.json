@@ -29,7 +29,7 @@
         "envfile": "^4.0.0",
         "expand-home-dir": "^0.0.3",
         "fs-extra": "^8.1.0",
-        "got": "^9.6.0",
+        "got": "^10.0.0",
         "lodash.get": "^4.4.2",
         "lodash.isstring": "^4.0.1",
         "lodash.set": "^4.3.2",
