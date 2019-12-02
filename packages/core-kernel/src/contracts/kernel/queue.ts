@@ -11,6 +11,14 @@ export interface QueueJob {
  */
 export interface Queue {
     /**
+     * Create a new instance of the queue.
+     *
+     * @returns {Queue}
+     * @memberof Queue
+     */
+    make(): Promise<Queue>;
+
+    /**
      * Start the queue.
      *
      * @param {string} [queue]

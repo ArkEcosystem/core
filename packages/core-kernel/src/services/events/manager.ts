@@ -1,5 +1,5 @@
 import { EventDispatcher } from "../../contracts/kernel/events";
-import { Manager } from "../../support/manager";
+import { InstanceManager } from "../../support/instance-manager";
 import { MemoryEventDispatcher } from "./drivers/memory";
 
 /**
@@ -7,7 +7,7 @@ import { MemoryEventDispatcher } from "./drivers/memory";
  * @class EventDispatcherManager
  * @extends {Manager<EventDispatcher>}
  */
-export class EventDispatcherManager extends Manager<EventDispatcher> {
+export class EventDispatcherManager extends InstanceManager<EventDispatcher> {
     /**
      * Create an instance of the Memory driver.
      *

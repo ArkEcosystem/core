@@ -44,6 +44,17 @@ export class MemoryQueue implements Queue {
     private index: number = -1;
 
     /**
+     * Create a new instance of the queue.
+     *
+     * @param {Application} app
+     * @returns {Queue}
+     * @memberof CacheStore
+     */
+    public async make(): Promise<Queue> {
+        return this;
+    }
+
+    /**
      * Start the queue.
      *
      * @returns {Promise<void>}

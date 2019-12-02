@@ -1,5 +1,5 @@
 import { Validator } from "../../contracts/kernel/validation";
-import { Manager } from "../../support/manager";
+import { InstanceManager } from "../../support/instance-manager";
 import { JoiValidator } from "./drivers/joi";
 
 /**
@@ -7,7 +7,7 @@ import { JoiValidator } from "./drivers/joi";
  * @class ValidationManager
  * @extends {Manager<Validator>}
  */
-export class ValidationManager extends Manager<Validator> {
+export class ValidationManager extends InstanceManager<Validator> {
     /**
      * Create an instance of the Joi driver.
      *

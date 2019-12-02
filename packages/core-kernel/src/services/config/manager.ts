@@ -1,6 +1,6 @@
 import { ConfigLoader } from "../../contracts/kernel/config";
 import { injectable } from "../../ioc";
-import { Manager } from "../../support/manager";
+import { InstanceManager } from "../../support/instance-manager";
 import { LocalConfigLoader } from "./drivers";
 
 /**
@@ -9,7 +9,7 @@ import { LocalConfigLoader } from "./drivers";
  * @extends {Manager<ConfigLoader>}
  */
 @injectable()
-export class ConfigManager extends Manager<ConfigLoader> {
+export class ConfigManager extends InstanceManager<ConfigLoader> {
     /**
      * Create an instance of the Local driver.
      *

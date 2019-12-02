@@ -9,6 +9,17 @@ import { injectable } from "../../../ioc";
 @injectable()
 export class NullQueue implements Queue {
     /**
+     * Create a new instance of the queue.
+     *
+     * @param {Application} app
+     * @returns {Queue}
+     * @memberof CacheStore
+     */
+    public async make(): Promise<Queue> {
+        return this;
+    }
+
+    /**
      * Start the queue.
      *
      * @returns {Promise<void>}

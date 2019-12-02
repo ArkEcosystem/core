@@ -1,7 +1,7 @@
 import { CacheStore as Contract } from "../../contracts/kernel";
 import { Identifiers, interfaces } from "../../ioc";
 import { ServiceProvider as BaseServiceProvider } from "../../providers";
-import { MemoryCacheStore } from "./drivers/memory";
+import { CacheManager } from "./manager";
 
 export class ServiceProvider extends BaseServiceProvider {
     /**
@@ -12,9 +12,16 @@ export class ServiceProvider extends BaseServiceProvider {
      */
     public async register(): Promise<void> {
         this.app
+            .bind<CacheManager>(Identifiers.CacheManager)
+            .to(CacheManager)
+            .inSingletonScope();
+
+        this.app
             .bind(Identifiers.CacheFactory)
-            .toFactory((context: interfaces.Context) => <K, T>(): Contract<K, T> =>
-                context.container.resolve<Contract<K, T>>(MemoryCacheStore),
-            );
+            .toFactory((context: interfaces.Context) => async <K, T>(name?: string): Promise<Contract<K, T>> => {
+                const cacheManager: CacheManager = context.container.get<CacheManager>(Identifiers.CacheManager);
+
+                return cacheManager.driver<Contract<K, T>>(name);
+            });
     }
 }

@@ -1,22 +1,21 @@
 import { Kernel } from "../contracts";
-import { DriverCannotBeResolved } from "../exceptions/container";
+// import { DriverCannotBeResolved } from "../exceptions/container";
 import { Identifiers, inject, injectable } from "../ioc";
+import { Class } from "../types";
 import { pascalCase } from "../utils";
 
 /**
  * @export
- * @abstract
- * @class Manager
- * @template T
+ * @class ClassManager
  */
 @injectable()
-export abstract class Manager<T> {
+export abstract class ClassManager {
     /**
      * The application instance.
      *
      * @protected
      * @type {Kernel.Application}
-     * @memberof Manager
+     * @memberof ClassManager
      */
     @inject(Identifiers.Application)
     protected readonly app!: Kernel.Application;
@@ -24,84 +23,68 @@ export abstract class Manager<T> {
     /**
      * @private
      * @type {string}
-     * @memberof Manager
+     * @memberof ClassManager
      */
     private defaultDriver: string;
 
     /**
-     * The array of created "drivers".
+     * The array of available drivers.
      *
      * @private
-     * @type {Map<string, T>}
-     * @memberof Manager
+     * @type {Map<string, Class>}
+     * @memberof ClassManager
      */
-    private drivers: Map<string, T> = new Map<string, T>();
+    private drivers: Map<string, Class> = new Map<string, Class>();
 
     /**
      * Create a new manager instance.
      *
-     * @memberof Manager
+     * @memberof ClassManager
      */
     public constructor() {
         this.defaultDriver = this.getDefaultDriver();
     }
 
     /**
-     * Boot the default driver.
-     *
-     * @memberof Manager
-     */
-    public async boot(): Promise<void> {
-        await this.createDriver(this.defaultDriver);
-    }
-
-    /**
      * Get a driver instance.
      *
      * @param {string} [name]
-     * @returns {T}
-     * @memberof Manager
+     * @returns {Class}
+     * @memberof ClassManager
      */
-    public driver(name?: string): T {
-        name = name || this.defaultDriver;
-
-        const driver: T | undefined = this.drivers.get(name);
-
-        if (!driver) {
-            throw new DriverCannotBeResolved(name);
-        }
-
-        return driver;
+    public async driver<T>(name?: string): Promise<T> {
+        return this.createDriver<T>(name || this.defaultDriver);
     }
 
     /**
-     * Register and call a custom driver creator.
+     * Register a custom driver.
      *
      * @param {string} name
-     * @param {(app: Kernel.Application) => T} callback
-     * @memberof Manager
+     * @param {Class} driver
+     * @returns {Promise<void>}
+     * @memberof ClassManager
      */
-    public async extend(name: string, callback: (app: Kernel.Application) => Promise<T>): Promise<void> {
-        this.drivers.set(name, await callback(this.app));
+    public async extend(name: string, driver: Class): Promise<void> {
+        this.drivers.set(name, driver);
     }
 
     /**
      * Set the default driver name.
      *
      * @param {string} name
-     * @memberof Manager
+     * @memberof ClassManager
      */
     public setDefaultDriver(name: string): void {
         this.defaultDriver = name;
     }
 
     /**
-     * Get all of the created drivers.
+     * Get all of the available drivers.
      *
-     * @returns {T[]}
-     * @memberof Manager
+     * @returns {Class[]}
+     * @memberof ClassManager
      */
-    public getDrivers(): T[] {
+    public getDrivers(): Class[] {
         return Object.values(this.drivers);
     }
 
@@ -111,7 +94,7 @@ export abstract class Manager<T> {
      * @protected
      * @abstract
      * @returns {string}
-     * @memberof Manager
+     * @memberof ClassManager
      */
     protected abstract getDefaultDriver(): string;
 
@@ -120,15 +103,15 @@ export abstract class Manager<T> {
      *
      * @private
      * @param {string} name
-     * @memberof Manager
+     * @memberof ClassManager
      */
-    private async createDriver(name: string): Promise<void> {
+    private async createDriver<T>(name: string): Promise<T> {
         const creatorFunction = `create${pascalCase(name)}Driver`;
 
         if (typeof this[creatorFunction] !== "function") {
             throw new Error(`${name} driver is not supported by ${this.constructor.name}.`);
         }
 
-        this.drivers.set(name, await this[creatorFunction](this.app));
+        return this[creatorFunction]();
     }
 }

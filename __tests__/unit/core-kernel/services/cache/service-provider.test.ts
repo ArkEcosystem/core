@@ -28,6 +28,8 @@ describe("CacheServiceProvider", () => {
     it("should create an instance of the MemoryCacheStore", async () => {
         await app.resolve<ServiceProvider>(ServiceProvider).register();
 
-        expect(app.get<CacheStore<string, string>>(Identifiers.CacheFactory)()).toBeInstanceOf(MemoryCacheStore);
+        await expect(app.get<CacheStore<string, string>>(Identifiers.CacheFactory)()).resolves.toBeInstanceOf(
+            MemoryCacheStore,
+        );
     });
 });

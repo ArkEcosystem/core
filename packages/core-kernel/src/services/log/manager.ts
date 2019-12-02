@@ -1,5 +1,5 @@
 import { Logger } from "../../contracts/kernel/log";
-import { Manager } from "../../support/manager";
+import { InstanceManager } from "../../support/instance-manager";
 import { MemoryLogger } from "./drivers/memory";
 
 /**
@@ -7,7 +7,7 @@ import { MemoryLogger } from "./drivers/memory";
  * @class LogManager
  * @extends {Manager<Logger>}
  */
-export class LogManager extends Manager<Logger> {
+export class LogManager extends InstanceManager<Logger> {
     /**
      * Create an instance of the Memory driver.
      *

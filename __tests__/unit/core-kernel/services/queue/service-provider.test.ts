@@ -22,6 +22,6 @@ describe("QueueServiceProvider", () => {
     it("should create an instance of the MemoryQueue", async () => {
         await app.resolve<ServiceProvider>(ServiceProvider).register();
 
-        expect(app.get<QueueFactory>(Identifiers.QueueFactory)()).toBeInstanceOf(MemoryQueue);
+        await expect(app.get<QueueFactory>(Identifiers.QueueFactory)()).resolves.toBeInstanceOf(MemoryQueue);
     });
 });
