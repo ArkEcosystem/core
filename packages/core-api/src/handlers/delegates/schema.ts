@@ -34,11 +34,13 @@ const schemaPercentage = Joi.object().keys({
         .max(100),
 });
 
+const iteratees = ["forgedTotal"];
+
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             type: Joi.string().valid("resigned", "never-forged"),
             address: Joi.string()
                 .alphanum()
@@ -76,7 +78,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
         },
     },
     payload: {
@@ -108,7 +110,7 @@ export const blocks: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             id: blockId,
             version: Joi.number()
                 .integer()
@@ -152,7 +154,7 @@ export const voters: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             address: Joi.string()
                 .alphanum()
                 .length(34),

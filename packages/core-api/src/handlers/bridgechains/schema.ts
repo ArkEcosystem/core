@@ -1,11 +1,13 @@
 import Joi from "@hapi/joi";
 import { orderBy, pagination } from "../shared/schemas";
 
+const iteratees = ["name"];
+
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             publicKey: Joi.string()
                 .hex()
                 .length(66),
@@ -26,7 +28,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
         },
     },
     payload: {

@@ -5,11 +5,14 @@ const address: object = Joi.string()
     .alphanum()
     .length(34);
 
+const iteratees = ["balance"];
+const lockIteratees = ["timestamp"];
+
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             address: Joi.string()
                 .alphanum()
                 .length(34),
@@ -47,7 +50,7 @@ export const transactions: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -86,7 +89,7 @@ export const transactionsSent: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -128,7 +131,7 @@ export const transactionsReceived: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -186,7 +189,7 @@ export const locks: object = {
         ...pagination,
         ...{
             isExpired: Joi.bool(),
-            orderBy,
+            orderBy: orderBy(lockIteratees),
         },
     },
 };
@@ -195,7 +198,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
         },
     },
     payload: {

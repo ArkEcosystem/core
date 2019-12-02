@@ -6,11 +6,13 @@ const address: object = Joi.string()
     .alphanum()
     .length(34);
 
+const iteratees = ["timestamp"];
+
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -100,7 +102,7 @@ export const search: object = {
         },
     },
     payload: {
-        orderBy,
+        orderBy: orderBy(iteratees),
         id: Joi.string()
             .hex()
             .length(64),

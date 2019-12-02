@@ -1,11 +1,13 @@
 import Joi from "@hapi/joi";
 import { blockId, orderBy, pagination } from "../shared/schemas";
 
+const iteratees = ["timestamp"];
+
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             id: Joi.string()
                 .hex()
                 .length(64),

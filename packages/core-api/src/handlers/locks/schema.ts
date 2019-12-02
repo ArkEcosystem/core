@@ -2,11 +2,13 @@ import { Enums } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
 import { orderBy, pagination } from "../shared/schemas";
 
+const iteratees = ["timestamp"];
+
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
             recipientId: Joi.string()
                 .alphanum()
                 .length(34),
@@ -43,7 +45,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
         },
     },
     payload: {
@@ -95,7 +97,7 @@ export const unlocked: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(iteratees),
         },
     },
     payload: {
