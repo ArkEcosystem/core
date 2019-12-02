@@ -5,6 +5,9 @@ import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
 import { RateLimiter } from "./rate-limiter";
 
+const MINUTE_IN_MILLISECONDS = 1000 * 60;
+const HOUR_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 60;
+
 const ajv = new Ajv();
 
 export class Worker extends SCWorker {
@@ -16,6 +19,9 @@ export class Worker extends SCWorker {
         this.log(`Socket worker started, PID: ${process.pid}`);
 
         await this.loadConfiguration();
+
+        // purge ipLastError every hour to free up memory
+        setInterval(() => (this.ipLastError = {}), HOUR_IN_MILLISECONDS);
 
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => this.handlePayload(ws, req));
@@ -128,7 +134,7 @@ export class Worker extends SCWorker {
 
     private async handleHandshake(req, next): Promise<void> {
         const ip = req.socket.remoteAddress;
-        if (this.ipLastError[ip] && this.ipLastError[ip] > Date.now() - 60 * 1000) {
+        if (this.ipLastError[ip] && this.ipLastError[ip] > Date.now() - MINUTE_IN_MILLISECONDS) {
             req.socket.destroy();
             return;
         }
