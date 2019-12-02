@@ -1,5 +1,5 @@
 import { Database, State } from "@arkecosystem/core-interfaces";
-import { expirationCalculator } from "@arkecosystem/core-utils";
+import { delegateCalculator, expirationCalculator, hasSomeProperty } from "@arkecosystem/core-utils";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 import { searchEntries } from "./utils/search-entries";
 
@@ -152,6 +152,23 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
                 entries = this.databaseServiceProvider().walletManager.allByUsername();
                 break;
             }
+        }
+
+        const manipulators = {
+            approval: delegateCalculator.calculateApproval,
+            forgedTotal: delegateCalculator.calculateForgedTotal,
+        };
+
+        if (hasSomeProperty(params, Object.keys(manipulators))) {
+            entries = entries.map(delegate => {
+                for (const [prop, method] of Object.entries(manipulators)) {
+                    if (params.hasOwnProperty(prop)) {
+                        delegate.setAttribute(`delegate.${prop}`, method(delegate));
+                    }
+                }
+
+                return delegate;
+            });
         }
 
         return {

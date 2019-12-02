@@ -57,6 +57,10 @@ const manipulateIteratee = (iteratee): any => {
     switch (iteratee) {
         case "approval":
             return delegateCalculator.calculateApproval;
+        case "forgedfees":
+            return "forgedFees";
+        case "forgedrewards":
+            return "forgedRewards";
         case "forgedtotal":
             return delegateCalculator.calculateForgedTotal;
         case "votes":
