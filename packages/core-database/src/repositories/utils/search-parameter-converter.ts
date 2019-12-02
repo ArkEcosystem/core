@@ -1,4 +1,5 @@
 import { Database } from "@arkecosystem/core-interfaces";
+import snakeCase from "lodash.snakecase";
 
 export class SearchParameterConverter implements Database.IISearchParameterConverter {
     constructor(private databaseModel: Database.IModel) {}
@@ -41,13 +42,9 @@ export class SearchParameterConverter implements Database.IISearchParameterConve
     }
 
     private parseOrderBy(searchParameters: Database.ISearchParameters, orderBy?: any) {
-        if (
-            Array.isArray(orderBy) &&
-            orderBy.length === 2 &&
-            (orderBy[1] === "asc" || orderBy[1] === "desc")
-        ) {
+        if (Array.isArray(orderBy) && orderBy.length === 2 && (orderBy[1] === "asc" || orderBy[1] === "desc")) {
             searchParameters.orderBy.push({
-                field: orderBy[0],
+                field: snakeCase(orderBy[0]),
                 direction: orderBy[1] as "asc" | "desc",
             });
         }
