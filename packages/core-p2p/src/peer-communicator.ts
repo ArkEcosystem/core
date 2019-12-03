@@ -29,8 +29,8 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         });
     }
 
-    public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlockJson) {
-        return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
+    public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlock) {
+        return this.emit(peer, "p2p.peer.postBlock", { block: Buffer.from(block.serialized, "hex") }, 5000);
     }
 
     public async postTransactions(peer: P2P.IPeer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
@@ -94,7 +94,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                             } else {
                                 this.logger.warn(
                                     `Disconnecting from ${peerHostPort}: ` +
-                                    `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
+                                        `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
                                 );
                                 this.emitter.emit("internal.p2p.disconnectPeer", { peer });
                             }

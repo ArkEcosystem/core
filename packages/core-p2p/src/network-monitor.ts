@@ -493,7 +493,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
             `Broadcasting block ${block.data.height.toLocaleString()} to ${pluralize("peer", peers.length, true)}`,
         );
 
-        await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block.toJson())));
+        await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block)));
     }
 
     public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {

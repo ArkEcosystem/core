@@ -35,15 +35,15 @@ export class Client {
         this.host = this.hosts[0];
     }
 
-    public async broadcastBlock(block: Interfaces.IBlockJson): Promise<void> {
+    public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
         this.logger.debug(
-            `Broadcasting block ${block.height.toLocaleString()} (${block.id}) with ${
-                block.numberOfTransactions
+            `Broadcasting block ${block.data.height.toLocaleString()} (${block.data.id}) with ${
+                block.data.numberOfTransactions
             } transactions to ${this.host.hostname}`,
         );
 
         try {
-            await this.emit("p2p.peer.postBlock", { block });
+            await this.emit("p2p.peer.postBlock", { block: Buffer.from(block.serialized, "hex") });
         } catch (error) {
             this.logger.error(`Broadcast block failed: ${error.message}`);
         }

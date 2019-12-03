@@ -34,7 +34,7 @@ export const requestSchemas = {
             required: ["block"],
             additionalProperties: false,
             properties: {
-                block: { $ref: "block" },
+                block: { instanceof: "Buffer" },
             },
         },
         postTransactions: {

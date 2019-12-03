@@ -56,14 +56,14 @@ export class Worker extends SCWorker {
         });
         ws.on("message", message => {
             try {
-                const parsed = codec.decode(message);
-                if (parsed === "#2") {
+                if (message === "#2") {
                     const timeNow: number = new Date().getTime() / 1000;
                     if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
                         ws.terminate();
                     }
                     ws._lastPingTime = timeNow;
-                } else if (typeof parsed === "object") {
+                } else {
+                    const parsed = JSON.parse(message);
                     if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
@@ -72,8 +72,6 @@ export class Worker extends SCWorker {
                     ) {
                         ws.terminate();
                     }
-                } else {
-                    ws.terminate();
                 }
             } catch (error) {
                 ws.terminate();

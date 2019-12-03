@@ -102,12 +102,6 @@ export class Processor implements TransactionPool.IProcessor {
 
             if (exists) {
                 this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
-            } else if (Buffer.from(JSON.stringify(transaction)).byteLength > maxTransactionBytes) {
-                this.pushError(
-                    transaction,
-                    "ERR_TOO_LARGE",
-                    `Transaction ${transaction.id} is larger than ${maxTransactionBytes} bytes.`,
-                );
             } else if (await this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
                 this.excess.push(transaction.id);
             } else if (await this.validateTransaction(transaction)) {
@@ -116,6 +110,14 @@ export class Processor implements TransactionPool.IProcessor {
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
+                    if (transactionInstance.serialized.byteLength > maxTransactionBytes) {
+                        return this.pushError(
+                            transaction,
+                            "ERR_TOO_LARGE",
+                            `Transaction ${transaction.id} is larger than ${maxTransactionBytes} bytes.`,
+                        );
+                    }
+
                     const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                         transactionInstance.type,
                         transactionInstance.typeGroup,

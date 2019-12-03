@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { isBlockChained } from "@arkecosystem/core-utils";
-import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { MissingCommonBlockError } from "../../errors";
 import { IPeerPingResponse } from "../../interfaces";
@@ -54,30 +54,30 @@ export const getStatus = async (): Promise<IPeerPingResponse> => {
 export const postBlock = async ({ req }): Promise<void> => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    const block: Interfaces.IBlockData = req.data.block;
+    const block: Interfaces.IBlock = Blocks.BlockFactory.fromBytes(req.data.block);
     const fromForger: boolean = isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress);
 
     if (!fromForger) {
-        if (blockchain.pingBlock(block)) {
+        if (blockchain.pingBlock(block.data)) {
             return;
         }
 
         const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
 
-        if (!isBlockChained(lastDownloadedBlock, block)) {
-            throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
+        if (!isBlockChained(lastDownloadedBlock, block.data)) {
+            throw new UnchainedBlockError(lastDownloadedBlock.height, block.data.height);
         }
     }
 
     app.resolvePlugin<Logger.ILogger>("logger").info(
-        `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
+        `Received new block at height ${block.data.height.toLocaleString()} with ${pluralize(
             "transaction",
-            block.numberOfTransactions,
+            block.data.numberOfTransactions,
             true,
         )} from ${mapAddr(req.headers.remoteAddress)}`,
     );
 
-    blockchain.handleIncomingBlock(block, fromForger);
+    blockchain.handleIncomingBlock(block.data, fromForger);
 };
 
 export const postTransactions = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> => {
