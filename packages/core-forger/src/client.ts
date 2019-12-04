@@ -1,7 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Logger, P2P } from "@arkecosystem/core-interfaces";
 import { codec, NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import socketCluster from "socketcluster-client";
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
@@ -43,7 +43,12 @@ export class Client {
         );
 
         try {
-            await this.emit("p2p.peer.postBlock", { block: Buffer.from(block.serialized, "hex") });
+            await this.emit("p2p.peer.postBlock", {
+                block: Blocks.Block.serializeWithTransactions({
+                    ...block.data,
+                    transactions: block.transactions.map(tx => tx.data),
+                }),
+            });
         } catch (error) {
             this.logger.error(`Broadcast block failed: ${error.message}`);
         }

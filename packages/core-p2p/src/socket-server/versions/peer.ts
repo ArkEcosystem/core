@@ -54,30 +54,38 @@ export const getStatus = async (): Promise<IPeerPingResponse> => {
 export const postBlock = async ({ req }): Promise<void> => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    const block: Interfaces.IBlock = Blocks.BlockFactory.fromBytes(req.data.block);
+    const deserialized: {
+        data: Interfaces.IBlockData;
+        transactions: Interfaces.ITransaction[];
+    } = Blocks.Deserializer.deserialize((req.data.block as Buffer).toString("hex"));
+    const block: Interfaces.IBlockData = {
+        ...deserialized.data,
+        transactions: deserialized.transactions.map(tx => tx.data),
+    };
+
     const fromForger: boolean = isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress);
 
     if (!fromForger) {
-        if (blockchain.pingBlock(block.data)) {
+        if (blockchain.pingBlock(block)) {
             return;
         }
 
         const lastDownloadedBlock: Interfaces.IBlockData = blockchain.getLastDownloadedBlock();
 
-        if (!isBlockChained(lastDownloadedBlock, block.data)) {
-            throw new UnchainedBlockError(lastDownloadedBlock.height, block.data.height);
+        if (!isBlockChained(lastDownloadedBlock, block)) {
+            throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
         }
     }
 
     app.resolvePlugin<Logger.ILogger>("logger").info(
-        `Received new block at height ${block.data.height.toLocaleString()} with ${pluralize(
+        `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
             "transaction",
-            block.data.numberOfTransactions,
+            block.numberOfTransactions,
             true,
         )} from ${mapAddr(req.headers.remoteAddress)}`,
     );
 
-    blockchain.handleIncomingBlock(block.data, fromForger);
+    blockchain.handleIncomingBlock(block, fromForger);
 };
 
 export const postTransactions = async ({ service, req }: { service: P2P.IPeerService; req }): Promise<string[]> => {
