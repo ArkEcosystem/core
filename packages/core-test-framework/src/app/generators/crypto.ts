@@ -6,67 +6,53 @@ import { dirSync } from "tmp";
 
 import { CryptoConfigPaths, Wallet } from "../contracts";
 import { Generator } from "./generator";
+import { Types } from "@arkecosystem/core-kernel";
 
 export class CryptoGenerator extends Generator {
-    public generate(): CryptoConfigPaths {
-        const cryptoConfigDest: string = resolve(__dirname, `${dirSync().name}/${this.options.crypto.network}`);
+    /**
+     * @private
+     * @type {string}
+     * @memberof CoreGenerator
+     */
+    private destination!: string;
 
-        if (existsSync(cryptoConfigDest)) {
-            throw new Error(`${cryptoConfigDest} already exists.`);
+    /**
+     * @returns {CoreConfigPaths}
+     * @memberof CoreGenerator
+     */
+    public generate(): CryptoConfigPaths {
+        this.destination = resolve(__dirname, `${dirSync().name}/${this.options.crypto.flags.network}`);
+
+        if (existsSync(this.destination)) {
+            throw new Error(`${this.destination} already exists.`);
         }
 
-        ensureDirSync(cryptoConfigDest);
+        ensureDirSync(this.destination);
 
-        const delegates: any[] = this.generateCoreDelegates(
-            this.options.crypto.delegates,
-            this.options.crypto.pubKeyHash,
-        );
+        const genesisBlock =
+            this.options.crypto.genesisBlock ??
+            this.generateGenesisBlock(
+                this.createWallet(this.options.crypto.flags.pubKeyHash),
+                this.generateCoreDelegates(this.options.crypto.flags.delegates, this.options.crypto.flags.pubKeyHash),
+                this.options.crypto.flags.pubKeyHash,
+                this.options.crypto.flags.premine,
+                this.options.crypto.flags.distribute,
+            );
 
-        const genesisBlock = this.generateGenesisBlock(
-            this.createWallet(this.options.crypto.pubKeyHash),
-            delegates,
-            this.options.crypto.pubKeyHash,
-            this.options.crypto.premine,
-            this.options.crypto.distribute,
-        );
+        this.writeExceptions();
 
-        writeJSONSync(
-            resolve(cryptoConfigDest, "network.json"),
-            this.generateNetwork(
-                this.options.crypto.network,
-                this.options.crypto.pubKeyHash,
-                genesisBlock.payloadHash,
-                this.options.crypto.wif,
-                this.options.crypto.token,
-                this.options.crypto.symbol,
-                this.options.crypto.explorer,
-            ),
-            { spaces: 4 },
-        );
+        this.writeGenesisBlock(genesisBlock);
 
-        writeJSONSync(
-            resolve(cryptoConfigDest, "milestones.json"),
-            this.generateMilestones(
-                this.options.crypto.delegates,
-                this.options.crypto.blocktime,
-                this.options.crypto.maxTxPerBlock,
-                this.options.crypto.maxBlockPayload,
-                this.options.crypto.rewardHeight,
-                this.options.crypto.rewardAmount,
-            ),
-            { spaces: 4 },
-        );
+        this.writeMilestones(genesisBlock);
 
-        writeJSONSync(resolve(cryptoConfigDest, "genesisBlock.json"), genesisBlock, { spaces: 4 });
-
-        writeJSONSync(resolve(cryptoConfigDest, "exceptions.json"), {});
+        this.writeNetwork(genesisBlock.payloadHash);
 
         return {
-            root: cryptoConfigDest,
-            exceptions: resolve(cryptoConfigDest, "exceptions.json"),
-            genesisBlock: resolve(cryptoConfigDest, "genesisBlock.json"),
-            milestones: resolve(cryptoConfigDest, "milestones.json"),
-            network: resolve(cryptoConfigDest, "network.json"),
+            root: this.destination,
+            exceptions: resolve(this.destination, "exceptions.json"),
+            genesisBlock: resolve(this.destination, "genesisBlock.json"),
+            milestones: resolve(this.destination, "milestones.json"),
+            network: resolve(this.destination, "network.json"),
         };
     }
 
@@ -354,5 +340,87 @@ export class CryptoGenerator extends Generator {
         byteBuffer.flip();
 
         return byteBuffer.toBuffer();
+    }
+
+    /**
+     * @private
+     * @memberof CryptoGenerator
+     */
+    private writeExceptions(): void {
+        const filePath: string = resolve(this.destination, "exceptions.json");
+
+        if (this.options.crypto.exceptions) {
+            writeJSONSync(filePath, this.options.crypto.exceptions, { spaces: 4 });
+        } else {
+            writeJSONSync(resolve(this.destination, "exceptions.json"), {});
+        }
+    }
+
+    /**
+     * @private
+     * @param {Types.JsonObject} genesisBlock
+     * @memberof CryptoGenerator
+     */
+    private writeGenesisBlock(genesisBlock: Types.JsonObject): void {
+        const filePath: string = resolve(this.destination, "genesisBlock.json");
+
+        if (this.options.crypto.genesisBlock) {
+            writeJSONSync(filePath, this.options.crypto.genesisBlock, { spaces: 4 });
+        } else {
+            writeJSONSync(filePath, genesisBlock, { spaces: 4 });
+        }
+    }
+
+    /**
+     * @private
+     * @param {Types.JsonObject} genesisBlock
+     * @memberof CryptoGenerator
+     */
+    private writeMilestones(genesisBlock: Types.JsonObject): void {
+        const filePath: string = resolve(this.destination, "milestones.json");
+
+        if (this.options.crypto.milestones) {
+            writeJSONSync(filePath, this.options.crypto.milestones, { spaces: 4 });
+        } else {
+            writeJSONSync(
+                resolve(this.destination, "milestones.json"),
+                this.generateMilestones(
+                    this.options.crypto.flags.delegates,
+                    this.options.crypto.flags.blocktime,
+                    this.options.crypto.flags.maxTxPerBlock,
+                    this.options.crypto.flags.maxBlockPayload,
+                    this.options.crypto.flags.rewardHeight,
+                    this.options.crypto.flags.rewardAmount,
+                ),
+                { spaces: 4 },
+            );
+        }
+    }
+
+    /**
+     * @private
+     * @param {string} payloadHash
+     * @memberof CryptoGenerator
+     */
+    private writeNetwork(payloadHash: string): void {
+        const filePath: string = resolve(this.destination, "network.json");
+
+        if (this.options.crypto.network) {
+            writeJSONSync(filePath, this.options.crypto.network, { spaces: 4 });
+        } else {
+            writeJSONSync(
+                filePath,
+                this.generateNetwork(
+                    this.options.crypto.flags.network,
+                    this.options.crypto.flags.pubKeyHash,
+                    payloadHash,
+                    this.options.crypto.flags.wif,
+                    this.options.crypto.flags.token,
+                    this.options.crypto.flags.symbol,
+                    this.options.crypto.flags.explorer,
+                ),
+                { spaces: 4 },
+            );
+        }
     }
 }

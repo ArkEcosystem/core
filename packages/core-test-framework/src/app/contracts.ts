@@ -1,4 +1,4 @@
-import { Application, Container } from "@arkecosystem/core-kernel";
+import { Application, Container, Types } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 import { Paths } from "env-paths";
 
@@ -19,13 +19,13 @@ export interface CoreOptions {
     plugins?: {
         options?: Record<string, Record<string, any>>;
     };
-    peers?: {};
-    delegates?: {};
-    environment?: {};
-    app?: {};
+    peers?: Types.JsonObject;
+    delegates?: Types.JsonObject;
+    environment?: Types.JsonObject;
+    app?: Types.JsonObject;
 }
 
-export interface CryptoOptions {
+export interface CryptoFlags {
     network: string;
     premine: string;
     delegates: number;
@@ -40,6 +40,14 @@ export interface CryptoOptions {
     symbol: string;
     explorer: string;
     distribute: boolean;
+}
+
+export interface CryptoOptions {
+    flags: CryptoFlags;
+    exceptions?: Types.JsonObject;
+    genesisBlock?: Types.JsonObject;
+    milestones?: Types.JsonObject;
+    network?: Types.JsonObject;
 }
 
 export interface SandboxOptions {

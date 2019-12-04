@@ -31,13 +31,15 @@ export class CoreGenerator extends Generator {
 
         ensureDirSync(this.destination);
 
-        this.createPeers();
+        this.writePeers();
 
-        this.createDelegates(this.generateCoreDelegates(this.options.crypto.delegates, this.options.crypto.pubKeyHash));
+        this.writeDelegates(
+            this.generateCoreDelegates(this.options.crypto.flags.delegates, this.options.crypto.flags.pubKeyHash),
+        );
 
-        this.createEnvironment();
+        this.writeEnvironment();
 
-        this.createApplication();
+        this.writeApplication();
 
         return {
             root: this.destination,
@@ -52,7 +54,7 @@ export class CoreGenerator extends Generator {
      * @private
      * @memberof CoreGenerator
      */
-    private createPeers(): void {
+    private writePeers(): void {
         const filePath: string = resolve(this.destination, "peers.json");
 
         if (this.options.core.peers) {
@@ -67,7 +69,7 @@ export class CoreGenerator extends Generator {
      * @param {*} delegates
      * @memberof CoreGenerator
      */
-    private createDelegates(delegates): void {
+    private writeDelegates(delegates): void {
         const filePath: string = resolve(this.destination, "delegates.json");
 
         if (this.options.core.delegates) {
@@ -81,7 +83,7 @@ export class CoreGenerator extends Generator {
      * @private
      * @memberof CoreGenerator
      */
-    private createEnvironment(): void {
+    private writeEnvironment(): void {
         const filePath: string = resolve(this.destination, ".env");
 
         if (this.options.core.environment) {
@@ -95,7 +97,7 @@ export class CoreGenerator extends Generator {
      * @private
      * @memberof CoreGenerator
      */
-    private createApplication(): void {
+    private writeApplication(): void {
         const filePath: string = resolve(this.destination, "app.json");
 
         if (this.options.core.app) {
