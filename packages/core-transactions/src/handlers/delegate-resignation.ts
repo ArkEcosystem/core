@@ -83,17 +83,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Delegate resignation for "${wallet.getAttribute("delegate.username")}" already in the pool`,
-            );
-            return false;
-        }
-
-        return true;
+        return !await this.typeFromSenderAlreadyInPool(data, pool, processor);
     }
 
     public async applyToSender(
