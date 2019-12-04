@@ -56,7 +56,7 @@ const binaryToBase64Replacer = (key, value) => {
 };
 
 const base64ToBinaryReplacer = (key, value) =>
-    typeof value === "object" && value.base64 && typeof value.data === "string"
+    value && typeof value === "object" && value.base64 === true && typeof value.data === "string"
         ? Buffer.from(value.data, "base64")
         : value;
 
