@@ -135,7 +135,7 @@ describe("Block", () => {
                 block: {
                     version: 0,
                     maxTransactions: 200,
-                    maxPayload: JSON.stringify(block.data).length - 1,
+                    maxPayload: Buffer.from(block.serialized, "hex").byteLength - 1,
                 },
                 reward: 200000000,
                 vendorFieldLength: 64,
@@ -149,7 +149,7 @@ describe("Block", () => {
                 block: {
                     version: 0,
                     maxTransactions: 200,
-                    maxPayload: JSON.stringify(block.data).length,
+                    maxPayload: Buffer.from(block.serialized, "hex").byteLength,
                 },
                 reward: 200000000,
                 vendorFieldLength: 64,
