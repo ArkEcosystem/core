@@ -124,6 +124,18 @@ describe("Peer socket endpoint", () => {
                     }),
                 ).rejects.toHaveProperty("name", "BadConnectionError");
             });
+
+            it("should throw error when sending wrong buffer", async () => {
+                await delay(1000);
+                await expect(
+                    emit("p2p.peer.postBlock", {
+                        data: {
+                            block: Buffer.from("oopsThisIsNotABlockBuffer"),
+                        },
+                        headers,
+                    }),
+                ).rejects.toHaveProperty("name", "BadConnectionError");
+            });
         });
 
         describe("postTransactions", () => {

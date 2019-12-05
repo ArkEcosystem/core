@@ -59,5 +59,11 @@ describe("block deserializer", () => {
                 }
             }
         });
+
+        it("should throw if deserialize fails", () => {
+            expect(() =>
+                Deserializer.deserialize(Buffer.from("thatIsAWrongBlockBuffer").toString("hex"), true),
+            ).toThrow();
+        });
     });
 });
