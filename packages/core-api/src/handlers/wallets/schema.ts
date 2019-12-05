@@ -1,8 +1,6 @@
 import Joi from "@hapi/joi";
-import { transactionIteratees, walletIteratees } from "../shared/iteratees";
+import { lockIteratees, transactionIteratees, walletIteratees } from "../shared/iteratees";
 import { address, blockId, orderBy, pagination, publicKey, walletId } from "../shared/schemas";
-
-const lockIteratees = ["timestamp"];
 
 export const index: object = {
     query: {
