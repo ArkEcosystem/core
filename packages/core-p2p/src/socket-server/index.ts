@@ -51,7 +51,12 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
                 // when it is sent from worker to master.
                 // here we transform those back to Buffer (only 1st level properties).
                 for (const key of Object.keys(req.data)) {
-                    if (typeof req.data[key] === "object" && req.data[key].type === "Buffer" && req.data[key].data) {
+                    if (
+                        req.data[key] && // avoids values like null
+                        typeof req.data[key] === "object" &&
+                        req.data[key].type === "Buffer" &&
+                        req.data[key].data
+                    ) {
                         req.data[key] = Buffer.from(req.data[key].data);
                     }
                 }
