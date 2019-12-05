@@ -33,7 +33,12 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return this.emit(
             peer,
             "p2p.peer.postBlock",
-            { block: Blocks.Block.serializeWithTransactions(block.data) },
+            {
+                block: Blocks.Block.serializeWithTransactions({
+                    ...block.data,
+                    transactions: block.transactions.map(tx => tx.data),
+                }),
+            },
             5000,
         );
     }
