@@ -112,7 +112,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
                 this.error(`${coreConfigDest} already exists.`);
             }
             if (fs.existsSync(cryptoConfigDest)) {
-                this.error(`${coreConfigDest} already exists.`);
+                this.error(`${cryptoConfigDest} already exists.`);
             }
 
             fs.ensureDirSync(coreConfigDest);
