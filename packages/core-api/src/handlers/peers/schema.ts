@@ -1,7 +1,6 @@
 import Joi from "@hapi/joi";
+import { peerIteratees } from "../shared/iteratees";
 import { orderBy, pagination } from "../shared/schemas";
-
-const iteratees = ["latency", "version"];
 
 export const index: object = {
     query: {
@@ -9,7 +8,7 @@ export const index: object = {
         ...{
             ip: Joi.string().ip(),
             version: Joi.string(),
-            orderBy: orderBy(iteratees),
+            orderBy: orderBy(peerIteratees),
         },
     },
 };

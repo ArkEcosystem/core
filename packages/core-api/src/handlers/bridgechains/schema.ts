@@ -1,13 +1,12 @@
 import Joi from "@hapi/joi";
+import { bridgechainIteratees } from "../shared/iteratees";
 import { address, genericName, orderBy, pagination, publicKey } from "../shared/schemas";
-
-const iteratees = ["name"];
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: orderBy(iteratees),
+            orderBy: orderBy(bridgechainIteratees),
             publicKey,
             isResigned: Joi.bool(),
         },
@@ -26,7 +25,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: orderBy(iteratees),
+            orderBy: orderBy(bridgechainIteratees),
         },
     },
     payload: {

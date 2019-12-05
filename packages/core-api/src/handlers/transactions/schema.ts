@@ -1,14 +1,13 @@
 import { app } from "@arkecosystem/core-container";
 import Joi from "@hapi/joi";
+import { transactionIteratees } from "../shared/iteratees";
 import { address, blockId, orderBy, pagination, publicKey } from "../shared/schemas";
-
-const iteratees = ["timestamp"];
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy: orderBy(iteratees),
+            orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -92,7 +91,7 @@ export const search: object = {
         },
     },
     payload: {
-        orderBy: orderBy(iteratees),
+        orderBy: orderBy(transactionIteratees),
         id: Joi.string()
             .hex()
             .length(64),
