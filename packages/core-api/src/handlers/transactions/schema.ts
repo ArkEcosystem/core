@@ -1,10 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination } from "../shared/schemas";
-
-const address: object = Joi.string()
-    .alphanum()
-    .length(34);
+import { address, blockId, orderBy, pagination, publicKey } from "../shared/schemas";
 
 export const index: object = {
     query: {
@@ -24,15 +20,9 @@ export const index: object = {
             version: Joi.number()
                 .integer()
                 .positive(),
-            senderPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            senderId: Joi.string()
-                .alphanum()
-                .length(34),
-            recipientId: Joi.string()
-                .alphanum()
-                .length(34),
+            senderPublicKey: publicKey,
+            senderId: address,
+            recipientId: address,
             timestamp: Joi.number()
                 .integer()
                 .min(0),
@@ -114,9 +104,7 @@ export const search: object = {
         version: Joi.number()
             .integer()
             .positive(),
-        senderPublicKey: Joi.string()
-            .hex()
-            .length(66),
+        senderPublicKey: publicKey,
         senderId: address,
         recipientId: address,
         addresses: Joi.array()

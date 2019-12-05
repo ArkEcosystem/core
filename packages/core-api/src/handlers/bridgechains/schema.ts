@@ -1,14 +1,12 @@
 import Joi from "@hapi/joi";
-import { orderBy, pagination } from "../shared/schemas";
+import { address, genericName, orderBy, pagination, publicKey } from "../shared/schemas";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
             orderBy,
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
+            publicKey,
             isResigned: Joi.bool(),
         },
     },
@@ -30,16 +28,13 @@ export const search: object = {
         },
     },
     payload: {
+        address,
+        publicKey,
         bridgechainRepository: Joi.string().max(80),
-        publicKey: Joi.string()
-            .hex()
-            .length(66),
         genesisHash: Joi.string()
             .hex()
             .length(64),
-        name: Joi.string()
-            .regex(/^[a-zA-Z0-9_-]+$/)
-            .max(40),
+        name: genericName,
         seedNodes: Joi.array()
             .unique()
             .min(1)
