@@ -55,11 +55,7 @@ export class SecondSignatureTransactionHandler extends TransactionHandler {
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
     ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
-
-        return true;
+        return !(await this.typeFromSenderAlreadyInPool(data, pool, processor));
     }
 
     public async applyToSender(

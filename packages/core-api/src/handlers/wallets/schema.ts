@@ -1,9 +1,5 @@
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination, walletId } from "../shared/schemas";
-
-const address: object = Joi.string()
-    .alphanum()
-    .length(34);
+import { address, blockId, orderBy, pagination, publicKey, walletId } from "../shared/schemas";
 
 const iteratees = ["balance"];
 const lockIteratees = ["timestamp"];
@@ -13,18 +9,10 @@ export const index: object = {
         ...pagination,
         ...{
             orderBy: orderBy(iteratees),
-            address: Joi.string()
-                .alphanum()
-                .length(34),
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
-            secondPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            vote: Joi.string()
-                .hex()
-                .length(66),
+            address,
+            publicKey,
+            secondPublicKey: publicKey,
+            vote: publicKey,
             username: Joi.string(),
             balance: Joi.number().integer(),
             voteBalance: Joi.number()
@@ -103,9 +91,7 @@ export const transactionsSent: object = {
             version: Joi.number()
                 .integer()
                 .positive(),
-            recipientId: Joi.string()
-                .alphanum()
-                .length(34),
+            recipientId: address,
             timestamp: Joi.number()
                 .integer()
                 .min(0),
@@ -145,12 +131,8 @@ export const transactionsReceived: object = {
             version: Joi.number()
                 .integer()
                 .positive(),
-            senderPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            senderId: Joi.string()
-                .alphanum()
-                .length(34),
+            senderPublicKey: publicKey,
+            senderId: address,
             timestamp: Joi.number()
                 .integer()
                 .min(0),
@@ -208,15 +190,9 @@ export const search: object = {
             .min(1)
             .max(50)
             .items(address),
-        publicKey: Joi.string()
-            .hex()
-            .length(66),
-        secondPublicKey: Joi.string()
-            .hex()
-            .length(66),
-        vote: Joi.string()
-            .hex()
-            .length(66),
+        publicKey,
+        secondPublicKey: publicKey,
+        vote: publicKey,
         username: Joi.string(),
         producedBlocks: Joi.number()
             .integer()

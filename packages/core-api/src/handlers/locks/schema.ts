@@ -1,6 +1,6 @@
 import { Enums } from "@arkecosystem/crypto";
 import Joi from "@hapi/joi";
-import { orderBy, pagination } from "../shared/schemas";
+import { address, orderBy, pagination, publicKey } from "../shared/schemas";
 
 const iteratees = ["timestamp"];
 
@@ -9,12 +9,8 @@ export const index: object = {
         ...pagination,
         ...{
             orderBy: orderBy(iteratees),
-            recipientId: Joi.string()
-                .alphanum()
-                .length(34),
-            senderPublicKey: Joi.string()
-                .hex()
-                .length(66),
+            recipientId: address,
+            senderPublicKey: publicKey,
             lockId: Joi.string()
                 .hex()
                 .length(64),
@@ -49,12 +45,8 @@ export const search: object = {
         },
     },
     payload: {
-        recipientId: Joi.string()
-            .alphanum()
-            .length(34),
-        senderPublicKey: Joi.string()
-            .hex()
-            .length(66),
+        recipientId: address,
+        senderPublicKey: publicKey,
         lockId: Joi.string()
             .hex()
             .length(64),

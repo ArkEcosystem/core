@@ -1,13 +1,8 @@
 import { app } from "@arkecosystem/core-container";
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination } from "../shared/schemas";
+import { address, blockId, orderBy, pagination, publicKey, walletId } from "../shared/schemas";
 
 const config = app.getConfig();
-
-const schemaIdentifier = Joi.string()
-    .regex(/^[a-zA-Z0-9!@$&_.]+$/)
-    .min(1)
-    .max(66);
 
 const schemaUsername = Joi.string()
     .regex(/^[a-z0-9!@$&_.]+$/)
@@ -42,18 +37,10 @@ export const index: object = {
         ...{
             orderBy: orderBy(iteratees),
             type: Joi.string().valid("resigned", "never-forged"),
-            address: Joi.string()
-                .alphanum()
-                .length(34),
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
-            secondPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            vote: Joi.string()
-                .hex()
-                .length(66),
+            address,
+            publicKey,
+            secondPublicKey: publicKey,
+            vote: publicKey,
             username: schemaUsername,
             balance: Joi.number()
                 .integer()
@@ -70,7 +57,7 @@ export const index: object = {
 
 export const show: object = {
     params: {
-        id: schemaIdentifier,
+        id: walletId,
     },
 };
 
@@ -82,12 +69,8 @@ export const search: object = {
         },
     },
     payload: {
-        address: Joi.string()
-            .alphanum()
-            .length(34),
-        publicKey: Joi.string()
-            .hex()
-            .length(66),
+        address,
+        publicKey,
         username: schemaUsername,
         usernames: Joi.array()
             .unique()
@@ -105,7 +88,7 @@ export const search: object = {
 
 export const blocks: object = {
     params: {
-        id: schemaIdentifier,
+        id: walletId,
     },
     query: {
         ...pagination,
@@ -138,9 +121,7 @@ export const blocks: object = {
                 .integer()
                 .min(0),
             payloadHash: Joi.string().hex(),
-            generatorPublicKey: Joi.string()
-                .hex()
-                .length(66),
+            generatorPublicKey: publicKey,
             blockSignature: Joi.string().hex(),
             transform: Joi.bool().default(true),
         },
@@ -149,24 +130,16 @@ export const blocks: object = {
 
 export const voters: object = {
     params: {
-        id: schemaIdentifier,
+        id: walletId,
     },
     query: {
         ...pagination,
         ...{
             orderBy: orderBy(iteratees),
-            address: Joi.string()
-                .alphanum()
-                .length(34),
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
-            secondPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            vote: Joi.string()
-                .hex()
-                .length(66),
+            address,
+            publicKey,
+            secondPublicKey: publicKey,
+            vote: publicKey,
             username: schemaUsername,
             balance: Joi.number()
                 .integer()

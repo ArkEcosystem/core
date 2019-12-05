@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination } from "../shared/schemas";
+import { address, blockId, orderBy, pagination, publicKey } from "../shared/schemas";
 
 const iteratees = ["height"];
 const transactionIteratees = ["timestamp"];
@@ -36,9 +36,7 @@ export const index: object = {
                 .integer()
                 .positive(),
             payloadHash: Joi.string().hex(),
-            generatorPublicKey: Joi.string()
-                .hex()
-                .length(66),
+            generatorPublicKey: publicKey,
             blockSignature: Joi.string().hex(),
             transform: Joi.bool().default(true),
         },
@@ -76,7 +74,7 @@ export const transactions: object = {
             orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
-                .length(66),
+                .length(64),
             blockId,
             type: Joi.number()
                 .integer()
@@ -84,15 +82,9 @@ export const transactions: object = {
             version: Joi.number()
                 .integer()
                 .min(0),
-            senderPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            senderId: Joi.string()
-                .alphanum()
-                .length(34),
-            recipientId: Joi.string()
-                .alphanum()
-                .length(34),
+            senderPublicKey: publicKey,
+            senderId: address,
+            recipientId: address,
             timestamp: Joi.number()
                 .integer()
                 .min(0),
@@ -122,9 +114,7 @@ export const search: object = {
             .min(0),
         previousBlock: blockId,
         payloadHash: Joi.string().hex(),
-        generatorPublicKey: Joi.string()
-            .hex()
-            .length(66),
+        generatorPublicKey: publicKey,
         blockSignature: Joi.string().hex(),
         timestamp: Joi.object().keys({
             from: Joi.number()
