@@ -74,13 +74,45 @@ export const unconfirmed: object = {
     },
 };
 
-export const showUnconfirmed: object = {
+/**
+ * Create a function that would validate a given JOI object and if validation
+ * fails, then throw an error that includes the input value.
+ * See https://hapi.dev/api/?v=18.4.0#-routeoptionsvalidateparams
+ */
+function createValidatorFunc(joiObject: any) {
+    return async function(input, options) {
+        const schema = Joi.object(joiObject);
+        // https://hapi.dev/family/joi/?v=16.1.8#general-usage
+        const { error, value } = schema.validate(input);
+        if (error) {
+            const message = error.details
+                .map(d => `${d.message}: key=${d.context.key}, value=${d.context.value}`)
+                .join("; ");
+            throw new Error(message);
+        }
+        return value;
+    }
+}
+
+/**
+ * Replace each property of a given object with the result of calling createValidatorFunc().
+ * This is used so that we could still use e.g. { params: { id: Joi... } } and have the
+ * input value included in the error message.
+ */
+function transformValidationObject(obj) {
+    for (const key of Object.keys(obj)) {
+        obj[key] = createValidatorFunc(obj[key]);
+    }
+    return obj;
+}
+
+export const showUnconfirmed: object = transformValidationObject({
     params: {
         id: Joi.string()
             .hex()
             .length(64),
     },
-};
+});
 
 export const search: object = {
     query: {
