@@ -1,14 +1,12 @@
 import Joi from "@hapi/joi";
-import { orderBy, pagination, walletId } from "../shared/schemas";
+import { address, genericName, orderBy, pagination, publicKey, walletId } from "../shared/schemas";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
             orderBy,
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
+            publicKey,
             isResigned: Joi.bool(),
         },
     },
@@ -41,12 +39,9 @@ export const search: object = {
         },
     },
     payload: {
-        publicKey: Joi.string()
-            .hex()
-            .length(66),
-        name: Joi.string()
-            .regex(/^[a-zA-Z0-9_-]+$/)
-            .max(40),
+        address,
+        publicKey,
+        name: genericName,
         website: Joi.string().max(80),
         vat: Joi.string()
             .alphanum()
