@@ -1,6 +1,6 @@
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import Boom from "@hapi/boom";
+import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { BlockResource, DelegateResource, WalletResource } from "../resources";
@@ -85,11 +85,11 @@ export class DelegatesController extends Controller {
         try {
             wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
         } catch (error) {
-            return Boom.notFound("Delegate not found");
+            return notFound("Delegate not found");
         }
 
         if (!wallet.hasAttribute("delegate.username")) {
-            return Boom.notFound("Delegate not found");
+            return notFound("Delegate not found");
         }
 
         return wallet;

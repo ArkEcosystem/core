@@ -1,16 +1,19 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import chalk, { Chalk } from "chalk";
-import { WriteStream } from "fs";
 import pino, { PrettyOptions } from "pino";
 import PinoPretty from "pino-pretty";
 import pump from "pump";
 import { Transform } from "readable-stream";
-import rfs from "rotating-file-stream";
+import { createStream } from "rotating-file-stream";
 import split from "split2";
-import { PassThrough } from "stream";
+import { PassThrough, Writable } from "stream";
 import { inspect } from "util";
 
-// todo: review the implementation
+/**
+ * @export
+ * @class PinoLogger
+ * @implements {Contracts.Kernel.Logger}
+ */
 @Container.injectable()
 export class PinoLogger implements Contracts.Kernel.Logger {
     /**
@@ -39,10 +42,10 @@ export class PinoLogger implements Contracts.Kernel.Logger {
 
     /**
      * @private
-     * @type {WriteStream}
+     * @type {Writable}
      * @memberof PinoLogger
      */
-    private fileStream!: WriteStream;
+    private fileStream!: Writable;
 
     /**
      * @private
@@ -247,19 +250,23 @@ export class PinoLogger implements Contracts.Kernel.Logger {
     /**
      * @private
      * @param {{ interval: string }} options
-     * @returns {WriteStream}
+     * @returns {Writable}
      * @memberof PinoLogger
      */
-    private getFileStream(options: { interval: string }): WriteStream {
-        return rfs(
-            (time: Date, index: number) => {
+    private getFileStream(options: { interval: string }): Writable {
+        return createStream(
+            (time: number | Date, index?: number): string => {
                 if (!time) {
                     return `${this.app.namespace()}-current.log`;
                 }
 
+                if (typeof time === "number") {
+                    time = new Date(time);
+                }
+
                 let filename: string = time.toISOString().slice(0, 10);
 
-                if (index > 1) {
+                if (index && index > 1) {
                     filename += `.${index}`;
                 }
 

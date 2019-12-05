@@ -13,7 +13,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -38,7 +38,7 @@ export const register = (server: Hapi.Server): void => {
                             .integer()
                             .min(0),
                     },
-                },
+                }),
             },
         },
     });
@@ -49,7 +49,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.top,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -74,7 +74,7 @@ export const register = (server: Hapi.Server): void => {
                             .integer()
                             .min(0),
                     },
-                },
+                }),
             },
         },
     });
@@ -85,9 +85,9 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.show,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.walletId,
-                },
+                }),
             },
         },
     });
@@ -98,10 +98,10 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.transactions,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.walletId,
-                },
-                query: {
+                }),
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -133,7 +133,7 @@ export const register = (server: Hapi.Server): void => {
                         vendorField: Joi.string().max(255, "utf8"),
                         transform: Joi.bool().default(true),
                     },
-                },
+                }),
             },
         },
     });
@@ -144,10 +144,10 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.transactionsSent,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.walletId,
-                },
-                query: {
+                }),
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -182,7 +182,7 @@ export const register = (server: Hapi.Server): void => {
                         vendorField: Joi.string().max(255, "utf8"),
                         transform: Joi.bool().default(true),
                     },
-                },
+                }),
             },
         },
     });
@@ -193,10 +193,10 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.transactionsReceived,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.walletId,
-                },
-                query: {
+                }),
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -234,7 +234,7 @@ export const register = (server: Hapi.Server): void => {
                         vendorField: Joi.string().max(255, "utf8"),
                         transform: Joi.bool().default(true),
                     },
-                },
+                }),
             },
         },
     });
@@ -245,15 +245,15 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.votes,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.walletId,
-                },
-                query: {
+                }),
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         transform: Joi.bool().default(true),
                     },
-                },
+                }),
             },
         },
     });
@@ -264,16 +264,16 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.locks,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.walletId,
-                },
-                query: {
+                }),
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         isExpired: Joi.bool(),
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
+                }),
             },
         },
     });
@@ -284,13 +284,13 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
-                payload: {
+                }),
+                payload: Joi.object({
                     address: server.app.schemas.address,
                     addresses: Joi.array()
                         .unique()
@@ -330,7 +330,7 @@ export const register = (server: Hapi.Server): void => {
                             .integer()
                             .min(0),
                     }),
-                },
+                }),
             },
         },
     });

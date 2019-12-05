@@ -23,10 +23,10 @@
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "chalk": "^3.0.0",
         "pino": "^5.14.0",
-        "pino-pretty": "^3.4.0",
+        "pino-pretty": "^3.5.0",
         "pump": "^3.0.0",
         "readable-stream": "^3.4.0",
-        "rotating-file-stream": "^1.4.6",
+        "rotating-file-stream": "^2.0.0",
         "split2": "^3.1.1",
         "stream": "^0.0.2"
     },

@@ -14,7 +14,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -36,10 +36,10 @@ export const register = (server: Hapi.Server): void => {
                         expirationValue: Joi.number()
                             .integer()
                             .min(0),
-                        expirationType: Joi.number().only(...Object.values(Enums.HtlcLockExpirationType)),
+                        expirationType: Joi.number().allow(...Object.values(Enums.HtlcLockExpirationType)),
                         isExpired: Joi.bool(),
                     },
-                },
+                }),
             },
         },
     });
@@ -50,11 +50,11 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.show,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: Joi.string()
                         .hex()
                         .length(64),
-                },
+                }),
             },
         },
     });
@@ -65,13 +65,13 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
-                payload: {
+                }),
+                payload: Joi.object({
                     recipientId: Joi.string()
                         .alphanum()
                         .length(34),
@@ -103,7 +103,7 @@ export const register = (server: Hapi.Server): void => {
                     vendorField: Joi.string()
                         .min(1)
                         .max(255),
-                    expirationType: Joi.number().only(...Object.values(Enums.HtlcLockExpirationType)),
+                    expirationType: Joi.number().allow(...Object.values(Enums.HtlcLockExpirationType)),
                     expirationValue: Joi.object().keys({
                         from: Joi.number()
                             .integer()
@@ -113,7 +113,7 @@ export const register = (server: Hapi.Server): void => {
                             .min(0),
                     }),
                     isExpired: Joi.bool(),
-                },
+                }),
             },
         },
     });
@@ -124,13 +124,13 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.unlocked,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
-                payload: {
+                }),
+                payload: Joi.object({
                     ids: Joi.array()
                         .unique()
                         .min(1)
@@ -140,7 +140,7 @@ export const register = (server: Hapi.Server): void => {
                                 .hex()
                                 .length(64),
                         ),
-                },
+                }),
             },
         },
     });

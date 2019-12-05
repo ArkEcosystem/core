@@ -13,7 +13,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -33,7 +33,7 @@ export const register = (server: Hapi.Server): void => {
                             .max(10)
                             .items(Joi.string().ip()),
                     },
-                },
+                }),
             },
         },
     });
@@ -44,11 +44,11 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.show,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: Joi.string()
                         .hex()
                         .length(64), // id is genesisHash
-                },
+                }),
             },
         },
     });
@@ -59,13 +59,13 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
-                payload: {
+                }),
+                payload: Joi.object({
                     bridgechainRepository: Joi.string().max(80),
                     publicKey: Joi.string()
                         .hex()
@@ -73,7 +73,7 @@ export const register = (server: Hapi.Server): void => {
                     genesisHash: Joi.string()
                         .hex()
                         .length(64),
-                },
+                }),
             },
         },
     });

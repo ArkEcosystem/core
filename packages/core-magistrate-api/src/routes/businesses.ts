@@ -13,7 +13,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -29,7 +29,7 @@ export const register = (server: Hapi.Server): void => {
                             .max(15),
                         repository: Joi.string().max(80),
                     },
-                },
+                }),
             },
         },
     });
@@ -40,11 +40,11 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.show,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: Joi.string()
                         .hex()
                         .length(66),
-                },
+                }),
             },
         },
     });
@@ -55,17 +55,17 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.bridgechains,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: Joi.string()
                         .hex()
                         .length(66),
-                },
-                query: {
+                }),
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
+                }),
             },
         },
     });
@@ -76,17 +76,17 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
-                payload: {
+                }),
+                payload: Joi.object({
                     publicKey: Joi.string()
                         .hex()
                         .length(66),
-                },
+                }),
             },
         },
     });

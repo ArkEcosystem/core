@@ -13,11 +13,11 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.delegates,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: Joi.number()
                         .integer()
                         .min(1),
-                },
+                }),
             },
         },
     });

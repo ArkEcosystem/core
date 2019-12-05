@@ -14,7 +14,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -42,7 +42,7 @@ export const register = (server: Hapi.Server): void => {
                             .integer()
                             .min(0),
                     },
-                },
+                }),
             },
         },
     });
@@ -53,9 +53,9 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.show,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.delegateIdentifier,
-                },
+                }),
             },
         },
     });
@@ -66,10 +66,10 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.blocks,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.delegateIdentifier,
-                },
-                query: {
+                }),
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -97,7 +97,7 @@ export const register = (server: Hapi.Server): void => {
                             .min(0),
                         transform: Joi.bool().default(true),
                     },
-                },
+                }),
             },
         },
     });
@@ -108,10 +108,10 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.voters,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: server.app.schemas.delegateIdentifier,
-                },
-                query: {
+                }),
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -148,7 +148,7 @@ export const register = (server: Hapi.Server): void => {
                         blockSignature: Joi.string().hex(),
                         transform: Joi.bool().default(true),
                     },
-                },
+                }),
             },
         },
     });
@@ -159,13 +159,13 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.search,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
-                payload: {
+                }),
+                payload: Joi.object({
                     address: Joi.string()
                         .alphanum()
                         .length(34),
@@ -184,7 +184,7 @@ export const register = (server: Hapi.Server): void => {
                     forgedTotal: server.app.schemas.integerBetween,
                     producedBlocks: server.app.schemas.integerBetween,
                     voteBalance: server.app.schemas.integerBetween,
-                },
+                }),
             },
         },
     });

@@ -13,7 +13,7 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         orderBy: server.app.schemas.orderBy,
@@ -45,7 +45,7 @@ export const register = (server: Hapi.Server): void => {
                         vendorField: Joi.string().max(255, "utf8"),
                         transform: Joi.bool().default(true),
                     },
-                },
+                }),
             },
         },
     });
@@ -56,14 +56,14 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.show,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     id: Joi.string()
                         .hex()
                         .length(64),
-                },
-                query: {
+                }),
+                query: Joi.object({
                     transform: Joi.bool().default(true),
-                },
+                }),
             },
         },
     });

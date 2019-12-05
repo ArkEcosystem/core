@@ -56,14 +56,14 @@ export const createSchemas = ({ pagination }: { pagination: { limit: number } })
     searchCriteria: (field: string, value: any, operator: string[]) =>
         Joi.object().keys({
             field: Joi.string()
-                .only(field)
+                .allow(field)
                 .required(),
             value: value.required(),
             operator: Joi.string()
-                .only(operator)
+                .allow(...operator)
                 .required(),
         }),
-    numberFixedOrBetween: Joi.alternatives(
+    numberFixedOrBetween: Joi.alternatives().try(
         Joi.number()
             .integer()
             .min(0),

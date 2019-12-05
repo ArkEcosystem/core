@@ -37,13 +37,13 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.fees,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     days: Joi.number()
                         .integer()
                         .min(1)
                         .max(30)
                         .default(7),
-                },
+                }),
             },
         },
     });

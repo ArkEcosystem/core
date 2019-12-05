@@ -13,14 +13,14 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.index,
         options: {
             validate: {
-                query: {
+                query: Joi.object({
                     ...server.app.schemas.pagination,
                     ...{
                         ip: Joi.string().ip(),
                         version: Joi.string(),
                         orderBy: server.app.schemas.orderBy,
                     },
-                },
+                }),
             },
         },
     });
@@ -31,9 +31,9 @@ export const register = (server: Hapi.Server): void => {
         handler: controller.show,
         options: {
             validate: {
-                params: {
+                params: Joi.object({
                     ip: Joi.string().ip(),
-                },
+                }),
             },
         },
     });

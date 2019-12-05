@@ -1,7 +1,7 @@
 import { Repositories } from "@arkecosystem/core-database";
 import { Application, Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums } from "@arkecosystem/crypto";
-import Boom from "@hapi/boom";
+import { Boom, notFound } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { LockResource, TransactionResource, WalletResource } from "../resources";
@@ -171,7 +171,7 @@ export class WalletsController extends Controller {
         try {
             return this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, id);
         } catch (error) {
-            throw Boom.notFound("Wallet not found");
+            throw notFound("Wallet not found");
         }
     }
 }
