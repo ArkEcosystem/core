@@ -35,7 +35,7 @@ export const resetBlockchain = async (app: Contracts.Kernel.Application) => {
         await blockchain.removeBlocks(height - 1);
     }
 
-    app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService).flush();
+    // app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService).flush();
 };
 
 export const getWalletNonce = (app: Contracts.Kernel.Application, publicKey: string): Utils.BigNumber => {

@@ -3,16 +3,31 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
-// todo: review the implementation
+/**
+ * @export
+ * @class PoolWalletRepository
+ * @extends {Wallets.WalletRepository}
+ */
 @Container.injectable()
 export class PoolWalletRepository extends Wallets.WalletRepository {
+    /**
+     * @private
+     * @type {Contracts.State.WalletRepository}
+     * @memberof PoolWalletRepository
+     */
     @Container.inject(Container.Identifiers.WalletRepository)
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
+    /**
+     * @memberof PoolWalletRepository
+     */
     public constructor() {
         super();
     }
 
+    /**
+     * @memberof PoolWalletRepository
+     */
     public initialize(): void {
         const indexes: string[] = this.walletRepository.getIndexNames();
         for (const index of indexes) {
@@ -24,6 +39,11 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
         }
     }
 
+    /**
+     * @param {string} address
+     * @returns {Contracts.State.Wallet}
+     * @memberof PoolWalletRepository
+     */
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
             this.reindex(
@@ -37,6 +57,12 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
         return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address)!;
     }
 
+    /**
+     * @param {(string | string[])} index
+     * @param {string} key
+     * @returns {Contracts.State.Wallet}
+     * @memberof PoolWalletRepository
+     */
     public findByIndex(index: string | string[], key: string): Contracts.State.Wallet {
         const wallet = super.findByIndex(index, key);
 
@@ -56,11 +82,20 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
         return undefined;
     }
 
+    /**
+     * @param {string} publicKey
+     * @memberof PoolWalletRepository
+     */
     public forget(publicKey: string): void {
         this.forgetByPublicKey(publicKey);
         this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
     }
 
+    /**
+     * @param {Interfaces.ITransaction} transaction
+     * @returns {Promise<void>}
+     * @memberof PoolWalletRepository
+     */
     public async throwIfCannotBeApplied(transaction: Interfaces.ITransaction): Promise<void> {
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -73,13 +108,22 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
         return handler.throwIfCannotBeApplied(transaction, sender);
     }
 
+    /**
+     * @param {Interfaces.ITransaction} transaction
+     * @returns {Promise<void>}
+     * @memberof PoolWalletRepository
+     */
     public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
         const handler: Handlers.TransactionHandler = await this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
             .get(transaction.data);
+
         return handler.revertForSender(transaction, this);
     }
 
+    /**
+     * @memberof PoolWalletRepository
+     */
     public reset(): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();

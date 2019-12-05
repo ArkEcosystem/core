@@ -36,7 +36,6 @@ export const Identifiers = {
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
     TransactionPoolService: Symbol.for("Service<TransactionPool>"),
-    TransactionPoolWalletRepository: Symbol.for("Repository<PoolWallet>"),
     TriggerService: Symbol.for("Service<Actions>"),
     ValidationService: Symbol.for("Service<Validation>"),
     // Factories
@@ -68,6 +67,12 @@ export const Identifiers = {
     PeerNetworkMonitor: Symbol.for("Peer<NetworkMonitor>"),
     PeerProcessor: Symbol.for("Peer<Processor>"),
     PeerStorage: Symbol.for("Peer<Storage>"),
+    // Transaction Pool
+    TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
+    TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
+    TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
+    TransactionPoolSynchronizer: Symbol.for("TransactionPool<Synchronizer>"),
+    TransactionPoolWalletRepository: Symbol.for("TransactionPool<WalletRepository>"),
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
     // Registries

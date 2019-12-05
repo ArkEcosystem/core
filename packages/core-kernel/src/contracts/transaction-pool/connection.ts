@@ -1,7 +1,5 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { Processor } from "./processor";
-
 export interface AddTransactionResponse {
     transaction?: Interfaces.ITransaction;
     type?: string;
@@ -10,10 +8,8 @@ export interface AddTransactionResponse {
 
 // todo: clean this up and split the connection into entities with small responsibilities.
 export interface Connection {
-    makeProcessor(): Processor;
+    boot(): Promise<this>;
 
-    make(): Promise<this>;
-    disconnect(): void;
     getPoolSize(): Promise<number>;
     getSenderSize(senderPublicKey: string): Promise<number>;
     addTransactions(
@@ -25,7 +21,6 @@ export interface Connection {
     acceptChainedBlock(block: Interfaces.IBlock): Promise<void>;
     buildWallets(): Promise<void>;
     replay(transactions: Interfaces.ITransaction[]): Promise<void>;
-    flush(): void;
     getTransaction(id: string): Promise<Interfaces.ITransaction | undefined>;
     getTransactionIdsForForging(start: number, size: number): Promise<string[]>;
     getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]>;
@@ -33,10 +28,9 @@ export interface Connection {
     getTransactionsForForging(blockSize: number): Promise<string[]>;
     has(transactionId: string): Promise<boolean>;
     hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean>;
-    purgeByPublicKey(senderPublicKey: string): void;
+    senderHasTransactionsOfType(senderPublicKey: string, type: number, typeGroup?: number): Promise<boolean>;
+
     removeTransaction(transaction: Interfaces.ITransaction): void;
     removeTransactionById(id: string, senderPublicKey?: string): void;
     removeTransactionsById(ids: string[]): void;
-    removeTransactionsForSender(senderPublicKey: string): void;
-    senderHasTransactionsOfType(senderPublicKey: string, type: number, typeGroup?: number): Promise<boolean>;
 }

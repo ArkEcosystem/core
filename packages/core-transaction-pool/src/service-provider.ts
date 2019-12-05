@@ -1,21 +1,46 @@
-import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 
+import { Cleaner } from "./cleaner";
 import { Connection } from "./connection";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
 import { Storage } from "./storage";
+import { Synchronizer } from "./synchronizer";
 
+/**
+ * @export
+ * @class ServiceProvider
+ * @extends {Providers.ServiceProvider}
+ */
 export class ServiceProvider extends Providers.ServiceProvider {
+    /**
+     * @returns {Promise<void>}
+     * @memberof ServiceProvider
+     */
     public async register(): Promise<void> {
-        this.app.log.info("Connecting to transaction pool");
-
-        const maxTransactionAge: number | undefined = this.config().get("maxTransactionAge");
-
-        Utils.assert.defined<number>(maxTransactionAge);
-
         this.app
             .bind(Container.Identifiers.TransactionPoolWalletRepository)
             .to(PoolWalletRepository)
+            .inSingletonScope();
+
+        this.app
+            .bind(Container.Identifiers.TransactionPoolMemory)
+            .to(Memory)
+            .inSingletonScope();
+
+        this.app
+            .bind(Container.Identifiers.TransactionPoolStorage)
+            .to(Storage)
+            .inSingletonScope();
+
+        this.app
+            .bind(Container.Identifiers.TransactionPoolSynchronizer)
+            .to(Synchronizer)
+            .inSingletonScope();
+
+        this.app
+            .bind(Container.Identifiers.TransactionPoolCleaner)
+            .to(Cleaner)
             .inSingletonScope();
 
         this.app
@@ -23,24 +48,48 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .to(Connection)
             .inSingletonScope();
 
-        // Initialise the connection with some defaults
-        // todo: clean this up, too many params that can be replaced with IoC
-        this.app.get<Connection>(Container.Identifiers.TransactionPoolService).initialize({
-            options: this.config().all(),
-            memory: this.app.resolve(Memory).initialize(maxTransactionAge),
-            storage: new Storage(),
-        });
+        this.initializeComponents();
     }
 
+    /**
+     * @returns {Promise<void>}
+     * @memberof ServiceProvider
+     */
     public async boot(): Promise<void> {
-        await this.app.get<Connection>(Container.Identifiers.TransactionPoolService).make();
+        await this.app.get<Connection>(Container.Identifiers.TransactionPoolService).boot();
     }
 
+    /**
+     * @returns {Promise<void>}
+     * @memberof ServiceProvider
+     */
     public async dispose(): Promise<void> {
-        this.app.get<Contracts.TransactionPool.Connection>(Container.Identifiers.TransactionPoolService).disconnect();
+        this.app.get<Synchronizer>(Container.Identifiers.TransactionPoolSynchronizer).syncToPersistentStorage();
+
+        this.app.get<Storage>(Container.Identifiers.TransactionPoolStorage).disconnect();
     }
 
+    /**
+     * @returns {Promise<boolean>}
+     * @memberof ServiceProvider
+     */
     public async required(): Promise<boolean> {
         return true;
+    }
+
+    /**
+     * @private
+     * @memberof ServiceProvider
+     */
+    private initializeComponents(): void {
+        this.app.get<Connection>(Container.Identifiers.TransactionPoolService).initialize(this.config().all());
+
+        this.app
+            .get<Connection>(Container.Identifiers.TransactionPoolMemory)
+            .initialize(this.config().get("maxTransactionAge"));
+
+        this.app
+            .get<Connection>(Container.Identifiers.TransactionPoolSynchronizer)
+            .initialize(this.config().get("syncInterval"));
     }
 }

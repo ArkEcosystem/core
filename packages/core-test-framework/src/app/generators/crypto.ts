@@ -1,3 +1,4 @@
+import { Types } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { ensureDirSync, existsSync, writeJSONSync } from "fs-extra";
@@ -6,7 +7,6 @@ import { dirSync } from "tmp";
 
 import { CryptoConfigPaths, Wallet } from "../contracts";
 import { Generator } from "./generator";
-import { Types } from "@arkecosystem/core-kernel";
 
 export class CryptoGenerator extends Generator {
     /**

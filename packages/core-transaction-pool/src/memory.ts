@@ -3,8 +3,17 @@ import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem
 import assert from "assert";
 
 // todo: review implementation and reduce the complexity of all methods as it is quite high
+/**
+ * @export
+ * @class Memory
+ */
 @Container.injectable()
 export class Memory {
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Memory
+     */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -14,35 +23,87 @@ export class Memory {
      * - insertion just appends at the end, complexity: O(1) + flag it as unsorted
      * - deletion removes by using splice(), complexity: O(n) + flag it as unsorted
      * - lookup sorts if it is not sorted, complexity: O(n*log(n) + flag it as sorted
+     *
+     * @private
+     * @type {Interfaces.ITransaction[]}
+     * @memberof Memory
      */
     private all: Interfaces.ITransaction[] = [];
 
+    /**
+     * @private
+     * @memberof Memory
+     */
     private allIsSorted = true;
 
+    /**
+     * @private
+     * @type {{ [key: string]: Interfaces.ITransaction }}
+     * @memberof Memory
+     */
     private byId: { [key: string]: Interfaces.ITransaction } = {};
 
+    /**
+     * @private
+     * @type {{ [key: string]: Set<Interfaces.ITransaction> }}
+     * @memberof Memory
+     */
     private bySender: { [key: string]: Set<Interfaces.ITransaction> } = {};
+
+    /**
+     * @private
+     * @type {Map<Transactions.InternalTransactionType, Set<Interfaces.ITransaction>>}
+     * @memberof Memory
+     */
     private byType: Map<Transactions.InternalTransactionType, Set<Interfaces.ITransaction>> = new Map();
 
     /**
      * Contains only transactions that expire, possibly sorted by height (lower first).
+     *
+     * @private
+     * @type {Interfaces.ITransaction[]}
+     * @memberof Memory
      */
     private byExpiration: Interfaces.ITransaction[] = [];
 
+    /**
+     * @private
+     * @memberof Memory
+     */
     private byExpirationIsSorted = true;
 
+    /**
+     * @private
+     * @type {{ added: Set<string>; removed: Set<string> }}
+     * @memberof Memory
+     */
     private readonly dirty: { added: Set<string>; removed: Set<string> } = {
         added: new Set(),
         removed: new Set(),
     };
 
+    /**
+     * @private
+     * @type {number}
+     * @memberof Memory
+     */
     private maxTransactionAge!: number;
+
+    /**
+     * @param {number} maxTransactionAge
+     * @returns
+     * @memberof Memory
+     */
     public initialize(maxTransactionAge: number) {
         this.maxTransactionAge = maxTransactionAge;
 
         return this;
     }
 
+    /**
+     * @returns {Interfaces.ITransaction[]}
+     * @memberof Memory
+     */
     public allSortedByFee(): Interfaces.ITransaction[] {
         if (!this.allIsSorted) {
             this.sortAll();
@@ -52,6 +113,10 @@ export class Memory {
         return this.all;
     }
 
+    /**
+     * @returns {Interfaces.ITransaction[]}
+     * @memberof Memory
+     */
     public getExpired(): Interfaces.ITransaction[] {
         const currentHeight: number = this.currentHeight();
         const expirationContext = {
@@ -102,6 +167,10 @@ export class Memory {
         return transactions;
     }
 
+    /**
+     * @returns {Interfaces.ITransaction[]}
+     * @memberof Memory
+     */
     public getInvalid(): Interfaces.ITransaction[] {
         const transactions: Interfaces.ITransaction[] = [];
 
@@ -116,6 +185,11 @@ export class Memory {
         return transactions;
     }
 
+    /**
+     * @param {string} id
+     * @returns {(Interfaces.ITransaction | undefined)}
+     * @memberof Memory
+     */
     public getById(id: string): Interfaces.ITransaction | undefined {
         if (this.byId[id] === undefined) {
             return undefined;
@@ -124,6 +198,12 @@ export class Memory {
         return this.byId[id];
     }
 
+    /**
+     * @param {number} type
+     * @param {number} typeGroup
+     * @returns {Set<Interfaces.ITransaction>}
+     * @memberof Memory
+     */
     public getByType(type: number, typeGroup: number): Set<Interfaces.ITransaction> {
         const internalType:
             | Transactions.InternalTransactionType
@@ -138,6 +218,11 @@ export class Memory {
         return new Set<Interfaces.ITransaction>();
     }
 
+    /**
+     * @param {string} senderPublicKey
+     * @returns {Set<Interfaces.ITransaction>}
+     * @memberof Memory
+     */
     public getBySender(senderPublicKey: string): Set<Interfaces.ITransaction> {
         if (this.bySender[senderPublicKey] !== undefined) {
             return this.bySender[senderPublicKey];
@@ -146,6 +231,11 @@ export class Memory {
         return new Set();
     }
 
+    /**
+     * @param {Interfaces.ITransaction} transaction
+     * @param {boolean} [databaseReady]
+     * @memberof Memory
+     */
     public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
         AppUtils.assert.defined<string>(transaction.id);
 
@@ -218,6 +308,12 @@ export class Memory {
         }
     }
 
+    /**
+     * @param {string} id
+     * @param {string} [senderPublicKey]
+     * @returns {void}
+     * @memberof Memory
+     */
     public forget(id: string, senderPublicKey?: string): void {
         if (this.byId[id] === undefined) {
             return;
@@ -322,6 +418,9 @@ export class Memory {
     /**
      * Sort `this.all` by fee (highest fee first) with the exception that transactions
      * from the same sender must be ordered lowest `nonce` first.
+     *
+     * @private
+     * @memberof Memory
      */
     private sortAll(): void {
         const currentHeight: number = this.currentHeight();
@@ -410,6 +509,11 @@ export class Memory {
         this.all = this.all.filter(t => t !== undefined);
     }
 
+    /**
+     * @private
+     * @returns {number}
+     * @memberof Memory
+     */
     private currentHeight(): number {
         return this.app.get<any>(Container.Identifiers.StateStore).getLastHeight();
     }

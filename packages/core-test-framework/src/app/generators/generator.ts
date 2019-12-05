@@ -32,7 +32,7 @@ export abstract class Generator {
                 symbol: "UѦ",
                 explorer: "http://uexplorer.ark.io",
                 distribute: true,
-            }
+            },
         },
     };
 
@@ -40,7 +40,7 @@ export abstract class Generator {
      * @param {SandboxOptions} options
      * @memberof Generator
      */
-    public constructor (options?: SandboxOptions) {
+    public constructor(options?: SandboxOptions) {
         if (options) {
             this.options = { ...this.options, ...options };
         }

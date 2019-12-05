@@ -1,13 +1,33 @@
+import { Container } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
-// todo: review the implementation
+/**
+ * @export
+ * @class Storage
+ */
+@Container.injectable()
 export class Storage {
+    /**
+     * @private
+     * @type {string}
+     * @memberof Storage
+     */
     private readonly table: string = "pool";
+
+    /**
+     * @private
+     * @type {BetterSqlite3.Database}
+     * @memberof Storage
+     */
     private database!: BetterSqlite3.Database;
 
+    /**
+     * @param {string} file
+     * @memberof Storage
+     */
     public connect(file: string) {
         ensureFileSync(file);
 
@@ -22,10 +42,18 @@ export class Storage {
     `);
     }
 
+    /**
+     * @memberof Storage
+     */
     public disconnect(): void {
         this.database.close();
     }
 
+    /**
+     * @param {Interfaces.ITransaction[]} data
+     * @returns {void}
+     * @memberof Storage
+     */
     public bulkAdd(data: Interfaces.ITransaction[]): void {
         if (data.length === 0) {
             return;
@@ -50,6 +78,11 @@ export class Storage {
         }
     }
 
+    /**
+     * @param {string[]} ids
+     * @returns {void}
+     * @memberof Storage
+     */
     public bulkRemoveById(ids: string[]): void {
         if (ids.length === 0) {
             return;
@@ -68,6 +101,10 @@ export class Storage {
         this.database.prepare("COMMIT;").run();
     }
 
+    /**
+     * @returns {Interfaces.ITransaction[]}
+     * @memberof Storage
+     */
     public loadAll(): Interfaces.ITransaction[] {
         const rows: Array<{ id: string; serialized: string }> = this.database
             .prepare(`SELECT id, LOWER(HEX(serialized)) AS serialized FROM ${this.table};`)
@@ -93,6 +130,9 @@ export class Storage {
         return transactions;
     }
 
+    /**
+     * @memberof Storage
+     */
     public deleteAll(): void {
         this.database.exec(`DELETE FROM ${this.table};`);
     }

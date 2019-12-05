@@ -1,5 +1,6 @@
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Processor } from "@arkecosystem/core-transaction-pool";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
@@ -35,7 +36,7 @@ export class TransactionsController extends Controller {
     }
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const processor: Contracts.TransactionPool.Processor = this.transactionPool.makeProcessor();
+        const processor: Contracts.TransactionPool.Processor = this.app.resolve(Processor);
         const result = await processor.validate((request.payload as any).transactions);
 
         if (result.broadcast.length > 0) {

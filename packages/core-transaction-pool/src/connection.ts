@@ -1,4 +1,3 @@
-import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
@@ -6,64 +5,111 @@ import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import differenceWith from "lodash.differencewith";
 
+import { Cleaner } from "./cleaner";
 import { TransactionsProcessed } from "./interfaces";
 import { PurgeInvalidTransactions } from "./listeners";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
-import { Processor } from "./processor";
 import { Storage } from "./storage";
+import { Synchronizer } from "./synchronizer";
 
-// todo: migrate to make use of ioc
-// todo: review the implementation
-// todo: reduce the overall complexity of methods
-// todo: review if the purging logic should be moved out as there is quite a bit of it now
+// todo: review implementation and reduce the complexity of all methods as it is quite high
+/**
+ * @export
+ * @class Connection
+ * @implements {Contracts.TransactionPool.Connection}
+ */
 @Container.injectable()
 export class Connection implements Contracts.TransactionPool.Connection {
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Connection
+     */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
+     * @private
+     * @type {Contracts.Kernel.EventDispatcher}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
+
+    /**
+     * @private
+     * @type {Contracts.State.WalletRepository}
+     * @memberof Connection
+     */
     @Container.inject(Container.Identifiers.WalletRepository)
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
-    @Container.inject(Container.Identifiers.TransactionRepository)
-    private readonly transactionRepository!: Repositories.TransactionRepository;
+    /**
+     * @private
+     * @type {Memory}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.TransactionPoolMemory)
+    private readonly memory!: Memory;
+
+    /**
+     * @private
+     * @type {Storage}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.TransactionPoolStorage)
+    private readonly storage!: Storage;
+
+    /**
+     * @private
+     * @type {Cleaner}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.TransactionPoolCleaner)
+    private readonly cleaner!: Cleaner;
+
+    /**
+     * @private
+     * @type {Synchronizer}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.TransactionPoolSynchronizer)
+    private readonly synchronizer!: Synchronizer;
 
     // todo: make private readonly
     @Container.inject(Container.Identifiers.TransactionPoolWalletRepository)
     public poolWalletRepository!: PoolWalletRepository;
 
+    private readonly loggedAllowedSenders: string[] = [];
+
     // @todo: make this private, requires some bigger changes to tests
     public options!: Record<string, any>;
 
-    private memory!: Memory;
-    private storage!: Storage;
-    private loggedAllowedSenders!: string[];
-
-    private emitter!: Contracts.Kernel.EventDispatcher;
-    private logger!: Contracts.Kernel.Logger;
-
-    public initialize({
-        options,
-        memory,
-        storage,
-    }: {
-        options: Record<string, any>;
-        memory: Memory;
-        storage: Storage;
-    }) {
+    /**
+     * @param {*} options
+     * @returns
+     * @memberof Connection
+     */
+    public initialize(options) {
         this.options = options;
-        this.memory = memory;
-        this.storage = storage;
-
-        this.loggedAllowedSenders = [];
-
-        this.emitter = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
-        this.logger = this.app.log;
 
         return this;
     }
 
-    public async make(): Promise<this> {
+    /**
+     * @returns {Promise<this>}
+     * @memberof Connection
+     */
+    public async boot(): Promise<this> {
         this.memory.flush();
         this.storage.connect(this.options.storage);
 
@@ -79,47 +125,58 @@ export class Connection implements Contracts.TransactionPool.Connection {
             this.memory.flush();
         } else {
             await this.validateTransactions(transactionsFromDisk);
-            await this.purgeExpired();
+            await this.cleaner.purgeExpired();
         }
 
-        this.syncToPersistentStorage();
+        this.synchronizer.syncToPersistentStorage();
 
-        this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, new PurgeInvalidTransactions(this));
+        this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, this.app.resolve(PurgeInvalidTransactions));
 
         return this;
     }
 
-    public disconnect(): void {
-        this.syncToPersistentStorage();
-        this.storage.disconnect();
-    }
-
-    public makeProcessor(): Contracts.TransactionPool.Processor {
-        return this.app.resolve<Processor>(Processor).initialize(this);
-    }
-
+    /**
+     * @param {number} type
+     * @param {number} [typeGroup]
+     * @returns {Promise<Set<Interfaces.ITransaction>>}
+     * @memberof Connection
+     */
     public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
         if (typeGroup === undefined) {
             typeGroup = Enums.TransactionTypeGroup.Core;
         }
 
-        await this.purgeExpired();
+        await this.cleaner.purgeExpired();
 
         return this.memory.getByType(type, typeGroup);
     }
 
+    /**
+     * @returns {Promise<number>}
+     * @memberof Connection
+     */
     public async getPoolSize(): Promise<number> {
-        await this.purgeExpired();
+        await this.cleaner.purgeExpired();
 
         return this.memory.count();
     }
 
+    /**
+     * @param {string} senderPublicKey
+     * @returns {Promise<number>}
+     * @memberof Connection
+     */
     public async getSenderSize(senderPublicKey: string): Promise<number> {
-        await this.purgeExpired();
+        await this.cleaner.purgeExpired();
 
         return this.memory.getBySender(senderPublicKey).size;
     }
 
+    /**
+     * @param {Interfaces.ITransaction[]} transactions
+     * @returns {Promise<TransactionsProcessed>}
+     * @memberof Connection
+     */
     public async addTransactions(transactions: Interfaces.ITransaction[]): Promise<TransactionsProcessed> {
         const added: Interfaces.ITransaction[] = [];
         const notAdded: Contracts.TransactionPool.AddTransactionResponse[] = [];
@@ -141,44 +198,80 @@ export class Connection implements Contracts.TransactionPool.Connection {
         return { added, notAdded };
     }
 
+    /**
+     * @param {Interfaces.ITransaction} transaction
+     * @memberof Connection
+     */
     public removeTransaction(transaction: Interfaces.ITransaction): void {
         AppUtils.assert.defined<string>(transaction.id);
 
         this.removeTransactionById(transaction.id, transaction.data.senderPublicKey);
     }
 
+    /**
+     * @param {string} id
+     * @param {string} [senderPublicKey]
+     * @memberof Connection
+     */
     public removeTransactionById(id: string, senderPublicKey?: string): void {
         this.memory.forget(id, senderPublicKey);
 
-        this.syncToPersistentStorageIfNecessary();
+        this.synchronizer.syncToPersistentStorageIfNecessary();
 
         this.emitter.dispatch(AppEnums.TransactionEvent.RemovedFromPool, id);
     }
 
+    /**
+     * @param {string[]} ids
+     * @memberof Connection
+     */
     public removeTransactionsById(ids: string[]): void {
         for (const id of ids) {
             this.removeTransactionById(id);
         }
     }
 
+    /**
+     * @param {string} id
+     * @returns {(Promise<Interfaces.ITransaction | undefined>)}
+     * @memberof Connection
+     */
     public async getTransaction(id: string): Promise<Interfaces.ITransaction | undefined> {
-        await this.purgeExpired();
+        await this.cleaner.purgeExpired();
 
         return this.memory.getById(id);
     }
 
+    /**
+     * @param {number} start
+     * @param {number} size
+     * @param {number} [maxBytes]
+     * @returns {Promise<Buffer[]>}
+     * @memberof Connection
+     */
     public async getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]> {
         return (await this.getValidatedTransactions(start, size, maxBytes)).map(
             (transaction: Interfaces.ITransaction) => transaction.serialized,
         );
     }
 
+    /**
+     * @param {number} blockSize
+     * @returns {Promise<string[]>}
+     * @memberof Connection
+     */
     public async getTransactionsForForging(blockSize: number): Promise<string[]> {
         return (await this.getValidatedTransactions(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
             transaction.serialized.toString("hex"),
         );
     }
 
+    /**
+     * @param {number} start
+     * @param {number} size
+     * @returns {Promise<string[]>}
+     * @memberof Connection
+     */
     public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
         const transactions: Interfaces.ITransaction[] = await this.getValidatedTransactions(
             start,
@@ -193,17 +286,14 @@ export class Connection implements Contracts.TransactionPool.Connection {
         });
     }
 
-    public removeTransactionsForSender(senderPublicKey: string): void {
-        for (const transaction of this.memory.getBySender(senderPublicKey)) {
-            AppUtils.assert.defined<string>(transaction.id);
-
-            this.removeTransactionById(transaction.id);
-        }
-    }
-
-    // @todo: move this to a more appropriate place
+    /**
+     * todo: move this to a more appropriate place @param {string} senderPublicKey
+     *
+     * @returns {Promise<boolean>}
+     * @memberof Connection
+     */
     public async hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean> {
-        await this.purgeExpired();
+        await this.cleaner.purgeExpired();
 
         if (this.options.allowedSenders.includes(senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
@@ -221,22 +311,26 @@ export class Connection implements Contracts.TransactionPool.Connection {
         return this.memory.getBySender(senderPublicKey).size >= this.options.maxTransactionsPerSender;
     }
 
-    public flush(): void {
-        this.memory.flush();
-
-        this.storage.deleteAll();
-    }
-
+    /**
+     * @param {string} transactionId
+     * @returns {Promise<boolean>}
+     * @memberof Connection
+     */
     public async has(transactionId: string): Promise<boolean> {
         if (!this.memory.has(transactionId)) {
             return false;
         }
 
-        await this.purgeExpired();
+        await this.cleaner.purgeExpired();
 
         return this.memory.has(transactionId);
     }
 
+    /**
+     * @param {Interfaces.IBlock} block
+     * @returns {Promise<void>}
+     * @memberof Connection
+     */
     public async acceptChainedBlock(block: Interfaces.IBlock): Promise<void> {
         for (const transaction of block.transactions) {
             const { data }: Interfaces.ITransaction = transaction;
@@ -329,36 +423,33 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 const transactionHandler: Handlers.TransactionHandler = await this.app
                     .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
                     .get(transaction.data);
+
                 await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.walletRepository);
+
                 await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
 
-                this.purgeByPublicKey(transaction.data.senderPublicKey);
+                this.cleaner.purgeByPublicKey(transaction.data.senderPublicKey);
             }
         }
 
         this.logger.info("Transaction Pool Manager build wallets complete");
     }
 
-    public purgeByPublicKey(senderPublicKey: string): void {
-        this.logger.debug(`Purging sender: ${senderPublicKey} from pool wallet manager`);
-
-        this.removeTransactionsForSender(senderPublicKey);
-
-        this.poolWalletRepository.forget(senderPublicKey);
-    }
-
-    public async purgeInvalidTransactions(): Promise<void> {
-        return this.purgeTransactions(AppEnums.TransactionEvent.RemovedFromPool, this.memory.getInvalid());
-    }
-
+    /**
+     * @param {string} senderPublicKey
+     * @param {number} type
+     * @param {number} [typeGroup]
+     * @returns {Promise<boolean>}
+     * @memberof Connection
+     */
     public async senderHasTransactionsOfType(
         senderPublicKey: string,
         type: number,
         typeGroup?: number,
     ): Promise<boolean> {
-        await this.purgeExpired();
+        await this.cleaner.purgeExpired();
 
         if (typeGroup === undefined) {
             typeGroup = Enums.TransactionTypeGroup.Core;
@@ -376,8 +467,14 @@ export class Connection implements Contracts.TransactionPool.Connection {
         return false;
     }
 
+    /**
+     * @param {Interfaces.ITransaction[]} transactions
+     * @returns {Promise<void>}
+     * @memberof Connection
+     */
     public async replay(transactions: Interfaces.ITransaction[]): Promise<void> {
-        this.flush();
+        this.cleaner.flush();
+
         this.poolWalletRepository.reset();
 
         for (const transaction of transactions) {
@@ -396,12 +493,20 @@ export class Connection implements Contracts.TransactionPool.Connection {
         }
     }
 
+    /**
+     * @private
+     * @param {number} start
+     * @param {number} size
+     * @param {number} [maxBytes=0]
+     * @returns {Promise<Interfaces.ITransaction[]>}
+     * @memberof Connection
+     */
     private async getValidatedTransactions(
         start: number,
         size: number,
         maxBytes = 0,
     ): Promise<Interfaces.ITransaction[]> {
-        await this.purgeExpired();
+        await this.cleaner.purgeExpired();
 
         const data: Interfaces.ITransaction[] = [];
 
@@ -448,6 +553,12 @@ export class Connection implements Contracts.TransactionPool.Connection {
         return data;
     }
 
+    /**
+     * @private
+     * @param {Interfaces.ITransaction} transaction
+     * @returns {Promise<Contracts.TransactionPool.AddTransactionResponse>}
+     * @memberof Connection
+     */
     private async addTransaction(
         transaction: Interfaces.ITransaction,
     ): Promise<Contracts.TransactionPool.AddTransactionResponse> {
@@ -511,32 +622,25 @@ export class Connection implements Contracts.TransactionPool.Connection {
             return { transaction, type: "ERR_APPLY", message: error.message };
         }
 
-        this.syncToPersistentStorageIfNecessary();
+        this.synchronizer.syncToPersistentStorageIfNecessary();
 
         return {};
     }
 
-    private syncToPersistentStorageIfNecessary(): void {
-        if (this.options.syncInterval <= this.memory.countDirty()) {
-            this.syncToPersistentStorage();
-        }
-    }
-
-    private syncToPersistentStorage(): void {
-        this.storage.bulkAdd(this.memory.pullDirtyAdded());
-        this.storage.bulkRemoveById(this.memory.pullDirtyRemoved());
-    }
-
     /**
      * Validate the given transactions and return only the valid ones - a subset of the input.
-     * The invalid ones are removed from the pool.
+     * The invalid ones are removed from the pool. @private
+     * @param {Interfaces.ITransaction[]} transactions
+     * @param {Wallets.TempWalletRepository} [walletRepository]
+     * @returns {Promise<Interfaces.ITransaction[]>}
+     * @memberof Connection
      */
     private async validateTransactions(
         transactions: Interfaces.ITransaction[],
         walletRepository?: Wallets.TempWalletRepository,
     ): Promise<Interfaces.ITransaction[]> {
         const validTransactions: Interfaces.ITransaction[] = [];
-        const forgedIds: string[] = await this.removeForgedTransactions(transactions);
+        const forgedIds: string[] = await this.cleaner.removeForgedTransactions(transactions);
 
         const unforgedTransactions: Interfaces.ITransaction[] = differenceWith(
             transactions,
@@ -592,94 +696,13 @@ export class Connection implements Contracts.TransactionPool.Connection {
         return validTransactions;
     }
 
-    private async removeForgedTransactions(transactions: Interfaces.ITransaction[]): Promise<string[]> {
-        const forgedIds: string[] = await this.transactionRepository.getForgedTransactionsIds(
-            transactions.map(({ id }) => {
-                AppUtils.assert.defined<string>(id);
-
-                return id;
-            }),
-        );
-
-        this.removeTransactionsById(forgedIds);
-        return forgedIds;
-    }
-
-    private async purgeExpired(): Promise<void> {
-        return this.purgeTransactions(AppEnums.TransactionEvent.Expired, this.memory.getExpired());
-    }
-
     /**
-     * Remove all provided transactions plus any transactions from the same senders with higher nonces.
+     * @private
+     * @param {Contracts.State.Wallet} wallet
+     * @returns {boolean}
+     * @memberof Connection
      */
-    private async purgeTransactions(event: string, transactions: Interfaces.ITransaction[]): Promise<void> {
-        const purge = async (transaction: Interfaces.ITransaction) => {
-            this.emitter.dispatch(event, transaction.data);
-
-            await this.poolWalletRepository.revertTransactionForSender(transaction);
-
-            AppUtils.assert.defined<Interfaces.ITransaction>(transaction.id);
-
-            this.memory.forget(transaction.id, transaction.data.senderPublicKey);
-
-            this.syncToPersistentStorageIfNecessary();
-        };
-
-        const lowestNonceBySender = {};
-        for (const transaction of transactions) {
-            if (transaction.data.version === 1) {
-                await purge(transaction);
-                continue;
-            }
-
-            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-            const senderPublicKey: string = transaction.data.senderPublicKey;
-
-            if (lowestNonceBySender[senderPublicKey] === undefined) {
-                lowestNonceBySender[senderPublicKey] = transaction.data.nonce;
-            } else if (lowestNonceBySender[senderPublicKey].isGreaterThan(transaction.data.nonce)) {
-                lowestNonceBySender[senderPublicKey] = transaction.data.nonce;
-            }
-        }
-
-        // Revert all transactions that have bigger or equal nonces than the ones in
-        // lowestNonceBySender in order from bigger nonce to smaller nonce.
-
-        for (const senderPublicKey of Object.keys(lowestNonceBySender)) {
-            const allTxFromSender = Array.from(this.memory.getBySender(senderPublicKey));
-            allTxFromSender.sort((a, b) => {
-                AppUtils.assert.defined<AppUtils.BigNumber>(a.data.nonce);
-                AppUtils.assert.defined<AppUtils.BigNumber>(b.data.nonce);
-
-                if (a.data.nonce.isGreaterThan(b.data.nonce)) {
-                    return -1;
-                }
-
-                if (a.data.nonce.isLessThan(b.data.nonce)) {
-                    return 1;
-                }
-
-                return 0;
-            });
-
-            for (const transaction of allTxFromSender) {
-                await purge(transaction);
-
-                AppUtils.assert.defined<AppUtils.BigNumber>(transaction.data.nonce);
-                AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-                const nonce: AppUtils.BigNumber = transaction.data.nonce;
-                const senderPublicKey: string = transaction.data.senderPublicKey;
-
-                if (nonce.isEqualTo(lowestNonceBySender[senderPublicKey])) {
-                    break;
-                }
-            }
-        }
-    }
-
-    public canBePurged(wallet: Contracts.State.Wallet): boolean {
+    private canBePurged(wallet: Contracts.State.Wallet): boolean {
         const attributes: object = wallet.getAttributes();
 
         const hasAttributes: boolean = !!attributes && Object.keys(attributes).length > 0;

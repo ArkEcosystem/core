@@ -3,7 +3,7 @@ import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kerne
 import { Errors, Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
-import { dynamicFeeMatcher } from "./dynamic-fee";
+import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./interfaces";
 
 /**
@@ -12,30 +12,93 @@ import { DynamicFeeMatch, TransactionsCached, TransactionsProcessed } from "./in
  */
 @Container.injectable()
 export class Processor implements Contracts.TransactionPool.Processor {
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Processor
+     */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof Processor
+     */
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
+     * @private
+     * @type {Repositories.TransactionRepository}
+     * @memberof Processor
+     */
     @Container.inject(Container.Identifiers.TransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
+    /**
+     * @private
+     * @type {Contracts.State.WalletRepository}
+     * @memberof Processor
+     */
     @Container.inject(Container.Identifiers.TransactionPoolWalletRepository)
     private readonly poolWalletRepository!: Contracts.State.WalletRepository;
 
+    /**
+     * @private
+     * @type {Contracts.TransactionPool.Connection}
+     * @memberof Processor
+     */
+    @Container.inject(Container.Identifiers.TransactionPoolService)
+    private readonly transactionPool!: Contracts.TransactionPool.Connection;
+
+    /**
+     * @private
+     * @type {Interfaces.ITransactionData[]}
+     * @memberof Processor
+     */
     private transactions: Interfaces.ITransactionData[] = [];
+
+    /**
+     * @private
+     * @type {string[]}
+     * @memberof Processor
+     */
     private readonly excess: string[] = [];
+
+    /**
+     * @private
+     * @type {Map<string, Interfaces.ITransaction>}
+     * @memberof Processor
+     */
     private readonly accept: Map<string, Interfaces.ITransaction> = new Map();
+
+    /**
+     * @private
+     * @type {Map<string, Interfaces.ITransaction>}
+     * @memberof Processor
+     */
     private readonly broadcast: Map<string, Interfaces.ITransaction> = new Map();
+
+    /**
+     * @private
+     * @type {Map<string, Interfaces.ITransactionData>}
+     * @memberof Processor
+     */
     private readonly invalid: Map<string, Interfaces.ITransactionData> = new Map();
+
+    /**
+     * @private
+     * @type {{ [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] }}
+     * @memberof Processor
+     */
     private readonly errors: { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } = {};
 
-    private pool!: Contracts.TransactionPool.Connection;
-
-    public initialize(pool: Contracts.TransactionPool.Connection) {
-        this.pool = pool;
-
-        return this;
-    }
-
+    /**
+     * @param {Interfaces.ITransactionData[]} transactions
+     * @returns {Promise<Contracts.TransactionPool.ProcessorResult>}
+     * @memberof Processor
+     */
     public async validate(
         transactions: Interfaces.ITransactionData[],
     ): Promise<Contracts.TransactionPool.ProcessorResult> {
@@ -60,18 +123,36 @@ export class Processor implements Contracts.TransactionPool.Processor {
         };
     }
 
+    /**
+     * @returns {Interfaces.ITransactionData[]}
+     * @memberof Processor
+     */
     public getTransactions(): Interfaces.ITransactionData[] {
         return this.transactions;
     }
 
+    /**
+     * @returns {Interfaces.ITransaction[]}
+     * @memberof Processor
+     */
     public getBroadcastTransactions(): Interfaces.ITransaction[] {
         return Array.from(this.broadcast.values());
     }
 
+    /**
+     * @returns {{ [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] }}
+     * @memberof Processor
+     */
     public getErrors(): { [key: string]: Contracts.TransactionPool.TransactionErrorResponse[] } {
         return this.errors;
     }
 
+    /**
+     * @param {Interfaces.ITransactionData} transaction
+     * @param {string} type
+     * @param {string} message
+     * @memberof Processor
+     */
     public pushError(transaction: Interfaces.ITransactionData, type: string, message: string): void {
         Utils.assert.defined<string>(transaction.id);
 
@@ -86,6 +167,11 @@ export class Processor implements Contracts.TransactionPool.Processor {
         this.invalid.set(id, transaction);
     }
 
+    /**
+     * @private
+     * @param {Interfaces.ITransactionData[]} transactions
+     * @memberof Processor
+     */
     private cacheTransactions(transactions: Interfaces.ITransactionData[]): void {
         const { added, notAdded }: TransactionsCached = this.app
             .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
@@ -102,6 +188,11 @@ export class Processor implements Contracts.TransactionPool.Processor {
         }
     }
 
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof Processor
+     */
     private async removeForgedTransactions(): Promise<void> {
         const forgedIdsSet: string[] = await this.transactionRepository.getForgedTransactionsIds([
             ...new Set([...this.accept.keys(), ...this.broadcast.keys()]),
@@ -119,6 +210,12 @@ export class Processor implements Contracts.TransactionPool.Processor {
         }
     }
 
+    /**
+     * @private
+     * @param {Interfaces.ITransactionData[]} transactions
+     * @returns {Promise<void>}
+     * @memberof Processor
+     */
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
         const maxTransactionBytes: number | undefined = this.app
             .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
@@ -133,7 +230,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
             Utils.assert.defined<string>(transaction.senderPublicKey);
 
             const id: string = transaction.id;
-            const exists: boolean = await this.pool.has(id);
+            const exists: boolean = await this.transactionPool.has(id);
 
             if (exists) {
                 this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${id}`);
@@ -143,7 +240,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
                     "ERR_TOO_LARGE",
                     `Transaction ${id} is larger than ${maxTransactionBytes} bytes.`,
                 );
-            } else if (await this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
+            } else if (await this.transactionPool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
                 this.excess.push(id);
             } else if (await this.validateTransaction(transaction)) {
                 try {
@@ -160,7 +257,10 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
                     if (await handler.verify(transactionInstance, this.poolWalletRepository)) {
                         try {
-                            const dynamicFee: DynamicFeeMatch = await dynamicFeeMatcher(this.app, transactionInstance);
+                            const dynamicFee: DynamicFeeMatch = await this.app
+                                .resolve(DynamicFeeMatcher)
+                                .match(transactionInstance);
+
                             if (!dynamicFee.enterPool && !dynamicFee.broadcast) {
                                 this.pushError(
                                     transaction,
@@ -199,6 +299,12 @@ export class Processor implements Contracts.TransactionPool.Processor {
         }
     }
 
+    /**
+     * @private
+     * @param {Interfaces.ITransactionData} transaction
+     * @returns {Promise<boolean>}
+     * @memberof Processor
+     */
     private async validateTransaction(transaction: Interfaces.ITransactionData): Promise<boolean> {
         const now: number = Crypto.Slots.getTime();
 
@@ -263,7 +369,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
             const handler: Handlers.TransactionHandler = await this.app
                 .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
                 .get(transaction);
-            return handler.canEnterTransactionPool(transaction, this.pool, this);
+            return handler.canEnterTransactionPool(transaction, this.transactionPool, this);
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(
@@ -279,8 +385,15 @@ export class Processor implements Contracts.TransactionPool.Processor {
         return false;
     }
 
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof Processor
+     */
     private async addTransactionsToPool(): Promise<void> {
-        const { notAdded }: TransactionsProcessed = await this.pool.addTransactions(Array.from(this.accept.values()));
+        const { notAdded }: TransactionsProcessed = await this.transactionPool.addTransactions(
+            Array.from(this.accept.values()),
+        );
 
         for (const item of notAdded) {
             Utils.assert.defined<Interfaces.ITransaction>(item.transaction);
@@ -304,15 +417,19 @@ export class Processor implements Contracts.TransactionPool.Processor {
         }
     }
 
+    /**
+     * @private
+     * @memberof Processor
+     */
     private printStats(): void {
         const stats: string = ["accept", "broadcast", "excess", "invalid"]
             .map(prop => `${prop}: ${this[prop] instanceof Array ? this[prop].length : this[prop].size}`)
             .join(" ");
 
         if (Object.keys(this.errors).length > 0) {
-            this.app.log.debug(JSON.stringify(this.errors));
+            this.logger.debug(JSON.stringify(this.errors));
         }
 
-        this.app.log.info(`Received ${Utils.pluralize("transaction", this.transactions.length, true)} (${stats}).`);
+        this.logger.info(`Received ${Utils.pluralize("transaction", this.transactions.length, true)} (${stats}).`);
     }
 }
