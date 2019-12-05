@@ -3,7 +3,7 @@ import "jest-extended";
 import "../mocks/core-container";
 import { defaults } from "../mocks/p2p-options";
 
-import { Managers } from "@arkecosystem/crypto/src";
+import { Blocks, Managers } from "@arkecosystem/crypto/src";
 import unitnetMilestones from "@arkecosystem/crypto/src/networks/unitnet/milestones.json";
 import delay from "delay";
 import SocketCluster from "socketcluster";
@@ -101,8 +101,14 @@ describe("Peer socket endpoint", () => {
         describe("postBlock", () => {
             it("should postBlock successfully", async () => {
                 await delay(1000);
+                const dummyBlock = BlockFactory.createDummy();
                 const { data } = await emit("p2p.peer.postBlock", {
-                    data: { block: BlockFactory.createDummy().toJson() },
+                    data: {
+                        block: Blocks.Serializer.serializeWithTransactions({
+                            ...dummyBlock.data,
+                            transactions: dummyBlock.transactions.map(tx => tx.data),
+                        }),
+                    },
                     headers,
                 });
 
@@ -252,17 +258,27 @@ describe("Peer socket endpoint", () => {
         it("should cancel the request when exceeding rate limit on a certain endpoint", async () => {
             await delay(1000);
 
-            const block = BlockFactory.createDummy().toJson();
+            const block = BlockFactory.createDummy();
 
             await emit("p2p.peer.postBlock", {
                 headers,
-                data: { block },
+                data: {
+                    block: Blocks.Serializer.serializeWithTransactions({
+                        ...block.data,
+                        transactions: block.transactions.map(tx => tx.data),
+                    }),
+                },
             });
 
             await expect(
                 emit("p2p.peer.postBlock", {
                     headers,
-                    data: { block },
+                    data: {
+                        block: Blocks.Serializer.serializeWithTransactions({
+                            ...block.data,
+                            transactions: block.transactions.map(tx => tx.data),
+                        }),
+                    },
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
 
@@ -278,7 +294,12 @@ describe("Peer socket endpoint", () => {
             await expect(
                 emit("p2p.peer.postBlock", {
                     headers,
-                    data: { block },
+                    data: {
+                        block: Blocks.Serializer.serializeWithTransactions({
+                            ...block.data,
+                            transactions: block.transactions.map(tx => tx.data),
+                        }),
+                    },
                 }),
             ).toResolve();
         });

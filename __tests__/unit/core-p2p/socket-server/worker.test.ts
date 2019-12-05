@@ -7,6 +7,7 @@ const worker = new Worker();
 
 // @ts-ignore
 worker.scServer.wsServer = { on: () => undefined };
+worker.scServer.setCodecEngine = codec => undefined;
 
 describe("Worker", () => {
     describe("run", () => {

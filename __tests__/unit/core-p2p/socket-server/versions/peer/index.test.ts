@@ -3,7 +3,7 @@ import "../../../mocks/core-container";
 import { blockchain } from "../../../mocks/blockchain";
 import { database } from "../../../mocks/database";
 
-import { Crypto } from "@arkecosystem/crypto";
+import { Blocks, Crypto } from "@arkecosystem/crypto";
 import { acceptNewPeer } from "../../../../../../packages/core-p2p/src/socket-server/versions/internal";
 import {
     getBlocks,
@@ -14,7 +14,7 @@ import {
     postTransactions,
 } from "../../../../../../packages/core-p2p/src/socket-server/versions/peer";
 import { createPeerService } from "../../../../../helpers/peers";
-import { block2 } from "../../../../../utils/fixtures/unitnet/blocks";
+import { blocks2to100 } from "../../../../../utils/fixtures/testnet/blocks2to100";
 
 jest.mock("@arkecosystem/core-transaction-pool", () => {
     return {
@@ -104,7 +104,7 @@ describe("Peers handler", () => {
                 req: {
                     headers: { remoteAddress: "127.0.0.1" },
                     data: {
-                        block: block2,
+                        block: Blocks.Serializer.serializeWithTransactions(blocks2to100[0]),
                     },
                 },
             });
@@ -117,7 +117,7 @@ describe("Peers handler", () => {
                 req: {
                     headers: { remoteAddress: "::ffff:127.0.0.1" },
                     data: {
-                        block: block2,
+                        block: Blocks.Serializer.serializeWithTransactions(blocks2to100[0]),
                     },
                 },
             });
