@@ -67,4 +67,15 @@ export const transactionIteratees = [
     "version",
 ];
 
-export const walletIteratees = ["address", "balance", "nonce", "publicKey", "secondPublicKey", "username", "vote"];
+export const walletIteratees = [
+    "address",
+    "balance",
+    "resigned",
+    "lockedBalance",
+    "nonce",
+    "publicKey",
+    "secondPublicKey",
+    "username",
+    "vote",
+    "voteBalance",
+];

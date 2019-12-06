@@ -60,6 +60,7 @@ const manipulateIteratee = (iteratee): any => {
         case "forgedTotal":
             return delegateCalculator.calculateForgedTotal;
         case "votes":
+        case "votebalance":
             return "voteBalance";
         default:
             return iteratee;
