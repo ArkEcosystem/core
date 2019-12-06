@@ -43,6 +43,8 @@
         "deps:missing": "node ./scripts/deps/missing.js",
         "deps:unused": "node ./scripts/deps/unused.js",
         "deps:types": "./node_modules/typesync/bin/typesync",
+        "madge:circular": "./node_modules/madge/bin/cli.js --circular --extensions ts ./packages/**/src",
+        "madge:graph": "./node_modules/madge/bin/cli.js --image circular-graph.svg --extensions ts ./packages/**/src",
         "docker": "node ./scripts/docker/generate-docker.js",
         "bench": "node benchmark/index.js"
     },
@@ -85,6 +87,7 @@
         "js-yaml": "^3.13.1",
         "lerna": "^3.19.0",
         "lint-staged": "^9.5.0",
+        "madge": "^3.6.0",
         "moment": "^2.24.0",
         "moment-timezone": "^0.5.27",
         "nock": "^11.7.0",
