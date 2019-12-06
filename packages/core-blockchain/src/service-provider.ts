@@ -1,14 +1,17 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
 import { Blockchain } from "./blockchain";
-import { blockchainMachine } from "./machines/blockchain";
-import { ReplayBlockchain } from "./replay";
+import { StateMachine } from "./state-machine";
+import { blockchainMachine } from "./state-machine/machine";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        const blockchain: Blockchain = this.config().get("replay")
-            ? this.app.resolve<any>(ReplayBlockchain).initialize()
-            : this.app.resolve<Blockchain>(Blockchain);
+        this.app
+            .bind(Container.Identifiers.StateMachine)
+            .to(StateMachine)
+            .inSingletonScope();
+
+        const blockchain: Blockchain = this.app.resolve<Blockchain>(Blockchain);
 
         this.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
 
@@ -26,7 +29,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async bootWhen(): Promise<boolean> {
-        return !process.env.CORE_SKIP_BLOCKCHAIN && !this.config().has("replay");
+        // todo: remove this; the code shouldn't know that a test suite exists
+        return !process.env.CORE_SKIP_BLOCKCHAIN;
     }
 
     public async required(): Promise<boolean> {

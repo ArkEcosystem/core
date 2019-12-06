@@ -4,11 +4,17 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
 import { AcceptBlockHandler } from "./accept-block-handler";
-import { BlockHandler } from "./block-handler";
+import { BlockHandler } from "../contracts";
 
 // todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()
-export class ExceptionHandler extends BlockHandler {
+export class ExceptionHandler implements BlockHandler {
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.BlockchainService)
+    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -24,8 +30,9 @@ export class ExceptionHandler extends BlockHandler {
         const forgedBlock: Interfaces.IBlock | undefined = await this.database.getBlock(id);
 
         if (forgedBlock) {
-            // todo: replace this with an actual implementation after the abstract is gone
-            return super.execute(block);
+            this.blockchain.resetLastDownloadedBlock();
+
+            return BlockProcessorResult.Rejected;
         }
 
         this.logger.warning(`Block ${block.data.height.toLocaleString()} (${id}) forcibly accepted.`);

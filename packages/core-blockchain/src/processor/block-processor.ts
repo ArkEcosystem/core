@@ -1,9 +1,8 @@
-import { Repositories } from "@arkecosystem/core-database";
+import { DatabaseService, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces, Utils } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { validateGenerator } from "../utils/validate-generator";
 import {
     AcceptBlockHandler,
     AlreadyForgedHandler,
@@ -56,7 +55,7 @@ export class BlockProcessor {
             return this.app.resolve<NonceOutOfOrderHandler>(NonceOutOfOrderHandler).execute();
         }
 
-        const isValidGenerator: boolean = await validateGenerator(this.app, block);
+        const isValidGenerator: boolean = await this.validateGenerator(block);
         const isChained: boolean = AppUtils.isBlockChained(this.blockchain.getLastBlock().data, block.data);
         if (!isChained) {
             return this.app
@@ -192,5 +191,48 @@ export class BlockProcessor {
         }
 
         return false;
+    }
+
+    private async validateGenerator(block: Interfaces.IBlock): Promise<boolean> {
+        const database: DatabaseService = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
+
+        const roundInfo: Contracts.Shared.RoundInfo = AppUtils.roundCalculator.calculateRound(block.data.height);
+        const delegates: Contracts.State.Wallet[] = await database.getActiveDelegates(roundInfo);
+        const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
+        const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
+
+        const walletRepository: Contracts.State.WalletRepository = this.app.get<Contracts.State.WalletRepository>(
+            Container.Identifiers.WalletRepository,
+        );
+        const generatorWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.data.generatorPublicKey);
+
+        const generatorUsername: string = generatorWallet.getAttribute("delegate.username");
+
+        if (!forgingDelegate) {
+            this.logger.debug(
+                `Could not decide if delegate ${generatorUsername} (${
+                    block.data.generatorPublicKey
+                }) is allowed to forge block ${block.data.height.toLocaleString()}`,
+            );
+        } else if (forgingDelegate.publicKey !== block.data.generatorPublicKey) {
+            AppUtils.assert.defined<string>(forgingDelegate.publicKey);
+
+            const forgingWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(forgingDelegate.publicKey);
+            const forgingUsername: string = forgingWallet.getAttribute("delegate.username");
+
+            this.logger.warning(
+                `Delegate ${generatorUsername} (${block.data.generatorPublicKey}) not allowed to forge, should be ${forgingUsername} (${forgingDelegate.publicKey})`,
+            );
+
+            return false;
+        }
+
+        this.logger.debug(
+            `Delegate ${generatorUsername} (${
+                block.data.generatorPublicKey
+            }) allowed to forge block ${block.data.height.toLocaleString()}`,
+        );
+
+        return true;
     }
 }

@@ -58,6 +58,8 @@ export interface Blockchain {
      */
     handleIncomingBlock(block: Interfaces.IBlockData, fromForger): void;
 
+    enqueueBlocks(blocks: Interfaces.IBlockData[]);
+
     /**
      * Remove N number of blocks.
      * @param  {Number} nblocks
@@ -97,8 +99,6 @@ export interface Blockchain {
      * Determine if the blockchain is synced.
      */
     isSynced(block?: Interfaces.IBlockData): boolean;
-
-    replay(targetHeight?: number): Promise<void>;
 
     /**
      * Get the last block of the blockchain.

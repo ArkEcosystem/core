@@ -54,6 +54,8 @@ export const Identifiers = {
     // Kernel
     ConfigRepository: Symbol.for("Repository<Config>"),
     ServiceProviderRepository: Symbol.for("Repository<ServiceProvider>"),
+    // Blockchain
+    StateMachine: Symbol.for("Blockchain<StateMachine>"),
     // State - @todo: better names that won't clash
     BlockState: Symbol.for("State<Block>"),
     StateBlockStore: Symbol.for("State<BlockStore>"),

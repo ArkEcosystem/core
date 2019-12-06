@@ -1,6 +1,5 @@
 export * from "./accept-block-handler";
 export * from "./already-forged-handler";
-export * from "./block-handler";
 export * from "./exception-handler";
 export * from "./incompatible-transactions-handler";
 export * from "./invalid-generator-handler";

@@ -4,15 +4,28 @@ import { Blocks, Crypto, Interfaces, Managers, Utils as CryptoUtils } from "@ark
 import async from "async";
 
 import { BlockProcessor, BlockProcessorResult } from "./processor";
-import { stateMachine } from "./state-machine";
-
-const { BlockFactory } = Blocks;
+import { StateMachine } from "./state-machine";
 
 // todo: reduce the overall complexity of this class and remove all helpers and getters that just serve as proxies
 @Container.injectable()
 export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.Application)
     public readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly state!: Contracts.State.StateStore;
+
+    @Container.inject(Container.Identifiers.DatabaseService)
+    private readonly database!: DatabaseService;
+
+    @Container.inject(Container.Identifiers.BlockRepository)
+    private readonly blockRepository!: Repositories.BlockRepository;
+
+    @Container.inject(Container.Identifiers.TransactionPoolService)
+    private readonly transactionPool!: Contracts.TransactionPool.Connection;
+
+    @Container.inject(Container.Identifiers.StateMachine)
+    private readonly stateMachine!: StateMachine;
 
     // todo: make this private
     public isStopped!: boolean;
@@ -24,23 +37,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     // todo: make this private
     // @ts-ignore
     protected blockProcessor: BlockProcessor;
-    // todo: add type
-    private actions: any;
-
-    // todo: make this private, only protected because of replay
-    @Container.inject(Container.Identifiers.StateStore)
-    protected readonly state!: Contracts.State.StateStore;
-
-    // todo: make this private, only protected because of replay
-    @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database!: DatabaseService;
-
-    @Container.inject(Container.Identifiers.BlockRepository)
-    private readonly blockRepository!: Repositories.BlockRepository;
-
-    // todo: make this private, only protected because of replay
-    @Container.inject(Container.Identifiers.TransactionPoolService)
-    protected readonly transactionPool!: Contracts.TransactionPool.Connection;
 
     /**
      * Create a new blockchain manager instance.
@@ -59,7 +55,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             );
         }
 
-        this.actions = stateMachine.actionMap(this);
         this.blockProcessor = this.app.resolve<BlockProcessor>(BlockProcessor);
 
         this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
@@ -96,36 +91,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      * @param  {String} event
      * @return {void}
      */
-    public dispatch(event): void {
-        const nextState = stateMachine.transition(this.state.blockchain, event);
-
-        if (nextState.actions.length > 0) {
-            this.app.log.debug(
-                `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
-                    nextState.value,
-                )} -> actions: [${nextState.actions.map(a => a.type).join(", ")}]`,
-            );
-        } else {
-            this.app.log.debug(
-                `event '${event}': ${JSON.stringify(this.state.blockchain.value)} -> ${JSON.stringify(
-                    nextState.value,
-                )}`,
-            );
-        }
-
-        this.state.blockchain = nextState;
-
-        for (const actionKey of nextState.actions) {
-            const action = this.actions[actionKey];
-
-            if (action) {
-                setImmediate(() => action(event));
-            } else {
-                this.app.log.error(`No action '${actionKey}' found`);
-            }
-        }
-
-        return nextState;
+    public dispatch(event: string): void {
+        return this.stateMachine.transition(event);
     }
 
     /**
@@ -314,9 +281,12 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
                 Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlockData);
 
-                const tempNewLastBlock: Interfaces.IBlock | undefined = BlockFactory.fromData(tempNewLastBlockData, {
-                    deserializeTransactionsUnchecked: true,
-                });
+                const tempNewLastBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(
+                    tempNewLastBlockData,
+                    {
+                        deserializeTransactionsUnchecked: true,
+                    },
+                );
 
                 Utils.assert.defined<Interfaces.IBlockData>(tempNewLastBlock);
 
@@ -516,10 +486,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         return (
             Crypto.Slots.getTime() - block.timestamp < 3 * Managers.configManager.getMilestone(block.height).blocktime
         );
-    }
-
-    public async replay(targetHeight?: number): Promise<void> {
-        return;
     }
 
     /**

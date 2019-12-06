@@ -1,8 +1,5 @@
 import { Machine } from "xstate";
 
-import { syncWithNetwork } from "./actions/sync-with-network";
-
-// todo: move this into a class based state machine that triggers actions on this
 export const blockchainMachine: any = Machine({
     key: "blockchain",
     initial: "uninitialised",
@@ -24,13 +21,59 @@ export const blockchainMachine: any = Machine({
             },
         },
         syncWithNetwork: {
+            initial: "syncing",
+            states: {
+                syncing: {
+                    onEntry: ["checkLastDownloadedBlockSynced"],
+                    on: {
+                        SYNCED: "downloadFinished",
+                        NOTSYNCED: "downloadBlocks",
+                        PAUSED: "downloadPaused",
+                        NETWORKHALTED: "end",
+                    },
+                },
+                idle: {
+                    on: {
+                        DOWNLOADED: "downloadBlocks",
+                    },
+                },
+                downloadBlocks: {
+                    onEntry: ["downloadBlocks"],
+                    on: {
+                        DOWNLOADED: "syncing",
+                        NOBLOCK: "syncing",
+                        PROCESSFINISHED: "downloadFinished",
+                    },
+                },
+                downloadFinished: {
+                    onEntry: ["downloadFinished"],
+                    on: {
+                        PROCESSFINISHED: "processFinished",
+                    },
+                },
+                downloadPaused: {
+                    onEntry: ["downloadPaused"],
+                    on: {
+                        PROCESSFINISHED: "processFinished",
+                    },
+                },
+                processFinished: {
+                    onEntry: ["checkLastBlockSynced"],
+                    on: {
+                        SYNCED: "end",
+                        NOTSYNCED: "downloadBlocks",
+                    },
+                },
+                end: {
+                    onEntry: ["syncingComplete"],
+                },
+            },
             on: {
                 TEST: "idle",
                 SYNCFINISHED: "idle",
                 FORK: "fork",
                 STOP: "stopped",
             },
-            ...syncWithNetwork,
         },
         idle: {
             onEntry: ["checkLater", "blockchainReady"],

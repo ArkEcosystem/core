@@ -1,7 +1,21 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 
-import { BlockHandler } from "./block-handler";
+import { BlockHandler } from "../contracts";
+import { BlockProcessorResult } from "../block-processor";
 
 // todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()
-export class VerificationFailedHandler extends BlockHandler {}
+export class VerificationFailedHandler implements BlockHandler {
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.BlockchainService)
+    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+
+    public async execute(block?: Interfaces.IBlock): Promise<BlockProcessorResult> {
+        this.blockchain.resetLastDownloadedBlock();
+
+        return BlockProcessorResult.Rejected;
+    }
+}

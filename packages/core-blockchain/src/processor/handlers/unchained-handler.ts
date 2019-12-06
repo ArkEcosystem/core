@@ -2,7 +2,7 @@ import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockProcessorResult } from "../block-processor";
-import { BlockHandler } from "./block-handler";
+import { BlockHandler } from "../contracts";
 
 enum UnchainedBlockStatus {
     NotReadyToAcceptNewHeight,
@@ -51,7 +51,7 @@ class BlockNotReadyCounter {
 
 // todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()
-export class UnchainedHandler extends BlockHandler {
+export class UnchainedHandler implements BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
 
     @Container.inject(Container.Identifiers.Application)
@@ -73,7 +73,7 @@ export class UnchainedHandler extends BlockHandler {
     }
 
     public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
-        super.execute(block);
+        this.blockchain.resetLastDownloadedBlock();
 
         this.blockchain.clearQueue();
 
