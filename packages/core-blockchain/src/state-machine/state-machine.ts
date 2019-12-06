@@ -1,8 +1,8 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 
 import { actions } from "./actions";
-import { blockchainMachine } from "./machine";
 import { Action } from "./contracts";
+import { blockchainMachine } from "./machine";
 
 @Container.injectable()
 export class StateMachine {

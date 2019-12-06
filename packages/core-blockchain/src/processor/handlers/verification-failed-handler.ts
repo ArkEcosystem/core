@@ -1,8 +1,8 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { BlockHandler } from "../contracts";
 import { BlockProcessorResult } from "../block-processor";
+import { BlockHandler } from "../contracts";
 
 // todo: remove the abstract and instead require a contract to be implemented
 @Container.injectable()

@@ -43,7 +43,7 @@ jobs:
         runs-on: ubuntu-latest
         services:
             postgres:
-                image: postgres:11
+                image: postgres:12
                 env:
                     POSTGRES_USER: ark
                     POSTGRES_PASSWORD: password

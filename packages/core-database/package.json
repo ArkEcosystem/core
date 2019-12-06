@@ -27,7 +27,7 @@
         "dayjs": "^1.8.17",
         "pg": "^7.14.0",
         "reflect-metadata": "^0.1.13",
-        "typeorm": "^0.2.20"
+        "typeorm": "^0.2.21"
     },
     "engines": {
         "node": ">=10.x"
