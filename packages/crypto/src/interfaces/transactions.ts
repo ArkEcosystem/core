@@ -1,6 +1,6 @@
 import { ErrorObject } from "ajv";
 
-import { Enums } from "..";
+import { HtlcLockExpirationType } from "../enums";
 import { BigNumber } from "../utils";
 
 export interface ITransaction {
@@ -132,7 +132,7 @@ export interface IMultiSignatureAsset {
 export interface IHtlcLockAsset {
     secretHash: string;
     expiration: {
-        type: Enums.HtlcLockExpirationType;
+        type: HtlcLockExpirationType;
         value: number;
     };
 }
@@ -156,7 +156,7 @@ export interface IHtlcLock extends IHtlcLockAsset {
 export type IHtlcLocks = Record<string, IHtlcLock>;
 
 export interface IHtlcExpiration {
-    type: Enums.HtlcLockExpirationType;
+    type: HtlcLockExpirationType;
     value: number;
 }
 

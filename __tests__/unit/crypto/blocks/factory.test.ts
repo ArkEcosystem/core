@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { Block, BlockFactory } from "../../../../packages/crypto/src/blocks";
+import { BlockFactory, Serializer } from "../../../../packages/crypto/src/blocks";
 import { IBlockData } from "../../../../packages/crypto/src/interfaces";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { blockWithExceptions, dummyBlock } from "../fixtures/block";
@@ -22,13 +22,13 @@ beforeEach(() => configManager.setFromPreset("devnet"));
 describe("BlockFactory", () => {
     describe(".fromHex", () => {
         it("should create a block instance from hex", () => {
-            expectBlock(BlockFactory.fromHex(Block.serializeWithTransactions(dummyBlock).toString("hex")));
+            expectBlock(BlockFactory.fromHex(Serializer.serializeWithTransactions(dummyBlock).toString("hex")));
         });
     });
 
     describe(".fromBytes", () => {
         it("should create a block instance from a buffer", () => {
-            expectBlock(BlockFactory.fromBytes(Block.serializeWithTransactions(dummyBlock)));
+            expectBlock(BlockFactory.fromBytes(Serializer.serializeWithTransactions(dummyBlock)));
         });
     });
 

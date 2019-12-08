@@ -3,13 +3,14 @@ import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction } from "../inter
 import { BigNumber } from "../utils";
 import { Block } from "./block";
 import { Deserializer } from "./deserializer";
+import { Serializer } from "./serializer";
 
 export class BlockFactory {
     // @todo: add a proper type hint for data
     public static make(data: any, keys: IKeyPair): IBlock | undefined {
         data.generatorPublicKey = keys.publicKey;
 
-        const payloadHash: Buffer = Block.serialize(data, false);
+        const payloadHash: Buffer = Serializer.serialize(data, false);
         const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
         data.blockSignature = Hash.signECDSA(hash, keys);
@@ -50,7 +51,7 @@ export class BlockFactory {
         const block: IBlockData | undefined = Block.applySchema(data);
 
         if (block) {
-            const serialized: string = Block.serializeWithTransactions(data).toString("hex");
+            const serialized: string = Serializer.serializeWithTransactions(data).toString("hex");
             const block: IBlock = new Block({
                 ...Deserializer.deserialize(serialized, false, options),
                 id: data.id,

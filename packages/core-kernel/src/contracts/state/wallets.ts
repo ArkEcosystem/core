@@ -209,6 +209,8 @@ export interface WalletRepository {
 }
 
 export interface TempWalletRepository extends WalletRepository {
+    initialize(walletRepository: WalletRepository);
+
     getActiveDelegatesOfPreviousRound(blocks: Interfaces.IBlock[], roundInfo: RoundInfo): Promise<Wallet[]>;
 }
 

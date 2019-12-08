@@ -7,8 +7,6 @@ import { SCClientSocket } from "socketcluster-client";
 import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
-import { PeerConfig, PeerPingResponse } from "./interfaces";
-import { PeerConnector } from "./peer-connector";
 import { PeerVerifier } from "./peer-verifier";
 import { RateLimiter } from "./rate-limiter";
 import { replySchemas } from "./schemas";
@@ -16,7 +14,7 @@ import { buildRateLimiter, isValidVersion, socketEmit } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
-export class PeerCommunicator {
+export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -27,7 +25,7 @@ export class PeerCommunicator {
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerConnector)
-    private readonly connector!: PeerConnector;
+    private readonly connector!: Contracts.P2P.PeerConnector;
 
     private outgoingRateLimiter!: RateLimiter;
 
@@ -60,7 +58,12 @@ export class PeerCommunicator {
             return undefined;
         }
 
-        const pingResponse: PeerPingResponse = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
+        const pingResponse: Contracts.P2P.PeerPingResponse = await this.emit(
+            peer,
+            "p2p.peer.getStatus",
+            undefined,
+            timeoutMsec,
+        );
 
         if (!pingResponse) {
             throw new PeerStatusResponseError(peer.ip);
@@ -132,7 +135,7 @@ export class PeerCommunicator {
         );
     }
 
-    public validatePeerConfig(peer: Contracts.P2P.Peer, config: PeerConfig): boolean {
+    public validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
         if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
             return false;
         }

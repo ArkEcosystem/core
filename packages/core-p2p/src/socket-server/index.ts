@@ -1,8 +1,8 @@
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import SocketCluster from "socketcluster";
 
+import { PeerService } from "../contracts";
 import { requestSchemas } from "../schemas";
-import { PeerService } from "../types";
 import { ServerError } from "./errors";
 import { payloadProcessor } from "./payload-processor";
 import { getHeaders } from "./utils/get-headers";

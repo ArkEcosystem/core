@@ -4,7 +4,6 @@ import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITran
 import { configManager } from "../managers/config";
 import { BigNumber, isException } from "../utils";
 import { validator } from "../validation";
-import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
@@ -53,21 +52,9 @@ export class Block implements IBlock {
         return result.value;
     }
 
-    public static deserialize(hexString: string, headerOnly = false): IBlockData {
-        return Deserializer.deserialize(hexString, headerOnly).data;
-    }
-
-    public static serializeWithTransactions(block: IBlockData) {
-        return Serializer.serializeWithTransactions(block);
-    }
-
-    public static serialize(block: IBlockData, includeSignature = true) {
-        return Serializer.serialize(block, includeSignature);
-    }
-
     public static getIdHex(data: IBlockData): string {
         const constants = configManager.getMilestone(data.height);
-        const payloadHash: Buffer = Block.serialize(data);
+        const payloadHash: Buffer = Serializer.serialize(data);
 
         const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
@@ -148,7 +135,7 @@ export class Block implements IBlock {
     }
 
     public verifySignature(): boolean {
-        const bytes: Buffer = Block.serialize(this.data, false);
+        const bytes: Buffer = Serializer.serialize(this.data, false);
         const hash: Buffer = HashAlgorithms.sha256(bytes);
 
         if (!this.data.blockSignature) {

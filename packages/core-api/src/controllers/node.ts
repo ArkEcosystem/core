@@ -19,7 +19,7 @@ export class NodeController extends Controller {
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
-    protected readonly networkMonitor!: Contracts.P2P.INetworkMonitor;
+    protected readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
     @Container.inject(Container.Identifiers.TransactionRepository)
     protected readonly transactionRepository!: Repositories.TransactionRepository;

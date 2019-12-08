@@ -64,7 +64,7 @@ export class Initialize implements Action {
                 await this.databaseService.buildWallets();
                 await this.databaseService.restoreCurrentRound(block.data.height);
                 await this.transactionPool.buildWallets();
-                await this.app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
+                await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
                 return this.blockchain.dispatch("STARTED");
             }
@@ -73,7 +73,7 @@ export class Initialize implements Action {
                 this.logger.notice("TEST SUITE DETECTED! SYNCING WALLETS AND STARTING IMMEDIATELY.");
 
                 await this.databaseService.buildWallets();
-                await this.app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
+                await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
                 return this.blockchain.dispatch("STARTED");
             }
@@ -89,7 +89,7 @@ export class Initialize implements Action {
             await this.databaseService.restoreCurrentRound(block.data.height);
             await this.transactionPool.buildWallets();
 
-            await this.app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
+            await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
             return this.blockchain.dispatch("STARTED");
         } catch (error) {

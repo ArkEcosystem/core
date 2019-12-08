@@ -3,8 +3,7 @@ import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kerne
 import { Crypto, Managers } from "@arkecosystem/crypto";
 import { process } from "ipaddr.js";
 
-import { Peer } from "../../peer";
-import { PeerService } from "../../types";
+import { PeerService } from "../../contracts";
 
 // todo: turn this into a class so that ioc can be used
 // todo: review the implementation of all methods
@@ -17,7 +16,7 @@ export const acceptNewPeer = async ({
     app: Contracts.Kernel.Application;
     service: PeerService;
     req;
-}): Promise<void> => service.processor.validateAndAcceptPeer({ ip: req.data.ip } as Peer);
+}): Promise<void> => service.processor.validateAndAcceptPeer({ ip: req.data.ip } as Contracts.P2P.Peer);
 
 export const emitEvent = ({ app, req }: { app: Contracts.Kernel.Application; req: any }): void => {
     app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService).dispatch(

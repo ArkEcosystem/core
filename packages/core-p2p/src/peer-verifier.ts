@@ -5,7 +5,6 @@ import assert from "assert";
 import { inspect } from "util";
 
 import { Severity } from "./enums";
-import { PeerCommunicator } from "./peer-communicator";
 
 export class PeerVerificationResult {
     public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
@@ -17,7 +16,7 @@ export class PeerVerificationResult {
 
 // todo: review the implementation
 @Container.injectable()
-export class PeerVerifier {
+export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -32,18 +31,18 @@ export class PeerVerifier {
     private logger!: Contracts.Kernel.Logger;
     private logPrefix!: string;
 
-    private communicator!: PeerCommunicator;
+    private communicator!: Contracts.P2P.PeerCommunicator;
     private peer!: Contracts.P2P.Peer;
 
     // // todo: make use of ioc
     // public constructor(
-    //     private readonly communicator: PeerCommunicator,
+    //     private readonly communicator: Contracts.P2P.PeerCommunicator,
     //     private readonly peer: Contracts.P2P.Peer,
     // ) {
     //     this.logPrefix = `Peer verify ${peer.ip}:`;
     // }
 
-    public initialize(communicator: PeerCommunicator, peer: Contracts.P2P.Peer) {
+    public initialize(communicator: Contracts.P2P.PeerCommunicator, peer: Contracts.P2P.Peer) {
         this.communicator = communicator;
         this.peer = peer;
         this.database = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);

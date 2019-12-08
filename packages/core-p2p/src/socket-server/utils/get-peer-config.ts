@@ -2,9 +2,7 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 
-import { PeerConfig } from "../../interfaces";
-
-export const getPeerConfig = (app: Contracts.Kernel.Application): PeerConfig => {
+export const getPeerConfig = (app: Contracts.Kernel.Application): Contracts.P2P.PeerConfig => {
     return {
         version: app.version(),
         network: {

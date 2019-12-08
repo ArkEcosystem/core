@@ -31,7 +31,7 @@ export class StartForkRecovery implements Action {
         this.logger.info(`Removed ${AppUtils.pluralize("block", blocksToRemove, true)}`);
 
         await this.app
-            .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+            .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
             .refreshPeersAfterFork();
 
         this.blockchain.dispatch("SUCCESS");

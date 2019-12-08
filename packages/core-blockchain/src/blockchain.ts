@@ -112,7 +112,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             await Utils.sleep(1000);
         }
 
-        this.app.get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
+        this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
             forcePing: true,
             peerCount: 10,
         });
@@ -157,7 +157,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      */
     public async updateNetworkStatus(): Promise<void> {
         await this.app
-            .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+            .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
             .updateNetworkStatus();
     }
 
@@ -433,7 +433,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
                 this.app
-                    .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+                    .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                     .broadcastBlock(currentBlock);
             }
         } else if (forkBlock) {

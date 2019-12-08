@@ -1,7 +1,9 @@
-import { TransactionConstructor } from "..";
 import { UnkownTransactionError } from "../../errors";
 import { ITransaction, ITransactionData } from "../../interfaces";
 import { InternalTransactionType } from "./internal-transaction-type";
+import { Transaction } from "./transaction";
+
+type TransactionConstructor = typeof Transaction;
 
 export class TransactionTypeFactory {
     private static transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>>;

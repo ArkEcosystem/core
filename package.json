@@ -43,7 +43,7 @@
         "deps:missing": "node ./scripts/deps/missing.js",
         "deps:unused": "node ./scripts/deps/unused.js",
         "deps:types": "./node_modules/typesync/bin/typesync",
-        "madge:circular": "./node_modules/madge/bin/cli.js --circular --extensions ts ./packages/**/src",
+        "madge:circular": "node ./scripts/circular.js",
         "madge:graph": "./node_modules/madge/bin/cli.js --image circular-graph.svg --extensions ts ./packages/**/src",
         "docker": "node ./scripts/docker/generate-docker.js",
         "bench": "node benchmark/index.js"

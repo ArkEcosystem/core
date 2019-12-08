@@ -12,7 +12,7 @@ export class EventListener {
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
     @Container.inject(Container.Identifiers.PeerNetworkMonitor)
-    private readonly networkMonitor!: Contracts.P2P.INetworkMonitor;
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
     public initialize() {
         this.emitter.listen(Enums.PeerEvent.Disconnect, this.app.resolve(DisconnectPeer));

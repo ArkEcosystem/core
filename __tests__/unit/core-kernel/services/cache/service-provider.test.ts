@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { CacheStore } from "@packages/core-kernel/src/types";
+import { CacheFactory } from "@packages/core-kernel/src/types";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryCacheStore } from "@packages/core-kernel/src/services/cache/drivers/memory";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
@@ -28,7 +28,7 @@ describe("CacheServiceProvider", () => {
     it("should create an instance of the MemoryCacheStore", async () => {
         await app.resolve<ServiceProvider>(ServiceProvider).register();
 
-        await expect(app.get<CacheStore<string, string>>(Identifiers.CacheFactory)()).resolves.toBeInstanceOf(
+        await expect(app.get<CacheFactory<string, string>>(Identifiers.CacheFactory)()).resolves.toBeInstanceOf(
             MemoryCacheStore,
         );
     });

@@ -3,7 +3,6 @@ import { Interfaces } from "@arkecosystem/crypto";
 import prettyMs from "pretty-ms";
 import SocketCluster from "socketcluster";
 
-import { PeerData } from "./interfaces";
 import { NetworkState } from "./network-state";
 import { PeerCommunicator } from "./peer-communicator";
 import { PeerProcessor } from "./peer-processor";
@@ -12,7 +11,7 @@ import { buildRateLimiter, checkDNS, checkNTP } from "./utils";
 
 // todo: review the implementation
 @Container.injectable()
-export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
+export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     public server: SocketCluster | undefined;
     public config: any;
     public nextUpdateNetworkStatusScheduled: boolean | undefined;
@@ -604,13 +603,13 @@ export class NetworkMonitor implements Contracts.P2P.INetworkMonitor {
     }
 
     private async populateSeedPeers(): Promise<any> {
-        const peerList: PeerData[] = this.app.config("peers").list;
+        const peerList: Contracts.P2P.PeerData[] = this.app.config("peers").list;
 
         if (!peerList) {
             this.app.terminate("No seed peers defined in peers.json");
         }
 
-        const peers: PeerData[] = peerList.map(peer => {
+        const peers: Contracts.P2P.PeerData[] = peerList.map(peer => {
             peer.version = this.app.version();
             return peer;
         });

@@ -3,9 +3,8 @@ import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kerne
 import { Processor } from "@arkecosystem/core-transaction-pool";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
+import { PeerService } from "../../contracts";
 import { MissingCommonBlockError } from "../../errors";
-import { PeerPingResponse } from "../../interfaces";
-import { PeerService } from "../../types";
 import { isWhitelisted } from "../../utils";
 import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
@@ -53,7 +52,11 @@ export const getCommonBlocks = async ({
     };
 };
 
-export const getStatus = async ({ app }: { app: Contracts.Kernel.Application }): Promise<PeerPingResponse> => {
+export const getStatus = async ({
+    app,
+}: {
+    app: Contracts.Kernel.Application;
+}): Promise<Contracts.P2P.PeerPingResponse> => {
     const lastBlock: Interfaces.IBlock = app
         .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
         .getLastBlock();

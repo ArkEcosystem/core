@@ -73,7 +73,7 @@ export class NetworkState implements Contracts.P2P.NetworkState {
     }
 
     public static analyze(
-        monitor: Contracts.P2P.INetworkMonitor,
+        monitor: Contracts.P2P.NetworkMonitor,
         storage: Contracts.P2P.PeerStorage,
     ): Contracts.P2P.NetworkState {
         // @ts-ignore - app exists but isn't on the interface for now

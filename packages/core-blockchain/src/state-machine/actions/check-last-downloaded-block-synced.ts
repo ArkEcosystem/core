@@ -35,7 +35,7 @@ export class CheckLastDownloadedBlockSynced implements Action {
                 this.logger.info("Network keeps missing blocks.");
 
                 const networkStatus = await this.app
-                    .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+                    .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
                     .checkNetworkHealth();
 
                 if (networkStatus.forked) {

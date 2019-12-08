@@ -1,14 +1,13 @@
 import ByteBuffer from "bytebuffer";
 import Long from "long";
 
-import { Utils } from "..";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
 import { ISerializeOptions } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
-import { isSupportedTansactionVersion } from "../utils";
+import { isException, isSupportedTansactionVersion } from "../utils";
 import { TransactionTypeFactory } from "./types/factory";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
@@ -257,7 +256,7 @@ export class Serializer {
         }
 
         if (transaction.signatures) {
-            if (transaction.version === 1 && Utils.isException(transaction.id)) {
+            if (transaction.version === 1 && isException(transaction.id)) {
                 buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
                 buffer.append(transaction.signatures.join(""), "hex");
             } else if (!options.excludeMultiSignature) {

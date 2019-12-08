@@ -13,7 +13,7 @@ export interface IRateLimitStatus {
     exceededLimitOnEndpoint: boolean;
 }
 
-export interface INetworkMonitor {
+export interface NetworkMonitor {
     boot(): Promise<void>;
     updateNetworkStatus(initialRun?: boolean): Promise<void>;
     cleansePeers({

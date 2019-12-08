@@ -22,7 +22,7 @@ export class DownloadBlocks implements Action {
             this.stateStore.lastDownloadedBlock || this.stateStore.getLastBlock().data;
 
         const blocks: Interfaces.IBlockData[] = await this.app
-            .get<Contracts.P2P.INetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+            .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
             .downloadBlocksFromHeight(lastDownloadedBlock.height);
 
         if (this.blockchain.isStopped) {

@@ -13,9 +13,17 @@ declare global {
 
 expect.extend({
     toBePublicKey: received => {
+        let pass: boolean;
+
+        try {
+            pass = Identities.Address.fromPublicKey(received).length === 34;
+        } catch (e) {
+            pass = false;
+        }
+
         return {
             message: () => "Expected value to be a valid public key",
-            pass: Identities.PublicKey.validate(received),
+            pass,
         };
     },
 });

@@ -730,7 +730,9 @@ export class DatabaseService {
     ): Promise<Contracts.State.Wallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
+        // todo: remove the clone method from the wallet manager and use the TempWalletRepository directly
         const tempWalletRepository: Contracts.State.TempWalletRepository = this.walletRepository.clone();
+
         const delegates: Contracts.State.Wallet[] = await tempWalletRepository.getActiveDelegatesOfPreviousRound(
             blocks,
             roundInfo,
