@@ -108,5 +108,16 @@ jobs:
               run: yarn setup && cd __tests__/e2e && ../../node_modules/.bin/tsc && yarn cache clean && yarn install --frozen-lockfile
             - name: Docker compose up
               run: cd __tests__/e2e/lib/config && docker-compose up -d
-            - name: docker logs to debug
-              run: docker logs config_core0_1 -f
+            - name: Wait 20 sec for docker containers to be up and nodes be running
+              run: sleep 20
+            - name: Run tests
+              run: cd __tests__/e2e && yarn run-tests -s scenario1
+            - name: Output results - node0
+              if: always()
+              run: docker logs config_core0_1
+            - name: Output results - node1
+              if: always()
+              run: docker logs config_core1_1
+            - name: Output results - node2
+              if: always()
+              run: docker logs config_core2_1
