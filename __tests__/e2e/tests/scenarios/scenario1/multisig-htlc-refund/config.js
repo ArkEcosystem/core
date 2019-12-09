@@ -17,7 +17,7 @@ Workflow :
 module.exports = {
     events: {
         newBlock: {
-            88: ["0.transfer-new-wallet.action"],
+            8: ["0.transfer-new-wallet.action"],
             11: ["1.create-multisig-registration.action"],
             14: ["2.check-registration.test"],
             15: ["3.transfer-multisig-wallet.action"],
