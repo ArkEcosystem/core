@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.30] - 2019-12-09
+
+### Fixed
+
+-   Stricter p2p msg check + ip blocking ([#3331])
+-   Purge ipLastError every hour ([#3331])
+
 ## [2.5.28] - 2019-11-05
 
 ### Fixed
@@ -647,6 +654,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.5.30]: https://github.com/ARKEcosystem/core/compare/2.5.28...2.5.30
 [2.5.28]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.5.28
 [2.5.26]: https://github.com/ARKEcosystem/core/compare/2.5.25...2.5.26
 [2.5.25]: https://github.com/ARKEcosystem/core/compare/2.5.24...2.5.25
@@ -995,3 +1003,5 @@ Closed security vulnerabilities:
 [#2945]: https://github.com/ARKEcosystem/core/pull/2945
 [#3030]: https://github.com/ARKEcosystem/core/pull/3030
 [#3208]: https://github.com/ARKEcosystem/core/pull/3208
+[#3208]: https://github.com/ARKEcosystem/core/pull/3208
+[#3331]: https://github.com/ARKEcosystem/core/pull/3331
