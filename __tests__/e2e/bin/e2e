@@ -5,20 +5,6 @@ const app = require('commander')
 app.version(require('../package.json').version)
 
 app
-    .command('generate')
-    .description('generate the file structure for e2e testing')
-    .option('-c, --nodes <number of nodes>', 'number of nodes to generate', 3)
-    .option('-v, --version <node version>', 'node version to use', "12.x")
-    .option('-n, --network <network>', 'network to use as a base (testnet / devnet / mainnet)', "testnet")
-    .option('-r, --relay', 'relay only mode : generate files for relay use', false)
-    .action((options) => require('../lib/generate')(options))
-
-app
-    .command('docker')
-    .description('Run the docker initialization scripts')
-    .action(() => require('../lib/docker')())
-
-app
     .command('run-tests')
     .description('Run the tests')
     .option('-s, --scenario <scenario>', 'scenario to test', 'scenario1')

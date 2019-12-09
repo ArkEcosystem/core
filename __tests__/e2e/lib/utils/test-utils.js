@@ -16,7 +16,7 @@ class Helpers {
     }
 
     async request(method, path, params = {}, nodeId = 0) {
-        const url = `http://127.0.0.1:4900/node${nodeId}/api/v2/${path}`;
+        const url = `http://127.0.0.1:4900/core${nodeId}/api/v2/${path}`;
         const headers = {
             "API-Version": 2,
             "Content-Type": "application/json",
