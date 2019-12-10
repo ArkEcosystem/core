@@ -12,97 +12,53 @@ export class BlockState {
     private walletRepository!: Contracts.State.WalletRepository;
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
-        const generatorPublicKey: string = block.data.generatorPublicKey;
+        if (block.data.height === 1) {
+            this.initGenesisGeneratorWallet(block.data.generatorPublicKey);
+        }
 
-        let delegate: Contracts.State.Wallet | undefined;
-        if (!this.walletRepository.has(generatorPublicKey)) {
-            const generator: string = Identities.Address.fromPublicKey(generatorPublicKey);
-
-            if (block.data.height === 1) {
-                delegate = this.walletRepository.createWallet(generator);
-                delegate.publicKey = generatorPublicKey;
-
-                this.walletRepository.reindex(delegate);
-            } else {
-                this.app.terminate(`Failed to lookup generator '${generatorPublicKey}' of block '${block.data.id}'.`);
-            }
-        } else {
-            delegate = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
+        const generatorWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
+        if (!generatorWallet) {
+            const msg = `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
+            this.app.terminate(msg);
         }
 
         const appliedTransactions: Interfaces.ITransaction[] = [];
-
-        AppUtils.assert.defined<Contracts.State.Wallet>(delegate);
-
         try {
             for (const transaction of block.transactions) {
                 await this.applyTransaction(transaction);
                 appliedTransactions.push(transaction);
             }
-
-            const applied: boolean = this.applyBlockToDelegate(delegate, block.data);
-
-            // If the block has been applied to the delegate, the balance is increased
-            // by reward + totalFee. In which case the vote balance of the
-            // delegate's delegate has to be updated.
-            if (applied && delegate.hasVoted()) {
-                const increase: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
-                const votedDelegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
-                    delegate.getAttribute<string>("vote"),
-                );
-                const voteBalance: Utils.BigNumber = votedDelegate.getAttribute("delegate.voteBalance");
-                votedDelegate.setAttribute("delegate.voteBalance", voteBalance.plus(increase));
-            }
+            this.applyBlockToGenerator(generatorWallet, block.data);
         } catch (error) {
+            this.app.log.error(error.stack);
             this.app.log.error("Failed to apply all transactions in block - reverting previous transactions");
-
-            // Revert the applied transactions from last to first
             for (const transaction of appliedTransactions.reverse()) {
                 await this.revertTransaction(transaction);
             }
-
             throw error;
         }
     }
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
-        if (!this.walletRepository.has(block.data.generatorPublicKey)) {
-            this.app.terminate(
-                `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`,
-            );
+        const generatorWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
+        if (!generatorWallet) {
+            const msg = `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
+            this.app.terminate(msg);
         }
 
-        const delegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
         const revertedTransactions: Interfaces.ITransaction[] = [];
-
         try {
-            // Revert the transactions from last to first
-            for (let i = block.transactions.length - 1; i >= 0; i--) {
-                const transaction: Interfaces.ITransaction = block.transactions[i];
+            for (const transaction of block.transactions.slice().reverse()) {
                 await this.revertTransaction(transaction);
                 revertedTransactions.push(transaction);
             }
-
-            const reverted: boolean = this.revertBlockFromDelegate(delegate, block.data);
-
-            // If the block has been reverted, the balance is decreased
-            // by reward + totalFee. In which case the vote balance of the
-            // delegate's delegate has to be updated.
-            if (reverted && delegate.hasVoted()) {
-                const decrease: Utils.BigNumber = block.data.reward.plus(block.data.totalFee);
-                const votedDelegate: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
-                    delegate.getAttribute<string>("vote"),
-                );
-                const voteBalance: Utils.BigNumber = votedDelegate.getAttribute("delegate.voteBalance");
-                votedDelegate.setAttribute("delegate.voteBalance", voteBalance.minus(decrease));
-            }
+            this.revertBlockFromGenerator(generatorWallet, block.data);
         } catch (error) {
             this.app.log.error(error.stack);
-
+            this.app.log.error("Failed to revert all transactions in block - applying previous transactions");
             for (const transaction of revertedTransactions.reverse()) {
                 await this.applyTransaction(transaction);
             }
-
             throw error;
         }
     }
@@ -184,7 +140,7 @@ export class BlockState {
     }
 
     // WALLETS
-    public applyVoteBalances(
+    private applyVoteBalances(
         sender: Contracts.State.Wallet,
         recipient: Contracts.State.Wallet,
         transaction: Interfaces.ITransactionData,
@@ -194,7 +150,7 @@ export class BlockState {
         return this.updateVoteBalances(sender, recipient, transaction, lockWallet, lockTransaction, false);
     }
 
-    public revertVoteBalances(
+    private revertVoteBalances(
         sender: Contracts.State.Wallet,
         recipient: Contracts.State.Wallet,
         transaction: Interfaces.ITransactionData,
@@ -204,45 +160,50 @@ export class BlockState {
         return this.updateVoteBalances(sender, recipient, transaction, lockWallet, lockTransaction, true);
     }
 
-    public applyBlockToDelegate(wallet: Contracts.State.Wallet, block: Interfaces.IBlockData): boolean {
-        if (
-            block.generatorPublicKey === wallet.publicKey ||
-            Identities.Address.fromPublicKey(block.generatorPublicKey) === wallet.address
-        ) {
-            wallet.balance = wallet.balance.plus(block.reward).plus(block.totalFee);
+    private applyBlockToGenerator(generatorWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
+        const delegateAttribute = generatorWallet.getAttribute("delegate");
+        delegateAttribute.producedBlocks++;
+        delegateAttribute.forgedFees = delegateAttribute.forgedFees.plus(blockData.totalFee);
+        delegateAttribute.forgedRewards = delegateAttribute.forgedRewards.plus(blockData.reward);
+        delegateAttribute.lastBlock = blockData;
 
-            const delegate: Contracts.State.WalletDelegateAttributes = wallet.getAttribute("delegate");
-            delegate.producedBlocks++;
-            delegate.forgedFees = delegate.forgedFees.plus(block.totalFee);
-            delegate.forgedRewards = delegate.forgedRewards.plus(block.reward);
-            delegate.lastBlock = block;
-
-            return true;
-        }
-
-        return false;
+        const balanceIncrease = blockData.reward.plus(blockData.totalFee);
+        this.increaseWalletDelegateVoteBalance(generatorWallet, balanceIncrease);
+        generatorWallet.balance = generatorWallet.balance.plus(balanceIncrease);
     }
 
-    public revertBlockFromDelegate(wallet: Contracts.State.Wallet, block: Interfaces.IBlockData): boolean {
-        if (
-            block.generatorPublicKey === wallet.publicKey ||
-            Identities.Address.fromPublicKey(block.generatorPublicKey) === wallet.address
-        ) {
-            wallet.balance = wallet.balance.minus(block.reward).minus(block.totalFee);
+    private revertBlockFromGenerator(generatorWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
+        const delegateAttribute = generatorWallet.getAttribute("delegate");
+        delegateAttribute.producedBlocks--;
+        delegateAttribute.forgedFees = delegateAttribute.forgedFees.minus(blockData.totalFee);
+        delegateAttribute.forgedRewards = delegateAttribute.forgedRewards.minus(blockData.reward);
+        delegateAttribute.lastBlock = undefined;
 
-            const delegate: Contracts.State.WalletDelegateAttributes = wallet.getAttribute("delegate");
+        const balanceDecrease = blockData.reward.plus(blockData.totalFee);
+        this.decreaseWalletDelegateVoteBalance(generatorWallet, balanceDecrease);
+        generatorWallet.balance = generatorWallet.balance.minus(balanceDecrease);
+    }
 
-            delegate.forgedFees = delegate.forgedFees.minus(block.totalFee);
-            delegate.forgedRewards = delegate.forgedRewards.minus(block.reward);
-            delegate.producedBlocks--;
-
-            // TODO: get it back from database?
-            delegate.lastBlock = undefined;
-
-            return true;
+    public increaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
+        // ? packages/core-transactions/src/handlers/one/vote.ts:L120 blindly sets "vote" attribute
+        // ? is it guaranteed that delegate wallet exists, so delegateWallet.getAttribute("delegate.voteBalance") is safe?
+        if (wallet.hasVoted()) {
+            const delegatePulicKey = wallet.getAttribute<string>("vote");
+            const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
+            const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
+            const newDelegateVoteBalance = oldDelegateVoteBalance.plus(amount);
+            delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
         }
+    }
 
-        return false;
+    public decreaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
+        if (wallet.hasVoted()) {
+            const delegatePulicKey = wallet.getAttribute<string>("vote");
+            const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
+            const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
+            const newDelegateVoteBalance = oldDelegateVoteBalance.minus(amount);
+            delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
+        }
     }
 
     /**
@@ -400,5 +361,16 @@ export class BlockState {
                 );
             }
         }
+    }
+
+    private initGenesisGeneratorWallet(generatorPublicKey: string) {
+        if (this.walletRepository.hasByPublicKey(generatorPublicKey)) {
+            return;
+        }
+
+        const generatorAddress = Identities.Address.fromPublicKey(generatorPublicKey);
+        const generatorWallet = this.walletRepository.createWallet(generatorAddress);
+        generatorWallet.publicKey = generatorPublicKey;
+        this.walletRepository.reindex(generatorWallet);
     }
 }
