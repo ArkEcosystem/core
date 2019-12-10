@@ -80,11 +80,6 @@ describe("Transfer Transaction", () => {
 
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
-
-        transaction
-            .recipientId(address)
-            .amount(amount)
-            .fee(Utils.BigNumber.make(fee).toFixed());
     });
 
     it("should be invalid due to no transaction as object", () => {
