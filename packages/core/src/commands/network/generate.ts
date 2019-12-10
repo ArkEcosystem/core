@@ -313,7 +313,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
 
     private formatGenesisTransaction(transaction, wallet) {
         Object.assign(transaction, {
-            fee: 0,
+            fee: "0",
             timestamp: 0,
         });
         transaction.signature = Transactions.Signer.sign(transaction, wallet.keys);
@@ -332,7 +332,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         });
 
         let payloadLength = 0;
-        let totalFee = 0;
+        let totalFee = Utils.BigNumber.ZERO;
         let totalAmount = Utils.BigNumber.ZERO;
         const allBytes = [];
 
@@ -340,7 +340,7 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
             const bytes = Transactions.Serializer.getBytes(transaction);
             allBytes.push(bytes);
             payloadLength += bytes.length;
-            totalFee += transaction.fee;
+            totalFee = totalFee.plus(new Utils.BigNumber(transaction.fee));
             totalAmount = totalAmount.plus(new Utils.BigNumber(transaction.amount));
         }
 
@@ -349,8 +349,8 @@ $ ark config:generate --network=mynet7 --premine=120000000000 --delegates=47 --b
         const block = {
             version: 0,
             totalAmount: totalAmount.toString(),
-            totalFee,
-            reward: 0,
+            totalFee: totalFee.toString(),
+            reward: "0",
             payloadHash: payloadHash.toString("hex"),
             timestamp,
             numberOfTransactions: transactions.length,
