@@ -4,7 +4,9 @@ import { TransactionVersionError } from "../../../../packages/crypto/src/errors"
 import { Keys } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Signer } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory } from '../../../helpers/transaction-factory';
+import { TransactionFactory } from "../../../helpers/transaction-factory";
+
+configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 
 describe("Signer", () => {
     describe("sign", () => {

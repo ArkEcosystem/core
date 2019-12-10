@@ -18,6 +18,8 @@ import {
 import { TransactionFactory as TestTransactionFactory } from "../../../helpers/transaction-factory";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
+configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+
 let transactionData: ITransactionData;
 let transactionDataJSON;
 

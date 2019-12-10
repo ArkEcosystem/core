@@ -3,6 +3,7 @@ import "jest-extended";
 import { configManager } from "../../../../../../packages/crypto/src/managers";
 
 configManager.setFromPreset("testnet");
+configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 
 import { TransactionType } from "../../../../../../packages/crypto/src/enums";
 import { TransactionVersionError } from "../../../../../../packages/crypto/src/errors";
