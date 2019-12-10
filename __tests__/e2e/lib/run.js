@@ -91,7 +91,16 @@ class Runner {
 
         const configuredBlockHeights = Object.keys(configAllTests.events.newBlock);
 
-        const nodesHeight = await testUtils.getNodesHeight();
+        let nodesHeight = await testUtils.getNodesHeight();
+        if (!nodesHeight || !nodesHeight.length) {
+            console.log("Nodes are not up yet, retrying in 10 seconds...");
+            await delay(10 * 1000);
+            nodesHeight = await testUtils.getNodesHeight();
+            if (!nodesHeight || !nodesHeight.length) {
+                console.error("Nodes are not up");
+                return false;
+            }
+        }
         const blockHeight = Math.max(...nodesHeight);
         const lastBlockHeight = blocksDone.length ? blocksDone[blocksDone.length - 1].height : blockHeight;
         blocksDone.push({ height: blockHeight, timestamp: Date.now() });

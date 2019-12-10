@@ -50,11 +50,11 @@ class Helpers {
                 getStatusPromises.push(this.GET("node/status", {}, n));
             }
             responses = await Promise.all(getStatusPromises);
-        } catch (e) {
-            return [];
-        }
 
-        return responses.map(res => res.data.data.now);
+            return responses.map(res => res.data.data.now);
+        } catch (e) {};
+
+        return [];
     }
 
     expectJson(response) {
