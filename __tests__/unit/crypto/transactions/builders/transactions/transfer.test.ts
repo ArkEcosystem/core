@@ -6,6 +6,7 @@ configManager.setFromPreset("testnet");
 
 import { Utils } from "@arkecosystem/crypto";
 import { TransactionType } from "../../../../../../packages/crypto/src/enums";
+import { VendorFieldLengthExceededError } from "../../../../../../packages/crypto/src/errors";
 import { Keys, WIF } from "../../../../../../packages/crypto/src/identities";
 import { devnet } from "../../../../../../packages/crypto/src/networks";
 import { BuilderFactory, TransferTransaction } from "../../../../../../packages/crypto/src/transactions";
@@ -108,6 +109,10 @@ describe("Transfer Transaction", () => {
         it("should set the vendorField", () => {
             builder.vendorField("fake");
             expect(builder.data.vendorField).toBe("fake");
+        });
+
+        it("should throw an error because the vendorField value exceeds the allowed maximum length", () => {
+            expect(() => builder.vendorField("a".repeat(65))).toThrowError(VendorFieldLengthExceededError);
         });
     });
 });
