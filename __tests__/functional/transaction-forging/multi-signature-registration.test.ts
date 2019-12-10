@@ -98,9 +98,9 @@ describe("Transaction Forging - Multi Signature Registration", () => {
             .withPassphrase(passphrase)
             .createOne();
 
-        Managers.configManager.getMilestone().aip11 = false;
+        Managers.configManager.getMilestone(2).aip11 = false;
 
-        support.injectMilestone(1, {
+        support.injectMilestone(2, {
             height: support.getLastHeight() + 1,
             aip11: true,
         });
