@@ -18,6 +18,8 @@ services:
             POSTGRES_USER: ark
     postgres1: *postgresServiceDefinition
     postgres2: *postgresServiceDefinition
+    postgres3: *postgresServiceDefinition
+    postgres4: *postgresServiceDefinition
 
     core0: &coreServiceDefinition
         build: ./nodes
@@ -31,7 +33,7 @@ services:
             - /bin/sh
             - -c
             - /core/packages/core/bin/run core:run --network=testnet
-        environment:
+        environment: &coreEnvironment
             CORE_DB_HOST: postgres0
             CORE_DB_DATABASE: ark_testnet
             CORE_DB_USERNAME: ark
@@ -44,9 +46,8 @@ services:
             - postgres1
             - peerdiscovery
         environment:
+            <<: *coreEnvironment
             CORE_DB_HOST: postgres1
-            CORE_DB_DATABASE: ark_testnet
-            CORE_DB_USERNAME: ark
             CORE_PATH_CONFIG: /core/__tests__/e2e/lib/config/nodes/core1
             CORE_PATH_DATA: /core/__tests__/e2e/lib/config/nodes/core1
 
@@ -56,8 +57,29 @@ services:
             - postgres2
             - peerdiscovery
         environment:
+            <<: *coreEnvironment
             CORE_DB_HOST: postgres2
-            CORE_DB_DATABASE: ark_testnet
-            CORE_DB_USERNAME: ark
             CORE_PATH_CONFIG: /core/__tests__/e2e/lib/config/nodes/core2
             CORE_PATH_DATA: /core/__tests__/e2e/lib/config/nodes/core2
+
+    core3:
+        <<: *coreServiceDefinition
+        depends_on:
+            - postgres3
+            - peerdiscovery
+        environment:
+            <<: *coreEnvironment
+            CORE_DB_HOST: postgres3
+            CORE_PATH_CONFIG: /core/__tests__/e2e/lib/config/nodes/core3
+            CORE_PATH_DATA: /core/__tests__/e2e/lib/config/nodes/core3
+
+    core4:
+        <<: *coreServiceDefinition
+        depends_on:
+            - postgres4
+            - peerdiscovery
+        environment:
+            <<: *coreEnvironment
+            CORE_DB_HOST: postgres4
+            CORE_PATH_CONFIG: /core/__tests__/e2e/lib/config/nodes/core4
+            CORE_PATH_DATA: /core/__tests__/e2e/lib/config/nodes/core4
