@@ -27,7 +27,7 @@ module.exports = async options => {
                 secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient1.address.slice(0, 32)).toString("hex"),
                 expiration: {
                     type: 2,
-                    value: lastHeight + 12,
+                    value: lastHeight + 51 + 12,
                 },
             },
             utils.htlcRecipient1.address,
@@ -43,7 +43,7 @@ module.exports = async options => {
                 secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient2.address.slice(0, 32)).toString("hex"),
                 expiration: {
                     type: 2,
-                    value: lastHeight + 12,
+                    value: lastHeight + 51 + 12,
                 },
             },
             utils.htlcRecipient2.address,
@@ -60,7 +60,7 @@ module.exports = async options => {
                 secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient3.address.slice(0, 32)).toString("hex"),
                 expiration: {
                     type: 2,
-                    value: lastHeight + 12,
+                    value: lastHeight + 51 + 12,
                 },
             },
             utils.htlcRecipient3.address,
@@ -77,7 +77,7 @@ module.exports = async options => {
                 secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient4.address.slice(0, 32)).toString("hex"),
                 expiration: {
                     type: 2,
-                    value: lastHeight + 4,
+                    value: lastHeight + 51 + 4,
                 },
             },
             utils.htlcRecipient4.address,
