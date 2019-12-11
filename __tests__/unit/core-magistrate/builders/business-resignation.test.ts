@@ -8,6 +8,8 @@ import { Managers, Transactions } from "@arkecosystem/crypto";
 
 let builder: MagistrateBuilders.BusinessResignationBuilder;
 
+Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+
 describe("Business resignation builder", () => {
     Managers.configManager.setFromPreset("testnet");
     Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);

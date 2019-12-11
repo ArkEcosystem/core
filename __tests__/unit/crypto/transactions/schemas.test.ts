@@ -12,6 +12,8 @@ import { validator as Ajv } from "../../../../packages/crypto/src/validation";
 let transaction;
 let transactionSchema: TransactionSchema;
 
+configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+
 describe("Transfer Transaction", () => {
     const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
     const fee = 1 * ARKTOSHI;
@@ -78,19 +80,7 @@ describe("Transfer Transaction", () => {
         transaction.data.vendorField = "a".repeat(65);
         transaction.sign("passphrase");
 
-        let { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeUndefined();
-
-        transaction
-            .recipientId(address)
-            .amount(amount)
-            .fee(Utils.BigNumber.make(fee).toFixed());
-
-        // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
-        transaction.vendorField("⊁".repeat(22));
-        transaction.sign("passphrase");
-
-        error = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
