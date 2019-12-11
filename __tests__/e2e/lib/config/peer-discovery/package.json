@@ -1,0 +1,7 @@
+{
+    "name": "peerdiscovery",
+    "description": "Peer discovery app",
+    "dependencies": {
+        "express": "4.17.1"
+    }
+}

@@ -17,13 +17,13 @@ Workflow :
 module.exports = {
     events: {
         newBlock: {
-            98: ["0.transfer-new-wallet.action"],
-            101: ["1.create-multisig-registration.action"],
-            104: ["2.check-registration.test"],
-            105: ["3.transfer-multisig-wallet.action"],
-            108: ["4.create-lock-multisig-txs.action"],
-            111: ["5.create-refund-multisig-txs.action"],
-            114: ["6.check-multisig.test"],
+            8: ["0.transfer-new-wallet.action"],
+            11: ["1.create-multisig-registration.action"],
+            14: ["2.check-registration.test"],
+            15: ["3.transfer-multisig-wallet.action"],
+            18: ["4.create-lock-multisig-txs.action"],
+            78: ["5.create-refund-multisig-txs.action"],
+            81: ["6.check-multisig.test"],
         },
     },
 };

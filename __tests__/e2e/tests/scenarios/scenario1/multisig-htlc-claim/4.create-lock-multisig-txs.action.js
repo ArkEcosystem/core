@@ -25,7 +25,7 @@ module.exports = async options => {
                 secretHash: Crypto.HashAlgorithms.sha256(utils.randomWallet1.address.slice(0, 32)).toString("hex"),
                 expiration: {
                     type: 2,
-                    value: lastHeight + 12,
+                    value: lastHeight + 51 + 12,
                 },
             },
             utils.randomWallet1.address,
