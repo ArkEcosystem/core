@@ -5,15 +5,7 @@ const utils = require("./utils");
 const shared = require("./shared");
 
 describe("Check confirmed and unconfirmed transactions", () => {
-    it("should have no unconfirmed transaction", async () => {
-        const response = await testUtils.GET("transactions/unconfirmed", {}, 1);
-        testUtils.expectSuccessful(response);
-        const transactions = response.data.data;
-
-        expect(transactions.length).toBe(0);
-    });
-
-    it("should have all lock transactions forged", async () => {
+    it("should have all multisig transactions forged", async () => {
         const response = await testUtils.GET("transactions");
         testUtils.expectSuccessful(response);
         const transactions = response.data.data;

@@ -16,7 +16,7 @@ class Helpers {
     }
 
     async request(method, path, params = {}, nodeId = 0) {
-        const url = `http://127.0.0.1:4900/node${nodeId}/api/v2/${path}`;
+        const url = `http://127.0.0.1:4900/core${nodeId}/api/v2/${path}`;
         const headers = {
             "API-Version": 2,
             "Content-Type": "application/json",
@@ -50,11 +50,11 @@ class Helpers {
                 getStatusPromises.push(this.GET("node/status", {}, n));
             }
             responses = await Promise.all(getStatusPromises);
-        } catch (e) {
-            return [];
-        }
 
-        return responses.map(res => res.data.data.now);
+            return responses.map(res => res.data.data.now);
+        } catch (e) {};
+
+        return [];
     }
 
     expectJson(response) {

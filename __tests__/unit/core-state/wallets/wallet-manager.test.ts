@@ -4,12 +4,14 @@ import "../../core-database/mocks/core-container";
 import { State } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
-import { Blocks, Constants, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Blocks, Constants, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Address } from "@arkecosystem/crypto/src/identities";
 import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { fixtures } from "../../../utils";
 import wallets from "../__fixtures__/wallets.json";
+
+Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 
 const { BlockFactory } = Blocks;
 const { SATOSHI } = Constants;

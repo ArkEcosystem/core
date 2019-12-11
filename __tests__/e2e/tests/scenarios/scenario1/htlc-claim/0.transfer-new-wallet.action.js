@@ -19,6 +19,7 @@ module.exports = async options => {
         .withFee(0.1 * Math.pow(10, 8))
         .withNonce(Utils.BigNumber.make(2))
         .withPassphrase(senderWallet.passphrase)
+        .withVersion(2)
         .createOne();
 
     await testUtils.POST("transactions", {
