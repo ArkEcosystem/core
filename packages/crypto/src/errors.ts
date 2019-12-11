@@ -132,6 +132,12 @@ export class MaximumPaymentCountExceededError extends CryptoError {
     }
 }
 
+export class VendorFieldLengthExceededError extends CryptoError {
+    constructor(limit: number) {
+        super(`Length of vendor field exceeded the allowed maximum ${limit}.`);
+    }
+}
+
 export class MissingTransactionSignatureError extends CryptoError {
     constructor() {
         super(`Expected the transaction to be signed.`);

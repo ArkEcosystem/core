@@ -1,7 +1,7 @@
 import { TransactionFactory, Utils } from "../..";
 import { Slots } from "../../../crypto";
 import { TransactionTypeGroup } from "../../../enums";
-import { MissingTransactionSignatureError } from "../../../errors";
+import { MissingTransactionSignatureError, VendorFieldLengthExceededError } from "../../../errors";
 import { Address, Keys } from "../../../identities";
 import { IKeyPair, ITransaction, ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers/config";
@@ -82,7 +82,13 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
     }
 
     public vendorField(vendorField: string): TBuilder {
-        if (vendorField && Buffer.from(vendorField).length <= maxVendorFieldLength()) {
+        const limit: number = maxVendorFieldLength();
+
+        if (vendorField) {
+            if (Buffer.from(vendorField).length > limit) {
+                throw new VendorFieldLengthExceededError(limit);
+            }
+
             this.data.vendorField = vendorField;
         }
 

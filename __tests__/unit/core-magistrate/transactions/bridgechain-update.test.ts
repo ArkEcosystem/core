@@ -8,6 +8,8 @@ import { bridgechainUpdateAsset1, checkCommonFields } from "../helper";
 const genesisHash = "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61";
 let builder: MagistrateBuilders.BridgechainUpdateBuilder;
 
+Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+
 describe("Bridgechain update ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
 

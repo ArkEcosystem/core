@@ -119,6 +119,7 @@ beforeAll(() => {
     testnet.milestones[0].fees.staticFees.test = 1234;
 
     Managers.configManager.setConfig(testnet);
+    Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 });
 
 describe("Registry", () => {

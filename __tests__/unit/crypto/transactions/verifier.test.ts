@@ -6,12 +6,13 @@ import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
 import { Keys } from "@arkecosystem/crypto/src/identities";
 import { BuilderFactory, Utils as TransactionUtils, Verifier } from "@arkecosystem/crypto/src/transactions";
 import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionFactory } from '../../../helpers/transaction-factory';
+import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { createRandomTx } from "./__support__";
 
 describe("Verifier", () => {
     beforeEach(() => {
         configManager.setFromPreset("testnet");
+        configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
     });
 
     describe("verify", () => {

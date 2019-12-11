@@ -7,6 +7,8 @@ import { businessUpdateAsset1, businessUpdateAsset2, businessUpdateAsset3, check
 
 let builder: MagistrateBuilders.BusinessUpdateBuilder;
 
+Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+
 describe("Business update transaction", () => {
     Managers.configManager.setFromPreset("testnet");
     Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
