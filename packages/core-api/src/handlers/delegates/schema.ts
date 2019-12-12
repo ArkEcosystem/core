@@ -1,14 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import Joi from "@hapi/joi";
 import { blockIteratees, delegateIteratees, walletIteratees } from "../shared/iteratees";
-import { address, blockId, orderBy, pagination, publicKey, walletId } from "../shared/schemas";
+import { address, blockId, orderBy, pagination, publicKey, username, walletId } from "../shared/schemas";
 
 const config = app.getConfig();
-
-const schemaUsername = Joi.string()
-    .regex(/^[a-z0-9!@$&_.]+$/)
-    .min(1)
-    .max(20);
 
 const schemaIntegerBetween = Joi.object().keys({
     from: Joi.number()
@@ -40,7 +35,7 @@ export const index: object = {
             publicKey,
             secondPublicKey: publicKey,
             vote: publicKey,
-            username: schemaUsername,
+            username,
             balance: Joi.number()
                 .integer()
                 .min(0),
@@ -70,12 +65,12 @@ export const search: object = {
     payload: {
         address,
         publicKey,
-        username: schemaUsername,
+        username,
         usernames: Joi.array()
             .unique()
             .min(1)
             .max(config.getMilestone().activeDelegates)
-            .items(schemaUsername),
+            .items(username),
         approval: schemaPercentage,
         forgedFees: schemaIntegerBetween,
         forgedRewards: schemaIntegerBetween,
@@ -139,7 +134,7 @@ export const voters: object = {
             publicKey,
             secondPublicKey: publicKey,
             vote: publicKey,
-            username: schemaUsername,
+            username,
             balance: Joi.number()
                 .integer()
                 .min(0),
