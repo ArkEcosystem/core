@@ -179,6 +179,8 @@ export interface Application {
 
     get<T>(serviceIdentifier: Container.ServiceIdentifier<T>): T;
 
+    getTagged<T>(serviceIdentifier: Container.ServiceIdentifier<T>, key: string | number | symbol, value: any): T;
+
     isBound<T>(serviceIdentifier: Container.ServiceIdentifier<T>): boolean;
 
     resolve<T>(constructorFunction: Container.Newable<T>): T;

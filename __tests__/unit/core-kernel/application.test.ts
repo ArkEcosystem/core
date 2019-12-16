@@ -487,6 +487,19 @@ describe("Application", () => {
         expect(app.get("key")).toBe("value");
     });
 
+    it("should get tagged value from the IoC container", () => {
+        app.bind("animal")
+            .toConstantValue("bear")
+            .whenTargetTagged("order", "carnivora");
+        app.bind("animal")
+            .toConstantValue("dolphin")
+            .whenTargetTagged("order", "cetacea");
+
+        expect(() => app.get("animal")).toThrow();
+        expect(app.getTagged("animal", "order", "carnivora")).toBe("bear");
+        expect(app.getTagged("animal", "order", "cetacea")).toBe("dolphin");
+    });
+
     it("should resolve a value from the IoC container", () => {
         expect(app.resolve(StubClass)).toBeInstanceOf(StubClass);
     });

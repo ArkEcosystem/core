@@ -412,6 +412,22 @@ export class Application implements Contracts.Kernel.Application {
     /**
      * @template T
      * @param {Contracts.Kernel.Container.ServiceIdentifier<T>} serviceIdentifier
+     * @param {string|number|symbol} key
+     * @param {any} value
+     * @returns {T}
+     * @memberof Application
+     */
+    public getTagged<T>(
+        serviceIdentifier: Contracts.Kernel.Container.ServiceIdentifier<T>,
+        key: string | number | symbol,
+        value: any,
+    ): T {
+        return this.container.getTagged(serviceIdentifier, key, value);
+    }
+
+    /**
+     * @template T
+     * @param {Contracts.Kernel.Container.ServiceIdentifier<T>} serviceIdentifier
      * @returns {boolean}
      * @memberof Application
      */
