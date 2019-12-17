@@ -1,51 +1,28 @@
-import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
+import { Container, Services, Utils } from "@arkecosystem/core-kernel";
 import { Enums, Transactions } from "@arkecosystem/crypto";
 
 import { DeactivatedTransactionHandlerError, InvalidTransactionTypeError } from "../errors";
-import { One, Two } from ".";
-import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import { TransactionHandler } from "./transaction";
 
 // todo: review the implementation
 @Container.injectable()
 export class TransactionHandlerRegistry {
-    /**
-     * @private
-     * @type {Contracts.Kernel.Application}
-     * @memberof Server
-     */
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
+    @Container.inject(Container.Identifiers.WalletAttributes)
+    private readonly walletAttributes!: Services.Attributes.AttributeSet;
+
+    @Container.multiInject(Container.Identifiers.TransactionHandler)
+    private readonly allHandlers!: TransactionHandler[];
 
     private readonly registeredTransactionHandlers: Map<
         Transactions.InternalTransactionType,
         Map<number, TransactionHandler>
     > = new Map();
 
-    public initialize(): void {
-        this.registerTransactionHandler(One.TransferTransactionHandler);
-        this.registerTransactionHandler(Two.TransferTransactionHandler);
-
-        this.registerTransactionHandler(One.SecondSignatureRegistrationTransactionHandler);
-        this.registerTransactionHandler(Two.SecondSignatureRegistrationTransactionHandler);
-
-        this.registerTransactionHandler(One.DelegateRegistrationTransactionHandler);
-        this.registerTransactionHandler(Two.DelegateRegistrationTransactionHandler);
-
-        this.registerTransactionHandler(One.VoteTransactionHandler);
-        this.registerTransactionHandler(Two.VoteTransactionHandler);
-
-        this.registerTransactionHandler(One.MultiSignatureRegistrationTransactionHandler);
-        this.registerTransactionHandler(Two.MultiSignatureRegistrationTransactionHandler);
-
-        this.registerTransactionHandler(Two.IpfsTransactionHandler);
-
-        this.registerTransactionHandler(Two.MultiPaymentTransactionHandler);
-
-        this.registerTransactionHandler(Two.DelegateResignationTransactionHandler);
-
-        this.registerTransactionHandler(Two.HtlcLockTransactionHandler);
-        this.registerTransactionHandler(Two.HtlcClaimTransactionHandler);
-        this.registerTransactionHandler(Two.HtlcRefundTransactionHandler);
+    @Container.postConstruct()
+    public registerAllHandlersPostConstruct() {
+        for (const handler of this.allHandlers) {
+            this.registerTransactionHandler(handler);
+        }
     }
 
     public getAll(): Map<number, TransactionHandler>[] {
@@ -106,8 +83,7 @@ export class TransactionHandlerRegistry {
         return activatedTransactionHandlers;
     }
 
-    public registerTransactionHandler(constructor: TransactionHandlerConstructor) {
-        const handler: TransactionHandler = this.app.resolve(constructor);
+    public registerTransactionHandler(handler: TransactionHandler) {
         const transactionConstructor = handler.getConstructor();
 
         Utils.assert.defined<number>(transactionConstructor.type);
@@ -132,10 +108,8 @@ export class TransactionHandlerRegistry {
 
         for (const attribute of handler.walletAttributes()) {
             // TODO: scope attribute by `handler.getConstructor().key` to distinguish between duplicate attributes ?
-            if (
-                !this.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).has(attribute)
-            ) {
-                this.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set(attribute);
+            if (!this.walletAttributes.has(attribute)) {
+                this.walletAttributes.set(attribute);
             }
         }
 
@@ -146,9 +120,8 @@ export class TransactionHandlerRegistry {
         this.registeredTransactionHandlers.get(internalType)?.set(transactionConstructor.version, handler);
     }
 
-    public deregisterTransactionHandler(constructor: TransactionHandlerConstructor): void {
-        const service: TransactionHandler = new constructor();
-        const transactionConstructor = service.getConstructor();
+    public deregisterTransactionHandler(handler: TransactionHandler): void {
+        const transactionConstructor = handler.getConstructor();
 
         Utils.assert.defined<number>(transactionConstructor.type);
         Utils.assert.defined<number>(transactionConstructor.typeGroup);
@@ -169,8 +142,8 @@ export class TransactionHandlerRegistry {
             throw new InvalidTransactionTypeError(internalType.toString());
         }
 
-        for (const attribute of service.walletAttributes()) {
-            this.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).forget(attribute);
+        for (const attribute of handler.walletAttributes()) {
+            this.walletAttributes.forget(attribute);
         }
 
         Transactions.TransactionRegistry.deregisterTransactionType(transactionConstructor);

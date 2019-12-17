@@ -3,21 +3,24 @@ import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkec
 import { strict } from "assert";
 
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../../errors";
-import { Two } from "../index";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
+import { TransactionHandler } from "../transaction";
+import { HtlcLockTransactionHandler } from "./htlc-lock";
 
 @Container.injectable()
 export class HtlcClaimTransactionHandler extends TransactionHandler {
+    @Container.inject(HtlcLockTransactionHandler)
+    private readonly htlcLockTransactionHandlerTwo!: HtlcLockTransactionHandler;
+
+    public dependencies(): ReadonlyArray<TransactionHandler> {
+        return [this.htlcLockTransactionHandlerTwo];
+    }
+
     public walletAttributes(): ReadonlyArray<string> {
         return [];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.Two.HtlcClaimTransaction;
-    }
-
-    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
-        return [Two.HtlcLockTransactionHandler];
     }
 
     public async bootstrap(): Promise<void> {

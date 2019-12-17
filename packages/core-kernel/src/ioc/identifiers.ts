@@ -77,6 +77,8 @@ export const Identifiers = {
     TransactionPoolWalletRepository: Symbol.for("TransactionPool<WalletRepository>"),
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
+    // TransactionHandler
+    TransactionHandler: Symbol.for("TransactionHandler"),
     // Registries
     TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
 };

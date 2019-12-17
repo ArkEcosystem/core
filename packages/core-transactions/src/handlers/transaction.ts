@@ -16,8 +16,6 @@ import {
 } from "../errors";
 import { TransactionReader } from "../transaction-reader";
 
-export type TransactionHandlerConstructor = new () => TransactionHandler;
-
 // todo: revisit the implementation, container usage and arguments after core-database rework
 @Container.injectable()
 export abstract class TransactionHandler {
@@ -35,7 +33,7 @@ export abstract class TransactionHandler {
 
     public abstract getConstructor(): Transactions.TransactionConstructor;
 
-    public abstract dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
+    public abstract dependencies(): ReadonlyArray<TransactionHandler>;
 
     public abstract walletAttributes(): ReadonlyArray<string>;
 

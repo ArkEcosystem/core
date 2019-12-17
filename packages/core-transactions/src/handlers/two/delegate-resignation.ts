@@ -4,23 +4,26 @@ import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { NotEnoughDelegatesError, WalletAlreadyResignedError, WalletNotADelegateError } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
-import { Two } from "../index";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
+import { TransactionHandler } from "../transaction";
+import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class DelegateResignationTransactionHandler extends TransactionHandler {
+    @Container.inject(DelegateRegistrationTransactionHandler)
+    private readonly delegateRegistrationTransactionHandlerTwo!: DelegateRegistrationTransactionHandler;
+
+    public dependencies(): ReadonlyArray<TransactionHandler> {
+        return [this.delegateRegistrationTransactionHandlerTwo];
+    }
+
     public walletAttributes(): ReadonlyArray<string> {
         return ["delegate.resigned"];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {
         return Transactions.Two.DelegateResignationTransaction;
-    }
-
-    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
-        return [Two.DelegateRegistrationTransactionHandler];
     }
 
     public async bootstrap(): Promise<void> {

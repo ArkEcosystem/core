@@ -16,12 +16,12 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
 export class BusinessRegistrationTransactionHandler extends MagistrateTransactionHandler {
-    public getConstructor(): Transactions.TransactionConstructor {
-        return MagistrateTransactions.BusinessRegistrationTransaction;
+    public dependencies(): ReadonlyArray<Handlers.TransactionHandler> {
+        return [];
     }
 
-    public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
-        return [];
+    public getConstructor(): Transactions.TransactionConstructor {
+        return MagistrateTransactions.BusinessRegistrationTransaction;
     }
 
     public walletAttributes(): ReadonlyArray<string> {

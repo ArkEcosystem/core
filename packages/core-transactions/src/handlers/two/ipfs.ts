@@ -4,13 +4,13 @@ import { Interfaces, Managers, Transactions, Utils as CryptoUtils } from "@arkec
 
 import { IpfsHashAlreadyExists } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
+import { TransactionHandler } from "../transaction";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class IpfsTransactionHandler extends TransactionHandler {
-    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+    public dependencies(): ReadonlyArray<TransactionHandler> {
         return [];
     }
 

@@ -1,5 +1,4 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
-import { Handlers } from "@arkecosystem/core-transactions";
 
 import {
     BridgechainRegistrationTransactionHandler,
@@ -13,15 +12,19 @@ import { bridgechainIndexer, businessIndexer, MagistrateIndex } from "./wallet-i
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        const transactionHandlerRegistry = this.app.get<Handlers.Registry>(
-            Container.Identifiers.TransactionHandlerRegistry,
-        );
-        transactionHandlerRegistry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
-        transactionHandlerRegistry.registerTransactionHandler(BusinessResignationTransactionHandler);
-        transactionHandlerRegistry.registerTransactionHandler(BusinessUpdateTransactionHandler);
-        transactionHandlerRegistry.registerTransactionHandler(BridgechainRegistrationTransactionHandler);
-        transactionHandlerRegistry.registerTransactionHandler(BridgechainResignationTransactionHandler);
-        transactionHandlerRegistry.registerTransactionHandler(BridgechainUpdateTransactionHandler);
+        this.app.bind(BusinessRegistrationTransactionHandler).toSelf();
+        this.app.bind(BusinessResignationTransactionHandler).toSelf();
+        this.app.bind(BusinessUpdateTransactionHandler).toSelf();
+        this.app.bind(BridgechainRegistrationTransactionHandler).toSelf();
+        this.app.bind(BridgechainResignationTransactionHandler).toSelf();
+        this.app.bind(BridgechainUpdateTransactionHandler).toSelf();
+
+        this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
+        this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessResignationTransactionHandler);
+        this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessUpdateTransactionHandler);
+        this.app.bind(Container.Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
+        this.app.bind(Container.Identifiers.TransactionHandler).to(BridgechainResignationTransactionHandler);
+        this.app.bind(Container.Identifiers.TransactionHandler).to(BridgechainUpdateTransactionHandler);
     }
 
     public async boot(): Promise<void> {

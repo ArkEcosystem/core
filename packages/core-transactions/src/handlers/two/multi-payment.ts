@@ -4,11 +4,11 @@ import { Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto"
 
 import { InsufficientBalanceError } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
+import { TransactionHandler } from "../transaction";
 
 @Container.injectable()
 export class MultiPaymentTransactionHandler extends TransactionHandler {
-    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+    public dependencies(): ReadonlyArray<TransactionHandler> {
         return [];
     }
 

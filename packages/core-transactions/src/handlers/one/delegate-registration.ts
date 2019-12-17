@@ -7,7 +7,7 @@ import {
     WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
 } from "../../errors";
-import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
+import { TransactionHandler } from "../transaction";
 
 const { TransactionType, TransactionTypeGroup } = Enums;
 
@@ -15,7 +15,7 @@ const { TransactionType, TransactionTypeGroup } = Enums;
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
-    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+    public dependencies(): ReadonlyArray<TransactionHandler> {
         return [];
     }
 
