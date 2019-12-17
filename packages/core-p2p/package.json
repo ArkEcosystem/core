@@ -55,7 +55,7 @@
         "pretty-ms": "^5.0.0",
         "rate-limiter-flexible": "^1.1.0",
         "scc-broker-client": "^6.1.0",
-        "semver": "^6.2.0",
+        "semver": "^7.0.0",
         "socketcluster": "^14.3.5",
         "socketcluster-client": "^14.2.2"
     },
