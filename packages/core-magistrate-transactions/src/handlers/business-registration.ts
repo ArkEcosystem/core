@@ -65,7 +65,7 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
+    ): Promise<{ type: string, message: string } | null> {
         if (
             await pool.senderHasTransactionsOfType(
                 data.senderPublicKey,
@@ -74,14 +74,12 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
             )
         ) {
             const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Business registration for "${wallet.getAttribute("business")}" already in the pool`,
-            );
-            return false;
+            return {
+                type: "ERR_PENDING",
+                message: `Business registration for "${wallet.getAttribute("business")}" already in the pool`,
+            };
         }
-        return true;
+        return null;
     }
 
     public async applyToSender(
