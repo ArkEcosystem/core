@@ -11,7 +11,7 @@ import { MockSocketManager } from "../core-p2p/__support__/mock-socket-server/ma
 
 jest.setTimeout(30000);
 
-let client;
+let client: Client;
 let socketManager: MockSocketManager;
 
 beforeAll(async () => {
@@ -70,7 +70,7 @@ describe("Client", () => {
 
         await client.selectHost();
 
-        await expect(client.broadcastBlock(sampleBlocks[0].toJson())).resolves.not.toThrow();
+        await expect(client.broadcastBlock(sampleBlocks[0])).resolves.not.toThrow();
     });
 
     it("should request the state of the current round to determine if it is time to forge", async () => {

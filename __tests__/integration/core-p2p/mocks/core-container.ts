@@ -101,9 +101,6 @@ jest.mock("@arkecosystem/core-container", () => {
                                 throw new Error("The payload contains invalid transaction.");
                             }),
                         }),
-                        options: {
-                            maxTransactionBytes: 10e6,
-                        },
                     };
                 }
 

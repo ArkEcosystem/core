@@ -11,7 +11,7 @@ import * as networks from "../../../../packages/crypto/src/networks";
 import { testnet } from "../../../../packages/crypto/src/networks";
 import { NetworkName } from "../../../../packages/crypto/src/types";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
-import { dummyBlock, dummyBlock2, dummyBlockSize } from "../fixtures/block";
+import { dummyBlock, dummyBlock2 } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;
 
@@ -129,33 +129,36 @@ describe("Block", () => {
         });
 
         it("should fail to verify a block with too large payload", () => {
+            let block = BlockFactory.fromData(dummyBlock);
+
             jest.spyOn(configManager, "getMilestone").mockImplementation(height => ({
                 block: {
                     version: 0,
                     maxTransactions: 200,
-                    maxPayload: dummyBlockSize - 1,
+                    maxPayload: Buffer.from(block.serialized, "hex").byteLength - 1,
                 },
                 reward: 200000000,
                 vendorFieldLength: 64,
             }));
-            let block = BlockFactory.fromData(dummyBlock);
+            let verification = block.verify();
 
-            expect(block.verification.verified).toBeFalse();
-            expect(block.verification.errors[0]).toContain("Payload is too large");
+            expect(verification.verified).toBeFalse();
+            expect(verification.errors[0]).toContain("Payload is too large");
 
             jest.spyOn(configManager, "getMilestone").mockImplementation(height => ({
                 block: {
                     version: 0,
                     maxTransactions: 200,
-                    maxPayload: dummyBlockSize,
+                    maxPayload: Buffer.from(block.serialized, "hex").byteLength,
                 },
                 reward: 200000000,
                 vendorFieldLength: 64,
             }));
             block = BlockFactory.fromData(dummyBlock);
+            verification = block.verify();
 
-            expect(block.verification.verified).toBeTrue();
-            expect(block.verification.errors).toBeEmpty();
+            expect(verification.verified).toBeTrue();
+            expect(verification.errors).toBeEmpty();
 
             jest.restoreAllMocks();
         });

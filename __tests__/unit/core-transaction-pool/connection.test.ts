@@ -8,6 +8,7 @@ import { State } from "@arkecosystem/core-interfaces";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Constants, Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { BigNumber } from "@arkecosystem/crypto/src/utils";
 import assert from "assert";
 import delay from "delay";
 import cloneDeep from "lodash.clonedeep";
@@ -17,6 +18,7 @@ import { Connection } from "../../../packages/core-transaction-pool/src/connecti
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
 import { Storage } from "../../../packages/core-transaction-pool/src/storage";
+import { getMaxTransactionBytes } from "../../../packages/core-transaction-pool/src/utils";
 import { WalletManager } from "../../../packages/core-transaction-pool/src/wallet-manager";
 import { BlockFactory, TransactionFactory } from "../../helpers";
 import { delegates } from "../../utils/fixtures/unitnet";
@@ -38,6 +40,11 @@ const indexWalletWithSufficientBalance = (transaction: Interfaces.ITransaction):
 
     const wallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
     wallet.balance = wallet.balance.plus(transaction.data.amount.plus(transaction.data.fee));
+    if (transaction.type === Enums.TransactionType.MultiPayment) {
+        wallet.balance = wallet.balance.plus(
+            transaction.data.asset.payments.reduce((acc, curr) => acc.plus(curr.amount), BigNumber.ZERO),
+        );
+    }
     walletManager.reindex(wallet);
 };
 
@@ -524,7 +531,7 @@ describe("Connection", () => {
 
             // @FIXME: Uhm excuse me, what the?
             largeTransactions[0].data.signatures = largeTransactions[1].data.signatures = [""];
-            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
+            for (let i = 0; i < getMaxTransactionBytes() * 0.6; i++) {
                 // @ts-ignore
                 largeTransactions[0].data.signatures += "1";
                 // @ts-ignore
@@ -590,56 +597,36 @@ describe("Connection", () => {
         });
 
         it("should only return transactions not exceeding the maximum payload size", async () => {
-            const transactions = TransactionFactory.transfer().build(5);
-
-            const largeTransactions = TransactionFactory.transfer()
-                .withPassphrase(delegatesSecrets[22])
-                .build(2);
-
-            for (const transaction of transactions) {
-                indexWalletWithSufficientBalance(transaction);
+            // the idea is to push more transactions to the pool than we can fit in a block
+            // so we use multipayments which are large transactions, and we add 1 more transaction
+            // than possible in theory (exceeding maxTransactionBytes config value)
+            // we then test that we have 1 less transaction returned by getTransactionsForForging than what is in the pool
+            const payments = [];
+            for (let i = 0; i < 150; i++) {
+                payments.push({
+                    recipientId: delegates[0].address,
+                    amount: "100",
+                });
             }
+            const largeTransactions = TransactionFactory.multiPayment(payments)
+                .withPassphrase(delegatesSecrets[22])
+                .build(1000);
+            const largeTransactionSize = largeTransactions[0].serialized.byteLength;
+            const maxTransactionBytes = getMaxTransactionBytes();
+            const maxTxToAdd = Math.floor(maxTransactionBytes / largeTransactionSize);
 
             for (const transaction of largeTransactions) {
                 indexWalletWithSufficientBalance(transaction);
             }
 
-            // @FIXME: Uhm excuse me, what the?
-            largeTransactions[0].data.signatures = largeTransactions[1].data.signatures = [""];
-            for (let i = 0; i < connection.options.maxTransactionBytes * 0.6; i++) {
-                // @ts-ignore
-                largeTransactions[0].data.signatures += "1";
-                // @ts-ignore
-                largeTransactions[1].data.signatures += "2";
-            }
+            // we add 1 more transaction than the max that it is possible to forge at once
+            addTransactions(largeTransactions.slice(0, maxTxToAdd + 1));
 
-            addTransactions([...transactions, ...largeTransactions]);
-
-            const handler = await Handlers.Registry.get(0);
+            const handler = await Handlers.Registry.get(Enums.TransactionType.MultiPayment);
             jest.spyOn(handler, "throwIfCannotBeApplied").mockResolvedValue();
-            let transactionsForForging = await connection.getTransactionsForForging(7);
+            const transactionsForForging = await connection.getTransactionsForForging(1000);
 
-            expect(transactionsForForging.length).toBe(6);
-            expect(transactionsForForging[0]).toEqual(transactions[0].serialized.toString("hex"));
-            expect(transactionsForForging[1]).toEqual(transactions[1].serialized.toString("hex"));
-            expect(transactionsForForging[2]).toEqual(transactions[2].serialized.toString("hex"));
-            expect(transactionsForForging[3]).toEqual(transactions[3].serialized.toString("hex"));
-            expect(transactionsForForging[4]).toEqual(transactions[4].serialized.toString("hex"));
-            expect(transactionsForForging[5]).toEqual(largeTransactions[0].serialized.toString("hex"));
-
-            connection.removeTransactionById(largeTransactions[0].id);
-            connection.removeTransactionById(transactions[0].id);
-            connection.removeTransactionById(transactions[1].id);
-            connection.removeTransactionById(transactions[2].id);
-            connection.removeTransactionById(transactions[3].id);
-            connection.removeTransactionById(transactions[4].id);
-
-            updateSenderNonce(largeTransactions[1]);
-
-            transactionsForForging = await connection.getTransactionsForForging(7);
-
-            expect(transactionsForForging.length).toBe(1);
-            expect(transactionsForForging[0]).toEqual(largeTransactions[1].serialized.toString("hex"));
+            expect(transactionsForForging.length).toBe(maxTxToAdd);
         });
     });
 

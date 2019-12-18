@@ -10,7 +10,6 @@ export const defaults = {
     maxTransactionsPerSender: process.env.CORE_TRANSACTION_POOL_MAX_PER_SENDER || 300,
     allowedSenders: [],
     maxTransactionsPerRequest: process.env.CORE_TRANSACTION_POOL_MAX_PER_REQUEST || 40,
-    maxTransactionBytes: process.env.CORE_TRANSACTION_POOL_MAX_TRANSACTIONS_SIZE || 1047876,
     // Max transaction age in number of blocks produced since the transaction was created.
     // If a transaction stays that long in the pool without being included in any block,
     // then it will be removed.

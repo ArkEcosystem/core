@@ -3,6 +3,7 @@ import Ajv from "ajv";
 import { cidr } from "ip";
 import SCWorker from "socketcluster/scworker";
 import { requestSchemas } from "../schemas";
+import { codec } from "../utils/sc-codec";
 
 const ajv = new Ajv();
 
@@ -11,6 +12,8 @@ export class Worker extends SCWorker {
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
+
+        this.scServer.setCodecEngine(codec);
 
         await this.loadConfiguration();
 
