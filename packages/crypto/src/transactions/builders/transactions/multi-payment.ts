@@ -1,4 +1,4 @@
-import { MaximumPaymentCountExceededError } from "../../../errors";
+import { MaximumPaymentCountExceededError, MinimumPaymentCountSubceededError } from "../../../errors";
 import { ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
@@ -35,6 +35,14 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
     }
 
     public getStruct(): ITransactionData {
+        if (
+            !this.data.asset.payments ||
+            !Array.isArray(this.data.asset.payments) ||
+            this.data.asset.payments.length <= 1
+        ) {
+            throw new MinimumPaymentCountSubceededError();
+        }
+
         const struct: ITransactionData = super.getStruct();
         struct.senderPublicKey = this.data.senderPublicKey;
         struct.vendorField = this.data.vendorField;
