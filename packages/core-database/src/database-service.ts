@@ -116,7 +116,7 @@ export class DatabaseService implements Database.IDatabaseService {
                     await this.setForgingDelegatesOfRound(roundInfo, delegates);
                     await this.saveRound(delegates);
 
-                    this.blocksInCurrentRound.length = 0;
+                    this.blocksInCurrentRound = [];
 
                     this.emitter.emit(ApplicationEvents.RoundApplied);
                 } catch (error) {

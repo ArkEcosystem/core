@@ -176,7 +176,9 @@ describe("Connection", () => {
 
     describe("getTransactionsForForging", () => {
         it("should call `TransactionFactory.fromBytes`", async () => {
-            const transactions = TransactionFactory.transfer().build(5);
+            const transactions = TransactionFactory.transfer()
+                .withVersion(2)
+                .build(5);
             const spy = jest.spyOn(Transactions.TransactionFactory, "fromBytes");
             await expectForgingTransactions(transactions, 5);
             expect(spy).toHaveBeenCalled();

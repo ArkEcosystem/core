@@ -7,6 +7,8 @@ import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, checkComm
 
 let builder: MagistrateBuilders.BridgechainRegistrationBuilder;
 
+Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+
 describe("Bridgechain registration transaction", () => {
     Managers.configManager.setFromPreset("testnet");
 

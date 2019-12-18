@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi";
-import { address, blockId, orderBy, pagination, publicKey, walletId } from "../shared/schemas";
+import { address, blockId, orderBy, pagination, publicKey, username, walletId } from "../shared/schemas";
 
 export const index: object = {
     query: {
@@ -10,7 +10,7 @@ export const index: object = {
             publicKey,
             secondPublicKey: publicKey,
             vote: publicKey,
-            username: Joi.string(),
+            username,
             balance: Joi.number().integer(),
             voteBalance: Joi.number()
                 .integer()
@@ -190,7 +190,7 @@ export const search: object = {
         publicKey,
         secondPublicKey: publicKey,
         vote: publicKey,
-        username: Joi.string(),
+        username,
         producedBlocks: Joi.number()
             .integer()
             .min(0),
