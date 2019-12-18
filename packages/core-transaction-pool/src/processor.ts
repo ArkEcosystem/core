@@ -220,7 +220,12 @@ export class Processor implements TransactionPool.IProcessor {
                 transaction.type,
                 transaction.typeGroup,
             );
-            return handler.canEnterTransactionPool(transaction, this.pool, this);
+            const err = await handler.canEnterTransactionPool(transaction, this.pool, this);
+            if (err !== null) {
+                this.pushError(transaction, err.type, err.message);
+                return false;
+            }
+            return true;
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(

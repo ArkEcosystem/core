@@ -4,6 +4,7 @@ import { genericName } from "./generic-name";
 import { orderBy } from "./order-by";
 import { pagination } from "./pagination";
 import { publicKey } from "./public-key";
+import { username } from "./username";
 import { walletId } from "./wallet-id";
 
-export { address, blockId, genericName, orderBy, pagination, publicKey, walletId };
+export { address, blockId, genericName, orderBy, pagination, publicKey, username, walletId };

@@ -1,10 +1,18 @@
-import { Identities } from "@arkecosystem/crypto";
+import { Container, Database } from "@arkecosystem/core-interfaces";
+import { Identities, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
+import delay from "delay";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
-beforeAll(support.setUp);
+let app: Container.IContainer;
+let databaseService: Database.IDatabaseService;
+
+beforeAll(async () => {
+    app = await support.setUp();
+    databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+});
 afterAll(support.tearDown);
 
 describe("Transaction Forging - Bridgechain update", () => {
@@ -126,7 +134,8 @@ describe("Transaction Forging - Bridgechain update", () => {
 
             // Initial Funds
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 200 * 1e8)
-                .withPassphrase(secrets[0])
+                .withPassphrase(secrets[2])
+                .withNonce(Utils.BigNumber.make(2))
                 .createOne();
 
             await expect(initialFunds).toBeAccepted();
@@ -200,11 +209,13 @@ describe("Transaction Forging - Bridgechain update", () => {
         it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
             // Funds to register a multi signature wallet
             const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
-                .withPassphrase(secrets[0])
+                .withPassphrase(secrets[2])
+                .withNonce(Utils.BigNumber.make(3))
                 .createOne();
 
             await expect(initialFunds).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await delay(8000);
+            // await support.snoozeForBlock(1);
             await expect(initialFunds.id).toBeForged();
 
             // Registering a multi-signature wallet
@@ -222,7 +233,8 @@ describe("Transaction Forging - Bridgechain update", () => {
             const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
             const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 150 * 1e8)
-                .withPassphrase(secrets[0])
+                .withPassphrase(secrets[2])
+                .withNonce(Utils.BigNumber.make(4))
                 .createOne();
 
             await expect(multiSignatureFunds).toBeAccepted();
@@ -273,6 +285,67 @@ describe("Transaction Forging - Bridgechain update", () => {
             await expect(bridgechainUpdate).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(bridgechainUpdate.id).toBeForged();
+        });
+    });
+
+    describe("Apply and revert bridgechain update", () => {
+        it("should update bridgechain then revert to previous state when reverting block", async () => {
+            // Registering a bridgechain
+            const bridgechainRegistrationAsset3 = {
+                name: "cryptoProject3",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "c17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
+            };
+
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration(bridgechainRegistrationAsset3)
+                .withPassphrase(secrets[0])
+                .createOne();
+
+            await expect(bridgechainRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).toBeForged();
+
+            const bridgechainUpdateAsset1 = { seedNodes: ["1.2.3.4", "1.2.3.5", "192.168.1.0", "131.107.0.89"] };
+            const bridgechainUpdate = TransactionFactory.bridgechainUpdate({
+                bridgechainId: bridgechainRegistrationAsset3.genesisHash,
+                ...bridgechainUpdateAsset1,
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+            await expect(bridgechainUpdate).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainUpdate.id).toBeForged();
+
+            const bridgechainUpdateAsset2 = { seedNodes: ["1.2.3.4"] };
+            const bridgechainUpdate2 = TransactionFactory.bridgechainUpdate({
+                bridgechainId: bridgechainRegistrationAsset3.genesisHash,
+                ...bridgechainUpdateAsset2,
+            })
+                .withPassphrase(secrets[0])
+                .createOne();
+            await expect(bridgechainUpdate2).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainUpdate2.id).toBeForged();
+            const wallet = databaseService.walletManager.findByPublicKey(
+                Identities.PublicKey.fromPassphrase(secrets[0]),
+            );
+            expect(wallet.getAttribute("business").bridgechains[bridgechainRegistrationAsset3.genesisHash]).toEqual({
+                bridgechainAsset: Object.assign(
+                    {},
+                    bridgechainRegistrationAsset3,
+                    bridgechainUpdateAsset1,
+                    bridgechainUpdateAsset2,
+                ),
+            });
+
+            await support.revertLastBlock();
+            await support.revertLastBlock();
+
+            expect(wallet.getAttribute("business").bridgechains[bridgechainRegistrationAsset3.genesisHash]).toEqual({
+                bridgechainAsset: Object.assign({}, bridgechainRegistrationAsset3, bridgechainUpdateAsset1),
+            });
         });
     });
 });

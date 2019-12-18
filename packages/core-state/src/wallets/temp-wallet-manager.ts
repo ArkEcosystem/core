@@ -1,5 +1,4 @@
 import { State } from "@arkecosystem/core-interfaces";
-import { Identities } from "@arkecosystem/crypto";
 import cloneDeep from "lodash.clonedeep";
 import { Wallet } from "./wallet";
 import { WalletManager } from "./wallet-manager";
@@ -25,19 +24,6 @@ export class TempWalletManager extends WalletManager {
 
     public findByAddress(address: string): State.IWallet {
         return this.findByIndex(State.WalletIndexes.Addresses, address);
-    }
-
-    public findByPublicKey(publicKey: string): State.IWallet {
-        // Sender wallet may not be indexed yet by public key
-        if (!this.walletManager.hasByPublicKey(publicKey)) {
-            const wallet: State.IWallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
-            wallet.publicKey = publicKey;
-            this.reindex(wallet);
-
-            return wallet;
-        }
-
-        return this.findByIndex(State.WalletIndexes.PublicKeys, publicKey);
     }
 
     public findByUsername(username: string): State.IWallet {

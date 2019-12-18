@@ -642,5 +642,20 @@ describe("Connection", () => {
             }
             await expectForgingTransactions(transactions, 1, true);
         });
+
+        it("should get all transactions for a new sender (with wallet only indexed by address)", async () => {
+            const newSenderPassphrase = "this is a brand new passphrase";
+            const newSenderAddress = Identities.Address.fromPassphrase(newSenderPassphrase);
+            const transactions = TransactionFactory.transfer()
+                .withPassphrase(newSenderPassphrase)
+                .build(5);
+
+            // findByAddress is important here so that sender wallet is not indexed by public key
+            // which did cause an issue when getting transactions for forging
+            const sender = databaseWalletManager.findByAddress(newSenderAddress);
+            sender.balance = transactions[0].data.amount.plus(transactions[0].data.fee).times(5);
+
+            await expectForgingTransactions(transactions, 5);
+        });
     });
 });

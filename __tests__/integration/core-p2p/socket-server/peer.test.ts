@@ -122,7 +122,7 @@ describe("Peer socket endpoint", () => {
                         data: {},
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "BadConnectionError");
+                ).rejects.toHaveProperty("name", "Error");
             });
 
             it("should throw error when sending wrong buffer", async () => {
@@ -272,7 +272,7 @@ describe("Peer socket endpoint", () => {
 
             const block = BlockFactory.createDummy();
 
-            await emit("p2p.peer.postBlock", {
+            const postBlock = () => emit("p2p.peer.postBlock", {
                 headers,
                 data: {
                     block: Blocks.Serializer.serializeWithTransactions({
@@ -282,17 +282,9 @@ describe("Peer socket endpoint", () => {
                 },
             });
 
-            await expect(
-                emit("p2p.peer.postBlock", {
-                    headers,
-                    data: {
-                        block: Blocks.Serializer.serializeWithTransactions({
-                            ...block.data,
-                            transactions: block.transactions.map(tx => tx.data),
-                        }),
-                    },
-                }),
-            ).rejects.toHaveProperty("name", "BadConnectionError");
+            await expect(postBlock()).toResolve();
+            await expect(postBlock()).toResolve();
+            await expect(postBlock()).rejects.toHaveProperty("name", "BadConnectionError");
 
             await expect(
                 emit("p2p.peer.getStatus", {
@@ -303,17 +295,7 @@ describe("Peer socket endpoint", () => {
 
             await delay(4000);
 
-            await expect(
-                emit("p2p.peer.postBlock", {
-                    headers,
-                    data: {
-                        block: Blocks.Serializer.serializeWithTransactions({
-                            ...block.data,
-                            transactions: block.transactions.map(tx => tx.data),
-                        }),
-                    },
-                }),
-            ).toResolve();
+            await expect(postBlock()).toResolve();
         });
 
         it("should close the connection when the event length is > 128", async () => {

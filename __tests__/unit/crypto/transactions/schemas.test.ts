@@ -748,17 +748,6 @@ describe("Multi Payment Transaction", () => {
         expect(error).toBeUndefined();
     });
 
-    it("should be invalid with 0 or 1 payment", () => {
-        multiPayment.sign("passphrase");
-        const { error: errorZeroPayment } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
-        expect(errorZeroPayment).not.toBeUndefined();
-
-        multiPayment.addPayment(address, "100").sign("passphrase");
-
-        const { error: errorOnePayment } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
-        expect(errorOnePayment).not.toBeUndefined();
-    });
-
     it("should not accept more than `multiPaymentLimit` payments", () => {
         const limit = configManager.getMilestone().multiPaymentLimit;
 
