@@ -163,7 +163,7 @@ export class ForgerManager {
         if (timeLeftInMs >= minimumMs && currentSlot === roundSlot) {
             this.logger.info(`Forged new block ${block.data.id} by delegate ${prettyName}`);
 
-            await this.client.broadcastBlock(block.toJson());
+            await this.client.broadcastBlock(block);
 
             this.client.emitEvent(ApplicationEvents.BlockForged, block.data);
 

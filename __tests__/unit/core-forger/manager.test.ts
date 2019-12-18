@@ -4,7 +4,7 @@ import "./mocks/core-container";
 
 import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { NetworkState, NetworkStateStatus } from "@arkecosystem/core-p2p";
-import { Crypto, Identities, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Identities, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-forger/src/defaults";
 import { Delegate } from "../../../packages/core-forger/src/delegate";
 import { ForgerManager } from "../../../packages/core-forger/src/manager";
@@ -62,8 +62,10 @@ describe("Forger Manager", () => {
 
             expect(forgeManager.client.broadcastBlock).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    height: round.lastBlock.height + 1,
-                    reward: round.reward.toFixed(),
+                    data: expect.objectContaining({
+                        height: round.lastBlock.height + 1,
+                        reward: Utils.BigNumber.make(round.reward),
+                    }),
                 }),
             );
             expect(forgeManager.client.emitEvent).toHaveBeenCalledWith(
