@@ -1355,7 +1355,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
                     pool as TransactionPool.IConnection,
                     processor as TransactionPool.IProcessor,
                 ),
-            ).resolves.toBeTrue();
+            ).resolves.toBeNull();
         });
 
         it("should throw if no wallet has a lock with associated transaction id", async () => {
@@ -1367,8 +1367,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
                     pool as TransactionPool.IConnection,
                     processor as TransactionPool.IProcessor,
                 ),
-            ).resolves.toBeFalse();
-            expect(processor.pushError).toHaveBeenCalled();
+            ).resolves.not.toBeNull();
         });
     });
 
@@ -1599,7 +1598,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
                     pool as TransactionPool.IConnection,
                     processor as TransactionPool.IProcessor,
                 ),
-            ).resolves.toBeTrue();
+            ).resolves.toBeNull();
         });
 
         it("should throw if no wallet has a lock with associated transaction id", async () => {
@@ -1611,8 +1610,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
                     pool as TransactionPool.IConnection,
                     processor as TransactionPool.IProcessor,
                 ),
-            ).resolves.toBeFalse();
-            expect(processor.pushError).toHaveBeenCalled();
+            ).resolves.not.toBeNull();
         });
     });
 
