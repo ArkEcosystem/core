@@ -34,7 +34,7 @@
         "lodash.isstring": "^4.0.1",
         "lodash.set": "^4.3.2",
         "log-process-errors": "^5.0.2",
-        "semver": "^6.2.0"
+        "semver": "^7.0.0"
     },
     "devDependencies": {
         "@types/fs-extra": "^8.0.0",
