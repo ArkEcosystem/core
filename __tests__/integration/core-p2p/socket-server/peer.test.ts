@@ -109,7 +109,7 @@ describe("Peer socket endpoint", () => {
                         data: {},
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "BadConnectionError");
+                ).rejects.toHaveProperty("name", "Error");
             });
         });
 
@@ -247,17 +247,11 @@ describe("Peer socket endpoint", () => {
 
             const block = BlockFactory.createDummy().toJson();
 
-            await emit("p2p.peer.postBlock", {
-                headers,
-                data: { block },
-            });
+            const postBlock = () => emit("p2p.peer.postBlock", { headers, data: { block } });
 
-            await expect(
-                emit("p2p.peer.postBlock", {
-                    headers,
-                    data: { block },
-                }),
-            ).rejects.toHaveProperty("name", "BadConnectionError");
+            await expect(postBlock()).toResolve();
+            await expect(postBlock()).toResolve();
+            await expect(postBlock()).rejects.toHaveProperty("name", "BadConnectionError");
 
             await expect(
                 emit("p2p.peer.getStatus", {
@@ -268,12 +262,7 @@ describe("Peer socket endpoint", () => {
 
             await delay(4000);
 
-            await expect(
-                emit("p2p.peer.postBlock", {
-                    headers,
-                    data: { block },
-                }),
-            ).toResolve();
+            await expect(postBlock()).toResolve();
         });
 
         it("should close the connection when the event length is > 128", async () => {
