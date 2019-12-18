@@ -91,8 +91,8 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
-        return true;
+    ): Promise<{ type: string, message: string } | null> {
+        return null;
     }
 
     public async applyToSender(
