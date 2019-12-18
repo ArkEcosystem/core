@@ -1,11 +1,12 @@
 import Joi from "@hapi/joi";
+import { bridgechainIteratees, businessIteratees } from "../shared/iteratees";
 import { address, genericName, orderBy, pagination, publicKey, walletId } from "../shared/schemas";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(businessIteratees),
             publicKey,
             isResigned: Joi.bool(),
         },
@@ -25,7 +26,7 @@ export const bridgechains: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(bridgechainIteratees),
             isResigned: Joi.bool(),
         },
     },
@@ -35,7 +36,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(businessIteratees),
         },
     },
     payload: {

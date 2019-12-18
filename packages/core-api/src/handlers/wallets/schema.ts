@@ -1,11 +1,12 @@
 import Joi from "@hapi/joi";
+import { lockIteratees, transactionIteratees, walletIteratees } from "../shared/iteratees";
 import { address, blockId, orderBy, pagination, publicKey, username, walletId } from "../shared/schemas";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(walletIteratees),
             address,
             publicKey,
             secondPublicKey: publicKey,
@@ -35,7 +36,7 @@ export const transactions: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -74,7 +75,7 @@ export const transactionsSent: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -114,7 +115,7 @@ export const transactionsReceived: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -168,7 +169,7 @@ export const locks: object = {
         ...pagination,
         ...{
             isExpired: Joi.bool(),
-            orderBy,
+            orderBy: orderBy(lockIteratees),
         },
     },
 };
@@ -177,7 +178,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(walletIteratees),
         },
     },
     payload: {

@@ -1,5 +1,6 @@
 import { app } from "@arkecosystem/core-container";
 import Joi from "@hapi/joi";
+import { blockIteratees, delegateIteratees, walletIteratees } from "../shared/iteratees";
 import { address, blockId, orderBy, pagination, publicKey, username, walletId } from "../shared/schemas";
 
 const config = app.getConfig();
@@ -28,7 +29,7 @@ export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(delegateIteratees),
             type: Joi.string().valid("resigned", "never-forged"),
             address,
             publicKey,
@@ -58,7 +59,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(delegateIteratees),
         },
     },
     payload: {
@@ -86,7 +87,7 @@ export const blocks: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(blockIteratees),
             id: blockId,
             version: Joi.number()
                 .integer()
@@ -128,7 +129,7 @@ export const voters: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(walletIteratees),
             address,
             publicKey,
             secondPublicKey: publicKey,
