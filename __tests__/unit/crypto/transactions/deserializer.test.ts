@@ -391,8 +391,16 @@ describe("Transaction serializer / Deserializer", () => {
                 .build();
 
             configManager.getMilestone().aip11 = false;
+            configManager.getMilestone().htlcEnabled = true;
             expect(htlcLock.verify()).toBeFalse();
             configManager.getMilestone().aip11 = true;
+            configManager.getMilestone().htlcEnabled = false;
+            expect(htlcLock.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = false;
+            configManager.getMilestone().htlcEnabled = false;
+            expect(htlcLock.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            configManager.getMilestone().htlcEnabled = true;
             expect(htlcLock.verify()).toBeTrue();
         });
     });

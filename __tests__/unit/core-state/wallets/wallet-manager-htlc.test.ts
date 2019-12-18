@@ -16,6 +16,7 @@ let walletManager: State.IWalletManager;
 
 beforeAll(() => {
     Managers.configManager.getMilestone().aip11 = true;
+    Managers.configManager.getMilestone().htlcEnabled = true;
     jest.spyOn(Handlers.Registry, "isKnownWalletAttribute").mockReturnValue(true);
 });
 
