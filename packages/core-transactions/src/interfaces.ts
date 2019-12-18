@@ -27,15 +27,14 @@ export interface ITransactionHandler {
 
     /**
      * Check if a transaction of this type can enter the pool.
-     * If `false` is returned to designate that the transaction cannot enter the pool,
-     * then this method will have called processor.pushError() to give a detailed
-     * description of the reason.
+     * An error object is returned to designate that the transaction cannot enter
+     * the pool, or null if it can enter.
      */
     canEnterTransactionPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean>;
+    ): Promise<{ type: string, message: string } | null>;
 
     emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void;
 }

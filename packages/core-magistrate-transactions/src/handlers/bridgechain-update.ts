@@ -92,7 +92,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
+    ): Promise<{ type: string, message: string } | null> {
         const { bridgechainId }: { bridgechainId: string } = data.asset.bridgechainUpdate;
 
         const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
@@ -109,15 +109,13 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
                     update.asset.bridgechainUpdate.bridgechainId === bridgechainId,
             )
         ) {
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
-            );
-            return false;
+            return {
+                type: "ERR_PENDING",
+                message: `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
+            };
         }
 
-        return true;
+        return null;
     }
 
     public async applyToSender(
