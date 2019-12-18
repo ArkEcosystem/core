@@ -238,33 +238,26 @@ export abstract class TransactionHandler implements ITransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
-        processor.pushError(
-            data,
-            "ERR_UNSUPPORTED",
-            `Invalidating transaction of unsupported type '${Enums.TransactionType[data.type]}'`,
-        );
-
-        return false;
+    ): Promise<{ type: string, message: string } | null> {
+        return {
+            type: "ERR_UNSUPPORTED",
+            message: `Invalidating transaction of unsupported type '${Enums.TransactionType[data.type]}'`,
+        };
     }
 
     protected async typeFromSenderAlreadyInPool(
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
+    ): Promise<{ type: string, message: string } | null> {
         const { senderPublicKey, type }: Interfaces.ITransactionData = data;
 
         if (await pool.senderHasTransactionsOfType(senderPublicKey, type)) {
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionType[type]}' in the pool`,
-            );
-
-            return true;
+            return {
+                type: "ERR_PENDING",
+                message: `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionType[type]}' in the pool`,
+            };
         }
 
-        return false;
+        return null;
     }
 }

@@ -45,19 +45,17 @@ export class TransferTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
+    ): Promise<{ type: string, message: string } | null> {
         if (!isRecipientOnActiveNetwork(data)) {
-            processor.pushError(
-                data,
-                "ERR_INVALID_RECIPIENT",
-                `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(
+            return {
+                type: "ERR_INVALID_RECIPIENT",
+                message: `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(
                     "network.pubKeyHash",
                 )}`,
-            );
-            return false;
+            };
         }
 
-        return true;
+        return null;
     }
 
     public async applyToRecipient(
