@@ -89,6 +89,8 @@ describe("NetworkMonitor", () => {
 
             validateAndAcceptPeer.mockReset();
 
+            communicator.getPeers = jest.fn().mockReturnValue([{ ip: "1.1.1.1" }]);
+
             await expect(monitor.discoverPeers()).resolves.toBeFalse();
 
             expect(validateAndAcceptPeer).not.toHaveBeenCalled();
