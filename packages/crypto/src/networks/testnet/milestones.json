@@ -30,7 +30,8 @@
     },
     {
         "height": 2,
-        "aip11": true
+        "aip11": true,
+        "htlcEnabled": true
     },
     {
         "height": 75600,
