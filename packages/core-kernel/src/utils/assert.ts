@@ -9,18 +9,19 @@ const assertType = (condition: boolean, description: string): asserts condition 
 };
 
 interface Assert {
-    array: <T>(value: unknown) => asserts value is Array<T>;
-    bigint: (value: unknown) => asserts value is bigint;
-    block(value: unknown): asserts value is Blocks.Block;
     boolean: (value: unknown) => asserts value is boolean;
     buffer: (value: unknown) => asserts value is Buffer;
-    defined<T>(value: unknown): asserts value is NonNullable<T>;
     number: (value: unknown) => asserts value is number;
     object: (value: unknown) => asserts value is Record<string, any>;
     string: (value: unknown) => asserts value is string;
     symbol: (value: unknown) => asserts value is symbol;
-    transaction(value: unknown): asserts value is Transactions.Transaction;
     undefined: (value: unknown) => asserts value is undefined;
+
+    array: <T>(value: unknown) => asserts value is Array<T>;
+    bigint: (value: unknown) => asserts value is bigint;
+    block(value: unknown): asserts value is Blocks.Block;
+    defined<T>(value: unknown): asserts value is NonNullable<T>;
+    transaction(value: unknown): asserts value is Transactions.Transaction;
 }
 
 /**

@@ -31,17 +31,6 @@ export abstract class TransactionHandler {
     @Container.inject(Container.Identifiers.WalletRepository)
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
-    public abstract getConstructor(): Transactions.TransactionConstructor;
-
-    public abstract dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
-
-    public abstract walletAttributes(): ReadonlyArray<string>;
-
-    /**
-     * Wallet logic
-     */
-    public abstract async bootstrap(): Promise<void>;
-
     public async verify(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
@@ -59,8 +48,6 @@ export abstract class TransactionHandler {
         return transaction.isVerified;
     }
 
-    public abstract async isActivated(): Promise<boolean>;
-
     public dynamicFee({
         addonBytes,
         satoshiPerByte,
@@ -74,86 +61,6 @@ export abstract class TransactionHandler {
 
         const transactionSizeInBytes: number = Math.round(transaction.serialized.length / 2);
         return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
-    }
-
-    protected async performGenericWalletChecks(
-        transaction: Interfaces.ITransaction,
-        sender: Contracts.State.Wallet,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void> {
-        const data: Interfaces.ITransactionData = transaction.data;
-
-        if (Utils.isException(data.id)) {
-            return;
-        }
-
-        this.verifyTransactionNonceApply(sender, transaction);
-
-        if (
-            sender.balance
-                .minus(data.amount)
-                .minus(data.fee)
-                .isNegative()
-        ) {
-            throw new InsufficientBalanceError();
-        }
-
-        if (data.senderPublicKey !== sender.publicKey) {
-            throw new SenderWalletMismatchError();
-        }
-
-        if (sender.hasSecondSignature()) {
-            AppUtils.assert.defined<string>(data.senderPublicKey);
-
-            // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(data.senderPublicKey);
-
-            if (!dbSender.hasSecondSignature()) {
-                throw new UnexpectedSecondSignatureError();
-            }
-
-            if (!Transactions.Verifier.verifySecondSignature(data, dbSender.getAttribute("secondPublicKey"))) {
-                throw new InvalidSecondSignatureError();
-            }
-        } else if (data.secondSignature || data.signSignature) {
-            const isException =
-                Managers.configManager.get("network.name") === "devnet" &&
-                Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField;
-            if (!isException) {
-                throw new UnexpectedSecondSignatureError();
-            }
-        }
-
-        // Prevent legacy multi signatures from being used
-        const isMultiSignatureRegistration: boolean =
-            transaction.type === Enums.TransactionType.MultiSignature &&
-            transaction.typeGroup === Enums.TransactionTypeGroup.Core;
-        if (isMultiSignatureRegistration && !Managers.configManager.getMilestone().aip11) {
-            throw new UnexpectedMultiSignatureError();
-        }
-
-        if (sender.hasMultiSignature()) {
-            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-            // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
-            const dbSender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
-                transaction.data.senderPublicKey,
-            );
-
-            if (dbSender.getAttribute<any>("multiSignature").legacy) {
-                throw new LegacyMultiSignatureError();
-            }
-
-            if (!dbSender.hasMultiSignature()) {
-                throw new UnexpectedMultiSignatureError();
-            }
-
-            if (!this.verifySignatures(dbSender, data, dbSender.getAttribute("multiSignature"))) {
-                throw new InvalidMultiSignatureError();
-            }
-        } else if (transaction.data.signatures && !isMultiSignatureRegistration) {
-            throw new UnexpectedMultiSignatureError();
-        }
     }
 
     public async throwIfCannotBeApplied(
@@ -260,16 +167,6 @@ export abstract class TransactionHandler {
         sender.nonce = sender.nonce.minus(1);
     }
 
-    public abstract async applyToRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void>;
-
-    public abstract async revertForRecipient(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<void>;
-
     /**
      * Database Service
      */
@@ -290,6 +187,24 @@ export abstract class TransactionHandler {
         );
 
         return false;
+    }
+
+    /**
+     * @param {Contracts.State.Wallet} wallet
+     * @param {Interfaces.ITransactionData} transaction
+     * @param {Interfaces.IMultiSignatureAsset} [multiSignature]
+     * @returns {boolean}
+     * @memberof TransactionHandler
+     */
+    public verifySignatures(
+        wallet: Contracts.State.Wallet,
+        transaction: Interfaces.ITransactionData,
+        multiSignature?: Interfaces.IMultiSignatureAsset,
+    ): boolean {
+        return Transactions.Verifier.verifySignatures(
+            transaction,
+            multiSignature || wallet.getAttribute("multiSignature"),
+        );
     }
 
     protected async typeFromSenderAlreadyInPool(
@@ -320,22 +235,84 @@ export abstract class TransactionHandler {
         return this.app.resolve<TransactionReader>(TransactionReader).initialize(this.getConstructor());
     }
 
-    /**
-     * @param {Contracts.State.Wallet} wallet
-     * @param {Interfaces.ITransactionData} transaction
-     * @param {Interfaces.IMultiSignatureAsset} [multiSignature]
-     * @returns {boolean}
-     * @memberof TransactionHandler
-     */
-    public verifySignatures(
-        wallet: Contracts.State.Wallet,
-        transaction: Interfaces.ITransactionData,
-        multiSignature?: Interfaces.IMultiSignatureAsset,
-    ): boolean {
-        return Transactions.Verifier.verifySignatures(
-            transaction,
-            multiSignature || wallet.getAttribute("multiSignature"),
-        );
+    protected async performGenericWalletChecks(
+        transaction: Interfaces.ITransaction,
+        sender: Contracts.State.Wallet,
+        customWalletRepository?: Contracts.State.WalletRepository,
+    ): Promise<void> {
+        const data: Interfaces.ITransactionData = transaction.data;
+
+        if (Utils.isException(data.id)) {
+            return;
+        }
+
+        this.verifyTransactionNonceApply(sender, transaction);
+
+        if (
+            sender.balance
+                .minus(data.amount)
+                .minus(data.fee)
+                .isNegative()
+        ) {
+            throw new InsufficientBalanceError();
+        }
+
+        if (data.senderPublicKey !== sender.publicKey) {
+            throw new SenderWalletMismatchError();
+        }
+
+        if (sender.hasSecondSignature()) {
+            AppUtils.assert.defined<string>(data.senderPublicKey);
+
+            // Ensure the database wallet already has a 2nd signature, in case we checked a pool wallet.
+            const dbSender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(data.senderPublicKey);
+
+            if (!dbSender.hasSecondSignature()) {
+                throw new UnexpectedSecondSignatureError();
+            }
+
+            if (!Transactions.Verifier.verifySecondSignature(data, dbSender.getAttribute("secondPublicKey"))) {
+                throw new InvalidSecondSignatureError();
+            }
+        } else if (data.secondSignature || data.signSignature) {
+            const isException =
+                Managers.configManager.get("network.name") === "devnet" &&
+                Managers.configManager.getMilestone().ignoreInvalidSecondSignatureField;
+            if (!isException) {
+                throw new UnexpectedSecondSignatureError();
+            }
+        }
+
+        // Prevent legacy multi signatures from being used
+        const isMultiSignatureRegistration: boolean =
+            transaction.type === Enums.TransactionType.MultiSignature &&
+            transaction.typeGroup === Enums.TransactionTypeGroup.Core;
+        if (isMultiSignatureRegistration && !Managers.configManager.getMilestone().aip11) {
+            throw new UnexpectedMultiSignatureError();
+        }
+
+        if (sender.hasMultiSignature()) {
+            AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+            // Ensure the database wallet already has a multi signature, in case we checked a pool wallet.
+            const dbSender: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
+
+            if (dbSender.getAttribute<any>("multiSignature").legacy) {
+                throw new LegacyMultiSignatureError();
+            }
+
+            if (!dbSender.hasMultiSignature()) {
+                throw new UnexpectedMultiSignatureError();
+            }
+
+            if (!this.verifySignatures(dbSender, data, dbSender.getAttribute("multiSignature"))) {
+                throw new InvalidMultiSignatureError();
+            }
+        } else if (transaction.data.signatures && !isMultiSignatureRegistration) {
+            throw new UnexpectedMultiSignatureError();
+        }
     }
 
     /**
@@ -369,6 +346,29 @@ export abstract class TransactionHandler {
             throw new UnexpectedNonceError(nonce, wallet, true);
         }
     }
+
+    public abstract getConstructor(): Transactions.TransactionConstructor;
+
+    public abstract dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
+
+    public abstract walletAttributes(): ReadonlyArray<string>;
+
+    public abstract async isActivated(): Promise<boolean>;
+
+    /**
+     * Wallet logic
+     */
+    public abstract async bootstrap(): Promise<void>;
+
+    public abstract async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        customWalletRepository?: Contracts.State.WalletRepository,
+    ): Promise<void>;
+
+    public abstract async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        customWalletRepository?: Contracts.State.WalletRepository,
+    ): Promise<void>;
 }
 
 export type TransactionHandlerConstructor = typeof TransactionHandler;

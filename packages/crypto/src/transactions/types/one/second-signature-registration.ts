@@ -12,11 +12,11 @@ export abstract class SecondSignatureRegistrationTransaction extends Transaction
     public static key = "secondSignature";
     public static version: number = 1;
 
+    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
+
     public static getSchema(): schemas.TransactionSchema {
         return schemas.secondSignature;
     }
-
-    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;

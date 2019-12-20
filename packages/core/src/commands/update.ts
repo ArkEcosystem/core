@@ -1,7 +1,6 @@
 import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
 import { Utils } from "@arkecosystem/core-kernel";
 import Joi from "@hapi/joi";
-import { PackageJson } from "type-fest";
 
 /**
  * @export
@@ -10,22 +9,6 @@ import { PackageJson } from "type-fest";
  */
 @Container.injectable()
 export class Command extends Commands.Command {
-    /**
-     * @private
-     * @type {Contracts.Updater}
-     * @memberof Command
-     */
-    @Container.inject(Container.Identifiers.Updater)
-    private readonly updater!: Contracts.Updater;
-
-    /**
-     * @private
-     * @type {Application}
-     * @memberof Command
-     */
-    @Container.inject(Container.Identifiers.Package)
-    protected readonly pkg!: PackageJson;
-
     /**
      * The console command signature.
      *
@@ -41,6 +24,14 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public description: string = "Update the Core installation.";
+
+    /**
+     * @private
+     * @type {Contracts.Updater}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Updater)
+    private readonly updater!: Contracts.Updater;
 
     /**
      * Configure the console command.

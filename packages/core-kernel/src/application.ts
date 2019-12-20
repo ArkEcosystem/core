@@ -34,7 +34,7 @@ export class Application implements Contracts.Kernel.Application {
      * @param {Contracts.Kernel.Container.Container} container
      * @memberof Contracts.Kernel.Application
      */
-    public constructor(readonly container: Contracts.Kernel.Container.Container) {
+    public constructor(public readonly container: Contracts.Kernel.Container.Container) {
         // todo: enable this after solving the event emitter limit issues
         // this.listenToShutdownSignals();
 

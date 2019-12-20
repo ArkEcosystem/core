@@ -7,9 +7,6 @@ import { OrderedMap, OrderedSet, Seq } from "immutable";
 // todo: review the implementation
 @Container.injectable()
 export class StateStore implements Contracts.State.StateStore {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
-
     // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
@@ -22,6 +19,10 @@ export class StateStore implements Contracts.State.StateStore {
     public p2pUpdateCounter = 0;
     public numberOfBlocksToRollback: number | undefined = undefined;
     public networkStart = false;
+
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
     private lastBlocks: OrderedMap<number, Interfaces.IBlock> = OrderedMap<number, Interfaces.IBlock>();

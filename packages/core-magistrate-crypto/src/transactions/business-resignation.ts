@@ -11,6 +11,8 @@ export class BusinessResignationTransaction extends Transactions.Transaction {
     public static key: string = "businessResignation";
     public static version: number = 2;
 
+    protected static defaultStaticFee = Utils.BigNumber.make(MagistrateTransactionStaticFees.BusinessResignation);
+
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "businessResignation",
@@ -22,8 +24,6 @@ export class BusinessResignationTransaction extends Transactions.Transaction {
             },
         });
     }
-    protected static defaultStaticFee = Utils.BigNumber.make(MagistrateTransactionStaticFees.BusinessResignation);
-
     public serialize(): ByteBuffer {
         return new ByteBuffer(0);
     }

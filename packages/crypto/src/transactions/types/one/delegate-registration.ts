@@ -12,11 +12,11 @@ export abstract class DelegateRegistrationTransaction extends Transaction {
     public static key = "delegateRegistration";
     public static version: number = 1;
 
+    protected static defaultStaticFee: BigNumber = BigNumber.make("2500000000");
+
     public static getSchema(): schemas.TransactionSchema {
         return schemas.delegateRegistration;
     }
-
-    protected static defaultStaticFee: BigNumber = BigNumber.make("2500000000");
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;

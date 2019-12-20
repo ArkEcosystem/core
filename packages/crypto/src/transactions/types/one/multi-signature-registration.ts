@@ -13,6 +13,8 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
     public static key = "multiSignature";
     public static version: number = 1;
 
+    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
+
     public static getSchema(): schemas.TransactionSchema {
         return schemas.multiSignature;
     }
@@ -24,8 +26,6 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
 
         return super.staticFee(feeContext);
     }
-
-    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
 
     public verify(): boolean {
         return isException(this.data.id);

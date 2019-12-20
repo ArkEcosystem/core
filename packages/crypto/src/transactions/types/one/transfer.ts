@@ -14,11 +14,11 @@ export abstract class TransferTransaction extends Transaction {
     public static key = "transfer";
     public static version: number = 1;
 
+    protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
+
     public static getSchema(): schemas.TransactionSchema {
         return schemas.transfer;
     }
-
-    protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
 
     public hasVendorField(): boolean {
         return true;

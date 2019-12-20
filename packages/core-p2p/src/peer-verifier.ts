@@ -7,9 +7,13 @@ import { inspect } from "util";
 import { Severity } from "./enums";
 
 export class PeerVerificationResult {
-    public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
+    public constructor(
+        public readonly myHeight: number,
+        public readonly hisHeight: number,
+        public readonly highestCommonHeight: number,
+    ) {}
 
-    get forked(): boolean {
+    public get forked(): boolean {
         return this.highestCommonHeight !== this.myHeight && this.highestCommonHeight !== this.hisHeight;
     }
 }
@@ -17,14 +21,14 @@ export class PeerVerificationResult {
 // todo: review the implementation
 @Container.injectable()
 export class PeerVerifier implements Contracts.P2P.PeerVerifier {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
-
     /**
      * A cache of verified blocks' ids. A block is verified if it is connected to a chain
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
     private static readonly verifiedBlocks = new Utils.CappedSet();
+
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
 
     // todo: make use of ioc
     private database!: DatabaseService;

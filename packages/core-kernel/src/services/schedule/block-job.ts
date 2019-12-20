@@ -15,18 +15,18 @@ import { ExecuteCallbackWhenReady } from "./listeners";
 export class BlockJob implements Job {
     /**
      * @private
+     * @type {number}
+     * @memberof BlockJob
+     */
+    protected blockCount: number = 1;
+
+    /**
+     * @private
      * @type {EventDispatcher}
      * @memberof BlockJob
      */
     @inject(Identifiers.EventDispatcherService)
     private readonly events!: EventDispatcher;
-
-    /**
-     * @private
-     * @type {number}
-     * @memberof BlockJob
-     */
-    protected blockCount: number = 1;
 
     /**
      * @param {Function} callback

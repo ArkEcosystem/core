@@ -15,11 +15,11 @@ export abstract class HtlcLockTransaction extends Transaction {
     public static key = "htlcLock";
     public static version: number = 2;
 
+    protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
+
     public static getSchema(): schemas.TransactionSchema {
         return schemas.htlcLock;
     }
-
-    protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
 
     public verify(): boolean {
         return configManager.getMilestone().aip11 && super.verify();

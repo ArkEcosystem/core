@@ -161,8 +161,6 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
         return struct;
     }
 
-    protected abstract instance(): TBuilder;
-
     private signWithKeyPair(keys: IKeyPair): TBuilder {
         this.data.senderPublicKey = keys.publicKey;
 
@@ -204,4 +202,6 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
         return data;
     }
+
+    protected abstract instance(): TBuilder;
 }

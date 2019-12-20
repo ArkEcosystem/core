@@ -11,6 +11,30 @@ import { InputValidator } from "./validator";
 @injectable()
 export class Input {
     /**
+     * The parsed input arguments.
+     *
+     * @type {InputArgument}
+     * @memberof Input
+     */
+    public args: InputValues = {};
+
+    /**
+     * The parsed input flags.
+     *
+     * @type {InputArgument}
+     * @memberof Input
+     */
+    public flags: InputValues = {};
+
+    /**
+     * Indicates whether the CLI should be interactive, i.e. show prompts.
+     *
+     * @type {boolean}
+     * @memberof Input
+     */
+    public interactive: boolean = true;
+
+    /**
      * @private
      * @type {Application}
      * @memberof ComponentFactory
@@ -52,30 +76,6 @@ export class Input {
      * @memberof Input
      */
     private rawFlags: object = {};
-
-    /**
-     * The parsed input arguments.
-     *
-     * @type {InputArgument}
-     * @memberof Input
-     */
-    public args: InputValues = {};
-
-    /**
-     * The parsed input flags.
-     *
-     * @type {InputArgument}
-     * @memberof Input
-     */
-    public flags: InputValues = {};
-
-    /**
-     * Indicates whether the CLI should be interactive, i.e. show prompts.
-     *
-     * @type {boolean}
-     * @memberof Input
-     */
-    public interactive: boolean = true;
 
     /**
      * Parse the command line arguments.

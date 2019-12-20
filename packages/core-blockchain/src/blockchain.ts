@@ -12,6 +12,17 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.Application)
     public readonly app!: Contracts.Kernel.Application;
 
+    // todo: make this private
+    public isStopped!: boolean;
+    // todo: make this private
+    public options: any;
+    // todo: make this private and use a queue instance from core-kernel
+    // @ts-ignore
+    public queue: async.AsyncQueue<any>;
+    // todo: make this private
+    // @ts-ignore
+    protected blockProcessor: BlockProcessor;
+
     @Container.inject(Container.Identifiers.StateStore)
     private readonly state!: Contracts.State.StateStore;
 
@@ -26,17 +37,6 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     @Container.inject(Container.Identifiers.StateMachine)
     private readonly stateMachine!: StateMachine;
-
-    // todo: make this private
-    public isStopped!: boolean;
-    // todo: make this private
-    public options: any;
-    // todo: make this private and use a queue instance from core-kernel
-    // @ts-ignore
-    public queue: async.AsyncQueue<any>;
-    // todo: make this private
-    // @ts-ignore
-    protected blockProcessor: BlockProcessor;
 
     /**
      * Create a new blockchain manager instance.

@@ -29,6 +29,8 @@ export interface ITransaction {
 }
 
 export interface ITransactionAsset {
+    [custom: string]: any;
+
     signature?: {
         publicKey: string;
     };
@@ -43,7 +45,6 @@ export interface ITransactionAsset {
     lock?: IHtlcLockAsset;
     claim?: IHtlcClaimAsset;
     refund?: IHtlcRefundAsset;
-    [custom: string]: any;
 }
 
 export interface ITransactionData {

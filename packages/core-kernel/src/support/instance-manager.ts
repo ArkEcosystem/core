@@ -106,16 +106,6 @@ export abstract class InstanceManager<T> {
     }
 
     /**
-     * Get the default driver name.
-     *
-     * @protected
-     * @abstract
-     * @returns {string}
-     * @memberof InstanceManager
-     */
-    protected abstract getDefaultDriver(): string;
-
-    /**
      * Create a new driver instance.
      *
      * @private
@@ -131,4 +121,14 @@ export abstract class InstanceManager<T> {
 
         this.drivers.set(name, await this[creatorFunction](this.app));
     }
+
+    /**
+     * Get the default driver name.
+     *
+     * @protected
+     * @abstract
+     * @returns {string}
+     * @memberof InstanceManager
+     */
+    protected abstract getDefaultDriver(): string;
 }

@@ -14,11 +14,6 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 
-    // TODO: use a inversify factory for wallets instead?
-    public createWallet(address: string): Contracts.State.Wallet {
-        return this.app.get<Contracts.State.WalletFactory>(Container.Identifiers.WalletFactory)(address);
-    }
-
     public constructor() {
         this.reset();
 
@@ -83,6 +78,11 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                 }
             },
         );
+    }
+
+    // TODO: use an inversify factory for wallets instead?
+    public createWallet(address: string): Contracts.State.Wallet {
+        return this.app.get<Contracts.State.WalletFactory>(Container.Identifiers.WalletFactory)(address);
     }
 
     public registerIndex(name: string, indexer: Contracts.State.WalletIndexer): void {

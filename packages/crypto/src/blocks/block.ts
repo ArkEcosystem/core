@@ -7,6 +7,49 @@ import { validator } from "../validation";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
+    // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined
+    public serialized: string;
+    public data: IBlockData;
+    public transactions: ITransaction[];
+    public verification: IBlockVerification;
+
+    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
+        this.data = data;
+
+        // TODO genesis block calculated id is wrong for some reason
+        if (this.data.height === 1) {
+            if (id) {
+                this.applyGenesisBlockFix(id);
+            } else if (data.id) {
+                this.applyGenesisBlockFix(data.id);
+            }
+        }
+
+        // fix on real timestamp, this is overloading transaction
+        // timestamp with block timestamp for storage only
+        // also add sequence to keep database sequence
+        this.transactions = transactions.map((transaction, index) => {
+            transaction.data.blockId = this.data.id;
+            transaction.timestamp = this.data.timestamp;
+            transaction.data.sequence = index;
+            return transaction;
+        });
+
+        delete this.data.transactions;
+
+        this.verification = this.verify();
+
+        // Order of transactions messed up in mainnet V1
+        const { wrongTransactionOrder } = configManager.get("exceptions");
+        if (this.data.id && wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
+            const fixedOrderIds = wrongTransactionOrder[this.data.id];
+
+            this.transactions = fixedOrderIds.map((id: string) =>
+                this.transactions.find(transaction => transaction.id === id),
+            );
+        }
+    }
+
     public static applySchema(data: IBlockData): IBlockData | undefined {
         let result = validator.validate("block", data);
 
@@ -82,49 +125,6 @@ export class Block implements IBlock {
         const idHex: string = Block.getIdHex(data);
 
         return constants.block.idFullSha256 ? idHex : BigNumber.make(`0x${idHex}`).toString();
-    }
-
-    // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined
-    public serialized: string;
-    public data: IBlockData;
-    public transactions: ITransaction[];
-    public verification: IBlockVerification;
-
-    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
-        this.data = data;
-
-        // TODO genesis block calculated id is wrong for some reason
-        if (this.data.height === 1) {
-            if (id) {
-                this.applyGenesisBlockFix(id);
-            } else if (data.id) {
-                this.applyGenesisBlockFix(data.id);
-            }
-        }
-
-        // fix on real timestamp, this is overloading transaction
-        // timestamp with block timestamp for storage only
-        // also add sequence to keep database sequence
-        this.transactions = transactions.map((transaction, index) => {
-            transaction.data.blockId = this.data.id;
-            transaction.timestamp = this.data.timestamp;
-            transaction.data.sequence = index;
-            return transaction;
-        });
-
-        delete this.data.transactions;
-
-        this.verification = this.verify();
-
-        // Order of transactions messed up in mainnet V1
-        const { wrongTransactionOrder } = configManager.get("exceptions");
-        if (this.data.id && wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
-            const fixedOrderIds = wrongTransactionOrder[this.data.id];
-
-            this.transactions = fixedOrderIds.map((id: string) =>
-                this.transactions.find(transaction => transaction.id === id),
-            );
-        }
     }
 
     public getHeader(): IBlockData {

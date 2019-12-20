@@ -32,7 +32,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     private initializing = true;
 
     @Container.inject(Container.Identifiers.Application)
-    public readonly app!: Contracts.Kernel.Application;
+    private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;

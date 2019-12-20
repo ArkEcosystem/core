@@ -139,6 +139,28 @@ export class BlockState {
         this.revertVoteBalances(sender, recipient, data, lockWallet, lockTransaction);
     }
 
+    public increaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
+        // ? packages/core-transactions/src/handlers/one/vote.ts:L120 blindly sets "vote" attribute
+        // ? is it guaranteed that delegate wallet exists, so delegateWallet.getAttribute("delegate.voteBalance") is safe?
+        if (wallet.hasVoted()) {
+            const delegatePulicKey = wallet.getAttribute<string>("vote");
+            const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
+            const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
+            const newDelegateVoteBalance = oldDelegateVoteBalance.plus(amount);
+            delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
+        }
+    }
+
+    public decreaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
+        if (wallet.hasVoted()) {
+            const delegatePulicKey = wallet.getAttribute<string>("vote");
+            const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
+            const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
+            const newDelegateVoteBalance = oldDelegateVoteBalance.minus(amount);
+            delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
+        }
+    }
+
     // WALLETS
     private applyVoteBalances(
         sender: Contracts.State.Wallet,
@@ -182,28 +204,6 @@ export class BlockState {
         const balanceDecrease = blockData.reward.plus(blockData.totalFee);
         this.decreaseWalletDelegateVoteBalance(generatorWallet, balanceDecrease);
         generatorWallet.balance = generatorWallet.balance.minus(balanceDecrease);
-    }
-
-    public increaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
-        // ? packages/core-transactions/src/handlers/one/vote.ts:L120 blindly sets "vote" attribute
-        // ? is it guaranteed that delegate wallet exists, so delegateWallet.getAttribute("delegate.voteBalance") is safe?
-        if (wallet.hasVoted()) {
-            const delegatePulicKey = wallet.getAttribute<string>("vote");
-            const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
-            const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
-            const newDelegateVoteBalance = oldDelegateVoteBalance.plus(amount);
-            delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
-        }
-    }
-
-    public decreaseWalletDelegateVoteBalance(wallet: Contracts.State.Wallet, amount: AppUtils.BigNumber) {
-        if (wallet.hasVoted()) {
-            const delegatePulicKey = wallet.getAttribute<string>("vote");
-            const delegateWallet = this.walletRepository.findByPublicKey(delegatePulicKey);
-            const oldDelegateVoteBalance = delegateWallet.getAttribute<AppUtils.BigNumber>("delegate.voteBalance");
-            const newDelegateVoteBalance = oldDelegateVoteBalance.minus(amount);
-            delegateWallet.setAttribute("delegate.voteBalance", newDelegateVoteBalance);
-        }
     }
 
     /**

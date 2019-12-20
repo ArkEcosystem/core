@@ -23,15 +23,6 @@ export abstract class Action {
     private readonly afterHooks: Set<Function> = new Set<Function>();
 
     /**
-     * @abstract
-     * @template T
-     * @param {ActionArguments} args
-     * @returns {T}
-     * @memberof Action
-     */
-    public abstract execute<T>(args: ActionArguments): T;
-
-    /**
      * @param {Function} fn
      * @memberof Action
      */
@@ -69,4 +60,13 @@ export abstract class Action {
     public hooks(type: string): Set<Function> {
         return this[`${type}Hooks`];
     }
+
+    /**
+     * @abstract
+     * @template T
+     * @param {ActionArguments} args
+     * @returns {T}
+     * @memberof Action
+     */
+    public abstract execute<T>(args: ActionArguments): T;
 }

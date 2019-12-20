@@ -11,14 +11,6 @@ import dayjs from "dayjs";
 @Container.injectable()
 export class Command extends Commands.Command {
     /**
-     * @private
-     * @type {ProcessManager}
-     * @memberof Command
-     */
-    @Container.inject(Container.Identifiers.ProcessManager)
-    private readonly processManager!: Services.ProcessManager;
-
-    /**
      * The console command signature.
      *
      * @type {string}
@@ -41,6 +33,14 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public requiresNetwork: boolean = false;
+
+    /**
+     * @private
+     * @type {ProcessManager}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.ProcessManager)
+    private readonly processManager!: Services.ProcessManager;
 
     /**
      * Configure the console command.

@@ -14,6 +14,10 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
     public static key: string = "businessRegistration";
     public static version: number = 2;
 
+    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
+        MagistrateTransactionStaticFees.BusinessRegistration,
+    );
+
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "businessRegistration",
@@ -36,10 +40,6 @@ export class BusinessRegistrationTransaction extends Transactions.Transaction {
             },
         });
     }
-
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
-        MagistrateTransactionStaticFees.BusinessRegistration,
-    );
 
     public serialize(): ByteBuffer {
         const { data } = this;

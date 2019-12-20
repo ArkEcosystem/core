@@ -17,12 +17,12 @@ export class Server {
     private readonly app!: Contracts.Kernel.Application;
 
     /**
-     * @protected
+     * @private
      * @type {Providers.ServiceProviderRepository}
      * @memberof Server
      */
     @Container.inject(Container.Identifiers.ServiceProviderRepository)
-    protected readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
+    private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
 
     /**
      * @private

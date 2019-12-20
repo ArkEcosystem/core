@@ -71,7 +71,7 @@ export class ForgerService {
      * @param {*} options
      * @memberof ForgerService
      */
-    register(options): void {
+    public register(options): void {
         this.client = this.app.resolve<Client>(Client);
         this.client.register(options.hosts);
     }

@@ -12,11 +12,11 @@ export class VoteTransaction extends Transaction {
     public static key = "vote";
     public static version: number = 1;
 
+    protected static defaultStaticFee: BigNumber = BigNumber.make("100000000");
+
     public static getSchema(): schemas.TransactionSchema {
         return schemas.vote;
     }
-
-    protected static defaultStaticFee: BigNumber = BigNumber.make("100000000");
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;

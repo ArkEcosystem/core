@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class CreateRoundsTable20180305200000 implements MigrationInterface {
-    async up(queryRunner: QueryRunner): Promise<any> {
+    public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
             CREATE TABLE IF NOT EXISTS rounds (
                 "id" SERIAL PRIMARY KEY,
@@ -14,7 +14,7 @@ export class CreateRoundsTable20180305200000 implements MigrationInterface {
         `);
     }
 
-    async down(queryRunner: QueryRunner): Promise<any> {
+    public async down(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.dropTable("rounds");
     }
 }

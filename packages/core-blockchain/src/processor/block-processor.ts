@@ -33,10 +33,10 @@ export class BlockProcessor {
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     @Container.inject(Container.Identifiers.TransactionRepository)
-    protected readonly transactionRepository!: Repositories.TransactionRepository;
+    private readonly transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    protected readonly transactionPool!: Contracts.TransactionPool.Connection;
+    private readonly transactionPool!: Contracts.TransactionPool.Connection;
 
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         if (Utils.isException(block.data.id)) {

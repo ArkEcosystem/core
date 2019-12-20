@@ -6,14 +6,14 @@ import { Transactions } from "@arkecosystem/crypto";
 // https://github.com/typeorm/typeorm/blob/master/docs/select-query-builder.md#streaming-result-data
 @Container.injectable()
 export class TransactionReader {
+    public bufferSize: number = 1000000000;
+
     @Container.inject(Container.Identifiers.TransactionRepository)
     private transactionRepository!: Repositories.TransactionRepository;
 
     private type!: number;
     private typeGroup!: number;
     private index: number = 0;
-
-    public bufferSize: number = 1000000000;
 
     public initialize(typeConstructor: Transactions.TransactionConstructor): TransactionReader {
         Utils.assert.defined<number>(typeConstructor.type);

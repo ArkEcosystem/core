@@ -54,14 +54,14 @@ class BlockNotReadyCounter {
 export class UnchainedHandler implements BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
 
+    @Container.inject(Container.Identifiers.BlockchainService)
+    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
-
-    @Container.inject(Container.Identifiers.BlockchainService)
-    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     private isValidGenerator: boolean = false;
 

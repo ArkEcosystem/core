@@ -59,17 +59,12 @@ export class NetworkState implements Contracts.P2P.NetworkState {
     public lastBlockId: string | undefined;
     private quorumDetails: QuorumDetails;
 
-    public constructor(readonly status: NetworkStateStatus, lastBlock?: Interfaces.IBlock) {
+    public constructor(public readonly status: NetworkStateStatus, lastBlock?: Interfaces.IBlock) {
         this.quorumDetails = new QuorumDetails();
 
         if (lastBlock) {
             this.setLastBlock(lastBlock);
         }
-    }
-
-    public setLastBlock(lastBlock: Interfaces.IBlock): void {
-        this.nodeHeight = lastBlock.data.height;
-        this.lastBlockId = lastBlock.data.id;
     }
 
     public static analyze(
@@ -115,6 +110,22 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         return networkState;
     }
 
+    private static analyzeNetwork(lastBlock, peers: Contracts.P2P.Peer[]): Contracts.P2P.NetworkState {
+        const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
+        const currentSlot = Crypto.Slots.getSlotNumber();
+
+        for (const peer of peers) {
+            networkState.update(peer, currentSlot);
+        }
+
+        return networkState;
+    }
+
+    public setLastBlock(lastBlock: Interfaces.IBlock): void {
+        this.nodeHeight = lastBlock.data.height;
+        this.lastBlockId = lastBlock.data.id;
+    }
+
     public getQuorum(): number {
         if (this.status === NetworkStateStatus.Test) {
             return 1;
@@ -133,17 +144,6 @@ export class NetworkState implements Contracts.P2P.NetworkState {
         delete data.status;
 
         return JSON.stringify(data, undefined, 2);
-    }
-
-    private static analyzeNetwork(lastBlock, peers: Contracts.P2P.Peer[]): Contracts.P2P.NetworkState {
-        const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
-        const currentSlot = Crypto.Slots.getSlotNumber();
-
-        for (const peer of peers) {
-            networkState.update(peer, currentSlot);
-        }
-
-        return networkState;
     }
 
     private update(peer: Contracts.P2P.Peer, currentSlot: number): void {

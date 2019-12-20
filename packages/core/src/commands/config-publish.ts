@@ -12,14 +12,6 @@ import { resolve } from "path";
 @Container.injectable()
 export class Command extends Commands.Command {
     /**
-     * @private
-     * @type {Environment}
-     * @memberof Command
-     */
-    @Container.inject(Container.Identifiers.Environment)
-    private readonly environment!: Services.Environment;
-
-    /**
      * The console command signature.
      *
      * @type {string}
@@ -42,6 +34,14 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public requiresNetwork: boolean = false;
+
+    /**
+     * @private
+     * @type {Environment}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Environment)
+    private readonly environment!: Services.Environment;
 
     /**
      * Configure the console command.

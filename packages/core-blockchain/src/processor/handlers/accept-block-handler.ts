@@ -18,13 +18,13 @@ export class AcceptBlockHandler implements BlockHandler {
     private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.StateStore)
-    protected readonly state!: Contracts.State.StateStore;
+    private readonly state!: Contracts.State.StateStore;
 
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly database!: DatabaseService;
+    private readonly database!: DatabaseService;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    protected readonly transactionPool!: Contracts.TransactionPool.Connection;
+    private readonly transactionPool!: Contracts.TransactionPool.Connection;
 
     public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         try {

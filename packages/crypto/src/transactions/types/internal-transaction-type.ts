@@ -3,6 +3,8 @@ import { TransactionTypeGroup } from "../../enums";
 export class InternalTransactionType {
     private static types: Map<string, InternalTransactionType> = new Map();
 
+    private constructor(public readonly type: number, public readonly typeGroup: number) {}
+
     public static from(type: number, typeGroup?: number): InternalTransactionType {
         if (typeGroup === undefined) {
             typeGroup = TransactionTypeGroup.Core;
@@ -15,8 +17,6 @@ export class InternalTransactionType {
 
         return this.types.get(compositeType)!;
     }
-
-    private constructor(public readonly type: number, public readonly typeGroup: number) {}
 
     public toString(): string {
         if (this.typeGroup === TransactionTypeGroup.Core) {

@@ -27,12 +27,12 @@ export class DynamicFeeMatcher {
     private readonly logger!: Contracts.Kernel.Logger;
 
     /**
-     * @protected
+     * @private
      * @type {Providers.ServiceProviderRepository}
      * @memberof PortsResource
      */
     @Container.inject(Container.Identifiers.ServiceProviderRepository)
-    protected readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
+    private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
 
     /**
      * @private

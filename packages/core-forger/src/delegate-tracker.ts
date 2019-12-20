@@ -1,5 +1,5 @@
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Services, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Managers } from "@arkecosystem/crypto";
 
 import { Delegate } from "./interfaces";
@@ -10,14 +10,6 @@ import { Delegate } from "./interfaces";
  */
 @Container.injectable()
 export class DelegateTracker {
-    /**
-     * @protected
-     * @type {Services.Config.ConfigRepository}
-     * @memberof DelegateTracker
-     */
-    @Container.inject(Container.Identifiers.ConfigRepository)
-    protected readonly configRepository!: Services.Config.ConfigRepository;
-
     /**
      * @private
      * @type {Contracts.Kernel.Logger}
@@ -35,28 +27,20 @@ export class DelegateTracker {
     private readonly blockchainService!: Contracts.Blockchain.Blockchain;
 
     /**
-     * @protected
+     * @private
      * @type {DatabaseService}
      * @memberof DelegateTracker
      */
     @Container.inject(Container.Identifiers.DatabaseService)
-    protected readonly databaseService!: DatabaseService;
+    private readonly databaseService!: DatabaseService;
 
     /**
-     * @protected
-     * @type {Contracts.TransactionPool.Connection}
-     * @memberof DelegateTracker
-     */
-    @Container.inject(Container.Identifiers.TransactionPoolService)
-    protected readonly transactionPoolService!: Contracts.TransactionPool.Connection;
-
-    /**
-     * @protected
+     * @private
      * @type {Contracts.State.WalletRepository}
      * @memberof DelegateTracker
      */
     @Container.inject(Container.Identifiers.WalletRepository)
-    protected readonly walletRepository!: Contracts.State.WalletRepository;
+    private readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**
      * @private

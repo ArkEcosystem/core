@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class CreateBlocksTable20180305300000 implements MigrationInterface {
-    async up(queryRunner: QueryRunner): Promise<any> {
+    public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
             CREATE TABLE IF NOT EXISTS blocks (
                 "id" VARCHAR(64) PRIMARY KEY,
@@ -21,7 +21,7 @@ export class CreateBlocksTable20180305300000 implements MigrationInterface {
         `);
     }
 
-    async down(queryRunner: QueryRunner): Promise<any> {
+    public async down(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.dropTable("blocks");
     }
 }

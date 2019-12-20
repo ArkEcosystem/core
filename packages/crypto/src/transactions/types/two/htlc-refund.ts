@@ -13,11 +13,11 @@ export abstract class HtlcRefundTransaction extends Transaction {
     public static key = "htlcRefund";
     public static version: number = 2;
 
+    protected static defaultStaticFee: BigNumber = BigNumber.ZERO;
+
     public static getSchema(): schemas.TransactionSchema {
         return schemas.htlcRefund;
     }
-
-    protected static defaultStaticFee: BigNumber = BigNumber.ZERO;
 
     public verify(): boolean {
         return configManager.getMilestone().aip11 && super.verify();

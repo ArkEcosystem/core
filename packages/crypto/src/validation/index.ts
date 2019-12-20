@@ -8,15 +8,15 @@ import { keywords } from "./keywords";
 import { schemas } from "./schemas";
 
 export class Validator {
-    public static make(options: Record<string, any> = {}): Validator {
-        return new Validator(options);
-    }
-
     private ajv: Ajv.Ajv;
     private readonly transactionSchemas: Map<string, TransactionSchema> = new Map<string, TransactionSchema>();
 
     private constructor(options: Record<string, any>) {
         this.ajv = this.instantiateAjv(options);
+    }
+
+    public static make(options: Record<string, any> = {}): Validator {
+        return new Validator(options);
     }
 
     public getInstance(): Ajv.Ajv {

@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
 export class CreateWalletsTable20180305100000 implements MigrationInterface {
-    async up(queryRunner: QueryRunner): Promise<any> {
+    public async up(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.query(`
             CREATE TABLE IF NOT EXISTS wallets (
                 "address" VARCHAR(36) PRIMARY KEY NOT NULL,
@@ -14,12 +14,12 @@ export class CreateWalletsTable20180305100000 implements MigrationInterface {
                 "produced_blocks" BIGINT NOT NULL,
                 "missed_blocks" BIGINT NOT NULL
             );
-        
+
             CREATE UNIQUE INDEX IF NOT EXISTS "wallets_votes_unique" ON wallets ("public_key", "vote");
         `);
     }
 
-    async down(queryRunner: QueryRunner): Promise<any> {
+    public async down(queryRunner: QueryRunner): Promise<any> {
         await queryRunner.dropTable("wallets");
     }
 }

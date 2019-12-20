@@ -39,7 +39,7 @@ export class Client {
      * @param {RelayHost[]} hosts
      * @memberof Client
      */
-    register(hosts: RelayHost[]) {
+    public register(hosts: RelayHost[]) {
         this.hosts = hosts.map((host: RelayHost) => {
             host.socket = socketCluster.create({
                 ...host,
@@ -64,7 +64,7 @@ export class Client {
     /**
      * @memberof Client
      */
-    dispose(): void {
+    public dispose(): void {
         for (const host of this.hosts) {
             const socket: socketCluster.SCClientSocket | undefined = host.socket;
 

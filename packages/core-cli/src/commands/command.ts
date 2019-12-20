@@ -21,6 +21,38 @@ import { DiscoverNetwork } from "./discover-network";
 @injectable()
 export abstract class Command {
     /**
+     * The console command signature.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public signature!: string;
+
+    /**
+     * The console command description.
+     *
+     * @type {(string | undefined)}
+     * @memberof Command
+     */
+    public description: string | undefined;
+
+    /**
+     * Indicates whether the command should be shown in the command list.
+     *
+     * @type {boolean}
+     * @memberof Command
+     */
+    public isHidden: boolean = false;
+
+    /**
+     * Indicates whether the command requires a network to be present.
+     *
+     * @type {boolean}
+     * @memberof Command
+     */
+    public requiresNetwork: boolean = true;
+
+    /**
      * @private
      * @type {Application}
      * @memberof Command
@@ -87,38 +119,6 @@ export abstract class Command {
      * @memberof Command
      */
     protected input!: Input;
-
-    /**
-     * The console command signature.
-     *
-     * @type {string}
-     * @memberof Command
-     */
-    public signature!: string;
-
-    /**
-     * The console command description.
-     *
-     * @type {(string | undefined)}
-     * @memberof Command
-     */
-    public description: string | undefined;
-
-    /**
-     * Indicates whether the command should be shown in the command list.
-     *
-     * @type {boolean}
-     * @memberof Command
-     */
-    public isHidden: boolean = false;
-
-    /**
-     * Indicates whether the command requires a network to be present.
-     *
-     * @type {boolean}
-     * @memberof Command
-     */
-    public requiresNetwork: boolean = true;
 
     /**
      * @memberof Command
@@ -204,13 +204,6 @@ export abstract class Command {
             this.components.fatal(error.message);
         }
     }
-
-    /**
-     * @abstract
-     * @returns {Promise<void>}
-     * @memberof Command
-     */
-    public abstract async execute(): Promise<void>;
 
     /**
      * @memberof Command
@@ -310,4 +303,11 @@ export abstract class Command {
             );
         }
     }
+
+    /**
+     * @abstract
+     * @returns {Promise<void>}
+     * @memberof Command
+     */
+    public abstract async execute(): Promise<void>;
 }

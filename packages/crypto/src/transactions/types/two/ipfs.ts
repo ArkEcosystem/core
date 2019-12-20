@@ -14,11 +14,11 @@ export abstract class IpfsTransaction extends Transaction {
     public static key = "ipfs";
     public static version: number = 2;
 
+    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
+
     public static getSchema(): schemas.TransactionSchema {
         return schemas.ipfs;
     }
-
-    protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
 
     public verify(): boolean {
         return configManager.getMilestone().aip11 && super.verify();

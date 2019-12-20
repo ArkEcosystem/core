@@ -89,16 +89,6 @@ export abstract class ClassManager {
     }
 
     /**
-     * Get the default driver name.
-     *
-     * @protected
-     * @abstract
-     * @returns {string}
-     * @memberof ClassManager
-     */
-    protected abstract getDefaultDriver(): string;
-
-    /**
      * Create a new driver instance.
      *
      * @private
@@ -114,4 +104,14 @@ export abstract class ClassManager {
 
         return this[creatorFunction]();
     }
+
+    /**
+     * Get the default driver name.
+     *
+     * @protected
+     * @abstract
+     * @returns {string}
+     * @memberof ClassManager
+     */
+    protected abstract getDefaultDriver(): string;
 }

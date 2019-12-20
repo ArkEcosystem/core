@@ -14,6 +14,8 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public static key: string = "bridgechainUpdate";
     public static version: number = 2;
 
+    protected static defaultStaticFee = Utils.BigNumber.make(MagistrateTransactionStaticFees.BridgechainUpdate);
+
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "bridgechainUpdate",
@@ -50,7 +52,6 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
             },
         });
     }
-    protected static defaultStaticFee = Utils.BigNumber.make(MagistrateTransactionStaticFees.BridgechainUpdate);
 
     public serialize(): ByteBuffer {
         const { data } = this;

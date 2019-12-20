@@ -40,15 +40,6 @@ export abstract class ServiceProvider {
     private packageManifest!: PluginManifest;
 
     /**
-     * Register the service provider.
-     *
-     * @abstract
-     * @returns {Promise<void>}
-     * @memberof ServiceProvider
-     */
-    public abstract async register(): Promise<void>;
-
-    /**
      * Boot the service provider.
      *
      * @returns {Promise<void>}
@@ -229,4 +220,13 @@ export abstract class ServiceProvider {
 
         return false;
     }
+
+    /**
+     * Register the service provider.
+     *
+     * @abstract
+     * @returns {Promise<void>}
+     * @memberof ServiceProvider
+     */
+    public abstract async register(): Promise<void>;
 }

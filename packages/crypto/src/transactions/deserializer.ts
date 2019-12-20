@@ -13,6 +13,23 @@ import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Deserializer {
+    public static applyV1Compatibility(transaction: ITransactionData): void {
+        transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
+        transaction.typeGroup = TransactionTypeGroup.Core;
+
+        if (transaction.type === TransactionType.Vote && transaction.senderPublicKey) {
+            transaction.recipientId = Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
+        } else if (
+            transaction.type === TransactionType.MultiSignature &&
+            transaction.asset &&
+            transaction.asset.multiSignatureLegacy
+        ) {
+            transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
+                k.startsWith("+") ? k : `+${k}`,
+            );
+        }
+    }
+
     public static deserialize(serialized: string | Buffer, options: IDeserializeOptions = {}): ITransaction {
         const data = {} as ITransactionData;
 
@@ -192,24 +209,6 @@ export class Deserializer {
         }
 
         return false;
-    }
-
-    // tslint:disable-next-line:member-ordering
-    public static applyV1Compatibility(transaction: ITransactionData): void {
-        transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
-        transaction.typeGroup = TransactionTypeGroup.Core;
-
-        if (transaction.type === TransactionType.Vote && transaction.senderPublicKey) {
-            transaction.recipientId = Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
-        } else if (
-            transaction.type === TransactionType.MultiSignature &&
-            transaction.asset &&
-            transaction.asset.multiSignatureLegacy
-        ) {
-            transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
-                k.startsWith("+") ? k : `+${k}`,
-            );
-        }
     }
 
     private static getByteBuffer(serialized: Buffer | string): ByteBuffer {

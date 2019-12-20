@@ -11,6 +11,13 @@ import { TransactionRepository } from "./repositories/transaction-repository";
 // TODO: maybe we should introduce `BlockLike`, `TransactionLike`, `RoundLke` interfaces to remove the need to cast
 @Container.injectable()
 export class DatabaseService {
+    // TODO: make private readonly
+    public blocksInCurrentRound: Interfaces.IBlock[] | undefined = undefined;
+    // TODO: make private readonly
+    public restoredDatabaseIntegrity: boolean = false;
+    // TODO: make private readonly
+    public forgingDelegates: Contracts.State.Wallet[] | undefined = undefined;
+
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
@@ -41,13 +48,6 @@ export class DatabaseService {
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
-    // TODO: make private readonly
-    public blocksInCurrentRound: Interfaces.IBlock[] | undefined = undefined;
-    // TODO: make private readonly
-    public restoredDatabaseIntegrity: boolean = false;
-    // TODO: make private readonly
-    public forgingDelegates: Contracts.State.Wallet[] | undefined = undefined;
-
     public async initialize(): Promise<void> {
         if (process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = false;
@@ -70,6 +70,17 @@ export class DatabaseService {
             this.logger.error(error.stack);
             this.app.terminate("Failed to initialize database service.", error);
         }
+    }
+
+    public async disconnect(): Promise<void> {
+        this.logger.debug("Disconnecting from database");
+
+        this.emitter.dispatch(DatabaseEvent.PRE_DISCONNECT);
+
+        await this.connection.close();
+
+        this.emitter.dispatch(DatabaseEvent.POST_DISCONNECT);
+        this.logger.debug("Disconnected from database");
     }
 
     public async restoreCurrentRound(height: number): Promise<void> {
@@ -753,16 +764,5 @@ export class DatabaseService {
             transaction,
             this.emitter,
         );
-    }
-
-    public async disconnect(): Promise<void> {
-        this.logger.debug("Disconnecting from database");
-
-        this.emitter.dispatch(DatabaseEvent.PRE_DISCONNECT);
-
-        await this.connection.close();
-
-        this.emitter.dispatch(DatabaseEvent.POST_DISCONNECT);
-        this.logger.debug("Disconnected from database");
     }
 }

@@ -10,14 +10,6 @@ import Joi from "@hapi/joi";
 @Container.injectable()
 export class Command extends Commands.Command {
     /**
-     * @private
-     * @type {Environment}
-     * @memberof Command
-     */
-    @Container.inject(Container.Identifiers.Environment)
-    private readonly environment!: Services.Environment;
-
-    /**
      * The console command signature.
      *
      * @type {string}
@@ -32,6 +24,14 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public description: string = "Update the Database configuration.";
+
+    /**
+     * @private
+     * @type {Environment}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Environment)
+    private readonly environment!: Services.Environment;
 
     /**
      * @private
