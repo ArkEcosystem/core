@@ -1,6 +1,5 @@
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Utils } from "@arkecosystem/crypto";
-import { InternalTransactionType } from "@arkecosystem/crypto/dist/transactions";
+import { Transactions, Utils } from "@arkecosystem/crypto";
 
 export class TransactionError extends Error {
     constructor(message: string) {
@@ -33,8 +32,20 @@ export class InvalidTransactionTypeError extends TransactionError {
 }
 
 export class DeactivatedTransactionHandlerError extends TransactionError {
-    constructor(type: InternalTransactionType) {
+    constructor(type: Transactions.InternalTransactionType) {
         super(`Transaction type ${type.toString()} is deactivated.`);
+    }
+}
+
+export class UnsatisfiedDependencyError extends TransactionError {
+    constructor(type: Transactions.InternalTransactionType) {
+        super(`Transaction type ${type.toString()} handler is missing required dependencies`);
+    }
+}
+
+export class AlreadyRegisteredError extends TransactionError {
+    constructor(type: Transactions.InternalTransactionType) {
+        super(`Transaction type ${type.toString()} handler is already registered`);
     }
 }
 

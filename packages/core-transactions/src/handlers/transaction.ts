@@ -33,7 +33,7 @@ export abstract class TransactionHandler {
 
     public abstract getConstructor(): Transactions.TransactionConstructor;
 
-    public abstract dependencies(): ReadonlyArray<TransactionHandler>;
+    public abstract dependencies(): ReadonlyArray<TransactionHandlerConstructor>;
 
     public abstract walletAttributes(): ReadonlyArray<string>;
 
@@ -370,3 +370,5 @@ export abstract class TransactionHandler {
         }
     }
 }
+
+export type TransactionHandlerConstructor = typeof TransactionHandler;

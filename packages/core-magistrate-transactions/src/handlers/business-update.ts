@@ -16,11 +16,8 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
 export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandler {
-    @Container.inject(BusinessRegistrationTransactionHandler)
-    private readonly businessRegistrationTransactionHandler!: BusinessRegistrationTransactionHandler;
-
-    public dependencies(): ReadonlyArray<Handlers.TransactionHandler> {
-        return [this.businessRegistrationTransactionHandler];
+    public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
+        return [BusinessRegistrationTransactionHandler];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {

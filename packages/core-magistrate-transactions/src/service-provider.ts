@@ -12,13 +12,6 @@ import { bridgechainIndexer, businessIndexer, MagistrateIndex } from "./wallet-i
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
-        this.app.bind(BusinessRegistrationTransactionHandler).toSelf();
-        this.app.bind(BusinessResignationTransactionHandler).toSelf();
-        this.app.bind(BusinessUpdateTransactionHandler).toSelf();
-        this.app.bind(BridgechainRegistrationTransactionHandler).toSelf();
-        this.app.bind(BridgechainResignationTransactionHandler).toSelf();
-        this.app.bind(BridgechainUpdateTransactionHandler).toSelf();
-
         this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessResignationTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessUpdateTransactionHandler);

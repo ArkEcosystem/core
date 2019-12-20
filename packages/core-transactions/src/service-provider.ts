@@ -14,23 +14,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .to(Services.Attributes.AttributeSet)
             .inSingletonScope();
 
-        this.app.bind(One.TransferTransactionHandler).toSelf();
-        this.app.bind(Two.TransferTransactionHandler).toSelf();
-        this.app.bind(One.SecondSignatureRegistrationTransactionHandler).toSelf();
-        this.app.bind(Two.SecondSignatureRegistrationTransactionHandler).toSelf();
-        this.app.bind(One.DelegateRegistrationTransactionHandler).toSelf();
-        this.app.bind(Two.DelegateRegistrationTransactionHandler).toSelf();
-        this.app.bind(One.VoteTransactionHandler).toSelf();
-        this.app.bind(Two.VoteTransactionHandler).toSelf();
-        this.app.bind(One.MultiSignatureRegistrationTransactionHandler).toSelf();
-        this.app.bind(Two.MultiSignatureRegistrationTransactionHandler).toSelf();
-        this.app.bind(Two.IpfsTransactionHandler).toSelf();
-        this.app.bind(Two.MultiPaymentTransactionHandler).toSelf();
-        this.app.bind(Two.DelegateResignationTransactionHandler).toSelf();
-        this.app.bind(Two.HtlcLockTransactionHandler).toSelf();
-        this.app.bind(Two.HtlcClaimTransactionHandler).toSelf();
-        this.app.bind(Two.HtlcRefundTransactionHandler).toSelf();
-
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.SecondSignatureRegistrationTransactionHandler);

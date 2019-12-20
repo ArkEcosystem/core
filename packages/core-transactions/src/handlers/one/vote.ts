@@ -8,18 +8,15 @@ import {
     VotedForNonDelegateError,
     VotedForResignedDelegateError,
 } from "../../errors";
-import { TransactionHandler } from "../transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class VoteTransactionHandler extends TransactionHandler {
-    @Container.inject(DelegateRegistrationTransactionHandler)
-    private readonly delegateRegistrationTransactionHandlerOne!: DelegateRegistrationTransactionHandler;
-
-    public dependencies(): ReadonlyArray<TransactionHandler> {
-        return [this.delegateRegistrationTransactionHandlerOne];
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [DelegateRegistrationTransactionHandler];
     }
 
     public walletAttributes(): ReadonlyArray<string> {

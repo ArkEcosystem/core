@@ -9,11 +9,11 @@ import {
     MultiSignatureMinimumKeysError,
 } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
-import { TransactionHandler } from "../transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
 @Container.injectable()
 export class MultiSignatureRegistrationTransactionHandler extends TransactionHandler {
-    public dependencies(): ReadonlyArray<TransactionHandler> {
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
 

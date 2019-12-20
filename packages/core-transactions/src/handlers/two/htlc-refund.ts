@@ -3,16 +3,13 @@ import { Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/
 import assert from "assert";
 
 import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "../../errors";
-import { TransactionHandler } from "../transaction";
+import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 import { HtlcLockTransactionHandler } from "./htlc-lock";
 
 @Container.injectable()
 export class HtlcRefundTransactionHandler extends TransactionHandler {
-    @Container.inject(HtlcLockTransactionHandler)
-    private readonly htlcLockTransactionHandlerTwo!: HtlcLockTransactionHandler;
-
-    public dependencies(): ReadonlyArray<TransactionHandler> {
-        return [this.htlcLockTransactionHandlerTwo];
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [HtlcLockTransactionHandler];
     }
 
     public walletAttributes(): ReadonlyArray<string> {

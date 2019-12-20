@@ -5,16 +5,13 @@ import { Transactions } from "@arkecosystem/crypto";
 import { AlreadyVotedError, NoVoteError, UnvoteMismatchError } from "../../errors";
 import { TransactionReader } from "../../transaction-reader";
 import { One } from "../index";
-import { TransactionHandler } from "../transaction";
+import { TransactionHandlerConstructor } from "../transaction";
 import { DelegateRegistrationTransactionHandler } from "./delegate-registration";
 
 @Container.injectable()
 export class VoteTransactionHandler extends One.VoteTransactionHandler {
-    @Container.inject(DelegateRegistrationTransactionHandler)
-    private readonly delegateRegistrationTransactionHandlerTwo!: DelegateRegistrationTransactionHandler;
-
-    public dependencies(): ReadonlyArray<TransactionHandler> {
-        return [this.delegateRegistrationTransactionHandlerTwo];
+    public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [DelegateRegistrationTransactionHandler];
     }
 
     public getConstructor(): Transactions.TransactionConstructor {
