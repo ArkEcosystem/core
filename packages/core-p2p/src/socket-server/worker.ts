@@ -2,7 +2,6 @@ import { P2P } from "@arkecosystem/core-interfaces";
 import Ajv from "ajv";
 import { cidr } from "ip";
 import SCWorker from "socketcluster/scworker";
-import { RateLimiter } from "../rate-limiter";
 import { requestSchemas } from "../schemas";
 import { codec } from "../utils/sc-codec";
 
@@ -14,7 +13,6 @@ const ajv = new Ajv();
 export class Worker extends SCWorker {
     private config: Record<string, any>;
     private ipLastError: Record<string, number> = {};
-    private rateLimiter: RateLimiter;
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
@@ -29,8 +27,6 @@ export class Worker extends SCWorker {
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
             this.handlePayload(ws, req);
-            this.handlePing(ws, req);
-            this.handlePong(ws, req);
         });
         this.scServer.on("connection", socket => this.handleConnection(socket));
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
@@ -42,18 +38,6 @@ export class Worker extends SCWorker {
     private async loadConfiguration(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
         this.config = data;
-    }
-
-    private handlePing(ws, req) {
-        ws.on("ping", () => {
-            ws.terminate();
-        });
-    }
-
-    private handlePong(ws, req) {
-        ws.on("pong", () => {
-            ws.terminate();
-        });
     }
 
     private handlePayload(ws, req) {
@@ -81,8 +65,7 @@ export class Worker extends SCWorker {
                     const parsed = JSON.parse(message);
                     if (parsed.event === "#disconnect") {
                         ws._disconnected = true;
-                    }
-                    if (
+                    } else if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
                         (typeof parsed.cid !== "number" &&
@@ -126,9 +109,15 @@ export class Worker extends SCWorker {
             return;
         }
 
-        const isBlocked = await this.rateLimiter.isBlocked(ip);
-        const isBlacklisted = (this.config.blacklist || []).includes(ip);
-        if (isBlocked || isBlacklisted) {
+        const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
+            "p2p.internal.isBlockedByRateLimit",
+            {
+                data: { ip },
+            },
+        );
+
+        const isBlacklisted: boolean = (this.config.blacklist || []).includes(ip);
+        if (data.blocked || isBlacklisted) {
             req.socket.destroy();
             return;
         }
