@@ -42,6 +42,7 @@ export class DatabaseService implements Database.IDatabaseService {
     public async init(): Promise<void> {
         if (process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = false;
+            Managers.configManager.getMilestone().htlcEnabled = false;
         }
 
         this.emitter.emit(ApplicationEvents.StateStarting, this);
@@ -192,7 +193,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         delegates = cloneDeep(delegates);
         for (let i = 0, delCount = delegates.length; i < delCount; i++) {
-            for (let x = 0; x < 4 && i < delCount; i++, x++) {
+            for (let x = 0; x < 4 && i < delCount; i++ , x++) {
                 const newIndex = currentSeed[x] % delCount;
                 const b = delegates[newIndex];
                 delegates[newIndex] = delegates[i];
@@ -241,9 +242,9 @@ export class DatabaseService implements Database.IDatabaseService {
                     headersOnly || !block.transactions
                         ? undefined
                         : block.transactions.map(
-                              (transaction: string) =>
-                                  Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
-                          ),
+                            (transaction: string) =>
+                                Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(transaction, "hex")).data,
+                        ),
             }));
         }
 
@@ -384,6 +385,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         if (block.height === 1 && process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = true;
+            Managers.configManager.getMilestone().htlcEnabled = true;
         }
 
         return lastBlock;
@@ -642,6 +644,7 @@ export class DatabaseService implements Database.IDatabaseService {
 
         if (process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = true;
+            Managers.configManager.getMilestone().htlcEnabled = true;
         }
 
         this.configureState(lastBlock);

@@ -18,7 +18,8 @@ export class HtlcClaimTransaction extends Transaction {
     protected static defaultStaticFee: BigNumber = BigNumber.ZERO;
 
     public verify(): boolean {
-        return configManager.getMilestone().aip11 && super.verify();
+        const milestone = configManager.getMilestone();
+        return milestone.aip11 === true && milestone.htlcEnabled === true && super.verify();
     }
 
     public serialize(options?: ISerializeOptions): ByteBuffer {
