@@ -182,6 +182,10 @@ describe("Peer socket endpoint", () => {
                 await delay(1000);
 
                 expect(socket.state).toBe("closed");
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
 
             it("should disconnect the client if it sends too many pongs too quickly", async () => {
@@ -203,6 +207,10 @@ describe("Peer socket endpoint", () => {
                 await delay(1000);
 
                 expect(socket.state).toBe("closed");
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
 
             it("should disconnect the client if it sends a ping frame", async () => {
@@ -214,6 +222,10 @@ describe("Peer socket endpoint", () => {
                 ping();
                 await delay(500);
                 expect(socket.state).toBe("closed");
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
 
             it("should disconnect the client if it sends a pong frame", async () => {
@@ -225,6 +237,10 @@ describe("Peer socket endpoint", () => {
                 pong();
                 await delay(500);
                 expect(socket.state).toBe("closed");
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
         });
     });
@@ -359,6 +375,24 @@ describe("Peer socket endpoint", () => {
             await delay(1000);
 
             expect(socket.state).not.toBe("open");
+        });
+
+        it("should close the connection if it sends data after a disconnect packet", async () => {
+            connect();
+            await delay(1000);
+
+            expect(socket.state).toBe("open");
+
+            send('{"event":"#disconnect","data":{"code":4000}}');
+            await expect(
+                emit("p2p.peer.getStatus", {
+                    headers,
+                }),
+            ).rejects.toHaveProperty("name", "BadConnectionError");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
     });
 });

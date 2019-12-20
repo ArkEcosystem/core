@@ -134,6 +134,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Memoize base58 de/encoding ([#3015])
 -   Replace bignumber.js with native BigInt ([#3010])
 -   Replace bs58check with bstring ([#2673])
+-
+
+## [2.5.31] - 2019-12-19
+
+### Fixed
+
+-   Handle disconnect packets ([#3354])
+
+## [2.5.30] - 2019-12-09
+
+### Fixed
+
+-   Stricter p2p msg check + ip blocking ([#3331])
+-   Purge ipLastError every hour ([#3331])
 
 ## [2.5.28] - 2019-11-05
 
@@ -777,6 +791,8 @@ Closed security vulnerabilities:
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
 [2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.6.0
 [2.5.24]: https://github.com/ARKEcosystem/core/compare/2.5.19..2.5.24
+[2.5.31]: https://github.com/ARKEcosystem/core/compare/2.5.30...2.5.31
+[2.5.30]: https://github.com/ARKEcosystem/core/compare/2.5.28...2.5.30
 [2.5.28]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.5.28
 [2.5.26]: https://github.com/ARKEcosystem/core/compare/2.5.25...2.5.26
 [2.5.25]: https://github.com/ARKEcosystem/core/compare/2.5.24...2.5.25
@@ -1245,3 +1261,6 @@ Closed security vulnerabilities:
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [7a73aef8b29d40572d1524cf8b1bafbffa3b096]: https://github.com/ARKEcosystem/core/commit/7a73aef8b29d40572d1524cf8b1bafbffa3b0964
 [#3208]: https://github.com/ARKEcosystem/core/pull/3208
+[#3208]: https://github.com/ARKEcosystem/core/pull/3208
+[#3331]: https://github.com/ARKEcosystem/core/pull/3331
+[#3354]: https://github.com/ARKEcosystem/core/pull/3354

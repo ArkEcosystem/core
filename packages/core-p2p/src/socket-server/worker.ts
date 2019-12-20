@@ -2,13 +2,19 @@ import { P2P } from "@arkecosystem/core-interfaces";
 import Ajv from "ajv";
 import { cidr } from "ip";
 import SCWorker from "socketcluster/scworker";
+import { RateLimiter } from "../rate-limiter";
 import { requestSchemas } from "../schemas";
 import { codec } from "../utils/sc-codec";
+
+const MINUTE_IN_MILLISECONDS = 1000 * 60;
+const HOUR_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 60;
 
 const ajv = new Ajv();
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
+    private ipLastError: Record<string, number> = {};
+    private rateLimiter: RateLimiter;
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
@@ -16,6 +22,9 @@ export class Worker extends SCWorker {
         this.scServer.setCodecEngine(codec);
 
         await this.loadConfiguration();
+
+        // purge ipLastError every hour to free up memory
+        setInterval(() => (this.ipLastError = {}), HOUR_IN_MILLISECONDS);
 
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
@@ -48,35 +57,49 @@ export class Worker extends SCWorker {
     }
 
     private handlePayload(ws, req) {
-        ws.on("ping", () => {
-            ws.terminate();
+        ws.prependListener("ping", () => {
+            this.setErrorForIpAndTerminate(ws, req);
         });
-        ws.on("pong", () => {
-            ws.terminate();
+        ws.prependListener("pong", () => {
+            this.setErrorForIpAndTerminate(ws, req);
         });
-        ws.on("message", message => {
-            try {
-                if (message === "#2") {
-                    const timeNow: number = new Date().getTime() / 1000;
-                    if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                        ws.terminate();
-                    }
-                    ws._lastPingTime = timeNow;
-                } else {
+        ws.prependListener("message", message => {
+            if (ws._disconnected) {
+                this.setErrorForIpAndTerminate(ws, req);
+            } else if (message === "#2") {
+                const timeNow: number = new Date().getTime() / 1000;
+                if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
+                    this.setErrorForIpAndTerminate(ws, req);
+                }
+                ws._lastPingTime = timeNow;
+            } else if (message.length < 10) {
+                // except for #2 message, we should have JSON with some required properties
+                // (see below) which implies that message length should be longer than 10 chars
+                this.setErrorForIpAndTerminate(ws, req);
+            } else {
+                try {
                     const parsed = JSON.parse(message);
+                    if (parsed.event === "#disconnect") {
+                        ws._disconnected = true;
+                    }
                     if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
                         (typeof parsed.cid !== "number" &&
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
                     ) {
-                        ws.terminate();
+                        this.setErrorForIpAndTerminate(ws, req);
                     }
+                } catch (error) {
+                    this.setErrorForIpAndTerminate(ws, req);
                 }
-            } catch (error) {
-                ws.terminate();
             }
         });
+    }
+
+    private setErrorForIpAndTerminate(ws, req): void {
+        this.ipLastError[req.socket.remoteAddress] = Date.now();
+        ws.terminate();
     }
 
     private async handleConnection(socket): Promise<void> {
@@ -97,20 +120,20 @@ export class Worker extends SCWorker {
     }
 
     private async handleHandshake(req, next): Promise<void> {
-        const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
-            "p2p.internal.isBlockedByRateLimit",
-            {
-                data: { ip: req.socket.remoteAddress },
-            },
-        );
-
-        const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
-        if (data.blocked || isBlacklisted) {
+        const ip = req.socket.remoteAddress;
+        if (this.ipLastError[ip] && this.ipLastError[ip] > Date.now() - MINUTE_IN_MILLISECONDS) {
             req.socket.destroy();
             return;
         }
 
-        const cidrRemoteAddress = cidr(`${req.socket.remoteAddress}/24`);
+        const isBlocked = await this.rateLimiter.isBlocked(ip);
+        const isBlacklisted = (this.config.blacklist || []).includes(ip);
+        if (isBlocked || isBlacklisted) {
+            req.socket.destroy();
+            return;
+        }
+
+        const cidrRemoteAddress = cidr(`${ip}/24`);
         const sameSubnetSockets = Object.values({ ...this.scServer.clients, ...this.scServer.pendingClients }).filter(
             client => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
         );
