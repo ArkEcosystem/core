@@ -52,7 +52,8 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        const milestone = Managers.configManager.getMilestone();
+        return milestone.aip11 === true && milestone.htlcEnabled === true;
     }
 
     public async throwIfCannotBeApplied(
@@ -138,11 +139,11 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }
