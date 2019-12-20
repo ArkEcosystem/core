@@ -2,6 +2,8 @@
 export * from "./matchers";
 // Entity Factories for commonly used entities like blocks and wallets
 export * from "./app";
+// CLI Helpers
+export * from "./cli";
 // Entity Factories for commonly used entities like blocks and wallets
 // Generators for commonly used entities like blocks and wallets
 import * as Generators from "./app/generators";

@@ -1,51 +1,90 @@
-import Command, { flags } from "@oclif/command";
-import cli from "cli-ux";
-import prompts from "prompts";
+import { Commands, Container, Services } from "@arkecosystem/core-cli";
+import Joi from "@hapi/joi";
 
-import { restartRunningProcessWithPrompt } from "../common/process";
-import { installFromChannel } from "../common/update";
-import { CommandFlags } from "../types";
+/**
+ * @export
+ * @class Command
+ * @extends {Commands.Command}
+ */
+@Container.injectable()
+export class Command extends Commands.Command {
+    /**
+     * @private
+     * @type {Installer}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Installer)
+    private readonly installer!: Services.Installer;
 
-export class ReinstallCommand extends Command {
-    public static description = "Reinstall the core";
+    /**
+     * The console command signature.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public signature: string = "reinstall";
 
-    public static flags: CommandFlags = {
-        force: flags.boolean({
-            description: "force a reinstall",
-        }),
-    };
+    /**
+     * The console command description.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public description: string = "Reinstall the Core installation";
 
-    public async run(): Promise<void> {
-        const { flags } = await this.parse(ReinstallCommand);
+    /**
+     * Indicates whether the command requires a network to be present.
+     *
+     * @type {boolean}
+     * @memberof Command
+     */
+    public requiresNetwork: boolean = false;
 
-        if (flags.force) {
-            return this.performInstall(flags);
-        }
-
-        const response = await prompts([
-            {
-                type: "confirm",
-                name: "confirm",
-                message: "Are you sure you want to reinstall?",
-            },
-        ]);
-
-        if (response.confirm) {
-            await this.performInstall(flags);
-        }
+    /**
+     * Configure the console command.
+     *
+     * @returns {void}
+     * @memberof Command
+     */
+    public configure(): void {
+        this.definition.setFlag("force", "Force a reinstall.", Joi.boolean());
     }
 
-    private async performInstall(flags: CommandFlags): Promise<void> {
-        cli.action.start(`Reinstalling ${this.config.version}`);
+    /**
+     * Execute the console command.
+     *
+     * @returns {Promise<void>}
+     * @memberof Command
+     */
+    public async execute(): Promise<void> {
+        if (this.getFlag("force")) {
+            return this.performInstall();
+        }
 
-        installFromChannel(this.config.name, this.config.version);
+        if (await this.components.confirm("Are you sure you want to reinstall?")) {
+            //Come back to this
+            return this.performInstall();
+        }
 
-        cli.action.stop();
+        this.components.fatal("You'll need to confirm the reinstall to continue.");
+    }
 
-        this.warn(`Version ${this.config.version} has been installed.`);
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof Command
+     */
+    private async performInstall(): Promise<void> {
+        const spinner = this.components.spinner(`Reinstalling ${this.pkg.version}`);
 
-        await restartRunningProcessWithPrompt(`${flags.token}-core`);
-        await restartRunningProcessWithPrompt(`${flags.token}-relay`);
-        await restartRunningProcessWithPrompt(`${flags.token}-forger`);
+        spinner.start();
+
+        this.installer.installFromChannel(this.pkg.name!, this.pkg.version!);
+
+        spinner.succeed();
+
+        await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-core`);
+        await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-relay`);
+        await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-forger`);
     }
 }

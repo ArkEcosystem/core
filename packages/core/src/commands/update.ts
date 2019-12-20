@@ -1,108 +1,109 @@
+import { Commands, Container, Contracts } from "@arkecosystem/core-cli";
 import { Utils } from "@arkecosystem/core-kernel";
-import Command, { flags } from "@oclif/command";
-import Chalk from "chalk";
-import cli from "cli-ux";
-import prompts from "prompts";
+import Joi from "@hapi/joi";
+import { PackageJson } from "type-fest";
 
-import { abort } from "../common/cli";
-import { flagsNetwork } from "../common/flags";
-import { restartRunningProcess, restartRunningProcessWithPrompt } from "../common/process";
-import { checkForUpdates, installFromChannel } from "../common/update";
-import { CommandFlags } from "../types";
+/**
+ * @export
+ * @class Command
+ * @extends {Commands.Command}
+ */
+@Container.injectable()
+export class Command extends Commands.Command {
+    /**
+     * @private
+     * @type {Contracts.Updater}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Updater)
+    private readonly updater!: Contracts.Updater;
 
-export class UpdateCommand extends Command {
-    public static description = "Update the core installation";
+    /**
+     * @private
+     * @type {Application}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Package)
+    protected readonly pkg!: PackageJson;
 
-    public static flags: CommandFlags = {
-        ...flagsNetwork,
-        force: flags.boolean({
-            description: "force an update",
-        }),
-        restart: flags.boolean({
-            description: "restart all running processes",
-            exclusive: ["restartCore", "restartRelay", "restartForger"],
-            allowNo: true,
-        }),
-        restartCore: flags.boolean({
-            description: "restart the core process",
-        }),
-        restartRelay: flags.boolean({
-            description: "restart the relay process",
-        }),
-        restartForger: flags.boolean({
-            description: "restart the forger process",
-        }),
-    };
+    /**
+     * The console command signature.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public signature: string = "update";
 
-    public async run(): Promise<void> {
-        const state = await checkForUpdates(this);
+    /**
+     * The console command description.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public description: string = "Update the Core installation.";
 
-        if (!state.ready) {
-            abort(`You already have the latest version (${state.currentVersion})`);
-        }
-
-        const { flags } = this.parse(UpdateCommand);
-
-        if (flags.force) {
-            return this.performUpdate(flags, state);
-        }
-
-        this.warn(
-            `${state.name} update available from ${Chalk.greenBright(state.currentVersion)} to ${Chalk.greenBright(
-                state.updateVersion,
-            )}.`,
-        );
-
-        const { confirm } = await prompts([
-            {
-                type: "confirm",
-                name: "confirm",
-                message: "Would you like to update?",
-            },
-        ]);
-
-        if (!confirm) {
-            abort("You'll need to confirm the update to continue.");
-        }
-
-        await this.performUpdate(flags, state);
+    /**
+     * Configure the console command.
+     *
+     * @returns {void}
+     * @memberof Command
+     */
+    public configure(): void {
+        this.definition
+            .setFlag("token", "The name of the token.", Joi.string().default("ark"))
+            .setFlag("force", "Force an update.", Joi.boolean())
+            .setFlag("restart", "Restart all running processes.", Joi.boolean())
+            .setFlag("restartCore", "Restart the Core process.", Joi.boolean())
+            .setFlag("restartRelay", "Restart the Relay process.", Joi.boolean())
+            .setFlag("restartForger", "Restart the Forger process.", Joi.boolean());
     }
 
-    private async performUpdate(flags: CommandFlags, state: Record<string, any>): Promise<void> {
-        cli.action.start(`Updating from ${state.currentVersion} to ${state.updateVersion}`);
+    /**
+     * Execute the console command.
+     *
+     * @returns {Promise<void>}
+     * @memberof Command
+     */
+    public async execute(): Promise<void> {
+        const hasNewVersion: boolean = await this.updater.check();
 
-        installFromChannel(state.name, state.updateVersion);
+        if (hasNewVersion) {
+            await this.updater.update(this.getFlag("force"));
 
-        cli.action.stop();
+            if (this.hasRestartFlag()) {
+                if (this.hasFlag("restart")) {
+                    await this.actions.restartRunningProcess(`${this.getFlag("token")}-core`);
+                    await this.actions.restartRunningProcess(`${this.getFlag("token")}-relay`);
+                    await this.actions.restartRunningProcess(`${this.getFlag("token")}-forger`);
+                } else {
+                    if (this.hasFlag("restartCore")) {
+                        await this.actions.restartRunningProcess(`${this.getFlag("token")}-core`);
+                    }
 
-        this.warn(`Version ${state.updateVersion} has been installed.`);
+                    if (this.hasFlag("restartRelay")) {
+                        await this.actions.restartRunningProcess(`${this.getFlag("token")}-relay`);
+                    }
 
-        if (this.hasRestartFlag(flags)) {
-            if (flags.restart) {
-                await restartRunningProcess(`${flags.token}-core`);
-                await restartRunningProcess(`${flags.token}-relay`);
-                await restartRunningProcess(`${flags.token}-forger`);
+                    if (this.hasFlag("restartForger")) {
+                        await this.actions.restartRunningProcess(`${this.getFlag("token")}-forger`);
+                    }
+                }
             } else {
-                if (flags.restartCore) {
-                    await restartRunningProcess(`${flags.token}-core`);
-                }
-
-                if (flags.restartRelay) {
-                    await restartRunningProcess(`${flags.token}-relay`);
-                }
-
-                if (flags.restartForger) {
-                    await restartRunningProcess(`${flags.token}-forger`);
-                }
+                await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-core`);
+                await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-relay`);
+                await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-forger`);
             }
         } else {
-            await restartRunningProcessWithPrompt(`${flags.token}-core`);
-            await restartRunningProcessWithPrompt(`${flags.token}-relay`);
-            await restartRunningProcessWithPrompt(`${flags.token}-forger`);
+            this.components.success(`You already have the latest version (${this.pkg.version})`);
         }
     }
 
-    private hasRestartFlag(flags: CommandFlags): boolean {
-        return Utils.hasSomeProperty(flags, ["restart", "restartCore", "restartRelay", "restartForger"]);
+    /**
+     * @private
+     * @returns {boolean}
+     * @memberof Command
+     */
+    private hasRestartFlag(): boolean {
+        return Utils.hasSomeProperty(this.getFlags(), ["restart", "restartCore", "restartRelay", "restartForger"]);
     }
 }

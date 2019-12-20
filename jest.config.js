@@ -14,7 +14,8 @@ module.exports = {
     collectCoverage: false,
     coverageDirectory: "<rootDir>/.coverage",
     collectCoverageFrom: [
-        "packages/**/src/**/{!(index|manager),}.ts",
+        // "packages/**/src/**/{!(index|manager),}.ts",
+        "packages/core-cli/src/**/{!(index|manager),}.ts",
         "!packages/**/src/**/contracts/**",
         "!packages/**/src/**/enums/**",
         "!packages/**/src/**/exceptions/**",

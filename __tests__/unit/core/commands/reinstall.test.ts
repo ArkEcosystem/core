@@ -1,9 +1,19 @@
 import "jest-extended";
 
-import { ReinstallCommand } from "@packages/core/src/commands/reinstall";
-import { processManager } from "@packages/core/src/common/process-manager";
+import { Container } from "@arkecosystem/core-cli";
+import { Console } from "@arkecosystem/core-test-framework";
 import prompts from "prompts";
+
+import { Command } from "@packages/core/src/commands/reinstall";
+
 import execa from "../../../../__mocks__/execa";
+
+let cli;
+let processManager;
+beforeEach(() => {
+    cli = new Console();
+    processManager = cli.app.get(Container.Identifiers.ProcessManager);
+});
 
 describe("ReinstallCommand", () => {
     it("should reinstall without a prompt if the [--force] flag is used", async () => {
@@ -12,7 +22,7 @@ describe("ReinstallCommand", () => {
             stderr: undefined,
         });
 
-        await ReinstallCommand.run(["--force"]);
+        await cli.withFlags({ force: true }).execute(Command);
 
         expect(sync).toHaveBeenCalledTimes(4); // install > check core > check relay > check forger
 
@@ -27,7 +37,7 @@ describe("ReinstallCommand", () => {
 
         prompts.inject([true]);
 
-        await ReinstallCommand.run([]);
+        await cli.execute(Command);
 
         expect(sync).toHaveBeenCalledTimes(4); // install > check core > check relay > check forger
 
@@ -42,7 +52,7 @@ describe("ReinstallCommand", () => {
 
         prompts.inject([false]);
 
-        await ReinstallCommand.run([]);
+        await expect(cli.execute(Command)).rejects.toThrow("[ERROR] You'll need to confirm the reinstall to continue.");
 
         expect(sync).not.toHaveBeenCalled();
 
@@ -62,7 +72,7 @@ describe("ReinstallCommand", () => {
         prompts.inject([true]); // restart relay
         prompts.inject([true]); // restart forger
 
-        await ReinstallCommand.run(["--force"]);
+        await cli.withFlags({ force: true }).execute(Command);
 
         expect(sync).toHaveBeenCalled();
         expect(isOnline).toHaveBeenCalled();

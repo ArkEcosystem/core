@@ -45,11 +45,14 @@ export class RegisterBasePaths implements Bootstrapper {
             const processPath: string | undefined = process.env[`CORE_PATH_${type.toUpperCase()}`];
 
             if (processPath) {
+                // 1. Check if a path is defined via process variables.
                 path = processPath;
-            }
-
-            if (this.configRepository.has(`app.flags.paths.${type}`)) {
+            } else if (this.configRepository.has(`app.flags.paths.${type}`)) {
+                // 2. Check if a path is defined via configuration repository.
                 path = this.configRepository.get(`app.flags.paths.${type}`);
+            } else {
+                // 3. If the default path is used we'll append the network name to it.
+                path = `${path}/${this.app.network()}`;
             }
 
             path = resolve(expandTilde(path));

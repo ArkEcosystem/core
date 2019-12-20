@@ -1,7 +1,16 @@
 import "jest-extended";
 
-import { TopCommand } from "@packages/core/src/commands/top";
-import { processManager } from "@packages/core/src/common/process-manager";
+import { Container } from "@arkecosystem/core-cli";
+import { Console } from "@arkecosystem/core-test-framework";
+
+import { Command } from "@packages/core/src/commands/top";
+
+let cli;
+let processManager;
+beforeEach(() => {
+    cli = new Console();
+    processManager = cli.app.get(Container.Identifiers.ProcessManager);
+});
 
 describe("TopCommand", () => {
     it("should render a table with process information", async () => {
@@ -31,7 +40,7 @@ describe("TopCommand", () => {
         let message: string;
         jest.spyOn(console, "log").mockImplementationOnce(m => (message = m));
 
-        await TopCommand.run(["--token=ark", "--network=testnet"]);
+        await cli.execute(Command);
 
         expect(message).toIncludeMultiple(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"]);
         expect(message).toIncludeMultiple([
@@ -48,6 +57,6 @@ describe("TopCommand", () => {
     it("should throw if no processes are running", async () => {
         jest.spyOn(processManager, "list").mockReturnValue([]);
 
-        await expect(TopCommand.run(["--token=ark", "--network=testnet"])).rejects.toThrow("No processes are running.");
+        await expect(cli.execute(Command)).rejects.toThrow("No processes are running.");
     });
 });
