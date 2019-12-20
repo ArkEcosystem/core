@@ -112,17 +112,17 @@ export class Worker extends SCWorker {
         const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
             "p2p.internal.isBlockedByRateLimit",
             {
-                data: { ip: req.socket.remoteAddress },
+                data: { ip },
             },
         );
 
-        const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
+        const isBlacklisted: boolean = (this.config.blacklist || []).includes(ip);
         if (data.blocked || isBlacklisted) {
             req.socket.destroy();
             return;
         }
 
-        const cidrRemoteAddress = cidr(`${req.socket.remoteAddress}/24`);
+        const cidrRemoteAddress = cidr(`${ip}/24`);
         const sameSubnetSockets = Object.values({ ...this.scServer.clients, ...this.scServer.pendingClients }).filter(
             client => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
         );
