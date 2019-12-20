@@ -53,7 +53,7 @@ export class DaemonizeProcess {
                 "kill-timeout": 30000,
             };
 
-            if (!flags.daemon) {
+            if (flags.daemon !== true) {
                 flagsProcess["no-daemon"] = true;
             }
 

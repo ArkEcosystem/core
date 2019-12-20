@@ -102,7 +102,7 @@ export class Command extends Commands.Command {
             {
                 title: "Writing BIP39 passphrase to configuration.",
                 task: () => {
-                    const delegatesConfig = this.getCorePath("config", "delegates.json");
+                    const delegatesConfig = this.app.getCorePath("config", "delegates.json");
 
                     const delegates: Record<string, string | string[]> = require(delegatesConfig);
                     delegates.secrets = [flags.bip39];

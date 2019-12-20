@@ -60,7 +60,7 @@ export class Command extends Commands.Command {
         const flags: Contracts.AnyObject = { ...this.getFlags() };
         this.actions.abortRunningProcess(`${flags.token}-core`);
 
-        await buildBIP38(flags, this.getCorePath("config"));
+        await buildBIP38(flags, this.app.getCorePath("config"));
 
         this.actions.daemonizeProcess(
             {

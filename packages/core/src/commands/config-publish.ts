@@ -103,7 +103,7 @@ export class Command extends Commands.Command {
             .rebind(Container.Identifiers.ApplicationPaths)
             .toConstantValue(this.environment.getPaths(flags.token, flags.network));
 
-        const configDest = this.getCorePath("config");
+        const configDest = this.app.getCorePath("config");
         const configSrc = resolve(__dirname, `../../bin/config/${flags.network}`);
 
         await this.components.taskList([

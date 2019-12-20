@@ -62,7 +62,7 @@ export class Command extends Commands.Command {
         this.actions.abortRunningProcess(`${flags.token}-forger`);
         this.actions.abortRunningProcess(`${flags.token}-relay`);
 
-        await buildBIP38(flags, this.getCorePath("config"));
+        await buildBIP38(flags, this.app.getCorePath("config"));
 
         this.actions.daemonizeProcess(
             {

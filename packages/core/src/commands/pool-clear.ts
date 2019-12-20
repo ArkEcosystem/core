@@ -71,6 +71,6 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     private removeFiles() {
-        removeSync(this.getCorePath("data", "transaction-pool"));
+        removeSync(this.app.getCorePath("data", "transaction-pool"));
     }
 }

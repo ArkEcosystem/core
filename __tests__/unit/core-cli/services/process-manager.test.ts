@@ -236,6 +236,27 @@ describe("ProcessManager", () => {
             expect(failed).toBeFalse();
             expect(spySync).toHaveBeenCalledWith("pm2 start stub.js --name=stub -- core:run --daemon", { shell: true });
         });
+
+        it("should ignore the flags if they are undefined", () => {
+            // Arrange...
+            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+                stdout: null,
+                stderr: undefined,
+                failed: false,
+            });
+
+            // Act...
+            const { failed } = processManager.start(
+                {
+                    script: "stub.js",
+                },
+                undefined,
+            );
+
+            // Assert...
+            expect(failed).toBeFalse();
+            expect(spySync).toHaveBeenCalledWith("pm2 start stub.js", { shell: true });
+        });
     });
 
     describe("#stop", () => {
@@ -303,6 +324,22 @@ describe("ProcessManager", () => {
             // Assert...
             expect(failed).toBeFalse();
             expect(spySync).toHaveBeenCalledWith("pm2 restart stub --key=value", { shell: true });
+        });
+
+        it("should ignore the flags if they are empty", () => {
+            // Arrange...
+            const spySync: jest.SpyInstance = jest.spyOn(execa, "sync").mockReturnValue({
+                stdout: null,
+                stderr: undefined,
+                failed: false,
+            });
+
+            // Act...
+            const { failed } = processManager.restart("stub", {});
+
+            // Assert...
+            expect(failed).toBeFalse();
+            expect(spySync).toHaveBeenCalledWith("pm2 restart stub", { shell: true });
         });
     });
 

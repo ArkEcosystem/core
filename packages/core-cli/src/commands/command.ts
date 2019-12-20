@@ -4,7 +4,7 @@ import { PackageJson } from "type-fest";
 import { ActionFactory } from "../action-factory";
 import { ComponentFactory } from "../component-factory";
 import { Box } from "../components";
-import { Application } from "../contracts";
+import { Application, InputValue } from "../contracts";
 import { Input } from "../input";
 import { InputDefinition } from "../input/definition";
 import { Identifiers, inject, injectable, postConstruct } from "../ioc";
@@ -130,13 +130,9 @@ export abstract class Command {
             this.input.bind();
             this.input.validate();
 
-            if (this.input.hasFlag("quiet")) {
-                this.output.setVerbosity(0);
-            } else if (this.input.hasFlag("v")) {
-                const verbosity: number = this.input.getFlag("v") || 1;
-
-                this.output.setVerbosity(verbosity === undefined ? 1 : verbosity);
-            }
+            this.input.hasFlag("quiet")
+                ? this.output.setVerbosity(0)
+                : this.output.setVerbosity(this.input.getFlag("v") || 1);
         } catch (error) {
             this.components.fatal(error.message);
         }
@@ -152,7 +148,9 @@ export abstract class Command {
      * @returns {void}
      * @memberof Command
      */
+    /* istanbul ignore next */
     @postConstruct()
+    // todo: for some reason this isn't recognized in tests for being called
     public configure(): void {
         // Do nothing...
     }
@@ -197,7 +195,7 @@ export abstract class Command {
 
             await this.initialize();
 
-            if (this.input.interactive) {
+            if (this.input.isInteractive()) {
                 await this.interact();
             }
 
@@ -215,23 +213,10 @@ export abstract class Command {
     public abstract async execute(): Promise<void>;
 
     /**
-     * @param {number} [exitCode=2]
      * @memberof Command
      */
-    public showHelp(exitCode: number = 2): void {
+    public showHelp(): void {
         this.app.get<Box>(Identifiers.Box).render(this.app.resolve(CommandHelp).render(this));
-
-        process.exit(exitCode);
-    }
-
-    /**
-     * @param {string} type
-     * @param {string} [file]
-     * @returns {string}
-     * @memberof Command
-     */
-    public getCorePath(type: string, file?: string): string {
-        return this.app.getCorePath(type, file);
     }
 
     /**
@@ -250,6 +235,15 @@ export abstract class Command {
      */
     public getArgument(name: string) {
         return this.input.getArgument(name);
+    }
+
+    /**
+     * @param {string} name
+     * @param {InputValue} value
+     * @memberof Input
+     */
+    public setArgument(name: string, value: InputValue): void {
+        return this.input.setArgument(name, value);
     }
 
     /**
@@ -281,31 +275,20 @@ export abstract class Command {
 
     /**
      * @param {string} name
+     * @param {InputValue} value
+     * @memberof Input
+     */
+    public setFlag(name: string, value: InputValue): void {
+        return this.input.setFlag(name, value);
+    }
+
+    /**
+     * @param {string} name
      * @returns {boolean}
      * @memberof Command
      */
     public hasFlag(name: string): boolean {
         return this.input.hasFlag(name);
-    }
-
-    /**
-     * Sets the InputDefinition attached to this Command.
-     *
-     * @param {InputDefinition} definition
-     * @memberof Command
-     */
-    public setDefinition(definition: InputDefinition): void {
-        this.definition = definition;
-    }
-
-    /**
-     * Gets the InputDefinition attached to this Command.
-     *
-     * @returns {InputDefinition}
-     * @memberof Command
-     */
-    public getDefinition(): InputDefinition {
-        return this.definition;
     }
 
     /**

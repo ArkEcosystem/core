@@ -66,7 +66,7 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        this.environment.updateVariables(this.getCorePath("config", ".env"), {
+        this.environment.updateVariables(this.app.getCorePath("config", ".env"), {
             [this.getFlag("key")]: this.getFlag("value"),
         });
     }

@@ -48,7 +48,7 @@ export class Command extends Commands.Command {
     public async execute(): Promise<void> {
         const pkg: string = this.getArgument("package");
 
-        const directory: string = this.getCorePath("data", `plugins/${pkg}`);
+        const directory: string = this.app.getCorePath("data", `plugins/${pkg}`);
 
         if (!existsSync(directory)) {
             throw new Error(`The package [${pkg}] does not exist.`);

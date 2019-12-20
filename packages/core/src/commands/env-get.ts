@@ -47,7 +47,7 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const envFile: string = this.getCorePath("config", ".env");
+        const envFile: string = this.app.getCorePath("config", ".env");
 
         if (!existsSync(envFile)) {
             this.components.fatal(`No environment file found at ${envFile}.`);

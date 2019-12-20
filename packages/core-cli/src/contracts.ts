@@ -2,6 +2,9 @@ import { AnySchema } from "@hapi/joi";
 
 import { interfaces } from "./ioc";
 
+export type InputValue = any;
+export type InputValues = Record<string, InputValue>;
+
 export type InputArgument = { description: string; schema: AnySchema };
 export type InputArguments = Record<string, InputArgument>;
 

@@ -45,19 +45,19 @@ export class DiscoverCommands {
 
     /**
      * @param {Context} context
-     * @param {string[]} plugins
-     * @returns {CommandList[]}
+     * @param {string[]} packages
+     * @returns {CommandList}
      * @memberof DiscoverCommands
      */
-    public from(plugins: string[]): CommandList[] {
-        const commands: CommandList[] = [];
+    public from(packages: string[]): CommandList {
+        const commands: CommandList = {};
 
-        if (!Array.isArray(plugins)) {
+        if (!Array.isArray(packages) || packages.length <= 0) {
             return commands;
         }
 
-        for (const plugin of plugins) {
-            for (const CMD of require(plugin).Commands) {
+        for (const pkg of packages) {
+            for (const CMD of require(pkg).Commands) {
                 const commandInstance: Command = this.app.resolve(CMD);
 
                 if (!commandInstance.isHidden) {

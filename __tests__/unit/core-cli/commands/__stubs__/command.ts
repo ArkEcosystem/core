@@ -7,13 +7,13 @@ export class Command extends Commands.Command {
     public description: string = "Update the CLI configuration.";
 
     public configure(): void {
-        this.definition.setArgument("someArgument1", "...", Joi.string());
-        this.definition.setArgument("someArgument11", "...", Joi.string());
-        this.definition.setArgument("someArgument111", "...", Joi.string());
+        this.definition.setArgument("someArgument1", "description", Joi.string());
+        this.definition.setArgument("someArgument11", "description", Joi.string());
+        this.definition.setArgument("someArgument111", "description", Joi.string());
 
-        this.definition.setFlag("someFlag1", "...", Joi.string());
-        this.definition.setFlag("someFlag11", "...", Joi.string());
-        this.definition.setFlag("someFlag111", "...", Joi.string());
+        this.definition.setFlag("someFlag1", "description", Joi.string());
+        this.definition.setFlag("someFlag11", "description", Joi.string());
+        this.definition.setFlag("someFlag111", "description", Joi.string());
     }
 
     public async execute(): Promise<void> {

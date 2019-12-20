@@ -28,7 +28,7 @@ export class ProcessManager {
                 return [];
             }
 
-            return Object.values(JSON.parse(lastLine)) || [];
+            return Object.values(JSON.parse(lastLine));
         } catch {
             return [];
         }
@@ -51,18 +51,18 @@ export class ProcessManager {
 
     /**
      * @param {Record<string, any>} opts
-     * @param {Record<string, any>} [flags={}]
+     * @param {Record<string, any>} [flags]
      * @returns {ExecaSyncReturnValue}
      * @memberof ProcessManager
      */
-    public start(opts: Record<string, any>, flags: Record<string, any> = {}): ExecaSyncReturnValue {
+    public start(opts: Record<string, any>, flags: Record<string, any>): ExecaSyncReturnValue {
         let command: string = `pm2 start ${opts.script}`;
 
         if (opts.node_args) {
             command += ` --node-args="${castFlagsToString(opts.node_args)}"`;
         }
 
-        if (Object.keys(flags).length > 0) {
+        if (flags !== undefined && Object.keys(flags).length > 0) {
             command += ` ${castFlagsToString(flags)}`;
         }
 

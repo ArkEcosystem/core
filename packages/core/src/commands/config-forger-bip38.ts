@@ -130,7 +130,7 @@ export class Command extends Commands.Command {
             {
                 title: "Encrypting BIP39 passphrase.",
                 task: () => {
-                    const delegatesConfig = this.getCorePath("config", "delegates.json");
+                    const delegatesConfig = this.app.getCorePath("config", "delegates.json");
 
                     const delegates = require(delegatesConfig);
                     delegates.bip38 = Crypto.bip38.encrypt(

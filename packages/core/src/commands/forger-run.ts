@@ -58,7 +58,7 @@ export class Command extends Commands.Command {
         await Utils.buildApplication({
             flags,
             plugins: {
-                "@arkecosystem/core-forger": await buildBIP38(flags, this.getCorePath("config")),
+                "@arkecosystem/core-forger": await buildBIP38(flags, this.app.getCorePath("config")),
             },
         });
     }

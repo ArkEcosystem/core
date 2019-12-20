@@ -30,7 +30,7 @@ export class Config {
      * @type {object}
      * @memberof Config
      */
-    private config: object = {};
+    private store: object = {};
 
     /**
      *Creates an instance of Config.
@@ -41,9 +41,17 @@ export class Config {
     public initialize(): void {
         this.file = this.app.getConsolePath("config", "config.json");
 
-        this.ensureDefaults();
+        this.restoreDefaults();
 
         this.load();
+    }
+
+    /**
+     * @returns {object}
+     * @memberof Config
+     */
+    public all(): object {
+        return this.store;
     }
 
     /**
@@ -53,7 +61,7 @@ export class Config {
      * @memberof Config
      */
     public get<T>(key: string): T {
-        return this.config[key];
+        return this.store[key];
     }
 
     /**
@@ -63,7 +71,7 @@ export class Config {
      * @memberof Config
      */
     public set<T>(key: string, value: T): void {
-        this.config[key] = value;
+        this.store[key] = value;
 
         this.save();
     }
@@ -73,7 +81,7 @@ export class Config {
      * @memberof Config
      */
     public forget(key: string): void {
-        delete this.config[key];
+        delete this.store[key];
 
         this.save();
     }
@@ -84,39 +92,40 @@ export class Config {
      * @memberof Config
      */
     public has(key: string): boolean {
-        return Object.keys(this.config).includes(key);
+        return Object.keys(this.store).includes(key);
     }
 
     /**
-     * @private
      * @returns {*}
      * @memberof Config
      */
-    private load(): any {
+    public load(): any {
         try {
-            this.config = readJsonSync(this.file);
+            this.store = readJsonSync(this.file);
         } catch (error) {
-            this.ensureDefaults();
+            this.restoreDefaults();
 
             this.load();
         }
     }
 
     /**
-     * @private
      * @memberof Config
      */
-    private save(): void {
+    public save(): void {
         ensureFileSync(this.file);
 
-        writeJsonSync(this.file, this.config);
+        writeJsonSync(this.file, this.store);
     }
 
     /**
-     * @private
      * @memberof Config
      */
-    private ensureDefaults(): void {
+    public restoreDefaults(): void {
+        if (this.store.constructor !== Object) {
+            this.store = {};
+        }
+
         if (!this.has("token")) {
             this.set("token", "ark");
         }
@@ -128,6 +137,8 @@ export class Config {
         if (!this.has("plugins")) {
             this.set("plugins", []);
         }
+
+        this.save();
     }
 
     /**

@@ -23,7 +23,7 @@ describe("TaskList", () => {
 
         await component.render([
             {
-                title: "...",
+                title: "description",
                 task: fakeTask,
             },
         ]);

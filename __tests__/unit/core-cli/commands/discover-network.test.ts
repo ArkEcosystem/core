@@ -23,6 +23,14 @@ beforeEach(() => {
 
 describe("DiscoverNetwork", () => {
     it("should throw if no configurations can be detected", async () => {
+        await expect(cmd.discover(configPath)).rejects.toThrow(
+            'We were unable to detect a network configuration. Please run "ark config:publish" and try again.',
+        );
+
+        delete process.env.CORE_PATH_CONFIG;
+    });
+
+    it("should throw if no configurations can be detected (with environment variable as path)", async () => {
         process.env.CORE_PATH_CONFIG = dirSync().name;
 
         await expect(cmd.discover(configPath)).rejects.toThrow(
@@ -40,6 +48,10 @@ describe("DiscoverNetwork", () => {
         await expect(cmd.discover(configPath)).resolves.toBe("mainnet");
 
         delete process.env.CORE_PATH_CONFIG;
+    });
+
+    it("should throw if the given path does not exist", async () => {
+        await expect(cmd.discover("does-not-exist")).rejects.toThrow("The [does-not-exist] directory does not exist.");
     });
 
     it("should choose the selected network if multiple networks are found", async () => {

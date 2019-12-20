@@ -1,11 +1,9 @@
 import { Application } from "../application";
+import { InputValue, InputValues } from "../contracts";
 import { Identifiers, inject, injectable } from "../ioc";
 import { InputDefinition } from "./definition";
 import { InputParser } from "./parser";
 import { InputValidator } from "./validator";
-
-type InputValue = any;
-type InputArguments = Record<string, InputValue>;
 
 /**
  * @class Input
@@ -61,7 +59,7 @@ export class Input {
      * @type {InputArgument}
      * @memberof Input
      */
-    public args: InputArguments = {};
+    public args: InputValues = {};
 
     /**
      * The parsed input flags.
@@ -69,7 +67,7 @@ export class Input {
      * @type {InputArgument}
      * @memberof Input
      */
-    public flags: InputArguments = {};
+    public flags: InputValues = {};
 
     /**
      * Indicates whether the CLI should be interactive, i.e. show prompts.
@@ -117,7 +115,7 @@ export class Input {
      * @memberof Input
      */
     public validate(): void {
-        const definitionToSchema = (definition: InputArguments): object => {
+        const definitionToSchema = (definition: InputValues): object => {
             const schema: object = {};
 
             for (const [key, value] of Object.entries(definition)) {
@@ -127,13 +125,11 @@ export class Input {
             return schema;
         };
 
-        if (this.args) {
+        if (Object.keys(this.args).length > 0) {
             this.args = this.validator.validate(this.args, definitionToSchema(this.definition.getArguments()));
         }
 
-        if (this.flags) {
-            this.flags = this.validator.validate(this.flags, definitionToSchema(this.definition.getFlags()));
-        }
+        this.flags = this.validator.validate(this.flags, definitionToSchema(this.definition.getFlags()));
     }
 
     /**
@@ -222,5 +218,13 @@ export class Input {
      */
     public hasFlag(name: string): boolean {
         return this.flags[name] !== undefined;
+    }
+
+    /**
+     * @returns {boolean}
+     * @memberof Input
+     */
+    public isInteractive(): boolean {
+        return this.getFlag("interaction");
     }
 }

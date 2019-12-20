@@ -64,7 +64,7 @@ export class Command extends Commands.Command {
      * @memberof Command
      */
     public async execute(): Promise<void> {
-        const envFile = this.getCorePath("config", ".env");
+        const envFile = this.app.getCorePath("config", ".env");
 
         if (this.validFlags.some((flag: string) => this.hasFlag(flag))) {
             this.environment.updateVariables(envFile, this.conform(this.getFlags()));

@@ -67,7 +67,7 @@ export class Command extends Commands.Command {
                 "@arkecosystem/core-blockchain": {
                     networkStart: flags.networkStart,
                 },
-                "@arkecosystem/core-forger": await buildBIP38(flags, this.getCorePath("config")),
+                "@arkecosystem/core-forger": await buildBIP38(flags, this.app.getCorePath("config")),
             },
         });
     }

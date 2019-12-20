@@ -69,6 +69,29 @@ describe("DaemonizeProcess", () => {
         isOnline.mockClear();
     });
 
+    it("should continue execution if the process does not exist", () => {
+        const has = jest.spyOn(processManager, "has").mockReturnValue(false);
+        const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
+        const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
+
+        action.execute(
+            {
+                name: "ark-core",
+                script: "script",
+                args: "core:run --daemon",
+            },
+            {},
+        );
+
+        expect(has).toHaveBeenCalledWith("ark-core");
+        expect(isUnknown).not.toHaveBeenCalledWith("ark-core");
+        expect(isOnline).not.toHaveBeenCalledWith("ark-core");
+
+        has.mockClear();
+        isUnknown.mockClear();
+        isOnline.mockClear();
+    });
+
     it("should run with the [no-daemon] flag if the daemon flag is not set", () => {
         const has = jest.spyOn(processManager, "has").mockReturnValue(true);
         const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
@@ -100,6 +123,88 @@ describe("DaemonizeProcess", () => {
                 script: "script",
             },
             { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core", "no-daemon": true },
+        );
+
+        has.mockClear();
+        isUnknown.mockClear();
+        isOnline.mockClear();
+        freemem.mockClear();
+        totalmem.mockClear();
+        start.mockClear();
+    });
+
+    it("should run with the [no-daemon] flag if the daemon flag is false", () => {
+        const has = jest.spyOn(processManager, "has").mockReturnValue(true);
+        const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
+        const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
+        const freemem = jest.spyOn(os, "freemem").mockReturnValue(99999999999);
+        const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(99999999999);
+        const start = jest.spyOn(processManager, "start").mockImplementation(undefined);
+
+        action.execute(
+            {
+                name: "ark-core",
+                script: "script",
+                args: "core:run --daemon",
+            },
+            { daemon: false },
+        );
+
+        expect(has).toHaveBeenCalledWith("ark-core");
+        expect(isUnknown).toHaveBeenCalledWith("ark-core");
+        expect(isOnline).toHaveBeenCalledWith("ark-core");
+        expect(freemem).toHaveBeenCalled();
+        expect(totalmem).toHaveBeenCalled();
+        expect(start).toHaveBeenCalledWith(
+            {
+                args: "core:run --daemon",
+                env: { CORE_ENV: undefined, NODE_ENV: "production" },
+                name: "ark-core",
+                node_args: undefined,
+                script: "script",
+            },
+            { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core", "no-daemon": true },
+        );
+
+        has.mockClear();
+        isUnknown.mockClear();
+        isOnline.mockClear();
+        freemem.mockClear();
+        totalmem.mockClear();
+        start.mockClear();
+    });
+
+    it("should run without the [--no-daemon] flag if the daemon flag is true", () => {
+        const has = jest.spyOn(processManager, "has").mockReturnValue(true);
+        const isUnknown = jest.spyOn(processManager, "isUnknown").mockReturnValue(false);
+        const isOnline = jest.spyOn(processManager, "isOnline").mockReturnValue(false);
+        const freemem = jest.spyOn(os, "freemem").mockReturnValue(99999999999);
+        const totalmem = jest.spyOn(os, "totalmem").mockReturnValue(99999999999);
+        const start = jest.spyOn(processManager, "start").mockImplementation(undefined);
+
+        action.execute(
+            {
+                name: "ark-core",
+                script: "script",
+                args: "core:run --daemon",
+            },
+            { daemon: true },
+        );
+
+        expect(has).toHaveBeenCalledWith("ark-core");
+        expect(isUnknown).toHaveBeenCalledWith("ark-core");
+        expect(isOnline).toHaveBeenCalledWith("ark-core");
+        expect(freemem).toHaveBeenCalled();
+        expect(totalmem).toHaveBeenCalled();
+        expect(start).toHaveBeenCalledWith(
+            {
+                args: "core:run --daemon",
+                env: { CORE_ENV: undefined, NODE_ENV: "production" },
+                name: "ark-core",
+                node_args: undefined,
+                script: "script",
+            },
+            { "kill-timeout": 30000, "max-restarts": 5, name: "ark-core" },
         );
 
         has.mockClear();

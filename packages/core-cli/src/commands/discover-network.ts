@@ -1,5 +1,5 @@
 import { Networks } from "@arkecosystem/crypto";
-import { ensureDirSync, existsSync, readdirSync } from "fs-extra";
+import { existsSync, readdirSync } from "fs-extra";
 import prompts from "prompts";
 
 import { injectable } from "../ioc";
@@ -21,7 +21,7 @@ export class DiscoverNetwork {
         }
 
         if (!existsSync(path)) {
-            ensureDirSync(path);
+            throw new Error(`The [${path}] directory does not exist.`);
         }
 
         const folders: string[] = readdirSync(path).filter(folder => this.isValidNetwork(folder));

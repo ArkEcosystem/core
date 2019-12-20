@@ -8,6 +8,8 @@ class StubClass {}
 let app;
 beforeEach(() => (app = new Application(new Container.Container())));
 
+afterEach(() => jest.resetAllMocks());
+
 describe("ActionFactory", () => {
     it("should bind a value to the IoC container", () => {
         expect(app.isBound("key")).toBeFalse();
@@ -20,7 +22,7 @@ describe("ActionFactory", () => {
     it("should rebind a value to the IoC container", () => {
         expect(app.isBound("key")).toBeFalse();
 
-        app.bind("key").toConstantValue("value");
+        app.rebind("key").toConstantValue("value");
 
         expect(app.get("key")).toBe("value");
         expect(app.isBound("key")).toBeTrue();

@@ -10,11 +10,11 @@ beforeEach(() => (cli = new Console()));
 
 const createInput = (args?: string[]): Input => {
     const definition = new InputDefinition();
-    definition.setArgument("firstName", "...", Joi.string());
-    definition.setArgument("lastName", "...", Joi.string());
-    definition.setFlag("hello", "...", Joi.string());
-    definition.setFlag("firstName", "...", Joi.string());
-    definition.setFlag("lastName", "...", Joi.string());
+    definition.setArgument("firstName", "description", Joi.string());
+    definition.setArgument("lastName", "description", Joi.string());
+    definition.setFlag("hello", "description", Joi.string());
+    definition.setFlag("firstName", "description", Joi.string());
+    definition.setFlag("lastName", "description", Joi.string());
 
     const input = cli.app.resolve(Input);
     input.parse(args || ["env:paths", "john", "doe", "--hello=world"], definition);
@@ -35,8 +35,8 @@ describe("Input", () => {
 
     it("should parse, bind and validate the arguments", () => {
         const definition = new InputDefinition();
-        definition.setArgument("firstName", "...", Joi.string());
-        definition.setArgument("lastName", "...", Joi.string());
+        definition.setArgument("firstName", "description", Joi.string());
+        definition.setArgument("lastName", "description", Joi.string());
 
         const input = cli.app.resolve(Input);
         input.parse(["env:paths", "john", "doe"], definition);
@@ -49,7 +49,7 @@ describe("Input", () => {
 
     it("should parse, bind and validate the flags", () => {
         const definition = new InputDefinition();
-        definition.setFlag("hello", "...", Joi.string());
+        definition.setFlag("hello", "description", Joi.string());
 
         const input = cli.app.resolve(Input);
         input.parse(["env:paths", "--hello=world"], definition);
@@ -57,6 +57,15 @@ describe("Input", () => {
         input.validate();
 
         expect(input.getFlag("hello")).toBe("world");
+    });
+
+    it("should parse, bind and validate nothing", () => {
+        const input = cli.app.resolve(Input);
+        input.parse(["env:paths"], new InputDefinition());
+        input.bind();
+        input.validate();
+
+        expect(input.getArguments()).toBeEmpty();
     });
 
     it("should get all arguments", () => {
