@@ -376,5 +376,23 @@ describe("Peer socket endpoint", () => {
 
             expect(socket.state).not.toBe("open");
         });
+
+        it("should close the connection if it sends data after a disconnect packet", async () => {
+            connect();
+            await delay(1000);
+
+            expect(socket.state).toBe("open");
+
+            send('{"event":"#disconnect","data":{"code":4000}}');
+            await expect(
+                emit("p2p.peer.getStatus", {
+                    headers,
+                }),
+            ).rejects.toHaveProperty("name", "BadConnectionError");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
+        });
     });
 });

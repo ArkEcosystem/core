@@ -48,20 +48,24 @@ export class Worker extends SCWorker {
             this.setErrorForIpAndTerminate(ws, req);
         });
         ws.prependListener("message", message => {
-            try {
-                if (message === "#2") {
-                    const timeNow: number = new Date().getTime() / 1000;
-                    if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                        this.setErrorForIpAndTerminate(ws, req);
-                    }
-                    ws._lastPingTime = timeNow;
-                } else if (message.length < 10) {
-                    // except for #2 message, we should have JSON with some required properties
-                    // (see below) which implies that message length should be longer than 10 chars
+            if (ws._disconnected) {
+                this.setErrorForIpAndTerminate(ws, req);
+            } else if (message === "#2") {
+                const timeNow: number = new Date().getTime() / 1000;
+                if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
                     this.setErrorForIpAndTerminate(ws, req);
-                } else {
+                }
+                ws._lastPingTime = timeNow;
+            } else if (message.length < 10) {
+                // except for #2 message, we should have JSON with some required properties
+                // (see below) which implies that message length should be longer than 10 chars
+                this.setErrorForIpAndTerminate(ws, req);
+            } else {
+                try {
                     const parsed = JSON.parse(message);
-                    if (
+                    if (parsed.event === "#disconnect") {
+                        ws._disconnected = true;
+                    } else if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
                         (typeof parsed.cid !== "number" &&
@@ -69,9 +73,9 @@ export class Worker extends SCWorker {
                     ) {
                         this.setErrorForIpAndTerminate(ws, req);
                     }
+                } catch (error) {
+                    this.setErrorForIpAndTerminate(ws, req);
                 }
-            } catch (error) {
-                this.setErrorForIpAndTerminate(ws, req);
             }
         });
     }
