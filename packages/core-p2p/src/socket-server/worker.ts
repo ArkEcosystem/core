@@ -20,8 +20,6 @@ export class Worker extends SCWorker {
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
             this.handlePayload(ws, req);
-            this.handlePing(ws, req);
-            this.handlePong(ws, req);
         });
         this.scServer.on("connection", socket => this.handleConnection(socket));
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
@@ -33,18 +31,6 @@ export class Worker extends SCWorker {
     private async loadConfiguration(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
         this.config = data;
-    }
-
-    private handlePing(ws, req) {
-        ws.on("ping", () => {
-            ws.terminate();
-        });
-    }
-
-    private handlePong(ws, req) {
-        ws.on("pong", () => {
-            ws.terminate();
-        });
     }
 
     private handlePayload(ws, req) {
