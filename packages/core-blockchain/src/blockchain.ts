@@ -161,7 +161,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         emitter.on(ApplicationEvents.ForgerMissing, async () => {
             this.missedBlocks++;
-            if (this.missedBlocks >= 51 / 3 - 1) {
+            if (this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1) {
                 const networkStatus = await this.p2p.getMonitor().checkNetworkHealth();
                 if (networkStatus.forked) {
                     this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
