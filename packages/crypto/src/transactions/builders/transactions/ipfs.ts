@@ -4,7 +4,7 @@ import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
         this.data.type = Two.IpfsTransaction.type;

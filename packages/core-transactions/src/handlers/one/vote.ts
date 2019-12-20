@@ -137,7 +137,7 @@ export class VoteTransactionHandler extends TransactionHandler {
 
         Utils.assert.defined<Interfaces.ITransactionAsset>(transaction.data.asset?.votes);
 
-        const vote: string = transaction.data.asset?.votes[0];
+        const vote: string = transaction.data.asset.votes[0];
 
         if (vote.startsWith("+")) {
             sender.forgetAttribute("vote");

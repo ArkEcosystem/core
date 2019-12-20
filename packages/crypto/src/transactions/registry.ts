@@ -13,7 +13,7 @@ export type TransactionConstructor = typeof Transaction;
 class TransactionRegistry {
     private readonly transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>> = new Map();
 
-    constructor() {
+    public constructor() {
         TransactionTypeFactory.initialize(this.transactionTypes);
 
         this.registerTransactionType(One.TransferTransaction);

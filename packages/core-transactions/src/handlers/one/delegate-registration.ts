@@ -151,7 +151,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
 
         sender.setAttribute<Contracts.State.WalletDelegateAttributes>("delegate", {
-            username: transaction.data.asset?.delegate?.username,
+            username: transaction.data.asset.delegate.username,
             voteBalance: Utils.BigNumber.ZERO,
             forgedFees: Utils.BigNumber.ZERO,
             forgedRewards: Utils.BigNumber.ZERO,

@@ -4,7 +4,7 @@
  * @extends {Error}
  */
 export class ForgerError extends Error {
-    constructor(message: string) {
+    public constructor(message: string) {
         super(message);
 
         Object.defineProperty(this, "message", {
@@ -27,7 +27,7 @@ export class ForgerError extends Error {
  * @extends {ForgerError}
  */
 export class RelayCommunicationError extends ForgerError {
-    constructor(endpoint: string, message: string) {
+    public constructor(endpoint: string, message: string) {
         super(`Request to ${endpoint} failed, because of '${message}'.`);
     }
 }
@@ -38,7 +38,7 @@ export class RelayCommunicationError extends ForgerError {
  * @extends {ForgerError}
  */
 export class HostNoResponseError extends ForgerError {
-    constructor(host: string) {
+    public constructor(host: string) {
         super(`${host} didn't respond. Trying again later.`);
     }
 }

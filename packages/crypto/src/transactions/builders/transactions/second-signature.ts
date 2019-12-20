@@ -5,7 +5,7 @@ import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
         this.data.type = Two.SecondSignatureRegistrationTransaction.type;

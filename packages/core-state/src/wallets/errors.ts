@@ -1,5 +1,5 @@
 export class WalletsError extends Error {
-    constructor(message: string) {
+    public constructor(message: string) {
         super(message);
 
         Object.defineProperty(this, "message", {
@@ -17,13 +17,13 @@ export class WalletsError extends Error {
 }
 
 export class WalletIndexAlreadyRegisteredError extends WalletsError {
-    constructor(what: string) {
+    public constructor(what: string) {
         super(`The wallet index is already registered: ${what}`);
     }
 }
 
 export class WalletIndexNotFoundError extends WalletsError {
-    constructor(what: string) {
+    public constructor(what: string) {
         super(`The wallet index does not exist: ${what}`);
     }
 }

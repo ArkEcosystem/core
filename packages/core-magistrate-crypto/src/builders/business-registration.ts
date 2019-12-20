@@ -5,7 +5,7 @@ import { IBusinessRegistrationAsset } from "../interfaces";
 import { BusinessRegistrationTransaction } from "../transactions";
 
 export class BusinessRegistrationBuilder extends Transactions.TransactionBuilder<BusinessRegistrationBuilder> {
-    constructor() {
+    public constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;

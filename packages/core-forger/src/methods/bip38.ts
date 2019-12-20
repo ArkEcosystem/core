@@ -60,7 +60,7 @@ export class BIP38 extends Method implements Delegate {
      * @param {string} password
      * @memberof BIP38
      */
-    constructor(bip38: string, password: string) {
+    public constructor(bip38: string, password: string) {
         super();
 
         this.keys = this.decryptPassphrase(bip38, password);

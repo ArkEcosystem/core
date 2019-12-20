@@ -2,7 +2,7 @@ import { Contracts, Utils } from "@arkecosystem/core-kernel";
 
 // TODO: rework
 export class SearchParameterConverter implements Contracts.Database.SearchParameterConverter {
-    constructor(private databaseModel: any) {}
+    public constructor(private databaseModel: any) {}
 
     public convert(
         params: Contracts.Database.QueryParameters,

@@ -4,7 +4,7 @@ import { MagistrateTransactionGroup, MagistrateTransactionType } from "../enums"
 import { BridgechainResignationTransaction } from "../transactions";
 
 export class BridgechainResignationBuilder extends Transactions.TransactionBuilder<BridgechainResignationBuilder> {
-    constructor() {
+    public constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;

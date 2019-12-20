@@ -94,7 +94,7 @@ export class UnexpectedType extends InvalidArgumentException {
      * @param {*} givenType
      * @memberof InvalidType
      */
-    constructor(paramName: string, expectedType: string, givenType: any) {
+    public constructor(paramName: string, expectedType: string, givenType: any) {
         super(`Expected argument [${paramName}] of type ${expectedType}, ${givenType} given`);
     }
 }

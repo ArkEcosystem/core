@@ -4,7 +4,7 @@ import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class VoteBuilder extends TransactionBuilder<VoteBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
         this.data.type = Two.VoteTransaction.type;

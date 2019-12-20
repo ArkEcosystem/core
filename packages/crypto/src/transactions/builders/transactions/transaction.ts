@@ -15,7 +15,7 @@ export abstract class TransactionBuilder<TBuilder extends TransactionBuilder<TBu
 
     protected signWithSenderAsRecipient = false;
 
-    constructor() {
+    public constructor() {
         this.data = {
             id: undefined,
             timestamp: Slots.getTime(),

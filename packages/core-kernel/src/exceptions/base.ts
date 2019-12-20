@@ -11,7 +11,7 @@ export class Exception extends Error {
      * @param {string} [code]
      * @memberof Exception
      */
-    constructor(message: string, code?: string) {
+    public constructor(message: string, code?: string) {
         super(message);
 
         Object.defineProperty(this, "message", {

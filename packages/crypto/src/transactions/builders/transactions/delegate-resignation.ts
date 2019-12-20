@@ -4,7 +4,7 @@ import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class DelegateResignationBuilder extends TransactionBuilder<DelegateResignationBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
         this.data.type = Two.DelegateResignationTransaction.type;

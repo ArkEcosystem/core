@@ -35,7 +35,7 @@ export class DirectoryCannotBeFound extends FileException {
      * @param {string} value
      * @memberof DirectoryCannotBeFound
      */
-    constructor(value: string) {
+    public constructor(value: string) {
         super(`Directory [${value}] could not be found.`);
     }
 }

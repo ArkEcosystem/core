@@ -41,7 +41,7 @@ export class Ext {
         { method: "post", path: "/api/wallets/search" },
     ];
 
-    constructor(private readonly config) {}
+    public constructor(private readonly config) {}
 
     public isValidRoute(request) {
         if (!this.hasPagination(request)) {

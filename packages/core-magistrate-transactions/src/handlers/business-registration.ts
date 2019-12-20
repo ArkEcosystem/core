@@ -107,7 +107,7 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
         );
 
         sender.setAttribute<IBusinessWalletAttributes>("business", {
-            businessAsset: transaction.data.asset?.businessRegistration,
+            businessAsset: transaction.data.asset.businessRegistration,
         });
 
         walletRepository.reindex(sender);

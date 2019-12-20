@@ -4,7 +4,7 @@ import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class TransferBuilder extends TransactionBuilder<TransferBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
         this.data.type = Two.TransferTransaction.type;

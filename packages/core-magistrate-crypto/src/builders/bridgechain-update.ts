@@ -5,7 +5,7 @@ import { IBridgechainUpdateAsset } from "../interfaces";
 import { BridgechainUpdateTransaction } from "../transactions";
 
 export class BridgechainUpdateBuilder extends Transactions.TransactionBuilder<BridgechainUpdateBuilder> {
-    constructor() {
+    public constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;

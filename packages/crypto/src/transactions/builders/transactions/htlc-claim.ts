@@ -4,7 +4,7 @@ import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class HtlcClaimBuilder extends TransactionBuilder<HtlcClaimBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
         this.data.type = Two.HtlcClaimTransaction.type;

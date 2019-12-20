@@ -23,9 +23,7 @@ beforeEach(() => {
 
 describe("DiscoverNetwork", () => {
     it("should throw if no configurations can be detected", async () => {
-        await expect(cmd.discover(configPath)).rejects.toThrow(
-            'We were unable to detect a network configuration. Please run "ark config:publish" and try again.',
-        );
+        await expect(cmd.discover(configPath)).rejects.toThrow();
 
         delete process.env.CORE_PATH_CONFIG;
     });
@@ -33,9 +31,7 @@ describe("DiscoverNetwork", () => {
     it("should throw if no configurations can be detected (with environment variable as path)", async () => {
         process.env.CORE_PATH_CONFIG = dirSync().name;
 
-        await expect(cmd.discover(configPath)).rejects.toThrow(
-            'We were unable to detect a network configuration. Please run "ark config:publish" and try again.',
-        );
+        await expect(cmd.discover(configPath)).rejects.toThrow();
 
         delete process.env.CORE_PATH_CONFIG;
     });

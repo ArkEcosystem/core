@@ -14,7 +14,7 @@ export class ConfigManager {
     private milestone: IMilestone | undefined;
     private milestones: Record<string, any> | undefined;
 
-    constructor() {
+    public constructor() {
         this.setConfig((networks.devnet as unknown) as NetworkConfig);
     }
 
