@@ -22,7 +22,7 @@ export class Worker extends SCWorker {
         await this.loadConfiguration();
 
         // purge ipLastError every hour to free up memory
-+       setInterval(() => (this.ipLastError = {}), HOUR_IN_MILLISECONDS);
+        setInterval(() => (this.ipLastError = {}), HOUR_IN_MILLISECONDS);
 
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
