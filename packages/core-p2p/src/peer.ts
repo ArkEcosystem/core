@@ -61,7 +61,7 @@ export class Peer implements Contracts.P2P.Peer {
      * @param {number} port
      * @memberof Peer
      */
-    public constructor(readonly ip: string, readonly port: number) {}
+    public constructor(public readonly ip: string, public readonly port: number) {}
 
     /**
      * @readonly
