@@ -33,7 +33,7 @@
         "lodash.get": "^4.4.2",
         "lodash.isstring": "^4.0.1",
         "lodash.set": "^4.3.2",
-        "log-process-errors": "^5.0.2",
+        "log-process-errors": "^6.0.0",
         "semver": "^7.0.0"
     },
     "devDependencies": {
