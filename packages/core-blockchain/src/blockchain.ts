@@ -62,6 +62,7 @@ export class Blockchain implements blockchain.IBlockchain {
     public queue: async.AsyncQueue<any>;
     protected blockProcessor: BlockProcessor;
     private actions: any;
+    private missedBlocks: number = 0;
 
     /**
      * Create a new blockchain manager instance.
@@ -157,6 +158,23 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         this.p2p.getMonitor().cleansePeers({ forcePing: true, peerCount: 10 });
+
+        emitter.on(ApplicationEvents.ForgerMissing, async () => {
+            this.missedBlocks++;
+            if (this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1) {
+                const networkStatus = await this.p2p.getMonitor().checkNetworkHealth();
+                if (networkStatus.forked) {
+                    this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
+                    this.dispatch("FORK");
+                }
+
+                this.missedBlocks = 0;
+            }
+        });
+
+        emitter.on(ApplicationEvents.RoundApplied, () => {
+            this.missedBlocks = 0;
+        });
 
         return true;
     }
