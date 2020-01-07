@@ -6,7 +6,6 @@ import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
 const username = "username";
-const address = "AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo";
 const publicKey = "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647";
 
 beforeAll(async () => await setUp());
@@ -35,12 +34,6 @@ describe("API 2.0 - Businesses", () => {
         },
     };
 
-    const validIdentifiers = {
-        username,
-        address,
-        publicKey,
-    };
-
     beforeAll(() => {
         walletManager = app.resolvePlugin<Database.IDatabaseService>("database").walletManager;
 
@@ -67,13 +60,10 @@ describe("API 2.0 - Businesses", () => {
 
     describe("GET /businesses/:id", () => {
         it("should GET a business by the given valid identifier", async () => {
-            for (const identifier of Object.values(validIdentifiers)) {
-                const response = await utils.request("GET", `businesses/${identifier}`);
-                expect(response).toBeSuccessfulResponse();
-                expect(response.data.data).toBeObject();
+            const response = await utils.request("GET", `businesses/${publicKey}`, { transform: false });
+            expect(response).toBeSuccessfulResponse();
 
-                expect(response.data.data.attributes.business).toEqual(businessAttribute);
-            }
+            expect(response.data.data.attributes.business).toEqual(businessAttribute);
         });
 
         it("should fail to GET a business by an unknown identifier", async () => {
@@ -83,14 +73,12 @@ describe("API 2.0 - Businesses", () => {
 
     describe("GET /businesses/:id/bridgechains", () => {
         it("should GET business bridgechains", async () => {
-            for (const identifier of Object.values(validIdentifiers)) {
-                const response = await utils.request("GET", `businesses/${identifier}/bridgechains`);
-                expect(response).toBeSuccessfulResponse();
-                expect(response.data.data).toBeArray();
-                expect(response.data.data).toHaveLength(1);
+            const response = await utils.request("GET", `businesses/${publicKey}/bridgechains`);
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
 
-                expect(response.data.data[0].genesisHash).toEqual(bridgechainAsset.genesisHash);
-            }
+            expect(response.data.data[0].genesisHash).toEqual(bridgechainAsset.genesisHash);
         });
 
         it("should fail to GET business bridgechains by an unknown identifier", async () => {
