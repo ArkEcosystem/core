@@ -27,6 +27,7 @@ describe("Bridgechain update ser/deser", () => {
                 seedNodes: ["74.125.224.72"],
                 ports: { "@arkecosystem/core-api": 12345 },
                 bridgechainRepository: "http://github.com/bridgechain/repo",
+                bridgechainAssetRepository: "http://github.com/bridgechain/assetrepo",
             })
             .sign("passphrase")
             .getStruct();
@@ -158,6 +159,32 @@ describe("Bridgechain update ser/deser", () => {
                     .bridgechainUpdateAsset({
                         bridgechainId: genesisHash,
                         bridgechainRepository: "invalid-uri",
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+        });
+
+        describe("bridgechainAssetRepository field", () => {
+            it("should not accept empty repository", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: genesisHash,
+                        bridgechainAssetRepository: "",
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should not accept invalid uri repository", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: genesisHash,
+                        bridgechainAssetRepository: "invalid-uri",
                     })
                     .sign("passphrase");
 
