@@ -39,6 +39,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                 bridgechainRepository: {
                                     $ref: "uri",
                                 },
+                                bridgechainAssetRepository: {
+                                    $ref: "uri",
+                                },
                                 ports: portsSchema,
                             },
                         },
@@ -77,6 +80,12 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         );
         const bridgechainRepositoryBufferLength: number = bridgechainRepositoryBuffer.length;
 
+        const bridgechainAssetRepositoryBuffer: Buffer = Buffer.from(
+            bridgechainRegistrationAsset.bridgechainAssetRepository,
+            "utf8",
+        );
+        const bridgechainAssetRepositoryBufferLength: number = bridgechainAssetRepositoryBuffer.length;
+
         const ports: IBridgechainPorts = bridgechainRegistrationAsset.ports;
         const portsLength: number = Object.keys(ports).length;
 
@@ -99,6 +108,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                 seedNodesBuffersLength +
                 bridgechainGenesisHash.length +
                 bridgechainRepositoryBufferLength +
+                bridgechainAssetRepositoryBufferLength +
                 portsBuffersLength,
             true,
         );
@@ -116,6 +126,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         buffer.writeUint8(bridgechainRepositoryBufferLength);
         buffer.append(bridgechainRepositoryBuffer);
+
+        buffer.writeUint8(bridgechainAssetRepositoryBufferLength);
+        buffer.append(bridgechainAssetRepositoryBuffer);
 
         buffer.writeUint8(portsLength);
         for (const [i, nameBuffer] of portNamesBuffers.entries()) {
@@ -145,6 +158,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const repositoryLength: number = buf.readUint8();
         const bridgechainRepository: string = buf.readString(repositoryLength);
 
+        const bridgechainAssetRepositoryLength: number = buf.readUint8();
+        const bridgechainAssetRepository: string = buf.readString(bridgechainAssetRepositoryLength);
+
         const ports: IBridgechainPorts = {};
 
         const portsLength: number = buf.readUint8();
@@ -161,6 +177,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                 seedNodes,
                 genesisHash,
                 bridgechainRepository,
+                bridgechainAssetRepository,
                 ports,
             },
         };
