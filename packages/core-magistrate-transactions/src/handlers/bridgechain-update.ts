@@ -43,9 +43,11 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
                     "business",
                 );
 
-                const { bridgechainId, seedNodes, ports } = transaction.asset.bridgechainUpdate;
-                businessAttributes.bridgechains[bridgechainId].bridgechainAsset.seedNodes = seedNodes;
-                businessAttributes.bridgechains[bridgechainId].bridgechainAsset.ports = ports;
+                const bridgechainUpdate = transaction.asset.bridgechainUpdate;
+                const bridgechainAsset =
+                    businessAttributes.bridgechains[bridgechainUpdate.bridgechainId].bridgechainAsset;
+                delete bridgechainUpdate.bridgechainId; // we don't want id in wallet bridgechain asset
+                Object.assign(bridgechainAsset, bridgechainUpdate);
 
                 walletManager.reindex(wallet);
             }
@@ -92,7 +94,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<{ type: string, message: string } | null> {
+    ): Promise<{ type: string; message: string } | null> {
         const { bridgechainId }: { bridgechainId: string } = data.asset.bridgechainUpdate;
 
         const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
@@ -134,13 +136,8 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainUpdate.bridgechainId];
 
-        if (bridgechainUpdate.seedNodes) {
-            bridgechainAttributes.bridgechainAsset.seedNodes = bridgechainUpdate.seedNodes;
-        }
-
-        if (bridgechainUpdate.ports) {
-            bridgechainAttributes.bridgechainAsset.ports = bridgechainUpdate.ports;
-        }
+        delete bridgechainUpdate.bridgechainId; // we don't want id in wallet bridgechain asset
+        Object.assign(bridgechainAttributes.bridgechainAsset, bridgechainUpdate);
 
         walletManager.reindex(wallet);
     }
