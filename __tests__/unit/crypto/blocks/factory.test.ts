@@ -37,6 +37,16 @@ describe("BlockFactory", () => {
             expectBlock(BlockFactory.fromData(dummyBlock));
         });
 
+        it("should create a block instance when aip11 is true, block transactions are v1, and option deserializeTransactionsUnchecked is true", () => {
+            const milestone = configManager.getMilestone();
+            const spyGetMilestone = jest.spyOn(configManager, "getMilestone").mockReturnValue({
+                ...milestone,
+                aip11: true
+            });
+            expectBlock(BlockFactory.fromData(dummyBlock, { deserializeTransactionsUnchecked: true }));
+            spyGetMilestone.mockRestore();
+        });
+
         it("should create a block with exceptions", () => {
             // @ts-ignore
             expect(() => BlockFactory.fromData(blockWithExceptions)).not.toThrow();
