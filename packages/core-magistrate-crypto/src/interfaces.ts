@@ -29,6 +29,7 @@ export interface IBridgechainUpdateAsset {
     bridgechainId: string;
     seedNodes?: string[];
     ports?: IBridgechainPorts;
+    bridgechainRepository?: string;
 }
 
 export interface IBridgechainResignationAsset {
