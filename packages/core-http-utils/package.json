@@ -35,7 +35,7 @@
         "@types/hapi__boom": "^7.4.0",
         "@types/hapi__hapi": "^18.2.5",
         "@types/inert": "^5.1.2",
-        "@types/micromatch": "^3.1.0",
+        "@types/micromatch": "^4.0.0",
         "@types/vision": "^5.3.6"
     },
     "engines": {

@@ -75,7 +75,7 @@
         "@types/lodash.shuffle": "^4.2.6",
         "@types/lodash.sumby": "^4.6.6",
         "@types/lodash.take": "^4.1.6",
-        "@types/micromatch": "^3.1.0",
+        "@types/micromatch": "^4.0.0",
         "@types/pluralize": "^0.0.29",
         "@types/pretty-ms": "^5.0.1",
         "@types/scc-broker-client": "^6.1.0",
