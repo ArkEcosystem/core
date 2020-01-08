@@ -26,7 +26,7 @@ let send;
 
 const headers = {
     version: "2.1.0",
-    port: "4009",
+    port: 4009,
     height: 1,
     "Content-Type": "application/json",
 };
@@ -115,14 +115,17 @@ describe("Peer socket endpoint", () => {
                 expect(data).toEqual({});
             });
 
-            it("should throw validation error when sending wrong data", async () => {
+            it("should throw error when sending wrong data", async () => {
                 await delay(1000);
                 await expect(
                     emit("p2p.peer.postBlock", {
                         data: {},
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "Error");
+                ).rejects.toHaveProperty("name", "BadConnectionError");
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
 
             it("should throw error when sending wrong buffer", async () => {
@@ -134,7 +137,10 @@ describe("Peer socket endpoint", () => {
                         },
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "BadConnectionError");
+                ).rejects.toHaveProperty("name", "Error");
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
         });
 
@@ -288,15 +294,16 @@ describe("Peer socket endpoint", () => {
 
             const block = BlockFactory.createDummy();
 
-            const postBlock = () => emit("p2p.peer.postBlock", {
-                headers,
-                data: {
-                    block: Blocks.Serializer.serializeWithTransactions({
-                        ...block.data,
-                        transactions: block.transactions.map(tx => tx.data),
-                    }),
-                },
-            });
+            const postBlock = () =>
+                emit("p2p.peer.postBlock", {
+                    headers,
+                    data: {
+                        block: Blocks.Serializer.serializeWithTransactions({
+                            ...block.data,
+                            transactions: block.transactions.map(tx => tx.data),
+                        }),
+                    },
+                });
 
             await expect(postBlock()).toResolve();
             await expect(postBlock()).toResolve();
@@ -348,6 +355,9 @@ describe("Peer socket endpoint", () => {
                     data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection and prevent reconnection if blocked", async () => {
@@ -375,6 +385,9 @@ describe("Peer socket endpoint", () => {
             await delay(1000);
 
             expect(socket.state).not.toBe("open");
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection if it sends data after a disconnect packet", async () => {
@@ -393,6 +406,32 @@ describe("Peer socket endpoint", () => {
             // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
             server.killWorkers({ immediate: true });
             await delay(2000); // give time to workers to respawn
+        });
+
+        it("should close the connection when the JSON includes additional properties", async () => {
+            connect();
+            await delay(1000);
+            const payload: any = {};
+            payload.event = "p2p.peer.getCommonBlocks";
+            payload.data = { data: { ids: ["1"] }, headers: {} };
+            payload.cid = 1;
+
+            const symbol = String.fromCharCode(42);
+            for (let i = 0; i < 30000; i++) {
+                const char = String.fromCharCode(i);
+                if (JSON.stringify(String.fromCharCode(i)).length === 3) {
+                    payload.data[char] = 1;
+                    payload.data[symbol + char] = 1;
+                    payload.data[symbol + char + symbol] = 1;
+                    payload.data[char] = 1;
+                }
+            }
+
+            const stringifiedPayload = JSON.stringify(payload).replace(/ /g, "");
+            expect(socket.state).toBe("open");
+            send(stringifiedPayload);
+            await delay(500);
+            expect(socket.state).not.toBe("open");
         });
     });
 });
