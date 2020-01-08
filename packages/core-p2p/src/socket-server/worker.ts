@@ -1,6 +1,9 @@
 import { P2P } from "@arkecosystem/core-interfaces";
 import Ajv from "ajv";
 import { cidr } from "ip";
+import { RateLimiter } from "../rate-limiter";
+import { buildRateLimiter } from "../utils";
+
 import SCWorker from "socketcluster/scworker";
 import { requestSchemas } from "../schemas";
 import { codec } from "../utils/sc-codec";
@@ -14,13 +17,22 @@ export class Worker extends SCWorker {
     private config: Record<string, any>;
     private handlers: string[] = [];
     private ipLastError: Record<string, number> = {};
+    private rateLimiter: RateLimiter;
+    private rateLimitedEndpoints: any;
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
 
         this.scServer.setCodecEngine(codec);
 
+        await this.loadRateLimitedEndpoints();
         await this.loadConfiguration();
+
+        this.rateLimiter = buildRateLimiter({
+            rateLimit: this.config.rateLimit,
+            remoteAccess: this.config.remoteAccess,
+            whitelist: this.config.whitelist,
+        });
 
         // purge ipLastError every hour to free up memory
         setInterval(() => (this.ipLastError = {}), HOUR_IN_MILLISECONDS);
@@ -58,6 +70,18 @@ export class Worker extends SCWorker {
     private async loadConfiguration(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
         this.config = data;
+    }
+
+    private async loadRateLimitedEndpoints(): Promise<void> {
+        const { data } = await this.sendToMasterAsync("p2p.internal.getRateLimitedEndpoints", { data: {} });
+        this.rateLimitedEndpoints = (Array.isArray(data) ? data : []).reduce((object, value) => {
+            object[value] = true;
+            return object;
+        }, {});
+    }
+
+    private getRateLimitedEndpoints() {
+        return this.rateLimitedEndpoints;
     }
 
     private handlePayload(ws, req) {
@@ -213,20 +237,31 @@ export class Worker extends SCWorker {
             req.socket.terminate();
             return;
         }
-
-        const { data }: { data: P2P.IRateLimitStatus } = await this.sendToMasterAsync(
-            "p2p.internal.getRateLimitStatus",
-            {
-                data: {
-                    ip: req.socket.remoteAddress,
-                    endpoint: req.event,
+        const rateLimitedEndpoints = this.getRateLimitedEndpoints();
+        const useLocalRateLimiter: boolean = !rateLimitedEndpoints[req.event];
+        if (useLocalRateLimiter) {
+            if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
+                if (await this.rateLimiter.isBlocked(req.socket.remoteAddress)) {
+                    req.socket.terminate();
+                    return;
+                }
+                req.socket.terminate();
+                return;
+            }
+        } else {
+            const { data }: { data: P2P.IRateLimitStatus } = await this.sendToMasterAsync(
+                "p2p.internal.getRateLimitStatus",
+                {
+                    data: {
+                        ip: req.socket.remoteAddress,
+                        endpoint: req.event,
+                    },
                 },
-            },
-        );
-
-        if (data.exceededLimitOnEndpoint) {
-            req.socket.terminate();
-            return;
+            );
+            if (data.exceededLimitOnEndpoint) {
+                req.socket.terminate();
+                return;
+            }
         }
 
         // ensure basic format of incoming data, req.data must be as { data, headers }
