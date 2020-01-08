@@ -759,10 +759,9 @@ export class DatabaseService {
 
     private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {
         this.emitter.dispatch(Enums.TransactionEvent.Applied, transaction.data);
-
-        (await this.app.get<any>(Container.Identifiers.TransactionHandlerRegistry).get(transaction.data)).emitEvents(
-            transaction,
-            this.emitter,
-        );
+        const handler = await this.app
+            .get<any>(Container.Identifiers.TransactionHandlerRegistry)
+            .getActivatedHandlerForData(transaction.data);
+        handler.emitEvents(transaction, this.emitter);
     }
 }

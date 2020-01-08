@@ -32,10 +32,11 @@ export class StateBuilder {
     public async run(): Promise<void> {
         this.logger = this.app.log;
         this.emitter = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
-        const transactionHandlers: Map<number, Handlers.TransactionHandler>[] = this.app
+
+        const registeredHandlers = this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-            .getAll();
-        const steps = transactionHandlers.length + 3;
+            .getRegisteredHandlers();
+        const steps = registeredHandlers.length + 3;
 
         try {
             this.logger.info(`State Generation - Step 1 of ${steps}: Block Rewards`);
@@ -45,16 +46,14 @@ export class StateBuilder {
             await this.buildSentTransactions();
 
             const capitalize = (key: string) => key[0].toUpperCase() + key.slice(1);
-            for (let i = 0; i < transactionHandlers.length; i++) {
-                const transactionHandlerVersions = [...transactionHandlers[i].values()];
+            for (let i = 0; i < registeredHandlers.length; i++) {
+                const handler = registeredHandlers[i];
+                const ctorKey: string | undefined = handler.getConstructor().key;
+                const version = handler.getConstructor().version;
+                AppUtils.assert.defined<string>(ctorKey);
 
-                const constructorKey: string | undefined = transactionHandlerVersions[0].getConstructor().key;
-                AppUtils.assert.defined<string>(constructorKey);
-
-                this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${capitalize(constructorKey)}`);
-                for (const version of transactionHandlerVersions) {
-                    await version.bootstrap();
-                }
+                this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${capitalize(ctorKey)}v${version}`);
+                await handler.bootstrap();
             }
 
             this.logger.info(`State Generation - Step ${steps} of ${steps}: Vote Balances & Delegate Ranking`);

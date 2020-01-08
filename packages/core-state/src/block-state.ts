@@ -66,7 +66,7 @@ export class BlockState {
     public async applyTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const transactionHandler: Handlers.TransactionHandler = await this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-            .get(transaction.data);
+            .getActivatedHandlerForData(transaction.data);
 
         let lockWallet: Contracts.State.Wallet | undefined;
         let lockTransaction: Interfaces.ITransactionData | undefined;
@@ -105,7 +105,7 @@ export class BlockState {
 
         const transactionHandler: Handlers.TransactionHandler = await this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-            .get(transaction.data);
+            .getActivatedHandlerForData(transaction.data);
 
         AppUtils.assert.defined<string>(data.senderPublicKey);
 

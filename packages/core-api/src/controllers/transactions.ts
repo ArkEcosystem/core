@@ -116,7 +116,7 @@ export class TransactionsController extends Controller {
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-            .getActivatedTransactionHandlers();
+            .getActivatedHandlers();
         const typeGroups: Record<string | number, Record<string, number>> = {};
 
         for (const handler of activatedTransactionHandlers) {
@@ -143,7 +143,7 @@ export class TransactionsController extends Controller {
     public async schemas(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
             .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-            .getActivatedTransactionHandlers();
+            .getActivatedHandlers();
         const schemasByType: Record<string, Record<string, any>> = {};
 
         for (const handler of activatedTransactionHandlers) {
@@ -173,7 +173,7 @@ export class TransactionsController extends Controller {
 
             const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
                 .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                .getActivatedTransactionHandlers();
+                .getActivatedHandlers();
 
             const typeGroups: Record<string | number, Record<string, string>> = {};
 

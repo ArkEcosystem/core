@@ -1,6 +1,7 @@
 import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 
 import { One, Two } from "./handlers";
+import { TransactionHandlerProvider } from "./handlers/handler-provider";
 import { TransactionHandlerRegistry } from "./handlers/handler-registry";
 
 export class ServiceProvider extends Providers.ServiceProvider {
@@ -12,6 +13,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
             .to(Services.Attributes.AttributeSet)
+            .inSingletonScope();
+
+        this.app
+            .bind(TransactionHandlerProvider)
+            .toSelf()
             .inSingletonScope();
 
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
@@ -31,10 +37,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
-        this.app
-            .bind(Container.Identifiers.TransactionHandlerRegistry)
-            .to(TransactionHandlerRegistry)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry);
     }
 
     /**

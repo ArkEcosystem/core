@@ -26,8 +26,8 @@ export class NotImplemented extends TransactionError {
 }
 
 export class InvalidTransactionTypeError extends TransactionError {
-    public constructor(type: string) {
-        super(`Transaction type ${type} does not exist.`);
+    public constructor(type: Transactions.InternalTransactionType) {
+        super(`Transaction type ${type.toString()} does not exist.`);
     }
 }
 
@@ -39,13 +39,13 @@ export class DeactivatedTransactionHandlerError extends TransactionError {
 
 export class UnsatisfiedDependencyError extends TransactionError {
     public constructor(type: Transactions.InternalTransactionType) {
-        super(`Transaction type ${type.toString()} handler is missing required dependencies`);
+        super(`Transaction type ${type.toString()} is missing required dependencies`);
     }
 }
 
 export class AlreadyRegisteredError extends TransactionError {
     public constructor(type: Transactions.InternalTransactionType) {
-        super(`Transaction type ${type.toString()} handler is already registered`);
+        super(`Transaction type ${type.toString()} is already registered`);
     }
 }
 

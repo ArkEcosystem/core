@@ -68,7 +68,7 @@ export class DynamicFeeMatcher {
         if (dynamicFees.enabled) {
             const handler: Handlers.TransactionHandler = await this.app
                 .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(transaction.data);
+                .getActivatedHandlerForData(transaction.data);
 
             const addonBytes: number = dynamicFees.addonBytes[transaction.key];
             const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee({

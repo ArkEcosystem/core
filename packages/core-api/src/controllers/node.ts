@@ -1,7 +1,7 @@
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Services, Utils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Crypto, Managers, Transactions } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
 
 import { PortsResource } from "../resources";
@@ -100,9 +100,11 @@ export class NodeController extends Controller {
                 groupedByTypeGroup[result.typeGroup] = {};
             }
 
+            const internalType = Transactions.InternalTransactionType.from(result.type, result.typeGroup);
             const handler: Handlers.TransactionHandler = await this.app
                 .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(result);
+                .getRegisteredHandlerByType(internalType);
+
             groupedByTypeGroup[result.typeGroup][handler.getConstructor().key] = {
                 avg: result.avg,
                 max: result.max,

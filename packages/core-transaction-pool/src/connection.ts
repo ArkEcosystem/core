@@ -345,7 +345,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
             const transactionHandler: Handlers.TransactionHandler = await this.app
                 .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(transaction.data);
+                .getActivatedHandlerForData(transaction.data);
 
             const senderWallet: Contracts.State.Wallet = this.poolWalletRepository.findByPublicKey(senderPublicKey);
 
@@ -422,7 +422,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             try {
                 const transactionHandler: Handlers.TransactionHandler = await this.app
                     .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                    .get(transaction.data);
+                    .getActivatedHandlerForData(transaction.data);
 
                 await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.walletRepository);
 
@@ -481,7 +481,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
             try {
                 const handler: Handlers.TransactionHandler = await this.app
                     .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                    .get(transaction.data);
+                    .getActivatedHandlerForData(transaction.data);
 
                 await handler.applyToSender(transaction, this.poolWalletRepository);
                 await handler.applyToRecipient(transaction, this.poolWalletRepository);
@@ -608,7 +608,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
             const handler: Handlers.TransactionHandler = await this.app
                 .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                .get(transaction.data);
+                .getActivatedHandlerForData(transaction.data);
             await handler.applyToSender(transaction, this.poolWalletRepository);
         } catch (error) {
             this.logger.error(`[Pool] ${error.message}`);
@@ -674,7 +674,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
                 const handler: Handlers.TransactionHandler = await this.app
                     .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                    .get(transaction.data);
+                    .getActivatedHandlerForData(transaction.data);
 
                 await handler.applyToSender(transaction, walletRepository);
 

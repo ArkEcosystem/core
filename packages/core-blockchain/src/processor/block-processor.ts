@@ -82,7 +82,7 @@ export class BlockProcessor {
                 for (const transaction of block.transactions) {
                     const handler: Handlers.TransactionHandler = await this.app
                         .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                        .get(transaction.data);
+                        .getActivatedHandlerForData(transaction.data);
                     await handler.verify(transaction);
                 }
 
