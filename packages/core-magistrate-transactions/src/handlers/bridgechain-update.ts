@@ -72,6 +72,10 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
+        if (!businessAttributes.bridgechains) {
+            throw new BridgechainIsNotRegisteredByWalletError();
+        }
+
         const bridgechainUpdate: MagistrateInterfaces.IBridgechainUpdateAsset =
             transaction.data.asset.bridgechainUpdate;
         const bridgechainAttributes: IBridgechainWalletAttributes =
