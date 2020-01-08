@@ -295,7 +295,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
+                // no bridgechainAssetRepository on purpose as it is optional
                 ports: { "@arkecosystem/core-api": 12345 },
             })
                 .withPassphrase(passphrase)

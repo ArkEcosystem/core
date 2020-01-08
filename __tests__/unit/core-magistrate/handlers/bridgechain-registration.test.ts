@@ -160,8 +160,8 @@ describe("should test marketplace transaction handlers", () => {
                 expect(
                     senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
                         bridgechainRegistrationAsset1.genesisHash
-                    ].bridgechainAsset.genesisHash,
-                ).toBe(bridgechainRegistrationAsset1.genesisHash);
+                    ].bridgechainAsset,
+                ).toEqual(bridgechainRegistrationAsset1);
 
                 bridgechainRegistration.bridgechainRegistrationAsset(bridgechainRegistrationAsset2).nonce("3");
                 await expect(
@@ -171,8 +171,8 @@ describe("should test marketplace transaction handlers", () => {
                 expect(
                     senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
                         bridgechainRegistrationAsset2.genesisHash
-                    ].bridgechainAsset.genesisHash,
-                ).toBe(bridgechainRegistrationAsset2.genesisHash);
+                    ].bridgechainAsset,
+                ).toEqual(bridgechainRegistrationAsset2);
             });
 
             describe("revert for sender", () => {

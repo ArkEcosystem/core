@@ -20,7 +20,12 @@ import {
     businessIndexer,
     MagistrateIndex,
 } from "../../../../packages/core-magistrate-transactions/src/wallet-manager";
-import { bridgechainRegistrationAsset1, bridgechainUpdateAsset1 } from "../helper";
+import {
+    bridgechainRegistrationAsset1,
+    bridgechainRegistrationAsset2,
+    bridgechainUpdateAsset1,
+    bridgechainUpdateAsset2,
+} from "../helper";
 
 jest.mock("@arkecosystem/core-container", () => {
     return {
@@ -134,7 +139,7 @@ describe("Bridgechain update handler", () => {
                 ).toResolve();
             });
 
-            it("should apply the bridgechain update", async () => {
+            it("should apply the bridgechain update (existing asset repository)", async () => {
                 const actual = bridgechainUpdateBuilder
                     .bridgechainUpdateAsset(bridgechainUpdateAsset1)
                     .nonce("3")
@@ -152,6 +157,40 @@ describe("Bridgechain update handler", () => {
                 expect(
                     senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
                         bridgechainUpdateAsset1.bridgechainId
+                    ].bridgechainAsset,
+                ).toEqual(expectedBridgechainAsset);
+            });
+
+            it("should apply the bridgechain update (asset repository not set)", async () => {
+                const bridgechainRegistration = bridgechainRegistrationBuilder
+                    .bridgechainRegistrationAsset(bridgechainRegistrationAsset2)
+                    .nonce("3")
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+                await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
+
+                expect(
+                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
+                        bridgechainRegistrationAsset2.genesisHash
+                    ].bridgechainAsset,
+                ).toEqual(bridgechainRegistrationAsset2);
+
+                const actual = bridgechainUpdateBuilder
+                    .bridgechainUpdateAsset(bridgechainUpdateAsset2)
+                    .nonce("4")
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+                await expect(
+                    bridgechainUpdateHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+                ).toResolve();
+
+                await bridgechainUpdateHandler.applyToSender(actual.build(), walletManager);
+
+                const expectedBridgechainAsset = { ...bridgechainRegistrationAsset2, ...bridgechainUpdateAsset2 };
+                delete expectedBridgechainAsset.bridgechainId;
+
+                expect(
+                    senderWallet.getAttribute<IBusinessWalletAttributes>("business").bridgechains[
+                        bridgechainUpdateAsset2.bridgechainId
                     ].bridgechainAsset,
                 ).toEqual(expectedBridgechainAsset);
             });
