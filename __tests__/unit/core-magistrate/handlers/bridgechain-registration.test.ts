@@ -7,13 +7,11 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import {
     BridgechainAlreadyRegisteredError,
-    BridgechainIsResignedError,
     StaticFeeMismatchError,
     WalletIsNotBusinessError,
 } from "../../../../packages/core-magistrate-transactions/src/errors";
 import {
     BridgechainRegistrationTransactionHandler,
-    BridgechainResignationTransactionHandler,
     BusinessRegistrationTransactionHandler,
 } from "../../../../packages/core-magistrate-transactions/src/handlers";
 import {
@@ -46,11 +44,9 @@ jest.mock("@arkecosystem/core-container", () => {
 
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let bridgechainRegistrationHandler: Handlers.TransactionHandler;
-let bridgechainResignationHandler: Handlers.TransactionHandler;
 
 let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;
 let bridgechainRegistrationBuilder: MagistrateBuilders.BridgechainRegistrationBuilder;
-let bridgechainResignationBuilder: MagistrateBuilders.BridgechainResignationBuilder;
 
 let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
@@ -62,16 +58,13 @@ describe("should test marketplace transaction handlers", () => {
 
     Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
     Handlers.Registry.registerTransactionHandler(BridgechainRegistrationTransactionHandler);
-    Handlers.Registry.registerTransactionHandler(BridgechainResignationTransactionHandler);
 
     beforeEach(() => {
         businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
         bridgechainRegistrationHandler = new BridgechainRegistrationTransactionHandler();
-        bridgechainResignationHandler = new BridgechainResignationTransactionHandler();
 
         businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
         bridgechainRegistrationBuilder = new MagistrateBuilders.BridgechainRegistrationBuilder();
-        bridgechainResignationBuilder = new MagistrateBuilders.BridgechainResignationBuilder();
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);
@@ -180,20 +173,6 @@ describe("should test marketplace transaction handlers", () => {
                         bridgechainRegistrationAsset2.genesisHash
                     ].bridgechainAsset.genesisHash,
                 ).toBe(bridgechainRegistrationAsset2.genesisHash);
-
-                const bridgechainResignation = bridgechainResignationBuilder
-                    .bridgechainResignationAsset(bridgechainRegistrationAsset1.genesisHash)
-                    .nonce("4")
-                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-
-                await expect(
-                    bridgechainResignationHandler.applyToSender(bridgechainResignation.build(), walletManager),
-                ).toResolve();
-
-                bridgechainResignation.nonce("5");
-                await expect(
-                    bridgechainResignationHandler.applyToSender(bridgechainResignation.build(), walletManager),
-                ).rejects.toThrowError(BridgechainIsResignedError);
             });
 
             describe("revert for sender", () => {
