@@ -159,17 +159,8 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.p2p.getMonitor().cleansePeers({ forcePing: true, peerCount: 10 });
 
-        emitter.on(ApplicationEvents.ForgerMissing, async () => {
-            this.missedBlocks++;
-            if (this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1) {
-                const networkStatus = await this.p2p.getMonitor().checkNetworkHealth();
-                if (networkStatus.forked) {
-                    this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
-                    this.dispatch("FORK");
-                }
-
-                this.missedBlocks = 0;
-            }
+        emitter.on(ApplicationEvents.ForgerMissing, () => {
+            this.checkMissingBlocks();
         });
 
         emitter.on(ApplicationEvents.RoundApplied, () => {
@@ -570,5 +561,24 @@ export class Blockchain implements blockchain.IBlockchain {
      */
     public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
         this.state.pushPingBlock(block, fromForger);
+    }
+
+    /**
+     * Check if the blockchain should roll back due to missing blocks.
+     */
+    public async checkMissingBlocks(): Promise<void> {
+        this.missedBlocks++;
+        if (
+            this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1 &&
+            Math.random() <= 0.8
+        ) {
+            const networkStatus = await this.p2p.getMonitor().checkNetworkHealth();
+            if (networkStatus.forked) {
+                this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
+                this.dispatch("FORK");
+            }
+
+            this.missedBlocks = 0;
+        }
     }
 }
