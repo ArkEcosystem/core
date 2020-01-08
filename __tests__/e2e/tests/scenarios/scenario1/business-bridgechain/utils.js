@@ -43,6 +43,8 @@ const bridgechainUpdateAsset = {
         "75.125.224.71",
     ],
     ports: { "@arkecosystem/core-api": 54321 },
+    bridgechainRepository: "http://www.newrepository.com/neworg/newrepo",
+    bridgechainAssetRepository: "http://www.newrepository.com/neworg/newassetrepo",
 };
 
 const bridgechainResignationAsset = {
