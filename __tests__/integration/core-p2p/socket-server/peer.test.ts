@@ -267,7 +267,28 @@ describe("Peer socket endpoint", () => {
     });
 
     describe("Socket errors", () => {
+        it("should disconnect the previous client if another connection is made from the same IP address", async () => {
+            connect();
+            await delay(1000);
+
+            expect(socket.state).toBe("open");
+
+            const secondSocket = socketCluster.create({
+                port: 4007,
+                hostname: "127.0.0.1",
+                multiplex: false,
+            });
+
+            secondSocket.connect();
+            await delay(1000);
+
+            expect(socket.state).toBe("closed");
+            expect(secondSocket.state).toBe("open");
+            secondSocket.destroy();
+        });
+
         it("should accept the request when below rate limit", async () => {
+            connect();
             await delay(1000);
             for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {

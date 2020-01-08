@@ -29,6 +29,14 @@ export class Worker extends SCWorker {
 
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
+            const clients = [...Object.values(this.scServer.clients), ...Object.values(this.scServer.pendingClients)];
+            const existingSockets = clients.filter(
+                client =>
+                    client.remoteAddress === req.socket.remoteAddress && client.remotePort !== req.socket.remotePort,
+            );
+            for (const socket of existingSockets) {
+                socket.terminate();
+            }
             this.handlePayload(ws, req);
         });
         this.scServer.on("connection", socket => this.handleConnection(socket));
