@@ -12,6 +12,7 @@ const ajv = new Ajv({ extendRefs: true });
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
+    private handlers: string[] = [];
     private ipLastError: Record<string, number> = {};
 
     public async run() {
@@ -24,6 +25,8 @@ export class Worker extends SCWorker {
         // purge ipLastError every hour to free up memory
         setInterval(() => (this.ipLastError = {}), HOUR_IN_MILLISECONDS);
 
+        await this.loadHandlers();
+
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
             this.handlePayload(ws, req);
@@ -33,6 +36,15 @@ export class Worker extends SCWorker {
             this.handleHandshake(req, next),
         );
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_EMIT, (req, next) => this.handleEmit(req, next));
+    }
+
+    private async loadHandlers(): Promise<void> {
+        const { data } = await this.sendToMasterAsync("p2p.utils.getHandlers");
+        for (const [version, handlers] of Object.entries(data)) {
+            for (const handler of Object.values(handlers)) {
+                this.handlers.push(`p2p.${version}.${handler}`);
+            }
+        }
     }
 
     private async loadConfiguration(): Promise<void> {
@@ -65,12 +77,18 @@ export class Worker extends SCWorker {
                     const parsed = JSON.parse(message);
                     if (parsed.event === "#disconnect") {
                         ws._disconnected = true;
+                    } else if (parsed.event === "#handshake") {
+                        if (ws._handshake) {
+                            this.setErrorForIpAndTerminate(ws, req);
+                        }
+                        ws._handshake = true;
                     } else if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
                         this.hasAdditionalProperties(parsed) ||
                         (typeof parsed.cid !== "number" &&
-                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
+                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined")) ||
+                        !this.handlers.includes(parsed.event)
                     ) {
                         this.setErrorForIpAndTerminate(ws, req);
                     }
@@ -133,19 +151,15 @@ export class Worker extends SCWorker {
     }
 
     private async handleConnection(socket): Promise<void> {
-        const { data } = await this.sendToMasterAsync("p2p.utils.getHandlers");
-
-        for (const [version, handlers] of Object.entries(data)) {
-            for (const handler of Object.values(handlers)) {
-                // @ts-ignore
-                socket.on(`p2p.${version}.${handler}`, async (data, res) => {
-                    try {
-                        return res(undefined, await this.sendToMasterAsync(`p2p.${version}.${handler}`, data));
-                    } catch (e) {
-                        return res(e);
-                    }
-                });
-            }
+        for (const handler of this.handlers) {
+            // @ts-ignore
+            socket.on(handler, async (data, res) => {
+                try {
+                    return res(undefined, await this.sendToMasterAsync(handler, data));
+                } catch (e) {
+                    return res(e);
+                }
+            });
         }
     }
 

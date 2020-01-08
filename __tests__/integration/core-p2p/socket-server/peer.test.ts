@@ -181,9 +181,6 @@ describe("Peer socket endpoint", () => {
 
                 expect(socket.state).toBe("open");
 
-                send('{"event": "#handshake", "data": {}, "cid": 1}');
-                await delay(500);
-
                 send("Invalid payload");
                 await delay(1000);
 
@@ -199,9 +196,6 @@ describe("Peer socket endpoint", () => {
                 await delay(1000);
 
                 expect(socket.state).toBe("open");
-
-                send('{"event": "#handshake", "data": {}, "cid": 1}');
-                await delay(500);
 
                 send("#2");
                 await delay(1000);
@@ -333,6 +327,10 @@ describe("Peer socket endpoint", () => {
                     },
                 ),
             ).rejects.toHaveProperty("name", "BadConnectionError");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection when the event does not start with p2p", async () => {
@@ -344,6 +342,10 @@ describe("Peer socket endpoint", () => {
                     data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection when the version is invalid", async () => {
@@ -385,6 +387,19 @@ describe("Peer socket endpoint", () => {
             await delay(1000);
 
             expect(socket.state).not.toBe("open");
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
+        });
+
+        it("should close the connection when using unsupported event messages", async () => {
+            await expect(
+                emit("#subscribe", {
+                    headers,
+                    data: {},
+                }),
+            ).rejects.toHaveProperty("name", "BadConnectionError");
+
             // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
             server.killWorkers({ immediate: true });
             await delay(2000); // give time to workers to respawn

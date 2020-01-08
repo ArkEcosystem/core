@@ -21,7 +21,7 @@ describe("Worker", () => {
             await delay(500);
 
             // @ts-ignore
-            expect(worker.sendToMasterAsync).toHaveBeenLastCalledWith("p2p.utils.getConfig");
+            expect(worker.sendToMasterAsync).toHaveBeenLastCalledWith("p2p.utils.getHandlers");
 
             // registering endpoint on connection
             expect(worker.scServer.on).toHaveBeenCalledWith("connection", expect.any(Function));
