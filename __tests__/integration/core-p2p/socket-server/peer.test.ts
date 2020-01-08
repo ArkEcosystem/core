@@ -20,6 +20,7 @@ let server: SocketCluster;
 let socket;
 let connect;
 let emit;
+let invalidOpcode;
 let ping;
 let pong;
 let send;
@@ -61,6 +62,7 @@ beforeAll(async () => {
 
     ping = () => socket.transport.socket.ping();
     pong = () => socket.transport.socket.pong();
+    invalidOpcode = () => socket.transport.socket._socket.write(Buffer.from("8780d0b6fbd2", "hex"));
 
     jest.spyOn(processor, "validateAndAcceptPeer").mockImplementation(jest.fn());
 });
@@ -235,6 +237,25 @@ describe("Peer socket endpoint", () => {
                 expect(socket.state).toBe("open");
 
                 pong();
+                await delay(500);
+                expect(socket.state).toBe("closed");
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
+            });
+
+            it("should block the client if it sends an invalid opcode", async () => {
+                connect();
+                await delay(1000);
+
+                expect(socket.state).toBe("open");
+
+                invalidOpcode();
+                await delay(500);
+                expect(socket.state).toBe("closed");
+                await delay(500);
+                connect();
                 await delay(500);
                 expect(socket.state).toBe("closed");
 
