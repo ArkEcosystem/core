@@ -21,7 +21,10 @@ describe("Check that the business was registered", () => {
 
         const wallet = walletResponse.data.data;
         expect(wallet).toBeObject();
-        expect(wallet.business.name).toBe(utils.businessRegistrationAsset.name);
-        expect(wallet.business.website).toBe(utils.businessRegistrationAsset.website);
+
+        const business = wallet.attributes.business;
+        expect(business).toBeObject();
+        expect(business.businessAsset.name).toBe(utils.businessRegistrationAsset.name);
+        expect(business.businessAsset.website).toBe(utils.businessRegistrationAsset.website);
     });
 });

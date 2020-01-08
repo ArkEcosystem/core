@@ -29,6 +29,7 @@ export interface IWallet {
     getAttribute<T = any>(key: string, defaultValue?: T): T;
     setAttribute<T = any>(key: string, value: T): void;
     forgetAttribute(key: string): void;
+    getAttributes(): Readonly<Record<string, any>>;
 
     isDelegate(): boolean;
     hasVoted(): boolean;

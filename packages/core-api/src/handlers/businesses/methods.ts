@@ -16,13 +16,16 @@ const index = async request => {
 };
 
 const show = async request => {
-    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
+    const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
+        publicKey: request.params.id,
+        ...request.query,
+    }).rows[0];
 
-    if (!wallet || !wallet.hasAttribute("business")) {
+    if (!business) {
         return Boom.notFound("Business not found");
     }
 
-    return respondWithResource(wallet, "business");
+    return respondWithResource(business, "business");
 };
 
 const bridgechains = async request => {
