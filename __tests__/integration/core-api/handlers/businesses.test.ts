@@ -6,6 +6,7 @@ import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
 const username = "username";
+const address = "AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo";
 const publicKey = "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647";
 
 beforeAll(async () => await setUp());
