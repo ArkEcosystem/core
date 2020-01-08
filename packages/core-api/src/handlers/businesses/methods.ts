@@ -16,8 +16,20 @@ const index = async request => {
 };
 
 const show = async request => {
+    let publicKey: string;
+
+    if (request.params.id.length <= 34) {
+        try {
+            publicKey = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id).publicKey;
+        } catch (error) {
+            return Boom.notFound("Business not found");
+        }
+    } else {
+        publicKey = request.params.id;
+    }
+
     const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        publicKey: request.params.id,
+        publicKey,
         ...request.query,
     }).rows[0];
 
