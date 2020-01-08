@@ -68,7 +68,7 @@ describe("API 2.0 - Businesses", () => {
     describe("GET /businesses/:id", () => {
         it("should GET a business by the given valid identifier", async () => {
             for (const identifier of Object.values(validIdentifiers)) {
-                const response = await utils.request("GET", `businesses/${identifier}`);
+                const response = await utils.request("GET", `businesses/${identifier}`, { transform: false });
                 expect(response).toBeSuccessfulResponse();
                 expect(response.data.data).toBeObject();
                 expect(response.data.data.attributes.business).toEqual(businessAttribute);
