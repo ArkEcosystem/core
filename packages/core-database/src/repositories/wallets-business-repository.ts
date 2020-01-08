@@ -23,7 +23,7 @@ interface IUnwrappedHtlcLock {
 }
 
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
+    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) { }
 
     public search<T>(scope: Database.SearchScope, params: Database.IParameters = {}): Database.IRowsPaginated<T> {
         let searchContext: ISearchContext;
@@ -238,15 +238,12 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             .values()
             .map(wallet => {
                 const business: any = wallet.getAttribute("business");
-
-                const businessData = {
+                return params.transform ? {
                     address: wallet.address,
                     publicKey: wallet.publicKey,
                     ...business.businessAsset,
                     isResigned: !!business.resigned,
-                };
-
-                return businessData;
+                } : wallet
             });
 
         return {
@@ -273,6 +270,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
                     const bridgechainData = {
                         publicKey: wallet.publicKey,
+                        address: wallet.address,
                         ...bridgechain.bridgechainAsset,
                         isResigned: !!bridgechain.resigned,
                     };
