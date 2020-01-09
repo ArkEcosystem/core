@@ -2,6 +2,7 @@ import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
 import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
+import { address, publicKey, username } from "../shared/schemas";
 import { paginate, respondWithResource, toPagination } from "../utils";
 
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
@@ -16,10 +17,18 @@ const index = async request => {
 };
 
 const show = async request => {
-    const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        publicKey: request.params.id,
-        ...request.query,
-    }).rows[0];
+    const searchParams = { ...request.query };
+    const id = request.params.id;
+    if (!address.validate(id).error) {
+        searchParams.address = id;
+    } else if (!publicKey.validate(id).error) {
+        searchParams.publicKey = id;
+    } else {
+        // only username left
+        searchParams.username = id;
+    }
+
+    const business = databaseService.wallets.search(Database.SearchScope.Businesses, searchParams).rows[0];
 
     if (!business) {
         return Boom.notFound("Business not found");

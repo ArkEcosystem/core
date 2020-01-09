@@ -23,7 +23,7 @@ interface IUnwrappedHtlcLock {
 }
 
 export class WalletsBusinessRepository implements Database.IWalletsBusinessRepository {
-    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) { }
+    public constructor(private readonly databaseServiceProvider: () => Database.IDatabaseService) {}
 
     public search<T>(scope: Database.SearchScope, params: Database.IParameters = {}): Database.IRowsPaginated<T> {
         let searchContext: ISearchContext;
@@ -229,7 +229,7 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
 
     private searchBusinesses(params: Database.IParameters = {}): ISearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["isResigned", "publicKey", "vat"],
+            exact: ["isResigned", "publicKey", "vat", "address", "username"],
             like: ["name", "repository", "website"],
         };
 
@@ -238,12 +238,18 @@ export class WalletsBusinessRepository implements Database.IWalletsBusinessRepos
             .values()
             .map(wallet => {
                 const business: any = wallet.getAttribute("business");
-                return params.transform ? {
-                    address: wallet.address,
-                    publicKey: wallet.publicKey,
-                    ...business.businessAsset,
-                    isResigned: !!business.resigned,
-                } : wallet
+                const businessTransformed = params.transform
+                    ? {
+                          address: wallet.address,
+                          publicKey: wallet.publicKey,
+                          ...business.businessAsset,
+                          isResigned: !!business.resigned,
+                      }
+                    : wallet;
+                if (wallet.hasAttribute("delegate")) {
+                    businessTransformed.username = wallet.getAttribute("delegate.username");
+                }
+                return businessTransformed;
             });
 
         return {
