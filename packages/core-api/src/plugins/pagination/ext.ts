@@ -52,7 +52,7 @@ export class Ext {
         const { method, path } = request.route;
 
         return (
-            this.routes.find(route => route.method === method && route.path === `${this.routePathPrefix}${path}`) !==
+            this.routes.find(route => route.method === method && path === `${this.routePathPrefix}${route.path}`) !==
             undefined
         );
     }
