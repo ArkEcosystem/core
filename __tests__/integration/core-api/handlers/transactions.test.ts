@@ -81,7 +81,7 @@ describe("API 2.0 - Transactions", () => {
                 pageCount: 2,
                 previous: null,
                 self: "/transactions?transform=true&page=1&limit=100",
-                totalCount: 160,
+                totalCount: 110,
                 totalCountIsEstimate: true,
             };
             expect(response.data.meta).toEqual(expectedMeta);
