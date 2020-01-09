@@ -20,20 +20,23 @@ describe("Bridgechain update ser/deser", () => {
     });
 
     it("should ser/deserialize giving back original fields", () => {
-        const businessResignation = builder
+        const bridgechainUpdate = builder
             .network(23)
             .bridgechainUpdateAsset({
                 bridgechainId: genesisHash,
                 seedNodes: ["74.125.224.72"],
                 ports: { "@arkecosystem/core-api": 12345 },
+                bridgechainRepository: "http://github.com/bridgechain/repo",
+                bridgechainAssetRepository: "http://github.com/bridgechain/assetrepo",
             })
             .sign("passphrase")
             .getStruct();
 
-        const serialized = Transactions.TransactionFactory.fromData(businessResignation).serialized.toString("hex");
+        const serialized = Transactions.TransactionFactory.fromData(bridgechainUpdate).serialized.toString("hex");
         const deserialized = Transactions.Deserializer.deserialize(serialized);
 
-        checkCommonFields(deserialized, businessResignation);
+        checkCommonFields(deserialized, bridgechainUpdate);
+        expect(deserialized.data.asset).toEqual(bridgechainUpdate.asset);
     });
 
     describe("Schema tests", () => {
@@ -50,7 +53,7 @@ describe("Bridgechain update ser/deser", () => {
             expect(error).toBeUndefined();
         });
 
-        describe("should test edge cases for seedNodes", () => {
+        describe("seedNodes field", () => {
             it("should have at least one item (ip)", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
@@ -88,7 +91,7 @@ describe("Bridgechain update ser/deser", () => {
             });
         });
 
-        describe("should test edge cases for ports", () => {
+        describe("ports field", () => {
             it("should fail with less than 1 property", () => {
                 const bridgechainUpdate = builder
                     .bridgechainUpdateAsset({
@@ -135,6 +138,58 @@ describe("Bridgechain update ser/deser", () => {
 
                 const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
                 expect(error).toBeUndefined();
+            });
+        });
+
+        describe("bridgechainRepository field", () => {
+            it("should not accept empty repository", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: genesisHash,
+                        bridgechainRepository: "",
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should not accept invalid uri repository", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: genesisHash,
+                        bridgechainRepository: "invalid-uri",
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+        });
+
+        describe("bridgechainAssetRepository field", () => {
+            it("should not accept empty repository", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: genesisHash,
+                        bridgechainAssetRepository: "",
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
+            });
+
+            it("should not accept invalid uri repository", () => {
+                const bridgechainUpdate = builder
+                    .bridgechainUpdateAsset({
+                        bridgechainId: genesisHash,
+                        bridgechainAssetRepository: "invalid-uri",
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainUpdate.getStruct());
+                expect(error).not.toBeUndefined();
             });
         });
     });

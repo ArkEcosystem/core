@@ -26,6 +26,7 @@ describe("should test wallet", () => {
                         ],
                         genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                         bridgechainRepository: "http://github.com",
+                        bridgechainAssetRepository: "http://github.com/asset",
                         ports: { "@arkecosystem/core-api": 12345 },
                     },
                 },

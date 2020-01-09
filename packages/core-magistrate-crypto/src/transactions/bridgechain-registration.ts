@@ -39,6 +39,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                                 bridgechainRepository: {
                                     $ref: "uri",
                                 },
+                                bridgechainAssetRepository: {
+                                    $ref: "uri",
+                                },
                                 ports: portsSchema,
                             },
                         },
@@ -77,6 +80,16 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         );
         const bridgechainRepositoryBufferLength: number = bridgechainRepositoryBuffer.length;
 
+        let bridgechainAssetRepositoryBufferLength = 1;
+        let bridgechainAssetRepositoryBuffer: Buffer;
+        if (bridgechainRegistrationAsset.bridgechainAssetRepository) {
+            bridgechainAssetRepositoryBuffer = Buffer.from(
+                bridgechainRegistrationAsset.bridgechainAssetRepository,
+                "utf8",
+            );
+            bridgechainAssetRepositoryBufferLength += bridgechainAssetRepositoryBuffer.length;
+        }
+
         const ports: IBridgechainPorts = bridgechainRegistrationAsset.ports;
         const portsLength: number = Object.keys(ports).length;
 
@@ -99,6 +112,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                 seedNodesBuffersLength +
                 bridgechainGenesisHash.length +
                 bridgechainRepositoryBufferLength +
+                bridgechainAssetRepositoryBufferLength +
                 portsBuffersLength,
             true,
         );
@@ -116,6 +130,13 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
 
         buffer.writeUint8(bridgechainRepositoryBufferLength);
         buffer.append(bridgechainRepositoryBuffer);
+
+        if (bridgechainAssetRepositoryBuffer) {
+            buffer.writeUint8(bridgechainAssetRepositoryBuffer.length);
+            buffer.append(bridgechainAssetRepositoryBuffer);
+        } else {
+            buffer.writeUint8(0);
+        }
 
         buffer.writeUint8(portsLength);
         for (const [i, nameBuffer] of portNamesBuffers.entries()) {
@@ -145,6 +166,12 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const repositoryLength: number = buf.readUint8();
         const bridgechainRepository: string = buf.readString(repositoryLength);
 
+        let bridgechainAssetRepository: string;
+        const bridgechainAssetRepositoryLength: number = buf.readUint8();
+        if (bridgechainAssetRepositoryLength) {
+            bridgechainAssetRepository = buf.readString(bridgechainAssetRepositoryLength);
+        }
+
         const ports: IBridgechainPorts = {};
 
         const portsLength: number = buf.readUint8();
@@ -164,5 +191,9 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
                 ports,
             },
         };
+
+        if (bridgechainAssetRepository) {
+            data.asset.bridgechainRegistration.bridgechainAssetRepository = bridgechainAssetRepository;
+        }
     }
 }
