@@ -2,11 +2,13 @@ import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
 import { Database, State } from "@arkecosystem/core-interfaces";
+import { Identities } from "@arkecosystem/crypto";
 import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
 const username = "username";
 const publicKey = "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647";
+const address = Identities.Address.fromPublicKey(publicKey, 23);
 
 beforeAll(async () => await setUp());
 afterAll(async () => await tearDown());
@@ -37,7 +39,7 @@ describe("API 2.0 - Businesses", () => {
     beforeAll(() => {
         walletManager = app.resolvePlugin<Database.IDatabaseService>("database").walletManager;
 
-        const wallet = walletManager.findByPublicKey(publicKey);
+        const wallet = walletManager.findByAddress(address);
         wallet.setAttribute("delegate.username", username);
         wallet.setAttribute("business", businessAttribute);
         wallet.setAttribute("business.bridgechains", businessAttribute.businessAsset.bridgechains);
@@ -59,12 +61,15 @@ describe("API 2.0 - Businesses", () => {
     });
 
     describe("GET /businesses/:id", () => {
-        it("should GET a business by the given valid identifier", async () => {
-            const response = await utils.request("GET", `businesses/${publicKey}`, { transform: false });
-            expect(response).toBeSuccessfulResponse();
+        it.each([[publicKey], [address], [username]])(
+            "should GET a business by the given valid identifier %s",
+            async id => {
+                const response = await utils.request("GET", `businesses/${id}`, { transform: false });
+                expect(response).toBeSuccessfulResponse();
 
-            expect(response.data.data.attributes.business).toEqual(businessAttribute);
-        });
+                expect(response.data.data.attributes.business).toEqual(businessAttribute);
+            },
+        );
 
         it("should fail to GET a business by an unknown identifier", async () => {
             utils.expectError(await utils.request("GET", "businesses/i_do_not_exist"), 404);
@@ -72,14 +77,17 @@ describe("API 2.0 - Businesses", () => {
     });
 
     describe("GET /businesses/:id/bridgechains", () => {
-        it("should GET business bridgechains", async () => {
-            const response = await utils.request("GET", `businesses/${publicKey}/bridgechains`);
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeArray();
-            expect(response.data.data).toHaveLength(1);
+        it.each([[publicKey], [address], [username]])(
+            "should GET business bridgechains by the given valid business identifier %s",
+            async id => {
+                const response = await utils.request("GET", `businesses/${id}/bridgechains`);
+                expect(response).toBeSuccessfulResponse();
+                expect(response.data.data).toBeArray();
+                expect(response.data.data).toHaveLength(1);
 
-            expect(response.data.data[0].genesisHash).toEqual(bridgechainAsset.genesisHash);
-        });
+                expect(response.data.data[0].genesisHash).toEqual(bridgechainAsset.genesisHash);
+            },
+        );
 
         it("should fail to GET business bridgechains by an unknown identifier", async () => {
             utils.expectError(await utils.request("GET", "businesses/i_do_not_exist/bridgechains"), 404);
