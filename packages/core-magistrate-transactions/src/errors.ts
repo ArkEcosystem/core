@@ -31,12 +31,6 @@ export class BridgechainAlreadyRegisteredError extends Errors.TransactionError {
     }
 }
 
-export class BridgechainIsNotRegisteredError extends Errors.TransactionError {
-    constructor() {
-        super("Failed to apply transaction, because bridgechain is not registered.");
-    }
-}
-
 export class BridgechainIsNotRegisteredByWalletError extends Errors.TransactionError {
     constructor() {
         super("Failed to apply transaction, because bridgechain is not registered by wallet.");
