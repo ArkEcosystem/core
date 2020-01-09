@@ -1,7 +1,7 @@
 import "../../../utils";
 
 import { app } from "@arkecosystem/core-container";
-import { Database } from "@arkecosystem/core-interfaces";
+import { Database, State } from "@arkecosystem/core-interfaces";
 import { Crypto, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 import { TransactionFactory } from "../../../helpers";
 import { genesisBlock } from "../../../utils/fixtures/testnet/block-model";
@@ -12,7 +12,7 @@ beforeAll(async () => await setUp());
 afterAll(async () => await tearDown());
 
 describe("API 2.0 - Locks", () => {
-    let wallets;
+    let wallets: State.IWallet[];
     let lockIds;
     let walletManager;
 
@@ -65,6 +65,27 @@ describe("API 2.0 - Locks", () => {
             expect(response.data.data).toBeArray();
 
             utils.expectLock(response.data.data[0]);
+        });
+
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "locks");
+            expect(response).toBeSuccessfulResponse();
+
+            const numberOfLocks = wallets.reduce(
+                (acc, curr) => acc + Object.keys(curr.getAttribute("htlc.locks")).length,
+                0,
+            );
+            const expectedMeta = {
+                count: numberOfLocks,
+                first: "/locks?page=1&limit=100",
+                last: "/locks?page=1&limit=100",
+                next: null,
+                pageCount: 1,
+                previous: null,
+                self: "/locks?page=1&limit=100",
+                totalCount: numberOfLocks,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
         });
 
         it("should GET all the locks sorted by expirationValue,asc", async () => {

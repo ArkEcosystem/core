@@ -61,6 +61,23 @@ describe("API 2.0 - Wallets", () => {
             expect(response.data.data[0].address).toBe("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
             expect(response.data.data[0].balance).toBe("245100000000000");
         });
+
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "wallets");
+            expect(response).toBeSuccessfulResponse();
+
+            const expectedMeta = {
+                count: 53,
+                first: "/wallets?page=1&limit=100",
+                last: "/wallets?page=1&limit=100",
+                next: null,
+                pageCount: 1,
+                previous: null,
+                self: "/wallets?page=1&limit=100",
+                totalCount: 53,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
+        });
     });
 
     describe("GET /wallets/top", () => {

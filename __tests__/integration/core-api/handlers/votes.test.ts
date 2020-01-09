@@ -18,6 +18,24 @@ describe("API 2.0 - Votes", () => {
             expect(response.data.data[0]).toBeObject();
             expect(response.data.meta.count).toBeNumber();
         });
+
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "votes");
+            expect(response).toBeSuccessfulResponse();
+
+            const expectedMeta = {
+                count: 51,
+                first: "/votes?transform=true&page=1&limit=100",
+                last: "/votes?transform=true&page=1&limit=100",
+                next: null,
+                pageCount: 1,
+                previous: null,
+                self: "/votes?transform=true&page=1&limit=100",
+                totalCount: 51,
+                totalCountIsEstimate: false,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
+        });
     });
 
     describe("GET /votes/:id", () => {
