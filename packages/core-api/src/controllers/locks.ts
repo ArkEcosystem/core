@@ -12,6 +12,7 @@ export class LocksController extends Controller {
     protected readonly transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {

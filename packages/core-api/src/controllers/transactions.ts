@@ -114,8 +114,8 @@ export class TransactionsController extends Controller {
     }
 
     public async types(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
-            .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+        const activatedTransactionHandlers = await this.app
+            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
             .getActivatedHandlers();
         const typeGroups: Record<string | number, Record<string, number>> = {};
 
@@ -141,8 +141,8 @@ export class TransactionsController extends Controller {
     }
 
     public async schemas(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
-            .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+        const activatedTransactionHandlers = await this.app
+            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
             .getActivatedHandlers();
         const schemasByType: Record<string, Record<string, any>> = {};
 
@@ -171,8 +171,8 @@ export class TransactionsController extends Controller {
                 .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastHeight();
 
-            const activatedTransactionHandlers: Handlers.TransactionHandler[] = await this.app
-                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+            const activatedTransactionHandlers = await this.app
+                .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
                 .getActivatedHandlers();
 
             const typeGroups: Record<string | number, Record<string, string>> = {};

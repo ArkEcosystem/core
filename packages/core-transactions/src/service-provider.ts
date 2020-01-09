@@ -20,6 +20,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .toSelf()
             .inSingletonScope();
 
+        this.app
+            .bind(Container.Identifiers.WalletRepository)
+            .toConstantValue(null)
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "null"));
+
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(One.SecondSignatureRegistrationTransactionHandler);

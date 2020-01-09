@@ -64,8 +64,8 @@ export class BlockState {
     }
 
     public async applyTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        const transactionHandler: Handlers.TransactionHandler = await this.app
-            .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+        const transactionHandler = await this.app
+            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
             .getActivatedHandlerForData(transaction.data);
 
         let lockWallet: Contracts.State.Wallet | undefined;
@@ -103,8 +103,8 @@ export class BlockState {
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler: Handlers.TransactionHandler = await this.app
-            .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+        const transactionHandler = await this.app
+            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
             .getActivatedHandlerForData(transaction.data);
 
         AppUtils.assert.defined<string>(data.senderPublicKey);

@@ -80,9 +80,12 @@ export class BlockProcessor {
         if (block.verification.containsMultiSignatures) {
             try {
                 for (const transaction of block.transactions) {
-                    const handler: Handlers.TransactionHandler = await this.app
-                        .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                        .getActivatedHandlerForData(transaction.data);
+                    const registry = this.app.getTagged<Handlers.Registry>(
+                        Container.Identifiers.TransactionHandlerRegistry,
+                        "state",
+                        "blockchain",
+                    );
+                    const handler = await registry.getActivatedHandlerForData(transaction.data);
                     await handler.verify(transaction);
                 }
 
@@ -201,8 +204,10 @@ export class BlockProcessor {
         const slot: number = Crypto.Slots.getSlotNumber(block.data.timestamp);
         const forgingDelegate: Contracts.State.Wallet = delegates[slot % delegates.length];
 
-        const walletRepository: Contracts.State.WalletRepository = this.app.get<Contracts.State.WalletRepository>(
+        const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
             Container.Identifiers.WalletRepository,
+            "state",
+            "blockchain",
         );
         const generatorWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(block.data.generatorPublicKey);
 

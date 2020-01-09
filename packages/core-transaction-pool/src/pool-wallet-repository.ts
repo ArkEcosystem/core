@@ -16,6 +16,7 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
      * @memberof PoolWalletRepository
      */
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**
@@ -101,8 +102,8 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
 
         const sender: Contracts.State.Wallet = this.findByPublicKey(transaction.data.senderPublicKey);
 
-        const handler: Handlers.TransactionHandler = await this.app
-            .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+        const handler = await this.app
+            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
             .getActivatedHandlerForData(transaction.data);
 
         return handler.throwIfCannotBeApplied(transaction, sender);
@@ -114,8 +115,8 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
      * @memberof PoolWalletRepository
      */
     public async revertTransactionForSender(transaction: Interfaces.ITransaction): Promise<void> {
-        const handler: Handlers.TransactionHandler = await this.app
-            .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+        const handler = await this.app
+            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
             .getActivatedHandlerForData(transaction.data);
 
         return handler.revertForSender(transaction, this);

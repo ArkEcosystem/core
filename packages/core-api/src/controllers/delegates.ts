@@ -12,6 +12,7 @@ export class DelegatesController extends Controller {
     protected readonly blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {

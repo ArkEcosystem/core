@@ -37,8 +37,10 @@ beforeAll(async () => {
 afterAll(async () => await tearDown());
 
 beforeEach(() => {
-    const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+    const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
         Container.Identifiers.WalletRepository,
+        "state",
+        "blockchain",
     );
 
     const wallet: Contracts.State.Wallet = walletRepository.findByUsername("genesis_10");
@@ -73,8 +75,10 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should GET all the delegates sorted by votes,asc", async () => {
-            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
                 Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
             );
 
             const originalDelegates = [...walletRepository.allByUsername()];
@@ -105,8 +109,10 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should GET all the delegates sorted by votes,desc", async () => {
-            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
                 Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
             );
             const wallet: Contracts.State.Wallet = walletRepository.findByUsername("genesis_1");
             wallet.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(12500000000000000));
@@ -182,7 +188,11 @@ describe("API 2.0 - Delegates", () => {
         it("should fail to GET a delegate by the given identifier if the resource is not a delegate (has no username)", async () => {
             const wallet = createWallet("non_delegate_address");
 
-            const walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
+            );
             walletRepository.index([wallet]);
 
             api.expectError(await api.request("GET", `delegates/${wallet.address}`), 404);
@@ -253,8 +263,10 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should POST a search for delegates with the exact specified approval", async () => {
-            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
                 Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
             );
 
             // Make sure all vote balances are at 0
@@ -298,8 +310,10 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should POST a search for delegates with the specified approval range", async () => {
-            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
                 Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
             );
 
             // Make sure all vote balances are at 0
@@ -467,8 +481,10 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should POST a search for delegates with the specified produced blocks range", async () => {
-            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
                 Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
             );
 
             // Make sure all vote balances are at 0
@@ -521,8 +537,10 @@ describe("API 2.0 - Delegates", () => {
         });
 
         it("should POST a search for delegates with the specified vote balance range", async () => {
-            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
                 Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
             );
 
             // Make sure all vote balances are at 0

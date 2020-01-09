@@ -19,10 +19,14 @@ afterAll(async () => await tearDown());
 
 describe("API 2.0 - Locks", () => {
     let lockIds;
-    let walletRepository;
+    let walletRepository: Contracts.State.WalletRepository;
 
     beforeEach(() => {
-        walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+        walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+            Container.Identifiers.WalletRepository,
+            "state",
+            "blockchain",
+        );
         walletRepository.reset();
 
         lockIds = [];

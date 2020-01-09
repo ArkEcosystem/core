@@ -8,6 +8,7 @@ import { BridgechainResource, BusinessResource } from "../resources";
 @Container.injectable()
 export class BusinessController extends Controller {
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {

@@ -17,7 +17,6 @@ export class DynamicFeeMatcher {
      */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
-
     /**
      * @private
      * @type {Contracts.Kernel.Logger}
@@ -66,8 +65,8 @@ export class DynamicFeeMatcher {
         let enterPool: boolean;
 
         if (dynamicFees.enabled) {
-            const handler: Handlers.TransactionHandler = await this.app
-                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+            const handler = await this.app
+                .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
                 .getActivatedHandlerForData(transaction.data);
 
             const addonBytes: number = dynamicFees.addonBytes[transaction.key];

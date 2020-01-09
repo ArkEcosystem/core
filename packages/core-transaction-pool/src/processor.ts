@@ -251,9 +251,12 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
                     Utils.assert.defined<string>(transactionInstance.data.id);
 
-                    const handler: Handlers.TransactionHandler = await this.app
-                        .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                        .getActivatedHandlerForData(transactionInstance.data);
+                    const handlerRegistry = this.app.getTagged<Handlers.Registry>(
+                        Container.Identifiers.TransactionHandlerRegistry,
+                        "state",
+                        "blockchain",
+                    );
+                    const handler = await handlerRegistry.getActivatedHandlerForData(transactionInstance.data);
 
                     if (await handler.verify(transactionInstance, this.poolWalletRepository)) {
                         try {
@@ -366,8 +369,8 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
         try {
             // @TODO: this leaks private members, refactor this
-            const handler: Handlers.TransactionHandler = await this.app
-                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+            const handler = await this.app
+                .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
                 .getActivatedHandlerForData(transaction);
             return handler.canEnterTransactionPool(transaction, this.transactionPool, this);
         } catch (error) {

@@ -40,6 +40,7 @@ export class DelegateTracker {
      * @memberof DelegateTracker
      */
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**

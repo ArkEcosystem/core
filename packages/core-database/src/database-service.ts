@@ -34,12 +34,15 @@ export class DatabaseService {
     private readonly roundRepository!: RoundRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
     @Container.inject(Container.Identifiers.BlockState)
+    @Container.tagged("state", "blockchain")
     private readonly blockState!: Contracts.State.BlockState;
 
     @Container.inject(Container.Identifiers.WalletState)
+    @Container.tagged("state", "blockchain")
     private readonly walletState!: Contracts.State.WalletState;
 
     @Container.inject(Container.Identifiers.LogService)
@@ -760,7 +763,7 @@ export class DatabaseService {
     private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {
         this.emitter.dispatch(Enums.TransactionEvent.Applied, transaction.data);
         const handler = await this.app
-            .get<any>(Container.Identifiers.TransactionHandlerRegistry)
+            .getTagged<any>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
             .getActivatedHandlerForData(transaction.data);
         handler.emitEvents(transaction, this.emitter);
     }

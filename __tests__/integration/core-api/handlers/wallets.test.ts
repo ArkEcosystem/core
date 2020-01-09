@@ -181,7 +181,11 @@ describe("API 2.0 - Wallets", () => {
         let lockIds;
 
         beforeAll(() => {
-            walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+            walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
+            );
 
             wallets = [
                 walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase("1")),
@@ -374,8 +378,10 @@ describe("API 2.0 - Wallets", () => {
         });
 
         it("should POST a search for wallets with the exact specified voteBalance", async () => {
-            const walletRepository: Contracts.State.WalletRepository = app.get<Contracts.State.WalletRepository>(
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
                 Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
             );
 
             // Make sure all vote balances are at 0

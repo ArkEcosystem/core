@@ -145,7 +145,11 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await snoozeForBlock(1);
             await expect(transactionsRegister.id).toBeForged();
 
-            const walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+            const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+                Container.Identifiers.WalletRepository,
+                "state",
+                "blockchain",
+            );
 
             const takenDelegates = walletRepository.allByUsername().slice(0, 50);
             for (const delegate of takenDelegates) {

@@ -11,6 +11,7 @@ export class BlockResource implements Resource {
      * @memberof BlockResource
      */
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**

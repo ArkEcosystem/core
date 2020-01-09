@@ -101,8 +101,8 @@ export class NodeController extends Controller {
             }
 
             const internalType = Transactions.InternalTransactionType.from(result.type, result.typeGroup);
-            const handler: Handlers.TransactionHandler = await this.app
-                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+            const handler = this.app
+                .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "null")
                 .getRegisteredHandlerByType(internalType);
 
             groupedByTypeGroup[result.typeGroup][handler.getConstructor().key] = {

@@ -58,6 +58,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
      * @memberof Connection
      */
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     private readonly walletRepository!: Contracts.State.WalletRepository;
 
     /**
@@ -343,9 +344,12 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
             const senderPublicKey: string = data.senderPublicKey;
 
-            const transactionHandler: Handlers.TransactionHandler = await this.app
-                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                .getActivatedHandlerForData(transaction.data);
+            const handlerRegistry = this.app.getTagged<Handlers.Registry>(
+                Container.Identifiers.TransactionHandlerRegistry,
+                "state",
+                "blockchain",
+            );
+            const transactionHandler = await handlerRegistry.getActivatedHandlerForData(transaction.data);
 
             const senderWallet: Contracts.State.Wallet = this.poolWalletRepository.findByPublicKey(senderPublicKey);
 
@@ -420,9 +424,12 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
             // TODO: rework error handling
             try {
-                const transactionHandler: Handlers.TransactionHandler = await this.app
-                    .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                    .getActivatedHandlerForData(transaction.data);
+                const handlerRegistry = this.app.getTagged<Handlers.Registry>(
+                    Container.Identifiers.TransactionHandlerRegistry,
+                    "state",
+                    "blockchain",
+                );
+                const transactionHandler = await handlerRegistry.getActivatedHandlerForData(transaction.data);
 
                 await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.walletRepository);
 
@@ -479,13 +486,14 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         for (const transaction of transactions) {
             try {
-                const handler: Handlers.TransactionHandler = await this.app
-                    .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                    .getActivatedHandlerForData(transaction.data);
-
-                await handler.applyToSender(transaction, this.poolWalletRepository);
-                await handler.applyToRecipient(transaction, this.poolWalletRepository);
-
+                const handlerRegistry = this.app.getTagged<Handlers.Registry>(
+                    Container.Identifiers.TransactionHandlerRegistry,
+                    "state",
+                    "blockchain",
+                );
+                const transactionHandler = await handlerRegistry.getActivatedHandlerForData(transaction.data);
+                await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
+                await transactionHandler.applyToRecipient(transaction, this.poolWalletRepository);
                 this.memory.remember(transaction);
             } catch (error) {
                 this.logger.error(`[Pool] Transaction (${transaction.id}): ${error.message}`);
@@ -605,11 +613,13 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         try {
             await this.poolWalletRepository.throwIfCannotBeApplied(transaction);
-
-            const handler: Handlers.TransactionHandler = await this.app
-                .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                .getActivatedHandlerForData(transaction.data);
-            await handler.applyToSender(transaction, this.poolWalletRepository);
+            const handlerRegistry = this.app.getTagged<Handlers.Registry>(
+                Container.Identifiers.TransactionHandlerRegistry,
+                "state",
+                "blockchain",
+            );
+            const transactionHandler = await handlerRegistry.getActivatedHandlerForData(transaction.data);
+            await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
         } catch (error) {
             this.logger.error(`[Pool] ${error.message}`);
 
@@ -672,14 +682,15 @@ export class Connection implements Contracts.TransactionPool.Connection {
                     recipient = walletRepository.findByAddress(transaction.data.recipientId);
                 }
 
-                const handler: Handlers.TransactionHandler = await this.app
-                    .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
-                    .getActivatedHandlerForData(transaction.data);
-
-                await handler.applyToSender(transaction, walletRepository);
-
+                const handlerRegistry = this.app.getTagged<Handlers.Registry>(
+                    Container.Identifiers.TransactionHandlerRegistry,
+                    "state",
+                    "blockchain",
+                );
+                const transactionHandler = await handlerRegistry.getActivatedHandlerForData(transaction.data);
+                await transactionHandler.applyToSender(transaction, walletRepository);
                 if (recipient && sender.address !== recipient.address) {
-                    await handler.applyToRecipient(transaction, walletRepository);
+                    await transactionHandler.applyToRecipient(transaction, walletRepository);
                 }
 
                 validTransactions.push(transaction);

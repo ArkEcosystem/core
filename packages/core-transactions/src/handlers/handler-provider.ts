@@ -10,6 +10,7 @@ export class TransactionHandlerProvider {
     private readonly attributeSet!: Services.Attributes.AttributeSet;
 
     @Container.multiInject(Container.Identifiers.TransactionHandler)
+    @Container.tagged("state", "null")
     private readonly handlers!: TransactionHandler[];
 
     private registered: boolean = false;

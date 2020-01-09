@@ -106,7 +106,11 @@ export const setUp = async () => {
 export const tearDown = async () => sandbox.dispose();
 
 export const calculateRanks = async () => {
-    const walletRepository = sandbox.app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+    const walletRepository = sandbox.app.getTagged<Contracts.State.WalletRepository>(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "blockchain",
+    );
 
     const delegateWallets = Object.values(
         walletRepository.allByUsername(),

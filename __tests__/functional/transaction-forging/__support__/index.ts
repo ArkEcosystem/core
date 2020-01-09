@@ -45,7 +45,11 @@ export const setUp = async (): Promise<Contracts.Kernel.Application> => {
         await app.boot();
 
         const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
-        const walletRepository = app.get<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository);
+        const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+            Container.Identifiers.WalletRepository,
+            "state",
+            "blockchain",
+        );
 
         await databaseService.buildWallets();
         await databaseService.saveRound(

@@ -18,9 +18,11 @@ export class StateBuilder {
     private transactionRepository!: Repositories.TransactionRepository;
 
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain")
     private walletRepository!: WalletRepository;
 
     @Container.inject(Container.Identifiers.WalletState)
+    @Container.tagged("state", "blockchain")
     private walletState!: WalletState;
 
     @Container.inject(Container.Identifiers.LogService)
@@ -34,7 +36,7 @@ export class StateBuilder {
         this.emitter = this.app.get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService);
 
         const registeredHandlers = this.app
-            .get<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry)
+            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
             .getRegisteredHandlers();
         const steps = registeredHandlers.length + 3;
 

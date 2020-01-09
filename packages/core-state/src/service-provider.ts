@@ -14,7 +14,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind(Container.Identifiers.WalletRepository)
             .to(WalletRepository)
-            .inSingletonScope();
+            .inSingletonScope()
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
 
         this.app
             .bind(Container.Identifiers.WalletState)

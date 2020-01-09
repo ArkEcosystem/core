@@ -21,8 +21,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
     }
 
     public async boot(): Promise<void> {
-        const walletRepository: Contracts.State.WalletRepository = this.app.get<Contracts.State.WalletRepository>(
+        const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
             Container.Identifiers.WalletRepository,
+            "state",
+            "blockchain",
         );
 
         walletRepository.registerIndex(MagistrateIndex.Businesses, businessIndexer);
