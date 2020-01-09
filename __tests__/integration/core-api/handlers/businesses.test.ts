@@ -66,13 +66,11 @@ describe("API 2.0 - Businesses", () => {
     });
 
     describe("GET /businesses/:id", () => {
-        it("should GET a business by the given valid identifier", async () => {
-            for (const identifier of Object.values(validIdentifiers)) {
-                const response = await utils.request("GET", `businesses/${identifier}`, { transform: false });
-                expect(response).toBeSuccessfulResponse();
-                expect(response.data.data).toBeObject();
-                expect(response.data.data.attributes.business).toEqual(businessAttribute);
-            }
+        it.each(Object.entries(validIdentifiers))("should GET a business by %s : %s", async (_, value) => {
+            const response = await utils.request("GET", `businesses/${value}`, { transform: false });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeObject();
+            expect(response.data.data.attributes.business).toEqual(businessAttribute);
         });
 
         it("should fail to GET a business by an unknown identifier", async () => {
@@ -81,15 +79,13 @@ describe("API 2.0 - Businesses", () => {
     });
 
     describe("GET /businesses/:id/bridgechains", () => {
-        it("should GET business bridgechains", async () => {
-            for (const identifier of Object.values(validIdentifiers)) {
-                const response = await utils.request("GET", `businesses/${identifier}/bridgechains`);
-                expect(response).toBeSuccessfulResponse();
-                expect(response.data.data).toBeArray();
-                expect(response.data.data).toHaveLength(1);
+        it.each(Object.entries(validIdentifiers))("should GET a business bridgechains by %s : %s", async (_, value) => {
+            const response = await utils.request("GET", `businesses/${value}/bridgechains`);
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
 
-                expect(response.data.data[0].genesisHash).toEqual(bridgechainAsset.genesisHash);
-            }
+            expect(response.data.data[0].genesisHash).toEqual(bridgechainAsset.genesisHash);
         });
 
         it("should fail to GET business bridgechains by an unknown identifier", async () => {
