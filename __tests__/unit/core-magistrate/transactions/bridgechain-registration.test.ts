@@ -90,6 +90,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -105,6 +106,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "this_string_is_rly_41_chars_long_string41",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -122,6 +124,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -137,6 +140,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f+",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -154,6 +158,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -169,6 +174,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://" + "a".repeat(101),
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -184,6 +190,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "some.repository",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["74.125.224.72", "66.102.0.0"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -201,6 +208,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: [],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -216,6 +224,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["66.102.0.0", "66.102.0.0"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
@@ -231,6 +240,7 @@ describe("Bridgechain registration transaction", () => {
                         name: "google",
                         genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
                         bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
                         seedNodes: ["127.0.0.1"],
                         ports: { "@arkecosystem/core-api": 12345 },
                     })
