@@ -66,7 +66,8 @@ export class Cleaner {
      * @type {PoolWalletRepository}
      * @memberof Cleaner
      */
-    @Container.inject(Container.Identifiers.TransactionPoolWalletRepository)
+    @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "pool")
     private readonly poolWalletRepository!: PoolWalletRepository;
 
     /**

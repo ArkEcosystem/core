@@ -41,7 +41,8 @@ export class Processor implements Contracts.TransactionPool.Processor {
      * @type {Contracts.State.WalletRepository}
      * @memberof Processor
      */
-    @Container.inject(Container.Identifiers.TransactionPoolWalletRepository)
+    @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "pool")
     private readonly poolWalletRepository!: Contracts.State.WalletRepository;
 
     /**

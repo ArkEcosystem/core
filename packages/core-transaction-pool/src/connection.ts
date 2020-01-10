@@ -22,7 +22,8 @@ import { Synchronizer } from "./synchronizer";
 @Container.injectable()
 export class Connection implements Contracts.TransactionPool.Connection {
     // todo: make private readonly
-    @Container.inject(Container.Identifiers.TransactionPoolWalletRepository)
+    @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "pool")
     public poolWalletRepository!: PoolWalletRepository;
 
     // @todo: make this private, requires some bigger changes to tests

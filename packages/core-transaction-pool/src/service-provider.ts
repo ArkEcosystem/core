@@ -19,9 +19,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async register(): Promise<void> {
         this.app
-            .bind(Container.Identifiers.TransactionPoolWalletRepository)
+            .bind(Container.Identifiers.WalletRepository)
             .to(PoolWalletRepository)
-            .inSingletonScope();
+            .inSingletonScope()
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "pool"));
 
         this.app
             .bind(Container.Identifiers.TransactionPoolMemory)
