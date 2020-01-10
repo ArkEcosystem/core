@@ -25,7 +25,7 @@
         "@hapi/good": "^8.2.0",
         "@hapi/good-console": "^8.1.0",
         "@hapi/good-squeeze": "^5.2.0",
-        "@hapi/hapi": "^18.3.1",
+        "@hapi/hapi": "^19.0.0",
         "@hapi/wreck": "^16.0.0",
         "deepmerge": "^4.0.0",
         "expand-home-dir": "^0.0.3",
