@@ -2,7 +2,6 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
 import { WalletIndexAlreadyRegisteredError, WalletIndexNotFoundError } from "./errors";
-import { TempWalletRepository } from "./temp-wallet-repository";
 import { searchEntries } from "./utils/search-entries";
 import { WalletIndex } from "./wallet-index";
 
@@ -252,10 +251,6 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.index(wallet);
         }
-    }
-
-    public clone(): Contracts.State.TempWalletRepository {
-        return this.app.resolve<TempWalletRepository>(TempWalletRepository).initialize(this);
     }
 
     public reset(): void {

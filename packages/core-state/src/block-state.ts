@@ -11,6 +11,9 @@ export class BlockState {
     @Container.inject(Container.Identifiers.WalletRepository)
     private walletRepository!: Contracts.State.WalletRepository;
 
+    @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
+    private handlerRegistry!: Handlers.Registry;
+
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         if (block.data.height === 1) {
             this.initGenesisGeneratorWallet(block.data.generatorPublicKey);
@@ -64,9 +67,7 @@ export class BlockState {
     }
 
     public async applyTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        const transactionHandler = await this.app
-            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
-            .getActivatedHandlerForData(transaction.data);
+        const transactionHandler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
 
         let lockWallet: Contracts.State.Wallet | undefined;
         let lockTransaction: Interfaces.ITransactionData | undefined;
@@ -81,7 +82,7 @@ export class BlockState {
             lockTransaction = lockWallet.getAttribute("htlc.locks", {})[lockId];
         }
 
-        await transactionHandler.apply(transaction, this.walletRepository);
+        await transactionHandler.apply(transaction);
 
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
@@ -103,9 +104,7 @@ export class BlockState {
     public async revertTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         const { data } = transaction;
 
-        const transactionHandler = await this.app
-            .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
-            .getActivatedHandlerForData(transaction.data);
+        const transactionHandler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
 
         AppUtils.assert.defined<string>(data.senderPublicKey);
 
@@ -120,7 +119,7 @@ export class BlockState {
             }
         }
 
-        await transactionHandler.revert(transaction, this.walletRepository);
+        await transactionHandler.revert(transaction);
 
         let lockWallet: Contracts.State.Wallet | undefined;
         let lockTransaction: Interfaces.ITransactionData | undefined;

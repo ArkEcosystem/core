@@ -41,9 +41,12 @@ export class DatabaseService {
     @Container.tagged("state", "blockchain")
     private readonly blockState!: Contracts.State.BlockState;
 
-    @Container.inject(Container.Identifiers.WalletState)
+    @Container.inject(Container.Identifiers.DposState)
     @Container.tagged("state", "blockchain")
-    private readonly walletState!: Contracts.State.WalletState;
+    private readonly dposState!: Contracts.State.DposState;
+
+    @Container.inject(Container.Identifiers.DposPreviousRoundStateProvider)
+    private readonly getDposPreviousRoundState!: Contracts.State.DposPreviousRoundStateProvider;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -136,10 +139,11 @@ export class DatabaseService {
                         this.detectMissedRound(this.forgingDelegates!);
                     }
 
-                    const delegates: Contracts.State.Wallet[] = this.walletState.loadActiveDelegateList(roundInfo);
+                    this.dposState.buildDelegateRanking();
+                    this.dposState.setDelegatesRound(roundInfo);
 
-                    await this.setForgingDelegatesOfRound(roundInfo, delegates);
-                    await this.saveRound(delegates);
+                    await this.setForgingDelegatesOfRound(roundInfo, this.dposState.getRoundDelegates().slice());
+                    await this.saveRound(this.dposState.getRoundDelegates());
 
                     this.blocksInCurrentRound!.length = 0;
 
@@ -466,7 +470,7 @@ export class DatabaseService {
         }
     }
 
-    public async saveRound(activeDelegates: Contracts.State.Wallet[]): Promise<void> {
+    public async saveRound(activeDelegates: readonly Contracts.State.Wallet[]): Promise<void> {
         this.logger.info(`Saving round ${activeDelegates[0].getAttribute("delegate.round").toLocaleString()}`);
 
         await this.roundRepository.save(activeDelegates);
@@ -744,20 +748,13 @@ export class DatabaseService {
     ): Promise<Contracts.State.Wallet[]> {
         blocks = blocks || (await this.getBlocksForRound(roundInfo));
 
-        // todo: remove the clone method from the wallet manager and use the TempWalletRepository directly
-        const tempWalletRepository: Contracts.State.TempWalletRepository = this.walletRepository.clone();
-
-        const delegates: Contracts.State.Wallet[] = await tempWalletRepository.getActiveDelegatesOfPreviousRound(
-            blocks,
-            roundInfo,
-        );
-
-        for (const delegate of tempWalletRepository.allByUsername()) {
-            const delegateWallet = this.walletRepository.findByUsername(delegate.getAttribute("delegate.username"));
-            delegateWallet.setAttribute("delegate.rank", delegate.getAttribute("delegate.rank"));
+        const prevRoundState = await this.getDposPreviousRoundState(blocks, roundInfo);
+        for (const prevRoundDelegate of prevRoundState.getAllDelegates()) {
+            const username = prevRoundDelegate.getAttribute("delegate.username");
+            const delegateWallet = this.walletRepository.findByUsername(username);
+            delegateWallet.setAttribute("delegate.rank", prevRoundDelegate.getAttribute("delegate.rank"));
         }
-
-        return delegates;
+        return prevRoundState.getRoundDelegates().slice();
     }
 
     private async emitTransactionEvents(transaction: Interfaces.ITransaction): Promise<void> {

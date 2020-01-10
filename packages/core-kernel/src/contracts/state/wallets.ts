@@ -1,7 +1,6 @@
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
 import { QueryParameters } from "../database/search";
-import { RoundInfo } from "../shared";
 
 // todo: review all interfaces in here and document them properly. Remove ones that are no longer needed.
 
@@ -183,8 +182,6 @@ export interface WalletRepository {
 
     reindex(wallet: Wallet): void;
 
-    clone(): TempWalletRepository;
-
     forgetByAddress(address: string): void;
 
     forgetByPublicKey(publicKey: string): void;
@@ -206,22 +203,6 @@ export interface WalletRepository {
     count(searchScope: SearchScope): number;
 
     top(searchScope: SearchScope, params?: Record<string, any>): RowsPaginated<Wallet>;
-}
-
-export interface TempWalletRepository extends WalletRepository {
-    initialize(walletRepository: WalletRepository);
-
-    getActiveDelegatesOfPreviousRound(blocks: Interfaces.IBlock[], roundInfo: RoundInfo): Promise<Wallet[]>;
-}
-
-export interface WalletState {
-    initialize(walletRepository: WalletRepository): WalletState;
-
-    loadActiveDelegateList(roundInfo: RoundInfo): Wallet[];
-
-    buildVoteBalances(): void;
-
-    buildDelegateRanking(roundInfo?: RoundInfo): Wallet[];
 }
 
 export enum SearchScope {

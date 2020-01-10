@@ -3,8 +3,6 @@ import { Application, Container, Contracts, Enums, Utils as AppUtils } from "@ar
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
 
-import { WalletRepository, WalletState } from "./wallets";
-
 // todo: review the implementation
 @Container.injectable()
 export class StateBuilder {
@@ -19,11 +17,11 @@ export class StateBuilder {
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
-    private walletRepository!: WalletRepository;
+    private walletRepository!: Contracts.State.WalletRepository;
 
-    @Container.inject(Container.Identifiers.WalletState)
+    @Container.inject(Container.Identifiers.DposState)
     @Container.tagged("state", "blockchain")
-    private walletState!: WalletState;
+    private dposState!: Contracts.State.DposState;
 
     @Container.inject(Container.Identifiers.LogService)
     private logger!: Contracts.Kernel.Logger;
@@ -59,8 +57,8 @@ export class StateBuilder {
             }
 
             this.logger.info(`State Generation - Step ${steps} of ${steps}: Vote Balances & Delegate Ranking`);
-            this.walletState.buildVoteBalances();
-            this.walletState.buildDelegateRanking();
+            this.dposState.buildVoteBalances();
+            this.dposState.buildDelegateRanking();
 
             this.logger.info(
                 `Number of registered delegates: ${Object.keys(this.walletRepository.allByUsername()).length}`,

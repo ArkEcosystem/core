@@ -521,9 +521,11 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         let transactionBytes = 0;
 
-        const tempWalletRepository: Wallets.TempWalletRepository = this.app
-            .resolve<Wallets.TempWalletRepository>(Wallets.TempWalletRepository)
-            .initialize(this.walletRepository);
+        const tempWalletRepository = this.app.getTagged<Wallets.TempWalletRepository>(
+            Container.Identifiers.WalletRepository,
+            "state",
+            "temp",
+        );
 
         let i = 0;
         // Copy the returned array because validateTransactions() in the loop body we may remove entries.
@@ -660,9 +662,11 @@ export class Connection implements Contracts.TransactionPool.Connection {
         );
 
         if (walletRepository === undefined) {
-            walletRepository = this.app
-                .resolve<Wallets.TempWalletRepository>(Wallets.TempWalletRepository)
-                .initialize(this.walletRepository);
+            walletRepository = this.app.getTagged<Wallets.TempWalletRepository>(
+                Container.Identifiers.WalletRepository,
+                "state",
+                "temp",
+            );
         }
 
         for (const transaction of unforgedTransactions) {

@@ -61,8 +61,12 @@ export const Identifiers = {
     StateBlockStore: Symbol.for("State<BlockStore>"),
     StateStore: Symbol.for("State<StateStore>"),
     StateTransactionStore: Symbol.for("State<TransactionStore>"),
-    WalletState: Symbol.for("State<WalletState>"),
     WalletFactory: Symbol.for("State<WalletFactory>"),
+
+    // Derived states
+    DposState: Symbol.for("State<DposState>"),
+    DposPreviousRoundStateProvider: Symbol("Provider<DposPreviousRoundState>"),
+
     // P2P - @todo: better names that won't clash
     PeerCommunicator: Symbol.for("Peer<Communicator>"),
     PeerConnector: Symbol.for("Peer<Connector>"),

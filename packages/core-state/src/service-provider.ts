@@ -1,11 +1,24 @@
 import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
 
 import { BlockState } from "./block-state";
+import { DposPreviousRoundState, DposState } from "./dpos";
 import { StateBuilder } from "./state-builder";
 import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
-import { Wallet, WalletRepository, WalletState } from "./wallets";
+import { TempWalletRepository, Wallet, WalletRepository } from "./wallets";
+
+const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
+    return async (
+        blocks: Interfaces.IBlock[],
+        roundInfo: Contracts.Shared.RoundInfo,
+    ): Promise<Contracts.State.DposPreviousRoundState> => {
+        const previousRound = context.container.resolve(DposPreviousRoundState);
+        await previousRound.revert(blocks, roundInfo);
+        return previousRound;
+    };
+};
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -18,14 +31,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
 
         this.app
-            .bind(Container.Identifiers.WalletState)
-            .to(WalletState)
-            .inSingletonScope();
+            .bind(Container.Identifiers.WalletRepository)
+            .to(TempWalletRepository)
+            .inRequestScope()
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "temp"));
 
-        this.app
-            .bind(Container.Identifiers.BlockState)
-            .to(BlockState)
-            .inSingletonScope();
+        this.app.bind(Container.Identifiers.DposState).to(DposState);
+        this.app.bind(Container.Identifiers.BlockState).to(BlockState);
 
         this.app.bind(Container.Identifiers.StateBlockStore).toConstantValue(new BlockStore(1000));
         this.app.bind(Container.Identifiers.StateTransactionStore).toConstantValue(new TransactionStore(1000));
@@ -34,6 +46,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.StateStore)
             .to(StateStore)
             .inSingletonScope();
+
+        this.app
+            .bind<Contracts.State.DposPreviousRoundStateProvider>(Container.Identifiers.DposPreviousRoundStateProvider)
+            .toProvider(dposPreviousRoundStateProvider);
     }
 
     public async boot(): Promise<void> {

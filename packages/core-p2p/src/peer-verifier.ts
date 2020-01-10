@@ -30,6 +30,9 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.DposState)
+    private readonly dposState!: Contracts.State.DposState;
+
     // todo: make use of ioc
     private database!: DatabaseService;
     private logger!: Contracts.Kernel.Logger;
@@ -399,33 +402,24 @@ export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     private async getDelegatesByRound(
         roundInfo: Contracts.Shared.RoundInfo,
     ): Promise<Record<string, Contracts.State.Wallet>> {
-        const { round, maxDelegates } = roundInfo;
-
         let delegates = await this.database.getActiveDelegates(roundInfo);
 
         if (delegates.length === 0) {
             // This must be the current round, still not saved into the database (it is saved
             // only after it has completed). So fetch the list of delegates from the wallet
             // manager.
-
-            // @ts-ignore
-            delegates = this.database.walletState.loadActiveDelegateList(roundInfo);
-            assert.strictEqual(
-                delegates.length,
-                maxDelegates,
-                `Couldn't derive the list of delegates for round ${round}. The database ` +
-                    `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`,
-            );
+            // ! looks like DoS attack vector
+            const dposRound = this.dposState.getRoundInfo();
+            assert.strictEqual(dposRound.round, roundInfo.round);
+            assert.strictEqual(dposRound.maxDelegates, roundInfo.maxDelegates);
+            delegates = this.dposState.getRoundDelegates().slice();
         }
 
-        const delegatesByPublicKey = {} as Record<string, Contracts.State.Wallet>;
-
+        const delegatesByPublicKey: Record<string, Contracts.State.Wallet> = {};
         for (const delegate of delegates) {
             Utils.assert.defined<string>(delegate.publicKey);
-
             delegatesByPublicKey[delegate.publicKey] = delegate;
         }
-
         return delegatesByPublicKey;
     }
 
