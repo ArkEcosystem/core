@@ -10,35 +10,36 @@ interface IRoute {
 }
 
 export class Ext {
+    private readonly routePathPrefix = "/api";
     private readonly routes: IRoute[] = [
-        { method: "get", path: "/api/blocks" },
-        { method: "get", path: "/api/blocks/{id}/transactions" },
-        { method: "post", path: "/api/blocks/search" },
-        { method: "get", path: "/api/bridgechains" },
-        { method: "post", path: "/api/bridgechains/search" },
-        { method: "get", path: "/api/businesses" },
-        { method: "get", path: "/api/businesses/{id}/bridgechains" },
-        { method: "post", path: "/api/businesses/search" },
-        { method: "get", path: "/api/delegates" },
-        { method: "get", path: "/api/delegates/{id}/blocks" },
-        { method: "get", path: "/api/delegates/{id}/voters" },
-        { method: "post", path: "/api/delegates/search" },
-        { method: "get", path: "/api/locks" },
-        { method: "post", path: "/api/locks/search" },
-        { method: "post", path: "/api/locks/unlocked" },
-        { method: "get", path: "/api/peers" },
-        { method: "get", path: "/api/transactions" },
-        { method: "post", path: "/api/transactions/search" },
-        { method: "get", path: "/api/transactions/unconfirmed" },
-        { method: "get", path: "/api/votes" },
-        { method: "get", path: "/api/wallets" },
-        { method: "get", path: "/api/wallets/top" },
-        { method: "get", path: "/api/wallets/{id}/locks" },
-        { method: "get", path: "/api/wallets/{id}/transactions" },
-        { method: "get", path: "/api/wallets/{id}/transactions/received" },
-        { method: "get", path: "/api/wallets/{id}/transactions/sent" },
-        { method: "get", path: "/api/wallets/{id}/votes" },
-        { method: "post", path: "/api/wallets/search" },
+        { method: "get", path: "/blocks" },
+        { method: "get", path: "/blocks/{id}/transactions" },
+        { method: "post", path: "/blocks/search" },
+        { method: "get", path: "/bridgechains" },
+        { method: "post", path: "/bridgechains/search" },
+        { method: "get", path: "/businesses" },
+        { method: "get", path: "/businesses/{id}/bridgechains" },
+        { method: "post", path: "/businesses/search" },
+        { method: "get", path: "/delegates" },
+        { method: "get", path: "/delegates/{id}/blocks" },
+        { method: "get", path: "/delegates/{id}/voters" },
+        { method: "post", path: "/delegates/search" },
+        { method: "get", path: "/locks" },
+        { method: "post", path: "/locks/search" },
+        { method: "post", path: "/locks/unlocked" },
+        { method: "get", path: "/peers" },
+        { method: "get", path: "/transactions" },
+        { method: "post", path: "/transactions/search" },
+        { method: "get", path: "/transactions/unconfirmed" },
+        { method: "get", path: "/votes" },
+        { method: "get", path: "/wallets" },
+        { method: "get", path: "/wallets/top" },
+        { method: "get", path: "/wallets/{id}/locks" },
+        { method: "get", path: "/wallets/{id}/transactions" },
+        { method: "get", path: "/wallets/{id}/transactions/received" },
+        { method: "get", path: "/wallets/{id}/transactions/sent" },
+        { method: "get", path: "/wallets/{id}/votes" },
+        { method: "post", path: "/wallets/search" },
     ];
 
     constructor(private readonly config) {}
@@ -50,7 +51,10 @@ export class Ext {
 
         const { method, path } = request.route;
 
-        return this.routes.find(route => route.method === method && route.path === path) !== undefined;
+        return (
+            this.routes.find(route => route.method === method && path === `${this.routePathPrefix}${route.path}`) !==
+            undefined
+        );
     }
 
     public onPreHandler(request, h) {
@@ -92,7 +96,8 @@ export class Ext {
 
         Hoek.assert(Array.isArray(results), "The results must be an array");
 
-        const baseUri = request.url.pathname + "?";
+        // strip prefix in baseUri, we want a "clean" relative path
+        const baseUri = request.url.pathname.slice(this.routePathPrefix.length) + "?";
         const { query } = request;
         const currentPage = query.page;
         const currentLimit = query.limit;

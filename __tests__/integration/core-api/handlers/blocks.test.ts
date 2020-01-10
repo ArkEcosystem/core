@@ -35,6 +35,24 @@ describe("API 2.0 - Blocks", () => {
                 transactions: genesisBlock.numberOfTransactions,
             });
         });
+
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "blocks");
+            expect(response).toBeSuccessfulResponse();
+
+            const expectedMeta = {
+                count: 1,
+                first: "/blocks?transform=true&page=1&limit=100",
+                last: "/blocks?transform=true&page=1&limit=100",
+                next: null,
+                pageCount: 1,
+                previous: null,
+                self: "/blocks?transform=true&page=1&limit=100",
+                totalCount: 1,
+                totalCountIsEstimate: false,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
+        });
     });
 
     describe("GET /blocks?orderBy=height:desc", () => {

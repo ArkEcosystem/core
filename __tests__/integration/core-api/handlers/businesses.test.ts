@@ -56,6 +56,23 @@ describe("API 2.0 - Businesses", () => {
             expect(response.data.data[0].name).toEqual(businessAttribute.businessAsset.name);
             expect(response.data.data[0].website).toEqual(businessAttribute.businessAsset.website);
         });
+
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "businesses");
+            expect(response).toBeSuccessfulResponse();
+
+            const expectedMeta = {
+                count: 1,
+                first: "/businesses?transform=true&page=1&limit=100",
+                last: "/businesses?transform=true&page=1&limit=100",
+                next: null,
+                pageCount: 1,
+                previous: null,
+                self: "/businesses?transform=true&page=1&limit=100",
+                totalCount: 1,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
+        });
     });
 
     describe("GET /businesses/:id", () => {

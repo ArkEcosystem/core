@@ -56,6 +56,23 @@ describe("API 2.0 - Bridgechains", () => {
             expect(response.data.data[0].bridgechainRepository).toEqual(bridgechainAsset.bridgechainRepository);
             expect(response.data.data[0].ports).toEqual(bridgechainAsset.ports);
         });
+
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "bridgechains");
+            expect(response).toBeSuccessfulResponse();
+
+            const expectedMeta = {
+                count: 1,
+                first: "/bridgechains?page=1&limit=100",
+                last: "/bridgechains?page=1&limit=100",
+                next: null,
+                pageCount: 1,
+                previous: null,
+                self: "/bridgechains?page=1&limit=100",
+                totalCount: 1,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
+        });
     });
 
     describe("GET /bridgechains/:id", () => {
