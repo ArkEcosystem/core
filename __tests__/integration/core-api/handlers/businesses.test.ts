@@ -6,6 +6,7 @@ import { setUp, tearDown } from "../__support__/setup";
 import { utils } from "../utils";
 
 const username = "username";
+const address = "AG8kwwk4TsYfA2HdwaWBVAJQBj6VhdcpMo";
 const publicKey = "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647";
 
 beforeAll(async () => await setUp());
@@ -32,6 +33,12 @@ describe("API 2.0 - Businesses", () => {
                 },
             },
         },
+    };
+
+    const validIdentifiers = {
+        username,
+        address,
+        publicKey,
     };
 
     beforeAll(() => {
@@ -76,10 +83,10 @@ describe("API 2.0 - Businesses", () => {
     });
 
     describe("GET /businesses/:id", () => {
-        it("should GET a business by the given valid identifier", async () => {
-            const response = await utils.request("GET", `businesses/${publicKey}`, { transform: false });
+        it.each(Object.entries(validIdentifiers))("should GET a business by %s : %s", async (_, value) => {
+            const response = await utils.request("GET", `businesses/${value}`, { transform: false });
             expect(response).toBeSuccessfulResponse();
-
+            expect(response.data.data).toBeObject();
             expect(response.data.data.attributes.business).toEqual(businessAttribute);
         });
 
@@ -89,8 +96,8 @@ describe("API 2.0 - Businesses", () => {
     });
 
     describe("GET /businesses/:id/bridgechains", () => {
-        it("should GET business bridgechains", async () => {
-            const response = await utils.request("GET", `businesses/${publicKey}/bridgechains`);
+        it.each(Object.entries(validIdentifiers))("should GET a business bridgechains by %s : %s", async (_, value) => {
+            const response = await utils.request("GET", `businesses/${value}/bridgechains`);
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeArray();
             expect(response.data.data).toHaveLength(1);
