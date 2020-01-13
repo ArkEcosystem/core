@@ -144,6 +144,33 @@ describe("Peer socket endpoint", () => {
                 server.killWorkers({ immediate: true });
                 await delay(2000); // give time to workers to respawn
             });
+
+            it("should throw error if too many transactions are in the block", async () => {
+                await delay(2000);
+                const dummyBlock = BlockFactory.createDummy();
+                const transaction = TransactionFactory.transfer(wallets[0].address, 111)
+                    .withNetwork("unitnet")
+                    .withPassphrase("one two three")
+                    .build();
+
+                for (let i = 0; i < 1000; i++) {
+                    dummyBlock.transactions.push(transaction[0]);
+                }
+
+                dummyBlock.data.numberOfTransactions = 1000;
+
+                await expect(
+                    emit("p2p.peer.postBlock", {
+                        data: {
+                            block: Blocks.Serializer.serializeWithTransactions({
+                                ...dummyBlock.data,
+                                transactions: dummyBlock.transactions.map(tx => tx.data),
+                            }),
+                        },
+                        headers,
+                    }),
+                ).rejects.toHaveProperty("name", "Error");
+            });
         });
 
         describe("postTransactions", () => {

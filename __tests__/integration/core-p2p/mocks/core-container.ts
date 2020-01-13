@@ -32,6 +32,9 @@ jest.mock("@arkecosystem/core-container", () => {
                     },
                     getMilestone: () => ({
                         activeDelegates: 51,
+                        block: {
+                            maxTransactions: 500,
+                        },
                     }),
                 };
             },
