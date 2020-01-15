@@ -1,6 +1,7 @@
 import { Identities } from "@arkecosystem/crypto";
 import { satoshiFlag } from "../../flags";
 import { SendCommand } from "../../shared/send";
+import { htlcSecretHex } from "../../shared/htlc-secret";
 import { HtlcLockCommand } from "./htlc-lock";
 
 export class HtlcClaimCommand extends SendCommand {
@@ -28,11 +29,8 @@ export class HtlcClaimCommand extends SendCommand {
         const transactions = [];
 
         for (const wallet of Object.values(wallets)) {
-            const unlockSecret = wallet.address.slice(0, 32);
-            // we use the 32 first chars of wallet address as secret
-
             const claimAsset = {
-                unlockSecret,
+                unlockSecret: htlcSecretHex,
                 lockTransactionId: wallet.lockTransaction.id,
             };
 

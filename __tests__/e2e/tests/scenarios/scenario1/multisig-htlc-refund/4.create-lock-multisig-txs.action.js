@@ -5,6 +5,7 @@ const utils = require("./utils");
 const shared = require("./shared");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { htlcSecretHashHex } = require('../../../../../utils/fixtures');
 
 /**
  * Send valid multisig htlc lock transaction
@@ -22,7 +23,7 @@ module.exports = async options => {
     // "normal" htlc lock transaction that will allow to claim without issue
     shared.lockTransactions.normal = TransactionFactory.htlcLock(
             {
-                secretHash: Crypto.HashAlgorithms.sha256(utils.randomWallet1.address.slice(0, 32)).toString("hex"),
+                secretHash: htlcSecretHashHex,
                 expiration: {
                     type: 2,
                     value: lastHeight + 51 + 1,

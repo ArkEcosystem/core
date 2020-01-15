@@ -5,6 +5,7 @@ const utils = require("./utils");
 const shared = require("./shared");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { htlcSecretHashHex } = require('../../../../../utils/fixtures');
 
 /**
  * Send lock transactions, we need 4 lock transactions to then test :
@@ -24,7 +25,7 @@ module.exports = async options => {
     // "normal" htlc lock transaction that will allow to claim without issue
     shared.lockTransactions.normal = TransactionFactory.htlcLock(
             {
-                secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient1.address.slice(0, 32)).toString("hex"),
+                secretHash: htlcSecretHashHex,
                 expiration: {
                     type: 2,
                     value: lastHeight + 51 + 12,
@@ -37,10 +38,10 @@ module.exports = async options => {
         .withPassphrase(utils.htlcSender.passphrase)
         .createOne();
 
-    // htlc lock transaction that we will claim with a wrong secret hash
+    // htlc lock transaction that we will claim with a wrong unlock secret
     shared.lockTransactions.wrongSecret = TransactionFactory.htlcLock(
             {
-                secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient2.address.slice(0, 32)).toString("hex"),
+                secretHash: htlcSecretHashHex,
                 expiration: {
                     type: 2,
                     value: lastHeight + 51 + 12,
@@ -57,7 +58,7 @@ module.exports = async options => {
     // htlc lock transaction that we will claim with a wallet not recipient of the lock tx
     shared.lockTransactions.notRecipient = TransactionFactory.htlcLock(
             {
-                secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient3.address.slice(0, 32)).toString("hex"),
+                secretHash: htlcSecretHashHex,
                 expiration: {
                     type: 2,
                     value: lastHeight + 51 + 12,
@@ -74,7 +75,7 @@ module.exports = async options => {
     // htlc lock transaction that we will claim after lock expiration
     shared.lockTransactions.lockExpired = TransactionFactory.htlcLock(
             {
-                secretHash: Crypto.HashAlgorithms.sha256(utils.htlcRecipient4.address.slice(0, 32)).toString("hex"),
+                secretHash: htlcSecretHashHex,
                 expiration: {
                     type: 2,
                     value: lastHeight + 51 + 4,

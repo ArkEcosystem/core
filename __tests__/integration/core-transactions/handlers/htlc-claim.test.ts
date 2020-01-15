@@ -1,11 +1,12 @@
 import { Container, Database } from "@arkecosystem/core-interfaces";
-import { Crypto, Networks, Utils } from "@arkecosystem/crypto";
+import { Networks, Utils } from "@arkecosystem/crypto";
 import { StateBuilder } from "../../../../packages/core-database-postgres/src";
 import { Delegate } from "../../../../packages/core-forger/src/delegate";
 import { WalletManager } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
 import { genesisBlock } from "../../../utils/config/unitnet/genesisBlock";
 import { wallets } from "../../../utils/fixtures/unitnet";
+import { htlcSecretHex, htlcSecretHashHex } from "../../../utils/fixtures";
 import { setUp, tearDown } from "../__support__/setup";
 
 let container: Container.IContainer;
@@ -52,10 +53,8 @@ describe("Htlc claim handler bootstrap", () => {
         };
         const sender = wallets[11];
         const recipientId = "APmKYrtyyP34BdqQKyk71NbzQ2VKjG8sB3";
-        const secret = "my secret that should be 32bytes";
-        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const htlcLockAsset = {
-            secretHash,
+            secretHash: htlcSecretHashHex,
             expiration: {
                 type: 1,
                 value: makeTimestamp(99),
@@ -74,7 +73,7 @@ describe("Htlc claim handler bootstrap", () => {
 
         const claimer = wallets[14];
         const claimTransaction = TransactionFactory.htlcClaim({
-            unlockSecret: secret,
+            unlockSecret: htlcSecretHex,
             lockTransactionId: lockTransaction.id,
         })
             .withNetwork("unitnet")

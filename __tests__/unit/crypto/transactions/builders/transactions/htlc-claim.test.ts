@@ -6,6 +6,7 @@ import { HtlcClaimBuilder } from "../../../../../../packages/crypto/src/transact
 import { HtlcClaimTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-claim";
 import { BigNumber } from "../../../../../../packages/crypto/src/utils";
 import { transactionBuilder } from "./__shared__/transaction-builder";
+import { htlcSecretHex } from "../../../../../utils/fixtures";
 
 let builder: HtlcClaimBuilder;
 
@@ -27,7 +28,7 @@ describe("Htlc claim Transaction", () => {
         it("should set the htlc claim asset", () => {
             const htlcClaimAsset = {
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-                unlockSecret: "my secret that should be 32bytes",
+                unlockSecret: htlcSecretHex,
             };
 
             builder.htlcClaimAsset(htlcClaimAsset);
@@ -39,7 +40,7 @@ describe("Htlc claim Transaction", () => {
     describe("verify", () => {
         const htlcClaimAsset = {
             lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-            unlockSecret: "my secret that should be 32bytes",
+            unlockSecret: htlcSecretHex,
         };
 
         it("should be valid with a signature", () => {

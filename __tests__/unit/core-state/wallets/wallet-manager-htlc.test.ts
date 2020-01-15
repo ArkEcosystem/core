@@ -7,6 +7,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Enums, Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Wallet, WalletManager } from "../../../../packages/core-state/src/wallets";
 import { TransactionFactory } from "../../../helpers/transaction-factory";
+import { htlcSecretHex, htlcSecretHashHex } from "../../../utils/fixtures";
 
 jest.mock("@arkecosystem/core-container", () => require("../mocks/container").container);
 
@@ -60,10 +61,8 @@ describe("Wallet Manager", () => {
             it("should update balance and vote balance when lock wallet votes for a delegate", async () => {
                 // prepare htlc lock transaction
                 const amount = 6 * 1e8;
-                const secret = "my secret that should be 32bytes";
-                const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
                 const htlcLockAsset = {
-                    secretHash,
+                    secretHash: htlcSecretHashHex,
                     expiration: {
                         type: EpochTimestamp,
                         value: Crypto.Slots.getTime() + 99,
@@ -78,7 +77,7 @@ describe("Wallet Manager", () => {
                 // prepare claim transaction
                 const htlcClaimAsset = {
                     lockTransactionId: lockTransaction.id,
-                    unlockSecret: secret,
+                    unlockSecret: htlcSecretHex,
                 };
                 const claimTransaction = TransactionFactory.htlcClaim(htlcClaimAsset)
                     .withPassphrase(claimPassphrase)
@@ -184,10 +183,8 @@ describe("Wallet Manager", () => {
 
                 // prepare htlc lock transaction
                 const amount = 6 * 1e8;
-                const secret = "my secret that should be 32bytes";
-                const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
                 const htlcLockAsset = {
-                    secretHash,
+                    secretHash: htlcSecretHashHex,
                     expiration: {
                         type: EpochTimestamp,
                         value: Crypto.Slots.getTime() + 99,
@@ -201,7 +198,7 @@ describe("Wallet Manager", () => {
                 // prepare claim transaction
                 const htlcClaimAsset = {
                     lockTransactionId: lockTransaction.id,
-                    unlockSecret: secret,
+                    unlockSecret: htlcSecretHex,
                 };
                 const claimTransaction = TransactionFactory.htlcClaim(htlcClaimAsset)
                     .withPassphrase(claimPassphrase)
@@ -324,10 +321,8 @@ describe("Wallet Manager", () => {
                 lockWallet.nonce = Utils.BigNumber.ZERO;
                 // prepare htlc lock transaction
                 const amount = 6 * 1e8;
-                const secret = "my secret that should be 32bytes";
-                const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
                 const htlcLockAsset = {
-                    secretHash,
+                    secretHash: htlcSecretHashHex,
                     expiration: {
                         type: EpochTimestamp,
                         value: Crypto.Slots.getTime(),

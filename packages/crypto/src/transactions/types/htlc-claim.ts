@@ -28,7 +28,7 @@ export class HtlcClaimTransaction extends Transaction {
         const buffer: ByteBuffer = new ByteBuffer(32 + 32, true);
 
         buffer.append(Buffer.from(data.asset.claim.lockTransactionId, "hex"));
-        buffer.writeString(data.asset.claim.unlockSecret);
+        buffer.append(Buffer.from(data.asset.claim.unlockSecret, "hex"));
 
         return buffer;
     }
@@ -37,7 +37,7 @@ export class HtlcClaimTransaction extends Transaction {
         const { data } = this;
 
         const lockTransactionId: string = buf.readBytes(32).toString("hex");
-        const unlockSecret: string = buf.readString(32);
+        const unlockSecret: string = buf.readBytes(32).toString("hex");
 
         data.asset = {
             claim: {
