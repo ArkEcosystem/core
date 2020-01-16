@@ -8,7 +8,7 @@ import { RateLimiter } from "./rate-limiter";
 const MINUTE_IN_MILLISECONDS = 1000 * 60;
 const HOUR_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 60;
 
-const ajv = new Ajv();
+const ajv = new Ajv({ extendRefs: true });
 
 export class Worker extends SCWorker {
     private config: Record<string, any>;
@@ -99,6 +99,7 @@ export class Worker extends SCWorker {
                     if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
+                        this.hasAdditionalProperties(parsed) ||
                         (typeof parsed.cid !== "number" &&
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined"))
                     ) {
@@ -109,6 +110,52 @@ export class Worker extends SCWorker {
                 }
             }
         });
+    }
+
+    private hasAdditionalProperties(object): boolean {
+        if (Object.keys(object).filter(key => key !== "event" && key !== "data" && key !== "cid").length) {
+            return true;
+        }
+        const event = object.event.split(".");
+        if (object.event !== "#handshake" && object.event !== "#disconnect") {
+            if (event.length !== 3) {
+                return true;
+            }
+            if (Object.keys(object.data).filter(key => key !== "data" && key !== "headers").length) {
+                return true;
+            }
+        }
+        if (object.data.data) {
+            // @ts-ignore
+            const [_, version, handler] = event;
+            const schema = requestSchemas[version][handler];
+            try {
+                if (schema && !ajv.validate(schema, object.data.data)) {
+                    return true;
+                }
+            } catch {
+                //
+            }
+        }
+        if (object.data.headers) {
+            if (
+                Object.keys(object.data.headers).filter(
+                    key => key !== "version" && key !== "port" && key !== "height" && key !== "Content-Type",
+                ).length
+            ) {
+                return true;
+            }
+            if (
+                (object.data.headers.version && typeof object.data.headers.version !== "string") ||
+                (object.data.headers.port && typeof object.data.headers.port !== "number") ||
+                (object.data.headers["Content-Type"] && typeof object.data.headers["Content-Type"] !== "string") ||
+                (object.data.headers.height && typeof object.data.headers.height !== "number")
+            ) {
+                // this prevents the nesting of other objects inside these properties
+                return true;
+            }
+        }
+        return false;
     }
 
     private setErrorForIpAndTerminate(ws, req): void {
