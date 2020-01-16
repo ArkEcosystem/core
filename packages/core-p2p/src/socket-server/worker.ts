@@ -4,6 +4,7 @@ import SCWorker from "socketcluster/scworker";
 import { SocketErrors } from "../enums";
 import { requestSchemas } from "../schemas";
 import { RateLimiter } from "./rate-limiter";
+import { validateTransactionLight } from "./utils/validate";
 
 const MINUTE_IN_MILLISECONDS = 1000 * 60;
 const HOUR_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 60;
@@ -93,30 +94,36 @@ export class Worker extends SCWorker {
     }
 
     private handlePayload(ws, req) {
+        ws.removeAllListeners("ping");
+        ws.removeAllListeners("pong");
         ws.prependListener("ping", () => {
             this.setErrorForIpAndTerminate(ws, req);
         });
         ws.prependListener("pong", () => {
             this.setErrorForIpAndTerminate(ws, req);
         });
+
         ws.prependListener("error", error => {
             if (error instanceof RangeError) {
                 this.setErrorForIpAndTerminate(ws, req);
             }
         });
+
+        const messageListeners = ws.listeners("message");
+        ws.removeAllListeners("message");
         ws.prependListener("message", message => {
             if (ws._disconnected) {
-                this.setErrorForIpAndTerminate(ws, req);
+                return this.setErrorForIpAndTerminate(ws, req);
             } else if (message === "#2") {
                 const timeNow: number = new Date().getTime() / 1000;
                 if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                    this.setErrorForIpAndTerminate(ws, req);
+                    return this.setErrorForIpAndTerminate(ws, req);
                 }
                 ws._lastPingTime = timeNow;
             } else if (message.length < 10) {
                 // except for #2 message, we should have JSON with some required properties
                 // (see below) which implies that message length should be longer than 10 chars
-                this.setErrorForIpAndTerminate(ws, req);
+                return this.setErrorForIpAndTerminate(ws, req);
             } else {
                 try {
                     const parsed = JSON.parse(message);
@@ -124,7 +131,7 @@ export class Worker extends SCWorker {
                         ws._disconnected = true;
                     } else if (parsed.event === "#handshake") {
                         if (ws._handshake) {
-                            this.setErrorForIpAndTerminate(ws, req);
+                            return this.setErrorForIpAndTerminate(ws, req);
                         }
                         ws._handshake = true;
                     } else if (
@@ -135,11 +142,15 @@ export class Worker extends SCWorker {
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined")) ||
                         !this.handlers.includes(parsed.event)
                     ) {
-                        this.setErrorForIpAndTerminate(ws, req);
+                        return this.setErrorForIpAndTerminate(ws, req);
                     }
                 } catch (error) {
-                    this.setErrorForIpAndTerminate(ws, req);
+                    return this.setErrorForIpAndTerminate(ws, req);
                 }
+            }
+
+            for (const listener of messageListeners) {
+                listener(message);
             }
         });
     }
@@ -162,7 +173,22 @@ export class Worker extends SCWorker {
             const [_, version, handler] = event;
             const schema = requestSchemas[version][handler];
             try {
-                if (schema && !ajv.validate(schema, object.data.data)) {
+                if (object.event === "p2p.peer.postTransactions") {
+                    if (
+                        typeof object.data.data === "object" &&
+                        object.data.data.transactions &&
+                        Array.isArray(object.data.data.transactions) &&
+                        object.data.data.transactions.length <= this.config.maxTransactionsPerRequest
+                    ) {
+                        for (const transaction of object.data.data.transactions) {
+                            if (!validateTransactionLight(transaction)) {
+                                return true;
+                            }
+                        }
+                    } else {
+                        return true;
+                    }
+                } else if (schema && !ajv.validate(schema, object.data.data)) {
                     return true;
                 }
             } catch {
