@@ -47,8 +47,12 @@ export class Worker extends SCWorker {
                 client =>
                     client.remoteAddress === req.socket.remoteAddress && client.remotePort !== req.socket.remotePort,
             );
-            for (const socket of existingSockets) {
-                socket.terminate();
+            if (existingSockets.length > 0) {
+                for (const socket of existingSockets) {
+                    socket.terminate();
+                }
+                this.setErrorForIpAndTerminate(ws, req);
+                return;
             }
             this.handlePayload(ws, req);
         });
