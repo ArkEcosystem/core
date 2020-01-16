@@ -89,6 +89,11 @@ export class Worker extends SCWorker {
         ws.prependListener("pong", () => {
             this.setErrorForIpAndTerminate(ws, req);
         });
+        ws.prependListener("error", error => {
+            if (error instanceof RangeError) {
+                this.setErrorForIpAndTerminate(ws, req);
+            }
+        });
         ws.prependListener("message", message => {
             if (ws._disconnected) {
                 this.setErrorForIpAndTerminate(ws, req);
