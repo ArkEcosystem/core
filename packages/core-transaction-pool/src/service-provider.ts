@@ -1,6 +1,7 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 
 import { Cleaner } from "./cleaner";
+import { Collator } from "./collator";
 import { Connection } from "./connection";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
@@ -48,6 +49,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.TransactionPoolService)
             .to(Connection)
             .inSingletonScope();
+
+        this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
 
         this.initializeComponents();
     }

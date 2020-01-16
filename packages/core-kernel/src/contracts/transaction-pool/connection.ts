@@ -22,10 +22,8 @@ export interface Connection {
     buildWallets(): Promise<void>;
     replay(transactions: Interfaces.ITransaction[]): Promise<void>;
     getTransaction(id: string): Promise<Interfaces.ITransaction | undefined>;
-    getTransactionIdsForForging(start: number, size: number): Promise<string[]>;
-    getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]>;
+    getTransactions(start: number, size: number): Promise<Interfaces.ITransaction[]>;
     getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>>;
-    getTransactionsForForging(blockSize: number): Promise<string[]>;
     has(transactionId: string): Promise<boolean>;
     hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean>;
     senderHasTransactionsOfType(senderPublicKey: string, type: number, typeGroup?: number): Promise<boolean>;

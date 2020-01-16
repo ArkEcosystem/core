@@ -251,24 +251,18 @@ export class ForgerService {
      * @memberof ForgerService
      */
     public async getTransactionsForForging(): Promise<Interfaces.ITransactionData[]> {
-        const response: Contracts.P2P.ForgingTransactions = await this.client.getTransactions();
-
+        const response = await this.client.getTransactions();
         if (AppUtils.isEmpty(response)) {
             this.logger.error("Could not get unconfirmed transactions from transaction pool.");
-
             return [];
         }
-
-        const transactions: Interfaces.ITransactionData[] = response.transactions.map(
-            (hex: string) => Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
+        const transactions = response.transactions.map(
+            hex => Transactions.TransactionFactory.fromBytesUnsafe(Buffer.from(hex, "hex")).data,
         );
-
         this.logger.debug(
-            `Received ${AppUtils.pluralize("transaction", transactions.length, true)} from the pool containing ${
-                response.poolSize
-            }`,
+            `Received ${AppUtils.pluralize("transaction", transactions.length, true)} ` +
+                `from the pool containing ${response.poolSize}`,
         );
-
         return transactions;
     }
 

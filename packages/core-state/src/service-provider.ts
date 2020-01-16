@@ -7,6 +7,7 @@ import { StateBuilder } from "./state-builder";
 import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
+import { TransactionValidator } from "./transaction-validator";
 import { TempWalletRepository, Wallet, WalletRepository } from "./wallets";
 
 const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
@@ -50,6 +51,12 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app
             .bind<Contracts.State.DposPreviousRoundStateProvider>(Container.Identifiers.DposPreviousRoundStateProvider)
             .toProvider(dposPreviousRoundStateProvider);
+
+        this.app.bind(Container.Identifiers.TransactionValidator).to(TransactionValidator);
+
+        this.app
+            .bind(Container.Identifiers.TransactionValidatorFactory)
+            .toAutoFactory(Container.Identifiers.TransactionValidator);
     }
 
     public async boot(): Promise<void> {

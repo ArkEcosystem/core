@@ -62,6 +62,8 @@ export const Identifiers = {
     StateStore: Symbol.for("State<StateStore>"),
     StateTransactionStore: Symbol.for("State<TransactionStore>"),
     WalletFactory: Symbol.for("State<WalletFactory>"),
+    TransactionValidator: Symbol("State<TransactionValidator>"),
+    TransactionValidatorFactory: Symbol("State<TransactionValidatorFactory>"),
 
     // Derived states
     DposState: Symbol.for("State<DposState>"),
@@ -78,6 +80,8 @@ export const Identifiers = {
     TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
     TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
     TransactionPoolSynchronizer: Symbol.for("TransactionPool<Synchronizer>"),
+    TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
+
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
     // TransactionHandler

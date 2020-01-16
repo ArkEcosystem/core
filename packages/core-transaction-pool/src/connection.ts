@@ -94,6 +94,14 @@ export class Connection implements Contracts.TransactionPool.Connection {
     @Container.inject(Container.Identifiers.TransactionPoolSynchronizer)
     private readonly synchronizer!: Synchronizer;
 
+    /**
+     * @private
+     * @type {Contracts.State.TransactionValidatorFactory}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.TransactionValidatorFactory)
+    private readonly createTransactionValidator!: Contracts.State.TransactionValidatorFactory;
+
     private readonly loggedAllowedSenders: string[] = [];
 
     /**
@@ -240,7 +248,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
      */
     public async getTransaction(id: string): Promise<Interfaces.ITransaction | undefined> {
         await this.cleaner.purgeExpired();
-
         return this.memory.getById(id);
     }
 
@@ -251,41 +258,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
      * @returns {Promise<Buffer[]>}
      * @memberof Connection
      */
-    public async getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]> {
-        return (await this.getValidatedTransactions(start, size, maxBytes)).map(
-            (transaction: Interfaces.ITransaction) => transaction.serialized,
-        );
-    }
-
-    /**
-     * @param {number} blockSize
-     * @returns {Promise<string[]>}
-     * @memberof Connection
-     */
-    public async getTransactionsForForging(blockSize: number): Promise<string[]> {
-        return (await this.getValidatedTransactions(0, blockSize, this.options.maxTransactionBytes)).map(transaction =>
-            transaction.serialized.toString("hex"),
-        );
-    }
-
-    /**
-     * @param {number} start
-     * @param {number} size
-     * @returns {Promise<string[]>}
-     * @memberof Connection
-     */
-    public async getTransactionIdsForForging(start: number, size: number): Promise<string[]> {
-        const transactions: Interfaces.ITransaction[] = await this.getValidatedTransactions(
-            start,
-            size,
-            this.options.maxTransactionBytes,
-        );
-
-        return transactions.map((transaction: Interfaces.ITransaction) => {
-            AppUtils.assert.defined<string>(transaction.id);
-
-            return transaction.id;
-        });
+    public async getTransactions(start: number, size: number): Promise<Interfaces.ITransaction[]> {
+        await this.cleaner.purgeExpired();
+        return this.memory.allSortedByFee().slice(start, size);
     }
 
     /**
@@ -407,41 +382,37 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
     public async buildWallets(): Promise<void> {
         this.poolWalletRepository.reset();
-
-        const transactionIds: string[] = await this.getTransactionIdsForForging(0, await this.getPoolSize());
-
-        this.app.get<any>(Container.Identifiers.StateStore).clearCachedTransactionIds();
-
-        for (const transactionId of transactionIds) {
-            const transaction: Interfaces.ITransaction | undefined = await this.getTransaction(transactionId);
-
-            if (!transaction || !transaction.data.senderPublicKey) {
-                return;
+        const validator = this.createTransactionValidator();
+        const handlerRegistry = this.app.getTagged<Handlers.Registry>(
+            Container.Identifiers.TransactionHandlerRegistry,
+            "state",
+            "blockchain",
+        );
+        for (const transaction of this.memory.allSortedByFee().slice()) {
+            try {
+                await validator.validate(transaction);
+            } catch (error) {
+                this.removeTransactionById(transaction.id!);
+                this.logger.error(
+                    `[Pool] Removed ${transaction.id} before forging because it is no longer valid: ${error.message}`,
+                );
+                continue;
             }
 
-            const senderWallet: Contracts.State.Wallet = this.poolWalletRepository.findByPublicKey(
-                transaction.data.senderPublicKey,
-            );
+            if (!transaction.data.senderPublicKey) {
+                continue;
+            }
 
-            // TODO: rework error handling
             try {
-                const handlerRegistry = this.app.getTagged<Handlers.Registry>(
-                    Container.Identifiers.TransactionHandlerRegistry,
-                    "state",
-                    "blockchain",
-                );
+                const senderWallet = this.poolWalletRepository.findByPublicKey(transaction.data.senderPublicKey);
                 const transactionHandler = await handlerRegistry.getActivatedHandlerForData(transaction.data);
-
                 await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet, this.walletRepository);
-
                 await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
             } catch (error) {
                 this.logger.error(`BuildWallets from pool: ${error.message}`);
-
                 this.cleaner.purgeByPublicKey(transaction.data.senderPublicKey);
             }
         }
-
         this.logger.info("Transaction Pool Manager build wallets complete");
     }
 
@@ -500,68 +471,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 this.logger.error(`[Pool] Transaction (${transaction.id}): ${error.message}`);
             }
         }
-    }
-
-    /**
-     * @private
-     * @param {number} start
-     * @param {number} size
-     * @param {number} [maxBytes=0]
-     * @returns {Promise<Interfaces.ITransaction[]>}
-     * @memberof Connection
-     */
-    private async getValidatedTransactions(
-        start: number,
-        size: number,
-        maxBytes = 0,
-    ): Promise<Interfaces.ITransaction[]> {
-        await this.cleaner.purgeExpired();
-
-        const data: Interfaces.ITransaction[] = [];
-
-        let transactionBytes = 0;
-
-        const tempWalletRepository = this.app.getTagged<Wallets.TempWalletRepository>(
-            Container.Identifiers.WalletRepository,
-            "state",
-            "temp",
-        );
-
-        let i = 0;
-        // Copy the returned array because validateTransactions() in the loop body we may remove entries.
-        const allTransactions: Interfaces.ITransaction[] = [...this.memory.allSortedByFee()];
-        for (const transaction of allTransactions) {
-            if (data.length === size) {
-                return data;
-            }
-
-            const valid: Interfaces.ITransaction[] = await this.validateTransactions(
-                [transaction],
-                tempWalletRepository,
-            );
-
-            if (valid.length === 0) {
-                continue;
-            }
-
-            if (i++ < start) {
-                continue;
-            }
-
-            if (maxBytes > 0) {
-                const transactionSize: number = JSON.stringify(transaction.data).length;
-
-                if (transactionBytes + transactionSize > maxBytes) {
-                    return data;
-                }
-
-                transactionBytes += transactionSize;
-            }
-
-            data.push(transaction);
-        }
-
-        return data;
     }
 
     /**

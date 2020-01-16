@@ -5,3 +5,4 @@ export * from "./processor";
 export * from "./service-provider";
 export * from "./storage";
 export * from "./synchronizer";
+export * from "./collator";

@@ -70,18 +70,12 @@ export class TransactionsController extends Controller {
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const pagination = super.paginate(request);
-
-        const data = (await this.transactionPool.getTransactions(pagination.offset, pagination.limit)).map(
-            transaction => ({
-                serialized: transaction.toString("hex"),
-            }),
-        );
+        const transactions = await this.transactionPool.getTransactions(pagination.offset, pagination.limit);
+        const poolSize = await this.transactionPool.getPoolSize();
+        const data = transactions.map(t => ({ serialized: t.serialized.toString("hex") }));
 
         return super.toPagination(
-            {
-                count: await this.transactionPool.getPoolSize(),
-                rows: data,
-            },
+            { count: poolSize, rows: data },
             TransactionResource,
             (request.query.transform as unknown) as boolean,
         );

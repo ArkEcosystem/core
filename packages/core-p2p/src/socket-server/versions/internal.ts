@@ -54,17 +54,14 @@ export const getUnconfirmedTransactions = async ({
 }: {
     app: Contracts.Kernel.Application;
 }): Promise<Contracts.P2P.UnconfirmedTransactions> => {
-    const blockchain = app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService);
-    const { maxTransactions } = Managers.configManager.getMilestone(blockchain.getLastBlock().data.height).block;
-
+    const collator = app.get<Contracts.TransactionPool.Collator>(Container.Identifiers.TransactionPoolCollator);
     const transactionPool: Contracts.TransactionPool.Connection = app.get<Contracts.TransactionPool.Connection>(
         Container.Identifiers.TransactionPoolService,
     );
+    const transactions = await collator.getBlockCandidateTransactions();
+    const poolSize = await transactionPool.getPoolSize();
 
-    return {
-        transactions: await transactionPool.getTransactionsForForging(maxTransactions),
-        poolSize: await transactionPool.getPoolSize(),
-    };
+    return { poolSize, transactions: transactions.map(t => t.serialized.toString("hex")) };
 };
 
 export const getCurrentRound = async ({
