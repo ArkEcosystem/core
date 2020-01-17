@@ -30,6 +30,7 @@ import {
 } from "../../../packages/core-transactions/src/errors";
 import { Handlers, Interfaces as TransactionsInterfaces } from "../../../packages/core-transactions/src/index";
 import { TransactionFactory } from "../../helpers/transaction-factory";
+import { htlcSecretHex, htlcSecretHashHex } from "../../utils/fixtures";
 
 const { EpochTimestamp, BlockHeight } = Enums.HtlcLockExpirationType;
 
@@ -1082,7 +1083,7 @@ describe("DelegateResignationTransaction", () => {
 
 describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", expirationType => {
     const htlcLockAsset = {
-        secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+        secretHash: htlcSecretHashHex,
         expiration: {
             type: expirationType,
             value: makeNotExpiredTimestamp(expirationType),
@@ -1212,10 +1213,8 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
         walletManager.reindex(claimWallet);
 
         const amount = 6 * 1e8;
-        const secret = "my secret that should be 32bytes";
-        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const htlcLockAsset = {
-            secretHash,
+            secretHash: htlcSecretHashHex,
             expiration: {
                 type: expirationType,
                 value: makeNotExpiredTimestamp(expirationType),
@@ -1227,7 +1226,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
 
         htlcClaimAsset = {
             lockTransactionId: lockTransaction.id,
-            unlockSecret: secret,
+            unlockSecret: htlcSecretHex,
         };
 
         lockWallet.setAttribute("htlc.locks", {
@@ -1265,7 +1264,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
         it("should throw if secret hash does not match", async () => {
             transaction = TransactionFactory.htlcClaim({
                 lockTransactionId: lockTransaction.id,
-                unlockSecret: "wrong 32 bytes unlock secret =((",
+                unlockSecret: "0000000000000000000000000000000000000000000000000000000000000000",
             })
                 .withPassphrase(claimPassphrase)
                 .createOne();
@@ -1288,7 +1287,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
 
             const htlcClaimAsset = {
                 lockTransactionId: lockTransaction.id,
-                unlockSecret: "my secret that should be 32bytes",
+                unlockSecret: htlcSecretHex,
             };
 
             transaction = TransactionFactory.htlcClaim(htlcClaimAsset)
@@ -1303,10 +1302,8 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
 
         it("should throw if lock expired", async () => {
             const amount = 1e9;
-            const secret = "my secret that should be 32bytes";
-            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
-                secretHash,
+                secretHash: htlcSecretHashHex,
                 expiration: {
                     type: expirationType,
                     value: makeExpiredTimestamp(expirationType),
@@ -1318,7 +1315,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
 
             const htlcClaimAsset = {
                 lockTransactionId: lockTransaction.id,
-                unlockSecret: secret,
+                unlockSecret: htlcSecretHex,
             };
 
             lockWallet.setAttribute("htlc.locks", {
@@ -1474,10 +1471,8 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
         walletManager.reindex(lockWallet);
 
         const amount = 6 * 1e8;
-        const secret = "my secret that should be 32bytes";
-        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const htlcLockAsset = {
-            secretHash,
+            secretHash: htlcSecretHashHex,
             expiration: {
                 type: expirationType,
                 value: makeExpiredTimestamp(expirationType),
@@ -1547,10 +1542,8 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
 
         it("should throw if lock didn't expire - expiration type %i", async () => {
             const amount = 6 * 1e8;
-            const secret = "my secret that should be 32bytes";
-            const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
             const htlcLockAsset = {
-                secretHash,
+                secretHash: htlcSecretHashHex,
                 expiration: {
                     type: expirationType,
                     value: makeNotExpiredTimestamp(expirationType),
