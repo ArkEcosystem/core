@@ -3,6 +3,10 @@ import "jest-extended";
 import { State } from "@arkecosystem/core-interfaces";
 import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import {
+    BusinessIsNotRegisteredError,
+    BusinessIsResignedError,
+} from "@arkecosystem/core-magistrate-transactions/src/errors";
+import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
@@ -12,10 +16,6 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import { businessRegistrationAsset1, businessUpdateAsset1 } from "../helper";
-import {
-    BusinessIsNotRegisteredError,
-    BusinessIsResignedError,
-} from "@arkecosystem/core-magistrate-transactions/src/errors";
 
 // Mock database with walletManager
 jest.mock("@arkecosystem/core-container", () => {
@@ -95,7 +95,7 @@ describe("Business update handler", () => {
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
             await expect(
-                businessResignationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+                businessUpdateHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
             ).rejects.toThrowError(BusinessIsNotRegisteredError);
         });
 
@@ -119,7 +119,7 @@ describe("Business update handler", () => {
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
                 await expect(
-                    businessResignationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+                    businessUpdateHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
                 ).toResolve();
             });
 
@@ -128,15 +128,15 @@ describe("Business update handler", () => {
                     .nonce("2")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-                await businessRegistrationHandler.applyToSender(businessResignation.build(), walletManager);
+                await businessResignationHandler.applyToSender(businessResignation.build(), walletManager);
 
                 const actual = businessUpdateBuilder
                     .businessUpdateAsset(businessUpdateAsset1)
-                    .nonce("1")
+                    .nonce("3")
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
                 await expect(
-                    businessResignationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+                    businessUpdateHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
                 ).rejects.toThrowError(BusinessIsResignedError);
 
 
