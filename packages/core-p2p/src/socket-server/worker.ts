@@ -327,18 +327,7 @@ export class Worker extends SCWorker {
                 }
             } else if (version === "peer") {
                 const requestSchema = requestSchemas.peer[handler];
-                if (["postTransactions", "postBlock"].includes(handler)) {
-                    // has to be in the peer list to use the endpoint
-                    const {
-                        data: { isPeerOrForger },
-                    } = await this.sendToMasterAsync("p2p.internal.isPeerOrForger", {
-                        data: { ip: req.socket.remoteAddress },
-                    });
-                    if (!isPeerOrForger) {
-                        req.socket.terminate();
-                        return;
-                    }
-                } else if (requestSchema && !ajv.validate(requestSchema, req.data.data)) {
+                if (handler !== "postTransactions" && requestSchema && !ajv.validate(requestSchema, req.data.data)) {
                     req.socket.terminate();
                     return;
                 }
