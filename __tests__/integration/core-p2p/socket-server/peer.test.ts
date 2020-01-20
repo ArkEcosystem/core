@@ -190,22 +190,26 @@ describe("Peer socket endpoint", () => {
                 // because our mocking makes all transactions to be invalid (already in cache)
             });
 
-            it("should throw validation error when sending too much transactions", async () => {
+            it("should reject when sending too much transactions", async () => {
                 const transactions = TransactionFactory.transfer(wallets[0].address, 111)
                     .withNetwork("unitnet")
                     .withPassphrase("one two three")
                     .create(50);
 
-                // TODO: test makes no sense anymore
                 await expect(
                     emit("p2p.peer.postTransactions", {
                         data: { transactions },
                         headers,
                     }),
-                ).toResolve();
+                ).toReject();
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
 
             it("should disconnect the client if it sends an invalid message payload", async () => {
+                connect();
                 await delay(1000);
 
                 expect(socket.state).toBe("open");
@@ -294,7 +298,7 @@ describe("Peer socket endpoint", () => {
     });
 
     describe("Socket errors", () => {
-        it("should disconnect the previous client if another connection is made from the same IP address", async () => {
+        it("should disconnect all sockets from same ip if another connection is made from the same IP address", async () => {
             connect();
             await delay(1000);
 
@@ -305,13 +309,20 @@ describe("Peer socket endpoint", () => {
                 hostname: "127.0.0.1",
                 multiplex: false,
             });
+            secondSocket.on("error", () => {
+                //
+            });
 
             secondSocket.connect();
+
             await delay(1000);
 
             expect(socket.state).toBe("closed");
-            expect(secondSocket.state).toBe("open");
-            secondSocket.destroy();
+            expect(secondSocket.state).toBe("closed");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should accept the request when below rate limit", async () => {
@@ -403,6 +414,7 @@ describe("Peer socket endpoint", () => {
         });
 
         it("should close the connection when the event does not start with p2p", async () => {
+            connect();
             await delay(1000);
 
             await expect(
@@ -418,6 +430,7 @@ describe("Peer socket endpoint", () => {
         });
 
         it("should close the connection when the version is invalid", async () => {
+            connect();
             await delay(1000);
 
             await expect(
@@ -432,6 +445,7 @@ describe("Peer socket endpoint", () => {
         });
 
         it("should close the connection and prevent reconnection if blocked", async () => {
+            connect();
             await delay(1000);
 
             await emit("p2p.peer.getPeers", {
@@ -462,6 +476,9 @@ describe("Peer socket endpoint", () => {
         });
 
         it("should close the connection when using unsupported event messages", async () => {
+            connect();
+            await delay(1000);
+
             await expect(
                 emit("#subscribe", {
                     headers,
