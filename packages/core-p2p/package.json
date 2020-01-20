@@ -57,7 +57,7 @@
         "scc-broker-client": "^6.1.0",
         "semver": "^7.0.0",
         "socketcluster": "^14.3.5",
-        "socketcluster-client": "^14.2.2"
+        "socketcluster-client": "^15.0.0"
     },
     "devDependencies": {
         "@types/better-sqlite3": "^5.4.0",
