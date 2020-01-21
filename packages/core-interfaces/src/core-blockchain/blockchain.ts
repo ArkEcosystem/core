@@ -139,4 +139,6 @@ export interface IBlockchain {
     pushPingBlock(block: Interfaces.IBlockData, fromForger?: boolean): void;
 
     replay(targetHeight?: number): Promise<void>;
+
+    checkMissingBlocks(): Promise<void>;
 }

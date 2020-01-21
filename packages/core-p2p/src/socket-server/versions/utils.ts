@@ -26,5 +26,12 @@ export const isForgerAuthorized = ({ req }): { authorized: boolean } => {
 };
 
 export const getConfig = (): Record<string, any> => {
-    return app.resolveOptions("p2p");
+    const config = app.resolveOptions("p2p");
+
+    // add maxTransactionsPerRequest config from transaction pool
+    config.maxTransactionsPerRequest = app.has("transaction-pool")
+        ? app.resolveOptions("transaction-pool").maxTransactionsPerRequest || 40
+        : 40;
+
+    return config;
 };
