@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-logger-signale",
-    "version": "2.5.37",
+    "version": "2.5.38",
     "description": "Signale integration for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,8 +19,8 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-interfaces": "^2.5.37",
-        "@arkecosystem/core-logger": "^2.5.37",
+        "@arkecosystem/core-interfaces": "^2.5.38",
+        "@arkecosystem/core-logger": "^2.5.38",
         "signale": "^1.4.0"
     },
     "devDependencies": {

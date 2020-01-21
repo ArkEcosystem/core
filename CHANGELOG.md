@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.38] - 2020-01-21
+
+Rerelease of 2.5.37 due to some npm issues.
+
 ## [2.5.37] - 2020-01-21
 
 ### Fixed
