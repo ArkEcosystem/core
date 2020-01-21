@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.32] - 2020-01-21
+
+### Fixed
+
+-   Discard blocks containing too many transactions ([#3404])
+-   Disconnect when multiple sockets are opened from same IP ([#3404])
+-   Handle invalid WS opcodes ([#3404])
+-   Disconnect for p2p SocketCluster events that do not have a handler ([#3404])
+-   Handle payload with additional properties ([#3404])
+
 ## [2.5.31] - 2019-12-19
 
 ### Fixed
