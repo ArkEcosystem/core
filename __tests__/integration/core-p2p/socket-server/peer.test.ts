@@ -318,7 +318,7 @@ describe("Peer socket endpoint", () => {
             await delay(1000);
 
             expect(socket.state).toBe("closed");
-            expect(secondSocket.state).toBe("closed");
+            expect(secondSocket.state).toBe("open");
 
             // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
             server.killWorkers({ immediate: true });
