@@ -230,6 +230,10 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         };
     }
 
+    public getRateLimitedEndpoints(): string[] {
+        return this.rateLimiter.getRateLimitedEndpoints();
+    }
+
     public async isBlockedByRateLimit(ip: string): Promise<boolean> {
         return this.rateLimiter.isBlocked(ip);
     }
@@ -328,7 +332,7 @@ export class NetworkMonitor implements P2P.INetworkMonitor {
         if (peersNotForked.length === 0) {
             this.logger.error(
                 `Could not download blocks: We have ${pluralize("peer", peersAll.length, true)} but all ` +
-                `of them are on a different chain than us`,
+                    `of them are on a different chain than us`,
             );
             return [];
         }

@@ -20,13 +20,14 @@ let server: SocketCluster;
 let socket;
 let connect;
 let emit;
+let invalidOpcode;
 let ping;
 let pong;
 let send;
 
 const headers = {
     version: "2.1.0",
-    port: "4009",
+    port: 4009,
     height: 1,
     "Content-Type": "application/json",
 };
@@ -61,6 +62,7 @@ beforeAll(async () => {
 
     ping = () => socket.transport.socket.ping();
     pong = () => socket.transport.socket.pong();
+    invalidOpcode = () => socket.transport.socket._socket.write(Buffer.from("8780d0b6fbd2", "hex"));
 
     jest.spyOn(processor, "validateAndAcceptPeer").mockImplementation(jest.fn());
 });
@@ -115,14 +117,17 @@ describe("Peer socket endpoint", () => {
                 expect(data).toEqual({});
             });
 
-            it("should throw validation error when sending wrong data", async () => {
+            it("should throw error when sending wrong data", async () => {
                 await delay(1000);
                 await expect(
                     emit("p2p.peer.postBlock", {
                         data: {},
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "Error");
+                ).rejects.toHaveProperty("name", "BadConnectionError");
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
 
             it("should throw error when sending wrong buffer", async () => {
@@ -134,7 +139,37 @@ describe("Peer socket endpoint", () => {
                         },
                         headers,
                     }),
-                ).rejects.toHaveProperty("name", "BadConnectionError");
+                ).rejects.toHaveProperty("name", "Error");
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
+            });
+
+            it("should throw error if too many transactions are in the block", async () => {
+                await delay(2000);
+                const dummyBlock = BlockFactory.createDummy();
+                const transaction = TransactionFactory.transfer(wallets[0].address, 111)
+                    .withNetwork("unitnet")
+                    .withPassphrase("one two three")
+                    .build();
+
+                for (let i = 0; i < 1000; i++) {
+                    dummyBlock.transactions.push(transaction[0]);
+                }
+
+                dummyBlock.data.numberOfTransactions = 1000;
+
+                await expect(
+                    emit("p2p.peer.postBlock", {
+                        data: {
+                            block: Blocks.Serializer.serializeWithTransactions({
+                                ...dummyBlock.data,
+                                transactions: dummyBlock.transactions.map(tx => tx.data),
+                            }),
+                        },
+                        headers,
+                    }),
+                ).rejects.toHaveProperty("name", "Error");
             });
         });
 
@@ -155,28 +190,29 @@ describe("Peer socket endpoint", () => {
                 // because our mocking makes all transactions to be invalid (already in cache)
             });
 
-            it("should throw validation error when sending too much transactions", async () => {
+            it("should reject when sending too much transactions", async () => {
                 const transactions = TransactionFactory.transfer(wallets[0].address, 111)
                     .withNetwork("unitnet")
                     .withPassphrase("one two three")
                     .create(50);
 
-                // TODO: test makes no sense anymore
                 await expect(
                     emit("p2p.peer.postTransactions", {
                         data: { transactions },
                         headers,
                     }),
-                ).toResolve();
+                ).toReject();
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
             });
 
             it("should disconnect the client if it sends an invalid message payload", async () => {
+                connect();
                 await delay(1000);
 
                 expect(socket.state).toBe("open");
-
-                send('{"event": "#handshake", "data": {}, "cid": 1}');
-                await delay(500);
 
                 send("Invalid payload");
                 await delay(1000);
@@ -193,9 +229,6 @@ describe("Peer socket endpoint", () => {
                 await delay(1000);
 
                 expect(socket.state).toBe("open");
-
-                send('{"event": "#handshake", "data": {}, "cid": 1}');
-                await delay(500);
 
                 send("#2");
                 await delay(1000);
@@ -242,11 +275,58 @@ describe("Peer socket endpoint", () => {
                 server.killWorkers({ immediate: true });
                 await delay(2000); // give time to workers to respawn
             });
+
+            it("should block the client if it sends an invalid opcode", async () => {
+                connect();
+                await delay(1000);
+
+                expect(socket.state).toBe("open");
+
+                invalidOpcode();
+                await delay(500);
+                expect(socket.state).toBe("closed");
+                await delay(500);
+                connect();
+                await delay(500);
+                expect(socket.state).toBe("closed");
+
+                // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+                server.killWorkers({ immediate: true });
+                await delay(2000); // give time to workers to respawn
+            });
         });
     });
 
     describe("Socket errors", () => {
+        it("should disconnect all sockets from same ip if another connection is made from the same IP address", async () => {
+            connect();
+            await delay(1000);
+
+            expect(socket.state).toBe("open");
+
+            const secondSocket = socketCluster.create({
+                port: 4007,
+                hostname: "127.0.0.1",
+                multiplex: false,
+            });
+            secondSocket.on("error", () => {
+                //
+            });
+
+            secondSocket.connect();
+
+            await delay(1000);
+
+            expect(socket.state).toBe("closed");
+            expect(secondSocket.state).toBe("open");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
+        });
+
         it("should accept the request when below rate limit", async () => {
+            connect();
             await delay(1000);
             for (let i = 0; i < 2; i++) {
                 const { data } = await emit("p2p.peer.getStatus", {
@@ -288,15 +368,16 @@ describe("Peer socket endpoint", () => {
 
             const block = BlockFactory.createDummy();
 
-            const postBlock = () => emit("p2p.peer.postBlock", {
-                headers,
-                data: {
-                    block: Blocks.Serializer.serializeWithTransactions({
-                        ...block.data,
-                        transactions: block.transactions.map(tx => tx.data),
-                    }),
-                },
-            });
+            const postBlock = () =>
+                emit("p2p.peer.postBlock", {
+                    headers,
+                    data: {
+                        block: Blocks.Serializer.serializeWithTransactions({
+                            ...block.data,
+                            transactions: block.transactions.map(tx => tx.data),
+                        }),
+                    },
+                });
 
             await expect(postBlock()).toResolve();
             await expect(postBlock()).toResolve();
@@ -326,9 +407,14 @@ describe("Peer socket endpoint", () => {
                     },
                 ),
             ).rejects.toHaveProperty("name", "BadConnectionError");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection when the event does not start with p2p", async () => {
+            connect();
             await delay(1000);
 
             await expect(
@@ -337,9 +423,14 @@ describe("Peer socket endpoint", () => {
                     data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection when the version is invalid", async () => {
+            connect();
             await delay(1000);
 
             await expect(
@@ -348,9 +439,13 @@ describe("Peer socket endpoint", () => {
                     data: {},
                 }),
             ).rejects.toHaveProperty("name", "BadConnectionError");
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection and prevent reconnection if blocked", async () => {
+            connect();
             await delay(1000);
 
             await emit("p2p.peer.getPeers", {
@@ -375,6 +470,25 @@ describe("Peer socket endpoint", () => {
             await delay(1000);
 
             expect(socket.state).not.toBe("open");
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
+        });
+
+        it("should close the connection when using unsupported event messages", async () => {
+            connect();
+            await delay(1000);
+
+            await expect(
+                emit("#subscribe", {
+                    headers,
+                    data: {},
+                }),
+            ).rejects.toHaveProperty("name", "BadConnectionError");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
         });
 
         it("should close the connection if it sends data after a disconnect packet", async () => {
@@ -393,6 +507,32 @@ describe("Peer socket endpoint", () => {
             // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
             server.killWorkers({ immediate: true });
             await delay(2000); // give time to workers to respawn
+        });
+
+        it("should close the connection when the JSON includes additional properties", async () => {
+            connect();
+            await delay(1000);
+            const payload: any = {};
+            payload.event = "p2p.peer.getCommonBlocks";
+            payload.data = { data: { ids: ["1"] }, headers: {} };
+            payload.cid = 1;
+
+            const symbol = String.fromCharCode(42);
+            for (let i = 0; i < 30000; i++) {
+                const char = String.fromCharCode(i);
+                if (JSON.stringify(String.fromCharCode(i)).length === 3) {
+                    payload.data[char] = 1;
+                    payload.data[symbol + char] = 1;
+                    payload.data[symbol + char + symbol] = 1;
+                    payload.data[char] = 1;
+                }
+            }
+
+            const stringifiedPayload = JSON.stringify(payload).replace(/ /g, "");
+            expect(socket.state).toBe("open");
+            send(stringifiedPayload);
+            await delay(500);
+            expect(socket.state).not.toBe("open");
         });
     });
 });

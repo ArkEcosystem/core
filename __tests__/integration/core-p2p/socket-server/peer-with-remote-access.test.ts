@@ -18,7 +18,7 @@ let emit;
 
 const headers = {
     version: "2.1.0",
-    port: "4009",
+    port: 4009,
     height: 1,
     "Content-Type": "application/json",
 };
