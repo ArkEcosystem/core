@@ -7,7 +7,7 @@
         "block": {
             "version": 0,
             "maxTransactions": 150,
-            "maxPayload": 2097152
+            "maxPayload": 6300000
         },
         "epoch": "2017-03-21T13:00:00.000Z",
         "fees": {

@@ -51,4 +51,26 @@ describe("isValidPeer", () => {
         expect(isValidPeer({ ip: "5.196.105.32" })).toBeTrue();
         expect(isValidPeer({ ip: "5.196.105.32" })).toBeTrue();
     });
+
+    it("should be ok if IP is from network interface", () => {
+        const ips = [
+            "167.114.29.51",
+            "167.114.29.52",
+            "167.114.29.53",
+            "167.114.29.54",
+            "167.114.29.55"
+        ];
+
+        const spy = jest.spyOn(os, "networkInterfaces").mockReturnValue({
+            "eth0": ips.map(ip => ({ address: ip }) as any)
+        });
+
+        for (const ip of ips) {
+            expect(isValidPeer({ ip }, false)).toBeTrue();
+            expect(isValidPeer({ ip })).toBeFalse();
+        }
+
+        spy.mockRestore();
+    });
+
 });

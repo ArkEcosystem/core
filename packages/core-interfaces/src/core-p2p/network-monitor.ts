@@ -27,6 +27,7 @@ export interface INetworkMonitor {
     discoverPeers(initialRun?: boolean): Promise<boolean>;
     getNetworkHeight(): number;
     getNetworkState(): Promise<INetworkState>;
+    getRateLimitedEndpoints(): string[];
     getRateLimitStatus(ip: string, endpoint?: string): Promise<IRateLimitStatus>;
     isBlockedByRateLimit(ip: string): Promise<boolean>;
     refreshPeersAfterFork(): Promise<void>;

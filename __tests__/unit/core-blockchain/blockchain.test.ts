@@ -243,7 +243,7 @@ describe("Blockchain", () => {
                 .mockReturnValueOnce(1)
                 .mockReturnValueOnce(1);
 
-            await blockchain.handleIncomingBlock(blocks101to155[54]);
+            blockchain.handleIncomingBlock(blocks101to155[54]);
 
             expect(loggerInfo).toHaveBeenCalledWith("Block disregarded because blockchain is not ready");
             blockchain.state.started = true;
@@ -341,6 +341,51 @@ describe("Blockchain", () => {
                 "ARK Core is launched in Genesis Start mode. This is usually for starting the first node on the blockchain. Unless you know what you are doing, this is likely wrong.",
             );
             expect(loggerInfo).toHaveBeenCalledWith("Starting ARK Core for a new world, welcome aboard");
+        });
+    });
+
+    describe("checkMissingBlocks", () => {
+        afterEach(() => {
+            jest.restoreAllMocks();
+        });
+
+        it("should fork if random result is < 0.80", async () => {
+            jest.spyOn(blockchain, "checkMissingBlocks");
+            jest.spyOn(getMonitor, "checkNetworkHealth").mockResolvedValueOnce({ forked: true });
+            jest.spyOn(Math, "random").mockReturnValue(0.2);
+
+            // @ts-ignore
+            blockchain.missedBlocks = Managers.configManager.getMilestone().activeDelegates;
+            await blockchain.checkMissingBlocks();
+
+            // @ts-ignore
+            expect(blockchain.missedBlocks).toBe(0);
+        });
+
+        it("should fork if random result is 0.80", async () => {
+            jest.spyOn(blockchain, "checkMissingBlocks");
+            jest.spyOn(getMonitor, "checkNetworkHealth").mockResolvedValueOnce({ forked: true });
+            jest.spyOn(Math, "random").mockReturnValue(0.8);
+
+            // @ts-ignore
+            blockchain.missedBlocks = Managers.configManager.getMilestone().activeDelegates;
+            await blockchain.checkMissingBlocks();
+
+            // @ts-ignore
+            expect(blockchain.missedBlocks).toBe(0);
+        });
+
+        it("should not take action if random result is > 0.80", async () => {
+            jest.spyOn(blockchain, "checkMissingBlocks");
+            jest.spyOn(getMonitor, "checkNetworkHealth").mockResolvedValueOnce({ forked: true });
+            jest.spyOn(Math, "random").mockReturnValue(0.9);
+
+            // @ts-ignore
+            blockchain.missedBlocks = Managers.configManager.getMilestone().activeDelegates;
+            await blockchain.checkMissingBlocks();
+
+            // @ts-ignore
+            expect(blockchain.missedBlocks).toBe(Managers.configManager.getMilestone().activeDelegates + 1);
         });
     });
 });

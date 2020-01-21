@@ -5,6 +5,7 @@ const utils = require("./utils");
 const shared = require("./shared");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { htlcSecretHex } = require('../../../../../utils/fixtures');
 
 /**
  * Send claim transactions, we need 4 claim transactions to test when :
@@ -22,17 +23,17 @@ module.exports = async options => {
     shared.claimTransactions.normal = TransactionFactory.htlcClaim(
             {
                 lockTransactionId: shared.lockTransactions.normal.id,
-                unlockSecret: shared.lockTransactions.normal.recipientId.slice(0, 32),
+                unlockSecret: htlcSecretHex,
             }
         )
         .withPassphrase(utils.htlcRecipient1.passphrase)
         .createOne();
 
-    // 2nd transaction : htlc lock transaction that we claim with a wrong secret hash
+    // 2nd transaction : htlc lock transaction that we claim with a wrong unlock secret
     shared.claimTransactions.wrongSecret = TransactionFactory.htlcClaim(
             {
                 lockTransactionId: shared.lockTransactions.wrongSecret.id,
-                unlockSecret: "thatisasecretthatissooooooowrong",
+                unlockSecret: "0000000000000000000000000000000000000000000000000000000000000000",
             }
         )
         .withPassphrase(utils.htlcRecipient2.passphrase)
@@ -42,7 +43,7 @@ module.exports = async options => {
     shared.claimTransactions.notRecipient = TransactionFactory.htlcClaim(
             {
                 lockTransactionId: shared.lockTransactions.notRecipient.id,
-                unlockSecret: shared.lockTransactions.notRecipient.recipientId.slice(0, 32),
+                unlockSecret: htlcSecretHex,
             }
         )
         .withPassphrase(utils.htlcNotRecipient.passphrase)
@@ -52,7 +53,7 @@ module.exports = async options => {
     shared.claimTransactions.lockExpired = TransactionFactory.htlcClaim(
             {
                 lockTransactionId: shared.lockTransactions.lockExpired.id,
-                unlockSecret: shared.lockTransactions.lockExpired.recipientId.slice(0, 32),
+                unlockSecret: htlcSecretHex,
             }
         )
         .withPassphrase(utils.htlcRecipient4.passphrase)

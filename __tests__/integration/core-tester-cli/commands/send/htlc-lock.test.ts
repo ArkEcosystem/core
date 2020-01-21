@@ -1,10 +1,11 @@
 import "jest-extended";
 
 import { httpie } from "@arkecosystem/core-utils";
-import { Crypto, Enums, Identities, Managers } from "@arkecosystem/crypto";
+import { Enums, Managers } from "@arkecosystem/crypto";
 import nock from "nock";
 import { HtlcLockCommand } from "../../../../../packages/core-tester-cli/src/commands/send/htlc-lock";
 import { arkToSatoshi, captureTransactions, toFlags } from "../../shared";
+import { htlcSecretHashHex } from "../../../../utils/fixtures";
 
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
@@ -46,11 +47,7 @@ describe("Commands - Htlc lock", () => {
             .filter(tx => tx.type === Enums.TransactionType.HtlcLock)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(opts.htlcLockFee));
-                expect(tx.asset.lock.secretHash).toEqual(
-                    Crypto.HashAlgorithms.sha256(
-                        Identities.Address.fromPublicKey(tx.senderPublicKey).slice(0, 32),
-                    ).toString("hex"),
-                );
+                expect(tx.asset.lock.secretHash).toEqual(htlcSecretHashHex);
             });
     });
 
@@ -71,11 +68,7 @@ describe("Commands - Htlc lock", () => {
             .filter(tx => tx.type === Enums.TransactionType.HtlcLock)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(0.1));
-                expect(tx.asset.lock.secretHash).toEqual(
-                    Crypto.HashAlgorithms.sha256(
-                        Identities.Address.fromPublicKey(tx.senderPublicKey).slice(0, 32),
-                    ).toString("hex"),
-                );
+                expect(tx.asset.lock.secretHash).toEqual(htlcSecretHashHex);
             });
     });
 });

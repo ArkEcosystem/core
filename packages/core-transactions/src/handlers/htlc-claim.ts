@@ -64,7 +64,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             throw new HtlcLockExpiredError();
         }
 
-        const unlockSecretHash: string = Crypto.HashAlgorithms.sha256(claimAsset.unlockSecret).toString("hex");
+        const unlockSecretBytes = Buffer.from(claimAsset.unlockSecret, "hex");
+        const unlockSecretHash: string = Crypto.HashAlgorithms.sha256(unlockSecretBytes).toString("hex");
         if (lock.secretHash !== unlockSecretHash) {
             throw new HtlcSecretHashMismatchError();
         }
