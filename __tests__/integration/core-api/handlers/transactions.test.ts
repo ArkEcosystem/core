@@ -646,10 +646,10 @@ describe("API 2.0 - Transactions", () => {
                 },
                 "2": {
                     bridgechainRegistration: "5000000000",
-                    bridgechainResignation: "5000000000",
+                    bridgechainResignation: "0",
                     bridgechainUpdate: "5000000000",
                     businessRegistration: "5000000000",
-                    businessResignation: "5000000000",
+                    businessResignation: "0",
                     businessUpdate: "5000000000",
                 },
             });
