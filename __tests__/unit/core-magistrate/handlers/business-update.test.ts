@@ -9,12 +9,13 @@ import {
 import {
     BusinessRegistrationTransactionHandler,
     BusinessResignationTransactionHandler,
+    BusinessUpdateTransactionHandler,
 } from "@arkecosystem/core-magistrate-transactions/src/handlers";
 import { businessIndexer, MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-manager";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Managers, Utils } from "@arkecosystem/crypto";
-import { businessRegistrationAsset1 } from "../helper";
+import { businessRegistrationAsset1, businessUpdateAsset1 } from "../helper";
 
 // Mock database with walletManager
 jest.mock("@arkecosystem/core-container", () => {
@@ -37,10 +38,13 @@ jest.mock("@arkecosystem/core-container", () => {
 // Handler declarations
 let businessRegistrationHandler: Handlers.TransactionHandler;
 let businessResignationHandler: Handlers.TransactionHandler;
+let businessUpdateHandler: Handlers.TransactionHandler;
 
 // Builder declarations
 let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;
 let businessResignationBuilder: MagistrateBuilders.BusinessResignationBuilder;
+let businessUpdateBuilder: MagistrateBuilders.BusinessUpdateBuilder;
+
 
 // Sender Wallet declaration
 let senderWallet: Wallets.Wallet;
@@ -49,23 +53,26 @@ let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
 
 
-describe("Business resignation handler", () => {
+describe("Business update handler", () => {
     // Manager configurations
     Managers.configManager.setFromPreset("testnet");
     Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 
-    // Handlers registries
+    // Handler registries
     Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);
     Handlers.Registry.registerTransactionHandler(BusinessResignationTransactionHandler);
+    Handlers.Registry.registerTransactionHandler(BusinessUpdateTransactionHandler);
 
     beforeEach(() => {
         // Handler initializations
         businessRegistrationHandler = new BusinessRegistrationTransactionHandler();
         businessResignationHandler = new BusinessResignationTransactionHandler();
+        businessUpdateHandler = new BusinessUpdateTransactionHandler();
 
         // Builder initializations
         businessRegistrationBuilder = new MagistrateBuilders.BusinessRegistrationBuilder();
         businessResignationBuilder = new MagistrateBuilders.BusinessResignationBuilder();
+        businessUpdateBuilder = new MagistrateBuilders.BusinessUpdateBuilder();
 
         // Wallet Manager initialization
         walletManager = new Wallets.WalletManager();
@@ -79,73 +86,63 @@ describe("Business resignation handler", () => {
         walletManager.reindex(senderWallet);
     });
 
-    it("should throw BusinessIsNotRegisteredError, because business is not registered", async () => {
-        const actual = businessResignationBuilder
-            .fee("100")
-            .nonce("1")
-            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+    describe("Business update handler", () => {
+        it("should throw BusinessIsNotRegisteredError, because business is not registered", async () => {
 
-        await expect(
-            businessResignationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-        ).rejects.toThrowError(BusinessIsNotRegisteredError);
-    });
-
-    describe("Business registered tests",()=>{
-
-        let registeredTransaction;
-
-        beforeEach(async () =>{
-
-            registeredTransaction = businessRegistrationBuilder
-                .businessRegistrationAsset(businessRegistrationAsset1)
+            const actual = businessUpdateBuilder
+                .businessUpdateAsset(businessUpdateAsset1)
                 .nonce("1")
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-            await businessRegistrationHandler.applyToSender(registeredTransaction.build(), walletManager);
-
-        });
-
-        it("should pass throwIfCannotBeApplied, because business is registered", async ()=> {
-
-            const actual = businessResignationBuilder
-                .nonce("2")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-
             await expect(
-                businessResignationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
-            ).toResolve();
-
-
+                businessUpdateHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+            ).rejects.toThrowError(BusinessIsNotRegisteredError);
         });
 
-        it("should throw BusinessIsResignedError, because wallet already resigned once", async ()=> {
+        describe("Business registered tests", ()=>{
+            let registeredTransaction;
 
-            const resignationPass = businessResignationBuilder
-                .nonce("2")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+            beforeEach(async () => {
+                registeredTransaction = businessRegistrationBuilder
+                    .businessRegistrationAsset(businessRegistrationAsset1)
+                    .nonce("1")
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
-            await expect(businessResignationHandler.applyToSender(resignationPass.build(), walletManager)).toResolve();
+                await businessRegistrationHandler.applyToSender(registeredTransaction.build(), walletManager);
 
-            const resignationThrow = businessResignationBuilder
-                .nonce("3")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+            });
 
-            await expect(
-                businessResignationHandler.throwIfCannotBeApplied(resignationThrow.build(), senderWallet, walletManager),
-            ).rejects.toThrowError(BusinessIsResignedError);
+            it("should resolve, because business is registered", async () => {
+                const actual = businessUpdateBuilder
+                    .businessUpdateAsset(businessUpdateAsset1)
+                    .nonce("2")
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
 
+                await expect(
+                    businessUpdateHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+                ).toResolve();
+            });
+
+            it("should throw BusinessIsResignedError, because business is resigned", async () => {
+                const businessResignation = businessResignationBuilder
+                    .nonce("2")
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+                await businessResignationHandler.applyToSender(businessResignation.build(), walletManager);
+
+                const actual = businessUpdateBuilder
+                    .businessUpdateAsset(businessUpdateAsset1)
+                    .nonce("3")
+                    .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+                await expect(
+                    businessUpdateHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+                ).rejects.toThrowError(BusinessIsResignedError);
+
+
+            });
         });
 
-        it("should have property business.resigned equal to true", async ()=> {
-
-            const actual = businessResignationBuilder
-                .nonce("2")
-                .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
-
-            await businessResignationHandler.applyToSender(actual.build(), walletManager);
-
-            expect(senderWallet.getAttribute("business.resigned")).toBeTrue();
-        });
 
     });
 
