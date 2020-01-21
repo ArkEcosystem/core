@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.5.37] - 2020-01-21
+
+### Fixed
+
+-   Remove banning when peer opens multiple sockets ([#3409])
+
 ## [2.5.36] - 2020-01-21
 
 ### Fixed
@@ -1024,3 +1030,4 @@ Closed security vulnerabilities:
 [#3331]: https://github.com/ARKEcosystem/core/pull/3331
 [#3354]: https://github.com/ARKEcosystem/core/pull/3354
 [#3404]: https://github.com/ARKEcosystem/core/pull/3404
+[#3409]: https://github.com/ARKEcosystem/core/pull/3409
