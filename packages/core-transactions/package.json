@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-transactions",
-    "version": "2.5.31",
+    "version": "2.5.36",
     "description": "Transaction Services for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -19,9 +19,9 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
-        "@arkecosystem/core-event-emitter": "^2.5.31",
-        "@arkecosystem/core-interfaces": "^2.5.31",
-        "@arkecosystem/crypto": "^2.5.31",
+        "@arkecosystem/core-event-emitter": "^2.5.36",
+        "@arkecosystem/core-interfaces": "^2.5.36",
+        "@arkecosystem/crypto": "^2.5.36",
         "bs58check": "^2.1.2"
     },
     "engines": {
