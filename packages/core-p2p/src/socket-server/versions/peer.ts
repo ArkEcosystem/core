@@ -6,7 +6,7 @@ import pluralize from "pluralize";
 import { MissingCommonBlockError } from "../../errors";
 import { IPeerPingResponse } from "../../interfaces";
 import { isWhitelisted } from "../../utils";
-import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
+import { InvalidTransactionsError, TooManyTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
 
@@ -67,6 +67,10 @@ export const postBlock = async ({ req }): Promise<void> => {
         if (!isBlockChained(lastDownloadedBlock, block)) {
             throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
         }
+    }
+
+    if (block.transactions.length > app.getConfig().getMilestone().block.maxTransactions) {
+        throw new TooManyTransactionsError(block);
     }
 
     app.resolvePlugin<Logger.ILogger>("logger").info(
