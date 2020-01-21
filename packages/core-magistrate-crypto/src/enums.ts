@@ -11,9 +11,9 @@ export const MagistrateTransactionGroup = 2;
 
 export enum MagistrateTransactionStaticFees {
     BusinessRegistration = "5000000000",
-    BusinessResignation = "5000000000",
+    BusinessResignation = "0",
     BusinessUpdate = "5000000000",
     BridgechainRegistration = "5000000000",
-    BridgechainResignation = "5000000000",
+    BridgechainResignation = "0",
     BridgechainUpdate = "5000000000",
 }
