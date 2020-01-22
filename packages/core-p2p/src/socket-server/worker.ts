@@ -268,10 +268,6 @@ export class Worker extends SCWorker {
         const useLocalRateLimiter: boolean = !rateLimitedEndpoints[req.event];
         if (useLocalRateLimiter) {
             if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
-                if (await this.rateLimiter.isBlocked(req.socket.remoteAddress)) {
-                    req.socket.terminate();
-                    return;
-                }
                 req.socket.terminate();
                 return;
             }
