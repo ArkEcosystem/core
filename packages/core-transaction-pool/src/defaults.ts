@@ -30,6 +30,12 @@ export const defaults = {
             htlcLock: 100,
             htlcClaim: 0,
             htlcRefund: 0,
+            businessRegistration: 4000000,
+            businessUpdate: 500,
+            businessResignation: 100,
+            bridgechainRegistration: 4000000,
+            bridgechainUpdate: 500,
+            bridgechainResignation: 100,
         },
     },
 };
