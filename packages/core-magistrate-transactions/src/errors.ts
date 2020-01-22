@@ -48,9 +48,3 @@ export class GenesisHashAlreadyRegisteredError extends Errors.TransactionError {
         super("Failed to apply transaction, because genesis hash is already registered by another bridgechain.");
     }
 }
-
-export class StaticFeeMismatchError extends Errors.TransactionError {
-    constructor(staticFee: string) {
-        super(`Failed to apply transaction, because fee doesn't match static fee ${staticFee}.`);
-    }
-}
