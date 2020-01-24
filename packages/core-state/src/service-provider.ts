@@ -9,6 +9,14 @@ import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
 import { TransactionValidator } from "./transaction-validator";
 import { TempWalletRepository, Wallet, WalletRepository } from "./wallets";
+import {
+    addressesIndexer,
+    ipfsIndexer,
+    locksIndexer,
+    publicKeysIndexer,
+    resignationsIndexer,
+    usernamesIndexer,
+} from "./wallets/wallet-indexes";
 
 const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
     return async (
@@ -24,6 +32,7 @@ const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) =
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.registerFactories();
+        this.registerIndexers();
 
         this.app
             .bind(Container.Identifiers.WalletRepository)
@@ -78,5 +87,31 @@ export class ServiceProvider extends Providers.ServiceProvider {
                     ),
                 ),
             );
+    }
+
+    private registerIndexers(): void {
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: Contracts.State.WalletIndexes.Addresses, indexer: addressesIndexer });
+
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: Contracts.State.WalletIndexes.PublicKeys, indexer: publicKeysIndexer });
+
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: Contracts.State.WalletIndexes.Usernames, indexer: usernamesIndexer });
+
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: Contracts.State.WalletIndexes.Resignations, indexer: resignationsIndexer });
+
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: Contracts.State.WalletIndexes.Locks, indexer: locksIndexer });
+
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: Contracts.State.WalletIndexes.Ipfs, indexer: ipfsIndexer });
     }
 }

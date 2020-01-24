@@ -20,6 +20,8 @@ export interface WalletIndex {
 
 export type WalletIndexer = (index: WalletIndex, wallet: Wallet) => void;
 
+export type WalletIndexerIndex = { name: string; indexer: WalletIndexer };
+
 export enum WalletIndexes {
     Addresses = "addresses",
     PublicKeys = "publicKeys",
@@ -148,10 +150,6 @@ export interface WalletRepository {
 
     reset(): void;
 
-    registerIndex(name: string, indexer: WalletIndexer): void;
-
-    unregisterIndex(name: string): void;
-
     getIndex(name: string): WalletIndex;
 
     allByAddress(): ReadonlyArray<Wallet>;
@@ -159,8 +157,6 @@ export interface WalletRepository {
     allByPublicKey(): ReadonlyArray<Wallet>;
 
     allByUsername(): ReadonlyArray<Wallet>;
-
-    findById(id: string): Wallet;
 
     findByAddress(address: string): Wallet;
 
@@ -174,7 +170,9 @@ export interface WalletRepository {
 
     findByUsername(username: string): Wallet;
 
-    findByIndex(index: string | string[], key: string): Wallet;
+    findByIndex(index: string, key: string): Wallet;
+
+    findByIndexes(indexes: string[], key: string): Wallet;
 
     getNonce(publicKey: string): Utils.BigNumber;
 

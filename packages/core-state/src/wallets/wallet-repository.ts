@@ -8,103 +8,35 @@ import { WalletIndex } from "./wallet-index";
 // todo: review the implementation
 @Container.injectable()
 export class WalletRepository implements Contracts.State.WalletRepository {
-    @Container.inject(Container.Identifiers.Application)
-    protected readonly app!: Contracts.Kernel.Application;
-
     protected readonly indexes: Record<string, Contracts.State.WalletIndex> = {};
 
-    public constructor() {
-        this.reset();
+    @Container.multiInject(Container.Identifiers.WalletRepositoryIndexerIndex)
+    private readonly indexerIndexes!: Contracts.State.WalletIndexerIndex[];
 
-        this.registerIndex(
-            Contracts.State.WalletIndexes.Addresses,
-            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-                if (wallet.address) {
-                    index.set(wallet.address, wallet);
-                }
-            },
-        );
+    @Container.inject(Container.Identifiers.WalletFactory)
+    private readonly createWalletFactory!: Contracts.State.WalletFactory;
 
-        this.registerIndex(
-            Contracts.State.WalletIndexes.PublicKeys,
-            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-                if (wallet.publicKey) {
-                    index.set(wallet.publicKey, wallet);
-                }
-            },
-        );
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
 
-        this.registerIndex(
-            Contracts.State.WalletIndexes.Usernames,
-            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-                if (wallet.isDelegate()) {
-                    index.set(wallet.getAttribute("delegate.username"), wallet);
-                }
-            },
-        );
-
-        this.registerIndex(
-            Contracts.State.WalletIndexes.Resignations,
-            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-                if (wallet.isDelegate() && wallet.hasAttribute("delegate.resigned")) {
-                    index.set(wallet.getAttribute("delegate.username"), wallet);
-                }
-            },
-        );
-
-        this.registerIndex(
-            Contracts.State.WalletIndexes.Locks,
-            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-                if (wallet.hasAttribute("htlc.locks")) {
-                    const locks: object = wallet.getAttribute("htlc.locks");
-
-                    for (const lockId of Object.keys(locks)) {
-                        index.set(lockId, wallet);
-                    }
-                }
-            },
-        );
-
-        this.registerIndex(
-            Contracts.State.WalletIndexes.Ipfs,
-            (index: Contracts.State.WalletIndex, wallet: Contracts.State.Wallet) => {
-                if (wallet.hasAttribute("ipfs.hashes")) {
-                    const hashes: object = wallet.getAttribute("ipfs.hashes");
-
-                    for (const hash of Object.keys(hashes)) {
-                        index.set(hash, wallet);
-                    }
-                }
-            },
-        );
+    @Container.postConstruct()
+    public initialize(): void {
+        for (const { name, indexer } of this.indexerIndexes) {
+            if (this.indexes[name]) {
+                throw new WalletIndexAlreadyRegisteredError(name);
+            }
+            this.indexes[name] = new WalletIndex(indexer);
+        }
     }
 
-    // TODO: use an inversify factory for wallets instead?
     public createWallet(address: string): Contracts.State.Wallet {
-        return this.app.get<Contracts.State.WalletFactory>(Container.Identifiers.WalletFactory)(address);
-    }
-
-    public registerIndex(name: string, indexer: Contracts.State.WalletIndexer): void {
-        if (this.indexes[name]) {
-            throw new WalletIndexAlreadyRegisteredError(name);
-        }
-
-        this.indexes[name] = new WalletIndex(indexer);
-    }
-
-    public unregisterIndex(name: string): void {
-        if (!this.indexes[name]) {
-            throw new WalletIndexNotFoundError(name);
-        }
-
-        delete this.indexes[name];
+        return this.createWalletFactory(address);
     }
 
     public getIndex(name: string): Contracts.State.WalletIndex {
         if (!this.indexes[name]) {
             throw new WalletIndexNotFoundError(name);
         }
-
         return this.indexes[name];
     }
 
@@ -124,46 +56,25 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return this.getIndex(Contracts.State.WalletIndexes.Usernames).values();
     }
 
-    public findById(id: string): Contracts.State.Wallet {
-        for (const index of Object.values(this.indexes)) {
-            const wallet: Contracts.State.Wallet | undefined = index.get(id);
-
-            if (wallet) {
-                return wallet;
-            }
-        }
-
-        throw new Error(`A wallet with the ID [${id}] does not exist.`);
-    }
-
     public findByAddress(address: string): Contracts.State.Wallet {
-        const index: Contracts.State.WalletIndex = this.getIndex(Contracts.State.WalletIndexes.Addresses);
-
+        const index = this.getIndex(Contracts.State.WalletIndexes.Addresses);
         if (address && !index.has(address)) {
             index.set(address, this.createWallet(address));
         }
-
         const wallet: Contracts.State.Wallet | undefined = index.get(address);
-
         AppUtils.assert.defined<Contracts.State.Wallet>(wallet);
-
         return wallet;
     }
 
     public findByPublicKey(publicKey: string): Contracts.State.Wallet {
-        const index: Contracts.State.WalletIndex = this.getIndex(Contracts.State.WalletIndexes.PublicKeys);
-
+        const index = this.getIndex(Contracts.State.WalletIndexes.PublicKeys);
         if (publicKey && !index.has(publicKey)) {
-            const wallet: Contracts.State.Wallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
+            const wallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
             wallet.publicKey = publicKey;
-
             index.set(publicKey, wallet);
         }
-
         const wallet: Contracts.State.Wallet | undefined = index.get(publicKey);
-
         AppUtils.assert.defined<Contracts.State.Wallet>(wallet);
-
         return wallet;
     }
 
@@ -171,34 +82,24 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         return this.findByIndex(Contracts.State.WalletIndexes.Usernames, username);
     }
 
-    public findByIndex(index: string | string[], key: string): Contracts.State.Wallet {
-        if (!Array.isArray(index)) {
-            index = [index];
+    public findByIndex(index: string, key: string): Contracts.State.Wallet {
+        if (!this.hasByIndex(index, key)) {
+            throw new Error(`Wallet ${key} doesn't exist in index ${index}`);
         }
+        return this.getIndex(index).get(key)!;
+    }
 
-        for (const name of index) {
-            const index: Contracts.State.WalletIndex = this.getIndex(name);
-
-            if (index.has(key)) {
-                const wallet: Contracts.State.Wallet | undefined = index.get(key);
-
-                AppUtils.assert.defined<Contracts.State.Wallet>(wallet);
-
-                return wallet;
+    public findByIndexes(indexes: string[], key: string): Contracts.State.Wallet {
+        for (const index of indexes) {
+            if (this.hasByIndex(index, key)) {
+                return this.findByIndex(index, key);
             }
         }
-
-        throw new Error(`A wallet with the ID [${key}] does not exist in the [${index.join(",")}] index.`);
+        throw new Error(`Wallet ${key} doesn't exist in indexes ${indexes.join(", ")}`);
     }
 
     public has(key: string): boolean {
-        for (const walletIndex of Object.values(this.indexes)) {
-            if (walletIndex.has(key)) {
-                return true;
-            }
-        }
-
-        return false;
+        return Object.values(this.indexes).some(index => index.has(key));
     }
 
     public hasByAddress(address: string): boolean {
@@ -294,35 +195,28 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public findByScope(scope: Contracts.State.SearchScope, id: string): Contracts.State.Wallet {
         switch (scope) {
             case Contracts.State.SearchScope.Wallets: {
-                return this.findByIndex(
-                    [
-                        Contracts.State.WalletIndexes.Usernames,
-                        Contracts.State.WalletIndexes.Addresses,
-                        Contracts.State.WalletIndexes.PublicKeys,
-                    ],
-                    id,
-                );
+                const indexes = [
+                    Contracts.State.WalletIndexes.Usernames,
+                    Contracts.State.WalletIndexes.Addresses,
+                    Contracts.State.WalletIndexes.PublicKeys,
+                ];
+                return this.findByIndexes(indexes, id);
             }
-
             case Contracts.State.SearchScope.Delegates: {
-                const wallet: Contracts.State.Wallet | undefined = this.findByIndex(
-                    [
-                        Contracts.State.WalletIndexes.Usernames,
-                        Contracts.State.WalletIndexes.Addresses,
-                        Contracts.State.WalletIndexes.PublicKeys,
-                    ],
-                    id,
-                );
-
-                if (wallet && wallet.isDelegate()) {
-                    return wallet;
+                const indexes = [
+                    Contracts.State.WalletIndexes.Usernames,
+                    Contracts.State.WalletIndexes.Addresses,
+                    Contracts.State.WalletIndexes.PublicKeys,
+                ];
+                const wallet = this.findByIndexes(indexes, id);
+                if (wallet && wallet.isDelegate() === false) {
+                    throw new Error(`Wallet ${id} isn't delegate`);
                 }
-
-                break;
+                return wallet;
             }
+            default:
+                throw new Error(`Unknown scope ${scope.toString()}`);
         }
-
-        throw new Error(`A wallet with the ID [${id}] does not exist in the [${scope.toString()}] scope.`);
     }
 
     public count(scope: Contracts.State.SearchScope): number {
@@ -465,7 +359,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                         expirationType: lock.expiration.type,
                         expirationValue: lock.expiration.value,
                         isExpired: AppUtils.expirationCalculator.calculateLockExpirationStatus(
-                            this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastBlock(),
+                            this.stateStore.getLastBlock(),
                             lock.expiration,
                         ),
                         vendorField: lock.vendorField!,

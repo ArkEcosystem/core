@@ -12,6 +12,8 @@ import { bridgechainIndexer, businessIndexer, MagistrateIndex } from "./wallet-i
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
+        this.registerIndexers();
+
         this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessResignationTransactionHandler);
         this.app.bind(Container.Identifiers.TransactionHandler).to(BusinessUpdateTransactionHandler);
@@ -20,14 +22,13 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionHandler).to(BridgechainUpdateTransactionHandler);
     }
 
-    public async boot(): Promise<void> {
-        const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
-            Container.Identifiers.WalletRepository,
-            "state",
-            "blockchain",
-        );
+    private registerIndexers(): void {
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: MagistrateIndex.Businesses, indexer: businessIndexer });
 
-        walletRepository.registerIndex(MagistrateIndex.Businesses, businessIndexer);
-        walletRepository.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
+        this.app
+            .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+            .toConstantValue({ name: MagistrateIndex.Bridgechains, indexer: bridgechainIndexer });
     }
 }

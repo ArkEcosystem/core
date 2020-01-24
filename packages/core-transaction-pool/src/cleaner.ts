@@ -6,6 +6,7 @@ import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
 import { Storage } from "./storage";
 import { Synchronizer } from "./synchronizer";
+import { Handlers } from "@arkecosystem/core-transactions";
 
 /**
  * @export
@@ -69,6 +70,15 @@ export class Cleaner {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "pool")
     private readonly poolWalletRepository!: PoolWalletRepository;
+
+    /**
+     * @private
+     * @type {Handlers.Registry}
+     * @memberof Cleaner
+     */
+    @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
+    @Container.tagged("state", "blockchain")
+    private readonly blockchainHandlerRegistry!: Handlers.Registry;
 
     /**
      * @memberof Cleaner
@@ -181,7 +191,8 @@ export class Cleaner {
         const purge = async (transaction: Interfaces.ITransaction) => {
             this.emitter.dispatch(event, transaction.data);
 
-            await this.poolWalletRepository.revertTransactionForSender(transaction);
+            const handler = await this.blockchainHandlerRegistry.getActivatedHandlerForData(transaction.data);
+            await handler.revertForSender(transaction, this.poolWalletRepository);
 
             AppUtils.assert.defined<Interfaces.ITransaction>(transaction.id);
 

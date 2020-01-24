@@ -49,6 +49,7 @@ export const Identifiers = {
     DatabaseConnection: Symbol.for("Database<Connection>"),
     // Repositories
     WalletRepository: Symbol.for("Repository<Wallet>"),
+    WalletRepositoryIndexerIndex: Symbol.for("IndexerIndex<Repository<Wallet>>"),
     // Database - @todo add database prefix?
     BlockRepository: Symbol.for("Database<BlockRepository>"),
     RoundRepository: Symbol.for("Database<RoundRepository>"),
