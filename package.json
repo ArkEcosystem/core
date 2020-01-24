@@ -86,7 +86,7 @@
         "prompts": "^2.2.1",
         "rimraf": "^3.0.0",
         "snyk": "^1.234.0",
-        "ts-jest": "^24.1.0",
+        "ts-jest": "^25.0.0",
         "tslint": "^5.20.1",
         "tslint-config-prettier": "^1.18.0",
         "typescript": "^3.7.2",
