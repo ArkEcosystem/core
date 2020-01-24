@@ -89,16 +89,50 @@ export class PluginConfiguration {
      *
      * @template T
      * @param {string} key
-     * @param {T} [defaultValue]
+     * @param {T} [defaultValue] deprecated
      * @returns {T}
      * @memberof PluginConfiguration
      */
     public get<T>(key: string, defaultValue?: T): T | undefined {
+        if (typeof defaultValue !== "undefined") {
+            throw new Error(`DEPRECATED get(${key}, ${defaultValue}), use getOptional instead`);
+        }
+
+        return get(this.items, key);
+    }
+
+    /**
+     * Get the specified required value.
+     *
+     * @template T
+     * @param {string} key
+     * @param {T} [defaultValue]
+     * @returns {T}
+     * @memberof PluginConfiguration
+     */
+    public getRequired<T>(key: string): T {
+        if (!this.has(key)) {
+            throw new Error(`Missing required ${key} configuration value`);
+        }
+
+        return get(this.items, key) as T;
+    }
+
+    /**
+     * Get the specified optional value.
+     *
+     * @template T
+     * @param {string} key
+     * @param {T} [defaultValue]
+     * @returns {T}
+     * @memberof PluginConfiguration
+     */
+    public getOptional<T>(key: string, defaultValue: T): T {
         if (!this.has(key)) {
             return defaultValue;
         }
 
-        return get(this.items, key, defaultValue);
+        return get(this.items, key) as T;
     }
 
     /**

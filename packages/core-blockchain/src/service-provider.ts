@@ -15,7 +15,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
 
-        blockchain.initialize(this.config().all());
+        blockchain.initialize(this.config().all()); // ? why it isn't in boot?
 
         this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).reset(blockchainMachine);
     }

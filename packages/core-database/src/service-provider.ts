@@ -17,12 +17,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.BlockRepository).toConstantValue(getCustomRepository(BlockRepository));
 
         const transactionRepository: TransactionRepository = getCustomRepository(TransactionRepository);
-        // @ts-ignore - Inversify isn't responsible for the instance creation so we can't inject.
-        transactionRepository.walletRepository = this.app.getTagged(
-            Container.Identifiers.WalletRepository,
-            "state",
-            "blockchain",
-        );
+        transactionRepository.getWalletRepository = () => {
+            // Inversify isn't responsible for the instance creation so we can't inject.
+            return this.app.getTagged(Container.Identifiers.WalletRepository, "state", "blockchain");
+        };
         this.app.bind(Container.Identifiers.TransactionRepository).toConstantValue(transactionRepository);
 
         this.app.bind(Container.Identifiers.RoundRepository).toConstantValue(getCustomRepository(RoundRepository));

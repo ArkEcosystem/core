@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums, Providers } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
 
 import { PeerFactory } from "./contracts";
@@ -13,6 +13,10 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
 
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-p2p")
+    private readonly configuration!: Providers.PluginConfiguration;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -29,9 +33,6 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     @Container.inject(Container.Identifiers.PeerStorage)
     private readonly storage!: Contracts.P2P.PeerStorage;
 
-    @Container.inject(Container.Identifiers.ServiceProviderRepository)
-    private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
-
     public initialize() {
         this.emitter.listen(Enums.CryptoEvent.MilestoneChanged, this.app.resolve(DisconnectInvalidPeers));
     }
@@ -46,7 +47,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
     }
 
     public validatePeerIp(peer, options: Contracts.P2P.AcceptNewPeerOptions = {}): boolean {
-        if (this.getConfig("disableDiscovery") && !this.storage.hasPendingPeer(peer.ip)) {
+        if (this.configuration.get("disableDiscovery") && !this.storage.hasPendingPeer(peer.ip)) {
             this.logger.warning(`Rejected ${peer.ip} because the relay is in non-discovery mode.`);
             return false;
         }
@@ -55,20 +56,16 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
             return false;
         }
 
-        if (!isWhitelisted(this.getConfig("whitelist") || [], peer.ip)) {
+        if (!isWhitelisted(this.configuration.get("whitelist") || [], peer.ip)) {
             return false;
         }
 
-        const maxSameSubnetPeers: number | undefined = this.getConfig("maxSameSubnetPeers");
-
-        AppUtils.assert.defined<number>(maxSameSubnetPeers);
+        const maxSameSubnetPeers = this.configuration.getRequired<number>("maxSameSubnetPeers");
 
         if (this.storage.getSameSubnetPeers(peer.ip).length >= maxSameSubnetPeers && !options.seed) {
             if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                 this.logger.warning(
-                    `Rejected ${peer.ip} because we are already at the ${this.getConfig(
-                        "maxSameSubnetPeers",
-                    )} limit for peers sharing the same /24 subnet.`,
+                    `Rejected ${peer.ip} because we are already at the ${maxSameSubnetPeers} limit for peers sharing the same /24 subnet.`,
                 );
             }
 
@@ -88,9 +85,7 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         try {
             this.storage.setPendingPeer(peer);
 
-            const verifyTimeout: number | undefined = this.getConfig("verifyTimeout");
-
-            AppUtils.assert.defined<number>(verifyTimeout);
+            const verifyTimeout = this.configuration.getRequired<number>("verifyTimeout");
 
             await this.communicator.ping(newPeer, verifyTimeout);
 
@@ -108,12 +103,5 @@ export class PeerProcessor implements Contracts.P2P.PeerProcessor {
         }
 
         return;
-    }
-
-    private getConfig<T>(key: string): T | undefined {
-        return this.serviceProviderRepository
-            .get("@arkecosystem/core-p2p")
-            .config()
-            .get<T>(key);
     }
 }

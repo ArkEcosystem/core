@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import SocketCluster from "socketcluster";
 
 import { PeerService } from "../contracts";
@@ -19,21 +19,13 @@ export const startSocketServer = async (
     // todo: get rid of thise, no test vars in production code
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
-    const getBlocksTimeout: number | undefined = app
-        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-        .get("@arkecosystem/core-p2p")
-        .config()
-        .get<number>("getBlocksTimeout");
-
-    Utils.assert.defined<number>(getBlocksTimeout);
-
-    const verifyTimeout: number | undefined = app
-        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-        .get("@arkecosystem/core-p2p")
-        .config()
-        .get<number>("verifyTimeout");
-
-    Utils.assert.defined<number>(verifyTimeout);
+    const configuration = app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-p2p",
+    );
+    const getBlocksTimeout = configuration.getRequired<number>("getBlocksTimeout");
+    const verifyTimeout = configuration.getRequired<number>("verifyTimeout");
 
     // https://socketcluster.io/#!/docs/api-socketcluster
     const server: SocketCluster = new SocketCluster({

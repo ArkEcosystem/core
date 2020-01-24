@@ -9,7 +9,7 @@ import { SearchCriteria, SearchFilter, SearchOperator, SearchPagination, SearchQ
 
 @EntityRepository(Transaction)
 export class TransactionRepository extends AbstractEntityRepository<Transaction> {
-    private readonly walletRepository!: Contracts.State.WalletRepository;
+    public getWalletRepository!: () => Contracts.State.WalletRepository;
 
     public async findByBlockIds(
         blockIds: string[],
@@ -301,7 +301,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
                     }
                 } else if (first.field === "recipientId" && first.operator === SearchOperator.Equal) {
                     // Workaround to include transactions (e.g. type 2) where the recipient_id is missing in the database
-                    const recipientWallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
+                    const recipientWallet: Contracts.State.Wallet = this.getWalletRepository().findByAddress(
                         first.value as string,
                     );
 
@@ -376,10 +376,10 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
         }
         const senderId: SearchCriteria | undefined = criteriaMap.senderId;
         if (criteriaMap.senderId) {
-            if (this.walletRepository.hasByAddress(senderId.value as string)) {
+            if (this.getWalletRepository().hasByAddress(senderId.value as string)) {
                 filter.criteria.push({
                     field: "senderPublicKey",
-                    value: this.walletRepository.findByAddress(senderId.value as string).publicKey!,
+                    value: this.getWalletRepository().findByAddress(senderId.value as string).publicKey!,
                     operator: SearchOperator.Equal,
                 });
             } else {

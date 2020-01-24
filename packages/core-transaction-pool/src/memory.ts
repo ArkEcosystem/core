@@ -1,4 +1,4 @@
-import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import assert from "assert";
 
@@ -16,6 +16,15 @@ export class Memory {
      */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
+
+    /**
+     * @private
+     * @type {Providers.PluginConfiguration}
+     * @memberof Memory
+     */
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
+    private readonly configuration!: Providers.PluginConfiguration;
 
     /**
      * An array of all transactions, possibly sorted by fee (highest fee first).
@@ -83,24 +92,6 @@ export class Memory {
     };
 
     /**
-     * @private
-     * @type {number}
-     * @memberof Memory
-     */
-    private maxTransactionAge!: number;
-
-    /**
-     * @param {number} maxTransactionAge
-     * @returns
-     * @memberof Memory
-     */
-    public initialize(maxTransactionAge: number) {
-        this.maxTransactionAge = maxTransactionAge;
-
-        return this;
-    }
-
-    /**
      * @returns {Interfaces.ITransaction[]}
      * @memberof Memory
      */
@@ -123,7 +114,7 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
-            maxTransactionAge: this.maxTransactionAge,
+            maxTransactionAge: this.configuration.getRequired<number>("maxTransactionAge"),
         };
 
         if (!this.byExpirationIsSorted) {
@@ -285,7 +276,7 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
-            maxTransactionAge: this.maxTransactionAge,
+            maxTransactionAge: this.configuration.getRequired<number>("maxTransactionAge"),
         };
         const expiration: number | undefined = AppUtils.expirationCalculator.calculateTransactionExpiration(
             transaction.data,
@@ -428,7 +419,7 @@ export class Memory {
             blockTime: Managers.configManager.getMilestone(currentHeight).blocktime,
             currentHeight,
             now: Crypto.Slots.getTime(),
-            maxTransactionAge: this.maxTransactionAge,
+            maxTransactionAge: this.configuration.getRequired<number>("maxTransactionAge"),
         };
 
         this.all.sort((a, b) => {

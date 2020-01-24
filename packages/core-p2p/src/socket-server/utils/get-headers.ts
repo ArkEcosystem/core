@@ -8,9 +8,11 @@ export const getHeaders = (app: Contracts.Kernel.Application) => {
     } = {
         version: app.version(),
         port: app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-p2p")
-            .config()
+            .getTagged<Providers.PluginConfiguration>(
+                Container.Identifiers.PluginConfiguration,
+                "plugin",
+                "@arkecosystem/core-p2p",
+            )
             .get<number>("port"),
         height: undefined,
     };

@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import BetterSqlite3 from "better-sqlite3";
@@ -10,6 +10,15 @@ import { ensureFileSync } from "fs-extra";
  */
 @Container.injectable()
 export class Storage {
+    /**
+     * @private
+     * @type {Providers.PluginConfiguration}
+     * @memberof Storage
+     */
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     /**
      * @private
      * @type {string}
@@ -25,13 +34,12 @@ export class Storage {
     private database!: BetterSqlite3.Database;
 
     /**
-     * @param {string} file
      * @memberof Storage
      */
-    public connect(file: string) {
-        ensureFileSync(file);
+    public connect() {
+        ensureFileSync(this.configuration.getRequired<string>("storage"));
 
-        this.database = new BetterSqlite3(file);
+        this.database = new BetterSqlite3(this.configuration.getRequired<string>("storage"));
 
         this.database.exec(`
       PRAGMA journal_mode=WAL;

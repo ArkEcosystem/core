@@ -34,6 +34,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-p2p")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -52,12 +56,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     private rateLimiter!: RateLimiter;
 
     public initialize() {
-        this.config = this.app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-p2p")
-            .config()
-            .all();
-
+        this.config = this.configuration.all(); // >_<
         this.rateLimiter = buildRateLimiter(this.config);
     }
 

@@ -18,6 +18,10 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-p2p")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
 
@@ -35,11 +39,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             // them requests, ie we could spam them.
             whitelist: [],
             remoteAccess: [],
-            rateLimit: this.app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-p2p")
-                .config()
-                .all().rateLimit,
+            rateLimit: this.configuration.getOptional<boolean>("rateLimit", false),
         });
     }
 
@@ -194,11 +194,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                 headersOnly,
                 serialized: true,
             },
-            this.app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-p2p")
-                .config()
-                .get<number>("getBlocksTimeout"),
+            this.configuration.getRequired<number>("getBlocksTimeout"),
             maxPayload,
         );
 

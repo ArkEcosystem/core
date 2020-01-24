@@ -51,8 +51,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .inSingletonScope();
 
         this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
-
-        this.initializeComponents();
     }
 
     /**
@@ -79,21 +77,5 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async required(): Promise<boolean> {
         return true;
-    }
-
-    /**
-     * @private
-     * @memberof ServiceProvider
-     */
-    private initializeComponents(): void {
-        this.app.get<Connection>(Container.Identifiers.TransactionPoolService).initialize(this.config().all());
-
-        this.app
-            .get<Connection>(Container.Identifiers.TransactionPoolMemory)
-            .initialize(this.config().get("maxTransactionAge"));
-
-        this.app
-            .get<Connection>(Container.Identifiers.TransactionPoolSynchronizer)
-            .initialize(this.config().get("syncInterval"));
     }
 }

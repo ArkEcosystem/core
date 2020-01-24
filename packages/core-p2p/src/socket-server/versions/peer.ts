@@ -73,17 +73,18 @@ export const getStatus = async ({
 };
 
 export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Application; req: any }): Promise<void> => {
+    const configuration = app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-p2p",
+    );
     const blockchain: Contracts.Blockchain.Blockchain = app.get<Contracts.Blockchain.Blockchain>(
         Container.Identifiers.BlockchainService,
     );
 
     const block: Interfaces.IBlockData = req.data.block;
     const fromForger: boolean = isWhitelisted(
-        app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-p2p")
-            .config()
-            .get<string[]>("remoteAccess", []) || [],
+        configuration.getOptional<string[]>("remoteAccess", []),
         req.headers.remoteAddress,
     );
 

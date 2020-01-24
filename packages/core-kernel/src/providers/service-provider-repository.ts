@@ -1,3 +1,4 @@
+import { Application } from "../contracts/kernel";
 import { EventDispatcher } from "../contracts/kernel/events";
 import { KernelEvent } from "../enums";
 import { InvalidArgumentException } from "../exceptions/logic";
@@ -12,9 +13,19 @@ import { ServiceProvider } from "./service-provider";
 @injectable()
 export class ServiceProviderRepository {
     /**
+     * The application instance.
+     *
      * @private
-     * @type {ConfigRepository}
-     * @memberof RegisterBasePaths
+     * @type {Application}
+     * @memberof ServiceProviderRepository
+     */
+    @inject(Identifiers.Application)
+    private readonly app!: Application;
+
+    /**
+     * @private
+     * @type {EventDispatcher}
+     * @memberof ServiceProviderRepository
      */
     @inject(Identifiers.EventDispatcherService)
     private readonly eventDisaptcher!: EventDispatcher;
@@ -187,8 +198,14 @@ export class ServiceProviderRepository {
      * @memberof ServiceProviderRepository
      */
     public async register(name: string): Promise<void> {
-        await this.get(name).register();
+        const serviceProvider = this.get(name);
 
+        this.app
+            .bind(Identifiers.PluginConfiguration)
+            .toConstantValue(serviceProvider.config())
+            .whenTargetTagged("plugin", name);
+
+        await serviceProvider.register();
         await this.eventDisaptcher.dispatch(KernelEvent.ServiceProviderRegistered, { name });
     }
 

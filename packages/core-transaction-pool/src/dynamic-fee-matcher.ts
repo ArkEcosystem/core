@@ -13,25 +13,27 @@ export class DynamicFeeMatcher {
     /**
      * @private
      * @type {Contracts.Kernel.Application}
-     * @memberof Processor
+     * @memberof DynamicFeeMatcher
      */
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
-    /**
-     * @private
-     * @type {Contracts.Kernel.Logger}
-     * @memberof Processor
-     */
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
 
     /**
      * @private
-     * @type {Providers.ServiceProviderRepository}
-     * @memberof PortsResource
+     * @type {Providers.PluginConfiguration}
+     * @memberof DynamicFeeMatcher
      */
-    @Container.inject(Container.Identifiers.ServiceProviderRepository)
-    private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
+    private readonly configuration!: Providers.PluginConfiguration;
+
+    /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof DynamicFeeMatcher
+     */
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
 
     /**
      * @private
@@ -52,14 +54,9 @@ export class DynamicFeeMatcher {
         const fee: Utils.BigNumber = transaction.data.fee;
         const id: string = transaction.id;
 
-        const dynamicFees: Record<string, any> | undefined = this.serviceProviderRepository
-            .get("@arkecosystem/core-transaction-pool")
-            .config()
-            .get<Record<string, any>>("dynamicFees");
+        const dynamicFees = this.configuration.getRequired<Record<string, any>>("dynamicFees");
 
         const height: number = this.stateStore.getLastHeight();
-
-        AppUtils.assert.defined<Record<string, any>>(dynamicFees);
 
         let broadcast: boolean;
         let enterPool: boolean;

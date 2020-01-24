@@ -22,6 +22,15 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
     /**
      * @private
+     * @type {Providers.PluginConfiguration}
+     * @memberof Processor
+     */
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
+    private readonly configuration!: Providers.PluginConfiguration;
+
+    /**
+     * @private
      * @type {Contracts.Kernel.Logger}
      * @memberof Processor
      */
@@ -218,13 +227,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
      * @memberof Processor
      */
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
-        const maxTransactionBytes: number | undefined = this.app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-transaction-pool")
-            .config()
-            .get<number>("maxTransactionBytes");
-
-        Utils.assert.defined<number>(maxTransactionBytes);
+        const maxTransactionBytes = this.configuration.getRequired<number>("maxTransactionBytes");
 
         for (const transaction of transactions) {
             Utils.assert.defined<string>(transaction.id);
@@ -326,13 +329,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
         const lastHeight: number = this.app.get<any>(Container.Identifiers.StateStore).getLastHeight();
 
-        const maxTransactionAge: number | undefined = this.app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-transaction-pool")
-            .config()
-            .get<number>("maxTransactionAge");
-
-        Utils.assert.defined<number>(maxTransactionAge);
+        const maxTransactionAge = this.configuration.getRequired<number>("maxTransactionAge");
 
         const expirationContext = {
             blockTime: Managers.configManager.getMilestone(lastHeight).blocktime,

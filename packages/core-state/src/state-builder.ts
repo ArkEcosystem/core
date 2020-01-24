@@ -52,7 +52,7 @@ export class StateBuilder {
                 const version = handler.getConstructor().version;
                 AppUtils.assert.defined<string>(ctorKey);
 
-                this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${capitalize(ctorKey)}v${version}`);
+                this.logger.info(`State Generation - Step ${3 + i} of ${steps}: ${capitalize(ctorKey)} v${version}`);
                 await handler.bootstrap();
             }
 

@@ -23,6 +23,10 @@ export class StateStore implements Contracts.State.StateStore {
     @Container.inject(Container.Identifiers.Application)
     private readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-state")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
     private lastBlocks: OrderedMap<number, Interfaces.IBlock> = OrderedMap<number, Interfaces.IBlock>();
@@ -111,13 +115,7 @@ export class StateStore implements Contracts.State.StateStore {
         }
 
         // Delete oldest block if size exceeds the maximum
-        const maxLastBlocks: number | undefined = this.app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("state")
-            .config()
-            .get<number>("storage.maxLastBlocks");
-
-        Utils.assert.defined<number>(maxLastBlocks);
+        const maxLastBlocks = this.configuration.getRequired<number>("storage.maxLastBlocks");
 
         if (this.lastBlocks.size > maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
@@ -223,13 +221,7 @@ export class StateStore implements Contracts.State.StateStore {
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
-        const maxLastTransactionIds: number | undefined = this.app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-state")
-            .config()
-            .get<number>("storage.maxLastTransactionIds");
-
-        Utils.assert.defined<number>(maxLastTransactionIds);
+        const maxLastTransactionIds = this.configuration.getRequired<number>("storage.maxLastTransactionIds");
 
         if (this.cachedTransactionIds.size > maxLastTransactionIds) {
             this.cachedTransactionIds = this.cachedTransactionIds.takeLast(maxLastTransactionIds);

@@ -21,7 +21,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .to(ForgerService)
             .inSingletonScope();
 
-        this.app.get<ForgerService>(Container.Identifiers.ForgerService).register(this.config().all());
+        this.app.get<ForgerService>(Container.Identifiers.ForgerService).register(this.config().all()); // ? why it isn't in boot?
     }
 
     /**

@@ -77,13 +77,13 @@ export class NetworkState implements Contracts.P2P.NetworkState {
             .getLastBlock();
 
         const peers: Contracts.P2P.Peer[] = storage.getPeers();
-        const minimumNetworkReach: number =
-            // @ts-ignore - app exists but isn't on the interface for now
-            monitor.app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-p2p")
-                .config()
-                .get<number>("minimumNetworkReach") || 20;
+        // @ts-ignore - app exists but isn't on the interface for now
+        const configuration = monitor.app.getTagged<Providers.PluginConfiguration>(
+            Container.Identifiers.PluginConfiguration,
+            "plugin",
+            "@arkecosystem/core-p2p",
+        );
+        const minimumNetworkReach = configuration.getOptional<number>("minimumNetworkReach", 20);
 
         if (monitor.isColdStart()) {
             monitor.completeColdStart();

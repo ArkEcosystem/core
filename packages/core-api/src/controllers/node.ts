@@ -1,5 +1,5 @@
 import { Repositories } from "@arkecosystem/core-database";
-import { Container, Contracts, Providers, Services, Utils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers, Services } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Managers, Transactions } from "@arkecosystem/crypto";
 import Hapi from "@hapi/hapi";
@@ -11,6 +11,10 @@ import { Controller } from "./controller";
 export class NodeController extends Controller {
     @Container.inject(Container.Identifiers.Application)
     protected readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
+    protected readonly transactionPoolConfiguration!: Providers.PluginConfiguration;
 
     @Container.inject(Container.Identifiers.ConfigRepository)
     protected readonly configRepository!: Services.Config.ConfigRepository;
@@ -53,13 +57,9 @@ export class NodeController extends Controller {
     }
 
     public async configuration(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const dynamicFees: Record<string, any> | undefined = this.app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("transactionPool")
-            .config()
-            .get<{ enabled?: boolean }>("dynamicFees");
-
-        Utils.assert.defined<Record<string, any>>(dynamicFees);
+        const dynamicFees = this.transactionPoolConfiguration.getRequired<{
+            enabled?: boolean;
+        }>("dynamicFees");
 
         const network = Managers.configManager.get("network");
 

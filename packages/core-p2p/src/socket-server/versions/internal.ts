@@ -35,17 +35,16 @@ export const isPeerOrForger = ({
     req;
 }): { isPeerOrForger: boolean } => {
     const sanitizedIp = process(req.data.ip).toString();
+    const configuration = app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-p2p",
+    );
+
     return {
         isPeerOrForger:
             service.storage.hasPeer(sanitizedIp) ||
-            Utils.isWhitelisted(
-                (app
-                    .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                    .get("@arkecosystem/core-p2p")
-                    .config()
-                    .all().remoteAccess as unknown) as string[],
-                sanitizedIp,
-            ),
+            Utils.isWhitelisted(configuration.getRequired<string[]>("remoteAccess"), sanitizedIp),
     };
 };
 

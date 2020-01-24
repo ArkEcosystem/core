@@ -27,20 +27,21 @@ export const isForgerAuthorized = ({
 }: {
     app: Contracts.Kernel.Application;
     req: any;
-}): { authorized: boolean } => ({
-    authorized: isWhitelisted(
-        app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("@arkecosystem/core-p2p")
-            .config()
-            .get<string[]>("remoteAccess", []) || [],
-        req.data.ip,
-    ),
-});
+}): { authorized: boolean } => {
+    const configuration = app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-p2p",
+    );
+    const authorized = isWhitelisted(configuration.getOptional<string[]>("remoteAccess", []), req.data.ip);
+    return { authorized };
+};
 
-export const getConfig = ({ app }: { app: Contracts.Kernel.Application }): Record<string, any> =>
-    app
-        .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-        .get("@arkecosystem/core-p2p")
-        .config()
-        .all();
+export const getConfig = ({ app }: { app: Contracts.Kernel.Application }): Record<string, any> => {
+    const configuration = app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-p2p",
+    );
+    return configuration.all();
+};

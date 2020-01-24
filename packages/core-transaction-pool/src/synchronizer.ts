@@ -1,4 +1,4 @@
-import { Container } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 
 import { Memory } from "./memory";
 import { Storage } from "./storage";
@@ -9,6 +9,15 @@ import { Storage } from "./storage";
  */
 @Container.injectable()
 export class Synchronizer {
+    /**
+     * @private
+     * @type {Providers.PluginConfiguration}
+     * @memberof Synchronizer
+     */
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     /**
      * @private
      * @type {Memory}
@@ -26,24 +35,6 @@ export class Synchronizer {
     private readonly storage!: Storage;
 
     /**
-     * @private
-     * @type {number}
-     * @memberof Synchronizer
-     */
-    private syncInterval!: number;
-
-    /**
-     * @param {number} syncInterval
-     * @returns
-     * @memberof Synchronizer
-     */
-    public initialize(syncInterval: number) {
-        this.syncInterval = syncInterval;
-
-        return this;
-    }
-
-    /**
      * @memberof Synchronizer
      */
     public syncToPersistentStorage(): void {
@@ -55,7 +46,7 @@ export class Synchronizer {
      * @memberof Synchronizer
      */
     public syncToPersistentStorageIfNecessary(): void {
-        if (this.syncInterval <= this.memory.countDirty()) {
+        if (this.configuration.getRequired<number>("syncInterval") <= this.memory.countDirty()) {
             this.syncToPersistentStorage();
         }
     }

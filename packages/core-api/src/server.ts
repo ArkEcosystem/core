@@ -18,11 +18,12 @@ export class Server {
 
     /**
      * @private
-     * @type {Providers.ServiceProviderRepository}
+     * @type {Providers.PluginConfiguration}
      * @memberof Server
      */
-    @Container.inject(Container.Identifiers.ServiceProviderRepository)
-    private readonly serviceProviderRepository!: Providers.ServiceProviderRepository;
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-api")
+    private readonly configuration!: Providers.PluginConfiguration;
 
     /**
      * @private
@@ -50,10 +51,7 @@ export class Server {
         this.server.app.app = this.app;
         this.server.app.schemas = createSchemas({
             pagination: {
-                limit: this.serviceProviderRepository
-                    .get("@arkecosystem/core-api")
-                    .config()
-                    .get<number>("plugins.pagination.limit")!,
+                limit: this.configuration.getRequired<number>("plugins.pagination.limit"),
             },
         });
 

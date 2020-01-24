@@ -10,6 +10,8 @@ export const Identifiers = {
     ApplicationNetwork: Symbol.for("Application<Network>"),
     ApplicationToken: Symbol.for("Application<Token>"),
     ApplicationVersion: Symbol.for("Application<Version>"),
+    // Plugins
+    PluginConfiguration: Symbol.for("PluginConfiguration"),
     // Crypto
     Crypto: Symbol.for("Crypto<NetworkConfig>"),
     // Managers

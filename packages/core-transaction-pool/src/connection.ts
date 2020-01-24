@@ -1,4 +1,4 @@
-import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Enums as AppEnums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
@@ -21,13 +21,23 @@ import { Synchronizer } from "./synchronizer";
  */
 @Container.injectable()
 export class Connection implements Contracts.TransactionPool.Connection {
-    // todo: make private readonly
+    /**
+     * @private
+     * @type {Providers.PluginConfiguration}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
+    private readonly configuration!: Providers.PluginConfiguration;
+
+    /**
+     * @private
+     * @type {PoolWalletRepository}
+     * @memberof Connection
+     */
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "pool")
-    public poolWalletRepository!: PoolWalletRepository;
-
-    // @todo: make this private, requires some bigger changes to tests
-    public options!: Record<string, any>;
+    private readonly poolWalletRepository!: PoolWalletRepository;
 
     /**
      * @private
@@ -105,23 +115,12 @@ export class Connection implements Contracts.TransactionPool.Connection {
     private readonly loggedAllowedSenders: string[] = [];
 
     /**
-     * @param {*} options
-     * @returns
-     * @memberof Connection
-     */
-    public initialize(options) {
-        this.options = options;
-
-        return this;
-    }
-
-    /**
      * @returns {Promise<this>}
      * @memberof Connection
      */
     public async boot(): Promise<this> {
         this.memory.flush();
-        this.storage.connect(this.options.storage);
+        this.storage.connect();
 
         const transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
         for (const transaction of transactionsFromDisk) {
@@ -272,7 +271,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
     public async hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean> {
         await this.cleaner.purgeExpired();
 
-        if (this.options.allowedSenders.includes(senderPublicKey)) {
+        if (this.configuration.getOptional<string[]>("allowedSenders", []).includes(senderPublicKey)) {
             if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
                 this.logger.debug(
                     `Transaction pool: allowing sender public key ${senderPublicKey} ` +
@@ -285,7 +284,10 @@ export class Connection implements Contracts.TransactionPool.Connection {
             return false;
         }
 
-        return this.memory.getBySender(senderPublicKey).size >= this.options.maxTransactionsPerSender;
+        return (
+            this.memory.getBySender(senderPublicKey).size >=
+            this.configuration.getRequired<number>("maxTransactionsPerSender")
+        );
     }
 
     /**
@@ -495,7 +497,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
         const poolSize: number = this.memory.count();
 
-        if (this.options.maxTransactionsInPool <= poolSize) {
+        if (this.configuration.getRequired<number>("maxTransactionsInPool") <= poolSize) {
             // The pool can't accommodate more transactions. Either decline the newcomer or remove
             // an existing transaction from the pool in order to free up space.
             const all: Interfaces.ITransaction[] = this.memory.allSortedByFee();

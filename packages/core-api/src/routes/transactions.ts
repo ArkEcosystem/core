@@ -76,11 +76,11 @@ export const register = (server: Hapi.Server): void => {
                                 $ref: "transactions",
                                 minItems: 1,
                                 maxItems: server.app.app
-                                    .get<Providers.ServiceProviderRepository>(
-                                        Container.Identifiers.ServiceProviderRepository,
+                                    .getTagged<Providers.PluginConfiguration>(
+                                        Container.Identifiers.PluginConfiguration,
+                                        "plugin",
+                                        "@arkecosystem/core-transaction-pool",
                                     )
-                                    .get("transactionPool")
-                                    .config()
                                     .get<number>("maxTransactionsPerRequest"),
                             },
                         },

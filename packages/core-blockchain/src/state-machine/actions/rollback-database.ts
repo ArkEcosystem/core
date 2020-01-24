@@ -1,5 +1,5 @@
 import { DatabaseService } from "@arkecosystem/core-database";
-import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { Action } from "../contracts";
@@ -8,6 +8,10 @@ import { Action } from "../contracts";
 export class RollbackDatabase implements Action {
     @Container.inject(Container.Identifiers.Application)
     public readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-blockchain")
+    private readonly configuration!: Providers.PluginConfiguration;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -21,18 +25,8 @@ export class RollbackDatabase implements Action {
     public async handle(): Promise<void> {
         this.logger.info("Trying to restore database integrity");
 
-        const config =
-            this.app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-blockchain")
-                .config()
-                .get<Record<string, number>>("databaseRollback") || {};
-
-        AppUtils.assert.defined<number>(config.maxBlockRewind);
-        AppUtils.assert.defined<number>(config.steps);
-
-        const maxBlockRewind: number = config.maxBlockRewind;
-        const steps: number = config.steps;
+        const maxBlockRewind = this.configuration.getRequired<number>("databaseRollback.maxBlockRewind");
+        const steps = this.configuration.getRequired<number>("databaseRollback.steps");
 
         for (let i = maxBlockRewind; i >= 0; i -= steps) {
             await this.blockchain.removeTopBlocks(steps);

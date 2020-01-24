@@ -4,8 +4,9 @@ import { create, SCClientSocket } from "socketcluster-client";
 // todo: review the implementation
 @Container.injectable()
 export class PeerConnector implements Contracts.P2P.PeerConnector {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-p2p")
+    private readonly configuration!: Providers.PluginConfiguration;
 
     private readonly connections: Utils.Collection<SCClientSocket> = new Utils.Collection<SCClientSocket>();
     private readonly errors: Map<string, string> = new Map<string, string>();
@@ -76,20 +77,8 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
     }
 
     private create(peer: Contracts.P2P.Peer): SCClientSocket {
-        const getBlocksTimeout: number | undefined = this.app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("p2p")
-            .config()
-            .get<number>("getBlocksTimeout");
-
-        const verifyTimeout: number | undefined = this.app
-            .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-            .get("p2p")
-            .config()
-            .get<number>("verifyTimeout");
-
-        Utils.assert.defined<number>(getBlocksTimeout);
-        Utils.assert.defined<number>(verifyTimeout);
+        const getBlocksTimeout = this.configuration.getRequired<number>("getBlocksTimeout");
+        const verifyTimeout = this.configuration.getRequired<number>("verifyTimeout");
 
         const connection = create({
             port: peer.port,

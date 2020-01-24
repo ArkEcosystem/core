@@ -20,12 +20,12 @@ export const isValidVersion = (app: Contracts.Kernel.Application, peer: Contract
     if (p2p && Array.isArray(p2p.minimumVersions) && p2p.minimumVersions.length > 0) {
         minimumVersions = p2p.minimumVersions;
     } else {
-        minimumVersions =
-            app
-                .get<Providers.ServiceProviderRepository>(Container.Identifiers.ServiceProviderRepository)
-                .get("@arkecosystem/core-p2p")
-                .config()
-                .get<string[]>("minimumVersions") || [];
+        const configuration = app.getTagged<Providers.PluginConfiguration>(
+            Container.Identifiers.PluginConfiguration,
+            "plugin",
+            "@arkecosystem/core-p2p",
+        );
+        minimumVersions = configuration.getOptional<string[]>("minimumVersions", []);
     }
 
     const includePrerelease: boolean = Managers.configManager.get("network.name") !== "mainnet";
