@@ -85,7 +85,7 @@ export class Blockchain implements blockchain.IBlockchain {
 
         this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
-                return this.processBlocks(blockList.blocks.map(b => Blocks.BlockFactory.fromData(b)), cb);
+                return this.processBlocks(blockList.blocks, cb);
             } catch (error) {
                 logger.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
@@ -392,14 +392,14 @@ export class Blockchain implements blockchain.IBlockchain {
     /**
      * Process the given block.
      */
-    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
+    public async processBlocks(blocks: Interfaces.IBlockData[], callback): Promise<Interfaces.IBlock[]> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult;
 
         if (
             blocks[0] &&
-            !isBlockChained(this.getLastBlock().data, blocks[0].data, logger) &&
-            !Utils.isException(blocks[0].data)
+            !isBlockChained(this.getLastBlock().data, blocks[0], logger) &&
+            !Utils.isException(blocks[0])
         ) {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
@@ -409,13 +409,14 @@ export class Blockchain implements blockchain.IBlockchain {
 
         let forkBlock: Interfaces.IBlock;
         for (const block of blocks) {
-            lastProcessResult = await this.blockProcessor.process(block);
+            const blockInstance = Blocks.BlockFactory.fromData(block);
+            lastProcessResult = await this.blockProcessor.process(blockInstance);
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
-                acceptedBlocks.push(block);
+                acceptedBlocks.push(blockInstance);
             } else {
                 if (lastProcessResult === BlockProcessorResult.Rollback) {
-                    forkBlock = block;
+                    forkBlock = blockInstance;
                 }
 
                 break; // if one block is not accepted, the other ones won't be chained anyway
@@ -459,7 +460,7 @@ export class Blockchain implements blockchain.IBlockchain {
             lastProcessResult === BlockProcessorResult.Accepted ||
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
-            const currentBlock: Interfaces.IBlock = blocks[blocks.length - 1];
+            const currentBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blocks[blocks.length - 1]);
             const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
