@@ -116,7 +116,7 @@ describe("Blockchain", () => {
             const mockCallback = jest.fn(() => true);
             blockchain.state.blockchain = {};
 
-            await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
+            await blockchain.processBlocks([blocks2to100[2]], mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
@@ -124,13 +124,13 @@ describe("Blockchain", () => {
 
         it("should process a valid block already known", async () => {
             const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
+            const lastBlock = blockchain.getLastBlock().data;
 
             await blockchain.processBlocks([lastBlock], mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
-            expect(blockchain.getLastBlock()).toEqual(lastBlock);
+            expect(blockchain.getLastBlock().data).toEqual(lastBlock);
         });
 
         it("should process a new block with database saveBlocks failing once", async () => {
@@ -139,7 +139,7 @@ describe("Blockchain", () => {
             database.saveBlocks = jest.fn().mockRejectedValueOnce(new Error("oops"));
             jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(undefined);
 
-            await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
+            await blockchain.processBlocks([blocks2to100[2]], mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
@@ -151,7 +151,7 @@ describe("Blockchain", () => {
             jest.spyOn(database, "saveBlocks").mockRejectedValueOnce(new Error("oops saveBlocks"));
             jest.spyOn(blockchain, "removeTopBlocks").mockReturnValueOnce(undefined);
 
-            await blockchain.processBlocks([BlockFactory.fromData(blocks2to100[2])], mockCallback);
+            await blockchain.processBlocks([blocks2to100[2]], mockCallback);
             await delay(200);
 
             expect(mockCallback.mock.calls.length).toBe(1);
@@ -162,8 +162,10 @@ describe("Blockchain", () => {
             jest.spyOn(Utils, "isBlockChained").mockReturnValueOnce(true);
 
             const mockCallback = jest.fn(() => true);
-            const lastBlock = blockchain.getLastBlock();
-            lastBlock.data.timestamp = Crypto.Slots.getSlotNumber() * 8000;
+            const lastBlock = blockchain.getLastBlock().data;
+            const spyGetSlotNumber = jest
+                .spyOn(Crypto.Slots, "getSlotNumber")
+                .mockReturnValue(Math.floor(lastBlock.timestamp / 8000));
 
             const broadcastBlock = jest.spyOn(getMonitor, "broadcastBlock");
 
@@ -172,6 +174,8 @@ describe("Blockchain", () => {
 
             expect(mockCallback.mock.calls.length).toBe(1);
             expect(broadcastBlock).toHaveBeenCalled();
+
+            spyGetSlotNumber.mockRestore();
         });
     });
 

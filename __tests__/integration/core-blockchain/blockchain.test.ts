@@ -56,7 +56,7 @@ const addBlocks = async untilHeight => {
     const lastHeight = blockchain.getLastHeight();
 
     for (let height = lastHeight + 1; height < untilHeight && height < 155; height++) {
-        const blockToProcess = Blocks.BlockFactory.fromData(allBlocks[height - 2]);
+        const blockToProcess = allBlocks[height - 2];
         await blockchain.processBlocks([blockToProcess], () => undefined);
     }
 };
@@ -218,7 +218,9 @@ describe("Blockchain", () => {
                 transactions,
             };
 
-            return Blocks.BlockFactory.make(data, Identities.Keys.fromPassphrase(generatorKeys.secret));
+            const blockInstance = Blocks.BlockFactory.make(data, Identities.Keys.fromPassphrase(generatorKeys.secret));
+
+            return { ...blockInstance.data, transactions: blockInstance.transactions.map(tx => tx.data) };
         };
 
         it("should restore vote balances after a rollback", async () => {
