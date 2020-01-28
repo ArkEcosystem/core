@@ -408,9 +408,11 @@ export class Blockchain implements blockchain.IBlockchain {
         }
 
         let forkBlock: Interfaces.IBlock;
+        let lastProcessedBlock: Interfaces.IBlock;
         for (const block of blocks) {
             const blockInstance = Blocks.BlockFactory.fromData(block);
             lastProcessResult = await this.blockProcessor.process(blockInstance);
+            lastProcessedBlock = blockInstance;
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
                 acceptedBlocks.push(blockInstance);
@@ -460,11 +462,11 @@ export class Blockchain implements blockchain.IBlockchain {
             lastProcessResult === BlockProcessorResult.Accepted ||
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
-            const currentBlock: Interfaces.IBlock = acceptedBlocks[acceptedBlocks.length - 1];
-            const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
+            // broadcast last processed block
+            const blocktime: number = config.getMilestone(lastProcessedBlock.data.height).blocktime;
 
-            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
-                this.p2p.getMonitor().broadcastBlock(currentBlock);
+            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= lastProcessedBlock.data.timestamp) {
+                this.p2p.getMonitor().broadcastBlock(lastProcessedBlock);
             }
         } else if (forkBlock) {
             this.forkBlock(forkBlock);
