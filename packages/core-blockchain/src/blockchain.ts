@@ -460,7 +460,7 @@ export class Blockchain implements blockchain.IBlockchain {
             lastProcessResult === BlockProcessorResult.Accepted ||
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
-            const currentBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blocks[blocks.length - 1]);
+            const currentBlock: Interfaces.IBlock = acceptedBlocks[acceptedBlocks.length - 1];
             const blocktime: number = config.getMilestone(currentBlock.data.height).blocktime;
 
             if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
