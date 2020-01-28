@@ -71,7 +71,7 @@ export class ReplayBlockchain extends Blockchain {
                 return this.disconnect();
             }
 
-            const blocks: Interfaces.IBlock[] = await this.fetchBatch(startHeight, batch, lastAcceptedHeight);
+            const blocks: Interfaces.IBlockData[] = await this.fetchBatch(startHeight, batch, lastAcceptedHeight);
 
             this.processBlocks(blocks, async (acceptedBlocks: Interfaces.IBlock[]) => {
                 if (acceptedBlocks.length !== blocks.length) {
@@ -89,14 +89,14 @@ export class ReplayBlockchain extends Blockchain {
         startHeight: number,
         batch: number,
         lastAcceptedHeight: number,
-    ): Promise<Interfaces.IBlock[]> {
+    ): Promise<Interfaces.IBlockData[]> {
         this.logger.info("Fetching blocks from database...");
 
         const offset: number = startHeight + (batch - 1) * this.chunkSize;
         const count: number = Math.min(this.targetHeight - lastAcceptedHeight, this.chunkSize);
         const blocks: Interfaces.IBlockData[] = await this.localDatabase.getBlocks(offset, count);
 
-        return blocks.map((block: Interfaces.IBlockData) => Blocks.BlockFactory.fromData(block));
+        return blocks;
     }
 
     private async processGenesisBlock(): Promise<void> {

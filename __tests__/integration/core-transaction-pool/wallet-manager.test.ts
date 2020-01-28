@@ -3,6 +3,8 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Blocks, Identities, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
+import { Blockchain as BlockchainClass } from "../../../packages/core-blockchain/src";
+import { BlockProcessor } from "../../../packages/core-blockchain/src/processor";
 import { WalletManager } from "../../../packages/core-transaction-pool/src/wallet-manager";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { delegates, genesisBlock, wallets } from "../../utils/fixtures/unitnet";
@@ -209,8 +211,9 @@ describe("Apply transactions and block rewards to wallets on new block", () => {
         };
         const blockWithRewardVerified = Blocks.BlockFactory.fromData(blockWithReward);
         blockWithRewardVerified.verification.verified = true;
+        const processor = new BlockProcessor(blockchain as BlockchainClass);
 
-        await blockchain.processBlocks([blockWithRewardVerified], () => undefined);
+        await processor.process(blockWithRewardVerified);
 
         const delegateWallet = poolWalletManager.findByPublicKey(generatorPublicKey);
 

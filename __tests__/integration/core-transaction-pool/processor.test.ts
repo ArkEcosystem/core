@@ -2,10 +2,10 @@ import "jest-extended";
 
 import { Blockchain, Container, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Blocks, Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Identities, Interfaces, Managers, Utils } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
-import { delegates, genesisBlock, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
+import { delegates, wallets, wallets2ndSig } from "../../utils/fixtures/unitnet";
 import { generateWallets } from "../../utils/generators/wallets";
 import { setUpFull, tearDownFull } from "./__support__/setup";
 // import { Crypto, Enums, Managers } from "@arkecosystem/crypto";
@@ -736,38 +736,54 @@ describe("Transaction Guard", () => {
         describe("Transaction replay shouldn't pass validation", () => {
             afterEach(async () => blockchain.removeBlocks(blockchain.getLastHeight() - 1)); // resets to height 1
 
-            const addBlock = async transactions => {
-                let totalAmount = Utils.BigNumber.ZERO;
-                let totalFee = Utils.BigNumber.ZERO;
+            const addBlock = async (generatorKeys: any, transactions: Interfaces.ITransactionData[]) => {
+                const timestamp = () => {
+                    const lastBlock = blockchain.state.getLastBlock();
+                    return Crypto.Slots.getSlotTime(Crypto.Slots.getSlotNumber(lastBlock.data.timestamp) + 1);
+                };
+
+                const transactionData = {
+                    amount: Utils.BigNumber.ZERO,
+                    fee: Utils.BigNumber.ZERO,
+                    ids: [],
+                };
 
                 for (const transaction of transactions) {
-                    totalAmount = totalAmount.plus(transaction.amount);
-                    totalFee = totalFee.plus(transaction.fee);
+                    transactionData.amount = transactionData.amount.plus(transaction.amount);
+                    transactionData.fee = transactionData.fee.plus(transaction.fee);
+                    transactionData.ids.push(Buffer.from(transaction.id, "hex"));
                 }
 
-                // makes blockchain accept a new block with the transactions specified
-                const block = {
-                    id: "17882607875259085966",
+                const lastBlock = blockchain.state.getLastBlock();
+                const data = {
+                    timestamp: timestamp(),
                     version: 0,
-                    timestamp: 46583330,
-                    height: 2,
-                    reward: Utils.BigNumber.make(0),
-                    previousBlock: genesisBlock.id,
-                    numberOfTransactions: 1,
+                    previousBlock: lastBlock.data.id,
+                    previousBlockHex: lastBlock.data.idHex,
+                    height: lastBlock.data.height + 1,
+                    numberOfTransactions: transactions.length,
+                    totalAmount: transactionData.amount,
+                    totalFee: transactionData.fee,
+                    reward: Utils.BigNumber.ZERO,
+                    payloadLength: 32 * transactions.length,
+                    payloadHash: Crypto.HashAlgorithms.sha256(transactionData.ids).toString("hex"),
                     transactions,
-                    totalAmount,
-                    totalFee,
-                    payloadLength: 0,
-                    payloadHash: genesisBlock.payloadHash,
-                    generatorPublicKey: delegates[0].publicKey,
-                    blockSignature:
-                        "3045022100e7385c6ea42bd950f7f6ab8c8619cf2f66a41d8f8f185b0bc99af032cb25f30d02200b6210176a6cedfdcbe483167fd91c21d740e0e4011d24d679c601fdd46b0de9",
-                    createdAt: "2019-07-11T16:48:50.550Z",
                 };
-                const blockVerified = Blocks.BlockFactory.fromData(block);
-                blockVerified.verification.verified = true;
 
-                await blockchain.processBlocks([blockVerified], () => undefined);
+                const blockInstance = Blocks.BlockFactory.make(
+                    data,
+                    Identities.Keys.fromPassphrase(generatorKeys.secret),
+                );
+
+                await blockchain.processBlocks(
+                    [
+                        {
+                            ...blockInstance.data,
+                            transactions: blockInstance.transactions.map(tx => tx.data),
+                        },
+                    ],
+                    () => undefined,
+                );
             };
 
             it("should not validate an already forged transaction", async () => {
@@ -775,7 +791,9 @@ describe("Transaction Guard", () => {
                     .withNetwork("unitnet")
                     .withPassphrase(wallets[0].passphrase)
                     .create();
-                await addBlock(transfers);
+
+                const forgerKeys = delegates[0];
+                await addBlock(forgerKeys, transfers);
 
                 const result = await processor.validate(transfers);
 
@@ -789,7 +807,9 @@ describe("Transaction Guard", () => {
                     .withNetwork("unitnet")
                     .withPassphrase(wallets[0].passphrase)
                     .create();
-                await addBlock(transfers);
+
+                const forgerKeys = delegates[0];
+                await addBlock(forgerKeys, transfers);
 
                 const originalId: string = transfers[0].id;
 
