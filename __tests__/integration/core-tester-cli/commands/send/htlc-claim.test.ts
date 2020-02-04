@@ -6,6 +6,7 @@ import nock from "nock";
 import { HtlcClaimCommand } from "../../../../../packages/core-tester-cli/src/commands/send/htlc-claim";
 import { htlcSecretHex } from "../../../../utils/fixtures";
 import { arkToSatoshi, captureTransactions, toFlags } from "../../shared";
+import { nodeStatusResponse } from "./fixtures";
 
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
@@ -18,6 +19,11 @@ beforeEach(() => {
         .get("/api/node/configuration/crypto")
         .times(6)
         .reply(200, { data: Managers.configManager.getPreset("unitnet") });
+
+    nock("http://localhost:4003")
+        .get("/api/node/status")
+        .times(6)
+        .reply(200, nodeStatusResponse);
 
     jest.spyOn(httpie, "get");
     jest.spyOn(httpie, "post");
