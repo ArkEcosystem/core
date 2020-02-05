@@ -4,6 +4,7 @@ import { Interfaces, Utils } from "@arkecosystem/crypto";
 export const transformWallet = (wallet: State.IWallet) => {
     const username: string = wallet.getAttribute("delegate.username");
     const multiSignature: Interfaces.IMultiSignatureAsset = wallet.getAttribute("multiSignature");
+    const secondPublicKey = wallet.getAttribute("secondPublicKey");
 
     return {
         address: wallet.address,
@@ -20,5 +21,7 @@ export const transformWallet = (wallet: State.IWallet) => {
         isResigned: !!wallet.getAttribute("delegate.resigned"),
         vote: wallet.getAttribute("vote"),
         multiSignature,
+        ...(username && { username }), // only adds username if it is defined
+        ...(secondPublicKey && { secondPublicKey }), // same with secondPublicKey
     };
 };
