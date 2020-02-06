@@ -182,7 +182,7 @@ export class BlockState {
     }
 
     private applyBlockToGenerator(generatorWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
-        const delegateAttribute = generatorWallet.getAttribute("delegate");
+        const delegateAttribute = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         delegateAttribute.producedBlocks++;
         delegateAttribute.forgedFees = delegateAttribute.forgedFees.plus(blockData.totalFee);
         delegateAttribute.forgedRewards = delegateAttribute.forgedRewards.plus(blockData.reward);
@@ -194,7 +194,7 @@ export class BlockState {
     }
 
     private revertBlockFromGenerator(generatorWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
-        const delegateAttribute = generatorWallet.getAttribute("delegate");
+        const delegateAttribute = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         delegateAttribute.producedBlocks--;
         delegateAttribute.forgedFees = delegateAttribute.forgedFees.minus(blockData.totalFee);
         delegateAttribute.forgedRewards = delegateAttribute.forgedRewards.minus(blockData.reward);
