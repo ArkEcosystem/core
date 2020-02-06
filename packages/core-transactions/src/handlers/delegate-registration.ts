@@ -79,7 +79,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
 
             // Genesis wallet is empty
-            if (!wallet.getAttribute("delegate")) {
+            if (!wallet.hasAttribute("delegate")) {
                 continue;
             }
 
