@@ -30,6 +30,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     }
 
     public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlock) {
+        const postBlockTimeout = 10000;
         return this.emit(
             peer,
             "p2p.peer.postBlock",
@@ -39,12 +40,13 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                     transactions: block.transactions.map(tx => tx.data),
                 }),
             },
-            5000,
+            postBlockTimeout,
         );
     }
 
     public async postTransactions(peer: P2P.IPeer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
-        return this.emit(peer, "p2p.peer.postTransactions", { transactions });
+        const postTransactionsTimeout = 10000;
+        return this.emit(peer, "p2p.peer.postTransactions", { transactions }, postTransactionsTimeout);
     }
 
     public async ping(peer: P2P.IPeer, timeoutMsec: number, force: boolean = false): Promise<any> {
@@ -54,7 +56,13 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return undefined;
         }
 
-        const pingResponse: IPeerPingResponse = await this.emit(peer, "p2p.peer.getStatus", undefined, timeoutMsec);
+        const getStatusTimeout = timeoutMsec < 5000 ? timeoutMsec : 5000;
+        const pingResponse: IPeerPingResponse = await this.emit(
+            peer,
+            "p2p.peer.getStatus",
+            undefined,
+            getStatusTimeout,
+        );
 
         if (!pingResponse) {
             throw new PeerStatusResponseError(peer.ip);
@@ -141,12 +149,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
     public async getPeers(peer: P2P.IPeer): Promise<any> {
         this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
-        return this.emit(peer, "p2p.peer.getPeers");
+        const getPeersTimeout = 5000;
+        return this.emit(peer, "p2p.peer.getPeers", undefined, getPeersTimeout);
     }
 
     public async hasCommonBlocks(peer: P2P.IPeer, ids: string[], timeoutMsec?: number): Promise<any> {
         try {
-            const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, timeoutMsec);
+            const getCommonBlocksTimeout = timeoutMsec < 5000 ? timeoutMsec : 5000;
+            const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, getCommonBlocksTimeout);
 
             if (!body || !body.common) {
                 return false;
