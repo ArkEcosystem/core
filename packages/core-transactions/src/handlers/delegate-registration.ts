@@ -77,6 +77,12 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         for (const block of lastForgedBlocks) {
             const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
+
+            // Genesis wallet is empty
+            if (!wallet.hasAttribute("delegate")) {
+                continue;
+            }
+
             wallet.setAttribute("delegate.lastBlock", block);
         }
     }
@@ -121,7 +127,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<{ type: string, message: string } | null> {
+    ): Promise<{ type: string; message: string } | null> {
         const err = await this.typeFromSenderAlreadyInPool(data, pool);
         if (err !== null) {
             return err;
