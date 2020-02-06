@@ -56,7 +56,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
             return undefined;
         }
 
-        const getStatusTimeout = 5000;
+        const getStatusTimeout = timeoutMsec < 5000 ? timeoutMsec : 5000;
         const pingResponse: IPeerPingResponse = await this.emit(
             peer,
             "p2p.peer.getStatus",
