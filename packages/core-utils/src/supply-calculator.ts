@@ -1,8 +1,8 @@
 import { app } from "@arkecosystem/core-container";
-import { Blockchain } from "@arkecosystem/core-interfaces";
-import { Utils } from "@arkecosystem/crypto";
+import { Blockchain, Database } from "@arkecosystem/core-interfaces";
+import { Enums, Identities, Utils } from "@arkecosystem/crypto";
 
-export const calculate = (height: number): string => {
+export const calculate = async (height: number): Promise<string> => {
     const { genesisBlock, milestones } = app.getConfig().all();
 
     if (!height) {
@@ -10,11 +10,47 @@ export const calculate = (height: number): string => {
         height = blockchain ? blockchain.getLastBlock().data.height : 0;
     }
 
-    const totalAmount: Utils.BigNumber = Utils.BigNumber.make(genesisBlock.totalAmount);
-
     if (height === 0 || milestones.length === 0) {
-        return totalAmount.toFixed();
+        return genesisBlock.totalAmount;
     }
+
+    const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+
+    const balances: Utils.BigNumber = await genesisBlock.transactions.reduce(async (accPromise, { amount, senderPublicKey, type }) => {
+        let acc = await accPromise;
+
+        if (type === Enums.TransactionType.Transfer) {
+            acc = acc.plus(amount);
+
+            const address = Identities.Address.fromPublicKey(senderPublicKey);
+            let receivedByAddress = (await databaseService.transactionsBusinessRepository.findAllByRecipient(address)).rows;
+
+            receivedByAddress = receivedByAddress.filter(transaction => (transaction as any).block.height <= height);
+
+            for (const transaction of receivedByAddress) {
+                if (transaction.typeGroup === Enums.TransactionTypeGroup.Core) {
+                    switch (transaction.type) {
+                        case Enums.TransactionType.Transfer: {
+                            acc.minus(transaction.amount);
+                            break;
+                        }
+                        case Enums.TransactionType.MultiPayment: {
+                            const payments = transaction.asset.payments.filter(payment => payment.recipientId === address);
+                            const sum = payments.reduce((sum, payment) => {
+                                sum = sum.plus(payment.amount);
+                                return sum;
+                            }, Utils.BigNumber.ZERO);
+
+                            acc = acc.minus(sum);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return acc;
+    }, Promise.resolve(Utils.BigNumber.ZERO));
 
     let rewards: Utils.BigNumber = Utils.BigNumber.ZERO;
     let currentHeight: number = 0;
@@ -38,5 +74,5 @@ export const calculate = (height: number): string => {
         }
     }
 
-    return totalAmount.plus(rewards).toFixed();
+    return balances.plus(rewards).toFixed();
 };
