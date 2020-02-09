@@ -41,6 +41,9 @@ export class Worker extends SCWorker {
         await this.loadHandlers();
 
         // @ts-ignore
+        this.scServer.wsServer._server.timeout = 2000;
+
+        // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
             const clients = [...Object.values(this.scServer.clients), ...Object.values(this.scServer.pendingClients)];
             const existingSockets = clients.filter(
@@ -52,10 +55,17 @@ export class Worker extends SCWorker {
             }
             this.handlePayload(ws, req);
         });
+        // @ts-ignore
+        this.httpServer.on("request", req => {
+            // @ts-ignore
+            if (req.method !== "GET" || req.url !== this.scServer.wsServer.options.path) {
+                this.setErrorForIpAndTerminate(req);
+                req.destroy();
+            }
+        });
+        // @ts-ignore
+        this.scServer.wsServer._server.on("connection", socket => this.handleSocket(socket));
         this.scServer.on("connection", socket => this.handleConnection(socket));
-        this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
-            this.handleHandshake(req, next),
-        );
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_EMIT, (req, next) => this.handleEmit(req, next));
     }
 
@@ -89,15 +99,15 @@ export class Worker extends SCWorker {
         ws.removeAllListeners("ping");
         ws.removeAllListeners("pong");
         ws.prependListener("ping", () => {
-            this.setErrorForIpAndTerminate(ws, req);
+            this.setErrorForIpAndTerminate(req, ws);
         });
         ws.prependListener("pong", () => {
-            this.setErrorForIpAndTerminate(ws, req);
+            this.setErrorForIpAndTerminate(req, ws);
         });
 
         ws.prependListener("error", error => {
             if (error instanceof RangeError) {
-                this.setErrorForIpAndTerminate(ws, req);
+                this.setErrorForIpAndTerminate(req, ws);
             }
         });
 
@@ -105,17 +115,17 @@ export class Worker extends SCWorker {
         ws.removeAllListeners("message");
         ws.prependListener("message", message => {
             if (ws._disconnected) {
-                return this.setErrorForIpAndTerminate(ws, req);
+                return this.setErrorForIpAndTerminate(req, ws);
             } else if (message === "#2") {
                 const timeNow: number = new Date().getTime() / 1000;
                 if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                    return this.setErrorForIpAndTerminate(ws, req);
+                    return this.setErrorForIpAndTerminate(req, ws);
                 }
                 ws._lastPingTime = timeNow;
             } else if (message.length < 10) {
                 // except for #2 message, we should have JSON with some required properties
                 // (see below) which implies that message length should be longer than 10 chars
-                return this.setErrorForIpAndTerminate(ws, req);
+                return this.setErrorForIpAndTerminate(req, ws);
             } else {
                 try {
                     const parsed = JSON.parse(message);
@@ -123,7 +133,7 @@ export class Worker extends SCWorker {
                         ws._disconnected = true;
                     } else if (parsed.event === "#handshake") {
                         if (ws._handshake) {
-                            return this.setErrorForIpAndTerminate(ws, req);
+                            return this.setErrorForIpAndTerminate(req, ws);
                         }
                         ws._handshake = true;
                     } else if (
@@ -134,10 +144,10 @@ export class Worker extends SCWorker {
                             (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined")) ||
                         !this.handlers.includes(parsed.event)
                     ) {
-                        return this.setErrorForIpAndTerminate(ws, req);
+                        return this.setErrorForIpAndTerminate(req, ws);
                     }
                 } catch (error) {
-                    return this.setErrorForIpAndTerminate(ws, req);
+                    return this.setErrorForIpAndTerminate(req, ws);
                 }
             }
 
@@ -209,9 +219,11 @@ export class Worker extends SCWorker {
         return false;
     }
 
-    private setErrorForIpAndTerminate(ws, req): void {
+    private setErrorForIpAndTerminate(req, ws?): void {
         this.ipLastError[req.socket.remoteAddress] = Date.now();
-        ws.terminate();
+        if (ws) {
+            ws.terminate();
+        }
     }
 
     private async handleConnection(socket): Promise<void> {
@@ -227,10 +239,10 @@ export class Worker extends SCWorker {
         }
     }
 
-    private async handleHandshake(req, next): Promise<void> {
-        const ip = req.socket.remoteAddress;
-        if (this.ipLastError[ip] && this.ipLastError[ip] > Date.now() - MINUTE_IN_MILLISECONDS) {
-            req.socket.destroy();
+    private async handleSocket(socket): Promise<void> {
+        const ip = socket.remoteAddress;
+        if (!ip || (this.ipLastError[ip] && this.ipLastError[ip] > Date.now() - MINUTE_IN_MILLISECONDS)) {
+            socket.destroy();
             return;
         }
 
@@ -243,7 +255,7 @@ export class Worker extends SCWorker {
 
         const isBlacklisted: boolean = (this.config.blacklist || []).includes(ip);
         if (data.blocked || isBlacklisted) {
-            req.socket.destroy();
+            socket.destroy();
             return;
         }
 
@@ -252,11 +264,9 @@ export class Worker extends SCWorker {
             client => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
         );
         if (sameSubnetSockets.length > this.config.maxSameSubnetPeers) {
-            req.socket.destroy();
+            socket.destroy();
             return;
         }
-
-        next();
     }
 
     private async handleEmit(req, next): Promise<void> {
