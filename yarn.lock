@@ -2632,6 +2632,15 @@
   dependencies:
     defer-to-connect "^1.0.1"
 
+"@types/ag-channel@*":
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/@types/ag-channel/-/ag-channel-4.0.0.tgz#180823dfbd9c8b78e8b02ff334ed2084ddee6e63"
+  integrity sha512-Z6Zi6mq5GGLbFPIf2ROTGHzkkzW+PVydGH0SzVgC5CiHUpsuOPGUw3AyZhbAsnEkaS+E0H8zO/k6rULrM0R/uw==
+  dependencies:
+    "@types/consumable-stream" "*"
+    "@types/stream-demux" "*"
+    "@types/writable-consumable-stream" "*"
+
 "@types/agent-base@^4.2.0":
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/@types/agent-base/-/agent-base-4.2.0.tgz#00644e8b395b40e1bf50aaf1d22cabc1200d5051"
@@ -2639,6 +2648,14 @@
   dependencies:
     "@types/events" "*"
     "@types/node" "*"
+
+"@types/async-stream-emitter@*":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@types/async-stream-emitter/-/async-stream-emitter-3.0.0.tgz#f7f89e7759cd74ecb69984f345c7da8fc1581521"
+  integrity sha512-wS0EPl8pBK0ZzoVQ9k4PYz/AcrF9Goc8TIwurVRl7fuihlTpZwKUe8v8iMydLD2nmN8wKPcMa0AUtB6+JsE92Q==
+  dependencies:
+    "@types/consumable-stream" "*"
+    "@types/writable-consumable-stream" "*"
 
 "@types/async@*", "@types/async@^3.0.0":
   version "3.0.2"
@@ -2792,6 +2809,13 @@
   version "3.4.32"
   resolved "https://registry.yarnpkg.com/@types/connect/-/connect-3.4.32.tgz#aa0e9616b9435ccad02bc52b5b454ffc2c70ba28"
   integrity sha512-4r8qa0quOvh7lGD0pre62CAb1oni1OO6ecJLGCezTmhQ8Fz50Arx9RUszryR8KlgK6avuSXvviL6yWyViQABOg==
+  dependencies:
+    "@types/node" "*"
+
+"@types/consumable-stream@*":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@types/consumable-stream/-/consumable-stream-1.0.0.tgz#fed37bee85f966f98bc3fe19267fa6bc67e74eb4"
+  integrity sha512-9q698XajyFxHK0aKQY/ofTvPjVrkDzE2Dq7W/Gzg8uPSt9k8maUe6PWonnNbARnKHKcc8d0vWjvyBBkAMyNLWQ==
   dependencies:
     "@types/node" "*"
 
@@ -3527,7 +3551,7 @@
   dependencies:
     "@types/node" "*"
 
-"@types/socketcluster-client@*", "@types/socketcluster-client@^13.0.3":
+"@types/socketcluster-client@*":
   version "13.0.3"
   resolved "https://registry.yarnpkg.com/@types/socketcluster-client/-/socketcluster-client-13.0.3.tgz#35b4e6f6d03ca15696b45fb63ab0f98db9bcf2f0"
   integrity sha512-3G+CSHhKDKYDYDkh0NfIc3kprI0tV0jhCXBptGQSJunUlCM5hD4XqzERSsyrSZoWSxSNmPXawsp3Fp60nlDS3g==
@@ -3537,6 +3561,21 @@
     "@types/sc-channel" "*"
     "@types/sc-errors" "*"
     "@types/socketcluster-server" "*"
+    "@types/ws" "*"
+
+"@types/socketcluster-client@^15.0.0":
+  version "15.1.0"
+  resolved "https://registry.yarnpkg.com/@types/socketcluster-client/-/socketcluster-client-15.1.0.tgz#ef92133830a6930a1eac78eacce8057f1f6cee04"
+  integrity sha512-gbFmY8LBxNFsUiKEEpME+nI3OPl/S6BH2LiEScUBib8C3cpMiwPre05p5T3YTkoh3vSdRgQP5g3h8zXlHN6pRw==
+  dependencies:
+    "@types/ag-channel" "*"
+    "@types/async-stream-emitter" "*"
+    "@types/consumable-stream" "*"
+    "@types/sc-auth" "*"
+    "@types/sc-errors" "*"
+    "@types/socketcluster-server" "*"
+    "@types/stream-demux" "*"
+    "@types/writable-consumable-stream" "*"
     "@types/ws" "*"
 
 "@types/socketcluster-server@*":
@@ -3578,6 +3617,14 @@
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-1.0.1.tgz#0a851d3bd96498fa25c33ab7278ed3bd65f06c3e"
   integrity sha512-l42BggppR6zLmpfU6fq9HEa2oGPEI8yrSPL3GITjfRInppYFahObbIQOQK3UGxEnyQpltZLaPe75046NOZQikw==
 
+"@types/stream-demux@*":
+  version "7.0.0"
+  resolved "https://registry.yarnpkg.com/@types/stream-demux/-/stream-demux-7.0.0.tgz#54225023a4c7645e9919142c4e2745d922e87cca"
+  integrity sha512-JbNzd38xcT2ZwLAG7YjO5OPaAhyItCeCNgXktNOEVJboi05xhRvWGP/EhKnRkJ0EcK+Hcz0J/zxYlLxYxUIa+A==
+  dependencies:
+    "@types/consumable-stream" "*"
+    "@types/writable-consumable-stream" "*"
+
 "@types/tough-cookie@*":
   version "2.3.5"
   resolved "https://registry.yarnpkg.com/@types/tough-cookie/-/tough-cookie-2.3.5.tgz#9da44ed75571999b65c37b60c9b2b88db54c585d"
@@ -3604,6 +3651,13 @@
   integrity sha512-FQKvE4EncC8C4qxW9y0psAOs2XVkxSAGIofB8tqNDPSeOsR4OueEf9TED3PHf8xlOquI+m++AXTWjJIS07FNHw==
   dependencies:
     "@types/node" "*"
+
+"@types/writable-consumable-stream@*":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@types/writable-consumable-stream/-/writable-consumable-stream-1.1.0.tgz#fbab6c99a24a995c387dd6a306cd3e05148e7159"
+  integrity sha512-4owhgP9kLpaWEXAywGQJAIjkdrFzScGFpBHTzNDwKMygOlY+bBzPAqZhV5Ze6uLDCgg4k7WKoWdt0JBsXAUGiA==
+  dependencies:
+    "@types/consumable-stream" "*"
 
 "@types/ws@*":
   version "6.0.3"
