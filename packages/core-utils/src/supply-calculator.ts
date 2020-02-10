@@ -16,11 +16,17 @@ export const calculate = async (height: number): Promise<string> => {
 
     const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
-    const balances: Utils.BigNumber = await genesisBlock.transactions.reduce(async (accPromise, { amount, senderPublicKey, type }) => {
+    const senderPublicKeys: string[] = [];
+
+    const balances: Utils.BigNumber = await genesisBlock.transactions.reduce(async (accPromise, { amount, senderPublicKey }) => {
         let acc = await accPromise;
 
-        if (type === Enums.TransactionType.Transfer) {
+        if (amount !== "0") {
             acc = acc.plus(amount);
+
+            if (senderPublicKeys.includes(senderPublicKey)) {
+                return acc;
+            }
 
             const address = Identities.Address.fromPublicKey(senderPublicKey);
             let receivedByAddress = (await databaseService.transactionsBusinessRepository.findAllByRecipient(address)).rows;
@@ -47,6 +53,8 @@ export const calculate = async (height: number): Promise<string> => {
                     }
                 }
             }
+
+            senderPublicKeys.push(senderPublicKey);
         }
 
         return acc;
