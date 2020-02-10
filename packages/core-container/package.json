@@ -21,8 +21,8 @@
     "dependencies": {
         "@arkecosystem/core-interfaces": "^2.6.0",
         "@arkecosystem/crypto": "^2.6.0",
-        "@hapi/hoek": "^8.0.2",
-        "@hapi/joi": "^15.1.0",
+        "@hapi/hoek": "^9.0.0",
+        "@hapi/joi": "^17.0.0",
         "awilix": "^4.2.2",
         "delay": "^4.3.0",
         "env-paths": "^2.2.0",

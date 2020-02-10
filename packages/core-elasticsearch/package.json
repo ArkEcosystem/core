@@ -24,8 +24,8 @@
         "@arkecosystem/core-interfaces": "^2.6.0",
         "@arkecosystem/crypto": "^2.6.0",
         "@elastic/elasticsearch": "^7.2.0",
-        "@hapi/boom": "^8.0.0",
-        "@hapi/joi": "^15.1.0",
+        "@hapi/boom": "^9.0.0",
+        "@hapi/joi": "^17.0.0",
         "fs-extra": "^8.1.0"
     },
     "devDependencies": {
