@@ -123,7 +123,7 @@ export class Worker extends SCWorker {
                         ws._disconnected = true;
                     } else if (parsed.event === "#handshake") {
                         if (ws._handshake) {
-                            this.setErrorForIpAndTerminate(ws, req);
+                            return this.setErrorForIpAndTerminate(ws, req);
                         }
                         ws._handshake = true;
                     } else if (
