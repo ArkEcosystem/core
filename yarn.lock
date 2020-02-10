@@ -11355,10 +11355,10 @@ range-parser@~1.2.1:
   resolved "https://registry.yarnpkg.com/range-parser/-/range-parser-1.2.1.tgz#3cf37023d199e1c24d1a55b84800c2f3e6468031"
   integrity sha512-Hrgsx+orqoygnmhFbKaHE6c296J+HTAQXoxEF6gNupROmmGJRoyzfG3ccAveqCBrwr/2yxQ5BVd/GTl5agOwSg==
 
-rate-limiter-flexible@^1.1.0:
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/rate-limiter-flexible/-/rate-limiter-flexible-1.1.6.tgz#b3620ba1b4d61f34b8a982546600a7a776924c40"
-  integrity sha512-fVjTbMcXlBqbCfYyfmEqzyj5niHVyPl5b4OtWcnaM3M8layKz5K6ooILqeDA8AljKgvH2bv7rmcO/qZqffU6gw==
+rate-limiter-flexible@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/rate-limiter-flexible/-/rate-limiter-flexible-2.0.0.tgz#6b193fe302a279f2460f5caa3276b9d0b59f1e02"
+  integrity sha512-DjLeci3BuHWNr9LVVm+YPJ+Lrki/J9iDb9cEJFZELpa/ZBhXmfnfR+eCI5jzmsPJtpYGYhw/vyRfjjQjTzVtRg==
 
 raw-body@2.4.0:
   version "2.4.0"
