@@ -1,12 +1,12 @@
 import { Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
 import { Storage } from "./storage";
 import { Synchronizer } from "./synchronizer";
-import { Handlers } from "@arkecosystem/core-transactions";
 
 /**
  * @export
