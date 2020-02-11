@@ -23,6 +23,8 @@ describe("isValidVersion", () => {
     });
 
     it("should be an invalid version", () => {
+        expect(isValidVersion({ ...peerMock, ...{ version: "2.4.0" } })).toBeFalse();
+        expect(isValidVersion({ ...peerMock, ...{ version: "2.5.0" } })).toBeFalse();
         expect(isValidVersion({ ...peerMock, ...{ version: "1.0.0" } })).toBeFalse();
         expect(isValidVersion({ ...peerMock, ...{ version: "1.0" } })).toBeFalse();
         expect(isValidVersion({ ...peerMock, ...{ version: "---aaa" } })).toBeFalse();
