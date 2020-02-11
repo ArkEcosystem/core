@@ -13,7 +13,7 @@ export class PeersController extends Controller {
         let result = allPeers;
 
         if (request.query.version) {
-            const versionRange = semver.validRange(request.query.version);
+            const versionRange = semver.validRange(decodeURIComponent((request.query as any).version));
 
             if (versionRange) {
                 result = result.filter(peer => semver.satisfies(peer.version, versionRange));
