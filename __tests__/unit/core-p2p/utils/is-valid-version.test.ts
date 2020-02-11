@@ -14,8 +14,6 @@ beforeEach(async () => {
 
 describe("isValidVersion", () => {
     it("should be a valid version", () => {
-        expect(isValidVersion({ ...peerMock, ...{ version: "2.4.0" } })).toBeTrue();
-        expect(isValidVersion({ ...peerMock, ...{ version: "2.5.0" } })).toBeTrue();
         expect(isValidVersion({ ...peerMock, ...{ version: "2.6.0" } })).toBeTrue();
         expect(isValidVersion({ ...peerMock, ...{ version: "2.6.666" } })).toBeTrue();
         expect(isValidVersion({ ...peerMock, ...{ version: "2.7.0" } })).toBeTrue();
