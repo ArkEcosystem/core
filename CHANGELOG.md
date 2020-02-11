@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.1] - 2020-02-11
+
+### Changed
+
+-   Update `@arkecosystem/exchange-json-rpc`
+
 ## [2.6.0] - 2020-02-11
 
 ### Added
@@ -843,7 +849,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
-[2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.6.0
+[2.6.1]: https://github.com/ARKEcosystem/core/compare/2.6.0...2.6.1
+[2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.38...2.6.0
 [2.5.38]: https://github.com/ARKEcosystem/core/compare/2.5.37...2.5.38
 [2.5.37]: https://github.com/ARKEcosystem/core/compare/2.5.36...2.5.37
 [2.5.36]: https://github.com/ARKEcosystem/core/compare/2.5.31...2.5.36
