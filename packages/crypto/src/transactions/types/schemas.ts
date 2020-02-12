@@ -145,7 +145,12 @@ export const vote = extend(transactionBaseSchema, {
     },
 });
 
-export const multiSignature = extend(transactionBaseSchema, {
+// For multisignature registration transaction, we have a different way of handling the
+// "signatures" property because of multisignature legacy transactions. Then we need to
+// delete the "signatures" property definition from the base schema to implement our own.
+const transactionBaseSchemaNoSignatures = extend(transactionBaseSchema, {});
+delete transactionBaseSchemaNoSignatures.properties.signatures;
+export const multiSignature = extend(transactionBaseSchemaNoSignatures, {
     $id: "multiSignature",
     if: { properties: { version: { anyOf: [{ type: "null" }, { const: 1 }] } } },
     then: { required: ["asset"] },
@@ -216,13 +221,26 @@ export const multiSignature = extend(transactionBaseSchema, {
                 },
             ],
         },
-        signatures: {
-            type: "array",
-            minItems: { $data: "1/asset/multiSignature/min" },
-            maxItems: { $data: "1/asset/multiSignature/publicKeys/length" },
-            additionalItems: false,
-            uniqueItems: true,
-            items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+        if: { version: { anyOf: [{ type: "null" }, { const: 1 }] } },
+        then: {
+            signatures: {
+                type: "array",
+                additionalItems: false,
+                uniqueItems: true,
+                items: { $ref: "alphanumeric" },
+                minItems: 1,
+                maxItems: 1,
+            },
+        },
+        else: {
+            signatures: {
+                type: "array",
+                additionalItems: false,
+                uniqueItems: true,
+                items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+                minItems: { $data: "1/asset/multiSignature/min" },
+                maxItems: { $data: "1/asset/multiSignature/publicKeys/length" },
+            },
         },
     },
 });
