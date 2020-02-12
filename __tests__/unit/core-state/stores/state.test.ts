@@ -1,11 +1,11 @@
 import "jest-extended";
 
-
 import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
-// import { TransactionFactory, BlockFactory } from "../../../helpers";
+import { TransactionFactory } from "../../../helpers";
+import { BlockFactory as TestBlockFactory } from "../../../helpers/block-factory";
 import { blocks101to155 } from "../../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 
@@ -170,19 +170,19 @@ describe("State Storage", () => {
         });
 
         it("should return full blocks and block headers", () => {
-            // const block = BlockFactory.createDummy(TransactionFactory.transfer().create(10));
+            const block = TestBlockFactory.createDummy(TransactionFactory.transfer().create(10));
 
-            // stateStorage.setLastBlock(block);
+            stateStorage.setLastBlock(block);
 
-            // let lastBlocksByHeight = stateStorage.getLastBlocksByHeight(2, 2, true);
-            // expect(lastBlocksByHeight).toHaveLength(1);
-            // expect(lastBlocksByHeight[0].height).toBe(2);
-            // expect(lastBlocksByHeight[0].transactions).toBeUndefined();
+            let lastBlocksByHeight = stateStorage.getLastBlocksByHeight(2, 2, true);
+            expect(lastBlocksByHeight).toHaveLength(1);
+            expect(lastBlocksByHeight[0].height).toBe(2);
+            expect(lastBlocksByHeight[0].transactions).toBeUndefined();
 
-            // lastBlocksByHeight = stateStorage.getLastBlocksByHeight(2, 2);
-            // expect(lastBlocksByHeight).toHaveLength(1);
-            // expect(lastBlocksByHeight[0].height).toBe(2);
-            // expect(lastBlocksByHeight[0].transactions).toHaveLength(10);
+            lastBlocksByHeight = stateStorage.getLastBlocksByHeight(2, 2);
+            expect(lastBlocksByHeight).toHaveLength(1);
+            expect(lastBlocksByHeight[0].height).toBe(2);
+            expect(lastBlocksByHeight[0].transactions).toHaveLength(10);
         });
     });
 

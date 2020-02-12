@@ -1,7 +1,5 @@
-import { Interfaces, Managers } from "@arkecosystem/crypto";
+import { Interfaces } from "@arkecosystem/crypto";
 import { BlockStore } from "../../../../packages/core-state/src/stores/blocks";
-
-Managers.configManager.setFromPreset("testnet");
 
 describe("BlockStore", () => {
     it("should push and get a block", () => {
