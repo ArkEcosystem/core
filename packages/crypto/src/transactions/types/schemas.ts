@@ -145,11 +145,38 @@ export const vote = extend(transactionBaseSchema, {
     },
 });
 
-export const multiSignature = extend(transactionBaseSchema, {
+// For multisignature registration transaction, we have a different way of handling the
+// "signatures" property because of multisignature legacy transactions. Then we need to
+// delete the "signatures" property definition from the base schema to implement our own.
+const transactionBaseSchemaNoSignatures = extend(transactionBaseSchema, {});
+delete transactionBaseSchemaNoSignatures.properties.signatures;
+export const multiSignature = extend(transactionBaseSchemaNoSignatures, {
     $id: "multiSignature",
     if: { properties: { version: { anyOf: [{ type: "null" }, { const: 1 }] } } },
-    then: { required: ["asset"] },
-    else: { required: ["asset", "signatures"] },
+    then: {
+        required: ["asset"],
+        properties: {
+            signatures: {
+                type: "array",
+                maxItems: 1,
+                additionalItems: false,
+                items: { $ref: "alphanumeric" },
+            },
+        },
+    },
+    else: {
+        required: ["asset", "signatures"],
+        properties: {
+            signatures: {
+                type: "array",
+                minItems: { $data: "1/asset/multiSignature/min" },
+                maxItems: { $data: "1/asset/multiSignature/publicKeys/length" },
+                additionalItems: false,
+                uniqueItems: true,
+                items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+            },
+        },
+    },
     properties: {
         type: { transactionType: TransactionType.MultiSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
@@ -215,14 +242,6 @@ export const multiSignature = extend(transactionBaseSchema, {
                     },
                 },
             ],
-        },
-        signatures: {
-            type: "array",
-            minItems: { $data: "1/asset/multiSignature/min" },
-            maxItems: { $data: "1/asset/multiSignature/publicKeys/length" },
-            additionalItems: false,
-            uniqueItems: true,
-            items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
         },
     },
 });
