@@ -89,7 +89,7 @@ describe("API 2.0 - Peers", () => {
             expect(response).toBeSuccessfulResponse();
 
             const expectedMeta = {
-                count: 2,
+                count: 5,
                 first: "/peers?page=1&limit=100",
                 last: "/peers?page=1&limit=100",
                 next: null,
@@ -108,7 +108,7 @@ describe("API 2.0 - Peers", () => {
             expect(response.data.data).toBeArrayOfSize(peers.length);
             expect(response.data.data[0]).toBeObject();
 
-            expect(response.data.data.sort((a, b) => semver.compare(a, b))).toEqual(response.data.data);
+            expect(response.data.data.sort((a, b) => semver.compare(a.version, b.version))).toEqual(response.data.data);
         });
 
         it("should GET all the peers sorted by version,desc", async () => {
@@ -117,7 +117,9 @@ describe("API 2.0 - Peers", () => {
             expect(response.data.data).toBeArrayOfSize(peers.length);
             expect(response.data.data[0]).toBeObject();
 
-            expect(response.data.data.sort((a, b) => semver.rcompare(a, b))).toEqual(response.data.data);
+            expect(response.data.data.sort((a, b) => semver.rcompare(a.version, b.version))).toEqual(
+                response.data.data,
+            );
         });
 
         it("should GET all the peers sorted by height,asc", async () => {
@@ -171,7 +173,7 @@ describe("API 2.0 - Peers", () => {
             expect(response.data.data[0]).toBeObject();
             expect(response.data.data[0].ip).toBe(peers[2].ip);
             expect(response.data.data[1].ip).toBe(peers[3].ip);
-            expect(response.data.data[1].ip).toBe(peers[4].ip);
+            expect(response.data.data[2].ip).toBe(peers[4].ip);
         });
 
         it("should GET the peers filtered by version range", async () => {
