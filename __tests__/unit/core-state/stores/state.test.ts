@@ -6,8 +6,8 @@ import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
 import { TransactionFactory } from "../../../helpers";
 import { BlockFactory as TestBlockFactory } from "../../../helpers/block-factory";
-import { blocks101to155 } from "../../../utils/fixtures/unitnet/blocks101to155";
-import { blocks2to100 } from "../../../utils/fixtures/unitnet/blocks2to100";
+import { blocks101to155 } from "../../../utils/fixtures/testnet/blocks101to155";
+import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 
 const { Block, BlockFactory } = cBlocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => BlockFactory.fromData(block));
