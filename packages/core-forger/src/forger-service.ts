@@ -90,7 +90,7 @@ export class ForgerService {
 
             timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
         } catch (error) {
-            this.logger.warning("Waiting for a responsive host.");
+            this.logger.warning("Waiting for a responsive host");
         } finally {
             this.checkLater(timeout);
         }

@@ -8,6 +8,9 @@ import { TransactionHandler, TransactionHandlerConstructor } from "../transactio
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class SecondSignatureRegistrationTransactionHandler extends TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
@@ -26,6 +29,20 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
 
     public async isActivated(): Promise<boolean> {
         return true;
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sameKind = this.poolQuery
+            .allFromSender(transaction.data.senderPublicKey)
+            .whenKind(transaction)
+            .has();
+
+        if (sameKind) {
+            // also thrown during apply
+            throw new SecondSignatureAlreadyRegisteredError();
+        }
     }
 
     public async throwIfCannotBeApplied(
@@ -48,18 +65,6 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
-    }
-
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
-
-        return true;
     }
 
     public async applyToSender(

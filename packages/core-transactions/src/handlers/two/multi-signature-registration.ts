@@ -13,6 +13,9 @@ import { TransactionHandler, TransactionHandlerConstructor } from "../transactio
 
 @Container.injectable()
 export class MultiSignatureRegistrationTransactionHandler extends TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
@@ -45,6 +48,20 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
     public async isActivated(): Promise<boolean> {
         return Managers.configManager.getMilestone().aip11 === true;
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sameKind = this.poolQuery
+            .allFromSender(transaction.data.senderPublicKey)
+            .whenKind(transaction)
+            .has();
+
+        if (sameKind) {
+            // also thrown during apply
+            throw new MultiSignatureAlreadyRegisteredError();
+        }
     }
 
     public async throwIfCannotBeApplied(
@@ -83,18 +100,6 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
-    }
-
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
-
-        return true;
     }
 
     public async applyToSender(

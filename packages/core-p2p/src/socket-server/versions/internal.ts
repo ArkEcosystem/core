@@ -54,11 +54,9 @@ export const getUnconfirmedTransactions = async ({
     app: Contracts.Kernel.Application;
 }): Promise<Contracts.P2P.UnconfirmedTransactions> => {
     const collator = app.get<Contracts.TransactionPool.Collator>(Container.Identifiers.TransactionPoolCollator);
-    const transactionPool: Contracts.TransactionPool.Connection = app.get<Contracts.TransactionPool.Connection>(
-        Container.Identifiers.TransactionPoolService,
-    );
+    const transactionPool = app.get<Contracts.TransactionPool.Service>(Container.Identifiers.TransactionPoolService);
     const transactions = await collator.getBlockCandidateTransactions();
-    const poolSize = await transactionPool.getPoolSize();
+    const poolSize = await transactionPool.size;
 
     return { poolSize, transactions: transactions.map(t => t.serialized.toString("hex")) };
 };

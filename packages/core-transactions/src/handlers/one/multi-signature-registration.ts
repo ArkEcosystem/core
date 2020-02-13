@@ -44,6 +44,11 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         return false;
     }
 
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        // also thrown during apply
+        throw new LegacyMultiSignatureError();
+    }
+
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -56,14 +61,6 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         }
 
         throw new LegacyMultiSignatureError();
-    }
-
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        return false;
     }
 
     public async applyToRecipient(

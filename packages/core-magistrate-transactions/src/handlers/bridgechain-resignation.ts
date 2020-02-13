@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
@@ -18,6 +18,9 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
 export class BridgechainResignationTransactionHandler extends MagistrateTransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BridgechainRegistrationTransactionHandler];
     }
@@ -47,6 +50,23 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
             this.walletRepository.reindex(wallet);
+        }
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const bridgechainId = transaction.data.asset!.bridgechainResignation.bridgechainId;
+
+        const duplicate = this.poolQuery
+            .allFromSender(transaction.data.senderPublicKey)
+            .whenKind(transaction)
+            .whenPredicate(t => t.data.asset!.bridgechainResignation.bridgechainId === bridgechainId)
+            .has();
+
+        if (duplicate) {
+            // also thrown during apply
+            throw new BusinessIsResignedError();
         }
     }
 
@@ -92,40 +112,6 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BridgechainResigned, transaction.data);
-    }
-
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        (pool as any).poolWalletRepository.findByPublicKey(data.senderPublicKey);
-        const { bridgechainId }: { bridgechainId: string } = data.asset!.bridgechainResignation;
-
-        const bridgechainResignationsInPool: Interfaces.ITransactionData[] = Array.from(
-            await pool.getTransactionsByType(
-                Enums.MagistrateTransactionType.BridgechainResignation,
-                Enums.MagistrateTransactionGroup,
-            ),
-        ).map((memTx: Interfaces.ITransaction) => memTx.data);
-
-        if (
-            bridgechainResignationsInPool.some(
-                resignation =>
-                    resignation.senderPublicKey === data.senderPublicKey &&
-                    resignation.asset!.bridgechainResignation.bridgechainId === bridgechainId,
-            )
-        ) {
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Bridgechain resignation for bridgechainId "${bridgechainId}" already in the pool`,
-            );
-
-            return false;
-        }
-
-        return true;
     }
 
     public async applyToSender(

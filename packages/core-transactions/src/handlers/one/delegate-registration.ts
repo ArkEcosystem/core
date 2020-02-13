@@ -1,5 +1,5 @@
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
     NotSupportedForMultiSignatureWalletError,
@@ -9,12 +9,13 @@ import {
 } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
 
-const { TransactionType, TransactionTypeGroup } = Enums;
-
 // todo: revisit the implementation, container usage and arguments after core-database rework
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class DelegateRegistrationTransactionHandler extends TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
@@ -45,6 +46,31 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public async isActivated(): Promise<boolean> {
         return true;
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sameKind = this.poolQuery
+            .allFromSender(transaction.data.senderPublicKey)
+            .whenKind(transaction)
+            .has();
+
+        if (sameKind) {
+            // also thrown during apply
+            throw new WalletIsAlreadyDelegateError();
+        }
+
+        const sameUsername = this.poolQuery
+            .all()
+            .whenKind(transaction)
+            .whenPredicate(t => t.data.asset!.delegate!.username === transaction.data.asset!.delegate!.username)
+            .has();
+
+        if (sameUsername) {
+            // ! can be abused to deny registration
+            throw new Error(`Same username already in pool`);
+        }
     }
 
     public async throwIfCannotBeApplied(
@@ -85,55 +111,6 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(AppEnums.DelegateEvent.Registered, transaction.data);
-    }
-
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
-
-        AppUtils.assert.defined<string>(data.asset?.delegate?.username);
-
-        const username: string = data.asset.delegate.username;
-
-        const delegateRegistrationsSameNameInPayload = processor
-            .getTransactions()
-            .filter(
-                transaction =>
-                    transaction.type === TransactionType.DelegateRegistration &&
-                    (transaction.typeGroup === undefined || transaction.typeGroup === TransactionTypeGroup.Core) &&
-                    transaction.asset &&
-                    transaction.asset.delegate &&
-                    transaction.asset.delegate.username === username,
-            );
-
-        if (delegateRegistrationsSameNameInPayload.length > 1) {
-            processor.pushError(
-                data,
-                "ERR_CONFLICT",
-                `Multiple delegate registrations for "${username}" in transaction payload`,
-            );
-            return false;
-        }
-
-        const delegateRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
-            await pool.getTransactionsByType(TransactionType.DelegateRegistration),
-        ).map((memTx: Interfaces.ITransaction) => memTx.data);
-
-        const containsDelegateRegistrationForSameNameInPool: boolean = delegateRegistrationsInPool.some(
-            transaction =>
-                transaction.asset && transaction.asset.delegate && transaction.asset.delegate.username === username,
-        );
-        if (containsDelegateRegistrationForSameNameInPool) {
-            processor.pushError(data, "ERR_PENDING", `Delegate registration for "${username}" already in the pool`);
-            return false;
-        }
-
-        return true;
     }
 
     public async applyToSender(

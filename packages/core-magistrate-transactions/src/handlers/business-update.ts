@@ -1,7 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
-    Enums,
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
@@ -16,6 +15,9 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
 export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BusinessRegistrationTransactionHandler];
     }
@@ -47,6 +49,20 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         }
     }
 
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sameKind = this.poolQuery
+            .allFromSender(transaction.data.senderPublicKey)
+            .whenKind(transaction)
+            .has();
+
+        if (sameKind) {
+            // is it necessary?
+            throw new Error("Update already in pool");
+        }
+    }
+
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -65,32 +81,6 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BusinessUpdate, transaction.data);
-    }
-
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        if (
-            await pool.senderHasTransactionsOfType(
-                data.senderPublicKey!,
-                Enums.MagistrateTransactionType.BusinessUpdate,
-                Enums.MagistrateTransactionGroup,
-            )
-        ) {
-            const wallet: Contracts.State.Wallet = (pool as any).poolWalletRepository.findByPublicKey(
-                data.senderPublicKey,
-            );
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Business update for "${wallet.getAttribute("business")}" already in the pool`,
-            );
-            return false;
-        }
-
-        return true;
     }
 
     public async applyToSender(

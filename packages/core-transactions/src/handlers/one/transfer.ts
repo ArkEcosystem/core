@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { isRecipientOnActiveNetwork } from "../../utils";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
@@ -28,6 +28,15 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.recipientId);
+
+        if (!isRecipientOnActiveNetwork(transaction.data.recipientId)) {
+            // ! not thrown during apply
+            throw new Error("Recipient is not on the same network");
+        }
+    }
+
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
@@ -37,29 +46,6 @@ export class TransferTransactionHandler extends TransactionHandler {
     }
 
     public hasVendorField(): boolean {
-        return true;
-    }
-
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        Utils.assert.defined<string>(data.recipientId);
-
-        const recipientId: string = data.recipientId;
-
-        if (!isRecipientOnActiveNetwork(recipientId)) {
-            processor.pushError(
-                data,
-                "ERR_INVALID_RECIPIENT",
-                `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(
-                    "network.pubKeyHash",
-                )}`,
-            );
-            return false;
-        }
-
         return true;
     }
 

@@ -1,9 +1,10 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Wallets } from "@arkecosystem/core-state";
 import { Identities } from "@arkecosystem/crypto";
 
+import { WalletRepository } from "./wallet-repository";
+
 @Container.injectable()
-export class PoolWalletRepository extends Wallets.WalletRepository {
+export class WalletRepositoryCow extends WalletRepository {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly blockchainWalletRepository!: Contracts.State.WalletRepository;
@@ -26,6 +27,15 @@ export class PoolWalletRepository extends Wallets.WalletRepository {
         const walletClone = this.blockchainWalletRepository.findByIndex(index, key).clone();
         this.reindex(walletClone);
         return true;
+    }
+
+    public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
+        for (const wallet of this.blockchainWalletRepository.allByUsername()) {
+            if (super.hasByAddress(wallet.address) === false) {
+                this.reindex(wallet.clone());
+            }
+        }
+        return super.allByUsername();
     }
 
     public forget(publicKey: string): void {

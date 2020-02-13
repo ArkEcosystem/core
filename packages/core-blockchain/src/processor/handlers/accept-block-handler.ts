@@ -24,7 +24,7 @@ export class AcceptBlockHandler implements BlockHandler {
     private readonly database!: DatabaseService;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly transactionPool!: Contracts.TransactionPool.Connection;
+    private readonly transactionPool!: Contracts.TransactionPool.Service;
 
     public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         try {
@@ -38,7 +38,9 @@ export class AcceptBlockHandler implements BlockHandler {
 
             if (this.transactionPool) {
                 try {
-                    await this.transactionPool.acceptChainedBlock(block);
+                    for (const transaction of block.transactions) {
+                        await this.transactionPool.accept(transaction);
+                    }
                 } catch (error) {
                     this.logger.warning("Issue applying block to transaction pool");
                     this.logger.debug(error.stack);

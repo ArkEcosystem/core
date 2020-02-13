@@ -1,8 +1,7 @@
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Processor } from "@arkecosystem/core-transaction-pool";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Transactions } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
@@ -17,11 +16,11 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly transactionPool!: Contracts.TransactionPool.Connection;
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
 
-    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
-    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
+    @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
+    private readonly createTransactionProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
     @Container.inject(Container.Identifiers.TransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
@@ -36,21 +35,18 @@ export class TransactionsController extends Controller {
     }
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const processor: Contracts.TransactionPool.Processor = this.app.resolve(Processor);
-        const result = await processor.validate((request.payload as any).transactions);
-
-        if (result.broadcast.length > 0) {
-            this.networkMonitor.broadcastTransactions(processor.getBroadcastTransactions());
-        }
+        const transactions = request.payload.transactions!.map(t => Transactions.TransactionFactory.fromData(t));
+        const processor = this.createTransactionProcessor();
+        await processor.process(transactions);
 
         return {
             data: {
-                accept: result.accept,
-                broadcast: result.broadcast,
-                excess: result.excess,
-                invalid: result.invalid,
+                accept: processor.accept,
+                broadcast: processor.broadcast,
+                excess: processor.excess,
+                invalid: processor.invalid,
             },
-            errors: result.errors,
+            errors: processor.errors,
         };
     }
 
@@ -70,29 +66,22 @@ export class TransactionsController extends Controller {
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const pagination = super.paginate(request);
-        const transactions = await this.transactionPool.getTransactions(pagination.offset, pagination.limit);
-        const poolSize = await this.transactionPool.getPoolSize();
-        const data = transactions.map(t => ({ serialized: t.serialized.toString("hex") }));
+        const all = Array.from(this.poolQuery.allFromHighestPriority());
+        const transactions = all.slice(pagination.offset, pagination.offset + pagination.limit);
+        const rows = transactions.map(t => ({ serialized: t.serialized.toString("hex") }));
 
-        return super.toPagination(
-            { count: poolSize, rows: data },
-            TransactionResource,
-            (request.query.transform as unknown) as boolean,
-        );
+        return super.toPagination({ count: all.length, rows }, TransactionResource, !!request.query.transform);
     }
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction: Interfaces.ITransaction | undefined = await this.transactionPool.getTransaction(
-            request.params.id,
-        );
-
-        if (!transaction) {
+        const transactionQuery = this.poolQuery.allFromHighestPriority().whenId(request.params.id);
+        if (transactionQuery.has() === false) {
             return Boom.notFound("Transaction not found");
         }
-
+        const transaction = transactionQuery.first();
         const data = { id: transaction.id, serialized: transaction.serialized.toString("hex") };
 
-        return super.respondWithResource(data, TransactionResource, (request.query.transform as unknown) as boolean);
+        return super.respondWithResource(data, TransactionResource, !!request.query.transform);
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {

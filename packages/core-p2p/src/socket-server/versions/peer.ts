@@ -1,12 +1,11 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Processor } from "@arkecosystem/core-transaction-pool";
-import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { PeerService } from "../../contracts";
 import { MissingCommonBlockError } from "../../errors";
 import { isWhitelisted } from "../../utils";
-import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
+import { UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
 
@@ -120,19 +119,13 @@ export const postTransactions = async ({
     service: PeerService;
     req;
 }): Promise<string[]> => {
-    const processor: Contracts.TransactionPool.Processor = app.resolve(Processor);
-
-    const result: Contracts.TransactionPool.ProcessorResult = await processor.validate(req.data.transactions);
-
-    if (result.invalid.length > 0) {
-        throw new InvalidTransactionsError();
-    }
-
-    if (result.broadcast.length > 0) {
-        service.networkMonitor.broadcastTransactions(processor.getBroadcastTransactions());
-    }
-
-    return result.accept;
+    const transactions = req.data.transactions.map(t => Transactions.TransactionFactory.fromData(t));
+    const createTransactionProcessor = app.get<Contracts.TransactionPool.ProcessorFactory>(
+        Container.Identifiers.TransactionPoolProcessorFactory,
+    );
+    const processor = createTransactionProcessor();
+    await processor.process(transactions);
+    return processor.accept;
 };
 
 export const getBlocks = async ({

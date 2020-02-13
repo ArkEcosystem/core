@@ -37,7 +37,6 @@ export const Identifiers = {
     QueueService: Symbol.for("Service<Queue>"),
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
-    TransactionPoolService: Symbol.for("Service<TransactionPool>"),
     TriggerService: Symbol.for("Service<Actions>"),
     ValidationService: Symbol.for("Service<Validation>"),
     // Factories
@@ -65,8 +64,8 @@ export const Identifiers = {
     StateStore: Symbol.for("State<StateStore>"),
     StateTransactionStore: Symbol.for("State<TransactionStore>"),
     WalletFactory: Symbol.for("State<WalletFactory>"),
-    TransactionValidator: Symbol("State<TransactionValidator>"),
-    TransactionValidatorFactory: Symbol("State<TransactionValidatorFactory>"),
+    TransactionValidator: Symbol.for("State<TransactionValidator>"),
+    TransactionValidatorFactory: Symbol.for("State<TransactionValidatorFactory>"),
 
     // Derived states
     DposState: Symbol.for("State<DposState>"),
@@ -78,12 +77,17 @@ export const Identifiers = {
     PeerNetworkMonitor: Symbol.for("Peer<NetworkMonitor>"),
     PeerProcessor: Symbol.for("Peer<Processor>"),
     PeerStorage: Symbol.for("Peer<Storage>"),
+
     // Transaction Pool
-    TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
-    TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
-    TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
-    TransactionPoolSynchronizer: Symbol.for("TransactionPool<Synchronizer>"),
-    TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
+    TransactionPoolService: Symbol.for("TransactionPoolService"),
+    TransactionPoolMemory: Symbol.for("TransactionPoolMemory"),
+    TransactionPoolStorage: Symbol.for("TransactionPoolStorage"),
+    TransactionPoolProcessor: Symbol.for("TransactionPoolProcessor"),
+    TransactionPoolProcessorFactory: Symbol.for("TransactionPoolProcessorFactory"),
+    TransactionPoolQuery: Symbol.for("TransactionPoolQuery"),
+    TransactionPoolCollator: Symbol.for("TransactionPoolCollator"),
+    TransactionPoolSenderState: Symbol.for("TransactionPoolSenderState"),
+    TransactionPoolSenderStateFactory: Symbol.for("TransactionPoolSenderStateFactory"),
 
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),

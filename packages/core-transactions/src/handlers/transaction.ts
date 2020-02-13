@@ -63,6 +63,8 @@ export abstract class TransactionHandler {
         return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
     }
 
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {}
+
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
@@ -173,23 +175,6 @@ export abstract class TransactionHandler {
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {}
 
     /**
-     * Transaction Pool logic
-     */
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        processor.pushError(
-            data,
-            "ERR_UNSUPPORTED",
-            `Invalidating transaction of unsupported type '${Enums.TransactionType[data.type]}'`,
-        );
-
-        return false;
-    }
-
-    /**
      * @param {Contracts.State.Wallet} wallet
      * @param {Interfaces.ITransactionData} transaction
      * @param {Interfaces.IMultiSignatureAsset} [multiSignature]
@@ -205,30 +190,6 @@ export abstract class TransactionHandler {
             transaction,
             multiSignature || wallet.getAttribute("multiSignature"),
         );
-    }
-
-    protected async typeFromSenderAlreadyInPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        AppUtils.assert.defined<string>(data.type);
-        AppUtils.assert.defined<string>(data.senderPublicKey);
-
-        const type: number = data.type;
-        const senderPublicKey: string = data.senderPublicKey;
-
-        if (await pool.senderHasTransactionsOfType(senderPublicKey, type)) {
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionType[type]}' in the pool`,
-            );
-
-            return true;
-        }
-
-        return false;
     }
 
     protected getTransactionReader(): TransactionReader {
@@ -353,11 +314,12 @@ export abstract class TransactionHandler {
 
     public abstract walletAttributes(): ReadonlyArray<string>;
 
-    public abstract async isActivated(): Promise<boolean>;
+    public abstract isActivated(): Promise<boolean>;
 
     /**
      * Wallet logic
      */
+
     public abstract async bootstrap(): Promise<void>;
 
     public abstract async applyToRecipient(

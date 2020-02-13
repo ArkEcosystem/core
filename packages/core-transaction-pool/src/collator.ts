@@ -1,8 +1,7 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { Connection } from "./connection";
-import { Memory } from "./memory";
+import { describeTransaction } from "./utils";
 
 @Container.injectable()
 export class Collator implements Contracts.TransactionPool.Collator {
@@ -17,10 +16,10 @@ export class Collator implements Contracts.TransactionPool.Collator {
     private readonly blockchain!: Contracts.Blockchain.Blockchain;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly pool!: Connection;
+    private readonly pool!: Contracts.TransactionPool.Service;
 
-    @Container.inject(Container.Identifiers.TransactionPoolMemory)
-    private readonly memory!: Memory;
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
 
     @Container.inject(Container.Identifiers.LogService)
     private readonly logger!: Contracts.Kernel.Logger;
@@ -33,7 +32,9 @@ export class Collator implements Contracts.TransactionPool.Collator {
         const transactions: Interfaces.ITransaction[] = [];
         const validator = this.createTransactionValidator();
 
-        for (const transaction of this.memory.allSortedByFee().slice()) {
+        await this.pool.clean();
+
+        for (const transaction of this.poolQuery.allFromHighestPriority()) {
             if (transactions.length === milestone.block.maxTransactions) {
                 break;
             }
@@ -48,10 +49,8 @@ export class Collator implements Contracts.TransactionPool.Collator {
                 }
                 transactions.push(transaction);
             } catch (error) {
-                this.pool.removeTransactionById(transaction.id!);
-                this.logger.error(
-                    `[Pool] Removed ${transaction.id} before forging because it is no longer valid: ${error.message}`,
-                );
+                this.logger.error(`Pool ${describeTransaction(transaction)} failed to collate: ${error.message}`);
+                await this.pool.remove(transaction);
             }
         }
 

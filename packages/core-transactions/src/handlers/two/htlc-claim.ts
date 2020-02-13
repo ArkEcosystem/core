@@ -1,5 +1,5 @@
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { strict } from "assert";
 
 import { HtlcLockExpiredError, HtlcLockTransactionNotFoundError, HtlcSecretHashMismatchError } from "../../errors";
@@ -8,6 +8,9 @@ import { HtlcLockTransactionHandler } from "./htlc-lock";
 
 @Container.injectable()
 export class HtlcClaimTransactionHandler extends TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [HtlcLockTransactionHandler];
     }
@@ -35,6 +38,29 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
         // override dynamicFee calculation as this is a zero-fee transaction
         return Utils.BigNumber.ZERO;
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const lockId = transaction.data.asset!.claim!.lockTransactionId;
+        const lockWallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
+
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
+            // also thrown during apply
+            throw new HtlcLockTransactionNotFoundError();
+        }
+
+        const sameClaim = this.poolQuery
+            .all()
+            .whenKind(transaction)
+            .whenPredicate(t => t.data.asset!.claim!.lockTransactionId === lockId)
+            .has();
+
+        if (sameClaim) {
+            // also thrown during apply
+            throw new HtlcLockTransactionNotFoundError();
+        }
     }
 
     public async throwIfCannotBeApplied(
@@ -72,46 +98,6 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         if (lock.secretHash !== unlockSecretHash) {
             throw new HtlcSecretHashMismatchError();
         }
-    }
-
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        AppUtils.assert.defined<string>(data.asset?.claim?.lockTransactionId);
-
-        const lockId: string = data.asset.claim.lockTransactionId;
-
-        const lockWallet: Contracts.State.Wallet = this.walletRepository.findByIndex(
-            Contracts.State.WalletIndexes.Locks,
-            lockId,
-        );
-        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
-            processor.pushError(
-                data,
-                "ERR_HTLCLOCKNOTFOUND",
-                `The associated lock transaction id "${lockId}" was not found.`,
-            );
-            return false;
-        }
-
-        const htlcClaimsInPool: Interfaces.ITransactionData[] = Array.from(
-            await pool.getTransactionsByType(Enums.TransactionType.HtlcClaim),
-        ).map((memTx: Interfaces.ITransaction) => memTx.data);
-
-        const alreadyHasPendingClaim: boolean = htlcClaimsInPool.some(transaction => {
-            AppUtils.assert.defined<string>(transaction.asset?.claim?.lockTransactionId);
-
-            return transaction.asset.claim.lockTransactionId === lockId;
-        });
-
-        if (alreadyHasPendingClaim) {
-            processor.pushError(data, "ERR_PENDING", `HtlcClaim for "${lockId}" already in the pool`);
-            return false;
-        }
-
-        return true;
     }
 
     public async applyToSender(

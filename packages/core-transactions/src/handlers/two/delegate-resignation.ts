@@ -11,6 +11,9 @@ import { DelegateRegistrationTransactionHandler } from "./delegate-registration"
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class DelegateResignationTransactionHandler extends TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [DelegateRegistrationTransactionHandler];
     }
@@ -36,6 +39,20 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return Managers.configManager.getMilestone().aip11 === true;
     }
 
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const sameKind = this.poolQuery
+            .allFromSender(transaction.data.senderPublicKey)
+            .whenKind(transaction)
+            .has();
+
+        if (sameKind) {
+            // also thrown during apply
+            throw new WalletAlreadyResignedError();
+        }
+    }
+
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -49,21 +66,12 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             throw new WalletAlreadyResignedError();
         }
 
-        const delegates: ReadonlyArray<Contracts.State.Wallet> = this.walletRepository.allByUsername();
-        let requiredDelegates: number = Managers.configManager.getMilestone().activeDelegates + 1;
-        for (const delegate of delegates) {
-            if (requiredDelegates === 0) {
-                break;
-            }
+        const requiredDelegatesCount = Managers.configManager.getMilestone().activeDelegates;
+        const currentDelegatesCount = this.walletRepository
+            .allByUsername()
+            .filter(w => w.hasAttribute("delegate.resigned") === false).length;
 
-            if (delegate.hasAttribute("delegate.resigned")) {
-                continue;
-            }
-
-            requiredDelegates--;
-        }
-
-        if (requiredDelegates > 0) {
+        if (currentDelegatesCount - 1 < requiredDelegatesCount) {
             throw new NotEnoughDelegatesError();
         }
 
@@ -74,30 +82,12 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         emitter.dispatch(Enums.DelegateEvent.Resigned, transaction.data);
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        // TODO: ioc
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            // @ts-ignore
-            const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(data.senderPublicKey);
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Delegate resignation for "${wallet.getAttribute("delegate.username")}" already in the pool`,
-            );
-            return false;
-        }
-
-        return true;
-    }
-
     public async applyToSender(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
+        this.app.log.notice(`${this.walletRepository.allByUsername().length} delegates before resignation`);
+
         await super.applyToSender(transaction, customWalletRepository);
 
         const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
