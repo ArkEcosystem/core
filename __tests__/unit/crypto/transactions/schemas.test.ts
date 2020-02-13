@@ -6,9 +6,10 @@ import { IMultiSignatureAsset } from "../../../../packages/crypto/src/interfaces
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
+import { schemas } from "../../../../packages/crypto/src/transactions/types";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
-import { htlcSecretHex, htlcSecretHashHex } from "../../../utils/fixtures"
+import { htlcSecretHashHex, htlcSecretHex } from "../../../utils/fixtures";
 
 let transaction;
 let transactionSchema: TransactionSchema;
@@ -697,7 +698,7 @@ describe("Multi Signature Registration Transaction", () => {
         expect(error).not.toBeUndefined();
     });
 
-    it("should validate legacy multisignature", () => {
+    it("should not validate legacy multisignature against current multisig schema", () => {
         const legacyMultiSignature = {
             version: 1,
             network: 23,
@@ -723,6 +724,35 @@ describe("Multi Signature Registration Transaction", () => {
         };
 
         const { error } = Ajv.validate(transactionSchema.$id, legacyMultiSignature);
+        expect(error).not.toBeUndefined();
+    });
+
+    it("should validate legacy multisignature against legacy schema", () => {
+        const legacyMultiSignature = {
+            version: 1,
+            network: 23,
+            type: 4,
+            timestamp: 53253482,
+            senderPublicKey: "0333421e69d3531a1c43c43cd4b9344e5a10640644a5fd35618b6306f3a4d7f208",
+            fee: "2000000000",
+            amount: "0",
+            asset: {
+                multiSignatureLegacy: {
+                    keysgroup: [
+                        "+034da006f958beba78ec54443df4a3f52237253f7ae8cbdb17dccf3feaa57f3126",
+                        "+0310c283aac7b35b4ae6fab201d36e8322c3408331149982e16013a5bcb917081c",
+                        "+0392a762e0123945455b7afe675e5ab98fb1586de43e5682514b9454d6edced724",
+                    ],
+                    lifetime: 24,
+                    min: 2,
+                },
+            },
+            signature:
+                "304402206009fbf8592e2e3485bc0aa84dbbc8c78326d59191daf870693bc3446b5eeeee02200b4ff5dd53b1e337fe6fbe090f42337dcfc4242c802c340815326e3858d13d6b",
+            id: "32aa60577531c190e6a29d28f434367c84c2f0a62eceba5c5483a3983639d51a",
+        };
+
+        const { error } = Ajv.validate(schemas.multiSignatureLegacy, legacyMultiSignature);
         expect(error).toBeUndefined();
     });
 });
