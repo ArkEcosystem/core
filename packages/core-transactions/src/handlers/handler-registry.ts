@@ -7,7 +7,7 @@ import { TransactionHandler } from "./transaction";
 
 @Container.injectable()
 export class TransactionHandlerRegistry {
-    @Container.inject(TransactionHandlerProvider)
+    @Container.inject(Container.Identifiers.TransactionHandlerProvider)
     private readonly provider!: TransactionHandlerProvider;
 
     @Container.multiInject(Container.Identifiers.TransactionHandler)

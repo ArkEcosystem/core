@@ -91,4 +91,5 @@ export const Identifiers = {
     TransactionHandler: Symbol.for("TransactionHandler"),
     // Registries
     TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
+    TransactionHandlerProvider: Symbol.for("Provider<TransactionHandler>"),
 };
