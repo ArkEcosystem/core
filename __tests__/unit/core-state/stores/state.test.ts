@@ -13,7 +13,7 @@ import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 const { Block, BlockFactory } = cBlocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => BlockFactory.fromData(block));
 
-let stateStorage;
+let stateStorage: StateStore;
 
 let sandbox: Sandbox;
 
@@ -353,22 +353,15 @@ describe("State Storage", () => {
                 block: blocks2to100[3],
             };
 
-            let loggedMessage: string;
-            
-            // TODO: inject this using IoC instead of mocking
-            stateStorage.app = {
-                log: {
-                    info: (message) => {
-                        loggedMessage = message;
-                    }
-                }
-            }
+            const logger = {
+                info: jest.fn(),
+            };
+        
+            sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
             stateStorage.pushPingBlock(blocks2to100[5]);
-
-            expect(loggedMessage).toEqual(
-                `Previous block ${blocks2to100[3].height.toLocaleString()} pinged blockchain 1 times`,
-            );
+            const spy = jest.spyOn(logger, "info");
+            expect(spy).toHaveBeenCalledWith(`Previous block ${blocks2to100[3].height.toLocaleString()} pinged blockchain 1 times`);
             expect(stateStorage.blockPing).toBeObject();
             expect(stateStorage.blockPing.block).toBe(blocks2to100[5]);
             expect(stateStorage.blockPing.count).toBe(1);
