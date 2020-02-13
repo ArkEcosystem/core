@@ -44,6 +44,8 @@ class TransactionRegistry {
         this.registerTransactionType(HtlcClaimTransaction);
         this.registerTransactionType(HtlcRefundTransaction);
 
+        // registering multisignature legacy schema separate after splitting the main
+        // multisignature schema into current implementation and legacy
         validator.extendTransaction(schemas.multiSignatureLegacy, false);
     }
 
