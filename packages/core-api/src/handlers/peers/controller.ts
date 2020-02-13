@@ -10,9 +10,17 @@ export class PeersController extends Controller {
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const allPeers: P2P.IPeer[] = [...this.blockchain.p2p.getStorage().getPeers()];
 
-        let result = request.query.version
-            ? allPeers.filter(peer => peer.version === (request.query as any).version)
-            : allPeers;
+        let result = allPeers;
+
+        if (request.query.version) {
+            const versionRange = semver.validRange(decodeURIComponent((request.query as any).version));
+
+            if (versionRange) {
+                result = result.filter(peer => semver.satisfies(peer.version, versionRange));
+            } else {
+                return Boom.notFound("Invalid version range provided");
+            }
+        }
 
         const count: number = result.length;
 
