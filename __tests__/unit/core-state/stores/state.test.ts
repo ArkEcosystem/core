@@ -1,5 +1,6 @@
 import "jest-extended";
-
+import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Sandbox } from "@packages/core-test-framework/src";
 import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-state/src/defaults";
@@ -13,18 +14,34 @@ const { Block, BlockFactory } = cBlocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => BlockFactory.fromData(block));
 
 let stateStorage;
-beforeAll(async () => {
-    stateStorage = new StateStore();
+
+let sandbox: Sandbox;
+
+beforeAll(() => {
+    sandbox = new Sandbox();
+    sandbox.app
+        .bind(Container.Identifiers.PluginConfiguration)
+        .to(Providers.PluginConfiguration)
+        .inSingletonScope();
+
+    sandbox.app
+        .get<any>(Container.Identifiers.PluginConfiguration)
+        .set("storage.maxLastBlocks", defaults.storage.maxLastBlocks);
+
+    sandbox.app
+        .get<any>(Container.Identifiers.PluginConfiguration)
+        .set("storage.maxLastTransactionIds", defaults.storage.maxLastTransactionIds);
+
+    sandbox.app
+        .bind(Container.Identifiers.StateStore)
+        .to(StateStore)
+        .inSingletonScope();
+
+    stateStorage = sandbox.app.get(Container.Identifiers.StateStore);
 });
 
 beforeEach(() => {
     stateStorage.clear();
-    stateStorage.configuration = {
-        getRequired: (state_config) => {
-            const [location, property] = state_config.split(".");
-            return defaults[location][property];
-        }
-    };
 });
 
 describe("State Storage", () => {
@@ -337,6 +354,8 @@ describe("State Storage", () => {
             };
 
             let loggedMessage: string;
+            
+            // TODO: inject this using IoC instead of mocking
             stateStorage.app = {
                 log: {
                     info: (message) => {
