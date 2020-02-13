@@ -1,5 +1,5 @@
 import { TransactionStore } from "../../../../packages/core-state/src/stores/transactions";
-import { genesisBlock } from "../../../utils/config/testnet/genesisBlock";
+import { genesisBlock } from "../../../utils/config/unitnet/genesisBlock";
 
 describe("TransactionStore", () => {
     it("should push and get a transaction", () => {

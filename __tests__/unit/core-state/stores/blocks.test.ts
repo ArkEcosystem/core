@@ -1,4 +1,4 @@
-import { Interfaces } from "@arkecosystem/crypto";
+import { Interfaces } from "../../../../packages/crypto";
 import { BlockStore } from "../../../../packages/core-state/src/stores/blocks";
 
 describe("BlockStore", () => {
