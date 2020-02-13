@@ -1,18 +1,18 @@
 {
-    "name": "devnet",
-    "messagePrefix": "DARK message:\n",
-    "bip32": {
-        "public": 46090600,
-        "private": 46089520
-    },
-    "pubKeyHash": 30,
-    "nethash": "2a44f340d76ffc3df204c5f38cd355b7496c9065a1ade2ef92071436bd72e867",
-    "wif": 170,
-    "slip44": 1,
-    "aip20": 1,
-    "client": {
-        "token": "DARK",
-        "symbol": "DѦ",
-        "explorer": "https://dexplorer.ark.io"
-    }
+  "name": "devnet",
+  "messagePrefix": "MINE message:\n",
+  "bip32": {
+    "public": 46090600,
+    "private": 46089520
+  },
+  "pubKeyHash": 30,
+  "nethash": "72e693c43cd89a67db47329c22524f921a0e5d1518a30e28510831f1d93bf015",
+  "wif": 167,
+  "slip44": 1,
+  "aip20": 1,
+  "client": {
+    "token": "MINE",
+    "symbol": "M",
+    "explorer": "http://165.227.213.194:4200"
+  }
 }
