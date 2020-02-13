@@ -15,6 +15,7 @@ import {
     IpfsTransaction,
     MultiPaymentTransaction,
     MultiSignatureRegistrationTransaction,
+    schemas,
     SecondSignatureRegistrationTransaction,
     Transaction,
     TransactionTypeFactory,
@@ -42,6 +43,8 @@ class TransactionRegistry {
         this.registerTransactionType(HtlcLockTransaction);
         this.registerTransactionType(HtlcClaimTransaction);
         this.registerTransactionType(HtlcRefundTransaction);
+
+        validator.extendTransaction(schemas.multiSignatureLegacy, false);
     }
 
     public registerTransactionType(constructor: TransactionConstructor): void {
