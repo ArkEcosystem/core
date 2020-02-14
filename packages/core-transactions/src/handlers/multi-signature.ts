@@ -38,7 +38,9 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
                     multiSignature.legacy = true;
                 } else {
                     multiSignature = transaction.asset.multiSignature;
-                    wallet = walletManager.findByAddress(Identities.Address.fromMultiSignatureAsset(multiSignature));
+                    wallet = walletManager.findByPublicKey(
+                        Identities.PublicKey.fromMultiSignatureAsset(multiSignature),
+                    );
                 }
                 if (wallet.hasMultiSignature()) {
                     throw new MultiSignatureAlreadyRegisteredError();
@@ -77,8 +79,8 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
             throw new MultiSignatureKeyCountMismatchError();
         }
 
-        const multiSigAddress: string = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
-        const recipientWallet: State.IWallet = walletManager.findByAddress(multiSigAddress);
+        const multiSigPublicKey: string = Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature);
+        const recipientWallet: State.IWallet = walletManager.findByPublicKey(multiSigPublicKey);
 
         if (recipientWallet.hasMultiSignature()) {
             throw new MultiSignatureAlreadyRegisteredError();
@@ -95,7 +97,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<{ type: string, message: string } | null> {
+    ): Promise<{ type: string; message: string } | null> {
         return this.typeFromSenderAlreadyInPool(data, pool);
     }
 
@@ -108,7 +110,7 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         // Create the multi sig wallet
         if (transaction.data.version >= 2) {
             walletManager
-                .findByAddress(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
+                .findByPublicKey(Identities.PublicKey.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
                 .setAttribute("multiSignature", transaction.data.asset.multiSignature);
         }
     }
@@ -129,8 +131,8 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version >= 2) {
-            const recipientWallet: State.IWallet = walletManager.findByAddress(
-                Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
+            const recipientWallet: State.IWallet = walletManager.findByPublicKey(
+                Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
             );
             recipientWallet.setAttribute("multiSignature", transaction.data.asset.multiSignature);
         }
@@ -143,8 +145,8 @@ export class MultiSignatureTransactionHandler extends TransactionHandler {
         const { data }: Interfaces.ITransaction = transaction;
 
         if (data.version >= 2) {
-            const recipientWallet: State.IWallet = walletManager.findByAddress(
-                Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
+            const recipientWallet: State.IWallet = walletManager.findByPublicKey(
+                Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
             );
 
             recipientWallet.forgetAttribute("multiSignature");
