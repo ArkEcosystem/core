@@ -74,7 +74,7 @@ export class TransactionsController extends Controller {
     }
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionQuery = this.poolQuery.allFromHighestPriority().whenId(request.params.id);
+        const transactionQuery = this.poolQuery.allFromHighestPriority().whereId(request.params.id);
         if (transactionQuery.has() === false) {
             return Boom.notFound("Transaction not found");
         }

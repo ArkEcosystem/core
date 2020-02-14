@@ -53,7 +53,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         const sameKind = this.poolQuery
             .allFromSender(transaction.data.senderPublicKey)
-            .whenKind(transaction)
+            .whereKind(transaction)
             .has();
 
         if (sameKind) {
@@ -63,8 +63,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         const sameUsername = this.poolQuery
             .all()
-            .whenKind(transaction)
-            .whenPredicate(t => t.data.asset!.delegate!.username === transaction.data.asset!.delegate!.username)
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset!.delegate!.username === transaction.data.asset!.delegate!.username)
             .has();
 
         if (sameUsername) {

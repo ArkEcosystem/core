@@ -40,36 +40,36 @@ class QueryIterable implements Contracts.TransactionPool.QueryIterable {
         return new QueryIterator(this.transactions[Symbol.iterator](), this.predicate);
     }
 
-    public whenPredicate(predicate: Contracts.TransactionPool.Predicate): Contracts.TransactionPool.QueryIterable {
+    public wherePredicate(predicate: Contracts.TransactionPool.Predicate): Contracts.TransactionPool.QueryIterable {
         return new QueryIterable(this, predicate);
     }
 
-    public whenId(id: string): Contracts.TransactionPool.QueryIterable {
-        return this.whenPredicate(t => t.id === id);
+    public whereId(id: string): Contracts.TransactionPool.QueryIterable {
+        return this.wherePredicate(t => t.id === id);
     }
 
-    public whenType(type: number): Contracts.TransactionPool.QueryIterable {
-        return this.whenPredicate(t => t.data.type === type);
+    public whereType(type: number): Contracts.TransactionPool.QueryIterable {
+        return this.wherePredicate(t => t.data.type === type);
     }
 
-    public whenTypeGroup(typeGroup: number): Contracts.TransactionPool.QueryIterable {
-        return this.whenPredicate(t => t.data.typeGroup === typeGroup);
+    public whereTypeGroup(typeGroup: number): Contracts.TransactionPool.QueryIterable {
+        return this.wherePredicate(t => t.data.typeGroup === typeGroup);
     }
 
-    public whenVersion(version: number): Contracts.TransactionPool.QueryIterable {
-        return this.whenPredicate(t => t.data.version === version);
+    public whereVersion(version: number): Contracts.TransactionPool.QueryIterable {
+        return this.wherePredicate(t => t.data.version === version);
     }
 
-    public whenInternalType(
+    public whereInternalType(
         internalType: Transactions.InternalTransactionType,
     ): Contracts.TransactionPool.QueryIterable {
-        return this.whenPredicate(
+        return this.wherePredicate(
             t => Transactions.InternalTransactionType.from(t.data.type, t.data.typeGroup) === internalType,
         );
     }
 
-    public whenKind(transaction: Interfaces.ITransaction): Contracts.TransactionPool.QueryIterable {
-        return this.whenPredicate(
+    public whereKind(transaction: Interfaces.ITransaction): Contracts.TransactionPool.QueryIterable {
+        return this.wherePredicate(
             t =>
                 t.data.type === transaction.data.type &&
                 t.data.typeGroup === transaction.data.typeGroup &&

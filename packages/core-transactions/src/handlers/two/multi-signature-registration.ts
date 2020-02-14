@@ -55,7 +55,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
         const sameKind = this.poolQuery
             .allFromSender(transaction.data.senderPublicKey)
-            .whenKind(transaction)
+            .whereKind(transaction)
             .has();
 
         if (sameKind) {

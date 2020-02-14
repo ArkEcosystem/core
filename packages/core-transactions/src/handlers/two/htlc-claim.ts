@@ -53,8 +53,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         const sameClaim = this.poolQuery
             .all()
-            .whenKind(transaction)
-            .whenPredicate(t => t.data.asset!.claim!.lockTransactionId === lockId)
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset!.claim!.lockTransactionId === lockId)
             .has();
 
         if (sameClaim) {

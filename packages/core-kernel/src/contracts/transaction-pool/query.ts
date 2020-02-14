@@ -10,13 +10,13 @@ export interface Query {
 }
 
 export interface QueryIterable extends Iterable<Interfaces.ITransaction> {
-    whenPredicate(predicate: Predicate): QueryIterable;
-    whenId(id: string): QueryIterable;
-    whenType(type: number): QueryIterable;
-    whenTypeGroup(typeGroup: number): QueryIterable;
-    whenVersion(version: number): QueryIterable;
-    whenInternalType(internalType: Transactions.InternalTransactionType): QueryIterable;
-    whenKind(transaction: Interfaces.ITransaction): QueryIterable;
+    wherePredicate(predicate: Predicate): QueryIterable;
+    whereId(id: string): QueryIterable;
+    whereType(type: number): QueryIterable;
+    whereTypeGroup(typeGroup: number): QueryIterable;
+    whereVersion(version: number): QueryIterable;
+    whereInternalType(internalType: Transactions.InternalTransactionType): QueryIterable;
+    whereKind(transaction: Interfaces.ITransaction): QueryIterable;
 
     has(): boolean;
     first(): Interfaces.ITransaction;

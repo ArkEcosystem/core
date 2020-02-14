@@ -43,7 +43,7 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
 
         const sameKind = this.poolQuery
             .allFromSender(transaction.data.senderPublicKey)
-            .whenKind(transaction)
+            .whereKind(transaction)
             .has();
 
         if (sameKind) {

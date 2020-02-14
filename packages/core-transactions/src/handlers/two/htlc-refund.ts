@@ -57,8 +57,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         const sameRefund = this.poolQuery
             .all()
-            .whenKind(transaction)
-            .whenPredicate(t => t.data.asset!.refund!.lockTransactionId === lockId)
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset!.refund!.lockTransactionId === lockId)
             .has();
 
         if (sameRefund) {

@@ -61,8 +61,8 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
         const duplicate = this.poolQuery
             .allFromSender(transaction.data.senderPublicKey)
-            .whenKind(transaction)
-            .whenPredicate(t => t.data.asset!.bridgechainUpdate.bridgechainId === bridgechainId)
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset!.bridgechainUpdate.bridgechainId === bridgechainId)
             .has();
 
         if (duplicate) {
