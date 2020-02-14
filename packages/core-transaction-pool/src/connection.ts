@@ -9,8 +9,6 @@ import { TransactionsProcessed } from "./interfaces";
 import { PurgeInvalidTransactions } from "./listeners";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
-import { Storage } from "./storage";
-import { Synchronizer } from "./synchronizer";
 
 // todo: review implementation and reduce the complexity of all methods as it is quite high
 /**
@@ -81,11 +79,11 @@ export class Connection implements Contracts.TransactionPool.Connection {
 
     /**
      * @private
-     * @type {Storage}
+     * @type {Contracts.TransactionPool.Storage}
      * @memberof Connection
      */
     @Container.inject(Container.Identifiers.TransactionPoolStorage)
-    private readonly storage!: Storage;
+    private readonly storage!: Contracts.TransactionPool.Storage;
 
     /**
      * @private
@@ -94,14 +92,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
      */
     @Container.inject(Container.Identifiers.TransactionPoolCleaner)
     private readonly cleaner!: Cleaner;
-
-    /**
-     * @private
-     * @type {Synchronizer}
-     * @memberof Connection
-     */
-    @Container.inject(Container.Identifiers.TransactionPoolSynchronizer)
-    private readonly synchronizer!: Synchronizer;
 
     /**
      * @private
@@ -119,22 +109,20 @@ export class Connection implements Contracts.TransactionPool.Connection {
      */
     public async boot(): Promise<this> {
         this.memory.flush();
-        this.storage.connect();
 
-        const transactionsFromDisk: Interfaces.ITransaction[] = this.storage.loadAll();
+        if (process.env.CORE_RESET_DATABASE) {
+            this.storage.clear();
+        }
+
+        const transactionsFromDisk: Interfaces.ITransaction[] = this.storage.all();
         for (const transaction of transactionsFromDisk) {
-            this.memory.remember(transaction, true);
+            // ! isn't applied on top of pool wallet repository
+            this.memory.remember(transaction);
         }
 
         // Remove from the pool invalid entries found in `transactionsFromDisk`.
-        if (process.env.CORE_RESET_DATABASE) {
-            this.memory.flush();
-        } else {
-            await this.validateTransactions(transactionsFromDisk);
-            await this.cleaner.purgeExpired();
-        }
-
-        this.synchronizer.syncToPersistentStorage();
+        await this.validateTransactions(transactionsFromDisk);
+        await this.cleaner.purgeExpired();
 
         this.emitter.listen(AppEnums.CryptoEvent.MilestoneChanged, this.app.resolve(PurgeInvalidTransactions));
 
@@ -221,9 +209,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
      */
     public removeTransactionById(id: string, senderPublicKey?: string): void {
         this.memory.forget(id, senderPublicKey);
-
-        this.synchronizer.syncToPersistentStorageIfNecessary();
-
+        this.storage.delete(id);
         this.emitter.dispatch(AppEnums.TransactionEvent.RemovedFromPool, id);
     }
 
@@ -500,6 +486,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 const transactionHandler = await this.blockchainHandlerRegistry.getActivatedHandlerForData(lowest.data);
                 await transactionHandler.revertForSender(lowest, this.poolWalletRepository);
                 this.memory.forget(lowest.id, lowest.data.senderPublicKey);
+                this.storage.delete(lowest.id);
             } else {
                 return {
                     transaction,
@@ -513,6 +500,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
         }
 
         this.memory.remember(transaction);
+        this.storage.add(transaction);
 
         try {
             AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
@@ -528,13 +516,10 @@ export class Connection implements Contracts.TransactionPool.Connection {
             AppUtils.assert.defined<string>(transaction.id);
 
             this.memory.forget(transaction.id);
-
-            console.log(error);
+            this.storage.delete(transaction.id);
 
             return { transaction, type: "ERR_APPLY", message: error.message };
         }
-
-        this.synchronizer.syncToPersistentStorageIfNecessary();
 
         return {};
     }
