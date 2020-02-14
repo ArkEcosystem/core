@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+import Long from "long";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { Address } from "../../identities";
 import { IMultiPaymentItem, ISerializeOptions } from "../../interfaces";
@@ -33,7 +34,7 @@ export class MultiPaymentTransaction extends Transaction {
         buffer.writeUint16(data.asset.payments.length);
 
         for (const payment of data.asset.payments) {
-            buffer.writeUint64(payment.amount.toFixed());
+            buffer.writeUint64(Long.fromString(payment.amount.toString()));
 
             const { addressBuffer, addressError } = Address.toBuffer(payment.recipientId);
             options.addressError = addressError || options.addressError;
