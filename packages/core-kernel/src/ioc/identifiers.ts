@@ -82,7 +82,6 @@ export const Identifiers = {
     TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
     TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
     TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
-    TransactionPoolSynchronizer: Symbol.for("TransactionPool<Synchronizer>"),
     TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
 
     // Transactions - @todo: better names that won't clash
