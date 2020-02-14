@@ -28,6 +28,7 @@
     },
     "dependencies": {
         "@arkecosystem/utils": "0.8.3",
+        "@types/bytebuffer": "^5.0.40",
         "ajv": "^6.10.2",
         "ajv-keywords": "^3.4.1",
         "bcrypto": "^4.1.0",
