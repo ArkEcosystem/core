@@ -1,5 +1,4 @@
 import ByteBuffer from "bytebuffer";
-import Long from "long";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { Address } from "../../identities";
 import { ISerializeOptions } from "../../interfaces";
@@ -25,7 +24,7 @@ export class TransferTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(24, true);
-        buffer.writeUint64(Long.fromString(data.amount.toString()));
+        buffer.writeUint64(data.amount.toFixed());
         buffer.writeUint32(data.expiration || 0);
 
         const { addressBuffer, addressError } = Address.toBuffer(data.recipientId);
