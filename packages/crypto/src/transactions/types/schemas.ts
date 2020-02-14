@@ -147,74 +147,35 @@ export const vote = extend(transactionBaseSchema, {
 
 export const multiSignature = extend(transactionBaseSchema, {
     $id: "multiSignature",
-    if: { properties: { version: { anyOf: [{ type: "null" }, { const: 1 }] } } },
-    then: { required: ["asset"] },
-    else: { required: ["asset", "signatures"] },
+    required: ["asset", "signatures"],
     properties: {
         type: { transactionType: TransactionType.MultiSignature },
         amount: { bignumber: { minimum: 0, maximum: 0 } },
         fee: { bignumber: { minimum: 1 } },
         asset: {
-            anyOf: [
-                {
+            type: "object",
+            required: ["multiSignature"],
+            properties: {
+                multiSignature: {
                     type: "object",
-                    required: ["multiSignature"],
+                    required: ["min", "publicKeys"],
                     properties: {
-                        multiSignature: {
-                            type: "object",
-                            required: ["min", "publicKeys"],
-                            properties: {
-                                min: {
-                                    type: "integer",
-                                    minimum: 1,
-                                    maximum: { $data: "1/publicKeys/length" },
-                                },
-                                publicKeys: {
-                                    type: "array",
-                                    minItems: 1,
-                                    maxItems: 16,
-                                    additionalItems: false,
-                                    uniqueItems: true,
-                                    items: { $ref: "publicKey" },
-                                },
-                            },
+                        min: {
+                            type: "integer",
+                            minimum: 1,
+                            maximum: { $data: "1/publicKeys/length" },
+                        },
+                        publicKeys: {
+                            type: "array",
+                            minItems: 1,
+                            maxItems: 16,
+                            additionalItems: false,
+                            uniqueItems: true,
+                            items: { $ref: "publicKey" },
                         },
                     },
                 },
-                {
-                    type: "object",
-                    required: ["multiSignatureLegacy"],
-                    properties: {
-                        multiSignatureLegacy: {
-                            type: "object",
-                            required: ["keysgroup", "min", "lifetime"],
-                            properties: {
-                                min: {
-                                    type: "integer",
-                                    minimum: 1,
-                                    maximum: { $data: "1/keysgroup/length" },
-                                },
-                                lifetime: {
-                                    type: "integer",
-                                    minimum: 1,
-                                    maximum: 72,
-                                },
-                                keysgroup: {
-                                    type: "array",
-                                    minItems: 1,
-                                    maxItems: 16,
-                                    additionalItems: false,
-                                    items: {
-                                        allOf: [
-                                            { type: "string", minimum: 67, maximum: 67, transform: ["toLowerCase"] },
-                                        ],
-                                    },
-                                },
-                            },
-                        },
-                    },
-                },
-            ],
+            },
         },
         signatures: {
             type: "array",
@@ -223,6 +184,59 @@ export const multiSignature = extend(transactionBaseSchema, {
             additionalItems: false,
             uniqueItems: true,
             items: { allOf: [{ minLength: 130, maxLength: 130 }, { $ref: "alphanumeric" }] },
+        },
+    },
+});
+
+// Multisignature legacy transactions have a different signatures property.
+// Then we delete the "signatures" property definition to implement our own.
+const transactionBaseSchemaNoSignatures = extend(transactionBaseSchema, {});
+delete transactionBaseSchemaNoSignatures.properties.signatures;
+export const multiSignatureLegacy = extend(transactionBaseSchemaNoSignatures, {
+    $id: "multiSignatureLegacy",
+    required: ["asset"],
+    properties: {
+        version: { anyOf: [{ type: "null" }, { const: 1 }] },
+        type: { transactionType: TransactionType.MultiSignature },
+        amount: { bignumber: { minimum: 0, maximum: 0 } },
+        fee: { bignumber: { minimum: 1 } },
+        asset: {
+            type: "object",
+            required: ["multiSignatureLegacy"],
+            properties: {
+                multiSignatureLegacy: {
+                    type: "object",
+                    required: ["keysgroup", "min", "lifetime"],
+                    properties: {
+                        min: {
+                            type: "integer",
+                            minimum: 1,
+                            maximum: { $data: "1/keysgroup/length" },
+                        },
+                        lifetime: {
+                            type: "integer",
+                            minimum: 1,
+                            maximum: 72,
+                        },
+                        keysgroup: {
+                            type: "array",
+                            minItems: 1,
+                            maxItems: 16,
+                            additionalItems: false,
+                            items: {
+                                allOf: [{ type: "string", minimum: 67, maximum: 67, transform: ["toLowerCase"] }],
+                            },
+                        },
+                    },
+                },
+            },
+        },
+        signatures: {
+            type: "array",
+            minItems: 1,
+            maxItems: 1,
+            additionalItems: false,
+            items: { $ref: "alphanumeric" },
         },
     },
 });
