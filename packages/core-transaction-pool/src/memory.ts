@@ -82,16 +82,6 @@ export class Memory {
     private byExpirationIsSorted = true;
 
     /**
-     * @private
-     * @type {{ added: Set<string>; removed: Set<string> }}
-     * @memberof Memory
-     */
-    private readonly dirty: { added: Set<string>; removed: Set<string> } = {
-        added: new Set(),
-        removed: new Set(),
-    };
-
-    /**
      * @returns {Interfaces.ITransaction[]}
      * @memberof Memory
      */
@@ -224,10 +214,9 @@ export class Memory {
 
     /**
      * @param {Interfaces.ITransaction} transaction
-     * @param {boolean} [databaseReady]
      * @memberof Memory
      */
-    public remember(transaction: Interfaces.ITransaction, databaseReady?: boolean): void {
+    public remember(transaction: Interfaces.ITransaction): void {
         AppUtils.assert.defined<string>(transaction.id);
 
         const id: string = transaction.id;
@@ -286,17 +275,6 @@ export class Memory {
             this.byExpiration.push(transaction);
             this.byExpirationIsSorted = false;
         }
-
-        if (!databaseReady) {
-            if (this.dirty.removed.has(id)) {
-                // If the transaction has been already in the pool and has been removed
-                // and the removal has not propagated to disk yet, just wipe it from the
-                // list of removed transactions, so that the old copy stays on disk.
-                this.dirty.removed.delete(id);
-            } else {
-                this.dirty.added.add(id);
-            }
-        }
     }
 
     /**
@@ -352,15 +330,6 @@ export class Memory {
         assert.notStrictEqual(i, -1);
         this.all.splice(i, 1);
         this.allIsSorted = false;
-
-        if (this.dirty.added.has(id)) {
-            // This transaction has been added and deleted without data being synced
-            // to disk in between, so it will never touch the disk, just remove it
-            // from the added list.
-            this.dirty.added.delete(id);
-        } else {
-            this.dirty.removed.add(id);
-        }
     }
 
     public has(id: string): boolean {
@@ -375,35 +344,10 @@ export class Memory {
         this.byType.clear();
         this.byExpiration = [];
         this.byExpirationIsSorted = true;
-        this.dirty.added.clear();
-        this.dirty.removed.clear();
     }
 
     public count(): number {
         return this.all.length;
-    }
-
-    public countDirty(): number {
-        return this.dirty.added.size + this.dirty.removed.size;
-    }
-
-    public pullDirtyAdded(): Interfaces.ITransaction[] {
-        const added: Interfaces.ITransaction[] = [];
-
-        for (const id of this.dirty.added) {
-            added.push(this.byId[id]);
-        }
-
-        this.dirty.added.clear();
-
-        return added;
-    }
-
-    public pullDirtyRemoved(): string[] {
-        const removed: string[] = Array.from(this.dirty.removed);
-        this.dirty.removed.clear();
-
-        return removed;
     }
 
     /**

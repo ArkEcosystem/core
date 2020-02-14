@@ -5,8 +5,6 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
-import { Storage } from "./storage";
-import { Synchronizer } from "./synchronizer";
 
 /**
  * @export
@@ -48,19 +46,11 @@ export class Cleaner {
 
     /**
      * @private
-     * @type {Storage}
+     * @type {Contracts.TransactionPool.Storage}
      * @memberof Cleaner
      */
     @Container.inject(Container.Identifiers.TransactionPoolStorage)
-    private readonly storage!: Storage;
-
-    /**
-     * @private
-     * @type {Synchronizer}
-     * @memberof Cleaner
-     */
-    @Container.inject(Container.Identifiers.TransactionPoolSynchronizer)
-    private readonly synchronizer!: Synchronizer;
+    private readonly storage!: Contracts.TransactionPool.Storage;
 
     /**
      * @private
@@ -85,8 +75,7 @@ export class Cleaner {
      */
     public flush(): void {
         this.memory.flush();
-
-        this.storage.deleteAll();
+        this.storage.clear();
     }
 
     /**
@@ -106,9 +95,7 @@ export class Cleaner {
      */
     public removeTransactionById(id: string, senderPublicKey?: string): void {
         this.memory.forget(id, senderPublicKey);
-
-        this.synchronizer.syncToPersistentStorageIfNecessary();
-
+        this.storage.delete(id);
         this.emitter.dispatch(AppEnums.TransactionEvent.RemovedFromPool, id);
     }
 
@@ -197,8 +184,7 @@ export class Cleaner {
             AppUtils.assert.defined<Interfaces.ITransaction>(transaction.id);
 
             this.memory.forget(transaction.id, transaction.data.senderPublicKey);
-
-            this.synchronizer.syncToPersistentStorageIfNecessary();
+            this.storage.delete(transaction.id);
         };
 
         const lowestNonceBySender = {};
