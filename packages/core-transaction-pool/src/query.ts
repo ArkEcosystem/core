@@ -82,11 +82,11 @@ class QueryIterable implements Contracts.TransactionPool.QueryIterable {
     }
 
     public first(): Interfaces.ITransaction {
-        const r = this[Symbol.iterator]().next();
-        if (r.done) {
+        const result = this[Symbol.iterator]().next();
+        if (result.done) {
             throw new Error("Not found");
         }
-        return r.value;
+        return result.value;
     }
 }
 
