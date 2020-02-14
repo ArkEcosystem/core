@@ -10,7 +10,7 @@ import { InternalTransactionType } from "./types/internal-transaction-type";
 
 export type TransactionConstructor = typeof Transaction;
 
-class TransactionRegistry {
+export class TransactionRegistry {
     private readonly transactionTypes: Map<InternalTransactionType, Map<number, TransactionConstructor>> = new Map();
 
     public constructor() {
@@ -109,4 +109,4 @@ class TransactionRegistry {
     }
 }
 
-export const transactionRegistry = new TransactionRegistry();
+// export const transactionRegistry = new TransactionRegistry();

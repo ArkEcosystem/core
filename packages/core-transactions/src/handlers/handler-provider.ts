@@ -13,6 +13,8 @@ export class TransactionHandlerProvider {
     @Container.tagged("state", "null")
     private readonly handlers!: TransactionHandler[];
 
+    private transactionRegistry: Transactions.TransactionRegistry = new Transactions.TransactionRegistry();
+
     private registered: boolean = false;
 
     public isRegistrationRequired(): boolean {
@@ -24,6 +26,10 @@ export class TransactionHandlerProvider {
             this.registerHandler(handler);
         }
         this.registered = true;
+    }
+
+    public getTransactionRegistry(): object {
+        return Transactions.TransactionRegistry
     }
 
     private registerHandler(handler: TransactionHandler) {
@@ -52,7 +58,7 @@ export class TransactionHandlerProvider {
         }
 
         if (transactionConstructor.typeGroup !== Enums.TransactionTypeGroup.Core) {
-            Transactions.TransactionRegistry.registerTransactionType(transactionConstructor);
+            this.transactionRegistry.registerTransactionType(transactionConstructor);
         }
     }
 

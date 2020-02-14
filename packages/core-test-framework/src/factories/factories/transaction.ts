@@ -12,6 +12,7 @@ import { FactoryBuilder } from "../factory-builder";
 import { FactoryFunctionOptions } from "../types";
 
 const chance: Chance = new Chance();
+const transactionRegistry = new Transactions.TransactionRegistry();
 
 const randomHash = (): string =>
     createHash("sha256")
@@ -258,7 +259,7 @@ export const registerMultiPaymentFactory = (factory: FactoryBuilder): void => {
 
 export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(
+        transactionRegistry.registerTransactionType(
             MagistrateTransactions.BusinessRegistrationTransaction,
         );
     } catch {}
@@ -280,7 +281,7 @@ export const registerBusinessRegistrationFactory = (factory: FactoryBuilder): vo
 
 export const registerBusinessResignationFactory = (factory: FactoryBuilder): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
+        transactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
     } catch {}
 
     factory.set("BusinessResignation", ({ options }) =>
@@ -294,7 +295,7 @@ export const registerBusinessResignationFactory = (factory: FactoryBuilder): voi
 
 export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
+        transactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
     } catch {}
 
     factory.set("BusinessUpdate", ({ options }) =>
@@ -316,7 +317,7 @@ export const registerBusinessUpdateFactory = (factory: FactoryBuilder): void => 
 
 export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(
+        transactionRegistry.registerTransactionType(
             MagistrateTransactions.BridgechainRegistrationTransaction,
         );
     } catch {}
@@ -341,7 +342,7 @@ export const registerBridgechainRegistrationFactory = (factory: FactoryBuilder):
 
 export const registerBridgechainResignationFactory = (factory: FactoryBuilder): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(
+        transactionRegistry.registerTransactionType(
             MagistrateTransactions.BridgechainResignationTransaction,
         );
     } catch {}
@@ -362,7 +363,7 @@ export const registerBridgechainResignationFactory = (factory: FactoryBuilder): 
 
 export const registerBridgechainUpdateFactory = (factory: FactoryBuilder): void => {
     try {
-        Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
+        transactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainUpdateTransaction);
     } catch {}
 
     factory.set("BridgechainUpdate", ({ options }) =>
