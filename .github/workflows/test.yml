@@ -105,7 +105,7 @@ jobs:
               with:
                   node-version: ${{ matrix.node-version }}
             - name: Install and build packages
-              run: yarn setup && cd __tests__/e2e && ../../node_modules/.bin/tsc && yarn cache clean && yarn install --frozen-lockfile
+              run: yarn setup && cd __tests__ && ../node_modules/.bin/tsc && cd e2e  && yarn cache clean && yarn install --frozen-lockfile
             - name: Docker compose up
               run: cd __tests__/e2e/lib/config && docker-compose up -d
             - name: Wait 20 sec for docker containers to be up and nodes be running
