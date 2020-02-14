@@ -3,27 +3,6 @@ import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import { IteratorMany } from "./utils";
 
-class QueryIterator implements Iterator<Interfaces.ITransaction> {
-    private readonly iter: Iterator<Interfaces.ITransaction>;
-    private readonly predicate: Contracts.TransactionPool.Predicate | undefined;
-
-    public constructor(iter: Iterator<Interfaces.ITransaction>, predicate?: Contracts.TransactionPool.Predicate) {
-        this.iter = iter;
-        this.predicate = predicate;
-    }
-
-    public next(value?: any): IteratorResult<Interfaces.ITransaction> {
-        let result = this.iter.next();
-        while (!result.done) {
-            if (!this.predicate || this.predicate(result.value)) {
-                return result;
-            }
-            result = this.iter.next();
-        }
-        return { done: true, value: undefined };
-    }
-}
-
 class QueryIterable implements Contracts.TransactionPool.QueryIterable {
     private readonly transactions: Iterable<Interfaces.ITransaction>;
     private readonly predicate: Contracts.TransactionPool.Predicate | undefined;
@@ -37,7 +16,13 @@ class QueryIterable implements Contracts.TransactionPool.QueryIterable {
     }
 
     public [Symbol.iterator](): Iterator<Interfaces.ITransaction> {
-        return new QueryIterator(this.transactions[Symbol.iterator](), this.predicate);
+        return function*(this: QueryIterable) {
+            for (const transaction of this.transactions) {
+                if (!this.predicate || this.predicate(transaction)) {
+                    yield transaction;
+                }
+            }
+        }.bind(this)();
     }
 
     public wherePredicate(predicate: Contracts.TransactionPool.Predicate): Contracts.TransactionPool.QueryIterable {
