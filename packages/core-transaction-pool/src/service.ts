@@ -51,7 +51,8 @@ export class Service implements Contracts.TransactionPool.Service {
                 await this.apply(transaction);
                 rebuiltCount++;
             } catch (error) {
-                this.storage.delete(transaction);
+                AppUtils.assert.defined<string>(transaction.id);
+                this.storage.delete(transaction.id);
             }
         }
 
@@ -76,7 +77,8 @@ export class Service implements Contracts.TransactionPool.Service {
                 await this.apply(transaction);
                 rebuiltCount++;
             } catch (error) {
-                this.storage.delete(transaction);
+                AppUtils.assert.defined<string>(transaction.id);
+                this.storage.delete(transaction.id);
             }
         }
 
@@ -85,7 +87,8 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public async add(transaction: Interfaces.ITransaction): Promise<void> {
-        if (this.storage.has(transaction)) {
+        AppUtils.assert.defined<string>(transaction.id);
+        if (this.storage.has(transaction.id)) {
             throw new DuplicateError(transaction);
         }
         await this.apply(transaction);
@@ -94,23 +97,27 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public async remove(transaction: Interfaces.ITransaction): Promise<void> {
-        if (this.storage.has(transaction) === false) {
+        AppUtils.assert.defined<string>(transaction.id);
+        if (this.storage.has(transaction.id) === false) {
             throw new Error("Unknown transaction");
         }
 
         for (const removedTransaction of await this.memory.remove(transaction)) {
-            this.storage.delete(removedTransaction);
+            AppUtils.assert.defined<string>(removedTransaction.id);
+            this.storage.delete(removedTransaction.id);
             this.logger.debug(`Pool ${describeTransaction(removedTransaction)} deleted`);
         }
     }
 
     public accept(transaction: Interfaces.ITransaction): void {
-        if (this.storage.has(transaction) === false) {
+        AppUtils.assert.defined<string>(transaction.id);
+        if (this.storage.has(transaction.id) === false) {
             return;
         }
 
         for (const removedTransaction of this.memory.accept(transaction)) {
-            this.storage.delete(removedTransaction);
+            AppUtils.assert.defined<string>(removedTransaction.id);
+            this.storage.delete(removedTransaction.id);
             this.logger.debug(`Pool ${describeTransaction(removedTransaction)} deleted`);
         }
     }

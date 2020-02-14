@@ -8,7 +8,7 @@ import { BlockStore } from "./stores/blocks";
 import { StateStore } from "./stores/state";
 import { TransactionStore } from "./stores/transactions";
 import { TransactionValidator } from "./transaction-validator";
-import { Wallet, WalletRepository, WalletRepositoryClone, WalletRepositoryCow } from "./wallets";
+import { Wallet, WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "./wallets";
 import {
     addressesIndexer,
     ipfsIndexer,
@@ -48,9 +48,9 @@ export class ServiceProvider extends Providers.ServiceProvider {
 
         this.app
             .bind(Container.Identifiers.WalletRepository)
-            .to(WalletRepositoryCow)
+            .to(WalletRepositoryCopyOnWrite)
             .inRequestScope()
-            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "cow"));
+            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
 
         this.app.bind(Container.Identifiers.DposState).to(DposState);
         this.app.bind(Container.Identifiers.BlockState).to(BlockState);

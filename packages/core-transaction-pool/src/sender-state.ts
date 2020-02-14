@@ -17,7 +17,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     private readonly configuration!: Providers.PluginConfiguration;
 
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
-    @Container.tagged("state", "cow")
+    @Container.tagged("state", "copy-on-write")
     private readonly handlerRegistry!: Handlers.Registry;
 
     @Container.inject(ExpirationService)

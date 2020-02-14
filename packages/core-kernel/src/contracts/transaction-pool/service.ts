@@ -3,7 +3,6 @@ import { Interfaces } from "@arkecosystem/crypto";
 export interface Service {
     size: number;
 
-    boot(): Promise<void>;
     clear(): void;
     rebuild(): Promise<void>;
     replay(transactions: Interfaces.ITransaction[]): Promise<void>;

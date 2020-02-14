@@ -1,10 +1,13 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Identities } from "@arkecosystem/crypto";
 
 import { WalletRepository } from "./wallet-repository";
 
+// ! This isn't copy-on-write, but copy-on-read and with many asterisks.
+// ! It only covers current pool use-cases.
+// ! It should be replaced with proper implementation eventually.
+
 @Container.injectable()
-export class WalletRepositoryCow extends WalletRepository {
+export class WalletRepositoryCopyOnWrite extends WalletRepository {
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain")
     private readonly blockchainWalletRepository!: Contracts.State.WalletRepository;
@@ -36,10 +39,5 @@ export class WalletRepositoryCow extends WalletRepository {
             }
         }
         return super.allByUsername();
-    }
-
-    public forget(publicKey: string): void {
-        this.forgetByPublicKey(publicKey);
-        this.forgetByAddress(Identities.Address.fromPublicKey(publicKey));
     }
 }

@@ -1,4 +1,4 @@
-import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+import { Container, Providers } from "@arkecosystem/core-kernel";
 
 import { Collator } from "./collator";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
@@ -53,7 +53,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      */
     public async boot(): Promise<void> {
         this.app.get<Storage>(Container.Identifiers.TransactionPoolStorage).boot();
-        await this.app.get<Contracts.TransactionPool.Service>(Container.Identifiers.TransactionPoolService).boot();
+        await this.app.get<Service>(Container.Identifiers.TransactionPoolService).boot();
     }
 
     /**

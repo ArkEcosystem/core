@@ -1,10 +1,10 @@
-import { Container, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
 @Container.injectable()
-export class Storage {
+export class Storage implements Contracts.TransactionPool.Storage {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
@@ -33,15 +33,15 @@ export class Storage {
         });
     }
 
-    public delete(transaction: Interfaces.ITransaction): void {
-        this.database.prepare("DELETE FROM pool WHERE id = ?").run(transaction.id);
+    public delete(id: string): void {
+        this.database.prepare("DELETE FROM pool WHERE id = ?").run(id);
     }
 
-    public has(transaction: Interfaces.ITransaction): boolean {
+    public has(id: string): boolean {
         return this.database
             .prepare("SELECT COUNT(*) FROM pool WHERE id = ?")
             .pluck(true)
-            .get(transaction.id) as boolean;
+            .get(id) as boolean;
     }
 
     public clear(): void {
