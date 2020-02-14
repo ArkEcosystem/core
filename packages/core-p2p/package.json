@@ -52,7 +52,7 @@
         "lodash.take": "^4.1.1",
         "nanomatch": "^1.2.13",
         "pluralize": "^8.0.0",
-        "pretty-ms": "^5.0.0",
+        "pretty-ms": "^6.0.0",
         "rate-limiter-flexible": "^1.1.0",
         "scc-broker-client": "^6.1.0",
         "semver": "^7.0.0",
