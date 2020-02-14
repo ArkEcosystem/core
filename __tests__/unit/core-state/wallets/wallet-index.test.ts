@@ -26,7 +26,7 @@ const createWallet = (address: string): Contracts.State.Wallet =>
         ),
     );
 
-describe("WalletIndex", () => {
+xdescribe("WalletIndex", () => {
     it("should index and forget wallets", () => {
         const wallet = createWallet(walletData1.address);
         const walletIndex = new WalletIndex((index, wallet) => {

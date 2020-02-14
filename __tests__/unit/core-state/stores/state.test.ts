@@ -1,21 +1,26 @@
 import "jest-extended";
 import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
-import { Blocks as cBlocks, Interfaces } from "@arkecosystem/crypto";
+import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
+
+import { Blocks as cBlocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
-import { TransactionFactory } from "../../../helpers";
-import { BlockFactory as TestBlockFactory } from "../../../helpers/block-factory";
 import { blocks101to155 } from "../../../utils/fixtures/testnet/blocks101to155";
 import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
 
 const { Block, BlockFactory } = cBlocks;
 const blocks = blocks2to100.concat(blocks101to155).map(block => BlockFactory.fromData(block));
 
+// let blocks;
+
 let stateStorage: StateStore;
 
 let sandbox: Sandbox;
+
+let factory: FactoryBuilder;
+
 
 beforeAll(() => {
     sandbox = new Sandbox();
@@ -36,17 +41,25 @@ beforeAll(() => {
         .bind(Container.Identifiers.StateStore)
         .to(StateStore)
         .inSingletonScope();
+    
+    factory = new FactoryBuilder();
 
+    Factories.registerBlockFactory(factory);
+
+    Managers.configManager.setFromPreset("testnet");
+    
     stateStorage = sandbox.app.get(Container.Identifiers.StateStore);
 });
 
 beforeEach(() => {
+    // blocks = factory.get("Block").makeMany(100);
     stateStorage.clear();
 });
 
 describe("State Storage", () => {
     describe("getLastHeight", () => {
         it("should return the last block height", () => {
+
             stateStorage.setLastBlock(blocks[0]);
             stateStorage.setLastBlock(blocks[1]);
 
@@ -187,9 +200,8 @@ describe("State Storage", () => {
         });
 
         it("should return full blocks and block headers", () => {
-            const block = TestBlockFactory.createDummy(TransactionFactory.transfer().create(10));
-
-            stateStorage.setLastBlock(block);
+            // TODO: should use the factory and inject transactions
+            stateStorage.setLastBlock(blocks[0]);
 
             let lastBlocksByHeight = stateStorage.getLastBlocksByHeight(2, 2, true);
             expect(lastBlocksByHeight).toHaveLength(1);
