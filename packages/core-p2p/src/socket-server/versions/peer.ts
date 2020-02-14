@@ -86,6 +86,10 @@ export const postBlock = async ({ req }): Promise<void> => {
         }
     }
 
+    if (block.transactions.length > app.getConfig().getMilestone().block.maxTransactions) {
+        throw new TooManyTransactionsError(block);
+    }
+
     app.resolvePlugin<Logger.ILogger>("logger").info(
         `Received new block at height ${block.height.toLocaleString()} with ${pluralize(
             "transaction",

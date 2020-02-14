@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.1] - 2020-02-11
+
+### Changed
+
+-   Update `@arkecosystem/exchange-json-rpc`
+
 ## [2.6.0] - 2020-02-11
 
 ### Added
@@ -169,6 +175,26 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 -   Replace bignumber.js with native BigInt ([#3010])
 -   Replace bs58check with bstring ([#2673])
 -
+
+## [2.5.38] - 2020-01-21
+
+Rerelease of 2.5.37 due to some npm issues.
+
+## [2.5.37] - 2020-01-21
+
+### Fixed
+
+-   Remove banning when peer opens multiple sockets ([#3409])
+
+## [2.5.36] - 2020-01-21
+
+### Fixed
+
+-   Discard blocks containing too many transactions ([#3404])
+-   Disconnect when multiple sockets are opened from same IP ([#3404])
+-   Handle invalid WS opcodes ([#3404])
+-   Disconnect for p2p SocketCluster events that do not have a handler ([#3404])
+-   Handle payload with additional properties ([#3404])
 
 ## [2.5.31] - 2019-12-19
 
@@ -823,7 +849,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
-[2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.26...2.6.0
+[2.6.1]: https://github.com/ARKEcosystem/core/compare/2.6.0...2.6.1
+[2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.38...2.6.0
 [2.5.38]: https://github.com/ARKEcosystem/core/compare/2.5.37...2.5.38
 [2.5.37]: https://github.com/ARKEcosystem/core/compare/2.5.36...2.5.37
 [2.5.36]: https://github.com/ARKEcosystem/core/compare/2.5.31...2.5.36
@@ -1328,6 +1355,8 @@ Closed security vulnerabilities:
 [#3331]: https://github.com/ARKEcosystem/core/pull/3331
 [#3341]: https://github.com/ARKEcosystem/core/pull/3341
 [#3354]: https://github.com/ARKEcosystem/core/pull/3354
+[#3404]: https://github.com/ARKEcosystem/core/pull/3404
+[#3409]: https://github.com/ARKEcosystem/core/pull/3409
 [#3426]: https://github.com/ARKEcosystem/core/pull/3426
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844

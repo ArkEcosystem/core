@@ -1,8 +1,8 @@
 import { Identities } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { satoshiFlag } from "../../flags";
-import { SendCommand } from "../../shared/send";
 import { htlcSecretHashHex } from "../../shared/htlc-secret";
+import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
 export class HtlcLockCommand extends SendCommand {
