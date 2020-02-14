@@ -501,10 +501,10 @@ describe("Transaction serializer / Deserializer", () => {
                 buffer.writeUint32(Enums.TransactionTypeGroup.Core);
                 buffer.writeUint16(transaction.type);
                 // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-                buffer.writeUint64(transaction.nonce.toFixed());
+                buffer.writeUint64(transaction.nonce.toString());
                 buffer.append(transaction.senderPublicKey, "hex");
                 // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-                buffer.writeUint64(Utils.BigNumber.make(transaction.fee).toFixed());
+                buffer.writeUint64(Utils.BigNumber.make(transaction.fee).toString());
                 buffer.writeByte(0x00);
 
                 return Buffer.from(buffer.flip().toBuffer());

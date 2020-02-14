@@ -149,9 +149,9 @@ export class Serializer {
         }
 
         // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        bb.writeInt64(transaction.amount.toFixed());
+        bb.writeInt64(transaction.amount.toString());
         // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        bb.writeInt64(transaction.fee.toFixed());
+        bb.writeInt64(transaction.fee.toString());
 
         if (assetSize > 0) {
             for (let i = 0; i < assetSize; i++) {

@@ -83,11 +83,11 @@ export class Serializer {
         buffer.append(block.previousBlockHex, "hex");
         buffer.writeUint32(block.numberOfTransactions);
         // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(block.totalAmount.toFixed());
+        buffer.writeUint64(block.totalAmount.toString());
         // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(block.totalFee.toFixed());
+        buffer.writeUint64(block.totalFee.toString());
         // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
-        buffer.writeUint64(block.reward.toFixed());
+        buffer.writeUint64(block.reward.toString());
         buffer.writeUint32(block.payloadLength);
         buffer.append(block.payloadHash, "hex");
         buffer.append(block.generatorPublicKey, "hex");
