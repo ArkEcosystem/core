@@ -13,12 +13,13 @@ class QueryIterator implements Iterator<Interfaces.ITransaction> {
     }
 
     public next(value?: any): IteratorResult<Interfaces.ITransaction> {
-        for (let r = this.iter.next(); !r.done; r = this.iter.next()) {
-            if (!this.predicate || this.predicate(r.value)) {
-                return r;
+        let result = this.iter.next();
+        while (!result.done) {
+            if (!this.predicate || this.predicate(result.value)) {
+                return result;
             }
+            result = this.iter.next();
         }
-
         return { done: true, value: undefined };
     }
 }
