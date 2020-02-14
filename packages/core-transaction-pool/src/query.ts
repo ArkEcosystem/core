@@ -15,14 +15,12 @@ class QueryIterable implements Contracts.TransactionPool.QueryIterable {
         this.predicate = predicate;
     }
 
-    public [Symbol.iterator](): Iterator<Interfaces.ITransaction> {
-        return function*(this: QueryIterable) {
-            for (const transaction of this.transactions) {
-                if (!this.predicate || this.predicate(transaction)) {
-                    yield transaction;
-                }
+    public *[Symbol.iterator](): Iterator<Interfaces.ITransaction> {
+        for (const transaction of this.transactions) {
+            if (!this.predicate || this.predicate(transaction)) {
+                yield transaction;
             }
-        }.bind(this)();
+        }
     }
 
     public wherePredicate(predicate: Contracts.TransactionPool.Predicate): Contracts.TransactionPool.QueryIterable {
