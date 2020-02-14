@@ -28,15 +28,15 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
 
     private readonly transactions: Interfaces.ITransaction[] = [];
 
-    public get size(): number {
+    public getTransactionsCount(): number {
         return this.transactions.length;
     }
 
-    public getFromEarliestNonce(): Iterable<Interfaces.ITransaction> {
+    public getTransactionsFromEarliestNonce(): Iterable<Interfaces.ITransaction> {
         return this.transactions.slice();
     }
 
-    public getFromLatestNonce(): Iterable<Interfaces.ITransaction> {
+    public getTransactionsFromLatestNonce(): Iterable<Interfaces.ITransaction> {
         return this.transactions.slice().reverse();
     }
 
@@ -48,7 +48,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         const allowedSenders = this.configuration.getOptional<string[]>("allowedSenders", []);
 
         try {
-            if (this.size >= maxTransactionsPerSender) {
+            if (this.getTransactionsCount() >= maxTransactionsPerSender) {
                 if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
                     throw new ExceedsMaxCountError(transaction, maxTransactionsPerSender);
                 }

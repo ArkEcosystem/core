@@ -26,15 +26,15 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(ExpirationService)
     private readonly expirationService!: ExpirationService;
 
-    public get size(): number {
-        return this.memory.size;
-    }
-
     public async boot(): Promise<void> {
         if (process.env.CORE_RESET_DATABASE) {
             this.clear();
         }
         await this.rebuild();
+    }
+
+    public getPoolSize(): number {
+        return this.memory.getSize();
     }
 
     public clear(): void {
@@ -132,11 +132,11 @@ export class Service implements Contracts.TransactionPool.Service {
 
         const maxTransactionsInPool = this.configuration.getRequired<number>("maxTransactionsInPool");
 
-        if (this.size >= maxTransactionsInPool) {
+        if (this.getPoolSize() >= maxTransactionsInPool) {
             await this.cleanExpired();
         }
 
-        if (this.size >= maxTransactionsInPool) {
+        if (this.getPoolSize() >= maxTransactionsInPool) {
             await this.cleanLowestPriority();
             const lowest = this.getLowestPriority();
             if (transaction.data.fee.isLessThanEqual(lowest.data.fee)) {
@@ -159,7 +159,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
     private async cleanLowestPriority(): Promise<void> {
         const maxTransactionsInPool = this.configuration.getRequired<number>("maxTransactionsInPool");
-        while (this.size > maxTransactionsInPool) {
+        while (this.getPoolSize() > maxTransactionsInPool) {
             await this.remove(this.getLowestPriority());
         }
     }

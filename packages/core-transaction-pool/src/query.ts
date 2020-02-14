@@ -97,7 +97,7 @@ export class Query implements Contracts.TransactionPool.Query {
     public all(): QueryIterable {
         const iterable = function*(this: Query) {
             for (const senderState of this.memory.getSenderStates()) {
-                for (const transaction of senderState.getFromLatestNonce()) {
+                for (const transaction of senderState.getTransactionsFromLatestNonce()) {
                     yield transaction;
                 }
             }
@@ -114,7 +114,7 @@ export class Query implements Contracts.TransactionPool.Query {
                 };
 
                 const iterators = Array.from(this.memory.getSenderStates())
-                    .map(p => p.getFromLatestNonce())
+                    .map(p => p.getTransactionsFromLatestNonce())
                     .map(i => i[Symbol.iterator]());
 
                 return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
@@ -132,7 +132,7 @@ export class Query implements Contracts.TransactionPool.Query {
                 };
 
                 const iterators = Array.from(this.memory.getSenderStates())
-                    .map(p => p.getFromEarliestNonce())
+                    .map(p => p.getTransactionsFromEarliestNonce())
                     .map(i => i[Symbol.iterator]());
 
                 return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
@@ -145,7 +145,8 @@ export class Query implements Contracts.TransactionPool.Query {
     public allFromSender(senderPublicKey: string): QueryIterable {
         const iterable = function*(this: Query) {
             if (this.memory.hasSenderState(senderPublicKey)) {
-                for (const transaction of this.memory.getSenderState(senderPublicKey).getFromEarliestNonce()) {
+                const transactions = this.memory.getSenderState(senderPublicKey).getTransactionsFromEarliestNonce();
+                for (const transaction of transactions) {
                     yield transaction;
                 }
             }

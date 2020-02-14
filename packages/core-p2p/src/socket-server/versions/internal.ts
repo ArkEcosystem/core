@@ -56,9 +56,11 @@ export const getUnconfirmedTransactions = async ({
     const collator = app.get<Contracts.TransactionPool.Collator>(Container.Identifiers.TransactionPoolCollator);
     const transactionPool = app.get<Contracts.TransactionPool.Service>(Container.Identifiers.TransactionPoolService);
     const transactions = await collator.getBlockCandidateTransactions();
-    const poolSize = await transactionPool.size;
 
-    return { poolSize, transactions: transactions.map(t => t.serialized.toString("hex")) };
+    return {
+        poolSize: transactionPool.getPoolSize(),
+        transactions: transactions.map(t => t.serialized.toString("hex")),
+    };
 };
 
 export const getCurrentRound = async ({

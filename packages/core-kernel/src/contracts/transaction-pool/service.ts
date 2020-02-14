@@ -1,8 +1,7 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface Service {
-    size: number;
-
+    getPoolSize(): number;
     clear(): void;
     rebuild(): Promise<void>;
     replay(transactions: Interfaces.ITransaction[]): Promise<void>;

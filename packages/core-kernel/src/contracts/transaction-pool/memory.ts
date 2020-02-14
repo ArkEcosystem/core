@@ -3,7 +3,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { SenderState } from "./sender-state";
 
 export interface Memory {
-    size: number;
+    getSize(): number;
     clear(): void;
 
     hasSenderState(senderPublicKey: string): boolean;
