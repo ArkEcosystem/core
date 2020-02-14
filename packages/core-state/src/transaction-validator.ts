@@ -6,7 +6,7 @@ import { strictEqual } from "assert";
 @Container.injectable()
 export class TransactionValidator implements Contracts.State.TransactionValidator {
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
-    @Container.tagged("state", "temp")
+    @Container.tagged("state", "clone")
     private readonly handlerRegistry!: Handlers.Registry;
 
     public async validate(transaction: Interfaces.ITransaction): Promise<void> {

@@ -1,5 +1,4 @@
 import { Container, Contracts, Enums as AppEnums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
@@ -548,10 +547,7 @@ export class Connection implements Contracts.TransactionPool.Connection {
      * @returns {Promise<Interfaces.ITransaction[]>}
      * @memberof Connection
      */
-    private async validateTransactions(
-        transactions: Interfaces.ITransaction[],
-        walletRepository?: Wallets.TempWalletRepository,
-    ): Promise<Interfaces.ITransaction[]> {
+    private async validateTransactions(transactions: Interfaces.ITransaction[]): Promise<Interfaces.ITransaction[]> {
         const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.cleaner.removeForgedTransactions(transactions);
 
@@ -561,13 +557,11 @@ export class Connection implements Contracts.TransactionPool.Connection {
             (t, forgedId) => t.id === forgedId,
         );
 
-        if (walletRepository === undefined) {
-            walletRepository = this.app.getTagged<Wallets.TempWalletRepository>(
-                Container.Identifiers.WalletRepository,
-                "state",
-                "temp",
-            );
-        }
+        const walletRepository = this.app.getTagged<Contracts.State.WalletRepository>(
+            Container.Identifiers.WalletRepository,
+            "state",
+            "clone",
+        );
 
         for (const transaction of unforgedTransactions) {
             try {
