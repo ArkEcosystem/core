@@ -67,7 +67,10 @@ export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
     bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-    ports: { "@arkecosystem/core-api": 12345 },
+    ports: {
+        "@arkecosystem/core-api": 12345,
+        "@custom/api": 3333,
+    },
 };
 
 export const bridgechainRegistrationAsset2: IBridgechainRegistrationAsset = {

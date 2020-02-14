@@ -34,7 +34,7 @@ const bridgechainRegistrationAsset = {
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
     bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-    ports: { "@arkecosystem/core-api": 12345 },
+    ports: { "@arkecosystem/core-api": 12345, "custom/api": 3456 },
 };
 
 const bridgechainUpdateAsset = {
@@ -42,7 +42,7 @@ const bridgechainUpdateAsset = {
     seedNodes: [
         "75.125.224.71",
     ],
-    ports: { "@arkecosystem/core-api": 54321 },
+    ports: { "@arkecosystem/core-api": 54321, "custom/other-api": 9876 },
     bridgechainRepository: "http://www.newrepository.com/neworg/newrepo",
     bridgechainAssetRepository: "http://www.newrepository.com/neworg/newassetrepo",
 };
