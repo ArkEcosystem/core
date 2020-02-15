@@ -10,13 +10,12 @@ Official Production ready ARK Core images available now at [Docker Hub](https://
 
 ## Documentation
 
--   Development : https://docs.ark.io/guidebook/core/development.html
--   Docker : https://docs.ark.io/guidebook/core/docker.html
+-   Development : https://learn.ark.dev/ 
+-   Docker : https://guides.ark.dev/devops-guides/how-to-setup-a-node-with-docker 
 
 ## API Documentation
 
--   API v1 : https://docs.ark.io/api/public/v1/
--   API v2 : https://docs.ark.io/api/public/v2/
+-   API : https://api.ark.dev/ 
 
 ## ARK Core Relay
 
