@@ -6,6 +6,7 @@ import { Crypto, Enums, Errors as CryptoErrors, Interfaces, Managers, Transactio
 import pluralize from "pluralize";
 import { dynamicFeeMatcher } from "./dynamic-fee";
 import { IDynamicFeeMatch, ITransactionsCached, ITransactionsProcessed } from "./interfaces";
+import { getMaxTransactionBytes } from "./utils";
 
 /**
  * @TODO: this class has too many responsibilities at the moment.
@@ -94,19 +95,13 @@ export class Processor implements TransactionPool.IProcessor {
     }
 
     private async filterAndTransformTransactions(transactions: Interfaces.ITransactionData[]): Promise<void> {
-        const { maxTransactionBytes } = app.resolveOptions("transaction-pool");
+        const maxTransactionBytes: number = getMaxTransactionBytes();
 
         for (const transaction of transactions) {
             const exists: boolean = await this.pool.has(transaction.id);
 
             if (exists) {
                 this.pushError(transaction, "ERR_DUPLICATE", `Duplicate transaction ${transaction.id}`);
-            } else if (JSON.stringify(transaction).length > maxTransactionBytes) {
-                this.pushError(
-                    transaction,
-                    "ERR_TOO_LARGE",
-                    `Transaction ${transaction.id} is larger than ${maxTransactionBytes} bytes.`,
-                );
             } else if (await this.pool.hasExceededMaxTransactions(transaction.senderPublicKey)) {
                 this.excess.push(transaction.id);
             } else if (await this.validateTransaction(transaction)) {
@@ -115,6 +110,14 @@ export class Processor implements TransactionPool.IProcessor {
                     const transactionInstance: Interfaces.ITransaction = Transactions.TransactionFactory.fromData(
                         transaction,
                     );
+                    if (transactionInstance.serialized.byteLength > maxTransactionBytes) {
+                        return this.pushError(
+                            transaction,
+                            "ERR_TOO_LARGE",
+                            `Transaction ${transaction.id} is larger than ${maxTransactionBytes} bytes.`,
+                        );
+                    }
+
                     const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                         transactionInstance.type,
                         transactionInstance.typeGroup,
@@ -217,7 +220,12 @@ export class Processor implements TransactionPool.IProcessor {
                 transaction.type,
                 transaction.typeGroup,
             );
-            return handler.canEnterTransactionPool(transaction, this.pool, this);
+            const err = await handler.canEnterTransactionPool(transaction, this.pool, this);
+            if (err !== null) {
+                this.pushError(transaction, err.type, err.message);
+                return false;
+            }
+            return true;
         } catch (error) {
             if (error instanceof Errors.InvalidTransactionTypeError) {
                 this.pushError(

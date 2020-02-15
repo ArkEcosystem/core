@@ -18,6 +18,9 @@ import { BuilderFactory } from "../../../../packages/crypto/src/transactions/bui
 import { Deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
+import { htlcSecretHex, htlcSecretHashHex } from "../../../utils/fixtures";
+
+configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 
 describe("Transaction serializer / Deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
@@ -348,7 +351,7 @@ describe("Transaction serializer / Deserializer", () => {
 
     describe("ser/deserialize - htlc lock", () => {
         const htlcLockAsset = {
-            secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+            secretHash: htlcSecretHashHex,
             expiration: {
                 type: Enums.HtlcLockExpirationType.EpochTimestamp,
                 value: Math.floor(Date.now() / 1000),
@@ -389,8 +392,16 @@ describe("Transaction serializer / Deserializer", () => {
                 .build();
 
             configManager.getMilestone().aip11 = false;
+            configManager.getMilestone().htlcEnabled = true;
             expect(htlcLock.verify()).toBeFalse();
             configManager.getMilestone().aip11 = true;
+            configManager.getMilestone().htlcEnabled = false;
+            expect(htlcLock.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = false;
+            configManager.getMilestone().htlcEnabled = false;
+            expect(htlcLock.verify()).toBeFalse();
+            configManager.getMilestone().aip11 = true;
+            configManager.getMilestone().htlcEnabled = true;
             expect(htlcLock.verify()).toBeTrue();
         });
     });
@@ -398,7 +409,7 @@ describe("Transaction serializer / Deserializer", () => {
     describe("ser/deserialize - htlc claim", () => {
         const htlcClaimAsset = {
             lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-            unlockSecret: "my secret that should be 32bytes",
+            unlockSecret: htlcSecretHex,
         };
 
         beforeAll(() => {

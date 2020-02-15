@@ -73,7 +73,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
+    ): Promise<{ type: string, message: string } | null> {
         if (
             await pool.senderHasTransactionsOfType(
                 data.senderPublicKey,
@@ -82,15 +82,13 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
             )
         ) {
             const wallet: State.IWallet = pool.walletManager.findByPublicKey(data.senderPublicKey);
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Business update for "${wallet.getAttribute("business")}" already in the pool`,
-            );
-            return false;
+            return {
+                type: "ERR_PENDING",
+                message: `Business update for "${wallet.getAttribute("business")}" already in the pool`,
+            }
         }
 
-        return true;
+        return null;
     }
 
     public async applyToSender(
@@ -116,40 +114,67 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         walletManager: State.IWalletManager,
     ): Promise<void> {
         await super.revertForSender(transaction, walletManager);
+
+        // Here we have to "replay" all business registration and update transactions
+        // (except the current one being reverted) to rebuild previous wallet state.
         const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        let businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
-            IBusinessWalletAttributes
-        >("business").businessAsset;
 
         const connection: Database.IConnection = app.resolvePlugin<Database.IDatabaseService>("database").connection;
-        let reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
-        const updateTransactions: Database.IBootstrapTransaction[] = [];
-        while (reader.hasNext()) {
-            updateTransactions.push(...(await reader.read()));
-        }
 
-        if (updateTransactions.length > 0) {
-            const updateTransaction: Database.IBootstrapTransaction = updateTransactions.pop();
-            const previousUpdate: MagistrateInterfaces.IBusinessUpdateAsset = updateTransaction.asset.businessUpdate;
+        const dbRegistrationTransactions = await connection.transactionsRepository.search({
+            parameters: [
+                {
+                    field: "senderPublicKey",
+                    value: transaction.data.senderPublicKey,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+                {
+                    field: "type",
+                    value: Enums.MagistrateTransactionType.BusinessRegistration,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+                {
+                    field: "typeGroup",
+                    value: transaction.data.typeGroup,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+            ],
+        });
+        const dbUpdateTransactions = await connection.transactionsRepository.search({
+            parameters: [
+                {
+                    field: "senderPublicKey",
+                    value: transaction.data.senderPublicKey,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+                {
+                    field: "type",
+                    value: Enums.MagistrateTransactionType.BusinessUpdate,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+                {
+                    field: "typeGroup",
+                    value: transaction.data.typeGroup,
+                    operator: Database.SearchOperator.OP_EQ,
+                },
+            ],
+            orderBy: [
+                {
+                    direction: "asc",
+                    field: "nonce",
+                },
+            ],
+        });
 
-            businessWalletAsset = {
-                ...businessWalletAsset,
-                ...previousUpdate,
-            };
-        } else {
-            reader = await TransactionReader.create(connection, MagistrateTransactions.BusinessRegistrationTransaction);
-            const registerTransactions: Database.IBootstrapTransaction[] = [];
-            while (reader.hasNext()) {
-                registerTransactions.push(...(await reader.read()));
+        const businessWalletAsset = dbRegistrationTransactions.rows[0].asset
+            .businessRegistration as MagistrateInterfaces.IBusinessRegistrationAsset;
+
+        for (const dbUpdateTx of dbUpdateTransactions.rows) {
+            if (dbUpdateTx.id === transaction.id) {
+                continue;
             }
-
-            const registerTransaction: Database.IBootstrapTransaction = registerTransactions.pop();
-            const previousRegistration: MagistrateInterfaces.IBusinessRegistrationAsset =
-                registerTransaction.asset.businessRegistration;
-            businessWalletAsset = {
-                ...businessWalletAsset,
-                ...previousRegistration,
-            };
+            Object.assign(businessWalletAsset, dbUpdateTx.asset
+                .businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset);
         }
 
         sender.setAttribute("business.businessAsset", businessWalletAsset);

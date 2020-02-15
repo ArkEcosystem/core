@@ -31,7 +31,8 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        const milestone = Managers.configManager.getMilestone();
+        return milestone.aip11 === true && milestone.htlcEnabled === true;
     }
 
     public dynamicFee(context: IDynamicFeeContext): Utils.BigNumber {
@@ -68,18 +69,16 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
+    ): Promise<{ type: string, message: string } | null> {
         const lockId: string = data.asset.refund.lockTransactionId;
 
         const databaseService: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
         const lockWallet: State.IWallet = databaseService.walletManager.findByIndex(State.WalletIndexes.Locks, lockId);
         if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
-            processor.pushError(
-                data,
-                "ERR_HTLCLOCKNOTFOUND",
-                `The associated lock transaction id "${lockId}" was not found.`,
-            );
-            return false;
+            return {
+                type: "ERR_HTLCLOCKNOTFOUND",
+                message: `The associated lock transaction id "${lockId}" was not found.`,
+            };
         }
 
         const htlcRefundsInpool: Interfaces.ITransactionData[] = Array.from(
@@ -91,11 +90,13 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         );
 
         if (alreadyHasPendingRefund) {
-            processor.pushError(data, "ERR_PENDING", `HtlcRefund for "${lockId}" already in the pool`);
-            return false;
+            return {
+                type: "ERR_PENDING",
+                message: `HtlcRefund for "${lockId}" already in the pool`,
+            }
         }
 
-        return true;
+        return null;
     }
 
     public async applyToSender(
@@ -176,11 +177,11 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         walletManager: State.IWalletManager,
         // tslint:disable-next-line: no-empty
-    ): Promise<void> {}
+    ): Promise<void> { }
 }

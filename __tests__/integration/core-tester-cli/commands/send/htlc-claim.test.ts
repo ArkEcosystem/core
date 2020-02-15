@@ -1,10 +1,12 @@
 import "jest-extended";
 
 import { httpie } from "@arkecosystem/core-utils";
-import { Enums, Identities, Managers } from "@arkecosystem/crypto";
+import { Enums, Managers } from "@arkecosystem/crypto";
 import nock from "nock";
 import { HtlcClaimCommand } from "../../../../../packages/core-tester-cli/src/commands/send/htlc-claim";
+import { htlcSecretHex } from "../../../../utils/fixtures";
 import { arkToSatoshi, captureTransactions, toFlags } from "../../shared";
+import { nodeStatusResponse } from "./fixtures";
 
 beforeEach(() => {
     // Just passthru. We'll test the Command class logic in its own test file more thoroughly
@@ -17,6 +19,11 @@ beforeEach(() => {
         .get("/api/node/configuration/crypto")
         .times(6)
         .reply(200, { data: Managers.configManager.getPreset("unitnet") });
+
+    nock("http://localhost:4003")
+        .get("/api/node/status")
+        .times(6)
+        .reply(200, nodeStatusResponse);
 
     jest.spyOn(httpie, "get");
     jest.spyOn(httpie, "post");
@@ -46,9 +53,7 @@ describe("Commands - Htlc claim", () => {
             .filter(tx => tx.type === Enums.TransactionType.HtlcClaim)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(opts.htlcClaimFee));
-                expect(tx.asset.claim.unlockSecret).toEqual(
-                    Identities.Address.fromPublicKey(tx.senderPublicKey).slice(0, 32),
-                );
+                expect(tx.asset.claim.unlockSecret).toEqual(htlcSecretHex);
                 expect(tx.asset.claim.lockTransactionId).toBeDefined();
             });
     });
@@ -70,9 +75,7 @@ describe("Commands - Htlc claim", () => {
             .filter(tx => tx.type === Enums.TransactionType.HtlcClaim)
             .map(tx => {
                 expect(tx.fee).toEqual(arkToSatoshi(0.1));
-                expect(tx.asset.claim.unlockSecret).toEqual(
-                    Identities.Address.fromPublicKey(tx.senderPublicKey).slice(0, 32),
-                );
+                expect(tx.asset.claim.unlockSecret).toEqual(htlcSecretHex);
                 expect(tx.asset.claim.lockTransactionId).toBeDefined();
             });
     });

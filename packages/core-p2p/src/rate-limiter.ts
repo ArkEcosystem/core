@@ -50,6 +50,10 @@ export class RateLimiter {
         return false;
     }
 
+    public getRateLimitedEndpoints(): string[] {
+        return Array.from(this.endpoints.keys());
+    }
+
     public async isBlocked(ip: string): Promise<boolean> {
         const res = await this.global.get(ip);
         return res !== null && res.remainingPoints <= 0;

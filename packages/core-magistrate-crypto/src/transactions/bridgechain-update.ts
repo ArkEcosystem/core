@@ -1,8 +1,8 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
-import { IBridgechainUpdateAsset } from "../interfaces";
-import { seedNodesSchema } from "./utils/bridgechain-schemas";
+import { IBridgechainPorts, IBridgechainUpdateAsset } from "../interfaces";
+import { portsSchema, seedNodesSchema } from "./utils/bridgechain-schemas";
 
 const { schemas } = Transactions;
 
@@ -25,12 +25,33 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
                     properties: {
                         bridgechainUpdate: {
                             type: "object",
-                            required: ["bridgechainId", "seedNodes"],
+                            required: ["bridgechainId"],
+                            anyOf: [
+                                {
+                                    required: ["seedNodes"],
+                                },
+                                {
+                                    required: ["ports"],
+                                },
+                                {
+                                    required: ["bridgechainRepository"],
+                                },
+                                {
+                                    required: ["bridgechainAssetRepository"],
+                                },
+                            ],
                             properties: {
                                 bridgechainId: {
                                     $ref: "transactionId",
                                 },
                                 seedNodes: seedNodesSchema,
+                                ports: portsSchema,
+                                bridgechainRepository: {
+                                    $ref: "uri",
+                                },
+                                bridgechainAssetRepository: {
+                                    $ref: "uri",
+                                },
                             },
                         },
                     },
@@ -45,18 +66,68 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         const bridgechainUpdateAsset = data.asset.bridgechainUpdate as IBridgechainUpdateAsset;
 
-        let seedNodesBuffersLength = 0;
         const seedNodesBuffers: Buffer[] = [];
         const seedNodes: string[] = bridgechainUpdateAsset.seedNodes;
 
-        for (const seed of seedNodes) {
-            const seedBuf = Buffer.from(seed, "utf8");
-            seedNodesBuffersLength = seedNodesBuffersLength + seedBuf.length;
-            seedNodesBuffers.push(seedBuf);
+        let seedNodesBuffersLength: number = 1;
+
+        if (seedNodes) {
+            for (const seed of seedNodes) {
+                const seedBuffer: Buffer = Buffer.from(seed, "utf8");
+                seedNodesBuffersLength += seedBuffer.length;
+                seedNodesBuffers.push(seedBuffer);
+            }
         }
 
-        const buffer: ByteBuffer = new ByteBuffer(4 + 1 + seedNodesBuffersLength + seedNodes.length, true);
-        buffer.append(ByteBuffer.fromHex(bridgechainUpdateAsset.bridgechainId));
+        seedNodesBuffersLength += seedNodesBuffers.length;
+
+        const ports: IBridgechainPorts = bridgechainUpdateAsset.ports;
+        let portsLength: number = 0;
+
+        const portNamesBuffers: Buffer[] = [];
+        const portNumbers: number[] = [];
+
+        let portsBuffersLength: number = 1;
+
+        if (ports) {
+            portsLength = Object.keys(ports).length;
+
+            for (const [name, port] of Object.entries(ports)) {
+                const nameBuffer: Buffer = Buffer.from(name, "utf8");
+                portNamesBuffers.push(nameBuffer);
+                portNumbers.push(port);
+                portsBuffersLength += nameBuffer.length + 2;
+            }
+
+            portsBuffersLength += portsLength;
+        }
+
+        let bridgechainRepositoryBufferLength = 1;
+        let bridgechainRepositoryBuffer: Buffer;
+        const bridgechainRepository = bridgechainUpdateAsset.bridgechainRepository;
+        if (bridgechainRepository) {
+            bridgechainRepositoryBuffer = Buffer.from(bridgechainRepository, "utf8");
+            bridgechainRepositoryBufferLength += bridgechainRepositoryBuffer.length;
+        }
+
+        let bridgechainAssetRepositoryBufferLength = 1;
+        let bridgechainAssetRepositoryBuffer: Buffer;
+        const bridgechainAssetRepository = bridgechainUpdateAsset.bridgechainAssetRepository;
+        if (bridgechainAssetRepository) {
+            bridgechainAssetRepositoryBuffer = Buffer.from(bridgechainAssetRepository, "utf8");
+            bridgechainAssetRepositoryBufferLength += bridgechainAssetRepositoryBuffer.length;
+        }
+
+        const buffer: ByteBuffer = new ByteBuffer(
+            32 + // bridgechain id
+                seedNodesBuffersLength +
+                portsBuffersLength +
+                bridgechainRepositoryBufferLength +
+                bridgechainAssetRepositoryBufferLength,
+            true,
+        );
+
+        buffer.append(bridgechainUpdateAsset.bridgechainId, "hex");
 
         buffer.writeUint8(seedNodesBuffers.length);
         for (const seedBuf of seedNodesBuffers) {
@@ -64,26 +135,78 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
             buffer.append(seedBuf);
         }
 
+        buffer.writeUint8(portsLength);
+        for (const [i, nameBuffer] of portNamesBuffers.entries()) {
+            buffer.writeUint8(nameBuffer.length);
+            buffer.append(nameBuffer);
+            buffer.writeUint16(portNumbers[i]);
+        }
+
+        if (bridgechainRepositoryBuffer) {
+            buffer.writeUint8(bridgechainRepositoryBuffer.length);
+            buffer.append(bridgechainRepositoryBuffer);
+        } else {
+            buffer.writeUint8(0);
+        }
+
+        if (bridgechainAssetRepositoryBuffer) {
+            buffer.writeUint8(bridgechainAssetRepositoryBuffer.length);
+            buffer.append(bridgechainAssetRepositoryBuffer);
+        } else {
+            buffer.writeUint8(0);
+        }
+
         return buffer;
     }
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
+
         const bridgechainId: string = buf.readBytes(32).toString("hex");
 
-        const seedNodes: string[] = [];
+        const bridgechainUpdate: IBridgechainUpdateAsset = {
+            bridgechainId,
+        };
+
         const seedNodesLength: number = buf.readUint8();
-        for (let i = 0; i < seedNodesLength; i++) {
-            const ipLength = buf.readUint8();
-            const ip = buf.readString(ipLength);
-            seedNodes.push(ip);
+        if (seedNodesLength) {
+            const seedNodes: string[] = [];
+
+            for (let i = 0; i < seedNodesLength; i++) {
+                const ipLength = buf.readUint8();
+                const ip = buf.readString(ipLength);
+                seedNodes.push(ip);
+            }
+
+            bridgechainUpdate.seedNodes = seedNodes;
+        }
+
+        const portsLength: number = buf.readUint8();
+        if (portsLength) {
+            const ports: IBridgechainPorts = {};
+
+            for (let i = 0; i < portsLength; i++) {
+                const nameLength: number = buf.readUint8();
+                const name: string = buf.readString(nameLength);
+                const port: number = buf.readUint16();
+                ports[name] = port;
+            }
+
+            bridgechainUpdate.ports = ports;
+        }
+
+        const bridgechainRepositoryLength: number = buf.readUint8();
+        if (bridgechainRepositoryLength) {
+            bridgechainUpdate.bridgechainRepository = buf.readString(bridgechainRepositoryLength);
+        }
+
+        const bridgechainAssetRepositoryLength: number = buf.readUint8();
+        if (bridgechainAssetRepositoryLength) {
+            bridgechainUpdate.bridgechainAssetRepository = buf.readString(bridgechainAssetRepositoryLength);
         }
 
         data.asset = {
-            bridgechainUpdate: {
-                bridgechainId,
-                seedNodes,
-            },
+            bridgechainUpdate,
         };
     }
 }

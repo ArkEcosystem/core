@@ -56,6 +56,24 @@ describe("API 2.0 - Peers", () => {
             expect(response.data.data[0]).toBeObject();
         });
 
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "peers");
+            expect(response).toBeSuccessfulResponse();
+
+            const expectedMeta = {
+                count: 2,
+                first: "/peers?page=1&limit=100",
+                last: "/peers?page=1&limit=100",
+                next: null,
+                pageCount: 1,
+                previous: null,
+                self: "/peers?page=1&limit=100",
+                totalCount: 2,
+                totalCountIsEstimate: undefined,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
+        });
+
         it("should GET all the peers sorted by version,asc", async () => {
             const response = await utils.request("GET", "peers", { orderBy: "version:asc" });
             expect(response).toBeSuccessfulResponse();

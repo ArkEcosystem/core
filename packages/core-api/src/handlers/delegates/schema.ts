@@ -1,18 +1,9 @@
 import { app } from "@arkecosystem/core-container";
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination } from "../shared/schemas";
+import { blockIteratees, delegateIteratees, walletIteratees } from "../shared/iteratees";
+import { address, blockId, orderBy, pagination, publicKey, username, walletId } from "../shared/schemas";
 
 const config = app.getConfig();
-
-const schemaIdentifier = Joi.string()
-    .regex(/^[a-zA-Z0-9!@$&_.]+$/)
-    .min(1)
-    .max(66);
-
-const schemaUsername = Joi.string()
-    .regex(/^[a-z0-9!@$&_.]+$/)
-    .min(1)
-    .max(20);
 
 const schemaIntegerBetween = Joi.object().keys({
     from: Joi.number()
@@ -38,21 +29,13 @@ export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(delegateIteratees),
             type: Joi.string().valid("resigned", "never-forged"),
-            address: Joi.string()
-                .alphanum()
-                .length(34),
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
-            secondPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            vote: Joi.string()
-                .hex()
-                .length(66),
-            username: schemaUsername,
+            address,
+            publicKey,
+            secondPublicKey: publicKey,
+            vote: publicKey,
+            username,
             balance: Joi.number()
                 .integer()
                 .min(0),
@@ -68,7 +51,7 @@ export const index: object = {
 
 export const show: object = {
     params: {
-        id: schemaIdentifier,
+        id: walletId,
     },
 };
 
@@ -76,22 +59,18 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(delegateIteratees),
         },
     },
     payload: {
-        address: Joi.string()
-            .alphanum()
-            .length(34),
-        publicKey: Joi.string()
-            .hex()
-            .length(66),
-        username: schemaUsername,
+        address,
+        publicKey,
+        username,
         usernames: Joi.array()
             .unique()
             .min(1)
             .max(config.getMilestone().activeDelegates)
-            .items(schemaUsername),
+            .items(username),
         approval: schemaPercentage,
         forgedFees: schemaIntegerBetween,
         forgedRewards: schemaIntegerBetween,
@@ -103,12 +82,12 @@ export const search: object = {
 
 export const blocks: object = {
     params: {
-        id: schemaIdentifier,
+        id: walletId,
     },
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(blockIteratees),
             id: blockId,
             version: Joi.number()
                 .integer()
@@ -136,9 +115,7 @@ export const blocks: object = {
                 .integer()
                 .min(0),
             payloadHash: Joi.string().hex(),
-            generatorPublicKey: Joi.string()
-                .hex()
-                .length(66),
+            generatorPublicKey: publicKey,
             blockSignature: Joi.string().hex(),
             transform: Joi.bool().default(true),
         },
@@ -147,25 +124,17 @@ export const blocks: object = {
 
 export const voters: object = {
     params: {
-        id: schemaIdentifier,
+        id: walletId,
     },
     query: {
         ...pagination,
         ...{
-            orderBy,
-            address: Joi.string()
-                .alphanum()
-                .length(34),
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
-            secondPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            vote: Joi.string()
-                .hex()
-                .length(66),
-            username: schemaUsername,
+            orderBy: orderBy(walletIteratees),
+            address,
+            publicKey,
+            secondPublicKey: publicKey,
+            vote: publicKey,
+            username,
             balance: Joi.number()
                 .integer()
                 .min(0),

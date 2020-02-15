@@ -20,7 +20,8 @@ export class HtlcLockTransaction extends Transaction {
     protected static defaultStaticFee: BigNumber = BigNumber.make("10000000");
 
     public verify(): boolean {
-        return configManager.getMilestone().aip11 && super.verify();
+        const milestone = configManager.getMilestone();
+        return milestone.aip11 === true && milestone.htlcEnabled === true && super.verify();
     }
 
     public hasVendorField(): boolean {

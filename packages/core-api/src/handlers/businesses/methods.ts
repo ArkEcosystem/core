@@ -16,7 +16,22 @@ const index = async request => {
 };
 
 const show = async request => {
-    const business = databaseService.walletManager.findByPublicKey(request.params.id);
+    let publicKey: string;
+
+    if (request.params.id.length === 66) {
+        publicKey = request.params.id;
+    } else {
+        try {
+            publicKey = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id).publicKey;
+        } catch (error) {
+            return Boom.notFound("Business not found");
+        }
+    }
+
+    const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
+        publicKey,
+        ...request.query,
+    }).rows[0];
 
     if (!business) {
         return Boom.notFound("Business not found");
@@ -26,16 +41,14 @@ const show = async request => {
 };
 
 const bridgechains = async request => {
-    const business = databaseService.wallets.search(Database.SearchScope.Businesses, {
-        publicKey: request.params.id,
-    });
+    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.id);
 
-    if (!business) {
+    if (!wallet || !wallet.hasAttribute("business")) {
         return Boom.notFound("Business not found");
     }
 
     const bridgechains = databaseService.wallets.search(Database.SearchScope.Bridgechains, {
-        publicKey: request.params.id,
+        publicKey: wallet.publicKey,
         ...request.query,
         ...paginate(request),
     });

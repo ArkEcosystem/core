@@ -105,12 +105,8 @@ export class VoteTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
-
-        return true;
+    ): Promise<{ type: string, message: string } | null> {
+        return this.typeFromSenderAlreadyInPool(data, pool);
     }
 
     public async applyToSender(

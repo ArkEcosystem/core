@@ -17,12 +17,7 @@ export class BridgechainRegistrationBuilder extends Transactions.TransactionBuil
     public bridgechainRegistrationAsset(
         bridgechainAsset: IBridgechainRegistrationAsset,
     ): BridgechainRegistrationBuilder {
-        this.data.asset.bridgechainRegistration = {
-            name: bridgechainAsset.name,
-            seedNodes: bridgechainAsset.seedNodes,
-            genesisHash: bridgechainAsset.genesisHash,
-            bridgechainRepository: bridgechainAsset.bridgechainRepository,
-        };
+        this.data.asset.bridgechainRegistration = bridgechainAsset;
         return this;
     }
 

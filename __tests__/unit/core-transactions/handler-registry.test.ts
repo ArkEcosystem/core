@@ -97,8 +97,8 @@ class TestTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
-        return true;
+    ): Promise<{ type: string, message: string } | null> {
+        return null;
     }
 
     public async applyToRecipient(
@@ -119,6 +119,7 @@ beforeAll(() => {
     testnet.milestones[0].fees.staticFees.test = 1234;
 
     Managers.configManager.setConfig(testnet);
+    Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 });
 
 describe("Registry", () => {

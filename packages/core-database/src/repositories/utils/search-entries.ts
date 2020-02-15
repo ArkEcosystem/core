@@ -44,7 +44,7 @@ const applyOrder = (
         return assignOrder(params, defaultOrder);
     }
 
-    const orderByMapped: string[] = params.orderBy.split(":").map(p => p.toLowerCase());
+    const orderByMapped: string[] = params.orderBy.split(":");
 
     if (orderByMapped.length !== 2 || ["desc", "asc"].includes(orderByMapped[1]) !== true) {
         return assignOrder(params, defaultOrder);
@@ -60,13 +60,8 @@ const manipulateIteratee = (iteratee): any => {
         case "forgedTotal":
             return delegateCalculator.calculateForgedTotal;
         case "votes":
+        case "votebalance":
             return "voteBalance";
-        case "vendorfield":
-            return "vendorField";
-        case "expirationvalue":
-            return "expirationValue";
-        case "expirationtype":
-            return "expirationType";
         default:
             return iteratee;
     }

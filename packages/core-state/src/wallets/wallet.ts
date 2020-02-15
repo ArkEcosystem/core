@@ -40,6 +40,10 @@ export class Wallet implements State.IWallet {
         this.setAttribute(key, undefined);
     }
 
+    public getAttributes(): Readonly<Record<string, any>> {
+        return this.attributes;
+    }
+
     public isDelegate(): boolean {
         return !!this.getAttribute("delegate");
     }

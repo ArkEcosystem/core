@@ -12,23 +12,31 @@ This project enables writing and running end-to-end tests on Ark core (v2).
 
 ## Install and run
 
-Install the project dependencies :
+First you need to have core setup and built :
 
-`yarn install`
+`yarn setup`
 
-Now to run the tests locally, you need to have Docker installed. Then, run this command to initialize docker swarm feature :
+Then you can go to the e2e folder and install the project dependencies :
 
-`docker swarm init`
+`cd __tests__/e2e && yarn install`
+
+Now to run the tests locally, you need to have Docker (and docker-compose) installed.
 
 You can now run the configured tests like this :
 
 ```bash
-bin/e2e generate -c 3 # 3 nodes, you can generate up to 10
-bin/e2e docker # or to see output: cd dist && ./docker-init.sh && ./docker-start.sh && cd ..
+cd lib/config && docker-compose up -d && cd ../.. # launches the network
 bin/e2e run-tests # by default the main "scenario1" is run, see -s option for custom scenario
+cd lib/config && docker-compose down -v && cd ../.. # shuts down the network
 ```
 
-This will generate the 3 nodes on testnet and run the tests defined in `scenario1`. (it can take some time depending on your machine resources)
+This will launch a network of 5 nodes on testnet and run the tests defined in `scenario1`. (it can take some time depending on your machine resources)
+
+You can see the live output of the nodes by using the docker logs command :
+
+```bash
+docker logs config_core0_1 -f # for the first node (core0)
+```
 
 ## Create new tests
 
@@ -91,10 +99,11 @@ You can have a look at `doublespend1` folder to have examples of actions and tes
 
 To perform some actions (like creating a new transaction), we want to send requests to one node's API.
 
-The nodes between themselves interact through classic 4000 / 4003 ports. But externally their ports are mapped so in our test we interact with them differently :
+The nodes between themselves interact through classic 4000 / 4003 ports. But to access the API externally there is a specific nginx server than will help us. It listens on port 4900 and you can access the nodes API through it this way :
 
--   For API calls we request localhost on port ( 4300 + node number ) to access a specific node (node numbers start from zero, so node0 will be requested on port 4300, node1 on port 4301...)
--   For P2P calls we request localhost on port ( 4000 + node number )
+```bash
+curl 127.0.0.1:4900/core0/api/v2/blocks # use core1 for the 2nd node, etc
+```
 
 ### Guidelines for writing tests
 
@@ -104,13 +113,13 @@ Here are some tips :
 -   Initialize what you need in your test case, don't re-use something from another test case : create your own wallets (transfer coins from genesis), your own transactions etc.
 -   Use an `utils.js` file if you need, also have a look at `utils.js` in the `networks` folder and in the `lib` folder
 
-## CircleCI
+## Github
 
-The end-to-end tests are configured to run on CircleCI for each commit.
+The end-to-end tests are configured to run on Github for each commit.
 
-## Technical details about this project
+## More details about the e2e docker architecture
 
-To understand how this end-to-end testing framework works behind the scenes, have a look at [TechnicalDetails.md](TechnicalDetails.md).
+You can have a look to the `lib/config` folder to understand how the network is working on docker, and you can for example increase the number of nodes you want to run by tweaking the docker-compose file and related core config folders.
 
 ## Suggestions, improvements
 

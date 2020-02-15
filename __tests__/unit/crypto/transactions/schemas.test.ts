@@ -8,9 +8,12 @@ import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
+import { htlcSecretHex, htlcSecretHashHex } from "../../../utils/fixtures"
 
 let transaction;
 let transactionSchema: TransactionSchema;
+
+configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 
 describe("Transfer Transaction", () => {
     const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
@@ -78,19 +81,7 @@ describe("Transfer Transaction", () => {
         transaction.data.vendorField = "a".repeat(65);
         transaction.sign("passphrase");
 
-        let { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
-        expect(error).not.toBeUndefined();
-
-        transaction
-            .recipientId(address)
-            .amount(amount)
-            .fee(Utils.BigNumber.make(fee).toFixed());
-
-        // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
-        transaction.vendorField("⊁".repeat(22));
-        transaction.sign("passphrase");
-
-        error = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).not.toBeUndefined();
     });
 
@@ -758,17 +749,6 @@ describe("Multi Payment Transaction", () => {
         expect(error).toBeUndefined();
     });
 
-    it("should be invalid with 0 or 1 payment", () => {
-        multiPayment.sign("passphrase");
-        const { error: errorZeroPayment } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
-        expect(errorZeroPayment).not.toBeUndefined();
-
-        multiPayment.addPayment(address, "100").sign("passphrase");
-
-        const { error: errorOnePayment } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
-        expect(errorOnePayment).not.toBeUndefined();
-    });
-
     it("should not accept more than `multiPaymentLimit` payments", () => {
         const limit = configManager.getMilestone().multiPaymentLimit;
 
@@ -827,7 +807,7 @@ describe("HTLC Lock Transaction", () => {
     const fee = 1 * ARKTOSHI;
     const amount = 10 * ARKTOSHI;
     const htlcLockAsset = {
-        secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+        secretHash: htlcSecretHashHex,
         expiration: {
             type: HtlcLockExpirationType.EpochTimestamp,
             value: Math.floor(Date.now() / 1000),
@@ -943,7 +923,7 @@ describe("HTLC Claim Transaction", () => {
     const fee = "0";
     const htlcClaimAsset = {
         lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-        unlockSecret: "my secret that should be 32bytes",
+        unlockSecret: htlcSecretHex,
     };
 
     beforeAll(() => {
@@ -968,7 +948,7 @@ describe("HTLC Claim Transaction", () => {
         transaction
             .htlcClaimAsset({
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb",
-                unlockSecret: "my secret that should be 32bytes",
+                unlockSecret: htlcSecretHex,
             })
             .recipientId(address)
             .fee(fee)
@@ -982,7 +962,7 @@ describe("HTLC Claim Transaction", () => {
         transaction
             .htlcClaimAsset({
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2ebw",
-                unlockSecret: "my secret that should be 32bytes",
+                unlockSecret: htlcSecretHex,
             })
             .recipientId(address)
             .fee(fee)
@@ -996,7 +976,7 @@ describe("HTLC Claim Transaction", () => {
         transaction
             .htlcClaimAsset({
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb",
-                unlockSecret: "my secret that should be 32bytes but is not",
+                unlockSecret: "00112233",
             })
             .recipientId(address)
             .fee(fee)

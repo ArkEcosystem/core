@@ -1,6 +1,7 @@
-import { Crypto, Identities } from "@arkecosystem/crypto";
+import { Identities } from "@arkecosystem/crypto";
 import { flags } from "@oclif/command";
 import { satoshiFlag } from "../../flags";
+import { htlcSecretHashHex } from "../../shared/htlc-secret";
 import { SendCommand } from "../../shared/send";
 import { TransferCommand } from "./transfer";
 
@@ -35,11 +36,8 @@ export class HtlcLockCommand extends SendCommand {
         const transactions = [];
 
         for (const wallet of Object.values(wallets)) {
-            const secret = wallet.address.slice(0, 32);
-            // we use the 32 first chars of wallet address as secret
-
             const lockAsset = {
-                secretHash: Crypto.HashAlgorithms.sha256(secret).toString("hex"),
+                secretHash: htlcSecretHashHex,
                 expiration: { type: 1, value: Math.floor((Date.now() + flags.expiration * 1000) / 1000) },
             };
 

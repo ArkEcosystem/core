@@ -1,12 +1,12 @@
 import { app } from "@arkecosystem/core-container";
 import { Blockchain, Database, Logger, P2P, TransactionPool } from "@arkecosystem/core-interfaces";
 import { isBlockChained } from "@arkecosystem/core-utils";
-import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces } from "@arkecosystem/crypto";
 import pluralize from "pluralize";
 import { MissingCommonBlockError } from "../../errors";
 import { IPeerPingResponse } from "../../interfaces";
 import { isWhitelisted } from "../../utils";
-import { InvalidTransactionsError, UnchainedBlockError } from "../errors";
+import { InvalidTransactionsError, TooManyTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
 
@@ -54,7 +54,24 @@ export const getStatus = async (): Promise<IPeerPingResponse> => {
 export const postBlock = async ({ req }): Promise<void> => {
     const blockchain: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
 
-    const block: Interfaces.IBlockData = req.data.block;
+    const blockHex: string = (req.data.block as Buffer).toString("hex");
+
+    const deserializedHeader = Blocks.Deserializer.deserialize(blockHex, true);
+
+    if (deserializedHeader.data.numberOfTransactions > app.getConfig().getMilestone().block.maxTransactions) {
+        throw new TooManyTransactionsError(deserializedHeader.data);
+    }
+
+    const deserialized: {
+        data: Interfaces.IBlockData;
+        transactions: Interfaces.ITransaction[];
+    } = Blocks.Deserializer.deserialize(blockHex);
+
+    const block: Interfaces.IBlockData = {
+        ...deserialized.data,
+        transactions: deserialized.transactions.map(tx => tx.data),
+    };
+
     const fromForger: boolean = isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.headers.remoteAddress);
 
     if (!fromForger) {
@@ -67,6 +84,10 @@ export const postBlock = async ({ req }): Promise<void> => {
         if (!isBlockChained(lastDownloadedBlock, block)) {
             throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
         }
+    }
+
+    if (block.transactions.length > app.getConfig().getMilestone().block.maxTransactions) {
+        throw new TooManyTransactionsError(block);
     }
 
     app.resolvePlugin<Logger.ILogger>("logger").info(

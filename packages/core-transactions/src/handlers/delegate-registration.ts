@@ -30,6 +30,8 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             "delegate.round",
             "delegate.username",
             "delegate.voteBalance",
+            "delegate.forgedFees",
+            "delegate.forgedRewards",
             "delegate.forgedTotal",
             "delegate.approval",
         ];
@@ -75,6 +77,12 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
         for (const block of lastForgedBlocks) {
             const wallet = walletManager.findByPublicKey(block.generatorPublicKey);
+
+            // Genesis wallet is empty
+            if (!wallet.hasAttribute("delegate")) {
+                continue;
+            }
+
             wallet.setAttribute("delegate.lastBlock", block);
         }
     }
@@ -119,9 +127,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
+    ): Promise<{ type: string; message: string } | null> {
+        const err = await this.typeFromSenderAlreadyInPool(data, pool);
+        if (err !== null) {
+            return err;
         }
 
         const { username }: { username: string } = data.asset.delegate;
@@ -135,12 +144,10 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             );
 
         if (delegateRegistrationsSameNameInPayload.length > 1) {
-            processor.pushError(
-                data,
-                "ERR_CONFLICT",
-                `Multiple delegate registrations for "${username}" in transaction payload`,
-            );
-            return false;
+            return {
+                type: "ERR_CONFLICT",
+                message: `Multiple delegate registrations for "${username}" in transaction payload`,
+            };
         }
 
         const delegateRegistrationsInPool: Interfaces.ITransactionData[] = Array.from(
@@ -151,11 +158,13 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             transaction => transaction.asset.delegate.username === username,
         );
         if (containsDelegateRegistrationForSameNameInPool) {
-            processor.pushError(data, "ERR_PENDING", `Delegate registration for "${username}" already in the pool`);
-            return false;
+            return {
+                type: "ERR_PENDING",
+                message: `Delegate registration for "${username}" already in the pool`,
+            };
         }
 
-        return true;
+        return null;
     }
 
     public async applyToSender(

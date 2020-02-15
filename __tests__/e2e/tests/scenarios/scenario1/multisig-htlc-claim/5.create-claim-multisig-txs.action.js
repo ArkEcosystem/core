@@ -5,6 +5,7 @@ const utils = require("./utils");
 const shared = require("./shared");
 const testUtils = require("../../../../lib/utils/test-utils");
 const { TransactionFactory } = require('../../../../../helpers/transaction-factory');
+const { htlcSecretHex } = require('../../../../../utils/fixtures');
 
 /**
  * Claim signing tx with multisig wallet
@@ -20,7 +21,7 @@ module.exports = async options => {
     shared.claimTransactions.normal = TransactionFactory.htlcClaim(
             {
                 lockTransactionId: shared.lockTransactions.normal.id,
-                unlockSecret: shared.lockTransactions.normal.recipientId.slice(0, 32),
+                unlockSecret: htlcSecretHex,
             }
         )
         .withSenderPublicKey(multisigPublicKey)

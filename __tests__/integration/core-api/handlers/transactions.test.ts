@@ -68,6 +68,25 @@ describe("API 2.0 - Transactions", () => {
 
             utils.expectTransaction(response.data.data[0]);
         });
+
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "transactions");
+            expect(response).toBeSuccessfulResponse();
+
+            const expectedMeta = {
+                count: 100,
+                first: "/transactions?transform=true&page=1&limit=100",
+                last: "/transactions?transform=true&page=2&limit=100",
+                next: "/transactions?transform=true&page=2&limit=100",
+                pageCount: 2,
+                previous: null,
+                self: "/transactions?transform=true&page=1&limit=100",
+                totalCount: expect.any(Number), // for some reason it can give a different number,
+                // if it's executed with the whole test suite :think: TODO fix it
+                totalCountIsEstimate: true,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
+        });
     });
 
     describe("GET /transactions/:id", () => {

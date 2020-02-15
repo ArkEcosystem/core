@@ -219,8 +219,10 @@ export abstract class BaseCommand extends Command {
     private async setupConfigurationForCrypto() {
         try {
             const { data: dataCrypto } = await this.api.get("node/configuration/crypto");
+            const { data: dataStatus } = await this.api.get("node/status");
 
             Managers.configManager.setConfig(dataCrypto);
+            Managers.configManager.setHeight(dataStatus.now);
         } catch (error) {
             this.error(error.message);
         }

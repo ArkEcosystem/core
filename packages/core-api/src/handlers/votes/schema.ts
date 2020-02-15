@@ -1,11 +1,12 @@
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination } from "../shared/schemas";
+import { transactionIteratees } from "../shared/iteratees";
+import { address, blockId, orderBy, pagination, publicKey } from "../shared/schemas";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -13,15 +14,9 @@ export const index: object = {
             version: Joi.number()
                 .integer()
                 .positive(),
-            senderPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            senderId: Joi.string()
-                .alphanum()
-                .length(34),
-            recipientId: Joi.string()
-                .alphanum()
-                .length(34),
+            senderPublicKey: publicKey,
+            senderId: address,
+            recipientId: address,
             timestamp: Joi.number()
                 .integer()
                 .min(0),

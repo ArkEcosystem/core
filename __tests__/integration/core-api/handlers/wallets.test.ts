@@ -61,6 +61,23 @@ describe("API 2.0 - Wallets", () => {
             expect(response.data.data[0].address).toBe("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
             expect(response.data.data[0].balance).toBe("245100000000000");
         });
+
+        it("should give correct meta data", async () => {
+            const response = await utils.request("GET", "wallets");
+            expect(response).toBeSuccessfulResponse();
+
+            const expectedMeta = {
+                count: 53,
+                first: "/wallets?page=1&limit=100",
+                last: "/wallets?page=1&limit=100",
+                next: null,
+                pageCount: 1,
+                previous: null,
+                self: "/wallets?page=1&limit=100",
+                totalCount: 53,
+            };
+            expect(response.data.meta).toEqual(expectedMeta);
+        });
     });
 
     describe("GET /wallets/top", () => {
@@ -82,6 +99,7 @@ describe("API 2.0 - Wallets", () => {
 
                 const wallet = response.data.data;
                 utils.expectWallet(wallet);
+
                 expect(wallet[identifier]).toBe(value);
             }
         });
@@ -276,20 +294,31 @@ describe("API 2.0 - Wallets", () => {
             expect(wallet.publicKey).toBe(publicKey);
         });
 
-        // it("should POST a search for wallets with the exact specified secondPublicKey", async () => {
-        //     const response = await utils.request("POST", "wallets/search", {
-        //         address: addressSecondPassphrase,
-        //         secondPublicKey,
-        //     });
-        //     expect(response).toBeSuccessfulResponse();
-        //     expect(response.data.data).toBeArray();
+        it("should POST a search for wallets with the exact specified secondPublicKey", async () => {
+            const walletManager = app.resolvePlugin<Database.IDatabaseService>("database").walletManager;
 
-        //     expect(response.data.data).toHaveLength(1);
+            const walletPublicKey = Identities.PublicKey.fromPassphrase("second");
+            const walletAddress = Identities.Address.fromPublicKey(walletPublicKey);
+            const wallet2ndPublicKey = Identities.PublicKey.fromPassphrase("second");
+            const walletWith2ndPublicKey = walletManager.findByPublicKey(walletPublicKey);
 
-        //     const wallet = response.data.data[0];
-        //     utils.expectWallet(wallet);
-        //     expect(wallet.address).toBe(addressSecondPassphrase);
-        // });
+            walletWith2ndPublicKey.setAttribute("secondPublicKey", wallet2ndPublicKey);
+            walletManager.reindex(walletWith2ndPublicKey);
+
+            const response = await utils.request("POST", "wallets/search", {
+                address: walletAddress,
+                secondPublicKey: wallet2ndPublicKey,
+            });
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeArray();
+            expect(response.data.data).toHaveLength(1);
+            const wallet = response.data.data[0];
+            utils.expectWallet(wallet);
+            expect(wallet.address).toBe(walletAddress);
+            expect(wallet.secondPublicKey).toBe(wallet2ndPublicKey);
+
+            walletManager.forgetByPublicKey(walletPublicKey);
+        });
 
         // it("should POST a search for wallets with the exact specified vote", async () => {
         //     const response = await utils.request("POST", "wallets/search", { address: address, vote });

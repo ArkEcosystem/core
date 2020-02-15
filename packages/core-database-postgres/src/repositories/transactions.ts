@@ -76,13 +76,18 @@ export class TransactionsRepository extends Repository implements Database.ITran
                             )
                             .or(
                                 // Include multipayment recipients
-                                this.query.asset.contains({
-                                    payments: [
-                                        {
-                                            recipientId: first.value,
-                                        },
-                                    ],
-                                }),
+                                this.query.type
+                                    .equals(Enums.TransactionType.MultiPayment)
+                                    .and(this.query.type_group.equals(Enums.TransactionTypeGroup.Core))
+                                    .and(
+                                        this.query.asset.contains({
+                                            payments: [
+                                                {
+                                                    recipientId: first.value,
+                                                },
+                                            ],
+                                        }),
+                                    ),
                             );
                     }
                 }
@@ -99,13 +104,18 @@ export class TransactionsRepository extends Repository implements Database.ITran
                 for (const query of [selectQuery, selectQueryCount]) {
                     let condition = this.query.recipient_id.equals(walletAddress).or(
                         // Include multipayment recipients
-                        this.query.asset.contains({
-                            payments: [
-                                {
-                                    recipientId: walletAddress,
-                                },
-                            ],
-                        }),
+                        this.query.type
+                            .equals(Enums.TransactionType.MultiPayment)
+                            .and(this.query.type_group.equals(Enums.TransactionTypeGroup.Core))
+                            .and(
+                                this.query.asset.contains({
+                                    payments: [
+                                        {
+                                            recipientId: walletAddress,
+                                        },
+                                    ],
+                                }),
+                            ),
                     );
 
                     // We do not know public key for cold wallets

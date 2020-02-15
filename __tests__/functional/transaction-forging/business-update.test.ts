@@ -1,10 +1,17 @@
+import { Container, Database } from "@arkecosystem/core-interfaces";
 import { Identities } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 import { TransactionFactory } from "../../helpers/transaction-factory";
 import { secrets } from "../../utils/config/testnet/delegates.json";
 import * as support from "./__support__";
 
-beforeAll(support.setUp);
+let app: Container.IContainer;
+let databaseService: Database.IDatabaseService;
+
+beforeAll(async () => {
+    app = await support.setUp();
+    databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
+});
 afterAll(support.tearDown);
 
 describe("Transaction Forging - Business update", () => {
@@ -32,6 +39,14 @@ describe("Transaction Forging - Business update", () => {
             await expect(businessUpdate).toBeAccepted();
             await support.snoozeForBlock(1);
             await expect(businessUpdate.id).toBeForged();
+
+            const wallet = databaseService.walletManager.findByPublicKey(
+                Identities.PublicKey.fromPassphrase(secrets[0]),
+            );
+            expect(wallet.getAttribute("business.businessAsset")).toEqual({
+                name: "ark2",
+                website: "https://ark.io",
+            });
         });
 
         it("should reject business update, because business resigned [Signed with 1 Passphrase]", async () => {
@@ -305,6 +320,60 @@ describe("Transaction Forging - Business update", () => {
             await expect(businessUpdate).toBeRejected();
             await support.snoozeForBlock(1);
             await expect(businessUpdate.id).not.toBeForged();
+        });
+    });
+
+    describe("Signed with 1 Passphrase", () => {
+        it("should accept the update then revert to previous wallet state on revert block", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "https://ark.io",
+            })
+                .withPassphrase(secrets[3])
+                .createOne();
+
+            await expect(businessRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
+
+            // Updating a business
+            const businessUpdate1 = TransactionFactory.businessUpdate({
+                name: "ark2",
+            })
+                .withPassphrase(secrets[3])
+                .createOne();
+
+            await expect(businessUpdate1).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessUpdate1.id).toBeForged();
+
+            const wallet = databaseService.walletManager.findByPublicKey(
+                Identities.PublicKey.fromPassphrase(secrets[3]),
+            );
+            expect(wallet.getAttribute("business.businessAsset")).toEqual({
+                name: "ark2",
+                website: "https://ark.io",
+            });
+
+            // Updating a business
+            const businessUpdate2 = TransactionFactory.businessUpdate({
+                name: "ark23456",
+            })
+                .withPassphrase(secrets[3])
+                .createOne();
+
+            await expect(businessUpdate2).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessUpdate2.id).toBeForged();
+
+            await support.revertLastBlock();
+            await support.revertLastBlock();
+
+            expect(wallet.getAttribute("business.businessAsset")).toEqual({
+                name: "ark2",
+                website: "https://ark.io",
+            });
         });
     });
 });

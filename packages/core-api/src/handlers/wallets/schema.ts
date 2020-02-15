@@ -1,28 +1,17 @@
 import Joi from "@hapi/joi";
-import { blockId, orderBy, pagination, walletId } from "../shared/schemas";
-
-const address: object = Joi.string()
-    .alphanum()
-    .length(34);
+import { lockIteratees, transactionIteratees, walletIteratees } from "../shared/iteratees";
+import { address, blockId, orderBy, pagination, publicKey, username, walletId } from "../shared/schemas";
 
 export const index: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
-            address: Joi.string()
-                .alphanum()
-                .length(34),
-            publicKey: Joi.string()
-                .hex()
-                .length(66),
-            secondPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            vote: Joi.string()
-                .hex()
-                .length(66),
-            username: Joi.string(),
+            orderBy: orderBy(walletIteratees),
+            address,
+            publicKey,
+            secondPublicKey: publicKey,
+            vote: publicKey,
+            username,
             balance: Joi.number().integer(),
             voteBalance: Joi.number()
                 .integer()
@@ -47,7 +36,7 @@ export const transactions: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -86,7 +75,7 @@ export const transactionsSent: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -100,9 +89,7 @@ export const transactionsSent: object = {
             version: Joi.number()
                 .integer()
                 .positive(),
-            recipientId: Joi.string()
-                .alphanum()
-                .length(34),
+            recipientId: address,
             timestamp: Joi.number()
                 .integer()
                 .min(0),
@@ -128,7 +115,7 @@ export const transactionsReceived: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(transactionIteratees),
             id: Joi.string()
                 .hex()
                 .length(64),
@@ -142,12 +129,8 @@ export const transactionsReceived: object = {
             version: Joi.number()
                 .integer()
                 .positive(),
-            senderPublicKey: Joi.string()
-                .hex()
-                .length(66),
-            senderId: Joi.string()
-                .alphanum()
-                .length(34),
+            senderPublicKey: publicKey,
+            senderId: address,
             timestamp: Joi.number()
                 .integer()
                 .min(0),
@@ -186,7 +169,7 @@ export const locks: object = {
         ...pagination,
         ...{
             isExpired: Joi.bool(),
-            orderBy,
+            orderBy: orderBy(lockIteratees),
         },
     },
 };
@@ -195,7 +178,7 @@ export const search: object = {
     query: {
         ...pagination,
         ...{
-            orderBy,
+            orderBy: orderBy(walletIteratees),
         },
     },
     payload: {
@@ -205,16 +188,10 @@ export const search: object = {
             .min(1)
             .max(50)
             .items(address),
-        publicKey: Joi.string()
-            .hex()
-            .length(66),
-        secondPublicKey: Joi.string()
-            .hex()
-            .length(66),
-        vote: Joi.string()
-            .hex()
-            .length(66),
-        username: Joi.string(),
+        publicKey,
+        secondPublicKey: publicKey,
+        vote: publicKey,
+        username,
         producedBlocks: Joi.number()
             .integer()
             .min(0),

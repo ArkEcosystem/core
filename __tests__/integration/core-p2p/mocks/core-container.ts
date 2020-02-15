@@ -32,6 +32,9 @@ jest.mock("@arkecosystem/core-container", () => {
                     },
                     getMilestone: () => ({
                         activeDelegates: 51,
+                        block: {
+                            maxTransactions: 500,
+                        },
                     }),
                 };
             },
@@ -101,9 +104,6 @@ jest.mock("@arkecosystem/core-container", () => {
                                 throw new Error("The payload contains invalid transaction.");
                             }),
                         }),
-                        options: {
-                            maxTransactionBytes: 10e6,
-                        },
                     };
                 }
 

@@ -34,7 +34,7 @@ export const requestSchemas = {
             required: ["block"],
             additionalProperties: false,
             properties: {
-                block: { $ref: "block" },
+                block: { instanceof: "Buffer" },
             },
         },
         postTransactions: {
@@ -208,7 +208,7 @@ export const replySchemas = {
                                     symbol: {
                                         type: "string",
                                         minLength: 1,
-                                        maxLength: 3,
+                                        maxLength: 4,
                                     },
                                 },
                             },

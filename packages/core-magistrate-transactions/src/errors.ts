@@ -31,12 +31,6 @@ export class BridgechainAlreadyRegisteredError extends Errors.TransactionError {
     }
 }
 
-export class BridgechainIsNotRegisteredError extends Errors.TransactionError {
-    constructor() {
-        super("Failed to apply transaction, because bridgechain is not registered.");
-    }
-}
-
 export class BridgechainIsNotRegisteredByWalletError extends Errors.TransactionError {
     constructor() {
         super("Failed to apply transaction, because bridgechain is not registered by wallet.");
@@ -52,11 +46,5 @@ export class BridgechainIsResignedError extends Errors.TransactionError {
 export class GenesisHashAlreadyRegisteredError extends Errors.TransactionError {
     constructor() {
         super("Failed to apply transaction, because genesis hash is already registered by another bridgechain.");
-    }
-}
-
-export class StaticFeeMismatchError extends Errors.TransactionError {
-    constructor(staticFee: string) {
-        super(`Failed to apply transaction, because fee doesn't match static fee ${staticFee}.`);
     }
 }

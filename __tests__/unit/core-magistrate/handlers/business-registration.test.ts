@@ -38,6 +38,8 @@ let businessRegistrationBuilder: MagistrateBuilders.BusinessRegistrationBuilder;
 let senderWallet: Wallets.Wallet;
 let walletManager: State.IWalletManager;
 
+Managers.configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+
 describe("Business registration handler", () => {
     Managers.configManager.setFromPreset("testnet");
 
