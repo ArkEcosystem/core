@@ -50,7 +50,6 @@ services:
      - "4003:4003"
      - "4040:4040"
      - "127.0.0.1:4004:4004"
-     - "127.0.0.1:4005:4005"
      - "127.0.0.1:8080:8080"
     cap_add:
       - SYS_NICE
@@ -83,7 +82,7 @@ networks:
 ```bash
 MODE=relay
 NETWORK=devnet
-CORE_LOG_LEVEL=info
+CORE_LOG_LEVEL=debug
 CORE_LOG_LEVEL_FILE=info
 CORE_DB_HOST=postgres-devnet
 CORE_DB_USERNAME=node
@@ -95,8 +94,6 @@ CORE_API_HOST=0.0.0.0
 CORE_API_PORT=4003
 CORE_WEBHOOKS_HOST=0.0.0.0
 CORE_WEBHOOKS_PORT=4004
-CORE_GRAPHQL_HOST=0.0.0.0
-CORE_GRAPHQL_PORT=4005
 CORE_EXCHANGE_JSON_RPC_HOST=0.0.0.0
 CORE_EXCHANGE_JSON_RPC_PORT=8080
 ```
@@ -129,7 +126,6 @@ services:
      - "4003:4003"
      - "4040:4040"
      - "127.0.0.1:4004:4004"
-     - "127.0.0.1:4005:4005"
      - "127.0.0.1:8080:8080"
     cap_add:
       - SYS_NICE
@@ -174,8 +170,6 @@ CORE_API_HOST=0.0.0.0
 CORE_API_PORT=4003
 CORE_WEBHOOKS_HOST=0.0.0.0
 CORE_WEBHOOKS_PORT=4004
-CORE_GRAPHQL_HOST=0.0.0.0
-CORE_GRAPHQL_PORT=4005
 CORE_EXCHANGE_JSON_RPC_HOST=0.0.0.0
 CORE_EXCHANGE_JSON_RPC_PORT=8080
 ```
@@ -188,4 +182,4 @@ _If you prefer to use custom DB Name, DB User and DB Password simply adjust vari
 docker-compose up -d
 ```
 
-### _ARK Core docker image allows you to run a `forger`. However it requires some additional steps that can be found by visiting our [Documentation page](https://docs.ark.io/guidebook/core/docker.html)._
+### _ARK Core docker image allows you to run a `forger`. However it requires some additional steps that can be found by visiting our [Documentation page](https://guides.ark.dev/devops-guides/how-to-setup-a-node-with-docker#production-setup)._
