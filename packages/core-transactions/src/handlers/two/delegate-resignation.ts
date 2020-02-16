@@ -86,8 +86,6 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        this.app.log.notice(`${this.walletRepository.allByUsername().length} delegates before resignation`);
-
         await super.applyToSender(transaction, customWalletRepository);
 
         const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
