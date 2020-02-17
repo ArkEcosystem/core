@@ -1,5 +1,5 @@
 import "jest-extended";
-import { Container, Contracts, Services, Providers } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
 
 import { Managers } from "@arkecosystem/crypto";
@@ -7,8 +7,10 @@ import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
 import { WalletRepository, Wallet } from "@arkecosystem/core-state/src/wallets";
 import { registerIndexers } from "../../../../packages/core-state/src/wallets/indexers";
+import { knownAttributes } from "@arkecosystem/core-test-framework/src/internal/wallet-attributes";
 
 let sandbox: Sandbox;
+let walletRepo: WalletRepository;
 
 beforeAll(() => {
     sandbox = new Sandbox();
@@ -17,12 +19,10 @@ beforeAll(() => {
 
     sandbox.app
         .bind(Container.Identifiers.WalletFactory)
-        .toFactory<Contracts.State.Wallet>((context: Container.interfaces.Context) => (address: string) =>
+        .toFactory<Contracts.State.Wallet>(() => (address: string) =>
             new Wallet(
                 address,
-                new Services.Attributes.AttributeMap(
-                    context.container.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes),
-                ),
+                knownAttributes,
             ),
         );
 
@@ -48,14 +48,16 @@ beforeAll(() => {
         .bind(Container.Identifiers.WalletRepository)
         .to(WalletRepository);
 
-    const walletRepository = sandbox.app
+    walletRepo = sandbox.app
         .get<any>(Container.Identifiers.WalletRepository);
 
     Managers.configManager.setFromPreset("testnet");
 });
 
 describe("Wallet Repository", () => {
-    it("...", () => {
-
+    it("should create a wallet", () => {
+        const wallet = walletRepo.createWallet("abcd");
+        expect(wallet.address).toEqual("abcd");
+        expect(wallet).toBeInstanceOf(Wallet);
     });
 });
