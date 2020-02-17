@@ -36,7 +36,7 @@
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^8.0.0",
-        "pretty-ms": "^5.0.0",
+        "pretty-ms": "^6.0.0",
         "xstate": "^4.6.7"
     },
     "devDependencies": {

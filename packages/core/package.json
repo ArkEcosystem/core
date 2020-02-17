@@ -89,7 +89,7 @@
         "lodash.minby": "^4.6.0",
         "nodejs-tail": "^1.1.0",
         "pretty-bytes": "^5.2.0",
-        "pretty-ms": "^5.0.0",
+        "pretty-ms": "^6.0.0",
         "prompts": "^2.1.0",
         "read-last-lines": "^1.7.1",
         "semver": "^7.0.0",
