@@ -49,13 +49,13 @@ beforeAll(() => {
 beforeEach(() => {
     const makeChainedBlocks = (length: number, blockFactory): IBlock[] => {
         const entitites: IBlock[] = [];
-        let previousBlock;
-        const getPreviousBlock = () => {
-            return previousBlock;
-        }
+        let previousBlock; // first case uses genesis IBlockData
+        const getPreviousBlock = () => previousBlock;
 
         for (let i = 0; i < length; i++) {
-            previousBlock && blockFactory.withOptions({getPreviousBlock});
+            if (previousBlock) {
+                blockFactory.withOptions({getPreviousBlock});
+            }
             const entity: IBlock = blockFactory.make();
             entitites.push(entity);
             previousBlock = entity.data;
