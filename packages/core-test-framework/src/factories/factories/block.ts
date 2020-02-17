@@ -7,7 +7,12 @@ import { FactoryBuilder } from "../factory-builder";
 
 export const registerBlockFactory = (factory: FactoryBuilder): void => {
     factory.set("Block", ({ options }) => {
-        const previousBlock = options.config?.genesisBlock || Managers.configManager.get("genesisBlock");
+        let previousBlock;
+        if (options.getPreviousBlock) {
+            previousBlock = options.getPreviousBlock();
+        } else {
+            previousBlock = options.config?.genesisBlock || Managers.configManager.get("genesisBlock");
+        }
 
         const { blocktime, reward } = Managers.configManager.getMilestone(previousBlock.height);
 
