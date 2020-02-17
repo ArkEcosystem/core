@@ -3,24 +3,19 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
-import { Blocks as cBlocks, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
 import delay from "delay";
 import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
-import { blocks101to155 } from "../../../utils/fixtures/testnet/blocks101to155";
-import { blocks2to100 } from "../../../utils/fixtures/testnet/blocks2to100";
+import { IBlock } from "@arkecosystem/crypto/dist/interfaces";
 
-const { Block, BlockFactory } = cBlocks;
-const blocks = blocks2to100.concat(blocks101to155).map(block => BlockFactory.fromData(block));
-
-// let blocks;
+let blocks: IBlock[];
 
 let stateStorage: StateStore;
 
 let sandbox: Sandbox;
 
 let factory: FactoryBuilder;
-
 
 beforeAll(() => {
     sandbox = new Sandbox();
@@ -52,7 +47,22 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-    // blocks = factory.get("Block").makeMany(100);
+    const makeChainedBlocks = (length: number, blockFactory): IBlock[] => {
+        const entitites: IBlock[] = [];
+        let previousBlock;
+        const getPreviousBlock = () => {
+            return previousBlock;
+        }
+
+        for (let i = 0; i < length; i++) {
+            previousBlock && blockFactory.withOptions({getPreviousBlock});
+            const entity: IBlock = blockFactory.make();
+            entitites.push(entity);
+            previousBlock = entity.data;
+        }
+        return entitites;
+    }
+    blocks = makeChainedBlocks(101, factory.get("Block"));
     stateStorage.clear();
 });
 
@@ -137,7 +147,7 @@ describe("State Storage", () => {
             expect(lastBlocks).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
-                expect(lastBlocks[i]).toBeInstanceOf(Block);
+                expect(lastBlocks[i]).toBeInstanceOf(Blocks.Block);
                 expect(lastBlocks[i].data.height).toBe(6 - i); // Height started at 2
                 expect(lastBlocks[i]).toBe(blocks[4 - i]);
             }
@@ -154,7 +164,7 @@ describe("State Storage", () => {
             expect(lastBlocksData).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
-                expect(lastBlocksData[0]).not.toBeInstanceOf(Block);
+                expect(lastBlocksData[0]).not.toBeInstanceOf(Blocks.Block);
                 expect(lastBlocksData[i].height).toBe(6 - i); // Height started at 2
                 expect(lastBlocksData[i]).toHaveProperty("transactions");
                 delete lastBlocksData[i].transactions;
@@ -211,7 +221,7 @@ describe("State Storage", () => {
             lastBlocksByHeight = stateStorage.getLastBlocksByHeight(2, 2);
             expect(lastBlocksByHeight).toHaveLength(1);
             expect(lastBlocksByHeight[0].height).toBe(2);
-            expect(lastBlocksByHeight[0].transactions).toHaveLength(10);
+            expect(lastBlocksByHeight[0].transactions).toHaveLength(0);
         });
     });
 
@@ -310,7 +320,7 @@ describe("State Storage", () => {
     describe("pingBlock", () => {
         it("should return false if there is no blockPing", () => {
             stateStorage.blockPing = undefined;
-            expect(stateStorage.pingBlock(blocks2to100[5])).toBeFalse();
+            expect(stateStorage.pingBlock(blocks[5].data)).toBeFalse();
         });
 
         it("should return true if block pinged == current blockPing and should update stats", async () => {
@@ -319,13 +329,13 @@ describe("State Storage", () => {
                 count: 1,
                 first: currentTime,
                 last: currentTime,
-                block: blocks2to100[5],
+                block: blocks[5].data,
             };
             await delay(20);
 
-            expect(stateStorage.pingBlock(blocks2to100[5])).toBeTrue();
+            expect(stateStorage.pingBlock(blocks[5].data)).toBeTrue();
             expect(stateStorage.blockPing.count).toBe(2);
-            expect(stateStorage.blockPing.block).toBe(blocks2to100[5]);
+            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
             expect(stateStorage.blockPing.last).toBeGreaterThan(currentTime);
             expect(stateStorage.blockPing.first).toBe(currentTime);
         });
@@ -336,11 +346,11 @@ describe("State Storage", () => {
                 count: 1,
                 first: currentTime,
                 last: currentTime,
-                block: blocks2to100[3],
+                block: blocks[3].data,
             };
-            expect(stateStorage.pingBlock(blocks2to100[5])).toBeFalse();
+            expect(stateStorage.pingBlock(blocks[5].data)).toBeFalse();
             expect(stateStorage.blockPing.count).toBe(1);
-            expect(stateStorage.blockPing.block).toBe(blocks2to100[3]);
+            expect(stateStorage.blockPing.block).toBe(blocks[3].data);
             expect(stateStorage.blockPing.last).toBe(currentTime);
             expect(stateStorage.blockPing.first).toBe(currentTime);
         });
@@ -350,10 +360,10 @@ describe("State Storage", () => {
         it("should push the block provided as blockPing", () => {
             stateStorage.blockPing = undefined;
 
-            stateStorage.pushPingBlock(blocks2to100[5]);
+            stateStorage.pushPingBlock(blocks[5].data);
 
             expect(stateStorage.blockPing).toBeObject();
-            expect(stateStorage.blockPing.block).toBe(blocks2to100[5]);
+            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
             expect(stateStorage.blockPing.count).toBe(1);
         });
 
@@ -362,7 +372,7 @@ describe("State Storage", () => {
                 count: 1,
                 first: new Date().getTime(),
                 last: new Date().getTime(),
-                block: blocks2to100[3],
+                block: blocks[3].data,
             };
 
             const logger = {
@@ -371,11 +381,11 @@ describe("State Storage", () => {
         
             sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
-            stateStorage.pushPingBlock(blocks2to100[5]);
+            stateStorage.pushPingBlock(blocks[5].data);
             const spy = jest.spyOn(logger, "info");
-            expect(spy).toHaveBeenCalledWith(`Previous block ${blocks2to100[3].height.toLocaleString()} pinged blockchain 1 times`);
+            expect(spy).toHaveBeenCalledWith(`Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`);
             expect(stateStorage.blockPing).toBeObject();
-            expect(stateStorage.blockPing.block).toBe(blocks2to100[5]);
+            expect(stateStorage.blockPing.block).toBe(blocks[5].data);
             expect(stateStorage.blockPing.count).toBe(1);
         });
     });
