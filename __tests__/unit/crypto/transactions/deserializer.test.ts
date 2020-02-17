@@ -1,7 +1,6 @@
 import "jest-extended";
 
 import ByteBuffer from "bytebuffer";
-import Long from "long";
 import { Enums, Errors, Utils } from "../../../../packages/crypto/src";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import {
@@ -17,8 +16,8 @@ import { TransactionFactory, Utils as TransactionUtils, Verifier } from "../../.
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { Deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
+import { htlcSecretHashHex, htlcSecretHex } from "../../../utils/fixtures";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
-import { htlcSecretHex, htlcSecretHashHex } from "../../../utils/fixtures";
 
 configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
 
@@ -501,9 +500,11 @@ describe("Transaction serializer / Deserializer", () => {
                 buffer.writeByte(transaction.network);
                 buffer.writeUint32(Enums.TransactionTypeGroup.Core);
                 buffer.writeUint16(transaction.type);
-                buffer.writeUint64(Long.fromString(transaction.nonce.toFixed()));
+                // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+                buffer.writeUint64(transaction.nonce.toString());
                 buffer.append(transaction.senderPublicKey, "hex");
-                buffer.writeUint64(Long.fromString(Utils.BigNumber.make(transaction.fee).toFixed()));
+                // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+                buffer.writeUint64(Utils.BigNumber.make(transaction.fee).toString());
                 buffer.writeByte(0x00);
 
                 return Buffer.from(buffer.flip().toBuffer());
