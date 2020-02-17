@@ -33,16 +33,26 @@ export const updateEnvironmentVariables = (envFile: string, variables: Environme
 };
 
 export const getCliConfig = (
-    options: Record<string, any>,
+    flags: Record<string, any>,
     paths: envPaths.Paths,
     defaultValue = {},
 ): Record<string, any> => {
-    const configPath: string = `${paths.config}/app.js`;
-    if (!existsSync(configPath)) {
+    const configPaths: string[] = [`${paths.config}/app.js`, resolve(__dirname, `../bin/config/${flags.network}/app.js`)];
+
+    let configPath: string;
+    for (const path of configPaths) {
+        if (existsSync(path)) {
+            configPath = path;
+
+            break;
+        }
+    }
+
+    if (!configPath) {
         return defaultValue;
     }
 
-    const key: string = `cli.${options.suffix}.run.plugins`;
+    const key: string = `cli.${flags.suffix}.run.plugins`;
     const configuration = require(resolve(configPath));
     if (!dottie.exists(configuration, key)) {
         return defaultValue;
