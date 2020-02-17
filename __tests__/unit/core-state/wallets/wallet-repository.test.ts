@@ -49,9 +49,13 @@ beforeAll(() => {
         .to(WalletRepository);
 
     walletRepo = sandbox.app
-        .get<any>(Container.Identifiers.WalletRepository);
+        .get(Container.Identifiers.WalletRepository);
 
     Managers.configManager.setFromPreset("testnet");
+});
+
+beforeEach(() => {
+    walletRepo.reset();
 });
 
 describe("Wallet Repository", () => {
@@ -59,5 +63,22 @@ describe("Wallet Repository", () => {
         const wallet = walletRepo.createWallet("abcd");
         expect(wallet.address).toEqual("abcd");
         expect(wallet).toBeInstanceOf(Wallet);
+    });
+
+    it("should be able to look up indexers", () => {
+        const expected = [
+            'addresses',
+            'publicKeys',
+            'usernames',
+            'resignations',
+            'locks',
+            'ipfs'
+        ];
+        expect(walletRepo.getIndexNames()).toEqual(expected);
+    });
+
+    it("should get wallets by address", () => {
+        const wallet = walletRepo.createWallet("abcd");
+        expect(walletRepo.findByAddress("abcd")).toEqual(wallet);
     });
 });
