@@ -103,7 +103,7 @@ describe("Wallet Repository", () => {
          * TODO: Is this desired behaviour?
          * I would expect that searching by address, we should be able to retrieve a wallet 
          * with a publicKey which has already been updated/set. Currently each indexer (e.g publicKeyIndexer, 
-         * addressIndexer) does not share the same instance of a WalletIndex. This has the effect that if a publicKey is set on the publicKeyIndexer, if we then look up the same wallet by Address, the publicKey does not appear on the wallet.
+         * addressIndexer) does not share the same instance of a WalletIndex. This has the effect that if a publicKey is set on the publicKeyIndexer, if we then look up the same wallet by Address (using the addressIndexer), the publicKey does not appear on that wallet.
          * 
          */
         expect(walletRepo.findByAddress("abcd").publicKey).toBeUndefined();
