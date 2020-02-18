@@ -79,11 +79,6 @@ describe("Wallet Repository", () => {
         expect(walletRepo.getIndex("ipfs").indexer).toEqual(ipfsIndexer);
     });
 
-    it("should get wallets by address", () => {
-        const wallet = walletRepo.createWallet("abcd");
-        expect(walletRepo.findByAddress("abcd")).toEqual(wallet);
-    });
-
     it("should have to use the correct indexer to interact with and update wallet", () => {
         const wallet = walletRepo.createWallet("abcd");
         const publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
@@ -110,10 +105,63 @@ describe("Wallet Repository", () => {
         expect(walletRepo.findByAddress("abcd")).not.toEqual(wallet);
     });
 
+    it("should get wallets by address", () => {
+        const wallet = walletRepo.createWallet("abcd");
+        expect(walletRepo.findByAddress("abcd")).toEqual(wallet);
+        expect(walletRepo.findByIndex("addresses", "abcd")).toEqual(wallet);
+    });
+
+    /**
+     * TODO: Check this is desired behaviour.
+     * findByUsername (and corresponding findByIndex/findByIndexes) methods throw if it doesn't exist, 
+     * where as findByAddress and findByPublicKey can be used for wallet creation.
+     */
+    it("should create a wallet if one is not found during address lookup", () => {
+        expect(() => walletRepo.findByAddress("hello")).not.toThrow();
+        expect(walletRepo.findByAddress("iDontExist")).toBeInstanceOf(Wallet);
+
+        /**
+         * TODO: check this is desired behaviour
+         * Looking up a non-existing address by findByAddress creates a wallet.
+         * However looking up a non-existing address using findByIndex() does not.
+         */
+        const errorMessage = "Wallet iAlsoDontExist doesn't exist in index addresses";
+        expect(() => walletRepo.findByIndex("addresses", "iAlsoDontExist")).toThrow(errorMessage);
+    });
+
     it("should get wallets by public key", () => {
         const wallet = walletRepo.createWallet("abcde")
         const publicKey = "02337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
         walletRepo.getIndex("publicKeys").set(publicKey, wallet);
         expect(walletRepo.findByPublicKey(publicKey)).toEqual(wallet);
+        expect(walletRepo.findByIndex("publicKeys", publicKey)).toEqual(wallet);
+    });
+
+
+    it("should create a wallet if one is not found during public key lookup", () => {
+        const firstNotYetExistingPublicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
+        expect(() => walletRepo.findByPublicKey(firstNotYetExistingPublicKey)).not.toThrow();
+        expect(walletRepo.findByPublicKey(firstNotYetExistingPublicKey)).toBeInstanceOf(Wallet);
+
+        /**
+         * TODO: check this is desired behaviour
+         * Looking up a non-existing publicKey by findByPublicKey creates a wallet.
+         * However looking up a non-existing publicKey using findByIndex() does not.
+         */
+        const secondNotYetExistingPublicKey = "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
+        expect(() => walletRepo.findByIndex("publicKeys", secondNotYetExistingPublicKey)).toThrow();
+    });
+
+    it("should get wallets by username", () => {
+        const wallet = walletRepo.createWallet("abcdef")
+        walletRepo.getIndex("usernames").set("testUsername", wallet);
+        expect(walletRepo.findByUsername("testUsername")).toEqual(wallet);
+        expect(walletRepo.findByIndex("usernames", "testUsername")).toEqual(wallet);
+    });
+
+    // TODO: pull this error out into specific error class/type
+    it("should throw when looking up a username which doesn't exist", () => {
+        expect(() => walletRepo.findByUsername("iDontExist")).toThrowError("Wallet iDontExist doesn't exist in index usernames");
+        expect(() => walletRepo.findByIndex("usernames", "iDontExist")).toThrowError("Wallet iDontExist doesn't exist in index usernames");
     });
 });
