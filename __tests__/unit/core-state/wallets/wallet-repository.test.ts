@@ -106,9 +106,18 @@ describe("Wallet Repository", () => {
     });
 
     it("should get wallets by address", () => {
-        const wallet = walletRepo.createWallet("abcd");
-        expect(walletRepo.findByAddress("abcd")).toEqual(wallet);
-        expect(walletRepo.findByIndex("addresses", "abcd")).toEqual(wallet);
+        const address = "abcd";
+        const wallet = walletRepo.createWallet(address);
+        expect(walletRepo.findByAddress(address)).toEqual(wallet);
+        expect(walletRepo.findByIndex("addresses", address)).toEqual(wallet);
+
+        const nonExistingAddress = "abcde";
+        expect(walletRepo.has(address)).toBeTrue();
+        expect(walletRepo.has(nonExistingAddress)).toBeFalse();
+        expect(walletRepo.hasByAddress(address)).toBeTrue();
+        expect(walletRepo.hasByAddress(nonExistingAddress)).toBeFalse();
+        expect(walletRepo.hasByIndex("addresses", address)).toBeTrue();
+        expect(walletRepo.hasByIndex("addresses", nonExistingAddress)).toBeFalse();
     });
 
     /**
@@ -119,7 +128,8 @@ describe("Wallet Repository", () => {
     it("should create a wallet if one is not found during address lookup", () => {
         expect(() => walletRepo.findByAddress("hello")).not.toThrow();
         expect(walletRepo.findByAddress("iDontExist")).toBeInstanceOf(Wallet);
-
+        expect(walletRepo.has("hello")).toBeTrue();
+        expect(walletRepo.hasByAddress('iDontExist')).toBeTrue();
         /**
          * TODO: check this is desired behaviour
          * Looking up a non-existing address by findByAddress creates a wallet.
@@ -135,8 +145,16 @@ describe("Wallet Repository", () => {
         walletRepo.getIndex("publicKeys").set(publicKey, wallet);
         expect(walletRepo.findByPublicKey(publicKey)).toEqual(wallet);
         expect(walletRepo.findByIndex("publicKeys", publicKey)).toEqual(wallet);
-    });
+        
+        const nonExistingPublicKey = "98727416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
 
+        expect(walletRepo.has(publicKey)).toBeTrue();
+        expect(walletRepo.has(nonExistingPublicKey)).toBeFalse();
+        expect(walletRepo.hasByPublicKey(publicKey)).toBeTrue();
+        expect(walletRepo.hasByPublicKey(nonExistingPublicKey)).toBeFalse();
+        expect(walletRepo.hasByIndex("publicKeys", publicKey)).toBeTrue();
+        expect(walletRepo.hasByIndex("publicKeys", nonExistingPublicKey)).toBeFalse();
+    });
 
     it("should create a wallet if one is not found during public key lookup", () => {
         const firstNotYetExistingPublicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
@@ -153,10 +171,19 @@ describe("Wallet Repository", () => {
     });
 
     it("should get wallets by username", () => {
+        const username = "testUsername";
         const wallet = walletRepo.createWallet("abcdef")
-        walletRepo.getIndex("usernames").set("testUsername", wallet);
-        expect(walletRepo.findByUsername("testUsername")).toEqual(wallet);
-        expect(walletRepo.findByIndex("usernames", "testUsername")).toEqual(wallet);
+        walletRepo.getIndex("usernames").set(username, wallet);
+        expect(walletRepo.findByUsername(username)).toEqual(wallet);
+        expect(walletRepo.findByIndex("usernames", username)).toEqual(wallet);
+
+        const nonExistingUsername = "iDontExistAgain";
+        expect(walletRepo.has(username)).toBeTrue();
+        expect(walletRepo.has(nonExistingUsername)).toBeFalse();
+        expect(walletRepo.hasByUsername(username)).toBeTrue();
+        expect(walletRepo.hasByUsername(nonExistingUsername)).toBeFalse();
+        expect(walletRepo.hasByIndex("usernames", username)).toBeTrue();
+        expect(walletRepo.hasByIndex("usernames", nonExistingUsername)).toBeFalse();
     });
 
     // TODO: pull this error out into specific error class/type
