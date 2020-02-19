@@ -58,12 +58,12 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         throw new LegacyMultiSignatureError();
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        return false;
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        throw new Contracts.TransactionPool.PoolError(
+            `Deprecated multi-signature registration`,
+            "ERR_DEPRECATED",
+            transaction,
+        );
     }
 
     public async applyToRecipient(

@@ -83,6 +83,10 @@ export const Identifiers = {
     TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
     TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
     TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
+    TransactionPoolQuery: Symbol.for("TransactionPool<Query>"),
+    TransactionPoolDynamicFeeMatcher: Symbol.for("TransactionPool<DynamicFeeMatcher>"),
+    TransactionPoolProcessor: Symbol.for("TransactionPool<Processor>"),
+    TransactionPoolProcessorFactory: Symbol.for("TransactionPool<ProcessorFactory>"),
 
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),

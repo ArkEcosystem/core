@@ -1,25 +1,18 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-// todo: check if this interface is still needed or if we can ditch it.
+export type ProcessorError = {
+    type: string;
+    message: string;
+};
+
 export interface Processor {
-    validate(transactions: Interfaces.ITransactionData[]): Promise<ProcessorResult>;
-
-    getTransactions(): Interfaces.ITransactionData[];
-    getBroadcastTransactions(): Interfaces.ITransaction[];
-    getErrors(): { [key: string]: TransactionErrorResponse[] };
-
-    pushError(transaction: Interfaces.ITransactionData, type: string, message: string): void;
-}
-
-export interface ProcessorResult {
     accept: string[];
     broadcast: string[];
     invalid: string[];
     excess: string[];
-    errors: { [key: string]: TransactionErrorResponse[] } | undefined;
+    errors?: { [id: string]: ProcessorError };
+
+    process(data: Interfaces.ITransactionData[]): Promise<void>;
 }
 
-export interface TransactionErrorResponse {
-    type: string;
-    message: string;
-}
+export type ProcessorFactory = () => Processor;

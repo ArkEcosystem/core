@@ -175,19 +175,7 @@ export abstract class TransactionHandler {
     /**
      * Transaction Pool logic
      */
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        processor.pushError(
-            data,
-            "ERR_UNSUPPORTED",
-            `Invalidating transaction of unsupported type '${Enums.TransactionType[data.type]}'`,
-        );
-
-        return false;
-    }
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {}
 
     /**
      * @param {Contracts.State.Wallet} wallet
@@ -205,30 +193,6 @@ export abstract class TransactionHandler {
             transaction,
             multiSignature || wallet.getAttribute("multiSignature"),
         );
-    }
-
-    protected async typeFromSenderAlreadyInPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        AppUtils.assert.defined<string>(data.type);
-        AppUtils.assert.defined<string>(data.senderPublicKey);
-
-        const type: number = data.type;
-        const senderPublicKey: string = data.senderPublicKey;
-
-        if (await pool.senderHasTransactionsOfType(senderPublicKey, type)) {
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Sender ${senderPublicKey} already has a transaction of type '${Enums.TransactionType[type]}' in the pool`,
-            );
-
-            return true;
-        }
-
-        return false;
     }
 
     protected getTransactionReader(): TransactionReader {

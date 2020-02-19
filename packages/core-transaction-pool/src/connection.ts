@@ -1,11 +1,21 @@
 import { Container, Contracts, Enums as AppEnums, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { strictEqual } from "assert";
 import differenceWith from "lodash.differencewith";
 
 import { Cleaner } from "./cleaner";
-import { TransactionsProcessed } from "./interfaces";
+import {
+    SenderExceededMaximumTransactionCountError,
+    TransactionAlreadyInPoolError,
+    TransactionExceedsMaximumByteSizeError,
+    TransactionFailedToApplyError,
+    TransactionFailedToVerifyError,
+    TransactionFromFutureError,
+    TransactionFromWrongNetworkError,
+    TransactionHasExpiredError,
+    TransactionPoolFullError,
+} from "./errors";
 import { PurgeInvalidTransactions } from "./listeners";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
@@ -101,7 +111,13 @@ export class Connection implements Contracts.TransactionPool.Connection {
     @Container.inject(Container.Identifiers.TransactionValidatorFactory)
     private readonly createTransactionValidator!: Contracts.State.TransactionValidatorFactory;
 
-    private readonly loggedAllowedSenders: string[] = [];
+    /**
+     * @private
+     * @type {Contracts.State.StateStore}
+     * @memberof Connection
+     */
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly stateStore!: Contracts.State.StateStore;
 
     /**
      * @returns {Promise<this>}
@@ -130,22 +146,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     /**
-     * @param {number} type
-     * @param {number} [typeGroup]
-     * @returns {Promise<Set<Interfaces.ITransaction>>}
-     * @memberof Connection
-     */
-    public async getTransactionsByType(type: number, typeGroup?: number): Promise<Set<Interfaces.ITransaction>> {
-        if (typeGroup === undefined) {
-            typeGroup = Enums.TransactionTypeGroup.Core;
-        }
-
-        await this.cleaner.purgeExpired();
-
-        return this.memory.getByType(type, typeGroup);
-    }
-
-    /**
      * @returns {Promise<number>}
      * @memberof Connection
      */
@@ -164,32 +164,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
         await this.cleaner.purgeExpired();
 
         return this.memory.getBySender(senderPublicKey).size;
-    }
-
-    /**
-     * @param {Interfaces.ITransaction[]} transactions
-     * @returns {Promise<TransactionsProcessed>}
-     * @memberof Connection
-     */
-    public async addTransactions(transactions: Interfaces.ITransaction[]): Promise<TransactionsProcessed> {
-        const added: Interfaces.ITransaction[] = [];
-        const notAdded: Contracts.TransactionPool.AddTransactionResponse[] = [];
-
-        for (const transaction of transactions) {
-            const result: Contracts.TransactionPool.AddTransactionResponse = await this.addTransaction(transaction);
-
-            result.message ? notAdded.push(result) : added.push(transaction);
-        }
-
-        if (added.length > 0) {
-            this.emitter.dispatch(AppEnums.TransactionEvent.AddedToPool, added);
-        }
-
-        if (notAdded.length > 0) {
-            this.emitter.dispatch(AppEnums.TransactionEvent.RejectedByPool, notAdded);
-        }
-
-        return { added, notAdded };
     }
 
     /**
@@ -243,34 +217,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
     public async getTransactions(start: number, size: number): Promise<Interfaces.ITransaction[]> {
         await this.cleaner.purgeExpired();
         return this.memory.allSortedByFee().slice(start, size);
-    }
-
-    /**
-     * todo: move this to a more appropriate place @param {string} senderPublicKey
-     *
-     * @returns {Promise<boolean>}
-     * @memberof Connection
-     */
-    public async hasExceededMaxTransactions(senderPublicKey: string): Promise<boolean> {
-        await this.cleaner.purgeExpired();
-
-        if (this.configuration.getOptional<string[]>("allowedSenders", []).includes(senderPublicKey)) {
-            if (!this.loggedAllowedSenders.includes(senderPublicKey)) {
-                this.logger.debug(
-                    `Transaction pool: allowing sender public key ${senderPublicKey} ` +
-                        `(listed in options.allowedSenders), thus skipping throttling.`,
-                );
-
-                this.loggedAllowedSenders.push(senderPublicKey);
-            }
-
-            return false;
-        }
-
-        return (
-            this.memory.getBySender(senderPublicKey).size >=
-            this.configuration.getRequired<number>("maxTransactionsPerSender")
-        );
     }
 
     /**
@@ -396,36 +342,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
     }
 
     /**
-     * @param {string} senderPublicKey
-     * @param {number} type
-     * @param {number} [typeGroup]
-     * @returns {Promise<boolean>}
-     * @memberof Connection
-     */
-    public async senderHasTransactionsOfType(
-        senderPublicKey: string,
-        type: number,
-        typeGroup?: number,
-    ): Promise<boolean> {
-        await this.cleaner.purgeExpired();
-
-        if (typeGroup === undefined) {
-            typeGroup = Enums.TransactionTypeGroup.Core;
-        }
-
-        for (const transaction of this.memory.getBySender(senderPublicKey)) {
-            const transactionGroup: number =
-                transaction.typeGroup === undefined ? Enums.TransactionTypeGroup.Core : transaction.typeGroup;
-
-            if (transaction.type === type && transactionGroup === typeGroup) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * @param {Interfaces.ITransaction[]} transactions
      * @returns {Promise<void>}
      * @memberof Connection
@@ -455,23 +371,52 @@ export class Connection implements Contracts.TransactionPool.Connection {
      * @returns {Promise<Contracts.TransactionPool.AddTransactionResponse>}
      * @memberof Connection
      */
-    private async addTransaction(
-        transaction: Interfaces.ITransaction,
-    ): Promise<Contracts.TransactionPool.AddTransactionResponse> {
+    public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.id);
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         if (await this.has(transaction.id)) {
-            this.logger.debug(
-                "Transaction pool: ignoring attempt to add a transaction that is already " +
-                    `in the pool, id: ${transaction.id}`,
-            );
-
-            return { transaction, type: "ERR_ALREADY_IN_POOL", message: "Already in pool" };
+            throw new TransactionAlreadyInPoolError(transaction);
         }
 
-        const poolSize: number = this.memory.count();
+        const maxTransactionBytes: number = this.configuration.getRequired<number>("maxTransactionBytes");
+        if (JSON.stringify(transaction).length > maxTransactionBytes) {
+            throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
+        }
 
-        if (this.configuration.getRequired<number>("maxTransactionsInPool") <= poolSize) {
+        const currentNetwork: number = Managers.configManager.get<number>("network.pubKeyHash");
+        if (transaction.data.network && transaction.data.network !== currentNetwork) {
+            throw new TransactionFromWrongNetworkError(transaction, currentNetwork);
+        }
+
+        const now: number = Crypto.Slots.getTime();
+        if (transaction.timestamp > now + 3600) {
+            const secondsInFuture: number = transaction.timestamp - now;
+            throw new TransactionFromFutureError(transaction, secondsInFuture);
+        }
+
+        const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
+        const currentHeight: number = this.stateStore.getLastHeight();
+        const blockTime: number = Managers.configManager.getMilestone(currentHeight).blocktime;
+        const expirationContext = { blockTime, currentHeight, now, maxTransactionAge };
+        const expiration: number | undefined = AppUtils.expirationCalculator.calculateTransactionExpiration(
+            transaction.data,
+            expirationContext,
+        );
+        if (expiration !== undefined && expiration <= currentHeight + 1) {
+            throw new TransactionHasExpiredError(transaction, currentHeight + 1 - expiration);
+        }
+
+        const maxTransactionsPerSender: number = this.configuration.getRequired<number>("maxTransactionsPerSender");
+        if (this.memory.getBySender(transaction.data.senderPublicKey).size >= maxTransactionsPerSender) {
+            const allowedSenders: string[] = this.configuration.getOptional<string[]>("allowedSenders", []);
+            if (allowedSenders.includes(transaction.data.senderPublicKey) === false) {
+                throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
+            }
+        }
+
+        const maxTransactionsInPool: number = this.configuration.getRequired<number>("maxTransactionsInPool");
+        if (this.memory.count() >= maxTransactionsInPool) {
             // The pool can't accommodate more transactions. Either decline the newcomer or remove
             // an existing transaction from the pool in order to free up space.
             const all: Interfaces.ITransaction[] = this.memory.allSortedByFee();
@@ -488,19 +433,9 @@ export class Connection implements Contracts.TransactionPool.Connection {
                 this.memory.forget(lowest.id, lowest.data.senderPublicKey);
                 this.storage.delete(lowest.id);
             } else {
-                return {
-                    transaction,
-                    type: "ERR_POOL_FULL",
-                    message:
-                        `Pool is full (has ${poolSize} transactions) and this transaction's fee ` +
-                        `${fee.toFixed()} is not higher than the lowest fee already in pool ` +
-                        `${lowestFee.toFixed()}`,
-                };
+                throw new TransactionPoolFullError(transaction, lowestFee);
             }
         }
-
-        this.memory.remember(transaction);
-        this.storage.add(transaction);
 
         try {
             AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
@@ -508,20 +443,21 @@ export class Connection implements Contracts.TransactionPool.Connection {
             const transactionHandler = await this.blockchainHandlerRegistry.getActivatedHandlerForData(
                 transaction.data,
             );
-            await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet);
-            await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
+
+            if (await transactionHandler.verify(transaction, this.poolWalletRepository)) {
+                await transactionHandler.throwIfCannotEnterPool(transaction);
+                await transactionHandler.throwIfCannotBeApplied(transaction, senderWallet);
+                await transactionHandler.applyToSender(transaction, this.poolWalletRepository);
+            } else {
+                throw new TransactionFailedToVerifyError(transaction);
+            }
+
+            this.memory.remember(transaction);
+            this.storage.add(transaction);
         } catch (error) {
-            this.logger.error(`[Pool] ${error.message}`);
-
-            AppUtils.assert.defined<string>(transaction.id);
-
-            this.memory.forget(transaction.id);
-            this.storage.delete(transaction.id);
-
-            return { transaction, type: "ERR_APPLY", message: error.message };
+            this.logger.debug(error.stack);
+            throw new TransactionFailedToApplyError(transaction, error);
         }
-
-        return {};
     }
 
     /**
