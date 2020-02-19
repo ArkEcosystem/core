@@ -78,6 +78,7 @@ export const Identifiers = {
     PeerNetworkMonitor: Symbol.for("Peer<NetworkMonitor>"),
     PeerProcessor: Symbol.for("Peer<Processor>"),
     PeerStorage: Symbol.for("Peer<Storage>"),
+    PeerTransactionBroadcaster: Symbol.for("Peer<TransactionBroadcaster>"),
     // Transaction Pool
     TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
     TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),

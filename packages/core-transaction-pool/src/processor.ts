@@ -11,20 +11,21 @@ export class Processor implements Contracts.TransactionPool.Processor {
     public excess: string[] = [];
     public errors?: { [id: string]: Contracts.TransactionPool.ProcessorError };
 
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly pool!: Contracts.TransactionPool.Connection;
-
-    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
-    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
     @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
     private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
 
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
+    @Container.inject(Container.Identifiers.PeerTransactionBroadcaster)
+    @Container.optional()
+    private readonly transactionBroadcaster!: Contracts.P2P.TransactionBroadcaster | undefined;
 
     public async process(data: Interfaces.ITransactionData[]): Promise<void> {
-        const broadcastable: Interfaces.ITransaction[] = [];
+        const broadcastableTransactions: Interfaces.ITransaction[] = [];
         const transactions = data.map(d => Transactions.TransactionFactory.fromData(d));
 
         try {
@@ -36,7 +37,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
                         await this.pool.addTransaction(transaction);
                         this.accept.push(transaction.id);
                         if (await this.dynamicFeeMatcher.canBroadcast(transaction)) {
-                            broadcastable.push(transaction);
+                            broadcastableTransactions.push(transaction);
                         }
                     } else {
                         throw new TransactionFeeToLowError(transaction);
@@ -62,9 +63,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
                 }
             }
         } finally {
-            if (broadcastable.length !== 0) {
-                await this.networkMonitor.broadcastTransactions(broadcastable);
-                for (const transaction of broadcastable) {
+            if (this.transactionBroadcaster && broadcastableTransactions.length !== 0) {
+                await this.transactionBroadcaster.broadcastTransactions(broadcastableTransactions);
+                for (const transaction of broadcastableTransactions) {
                     AppUtils.assert.defined<string>(transaction.id);
                     this.broadcast.push(transaction.id);
                 }

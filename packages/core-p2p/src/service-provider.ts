@@ -9,6 +9,7 @@ import { PeerProcessor } from "./peer-processor";
 import { PeerStorage } from "./peer-storage";
 import { startSocketServer } from "./socket-server";
 import { payloadProcessor } from "./socket-server/payload-processor";
+import { TransactionBroadcaster } from "./transaction-broadcaster";
 
 export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
@@ -87,5 +88,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind("p2p.event-listener")
             .to(EventListener)
             .inSingletonScope();
+
+        this.app.bind(Container.Identifiers.PeerTransactionBroadcaster).to(TransactionBroadcaster);
     }
 }
