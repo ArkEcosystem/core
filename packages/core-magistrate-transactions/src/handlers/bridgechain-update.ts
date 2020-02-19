@@ -99,7 +99,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
     public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const bridgechainId: string = transaction.data.asset!.bridgechainResignation.bridgechainId;
+        const bridgechainId: string = transaction.data.asset!.bridgechainUpdate.bridgechainId;
         const hasUpdate: boolean = this.poolQuery
             .getAllBySender(transaction.data.senderPublicKey)
             .whereKind(transaction)
