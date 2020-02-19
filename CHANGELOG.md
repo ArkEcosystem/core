@@ -868,6 +868,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.9]: https://github.com/ARKEcosystem/core/compare/2.6.1...2.6.9
 [2.6.1]: https://github.com/ARKEcosystem/core/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.38...2.6.0
 [2.5.38]: https://github.com/ARKEcosystem/core/compare/2.5.37...2.5.38
