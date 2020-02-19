@@ -114,14 +114,6 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         emitter.dispatch(MagistrateApplicationEvents.BridgechainRegistered, transaction.data);
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        return true;
-    }
-
     public async applyToSender(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,

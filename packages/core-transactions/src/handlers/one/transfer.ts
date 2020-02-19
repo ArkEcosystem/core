@@ -40,27 +40,18 @@ export class TransferTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        Utils.assert.defined<string>(data.recipientId);
-
-        const recipientId: string = data.recipientId;
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.recipientId);
+        const recipientId: string = transaction.data.recipientId;
 
         if (!isRecipientOnActiveNetwork(recipientId)) {
-            processor.pushError(
-                data,
+            const network: string = Managers.configManager.get<string>("network.pubKeyHash");
+            throw new Contracts.TransactionPool.PoolError(
+                `Recipient ${recipientId} is not on the same network: ${network} `,
                 "ERR_INVALID_RECIPIENT",
-                `Recipient ${data.recipientId} is not on the same network: ${Managers.configManager.get(
-                    "network.pubKeyHash",
-                )}`,
+                transaction,
             );
-            return false;
         }
-
-        return true;
     }
 
     public async applyToRecipient(

@@ -59,14 +59,6 @@ export class MultiPaymentTransactionHandler extends TransactionHandler {
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        return true;
-    }
-
     public async applyToSender(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository,
