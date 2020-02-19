@@ -125,13 +125,22 @@ describe("Wallet Repository", () => {
             expect(() => walletRepo.findByScope("doesNotExist" as any, "1")).toThrowError(`Unknown scope doesNotExist`);
         });
 
-        it("should retrieve existing wallet when searching WalletScope", () => {
+        it("should retrieve existing wallet when searching Wallet Scope", () => {
             const wallet = walletRepo.createWallet("abcd");
             walletRepo.reindex(wallet);
 
             expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).not.toThrow();
             expect(walletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(wallet);
+        });
 
+        it("should retrieve existing wallet when searching Delegate Scope", () => {
+            const wallet = walletRepo.createWallet("abcd");
+            walletRepo.reindex(wallet);
+
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
+
+            wallet.setAttribute("delegate", true);
+            expect(walletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toEqual(wallet);
         });
     });
 
