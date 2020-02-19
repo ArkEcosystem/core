@@ -1,5 +1,6 @@
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
-import { Container, Contracts, Utils, Providers } from "@arkecosystem/core-kernel";
+
 import { PeerCommunicator } from "./peer-communicator";
 
 @Container.injectable()
@@ -18,6 +19,11 @@ export class TransactionBroadcaster implements Contracts.P2P.TransactionBroadcas
     private readonly communicator!: PeerCommunicator;
 
     public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void> {
+        if (transactions.length === 0) {
+            this.logger.warning("Broadcasting 0 transactions");
+            return;
+        }
+
         const maxPeersBroadcast: number = this.configuration.getRequired<number>("maxPeersBroadcast");
         const peers: Contracts.P2P.Peer[] = Utils.take(Utils.shuffle(this.storage.getPeers()), maxPeersBroadcast);
 
