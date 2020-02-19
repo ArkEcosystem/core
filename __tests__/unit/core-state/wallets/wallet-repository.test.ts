@@ -1,5 +1,5 @@
 import "jest-extended";
-import { Container, Providers, Services } from "@arkecosystem/core-kernel";
+import { Container, Providers, Services, Contracts } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
 
 import { Managers } from "@arkecosystem/crypto";
@@ -17,7 +17,36 @@ beforeAll(() => {
 
     sandbox.app
         .bind(Container.Identifiers.WalletAttributes)
-        .to(Services.Attributes.AttributeSet);
+        .to(Services.Attributes.AttributeSet)
+        .inSingletonScope();
+
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("delegate");
+    
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("delegate.username");
+
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("delegate.resigned");
+
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("htlc");
+    
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("htlc.locks");
+
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("ipfs");
+    
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("ipfs.hashes");
 
     registerIndexers(sandbox.app);
     registerFactories(sandbox.app);
@@ -77,6 +106,33 @@ describe("Wallet Repository", () => {
         expect(walletRepo.getIndex("resignations").indexer).toEqual(resignationsIndexer);
         expect(walletRepo.getIndex("locks").indexer).toEqual(locksIndexer);
         expect(walletRepo.getIndex("ipfs").indexer).toEqual(ipfsIndexer);
+    });
+
+    describe("search", () => {
+        it("should throw is no wallet exists", () => {
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
+        });
+
+        // TODO: is this expected behaviour that you cannot search by these scopes
+        it("should throw when looking up via bridgechain, business or locks scope", () => {
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Bridgechains, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Bridgechains}`);
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Businesses, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Businesses}`);
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Locks}`);
+        });
+
+        it("should throw when looking up via an unknown search scope", () => {
+            expect(() => walletRepo.findByScope("doesNotExist" as any, "1")).toThrowError(`Unknown scope doesNotExist`);
+        });
+
+        it("should retrieve existing wallet when searching WalletScope", () => {
+            const wallet = walletRepo.createWallet("abcd");
+            walletRepo.reindex(wallet);
+
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).not.toThrow();
+            expect(walletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(wallet);
+
+        });
     });
 
     it("should have to use the correct indexer to interact with and update wallet", () => {
