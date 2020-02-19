@@ -63,8 +63,6 @@ export abstract class TransactionHandler {
         return Utils.BigNumber.make(addonBytes + transactionSizeInBytes).times(satoshiPerByte);
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {}
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
@@ -173,6 +171,11 @@ export abstract class TransactionHandler {
      * Database Service
      */
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {}
+
+    /**
+     * Transaction Pool logic
+     */
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {}
 
     /**
      * @param {Contracts.State.Wallet} wallet

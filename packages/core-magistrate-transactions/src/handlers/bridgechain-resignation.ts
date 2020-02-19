@@ -53,23 +53,6 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         }
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const bridgechainId = transaction.data.asset!.bridgechainResignation.bridgechainId;
-
-        const duplicate = this.poolQuery
-            .allFromSender(transaction.data.senderPublicKey)
-            .whereKind(transaction)
-            .wherePredicate(t => t.data.asset!.bridgechainResignation.bridgechainId === bridgechainId)
-            .has();
-
-        if (duplicate) {
-            // also thrown during apply
-            throw new BusinessIsResignedError();
-        }
-    }
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -112,6 +95,25 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BridgechainResigned, transaction.data);
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const bridgechainId: string = transaction.data.asset!.bridgechainResignation.bridgechainId;
+        const hasResignation: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset?.bridgechainResignation.bridgechainId === bridgechainId)
+            .has();
+
+        if (hasResignation) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Bridgechain resignation for bridgechainId "${bridgechainId}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
     }
 
     public async applyToSender(

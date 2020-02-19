@@ -326,7 +326,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         await this.blockRepository.deleteBlocks(removedBlocks);
 
         if (this.transactionPool) {
-            this.transactionPool.replay(removedTransactions.reverse());
+            this.transactionPool.rebuild(removedTransactions.reverse());
         }
     }
 

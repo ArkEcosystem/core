@@ -1,4 +1,5 @@
 export * from "./collator";
+export * from "./dynamic-fee-matcher";
 export * from "./errors";
 export * from "./memory";
 export * from "./processor";

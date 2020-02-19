@@ -1,21 +1,20 @@
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces } from "@arkecosystem/crypto";
 
-export type Predicate = (transaction: Interfaces.ITransaction) => boolean;
+export type QueryPredicate = (transaction: Interfaces.ITransaction) => boolean;
 
 export interface Query {
-    all(): QueryIterable;
-    allFromLowestPriority(): QueryIterable;
-    allFromHighestPriority(): QueryIterable;
-    allFromSender(senderPublicKey: string): QueryIterable;
+    getAll(): QueryIterable;
+    getAllBySender(senderPublicKey: string): QueryIterable;
+    getAllFromLowestPriority(): QueryIterable;
+    getAllFromHighestPriority(): QueryIterable;
 }
 
 export interface QueryIterable extends Iterable<Interfaces.ITransaction> {
-    wherePredicate(predicate: Predicate): QueryIterable;
+    wherePredicate(predicate: QueryPredicate): QueryIterable;
     whereId(id: string): QueryIterable;
-    whereType(type: number): QueryIterable;
-    whereTypeGroup(typeGroup: number): QueryIterable;
+    whereType(type: Enums.TransactionType): QueryIterable;
+    whereTypeGroup(typeGroup: Enums.TransactionTypeGroup): QueryIterable;
     whereVersion(version: number): QueryIterable;
-    whereInternalType(internalType: Transactions.InternalTransactionType): QueryIterable;
     whereKind(transaction: Interfaces.ITransaction): QueryIterable;
 
     has(): boolean;

@@ -37,13 +37,8 @@ export class AcceptBlockHandler implements BlockHandler {
             }
 
             if (this.transactionPool) {
-                try {
-                    for (const transaction of block.transactions) {
-                        await this.transactionPool.accept(transaction);
-                    }
-                } catch (error) {
-                    this.logger.warning("Issue applying block to transaction pool");
-                    this.logger.debug(error.stack);
+                for (const transaction of block.transactions) {
+                    this.transactionPool.acceptForgedTransaction(transaction);
                 }
             }
 

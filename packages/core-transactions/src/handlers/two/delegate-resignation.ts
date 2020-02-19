@@ -39,20 +39,6 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         return Managers.configManager.getMilestone().aip11 === true;
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const sameKind = this.poolQuery
-            .allFromSender(transaction.data.senderPublicKey)
-            .whereKind(transaction)
-            .has();
-
-        if (sameKind) {
-            // also thrown during apply
-            throw new WalletAlreadyResignedError();
-        }
-    }
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -80,6 +66,27 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(Enums.DelegateEvent.Resigned, transaction.data);
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const hasSender: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .has();
+
+        if (hasSender) {
+            // @ts-ignore
+            const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
+            throw new Contracts.TransactionPool.PoolError(
+                `Delegate resignation for "${wallet.getAttribute("delegate.username")}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
     }
 
     public async applyToSender(

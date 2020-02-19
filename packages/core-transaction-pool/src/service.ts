@@ -1,7 +1,7 @@
 import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { DuplicateError, PoolFullError } from "./errors";
+import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
 import { ExpirationService } from "./expiration-service";
 import { describeTransaction } from "./utils";
 
@@ -42,10 +42,23 @@ export class Service implements Contracts.TransactionPool.Service {
         this.storage.clear();
     }
 
-    public async rebuild(): Promise<void> {
+    public async rebuild(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
         this.memory.clear();
 
+        let prevCount = 0;
         let rebuiltCount = 0;
+
+        if (prevTransactions) {
+            for (const transaction of prevTransactions) {
+                try {
+                    await this.apply(transaction);
+                    this.storage.add(transaction);
+                    prevCount++;
+                    rebuiltCount++;
+                } catch (error) {}
+            }
+        }
+
         for (const transaction of this.storage.all()) {
             try {
                 await this.apply(transaction);
@@ -56,47 +69,24 @@ export class Service implements Contracts.TransactionPool.Service {
             }
         }
 
-        this.logger.info(`Pool rebuilt ${rebuiltCount} transactions`);
+        if (prevTransactions) {
+            this.logger.info(`Pool rebuilt ${rebuiltCount} transactions (including ${prevCount} previous)`);
+        } else {
+            this.logger.info(`Pool rebuilt ${rebuiltCount} transactions`);
+        }
     }
 
-    public async replay(transactions: Interfaces.ITransaction[]): Promise<void> {
-        this.memory.clear();
-
-        let replayedCount = 0;
-        for (const transaction of transactions) {
-            try {
-                await this.apply(transaction);
-                this.storage.add(transaction);
-                replayedCount++;
-            } catch (error) {}
-        }
-
-        let rebuiltCount = 0;
-        for (const transaction of this.storage.all()) {
-            try {
-                await this.apply(transaction);
-                rebuiltCount++;
-            } catch (error) {
-                AppUtils.assert.defined<string>(transaction.id);
-                this.storage.delete(transaction.id);
-            }
-        }
-
-        this.logger.info(`Pool replayed ${replayedCount} transactions`);
-        this.logger.info(`Pool rebuilt ${rebuiltCount} transactions`);
-    }
-
-    public async add(transaction: Interfaces.ITransaction): Promise<void> {
+    public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.id);
         if (this.storage.has(transaction.id)) {
-            throw new DuplicateError(transaction);
+            throw new TransactionAlreadyInPoolError(transaction);
         }
         await this.apply(transaction);
         this.storage.add(transaction);
         this.logger.info(`Pool ${describeTransaction(transaction)} added`);
     }
 
-    public async remove(transaction: Interfaces.ITransaction): Promise<void> {
+    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.id);
         if (this.storage.has(transaction.id) === false) {
             throw new Error("Unknown transaction");
@@ -109,7 +99,7 @@ export class Service implements Contracts.TransactionPool.Service {
         }
     }
 
-    public accept(transaction: Interfaces.ITransaction): void {
+    public acceptForgedTransaction(transaction: Interfaces.ITransaction): void {
         AppUtils.assert.defined<string>(transaction.id);
         if (this.storage.has(transaction.id) === false) {
             return;
@@ -122,7 +112,7 @@ export class Service implements Contracts.TransactionPool.Service {
         }
     }
 
-    public async clean(): Promise<void> {
+    public async cleanUp(): Promise<void> {
         await this.cleanExpired();
         await this.cleanLowestPriority();
     }
@@ -138,9 +128,9 @@ export class Service implements Contracts.TransactionPool.Service {
 
         if (this.getPoolSize() >= maxTransactionsInPool) {
             await this.cleanLowestPriority();
-            const lowest = this.getLowestPriority();
+            const lowest = this.poolQuery.getAllFromLowestPriority().first();
             if (transaction.data.fee.isLessThanEqual(lowest.data.fee)) {
-                throw new PoolFullError(transaction, lowest.data.fee);
+                throw new TransactionPoolFullError(transaction, lowest.data.fee);
             }
         }
 
@@ -149,10 +139,10 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     private async cleanExpired(): Promise<void> {
-        for (const transaction of this.poolQuery.all()) {
+        for (const transaction of this.poolQuery.getAll()) {
             if (this.expirationService.isTransactionExpired(transaction)) {
                 this.logger.debug(`Pool ${describeTransaction(transaction)} expired`);
-                await this.remove(transaction);
+                await this.removeTransaction(transaction);
             }
         }
     }
@@ -160,11 +150,8 @@ export class Service implements Contracts.TransactionPool.Service {
     private async cleanLowestPriority(): Promise<void> {
         const maxTransactionsInPool = this.configuration.getRequired<number>("maxTransactionsInPool");
         while (this.getPoolSize() > maxTransactionsInPool) {
-            await this.remove(this.getLowestPriority());
+            const lowest = this.poolQuery.getAllFromLowestPriority().first();
+            await this.removeTransaction(lowest);
         }
-    }
-
-    private getLowestPriority(): Interfaces.ITransaction {
-        return this.poolQuery.allFromLowestPriority().first();
     }
 }

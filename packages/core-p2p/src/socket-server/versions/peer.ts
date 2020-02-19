@@ -1,6 +1,6 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import { PeerService } from "../../contracts";
 import { MissingCommonBlockError } from "../../errors";
@@ -112,19 +112,16 @@ export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Applicatio
 
 export const postTransactions = async ({
     app,
-    service,
     req,
 }: {
     app: Contracts.Kernel.Application;
-    service: PeerService;
-    req;
+    req: any;
 }): Promise<string[]> => {
-    const transactions = req.data.transactions.map(t => Transactions.TransactionFactory.fromData(t));
-    const createTransactionProcessor = app.get<Contracts.TransactionPool.ProcessorFactory>(
+    const createProcessor: Contracts.TransactionPool.ProcessorFactory = app.get(
         Container.Identifiers.TransactionPoolProcessorFactory,
     );
-    const processor = createTransactionProcessor();
-    await processor.process(transactions);
+    const processor: Contracts.TransactionPool.Processor = createProcessor();
+    await processor.process(req.data.transactions);
     return processor.accept;
 };
 

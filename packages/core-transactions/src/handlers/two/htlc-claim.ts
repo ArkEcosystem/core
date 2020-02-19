@@ -40,29 +40,6 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         return Utils.BigNumber.ZERO;
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const lockId = transaction.data.asset!.claim!.lockTransactionId;
-        const lockWallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
-
-        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
-            // also thrown during apply
-            throw new HtlcLockTransactionNotFoundError();
-        }
-
-        const sameClaim = this.poolQuery
-            .all()
-            .whereKind(transaction)
-            .wherePredicate(t => t.data.asset!.claim!.lockTransactionId === lockId)
-            .has();
-
-        if (sameClaim) {
-            // also thrown during apply
-            throw new HtlcLockTransactionNotFoundError();
-        }
-    }
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
@@ -97,6 +74,38 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
         const unlockSecretHash: string = Crypto.HashAlgorithms.sha256(claimAsset.unlockSecret).toString("hex");
         if (lock.secretHash !== unlockSecretHash) {
             throw new HtlcSecretHashMismatchError();
+        }
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.claim?.lockTransactionId);
+
+        const lockId: string = transaction.data.asset.claim.lockTransactionId;
+        const lockWallet: Contracts.State.Wallet = this.walletRepository.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
+
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
+            throw new Contracts.TransactionPool.PoolError(
+                `The associated lock transaction id "${lockId}" was not found`,
+                "ERR_HTLCLOCKNOTFOUND",
+                transaction,
+            );
+        }
+
+        const hasClaim: boolean = this.poolQuery
+            .getAll()
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset?.claim?.lockTransactionId === lockId)
+            .has();
+
+        if (hasClaim) {
+            throw new Contracts.TransactionPool.PoolError(
+                `HtlcClaim for "${lockId}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
         }
     }
 

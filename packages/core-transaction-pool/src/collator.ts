@@ -32,9 +32,9 @@ export class Collator implements Contracts.TransactionPool.Collator {
         const transactions: Interfaces.ITransaction[] = [];
         const validator = this.createTransactionValidator();
 
-        await this.pool.clean();
+        await this.pool.cleanUp();
 
-        for (const transaction of this.poolQuery.allFromHighestPriority()) {
+        for (const transaction of this.poolQuery.getAllFromHighestPriority()) {
             if (transactions.length === milestone.block.maxTransactions) {
                 break;
             }
@@ -50,7 +50,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
                 transactions.push(transaction);
             } catch (error) {
                 this.logger.error(`Pool ${describeTransaction(transaction)} failed to collate: ${error.message}`);
-                await this.pool.remove(transaction);
+                await this.pool.removeTransaction(transaction);
             }
         }
 

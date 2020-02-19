@@ -38,20 +38,6 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         }
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const sameKind = this.poolQuery
-            .allFromSender(transaction.data.senderPublicKey)
-            .whereKind(transaction)
-            .has();
-
-        if (sameKind) {
-            // also thrown during apply
-            throw new BusinessIsResignedError();
-        }
-    }
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -70,6 +56,23 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BusinessResigned, transaction.data);
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const hasSender: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .has();
+
+        if (hasSender) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Business resignation already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
     }
 
     public async applyToSender(

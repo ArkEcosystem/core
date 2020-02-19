@@ -44,29 +44,6 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
         return Utils.BigNumber.ZERO;
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const lockId = transaction.data.asset!.refund!.lockTransactionId;
-        const lockWallet = this.walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, lockId);
-
-        if (!lockWallet || !lockWallet.getAttribute("htlc.locks", {})[lockId]) {
-            // also thrown during apply
-            throw new HtlcLockTransactionNotFoundError();
-        }
-
-        const sameRefund = this.poolQuery
-            .all()
-            .whereKind(transaction)
-            .wherePredicate(t => t.data.asset!.refund!.lockTransactionId === lockId)
-            .has();
-
-        if (sameRefund) {
-            // also thrown during apply
-            throw new HtlcLockTransactionNotFoundError();
-        }
-    }
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         sender: Contracts.State.Wallet,
@@ -97,6 +74,38 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         if (!AppUtils.expirationCalculator.calculateLockExpirationStatus(lastBlock, lock.expiration)) {
             throw new HtlcLockNotExpiredError();
+        }
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.asset?.refund?.lockTransactionId);
+
+        const lockId: string = transaction.data.asset.refund.lockTransactionId;
+        const lockWallet: Contracts.State.Wallet = this.walletRepository.findByIndex(
+            Contracts.State.WalletIndexes.Locks,
+            lockId,
+        );
+
+        if (!lockWallet || !lockWallet.getAttribute("htlc.locks")[lockId]) {
+            throw new Contracts.TransactionPool.PoolError(
+                `The associated lock transaction id "${lockId}" was not found`,
+                "ERR_HTLCLOCKNOTFOUND",
+                transaction,
+            );
+        }
+
+        const hasRefund = this.poolQuery
+            .getAll()
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset?.refund?.lockTransactionId === lockId)
+            .has();
+
+        if (hasRefund) {
+            throw new Contracts.TransactionPool.PoolError(
+                `HtlcRefund for "${lockId}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
         }
     }
 

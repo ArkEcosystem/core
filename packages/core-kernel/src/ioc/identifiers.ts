@@ -79,15 +79,17 @@ export const Identifiers = {
     PeerStorage: Symbol.for("Peer<Storage>"),
 
     // Transaction Pool
-    TransactionPoolService: Symbol.for("TransactionPoolService"),
-    TransactionPoolMemory: Symbol.for("TransactionPoolMemory"),
-    TransactionPoolStorage: Symbol.for("TransactionPoolStorage"),
-    TransactionPoolProcessor: Symbol.for("TransactionPoolProcessor"),
-    TransactionPoolProcessorFactory: Symbol.for("TransactionPoolProcessorFactory"),
-    TransactionPoolQuery: Symbol.for("TransactionPoolQuery"),
-    TransactionPoolCollator: Symbol.for("TransactionPoolCollator"),
-    TransactionPoolSenderState: Symbol.for("TransactionPoolSenderState"),
-    TransactionPoolSenderStateFactory: Symbol.for("TransactionPoolSenderStateFactory"),
+    TransactionPoolService: Symbol.for("TransactionPool<Service>"),
+    TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
+    TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
+    TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
+    TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
+    TransactionPoolQuery: Symbol.for("TransactionPool<Query>"),
+    TransactionPoolDynamicFeeMatcher: Symbol.for("TransactionPool<DynamicFeeMatcher>"),
+    TransactionPoolProcessor: Symbol.for("TransactionPool<Processor>"),
+    TransactionPoolProcessorFactory: Symbol.for("TransactionPool<ProcessorFactory>"),
+    TransactionPoolSenderState: Symbol.for("TransactionPool<SenderState>"),
+    TransactionPoolSenderStateFactory: Symbol.for("TransactionPool<SenderStateFactory>"),
 
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),

@@ -49,20 +49,6 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         }
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const sameKind = this.poolQuery
-            .allFromSender(transaction.data.senderPublicKey)
-            .whereKind(transaction)
-            .has();
-
-        if (sameKind) {
-            // is it necessary?
-            throw new Error("Update already in pool");
-        }
-    }
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -81,6 +67,23 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BusinessUpdate, transaction.data);
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const hasSender: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .has();
+
+        if (hasSender) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Business update already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
     }
 
     public async applyToSender(

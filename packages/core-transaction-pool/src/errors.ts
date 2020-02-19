@@ -1,95 +1,91 @@
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-export class DuplicateError extends Error implements Contracts.TransactionPool.DuplicateError {
-    public readonly type = "ERR_DUPLICATE";
-    public readonly transaction: Interfaces.ITransaction;
-
+export class TransactionAlreadyInPoolError extends Contracts.TransactionPool.PoolError {
     public constructor(transaction: Interfaces.ITransaction) {
-        super(`Transaction ${transaction.id} is already in pool`);
-        this.transaction = transaction;
+        super(`Transaction ${transaction.id} is already in pool`, "ERR_DUPLICATE", transaction);
     }
 }
 
-export class ToLargeError extends Error implements Contracts.TransactionPool.ToLargeError {
-    public readonly type = "ERR_TO_LARGE";
-    public readonly transaction: Interfaces.ITransaction;
+export class TransactionExceedsMaximumByteSizeError extends Contracts.TransactionPool.PoolError {
     public readonly maxSize: number;
 
     public constructor(transaction: Interfaces.ITransaction, maxSize: number) {
-        super(`Transaction ${transaction.id} exceeds ${maxSize}b size limit`);
-        this.transaction = transaction;
+        // ! should be "ERR_TO_LARGE" instead of "ERR_TOO_LARGE"
+        super(`Transaction ${transaction.id} exceeds ${maxSize}b size limit`, "ERR_TOO_LARGE", transaction);
         this.maxSize = maxSize;
     }
 }
 
-export class ExpiredError extends Error implements Contracts.TransactionPool.ExpiredError {
-    public readonly type = "ERR_EXPIRED";
-    public readonly transaction: Interfaces.ITransaction;
+export class TransactionHasExpiredError extends Contracts.TransactionPool.PoolError {
     public readonly expiredBlocksCount: number;
 
     public constructor(transaction: Interfaces.ITransaction, expiredBlocksCount: number) {
-        super(`Transaction ${transaction.id} expired ${expiredBlocksCount} blocks ago`);
-        this.transaction = transaction;
+        super(`Transaction ${transaction.id} expired ${expiredBlocksCount} blocks ago`, "ERR_EXPIRED", transaction);
         this.expiredBlocksCount = expiredBlocksCount;
     }
 }
 
-export class LowFeeError extends Error implements Contracts.TransactionPool.LowFeeError {
-    public readonly type = "ERR_LOW_FEE";
-    public readonly transaction: Interfaces.ITransaction;
-
+export class TransactionFeeToLowError extends Contracts.TransactionPool.PoolError {
     public constructor(transaction: Interfaces.ITransaction) {
-        super(`Transaction ${transaction.id} fee is to low include in pool`);
-        this.transaction = transaction;
+        super(`Transaction ${transaction.id} fee is to low include in pool`, "ERR_LOW_FEE", transaction);
     }
 }
 
-export class ExceedsMaxCountError extends Error implements Contracts.TransactionPool.ExceedsMaxCountError {
-    public readonly type = "ERR_EXCEEDS_MAX_COUNT";
-    public readonly transaction: Interfaces.ITransaction;
+export class SenderExceededMaximumTransactionCountError extends Contracts.TransactionPool.PoolError {
     public readonly maxCount: number;
 
     public constructor(transaction: Interfaces.ITransaction, maxCount: number) {
-        super(`Transaction ${transaction.id} exceeds ${maxCount} count limit`);
-        this.transaction = transaction;
+        super(`Transaction ${transaction.id} exceeds ${maxCount} count limit`, "ERR_EXCEEDS_MAX_COUNT", transaction);
         this.maxCount = maxCount;
     }
 }
 
-export class PoolFullError extends Error implements Contracts.TransactionPool.PoolFullError {
-    public readonly type = "ERR_POOL_FULL";
-    public readonly transaction: Interfaces.ITransaction;
+export class TransactionPoolFullError extends Contracts.TransactionPool.PoolError {
     public readonly required: Utils.BigNumber;
 
     public constructor(transaction: Interfaces.ITransaction, required: Utils.BigNumber) {
-        super(
-            `Transaction ${transaction.id}` +
-                ` fee ${transaction.data.fee.toFixed()} fee is lower than ${required.toFixed()} already in pool`,
-        );
-        this.transaction = transaction;
+        const msg =
+            `Transaction ${transaction.id} fee ${transaction.data.fee.toFixed()} ` +
+            `is lower than ${required.toFixed()} already in pool`;
+        super(msg, "ERR_POOL_FULL", transaction);
         this.required = required;
     }
 }
 
-export class ApplyError extends Error implements Contracts.TransactionPool.ApplyError {
-    public readonly type = "ERR_APPLY";
-    public readonly transaction: Interfaces.ITransaction;
+export class TransactionFailedToApplyError extends Contracts.TransactionPool.PoolError {
     public readonly error: Error;
 
     public constructor(transaction: Interfaces.ITransaction, error: Error) {
-        super(`Transaction ${transaction.id} cannot be applied: ${error.message}`);
-        this.transaction = transaction;
+        super(`Transaction ${transaction.id} cannot be applied: ${error.message}`, "ERR_APPLY", transaction);
         this.error = error;
     }
 }
 
-export class BadDataError extends Error implements Contracts.TransactionPool.BadDataError {
-    public readonly type = "ERR_BAD_DATA";
-    public readonly transaction: Interfaces.ITransaction;
-
+export class TransactionFailedToVerifyError extends Contracts.TransactionPool.PoolError {
     public constructor(transaction: Interfaces.ITransaction) {
-        super(`Transaction ${transaction.id} didn't passed verification`);
-        this.transaction = transaction;
+        super(`Transaction ${transaction.id} didn't passed verification`, "ERR_BAD_DATA", transaction);
+    }
+}
+
+export class TransactionFromFutureError extends Contracts.TransactionPool.PoolError {
+    public secondsInFuture: number;
+
+    public constructor(transaction: Interfaces.ITransaction, secondsInFuture: number) {
+        super(`Transaction ${transaction.id} is ${secondsInFuture}s in future`, "ERR_FROM_FUTURE", transaction);
+        this.secondsInFuture = secondsInFuture;
+    }
+}
+
+export class TransactionFromWrongNetworkError extends Contracts.TransactionPool.PoolError {
+    public currentNetwork: number;
+
+    public constructor(transaction: Interfaces.ITransaction, currentNetwork: number) {
+        super(
+            `Transaction ${transaction.id} network ${transaction.data.network} doesn't match ${currentNetwork}`,
+            "ERR_WRONG_NETWORK",
+            transaction,
+        );
+        this.currentNetwork = currentNetwork;
     }
 }

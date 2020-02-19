@@ -1,15 +1,15 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Enums, Interfaces } from "@arkecosystem/crypto";
 
 import { IteratorMany } from "./utils";
 
 class QueryIterable implements Contracts.TransactionPool.QueryIterable {
-    private readonly transactions: Iterable<Interfaces.ITransaction>;
-    private readonly predicate: Contracts.TransactionPool.Predicate | undefined;
+    public transactions: Iterable<Interfaces.ITransaction>;
+    public predicate?: Contracts.TransactionPool.QueryPredicate;
 
     public constructor(
         transactions: Iterable<Interfaces.ITransaction>,
-        predicate?: Contracts.TransactionPool.Predicate,
+        predicate?: Contracts.TransactionPool.QueryPredicate,
     ) {
         this.transactions = transactions;
         this.predicate = predicate;
@@ -23,53 +23,42 @@ class QueryIterable implements Contracts.TransactionPool.QueryIterable {
         }
     }
 
-    public wherePredicate(predicate: Contracts.TransactionPool.Predicate): Contracts.TransactionPool.QueryIterable {
+    public wherePredicate(predicate: Contracts.TransactionPool.QueryPredicate): QueryIterable {
         return new QueryIterable(this, predicate);
     }
 
-    public whereId(id: string): Contracts.TransactionPool.QueryIterable {
+    public whereId(id: string): QueryIterable {
         return this.wherePredicate(t => t.id === id);
     }
 
-    public whereType(type: number): Contracts.TransactionPool.QueryIterable {
-        return this.wherePredicate(t => t.data.type === type);
+    public whereType(type: Enums.TransactionType): QueryIterable {
+        return this.wherePredicate(t => t.type === type);
     }
 
-    public whereTypeGroup(typeGroup: number): Contracts.TransactionPool.QueryIterable {
-        return this.wherePredicate(t => t.data.typeGroup === typeGroup);
+    public whereTypeGroup(typeGroup: Enums.TransactionTypeGroup): QueryIterable {
+        return this.wherePredicate(t => t.typeGroup === typeGroup);
     }
 
-    public whereVersion(version: number): Contracts.TransactionPool.QueryIterable {
+    public whereVersion(version: number): QueryIterable {
         return this.wherePredicate(t => t.data.version === version);
     }
 
-    public whereInternalType(
-        internalType: Transactions.InternalTransactionType,
-    ): Contracts.TransactionPool.QueryIterable {
-        return this.wherePredicate(
-            t => Transactions.InternalTransactionType.from(t.data.type, t.data.typeGroup) === internalType,
-        );
-    }
-
-    public whereKind(transaction: Interfaces.ITransaction): Contracts.TransactionPool.QueryIterable {
-        return this.wherePredicate(
-            t =>
-                t.data.type === transaction.data.type &&
-                t.data.typeGroup === transaction.data.typeGroup &&
-                t.data.version === transaction.data.version,
-        );
+    public whereKind(transaction: Interfaces.ITransaction): QueryIterable {
+        return this.wherePredicate(t => t.type === transaction.type && t.typeGroup === transaction.typeGroup);
     }
 
     public has(): boolean {
-        return this[Symbol.iterator]().next().done === false;
+        for (const _ of this) {
+            return true;
+        }
+        return false;
     }
 
     public first(): Interfaces.ITransaction {
-        const result = this[Symbol.iterator]().next();
-        if (result.done) {
-            throw new Error("Not found");
+        for (const transaction of this) {
+            return transaction;
         }
-        return result.value;
+        throw new Error("Transaction not found");
     }
 }
 
@@ -78,7 +67,7 @@ export class Query implements Contracts.TransactionPool.Query {
     @Container.inject(Container.Identifiers.TransactionPoolMemory)
     private readonly memory!: Contracts.TransactionPool.Memory;
 
-    public all(): QueryIterable {
+    public getAll(): QueryIterable {
         const iterable = function*(this: Query) {
             for (const senderState of this.memory.getSenderStates()) {
                 for (const transaction of senderState.getTransactionsFromLatestNonce()) {
@@ -90,43 +79,7 @@ export class Query implements Contracts.TransactionPool.Query {
         return new QueryIterable(iterable);
     }
 
-    public allFromLowestPriority(): QueryIterable {
-        const iterable = {
-            [Symbol.iterator]: () => {
-                const comparator = (a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
-                    return a.data.fee.comparedTo(b.data.fee);
-                };
-
-                const iterators = Array.from(this.memory.getSenderStates())
-                    .map(p => p.getTransactionsFromLatestNonce())
-                    .map(i => i[Symbol.iterator]());
-
-                return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
-            },
-        };
-
-        return new QueryIterable(iterable);
-    }
-
-    public allFromHighestPriority(): QueryIterable {
-        const iterable = {
-            [Symbol.iterator]: () => {
-                const comparator = (a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
-                    return b.data.fee.comparedTo(a.data.fee);
-                };
-
-                const iterators = Array.from(this.memory.getSenderStates())
-                    .map(p => p.getTransactionsFromEarliestNonce())
-                    .map(i => i[Symbol.iterator]());
-
-                return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
-            },
-        };
-
-        return new QueryIterable(iterable);
-    }
-
-    public allFromSender(senderPublicKey: string): QueryIterable {
+    public getAllBySender(senderPublicKey: string): QueryIterable {
         const iterable = function*(this: Query) {
             if (this.memory.hasSenderState(senderPublicKey)) {
                 const transactions = this.memory.getSenderState(senderPublicKey).getTransactionsFromEarliestNonce();
@@ -135,6 +88,42 @@ export class Query implements Contracts.TransactionPool.Query {
                 }
             }
         }.bind(this)();
+
+        return new QueryIterable(iterable);
+    }
+
+    public getAllFromLowestPriority(): QueryIterable {
+        const iterable = {
+            [Symbol.iterator]: () => {
+                const comparator = (a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
+                    return a.data.fee.comparedTo(b.data.fee);
+                };
+
+                const iterators = Array.from(this.memory.getSenderStates())
+                    .map(s => s.getTransactionsFromLatestNonce())
+                    .map(i => i[Symbol.iterator]());
+
+                return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
+            },
+        };
+
+        return new QueryIterable(iterable);
+    }
+
+    public getAllFromHighestPriority(): QueryIterable {
+        const iterable = {
+            [Symbol.iterator]: () => {
+                const comparator = (a: Interfaces.ITransaction, b: Interfaces.ITransaction) => {
+                    return b.data.fee.comparedTo(a.data.fee);
+                };
+
+                const iterators = Array.from(this.memory.getSenderStates())
+                    .map(s => s.getTransactionsFromEarliestNonce())
+                    .map(i => i[Symbol.iterator]());
+
+                return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
+            },
+        };
 
         return new QueryIterable(iterable);
     }

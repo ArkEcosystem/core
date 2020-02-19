@@ -2,8 +2,11 @@ import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosyste
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
-import { ExceedsMaxCountError, ExpiredError, LowFeeError, ToLargeError } from "./errors";
+import {
+    SenderExceededMaximumTransactionCountError,
+    TransactionExceedsMaximumByteSizeError,
+    TransactionHasExpiredError,
+} from "./errors";
 import { ExpirationService } from "./expiration-service";
 import { describeTransaction } from "./utils";
 
@@ -22,9 +25,6 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
 
     @Container.inject(ExpirationService)
     private readonly expirationService!: ExpirationService;
-
-    @Container.inject(DynamicFeeMatcher)
-    private readonly dynamicFeeMatcher!: DynamicFeeMatcher;
 
     private readonly transactions: Interfaces.ITransaction[] = [];
 
@@ -50,22 +50,17 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         try {
             if (this.getTransactionsCount() >= maxTransactionsPerSender) {
                 if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
-                    throw new ExceedsMaxCountError(transaction, maxTransactionsPerSender);
+                    throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
                 }
             }
 
             if (this.expirationService.isTransactionExpired(transaction)) {
                 const expiredBlocksCount = this.expirationService.getTransactionExpiredBlocksCount(transaction);
-                throw new ExpiredError(transaction, expiredBlocksCount);
+                throw new TransactionHasExpiredError(transaction, expiredBlocksCount);
             }
 
             if (JSON.stringify(transaction.data).length > maxTransactionBytes) {
-                throw new ToLargeError(transaction, maxTransactionBytes);
-            }
-
-            const dynamicFee = await this.dynamicFeeMatcher.match(transaction);
-            if (!dynamicFee.enterPool) {
-                throw new LowFeeError(transaction);
+                throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
             }
 
             const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);

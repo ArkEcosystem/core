@@ -1,144 +1,140 @@
-import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-import { DynamicFeeMatch } from "./interfaces";
-
-/**
- * @export
- * @class DynamicFeeMatcher
- */
 @Container.injectable()
-export class DynamicFeeMatcher {
-    /**
-     * @private
-     * @type {Contracts.Kernel.Application}
-     * @memberof DynamicFeeMatcher
-     */
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
-
-    /**
-     * @private
-     * @type {Providers.PluginConfiguration}
-     * @memberof DynamicFeeMatcher
-     */
+export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMatcher {
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
 
-    /**
-     * @private
-     * @type {Contracts.Kernel.Logger}
-     * @memberof DynamicFeeMatcher
-     */
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
+    @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
+    @Container.tagged("state", "blockchain")
+    private readonly handlerRegistry!: Handlers.Registry;
 
-    /**
-     * @private
-     * @type {Contracts.State.StateStore}
-     * @memberof DynamicFeeCalculator
-     */
     @Container.inject(Container.Identifiers.StateStore)
     private readonly stateStore!: Contracts.State.StateStore;
 
-    /**
-     * @param {Interfaces.ITransaction} transaction
-     * @returns {Promise<DynamicFeeMatch>}
-     * @memberof DynamicFeeMatcher
-     */
-    public async match(transaction: Interfaces.ITransaction): Promise<DynamicFeeMatch> {
-        AppUtils.assert.defined<string>(transaction.id);
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
 
-        const fee: Utils.BigNumber = transaction.data.fee;
-        const id: string = transaction.id;
+    public async canEnterPool(transaction: Interfaces.ITransaction): Promise<boolean> {
+        const dynamicFeesConfiguration: Record<string, any> = this.configuration.getRequired<Record<string, any>>(
+            "dynamicFees",
+        );
 
-        const dynamicFees = this.configuration.getRequired<Record<string, any>>("dynamicFees");
-
-        const height: number = this.stateStore.getLastHeight();
-
-        let broadcast: boolean;
-        let enterPool: boolean;
-
-        if (dynamicFees.enabled) {
-            const handler = await this.app
-                .getTagged<Handlers.Registry>(Container.Identifiers.TransactionHandlerRegistry, "state", "blockchain")
-                .getActivatedHandlerForData(transaction.data);
-
-            const addonBytes: number = dynamicFees.addonBytes[transaction.key];
-            const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee({
-                transaction,
-                addonBytes,
-                satoshiPerByte: dynamicFees.minFeeBroadcast,
-                height,
-            });
-
-            if (fee.isGreaterThanEqual(minFeeBroadcast)) {
-                broadcast = true;
-
-                this.logger.debug(
-                    `Transaction ${id} eligible for broadcast - fee of ${Utils.formatSatoshi(fee)} is ${
-                        fee.isEqualTo(minFeeBroadcast) ? "equal to" : "greater than"
-                    } minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
-                );
-            } else {
-                broadcast = false;
-
-                this.logger.debug(
-                    `Transaction ${id} not eligible for broadcast - fee of ${Utils.formatSatoshi(
-                        fee,
-                    )} is smaller than minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
-                );
-            }
+        if (dynamicFeesConfiguration.enabled) {
+            const addonBytes: number = dynamicFeesConfiguration.addonBytes[transaction.key];
+            const height: number = this.stateStore.getLastHeight();
+            const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
 
             const minFeePool: Utils.BigNumber = handler.dynamicFee({
                 transaction,
                 addonBytes,
-                satoshiPerByte: dynamicFees.minFeePool,
+                satoshiPerByte: dynamicFeesConfiguration.minFeePool,
                 height,
             });
 
-            if (fee.isGreaterThanEqual(minFeePool)) {
-                enterPool = true;
-
+            if (transaction.data.fee.isGreaterThan(minFeePool)) {
                 this.logger.debug(
-                    `Transaction ${id} eligible to enter pool - fee of ${Utils.formatSatoshi(fee)} is ${
-                        fee.isEqualTo(minFeePool) ? "equal to" : "greater than"
-                    } minimum fee (${Utils.formatSatoshi(minFeePool)})`,
+                    `Transaction ${transaction.id} eligible to enter pool - ` +
+                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is greater than ` +
+                        `minimum fee (${Utils.formatSatoshi(minFeePool)})`,
                 );
-            } else {
-                enterPool = false;
-
-                this.logger.debug(
-                    `Transaction ${id} not eligible to enter pool - fee of ${Utils.formatSatoshi(
-                        fee,
-                    )} is smaller than minimum fee (${Utils.formatSatoshi(minFeePool)})`,
-                );
+                return true;
             }
+
+            if (transaction.data.fee.isEqualTo(minFeePool)) {
+                this.logger.debug(
+                    `Transaction ${transaction.id} eligible to enter pool - ` +
+                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is equal to ` +
+                        `minimum fee (${Utils.formatSatoshi(minFeePool)})`,
+                );
+                return true;
+            }
+
+            this.logger.debug(
+                `Transaction ${transaction.id} not eligible to enter pool - ` +
+                    `fee of ${Utils.formatSatoshi(transaction.data.fee)} is smaller than ` +
+                    `minimum fee (${Utils.formatSatoshi(minFeePool)})`,
+            );
+            return false;
         } else {
-            const staticFee: Utils.BigNumber = transaction.staticFee;
-            if (fee.isEqualTo(staticFee)) {
-                broadcast = true;
-                enterPool = true;
-
+            if (transaction.data.fee.isEqualTo(transaction.staticFee)) {
                 this.logger.debug(
-                    `Transaction ${id} eligible for broadcast and to enter pool - fee of ${Utils.formatSatoshi(
-                        fee,
-                    )} is equal to static fee (${Utils.formatSatoshi(staticFee)})`,
+                    `Transaction ${transaction.id} eligible to enter pool - ` +
+                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is equal to ` +
+                        `static fee (${Utils.formatSatoshi(transaction.staticFee)})`,
                 );
-            } else {
-                broadcast = false;
-                enterPool = false;
-
-                this.logger.debug(
-                    `Transaction ${id} not eligible for broadcast and not eligible to enter pool - fee of ${Utils.formatSatoshi(
-                        fee,
-                    )} does not match static fee (${Utils.formatSatoshi(staticFee)})`,
-                );
+                return true;
             }
-        }
 
-        return { broadcast, enterPool };
+            this.logger.debug(
+                `Transaction ${transaction.id} not eligible to enter pool - ` +
+                    `fee of ${Utils.formatSatoshi(transaction.data.fee)} does not match ` +
+                    `static fee (${Utils.formatSatoshi(transaction.staticFee)})`,
+            );
+            return false;
+        }
+    }
+
+    public async canBroadcast(transaction: Interfaces.ITransaction): Promise<boolean> {
+        const dynamicFeesConfiguration: Record<string, any> = this.configuration.getRequired<Record<string, any>>(
+            "dynamicFees",
+        );
+
+        if (dynamicFeesConfiguration.enabled) {
+            const addonBytes: number = dynamicFeesConfiguration.addonBytes[transaction.key];
+            const height: number = this.stateStore.getLastHeight();
+            const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
+
+            const minFeeBroadcast: Utils.BigNumber = handler.dynamicFee({
+                transaction,
+                addonBytes,
+                satoshiPerByte: dynamicFeesConfiguration.minFeeBroadcast,
+                height,
+            });
+
+            if (transaction.data.fee.isGreaterThan(minFeeBroadcast)) {
+                this.logger.debug(
+                    `Transaction ${transaction.id} eligible for broadcast - ` +
+                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is greater than ` +
+                        `minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
+                );
+                return true;
+            }
+
+            if (transaction.data.fee.isEqualTo(minFeeBroadcast)) {
+                this.logger.debug(
+                    `Transaction ${transaction.id} eligible for broadcast - ` +
+                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is equal to ` +
+                        `minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
+                );
+                return true;
+            }
+
+            this.logger.debug(
+                `Transaction ${transaction.id} not eligible for broadcast - ` +
+                    `fee of ${Utils.formatSatoshi(transaction.data.fee)} is smaller than ` +
+                    `minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
+            );
+            return false;
+        } else {
+            if (transaction.data.fee.isEqualTo(transaction.staticFee)) {
+                this.logger.debug(
+                    `Transaction ${transaction.id} eligible for broadcast - ` +
+                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is equal to ` +
+                        `static fee (${Utils.formatSatoshi(transaction.staticFee)})`,
+                );
+                return true;
+            }
+
+            this.logger.debug(
+                `Transaction ${transaction.id} not eligible for broadcast - ` +
+                    `fee of ${Utils.formatSatoshi(transaction.data.fee)} does not match ` +
+                    `static fee (${Utils.formatSatoshi(transaction.staticFee)})`,
+            );
+            return false;
+        }
     }
 }

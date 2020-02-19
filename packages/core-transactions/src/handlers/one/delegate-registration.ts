@@ -1,5 +1,5 @@
 import { Container, Contracts, Enums as AppEnums, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
     NotSupportedForMultiSignatureWalletError,
@@ -48,31 +48,6 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const sameKind = this.poolQuery
-            .allFromSender(transaction.data.senderPublicKey)
-            .whereKind(transaction)
-            .has();
-
-        if (sameKind) {
-            // also thrown during apply
-            throw new WalletIsAlreadyDelegateError();
-        }
-
-        const sameUsername = this.poolQuery
-            .all()
-            .whereKind(transaction)
-            .wherePredicate(t => t.data.asset!.delegate!.username === transaction.data.asset!.delegate!.username)
-            .has();
-
-        if (sameUsername) {
-            // ! can be abused to deny registration
-            throw new Error(`Same username already in pool`);
-        }
-    }
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -111,6 +86,39 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(AppEnums.DelegateEvent.Registered, transaction.data);
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const hasSender: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .has();
+
+        if (hasSender) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Sender ${transaction.data.senderPublicKey} already has a transaction of type '${Enums.TransactionType.DelegateRegistration}' in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
+
+        AppUtils.assert.defined<string>(transaction.data.asset?.delegate?.username);
+        const username: string = transaction.data.asset.delegate.username;
+        const hasUsername: boolean = this.poolQuery
+            .getAll()
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset?.delegate?.username === username)
+            .has();
+
+        if (hasUsername) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Delegate registration for "${username}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
     }
 
     public async applyToSender(

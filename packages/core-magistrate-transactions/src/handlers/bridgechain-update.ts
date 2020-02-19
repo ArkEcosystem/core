@@ -54,23 +54,6 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         }
     }
 
-    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
-        Utils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const bridgechainId = transaction.data.asset!.bridgechainUpdate.bridgechainId;
-
-        const duplicate = this.poolQuery
-            .allFromSender(transaction.data.senderPublicKey)
-            .whereKind(transaction)
-            .wherePredicate(t => t.data.asset!.bridgechainUpdate.bridgechainId === bridgechainId)
-            .has();
-
-        if (duplicate) {
-            // is it necessary?
-            throw new Error("Update already in pool");
-        }
-    }
-
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
         wallet: Contracts.State.Wallet,
@@ -111,6 +94,25 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
     public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
         emitter.dispatch(MagistrateApplicationEvents.BridgechainUpdate, transaction.data);
+    }
+
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const bridgechainId: string = transaction.data.asset!.bridgechainUpdate.bridgechainId;
+        const hasUpdate: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset?.bridgechainUpdate.bridgechainId === bridgechainId)
+            .has();
+
+        if (hasUpdate) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
     }
 
     public async applyToSender(

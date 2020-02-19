@@ -1,13 +1,18 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
+export type ProcessorError = {
+    type: string;
+    message: string;
+};
+
 export interface Processor {
     accept: string[];
     broadcast: string[];
     excess: string[];
     invalid: string[];
-    errors: string[] | undefined;
+    errors?: { [id: string]: ProcessorError };
 
-    process(transactions: Interfaces.ITransaction[]): Promise<void>;
+    process(data: Interfaces.ITransactionData[]): Promise<void>;
 }
 
 export type ProcessorFactory = () => Processor;
