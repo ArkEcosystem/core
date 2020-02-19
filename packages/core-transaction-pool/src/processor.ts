@@ -57,6 +57,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
                         this.logger.warning(error.message);
                     } else {
+                        this.logger.error(error.stack);
                         throw error;
                     }
                 }

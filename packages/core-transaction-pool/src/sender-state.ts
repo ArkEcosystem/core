@@ -6,6 +6,7 @@ import {
     SenderExceededMaximumTransactionCountError,
     TransactionExceedsMaximumByteSizeError,
     TransactionHasExpiredError,
+    TransactionFailedToApplyError,
 } from "./errors";
 import { ExpirationService } from "./expiration-service";
 import { describeTransaction } from "./utils";
@@ -47,30 +48,31 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         const maxTransactionsPerSender = this.configuration.getRequired<number>("maxTransactionsPerSender");
         const allowedSenders = this.configuration.getOptional<string[]>("allowedSenders", []);
 
+        if (this.getTransactionsCount() >= maxTransactionsPerSender) {
+            if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
+                throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
+            }
+        }
+
+        if (this.expirationService.isTransactionExpired(transaction)) {
+            const expiredBlocksCount = this.expirationService.getTransactionExpiredBlocksCount(transaction);
+            throw new TransactionHasExpiredError(transaction, expiredBlocksCount);
+        }
+
+        if (JSON.stringify(transaction.data).length > maxTransactionBytes) {
+            throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
+        }
+
+        const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
+
         try {
-            if (this.getTransactionsCount() >= maxTransactionsPerSender) {
-                if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
-                    throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
-                }
-            }
-
-            if (this.expirationService.isTransactionExpired(transaction)) {
-                const expiredBlocksCount = this.expirationService.getTransactionExpiredBlocksCount(transaction);
-                throw new TransactionHasExpiredError(transaction, expiredBlocksCount);
-            }
-
-            if (JSON.stringify(transaction.data).length > maxTransactionBytes) {
-                throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
-            }
-
-            const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
             await handler.throwIfCannotEnterPool(transaction);
             await handler.apply(transaction);
             this.transactions.push(transaction);
             this.logger.info(`Pool ${describeTransaction(transaction)} applied`);
         } catch (error) {
             this.logger.warning(`Pool ${describeTransaction(transaction)} apply failed: ${error.message}`);
-            throw error;
+            throw new TransactionFailedToApplyError(transaction, error);
         }
     }
 
