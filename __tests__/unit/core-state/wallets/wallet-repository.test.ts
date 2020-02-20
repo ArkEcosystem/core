@@ -170,12 +170,25 @@ describe("Wallet Repository", () => {
         expect(walletRepo.findByAddress("abcd")).not.toEqual(wallet);
     });
 
-    it("should get wallets by address", () => {
+    it("should get, set and forget wallets by address", () => {
         const address = "abcd";
         const wallet = walletRepo.createWallet(address);
-        expect(walletRepo.findByAddress(address)).toEqual(wallet);
-        expect(walletRepo.findByIndex("addresses", address)).toEqual(wallet);
 
+        /**
+         * TODO: check this is desired behaviour
+         * after creation a wallet is unknown to indexers (until reindex() is called)
+         */
+        expect(walletRepo.has(address)).toBeFalse();
+
+        /**
+         * TODO: check this is desired behaviour
+         * findByAddress and findByPublicKey have the effect of reindexing (so the previous check now passes)
+         * findByUsername does not have this side-effect, so they should probably have different names.
+         */
+        expect(walletRepo.findByAddress(address)).toEqual(wallet);
+        expect(walletRepo.has(address)).toBeTrue();
+
+        expect(walletRepo.findByIndex("addresses", address)).toEqual(wallet);        
         const nonExistingAddress = "abcde";
         expect(walletRepo.has(address)).toBeTrue();
         expect(walletRepo.has(nonExistingAddress)).toBeFalse();
@@ -183,6 +196,8 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByAddress(nonExistingAddress)).toBeFalse();
         expect(walletRepo.hasByIndex("addresses", address)).toBeTrue();
         expect(walletRepo.hasByIndex("addresses", nonExistingAddress)).toBeFalse();
+        walletRepo.forgetByAddress(address);
+        expect(walletRepo.has(address)).toBeFalse();
     });
 
     /**
@@ -204,7 +219,7 @@ describe("Wallet Repository", () => {
         expect(() => walletRepo.findByIndex("addresses", "iAlsoDontExist")).toThrow(errorMessage);
     });
 
-    it("should get wallets by public key", () => {
+    it("should get, set and forget wallets by public key", () => {
         const wallet = walletRepo.createWallet("abcde")
         const publicKey = "02337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
         walletRepo.getIndex("publicKeys").set(publicKey, wallet);
@@ -219,6 +234,8 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByPublicKey(nonExistingPublicKey)).toBeFalse();
         expect(walletRepo.hasByIndex("publicKeys", publicKey)).toBeTrue();
         expect(walletRepo.hasByIndex("publicKeys", nonExistingPublicKey)).toBeFalse();
+        walletRepo.forgetByPublicKey(publicKey);
+        expect(walletRepo.has(publicKey)).toBeFalse();
     });
 
     it("should create a wallet if one is not found during public key lookup", () => {
@@ -235,7 +252,7 @@ describe("Wallet Repository", () => {
         expect(() => walletRepo.findByIndex("publicKeys", secondNotYetExistingPublicKey)).toThrow();
     });
 
-    it("should get wallets by username", () => {
+    it("should get, set and forget wallets by username", () => {
         const username = "testUsername";
         const wallet = walletRepo.createWallet("abcdef")
         walletRepo.getIndex("usernames").set(username, wallet);
@@ -249,6 +266,50 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByUsername(nonExistingUsername)).toBeFalse();
         expect(walletRepo.hasByIndex("usernames", username)).toBeTrue();
         expect(walletRepo.hasByIndex("usernames", nonExistingUsername)).toBeFalse();
+        walletRepo.forgetByUsername(username);
+        expect(walletRepo.has(username)).toBeFalse();
+    });
+
+    it("should able to reindex forgotten wallets", () => {
+        const wallet1 = walletRepo.createWallet("wallet1");
+        walletRepo.reindex(wallet1);
+        expect(walletRepo.has("wallet1")).toBeTrue();
+        walletRepo.forgetByIndex("addresses", "wallet1");
+        walletRepo.reindex(wallet1);
+        // TODO: is this desired behaviour?
+        expect(walletRepo.has("wallet1")).toBeTrue();
+    });
+
+    it("should forget wallets using indexer", () => {
+        const wallets: Contracts.State.Wallet[] = [];
+        const walletAddresses: string[] = [];
+        for (let i = 0; i < 6; i++) {
+            const walletAddress = `wallet${i}`;
+            walletAddresses.push(walletAddress);
+            const wallet = walletRepo.createWallet(walletAddress)
+            wallets.push(wallet);
+            walletRepo.reindex(wallet);
+            expect(walletRepo.has(walletAddress)).toBeTrue();
+        }
+
+        const publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
+
+        walletRepo.getIndex("publicKeys").set(publicKey, wallets[1]);
+        walletRepo.getIndex("usernames").set("username", wallets[2]);
+        walletRepo.getIndex("resignations").set("resign", wallets[3]);
+        walletRepo.getIndex("locks").set("lock", wallets[4]);
+        walletRepo.getIndex("ipfs").set("ipfs", wallets[5]);
+
+        wallets.forEach(wallet => walletRepo.reindex(wallet));
+
+        walletRepo.forgetByIndex("addresses", walletAddresses[0]);
+        walletRepo.forgetByIndex("publicKeys", publicKey);
+        walletRepo.forgetByIndex("usernames", "username");
+        walletRepo.forgetByIndex("resignations", "resign");
+        walletRepo.forgetByIndex("locks", "locks");
+        walletRepo.forgetByIndex("ipfs", "ipfs");
+
+        walletAddresses.forEach(address => expect(walletRepo.has(address)).toBeFalse())
     });
 
     // TODO: pull this error out into specific error class/type
