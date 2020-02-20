@@ -43,13 +43,11 @@ describe("TransactionBroadcaster", () => {
             const peers = [{}, {}, {}];
             configuration.getRequired.mockReturnValue(3);
             storage.getPeers.mockReturnValue(peers);
-            const broadcaster = container.resolve(TransactionBroadcaster);
             const jsons = [{}];
-            const transactions = ([
-                { toJson: jest.fn().mockReturnValue(jsons[0]) },
-            ] as unknown) as Interfaces.ITransaction[];
+            const transactions: any[] = jsons.map(j => ({ toJson: jest.fn().mockReturnValue(j) }));
 
-            await broadcaster.broadcastTransactions(transactions);
+            const broadcaster = container.resolve(TransactionBroadcaster);
+            await broadcaster.broadcastTransactions(transactions as Interfaces.ITransaction[]);
 
             expect(configuration.getRequired).toBeCalledWith("maxPeersBroadcast");
             expect(storage.getPeers).toBeCalled();

@@ -35,14 +35,11 @@ describe("Processor", () => {
         it("should add eligible transactions to pool", async () => {
             (Transactions.TransactionFactory.fromData as jest.Mock).mockImplementation(d => ({ id: d.id }));
 
-            const processor = container.resolve(Processor);
             dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(false);
-            const data = ([
-                { id: "id_eligible" },
-                { id: "id_non_eligible" },
-            ] as unknown) as Interfaces.ITransactionData[];
+            const data: any[] = [{ id: "id_eligible" }, { id: "id_non_eligible" }];
 
-            await processor.process(data);
+            const processor = container.resolve(Processor);
+            await processor.process(data as Interfaces.ITransactionData[]);
 
             expect(processor.accept).toEqual(["id_eligible"]);
             expect(processor.invalid).toEqual(["id_non_eligible"]);
