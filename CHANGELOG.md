@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.10] - 2020-02-20
+
+### Fixed
+
+-   Disable permessage-deflate ([#3518])
+
 ## [2.6.9] - 2020-02-19
 
 ### Added
@@ -868,6 +874,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.10]: https://github.com/ARKEcosystem/core/compare/2.6.9...2.6.10
 [2.6.9]: https://github.com/ARKEcosystem/core/compare/2.6.1...2.6.9
 [2.6.1]: https://github.com/ARKEcosystem/core/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.38...2.6.0
@@ -1386,6 +1393,7 @@ Closed security vulnerabilities:
 [#3505]: https://github.com/ARKEcosystem/core/pull/3505
 [#3507]: https://github.com/ARKEcosystem/core/pull/3507
 [#3510]: https://github.com/ARKEcosystem/core/pull/3510
+[#3518]: https://github.com/ARKEcosystem/core/pull/3518
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a
