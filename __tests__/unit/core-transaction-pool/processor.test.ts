@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
-import { Processor } from "./processor";
+import { Processor } from "../../../packages/core-transaction-pool/src/processor";
 
 jest.mock("@arkecosystem/crypto");
 
