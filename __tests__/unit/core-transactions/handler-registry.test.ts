@@ -100,6 +100,14 @@ beforeEach(() => {
     Managers.configManager.getMilestone().aip11 = false;
 });
 
+afterEach(() => {
+    try {
+        Transactions.TransactionRegistry.deregisterTransactionType(
+            TestTransaction,
+        );
+    } catch {}
+});
+
 describe("Registry", () => {
     it("should register core transaction types", async () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);

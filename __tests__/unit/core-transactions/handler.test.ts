@@ -1566,7 +1566,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
         });
     });
 
-    describe("canEnterTransactionPool", () => {
+    describe("throwIfCannotEnterPool", () => {
         it("should not throw", async () => {
             await expect(
                 handler.throwIfCannotEnterPool(
@@ -1813,7 +1813,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
         });
     });
 
-    describe("canEnterTransactionPool", () => {
+    describe("throwIfCannotEnterPool", () => {
         it("should not throw", async () => {
             await expect(
                 handler.throwIfCannotEnterPool(
@@ -1829,7 +1829,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
                 handler.throwIfCannotEnterPool(
                     htlcRefundTransaction
                 ),
-            ).rejects.toThrowError(); // TODO: chekc. canEnterTransactionPool throws  Wallet c9d2e0d8a937d8208edb8ea94d56ca2aeb9afa17bbceaec53a6eb3728e6598c5 doesn't exist in index locks
+            ).rejects.toThrowError(); // TODO: chekc. throwIfCannotEnterPool throws  Wallet c9d2e0d8a937d8208edb8ea94d56ca2aeb9afa17bbceaec53a6eb3728e6598c5 doesn't exist in index locks
         });
 
         describe("apply", () => {
