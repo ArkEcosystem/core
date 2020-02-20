@@ -11,6 +11,9 @@ import { DelegateRegistrationTransactionHandler } from "./delegate-registration"
 // todo: replace unnecessary function arguments with dependency injection to avoid passing around references
 @Container.injectable()
 export class DelegateResignationTransactionHandler extends TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [DelegateRegistrationTransactionHandler];
     }
@@ -74,24 +77,25 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         emitter.dispatch(Enums.DelegateEvent.Resigned, transaction.data);
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        // TODO: ioc
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            // @ts-ignore
-            const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(data.senderPublicKey);
-            processor.pushError(
-                data,
-                "ERR_PENDING",
-                `Delegate resignation for "${wallet.getAttribute("delegate.username")}" already in the pool`,
-            );
-            return false;
-        }
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        return true;
+        const hasSender: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .has();
+
+        if (hasSender) {
+            // @ts-ignore
+            const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(
+                transaction.data.senderPublicKey,
+            );
+            throw new Contracts.TransactionPool.PoolError(
+                `Delegate resignation for "${wallet.getAttribute("delegate.username")}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
     }
 
     public async applyToSender(

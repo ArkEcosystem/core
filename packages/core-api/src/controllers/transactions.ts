@@ -1,6 +1,5 @@
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Processor } from "@arkecosystem/core-transaction-pool";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
@@ -20,11 +19,11 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.TransactionPoolService)
     private readonly transactionPool!: Contracts.TransactionPool.Connection;
 
-    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
-    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
-
     @Container.inject(Container.Identifiers.TransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
+
+    @Container.inject(Container.Identifiers.TransactionPoolProcessorFactory)
+    private readonly createProcessor!: Contracts.TransactionPool.ProcessorFactory;
 
     public async index(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         const transactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.searchByQuery(
@@ -36,21 +35,16 @@ export class TransactionsController extends Controller {
     }
 
     public async store(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const processor: Contracts.TransactionPool.Processor = this.app.resolve(Processor);
-        const result = await processor.validate((request.payload as any).transactions);
-
-        if (result.broadcast.length > 0) {
-            this.networkMonitor.broadcastTransactions(processor.getBroadcastTransactions());
-        }
-
+        const processor: Contracts.TransactionPool.Processor = this.createProcessor();
+        await processor.process(request.payload.transactions);
         return {
             data: {
-                accept: result.accept,
-                broadcast: result.broadcast,
-                excess: result.excess,
-                invalid: result.invalid,
+                accept: processor.accept,
+                broadcast: processor.broadcast,
+                excess: processor.excess,
+                invalid: processor.invalid,
             },
-            errors: result.errors,
+            errors: processor.errors,
         };
     }
 

@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
@@ -12,6 +12,9 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
 export class BusinessResignationTransactionHandler extends MagistrateTransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BusinessRegistrationTransactionHandler];
     }
@@ -55,31 +58,21 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         emitter.dispatch(MagistrateApplicationEvents.BusinessResigned, transaction.data);
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        if (
-            await pool.senderHasTransactionsOfType(
-                data.senderPublicKey!,
-                Enums.MagistrateTransactionType.BusinessResignation,
-                Enums.MagistrateTransactionGroup,
-            )
-        ) {
-            // @ts-ignore
-            const wallet: Contracts.State.Wallet = pool.poolWalletRepository.findByPublicKey(data.senderPublicKey);
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-            processor.pushError(
-                data,
+        const hasSender: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .has();
+
+        if (hasSender) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Business resignation already in the pool`,
                 "ERR_PENDING",
-                `Business resignation for "${wallet.getAttribute("business")}" already in the pool`,
+                transaction,
             );
-
-            return false;
         }
-
-        return true;
     }
 
     public async applyToSender(

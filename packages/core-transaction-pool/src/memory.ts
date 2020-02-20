@@ -166,6 +166,10 @@ export class Memory {
         return transactions;
     }
 
+    public getAll(): Iterable<Interfaces.ITransaction> {
+        return this.all;
+    }
+
     /**
      * @param {string} id
      * @returns {(Interfaces.ITransaction | undefined)}
