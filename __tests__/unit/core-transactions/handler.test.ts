@@ -11,9 +11,11 @@ import { HtlcRefundBuilder } from "@arkecosystem/crypto/src/transactions/builder
 import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
 import { IPFSBuilder } from "@arkecosystem/crypto/src/transactions/builders/transactions/ipfs";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
+import { Memory } from "@arkecosystem/core-transaction-pool";
 import { MultiPaymentBuilder } from "@arkecosystem/crypto/src/transactions/builders/transactions/multi-payment";
 import { MultiSignatureBuilder } from "@arkecosystem/crypto/src/transactions/builders/transactions/multi-signature";
 import { One, Two } from "@arkecosystem/core-transactions/src/handlers";
+import { Query } from "@arkecosystem/core-transaction-pool/src/query";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@arkecosystem/core-transactions/src/handlers/handler-provider";
@@ -132,6 +134,10 @@ beforeEach(() => {
     app
         .bind(Identifiers.BlockRepository)
         .toConstantValue({});
+
+    app.bind(Identifiers.TransactionPoolMemory).to(Memory).inSingletonScope();
+
+    app.bind(Identifiers.TransactionPoolQuery).to(Query).inSingletonScope();
 
     app
         .bind(Identifiers.TransactionRepository)
@@ -1397,18 +1403,12 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
 
     const amount = 6 * 1e8;
 
-    let pool: Partial<Contracts.TransactionPool.Connection>;
-
     beforeAll(() => {
         Managers.configManager.setFromPreset("testnet");
     });
 
     beforeEach(async () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-
-        pool = {
-            getTransactionsByType: async (): Promise<Set<Interfaces.ITransaction>> => new Set(),
-        };
 
         claimWallet = factoryBuilder
             .get("Wallet")
@@ -1567,28 +1567,22 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
     });
 
     describe("canEnterTransactionPool", () => {
-        const processor: Partial<Contracts.TransactionPool.Processor> = { pushError: jest.fn() };
-
         it("should not throw", async () => {
             await expect(
-                handler.canEnterTransactionPool(
-                    htlcClaimTransaction.data,
-                    pool as Contracts.TransactionPool.Connection,
-                    processor as Contracts.TransactionPool.Processor,
+                handler.throwIfCannotEnterPool(
+                    htlcClaimTransaction
                 ),
-            ).resolves.toBeTrue();
+            ).toResolve();
         });
 
         it("should throw if no wallet has a lock with associated transaction id", async () => {
             walletRepository.forgetByIndex(Contracts.State.WalletIndexes.Locks, htlcLockTransaction.id!);
 
             await expect(
-                handler.canEnterTransactionPool(
-                    htlcClaimTransaction.data,
-                    pool as Contracts.TransactionPool.Connection,
-                    processor as Contracts.TransactionPool.Processor,
+                handler.throwIfCannotEnterPool(
+                    htlcClaimTransaction
                 ),
-            ).rejects.toThrow(Error); // TODO: check. canEnterTransactionPool Throws Wallet 7c9574901d00855368da57a5b3fd25ebaee577ef7376d9ff19789425a804a1ed doesn't exist in index locks
+            ).rejects.toThrow(Error); // TODO: check. throwIfCannotEnterPool Throws Wallet 7c9574901d00855368da57a5b3fd25ebaee577ef7376d9ff19789425a804a1ed doesn't exist in index locks
         });
     });
 
@@ -1682,8 +1676,6 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
     let handler: TransactionHandler;
     let lockWallet: Wallets.Wallet;
 
-    let pool: Partial<Contracts.TransactionPool.Connection>;
-
     beforeAll(() => {
         Managers.configManager.setFromPreset("testnet");
     });
@@ -1691,10 +1683,6 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
     beforeEach(async () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.HtlcRefund, Enums.TransactionTypeGroup.Core), 2);
-
-        pool = {
-            getTransactionsByType: async (): Promise<Set<Interfaces.ITransaction>> => new Set(),
-        };
 
         lockWallet = factoryBuilder
             .get("Wallet")
@@ -1826,26 +1814,20 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
     });
 
     describe("canEnterTransactionPool", () => {
-        const processor: Partial<Contracts.TransactionPool.Processor> = { pushError: jest.fn() };
-
         it("should not throw", async () => {
             await expect(
-                handler.canEnterTransactionPool(
-                    htlcRefundTransaction.data,
-                    pool as Contracts.TransactionPool.Connection,
-                    processor as Contracts.TransactionPool.Processor,
+                handler.throwIfCannotEnterPool(
+                    htlcRefundTransaction
                 ),
-            ).resolves.toBeTrue();
+            ).toResolve();
         });
 
         it("should throw if no wallet has a lock with associated transaction id", async () => {
             walletRepository.forgetByIndex(Contracts.State.WalletIndexes.Locks, htlcLockTransaction.id!);
 
             await expect(
-                handler.canEnterTransactionPool(
-                    htlcRefundTransaction.data,
-                    pool as Contracts.TransactionPool.Connection,
-                    processor as Contracts.TransactionPool.Processor,
+                handler.throwIfCannotEnterPool(
+                    htlcRefundTransaction
                 ),
             ).rejects.toThrowError(); // TODO: chekc. canEnterTransactionPool throws  Wallet c9d2e0d8a937d8208edb8ea94d56ca2aeb9afa17bbceaec53a6eb3728e6598c5 doesn't exist in index locks
         });

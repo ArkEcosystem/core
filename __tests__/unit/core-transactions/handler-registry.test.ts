@@ -62,14 +62,6 @@ class TestTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        return true;
-    }
-
     async applyToRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository): Promise<void> {}
 
     async revertForRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository): Promise<void> {}
@@ -83,6 +75,7 @@ beforeEach(() => {
     app.bind(Identifiers.BlockRepository).toConstantValue({});
     app.bind(Identifiers.TransactionRepository).toConstantValue({});
     app.bind(Identifiers.WalletRepository).toConstantValue({});
+    app.bind(Identifiers.TransactionPoolQuery).toConstantValue({});
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.TransferTransactionHandler);
