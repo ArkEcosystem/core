@@ -21,7 +21,7 @@ export const getLastHeight = (app: Contracts.Kernel.Application): number =>
 
 export const getSenderNonce = (app: Contracts.Kernel.Application, senderPublicKey: string): Utils.BigNumber => {
     return app
-        .getTagged<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository, "state", "blockain")
+        .getTagged<Contracts.State.WalletRepository>(Container.Identifiers.WalletRepository, "state", "blockchain")
         .getNonce(senderPublicKey);
 };
 
