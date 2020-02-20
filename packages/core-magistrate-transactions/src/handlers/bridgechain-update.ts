@@ -21,6 +21,9 @@ import { MagistrateTransactionHandler } from "./magistrate-handler";
 
 @Container.injectable()
 export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BridgechainRegistrationTransactionHandler];
     }
@@ -93,36 +96,23 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         emitter.dispatch(MagistrateApplicationEvents.BridgechainUpdate, transaction.data);
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        const { bridgechainId }: { bridgechainId: string } = data.asset!.bridgechainUpdate;
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const bridgechainUpdatesInPool: Interfaces.ITransactionData[] = Array.from(
-            await pool.getTransactionsByType(
-                Enums.MagistrateTransactionType.BridgechainUpdate,
-                Enums.MagistrateTransactionGroup,
-            ),
-        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+        const bridgechainId: string = transaction.data.asset!.bridgechainUpdate.bridgechainId;
+        const hasUpdate: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset?.bridgechainUpdate.bridgechainId === bridgechainId)
+            .has();
 
-        if (
-            bridgechainUpdatesInPool.some(
-                update =>
-                    update.senderPublicKey === data.senderPublicKey &&
-                    update.asset!.bridgechainUpdate.bridgechainId === bridgechainId,
-            )
-        ) {
-            processor.pushError(
-                data,
-                "ERR_PENDING",
+        if (hasUpdate) {
+            throw new Contracts.TransactionPool.PoolError(
                 `Bridgechain update for bridgechainId "${bridgechainId}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
             );
-            return false;
         }
-
-        return true;
     }
 
     public async applyToSender(

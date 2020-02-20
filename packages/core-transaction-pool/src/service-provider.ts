@@ -3,8 +3,11 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Cleaner } from "./cleaner";
 import { Collator } from "./collator";
 import { Connection } from "./connection";
+import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
+import { Processor } from "./processor";
+import { Query } from "./query";
 import { Storage } from "./storage";
 
 /**
@@ -43,6 +46,14 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.TransactionPoolService)
             .to(Connection)
             .inSingletonScope();
+
+        this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolProcessorFactory)
+            .toAutoFactory(Container.Identifiers.TransactionPoolProcessor);
+
+        this.app.bind(Container.Identifiers.TransactionPoolQuery).to(Query);
+        this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
 
         this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
     }

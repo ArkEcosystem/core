@@ -7,3 +7,4 @@ export * from "./peer-storage";
 export * from "./peer-verifier";
 export * from "./peer";
 export * from "./server";
+export * from "./transaction-broadcaster";
