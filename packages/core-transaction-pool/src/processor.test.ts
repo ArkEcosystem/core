@@ -1,10 +1,9 @@
-import "jest-extended";
-import { Interfaces } from "@packages/crypto/src";
-import { Container } from "@packages/core-kernel/src";
-import { Processor } from "@packages/core-transaction-pool/src/processor";
-import { TransactionFactory } from "../../../packages/crypto/dist/transactions/factory";
+import { Container } from "@arkecosystem/core-kernel";
+import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
-jest.mock("../../../packages/crypto/dist/transactions/factory");
+import { Processor } from "./processor";
+
+jest.mock("@arkecosystem/crypto/dist/transactions/factory");
 
 describe("Processor", () => {
     let container: Container.Container;
@@ -28,7 +27,7 @@ describe("Processor", () => {
 
     it("should add eligible transactions to pool", async () => {
         const processor = container.resolve(Processor);
-        const fromData = TransactionFactory.fromData as jest.Mock;
+        const fromData = Transactions.TransactionFactory.fromData as jest.Mock;
         fromData.mockImplementation(d => ({ id: d.id }));
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(false);
         const data = ([{ id: "id_eligible" }, { id: "id_non_eligible" }] as unknown) as Interfaces.ITransactionData[];

@@ -1,7 +1,7 @@
-import "jest-extended";
-import { Interfaces } from "@packages/crypto/src";
-import { Container } from "@packages/core-kernel/src";
-import { TransactionBroadcaster } from "@packages/core-p2p/src/transaction-broadcaster";
+import { Container } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
+
+import { TransactionBroadcaster } from "./transaction-broadcaster";
 
 describe("TransactionBroadcaster", () => {
     let container: Container.Container;
