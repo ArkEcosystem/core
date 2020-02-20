@@ -144,30 +144,18 @@ describe("Wallet Repository", () => {
         });
     });
 
-    it("should have to use the correct indexer to interact with and update wallet", () => {
-        const wallet = walletRepo.createWallet("abcd");
+    it("reindexing should keep indexers in sync", () => {
+        const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";
+        const wallet = walletRepo.createWallet(address);
         const publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
-        wallet.publicKey = publicKey;
-        
-        expect(walletRepo.findByAddress("abcd").address).toEqual(wallet.address);
-        expect(walletRepo.findByAddress("abcd").publicKey).toBeUndefined();
 
-        expect(walletRepo.findByAddress("abcd")).not.toEqual(wallet);
-        expect(walletRepo.findByPublicKey(publicKey)).not.toEqual(wallet);
-
+        expect(walletRepo.findByAddress(address)).toEqual(wallet);
         walletRepo.getIndex("publicKeys").set(publicKey, wallet);
-        expect(walletRepo.findByPublicKey(publicKey).publicKey).toBeDefined();
+        expect(walletRepo.findByPublicKey(publicKey).publicKey).toBeUndefined();
         expect(walletRepo.findByPublicKey(publicKey)).toEqual(wallet);
 
-        /**
-         * TODO: Is this desired behaviour?
-         * I would expect that searching by address, we should be able to retrieve a wallet 
-         * with a publicKey which has already been updated/set. Currently each indexer (e.g publicKeyIndexer, 
-         * addressIndexer) does not share the same instance of a WalletIndex. This has the effect that if a publicKey is set on the publicKeyIndexer, if we then look up the same wallet by Address (using the addressIndexer), the publicKey does not appear on that wallet.
-         * 
-         */
-        expect(walletRepo.findByAddress("abcd").publicKey).toBeUndefined();
-        expect(walletRepo.findByAddress("abcd")).not.toEqual(wallet);
+        expect(walletRepo.findByAddress(address).publicKey).toBeUndefined();
+        expect(walletRepo.findByAddress(address)).toEqual(wallet);
     });
 
     it("should get, set and forget wallets by address", () => {
