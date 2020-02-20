@@ -196,6 +196,8 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByAddress(nonExistingAddress)).toBeFalse();
         expect(walletRepo.hasByIndex("addresses", address)).toBeTrue();
         expect(walletRepo.hasByIndex("addresses", nonExistingAddress)).toBeFalse();
+        expect(walletRepo.allByAddress()).toEqual([wallet]);
+
         walletRepo.forgetByAddress(address);
         expect(walletRepo.has(address)).toBeFalse();
     });
@@ -234,6 +236,8 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByPublicKey(nonExistingPublicKey)).toBeFalse();
         expect(walletRepo.hasByIndex("publicKeys", publicKey)).toBeTrue();
         expect(walletRepo.hasByIndex("publicKeys", nonExistingPublicKey)).toBeFalse();
+        expect(walletRepo.allByPublicKey()).toEqual([wallet]);
+
         walletRepo.forgetByPublicKey(publicKey);
         expect(walletRepo.has(publicKey)).toBeFalse();
     });
@@ -266,6 +270,8 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByUsername(nonExistingUsername)).toBeFalse();
         expect(walletRepo.hasByIndex("usernames", username)).toBeTrue();
         expect(walletRepo.hasByIndex("usernames", nonExistingUsername)).toBeFalse();
+        expect(walletRepo.allByUsername()).toEqual([wallet]);
+        
         walletRepo.forgetByUsername(username);
         expect(walletRepo.has(username)).toBeFalse();
     });
