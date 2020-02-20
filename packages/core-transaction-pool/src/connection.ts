@@ -455,7 +455,6 @@ export class Connection implements Contracts.TransactionPool.Connection {
             this.memory.remember(transaction);
             this.storage.add(transaction);
         } catch (error) {
-            this.logger.debug(error.stack);
             throw new TransactionFailedToApplyError(transaction, error);
         }
     }

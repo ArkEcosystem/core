@@ -513,29 +513,6 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block.toJson())));
     }
 
-    public async broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<any> {
-        const peers: Contracts.P2P.Peer[] = Utils.take(
-            Utils.shuffle(this.storage.getPeers()),
-            this.config.maxPeersBroadcast,
-        );
-
-        this.logger.debug(
-            `Broadcasting ${Utils.pluralize("transaction", transactions.length, true)} to ${Utils.pluralize(
-                "peer",
-                peers.length,
-                true,
-            )}`,
-        );
-
-        const transactionsBroadcast: Interfaces.ITransactionJson[] = transactions.map(transaction =>
-            transaction.toJson(),
-        );
-
-        return Promise.all(
-            peers.map((peer: Contracts.P2P.Peer) => this.communicator.postTransactions(peer, transactionsBroadcast)),
-        );
-    }
-
     private async pingPeerPorts(initialRun?: boolean): Promise<void> {
         let peers = this.storage.getPeers();
         if (!initialRun) {
