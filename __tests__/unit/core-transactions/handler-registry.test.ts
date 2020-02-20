@@ -8,6 +8,10 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/
 import { TransactionHandlerProvider } from "@arkecosystem/core-transactions/src/handlers/handler-provider";
 import { Interfaces, Transactions, Enums, Utils, Crypto, Identities, Managers } from "@arkecosystem/crypto";
 import { TransactionSchema } from "@arkecosystem/crypto/src/transactions/types/schemas";
+import {
+    DeactivatedTransactionHandlerError,
+    InvalidTransactionTypeError,
+} from "@arkecosystem/core-transactions/src/errors";
 
 let app: Application;
 
@@ -211,9 +215,8 @@ describe("Registry", () => {
         expect(transactionHandlerRegistry.getRegisteredHandlerByType(internalTransactionType)).toBeInstanceOf(TestTransactionHandler);
 
         const invalidInternalTransactionType = Transactions.InternalTransactionType.from(999, Enums.TransactionTypeGroup.Test);
-        expect(() => {
-            transactionHandlerRegistry.getRegisteredHandlerByType(invalidInternalTransactionType);
-        }).toThrow();
+
+        expect(() => {transactionHandlerRegistry.getRegisteredHandlerByType(invalidInternalTransactionType)}).toThrow(InvalidTransactionTypeError);
     });
 
     it("should return a activated custom handler", async () => {
@@ -224,27 +227,18 @@ describe("Registry", () => {
         expect(await transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType)).toBeInstanceOf(TestTransactionHandler);
 
         const invalidInternalTransactionType = Transactions.InternalTransactionType.from(999, Enums.TransactionTypeGroup.Test);
-
-        let error: Error | null = null;
-        try {
-            await transactionHandlerRegistry.getActivatedHandlerByType(invalidInternalTransactionType);
-        } catch (e) {
-            error = e
-        }
-        await expect(error).toBeInstanceOf(Error);
+        await expect(transactionHandlerRegistry.getActivatedHandlerByType(invalidInternalTransactionType)).rejects.toThrow(InvalidTransactionTypeError)
     });
 
     it("should not return deactivated custom handler", async () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        let internalTransactionType = Transactions.InternalTransactionType.from(Enums.TransactionType.DelegateResignation, Enums.TransactionTypeGroup.Core);
 
-        const internalTransactionType = Transactions.InternalTransactionType.from(Enums.TransactionType.Ipfs, Enums.TransactionTypeGroup.Test);
+        Managers.configManager.getMilestone().aip11 = false;
+        await expect(transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType, 2)).rejects.toThrow(DeactivatedTransactionHandlerError);
 
-        let error: Error | null = null;
-        try {
-            await transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType)
-        } catch (e) {
-            error = e
-        }
-        await expect(error).toBeInstanceOf(Error);
+
+        Managers.configManager.getMilestone().aip11 = true;
+        expect(await transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType, 2)).toBeInstanceOf(Two.DelegateResignationTransactionHandler);
     });
 });
