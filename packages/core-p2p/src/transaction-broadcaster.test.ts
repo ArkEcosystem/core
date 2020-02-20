@@ -4,12 +4,21 @@ import { Interfaces } from "@arkecosystem/crypto";
 import { TransactionBroadcaster } from "./transaction-broadcaster";
 
 describe("TransactionBroadcaster", () => {
+    const container = new Container.Container();
+
     describe("broadcastTransactions", () => {
         const logger = { warning: jest.fn(), debug: jest.fn() };
         const configuration = { getRequired: jest.fn() };
         const storage = { getPeers: jest.fn() };
         const communicator = { postTransactions: jest.fn() };
-        const container = new Container.Container();
+
+        beforeAll(() => {
+            container.unbindAll();
+            container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+            container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
+            container.bind(Container.Identifiers.PeerStorage).toConstantValue(storage);
+            container.bind(Container.Identifiers.PeerCommunicator).toConstantValue(communicator);
+        });
 
         beforeEach(() => {
             logger.warning.mockReset();
@@ -17,12 +26,6 @@ describe("TransactionBroadcaster", () => {
             configuration.getRequired.mockReset();
             storage.getPeers.mockReset();
             communicator.postTransactions.mockReset();
-
-            container.unbindAll();
-            container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-            container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(configuration);
-            container.bind(Container.Identifiers.PeerStorage).toConstantValue(storage);
-            container.bind(Container.Identifiers.PeerCommunicator).toConstantValue(communicator);
         });
 
         it("should warn when attempting to broadcast empty array", async () => {

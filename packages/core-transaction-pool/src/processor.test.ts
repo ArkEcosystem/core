@@ -6,12 +6,21 @@ import { Processor } from "./processor";
 jest.mock("@arkecosystem/crypto");
 
 describe("Processor", () => {
+    const container = new Container.Container();
+
     describe("process", () => {
         const logger = { warning: jest.fn() };
         const pool = { addTransaction: jest.fn() };
         const dynamicFeeMatcher = { canEnterPool: jest.fn(), canBroadcast: jest.fn() };
         const transactionBroadcaster = { broadcastTransactions: jest.fn() };
-        const container = new Container.Container();
+
+        beforeAll(() => {
+            container.unbindAll();
+            container.bind(Container.Identifiers.LogService).toConstantValue(logger);
+            container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
+            container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
+            container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue(transactionBroadcaster);
+        });
 
         beforeEach(() => {
             (Transactions.TransactionFactory.fromData as jest.Mock).mockReset();
@@ -21,12 +30,6 @@ describe("Processor", () => {
             dynamicFeeMatcher.canEnterPool.mockReset();
             dynamicFeeMatcher.canBroadcast.mockReset();
             transactionBroadcaster.broadcastTransactions.mockReset();
-
-            container.unbindAll();
-            container.bind(Container.Identifiers.LogService).toConstantValue(logger);
-            container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
-            container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstantValue(dynamicFeeMatcher);
-            container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue(transactionBroadcaster);
         });
 
         it("should add eligible transactions to pool", async () => {
