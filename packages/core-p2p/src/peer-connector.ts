@@ -74,7 +74,7 @@ export class PeerConnector implements P2P.IPeerConnector {
             port: peer.port,
             hostname: peer.ip,
             ackTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
-            perMessageDeflate: true,
+            perMessageDeflate: false,
             codecEngine: codec,
         });
 
