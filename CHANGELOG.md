@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.10] - 2020-02-20
+
+### Fixed
+
+-   Disable permessage-deflate ([#3518])
+
+## [2.6.9] - 2020-02-19
+
+### Added
+
+-   Filter peers by version range ([#3465])
+-   Add flag to skip export of rolled back transactions ([#3459])
+
+### Fixed
+
+-   Check for missed blocks before applying round ([#3507])
+-   Make app.js optional as initially intended ([#3510])
+-   Multisig legacy allow signatures property ([#3489])
+
+### Changed
+
+-   Remove pm2 from docker ([#3505])
+-   Use findByPublicKey to set both publickey and address on the multisig wallet ([#3498])
+-   Remove long dependency ([#3502])
+
 ## [2.6.1] - 2020-02-11
 
 ### Changed
@@ -849,6 +874,8 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.10]: https://github.com/ARKEcosystem/core/compare/2.6.9...2.6.10
+[2.6.9]: https://github.com/ARKEcosystem/core/compare/2.6.1...2.6.9
 [2.6.1]: https://github.com/ARKEcosystem/core/compare/2.6.0...2.6.1
 [2.6.0]: https://github.com/ARKEcosystem/core/compare/2.5.38...2.6.0
 [2.5.38]: https://github.com/ARKEcosystem/core/compare/2.5.37...2.5.38
@@ -1358,6 +1385,15 @@ Closed security vulnerabilities:
 [#3404]: https://github.com/ARKEcosystem/core/pull/3404
 [#3409]: https://github.com/ARKEcosystem/core/pull/3409
 [#3426]: https://github.com/ARKEcosystem/core/pull/3426
+[#3459]: https://github.com/ARKEcosystem/core/pull/3459
+[#3465]: https://github.com/ARKEcosystem/core/pull/3465
+[#3489]: https://github.com/ARKEcosystem/core/pull/3489
+[#3498]: https://github.com/ARKEcosystem/core/pull/3498
+[#3502]: https://github.com/ARKEcosystem/core/pull/3502
+[#3505]: https://github.com/ARKEcosystem/core/pull/3505
+[#3507]: https://github.com/ARKEcosystem/core/pull/3507
+[#3510]: https://github.com/ARKEcosystem/core/pull/3510
+[#3518]: https://github.com/ARKEcosystem/core/pull/3518
 [032caa1b990e91937e4bc1561bc1aeaeca9e37d]: https://github.com/ARKEcosystem/core/commit/032caa1b990e91937e4bc1561bc1aeaeca9e37d9
 [1209a36366c8fd3ba31fab2463011b7ce1a7d84]: https://github.com/ARKEcosystem/core/commit/1209a36366c8fd3ba31fab2463011b7ce1a7d844
 [34749bf84bcec3fecd0098c0d42f52deb1f6ba4]: https://github.com/ARKEcosystem/core/commit/34749bf84bcec3fecd0098c0d42f52deb1f6ba4a

@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/core-p2p",
-    "version": "2.6.1",
+    "version": "2.6.10",
     "description": "P2P API for ARK Core",
     "license": "MIT",
     "contributors": [
@@ -23,13 +23,13 @@
         "pretest": "bash ../../scripts/pre-test.sh"
     },
     "dependencies": {
-        "@arkecosystem/core-container": "^2.6.1",
-        "@arkecosystem/core-event-emitter": "^2.6.1",
-        "@arkecosystem/core-http-utils": "^2.6.1",
-        "@arkecosystem/core-interfaces": "^2.6.1",
-        "@arkecosystem/core-transaction-pool": "^2.6.1",
-        "@arkecosystem/core-utils": "^2.6.1",
-        "@arkecosystem/crypto": "^2.6.1",
+        "@arkecosystem/core-container": "^2.6.10",
+        "@arkecosystem/core-event-emitter": "^2.6.10",
+        "@arkecosystem/core-http-utils": "^2.6.10",
+        "@arkecosystem/core-interfaces": "^2.6.10",
+        "@arkecosystem/core-transaction-pool": "^2.6.10",
+        "@arkecosystem/core-utils": "^2.6.10",
+        "@arkecosystem/crypto": "^2.6.10",
         "@hapi/boom": "^8.0.0",
         "@hapi/sntp": "^3.1.1",
         "ajv": "^6.10.2",
@@ -52,7 +52,7 @@
         "lodash.take": "^4.1.1",
         "nanomatch": "^1.2.13",
         "pluralize": "^8.0.0",
-        "pretty-ms": "^5.0.0",
+        "pretty-ms": "^6.0.0",
         "rate-limiter-flexible": "^1.1.0",
         "scc-broker-client": "^6.1.0",
         "semver": "^7.0.0",
