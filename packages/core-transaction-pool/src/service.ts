@@ -49,6 +49,7 @@ export class Service implements Contracts.TransactionPool.Service {
             this.logger.info(`Pool ${describeTransaction(transaction)} added`);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
+            throw error;
         }
     }
 
