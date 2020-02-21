@@ -13,14 +13,6 @@ export const index: object = {
     },
 };
 
-export const show: object = {
-    params: {
-        id: Joi.string()
-            .hex()
-            .length(64), // id is genesisHash
-    },
-};
-
 export const search: object = {
     query: {
         ...pagination,
