@@ -26,7 +26,6 @@ export const plugin: Container.IPluginDescriptor = {
             .once(ApplicationEvents.StateStarting, (database: Database.IDatabaseService) => {
                 const walletManager = database.walletManager;
                 walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);
-                walletManager.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
             });
 
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);

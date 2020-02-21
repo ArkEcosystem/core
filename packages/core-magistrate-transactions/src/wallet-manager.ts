@@ -3,7 +3,6 @@ import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "./inter
 
 export enum MagistrateIndex {
     Businesses = "businesses",
-    Bridgechains = "bridgechains",
 }
 
 export const businessIndexer = (index: State.IWalletIndex, wallet: State.IWallet): void => {
