@@ -34,7 +34,6 @@ export interface NetworkMonitor {
     checkNetworkHealth(): Promise<NetworkStatus>;
     downloadBlocksFromHeight(fromBlockHeight: number, maxParallelDownloads?: number): Promise<Interfaces.IBlockData[]>;
     broadcastBlock(block: Interfaces.IBlock): Promise<void>;
-    broadcastTransactions(transactions: Interfaces.ITransaction[]): Promise<void>;
     getServer(): SocketCluster; // remove this
     setServer(server: SocketCluster): void; // remove this
     isColdStart(): boolean;

@@ -28,7 +28,7 @@ export class TransactionHasExpiredError extends Contracts.TransactionPool.PoolEr
 
 export class TransactionFeeToLowError extends Contracts.TransactionPool.PoolError {
     public constructor(transaction: Interfaces.ITransaction) {
-        super(`Transaction ${transaction.id} fee is to low include in pool`, "ERR_LOW_FEE", transaction);
+        super(`Transaction ${transaction.id} fee is to low to include in pool`, "ERR_LOW_FEE", transaction);
     }
 }
 
