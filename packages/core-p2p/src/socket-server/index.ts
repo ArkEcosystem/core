@@ -31,7 +31,7 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             // See https://github.com/SocketCluster/socketcluster/issues/506 about
             // details on how pingTimeout works.
             pingTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
-            perMessageDeflate: true,
+            perMessageDeflate: false,
             maxPayload: blockMaxPayload + 10 * 1024, // 10KB margin vs block maxPayload to allow few additional chars for p2p message
         },
         ...config.server,
