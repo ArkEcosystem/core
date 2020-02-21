@@ -2,7 +2,7 @@ import "jest-extended";
 import { Container, Providers, Services, Contracts } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
 
-import { Managers } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
 import { Wallet, TempWalletRepository, WalletRepository } from "@arkecosystem/core-state/src/wallets";
@@ -138,9 +138,11 @@ describe("Temp Wallet Repository", () => {
             expect(() => tempWalletRepo.findByScope("doesNotExist" as any, "1")).toThrowError(`Unknown scope doesNotExist`);
         });
 
-        it("should retrieve existing wallet when searching Wallet Scope", () => {
+        it("should have to reindex wallet on original repo in order to search", () => {
             const wallet = tempWalletRepo.createWallet("abcd");
-            tempWalletRepo.reindex(wallet);
+            expect(() => tempWalletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toThrow();
+
+            walletRepo.reindex(wallet);
 
             expect(() => tempWalletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).not.toThrow();
             expect(tempWalletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(wallet);
@@ -148,7 +150,7 @@ describe("Temp Wallet Repository", () => {
 
         it("should retrieve existing wallet when searching Delegate Scope", () => {
             const wallet = tempWalletRepo.createWallet("abcd");
-            tempWalletRepo.reindex(wallet);
+            walletRepo.reindex(wallet);
 
             expect(() => tempWalletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
 
@@ -181,7 +183,7 @@ describe("Temp Wallet Repository", () => {
         expect(tempWalletRepo.findByAddress(address)).toEqual(wallet);
     });
 
-    it.only("should not retrieve wallets indexed in original repo, until they are indexed", () => {
+    it("should not retrieve wallets indexed in original repo, until they are indexed", () => {
         const address = "abcd";
 
         const wallet = tempWalletRepo.createWallet(address);
@@ -216,17 +218,102 @@ describe("Temp Wallet Repository", () => {
         expect(tempWalletRepo.has(address)).toBeTrue();
     });
 
+    /**
+     * TODO: check this is desired behaviour
+     * 
+     */
     it("should create a wallet if one is not found during address lookup", () => {
         expect(() => tempWalletRepo.findByAddress("hello")).not.toThrow();
         expect(tempWalletRepo.findByAddress("iDontExist")).toBeInstanceOf(Wallet);
-        expect(tempWalletRepo.has("hello")).toBeTrue();
-        expect(tempWalletRepo.hasByAddress('iDontExist')).toBeTrue();
+        expect(tempWalletRepo.has("hello")).toBeFalse();
+        expect(tempWalletRepo.hasByAddress('iDontExist')).toBeFalse();
+       
         /**
          * TODO: check this is desired behaviour
-         * Looking up a non-existing address by findByAddress creates a wallet.
-         * However looking up a non-existing address using findByIndex() does not.
+         * WalletRepo throws here, TempWalletRepo does not.
          */
-        const errorMessage = "Wallet iAlsoDontExist doesn't exist in index addresses";
-        expect(() => tempWalletRepo.findByIndex("addresses", "iAlsoDontExist")).toThrow(errorMessage);
+        expect(() => tempWalletRepo.findByIndex("addresses", "iAlsoDontExist")).not.toThrow();
+    });
+
+    describe("reindex", () => {
+        it("should not affect the original", () => {
+            const wallet = walletRepo.createWallet("abcdef");
+            walletRepo.reindex(wallet);
+
+            tempWalletRepo.reindex(wallet);
+
+            expect(walletRepo.findByAddress(wallet.address)).not.toBe(
+                tempWalletRepo.findByAddress(wallet.address),
+            );
+        });
+    });
+
+    describe("findByAddress", () => {
+        it("should return a copy", () => {
+            const wallet = walletRepo.createWallet("abcdef");
+            walletRepo.reindex(wallet);
+
+            const tempWallet = tempWalletRepo.findByAddress(wallet.address);
+            tempWallet.balance = Utils.BigNumber.ONE;
+
+            expect(wallet.balance).not.toEqual(tempWallet.balance);
+        });
+    });
+
+    describe("findByPublickey", () => {
+        it("should return a copy", () => {
+            const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
+            wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
+            wallet.balance = Utils.BigNumber.SATOSHI;
+            walletRepo.reindex(wallet);
+
+            const tempWallet = tempWalletRepo.findByPublicKey(wallet.publicKey);
+            tempWallet.balance = Utils.BigNumber.ZERO;
+
+            expect(wallet.balance).toEqual(Utils.BigNumber.SATOSHI);
+            expect(tempWallet.balance).toEqual(Utils.BigNumber.ZERO);
+        });
+    });
+
+    describe("findByUsername", () => {
+        it("should return a copy", () => {
+            const wallet = walletRepo.createWallet("abcdef");
+            wallet.setAttribute("delegate", { username: "test" });
+            walletRepo.reindex(wallet);
+
+            const tempWallet = tempWalletRepo.findByUsername(wallet.getAttribute("delegate.username"));
+            tempWallet.balance = Utils.BigNumber.ONE;
+
+            expect(wallet.balance).not.toEqual(tempWallet.balance);
+        });
+    });
+
+    describe("hasByAddress", () => {
+        it("should be ok", () => {
+            const wallet = walletRepo.createWallet("abcdef");
+            walletRepo.reindex(wallet);
+
+            expect(tempWalletRepo.hasByAddress(wallet.address)).toBeTrue();
+        });
+    });
+
+    describe("hasByPublicKey", () => {
+        it("should be ok", () => {
+            const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
+            wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
+            walletRepo.reindex(wallet);
+
+            expect(tempWalletRepo.hasByPublicKey(wallet.publicKey)).toBeTrue();
+        });
+    });
+
+    describe("hasByUsername", () => {
+        it("should be ok", () => {
+            const wallet = walletRepo.createWallet("abcdef");
+            wallet.setAttribute("delegate", { username: "test" });
+            walletRepo.reindex(wallet);
+
+            expect(tempWalletRepo.hasByUsername(wallet.getAttribute("delegate.username"))).toBeTrue();
+        });
     });
 });
