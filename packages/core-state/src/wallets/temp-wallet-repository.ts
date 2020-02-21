@@ -85,6 +85,14 @@ export class TempWalletRepository extends WalletRepository {
         return this.blockchainWalletRepository.hasByUsername(username);
     }
 
+    public has(key: string): boolean {
+        return this.blockchainWalletRepository.has(key);
+    }
+
+    public hasByIndex(indexName: string, key: string): boolean {
+        return this.blockchainWalletRepository.hasByIndex(indexName, key);
+    }
+
     public reset(): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.clear();

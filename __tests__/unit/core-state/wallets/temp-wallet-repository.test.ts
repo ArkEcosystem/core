@@ -122,7 +122,7 @@ describe("Temp Wallet Repository", () => {
     });
 
     describe("search", () => {
-        it("should throw is no wallet exists", () => {
+        it("should throw if no wallet exists", () => {
             expect(() => tempWalletRepo.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
             expect(() => tempWalletRepo.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
         });
@@ -153,8 +153,80 @@ describe("Temp Wallet Repository", () => {
             expect(() => tempWalletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
 
             wallet.setAttribute("delegate", true);
-            // TODO: check that TempWalletRepo should throw here (unlike WalletRepo)
+            /**
+             * TODO: check that TemptempWalletRepo should throw here.
+             * WalletRepo does not.
+             */
             expect(() => tempWalletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
         });
+    });
+    
+    it("findByPublicKey should reindex", () => {
+        const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";
+        const wallet = tempWalletRepo.createWallet(address);
+        const publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
+        wallet.publicKey = publicKey;
+
+        expect(tempWalletRepo.findByAddress(address)).not.toEqual(wallet);
+        tempWalletRepo.getIndex("publicKeys").set(publicKey, wallet);
+        expect(tempWalletRepo.findByPublicKey(publicKey).publicKey).toBeDefined();
+        expect(tempWalletRepo.findByPublicKey(publicKey)).toEqual(wallet);
+
+        /**
+         * TODO: check this is desired behaviour?
+         * TempWalletRepository calls reindex inside findByPublicKey (unlike WalletRepository).
+         * This has the effect that these are now defined without needing to reindex
+         */
+        expect(tempWalletRepo.findByAddress(address).publicKey).toBeDefined();
+        expect(tempWalletRepo.findByAddress(address)).toEqual(wallet);
+    });
+
+    it.only("should not retrieve wallets indexed in original repo, until they are indexed", () => {
+        const address = "abcd";
+
+        const wallet = tempWalletRepo.createWallet(address);
+        tempWalletRepo.reindex(wallet);
+    
+        /**
+         * TODO: check this is desired behaviour
+         * has, hasByAddress and hasByIndex all behave differently because of the problem of inheritance.
+         * I've added has and hasByIndex to TempWalletRepo to fix this (i.e. these should all return false, not just one of them), but in general this architecture needs revisiting.
+         */
+        expect(tempWalletRepo.has(address)).toBeFalse();
+        expect(tempWalletRepo.hasByAddress(address)).toBeFalse();
+        expect(tempWalletRepo.hasByIndex("addresses", address)).toBeFalse();
+        /**
+         *  For example, because allByAddress is *not* overwritten in TempWalletRepo, this falls back to the WalletRepo base class which returns the wallet, despite hasByAddress being false.
+         * 
+         * We can add all these different methods to TempWalletRepository to make the class behave more sensibly. However, if these methods aren't intended to ever really be called on the temporary version of the wallet repository it makes sense to use a shared base interface, rather than using inheritance.
+         * 
+         * IMO inheritance should be used very sparingly, as it is often difficult to reason about, and calling methods have side effects the calling code may not expect.
+         */
+        expect(tempWalletRepo.allByAddress()).toEqual([wallet]);
+
+        walletRepo.reindex(wallet);
+            
+        expect(tempWalletRepo.has(address)).toBeTrue();
+        expect(tempWalletRepo.hasByAddress(address)).toBeTrue();
+        expect(tempWalletRepo.hasByIndex("addresses", address)).toBeTrue();
+        expect(tempWalletRepo.allByAddress()).toEqual([wallet]);
+
+        // TODO: similarly, this behaviour is odd - as the code hasn't been overwritten in the extended class
+        tempWalletRepo.forgetByAddress(address);
+        expect(tempWalletRepo.has(address)).toBeTrue();
+    });
+
+    it("should create a wallet if one is not found during address lookup", () => {
+        expect(() => tempWalletRepo.findByAddress("hello")).not.toThrow();
+        expect(tempWalletRepo.findByAddress("iDontExist")).toBeInstanceOf(Wallet);
+        expect(tempWalletRepo.has("hello")).toBeTrue();
+        expect(tempWalletRepo.hasByAddress('iDontExist')).toBeTrue();
+        /**
+         * TODO: check this is desired behaviour
+         * Looking up a non-existing address by findByAddress creates a wallet.
+         * However looking up a non-existing address using findByIndex() does not.
+         */
+        const errorMessage = "Wallet iAlsoDontExist doesn't exist in index addresses";
+        expect(() => tempWalletRepo.findByIndex("addresses", "iAlsoDontExist")).toThrow(errorMessage);
     });
 });
