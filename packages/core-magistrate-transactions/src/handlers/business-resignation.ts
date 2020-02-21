@@ -2,9 +2,9 @@ import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/co
 import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
+import { BridechainsAreNotResignedError, BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
-import { IBusinessWalletAttributes } from "../interfaces";
+import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
 
@@ -48,6 +48,11 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
             throw new BusinessIsResignedError();
         }
 
+        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
+        if (bridgechains && Object.values(bridgechains).some(bridgechain => !bridgechain.resigned)) {
+            throw new BridechainsAreNotResignedError();
+        }
+
         return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
     }
 
@@ -59,7 +64,7 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<{ type: string, message: string } | null> {
+    ): Promise<{ type: string; message: string } | null> {
         if (
             await pool.senderHasTransactionsOfType(
                 data.senderPublicKey,
@@ -71,7 +76,7 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
             return {
                 type: "ERR_PENDING",
                 message: `Business resignation for "${wallet.getAttribute("business")}" already in the pool`,
-            }
+            };
         }
         return null;
     }
