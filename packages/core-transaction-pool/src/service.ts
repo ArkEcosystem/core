@@ -45,7 +45,7 @@ export class Service implements Contracts.TransactionPool.Service {
         this.storage.addTransaction(transaction);
 
         try {
-            await this.apply(transaction);
+            await this.addTransactionToMempool(transaction);
             this.logger.info(`Pool ${describeTransaction(transaction)} added`);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
@@ -88,7 +88,7 @@ export class Service implements Contracts.TransactionPool.Service {
         if (prevTransactions) {
             for (const transaction of prevTransactions) {
                 try {
-                    await this.apply(transaction);
+                    await this.addTransactionToMempool(transaction);
                     this.storage.addTransaction(transaction);
                     prevCount++;
                     rebuiltCount++;
@@ -98,7 +98,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
         for (const transaction of this.storage.getAllTransactions()) {
             try {
-                await this.apply(transaction);
+                await this.addTransactionToMempool(transaction);
                 rebuiltCount++;
             } catch (error) {
                 AppUtils.assert.defined<string>(transaction.id);
@@ -123,7 +123,7 @@ export class Service implements Contracts.TransactionPool.Service {
         this.storage.flush();
     }
 
-    private async apply(transaction: Interfaces.ITransaction): Promise<void> {
+    private async addTransactionToMempool(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const maxTransactionsInPool = this.configuration.getRequired<number>("maxTransactionsInPool");
