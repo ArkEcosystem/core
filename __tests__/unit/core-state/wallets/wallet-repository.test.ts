@@ -274,7 +274,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.has("wallet1")).toBeTrue();
     });
 
-    it("should forget wallets using indexer", () => {
+    it("should index array of wallets and forget using different indexers", () => {
         const wallets: Contracts.State.Wallet[] = [];
         const walletAddresses: string[] = [];
         for (let i = 0; i < 6; i++) {
@@ -282,9 +282,10 @@ describe("Wallet Repository", () => {
             walletAddresses.push(walletAddress);
             const wallet = walletRepo.createWallet(walletAddress)
             wallets.push(wallet);
-            walletRepo.reindex(wallet);
-            expect(walletRepo.has(walletAddress)).toBeTrue();
         }
+
+        walletRepo.index(wallets);
+        walletAddresses.forEach(address => expect(walletRepo.has(address)).toBeTrue());
 
         const publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
 
