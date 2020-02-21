@@ -30,7 +30,7 @@ export class Service implements Contracts.TransactionPool.Service {
         if (process.env.CORE_RESET_DATABASE) {
             this.flush();
         }
-        await this.rebuild();
+        await this.readdTransactions();
     }
 
     public getPoolSize(): number {
@@ -78,7 +78,7 @@ export class Service implements Contracts.TransactionPool.Service {
         }
     }
 
-    public async rebuild(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
+    public async readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
         this.memory.flush();
 
         let prevCount = 0;

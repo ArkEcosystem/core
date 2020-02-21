@@ -63,7 +63,7 @@ export class Initialize implements Action {
             if (this.stateStore.networkStart) {
                 await this.databaseService.buildWallets();
                 await this.databaseService.restoreCurrentRound(block.data.height);
-                await this.transactionPool.rebuild();
+                await this.transactionPool.readdTransactions();
                 await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
                 return this.blockchain.dispatch("STARTED");
@@ -87,7 +87,7 @@ export class Initialize implements Action {
             await this.databaseService.buildWallets();
 
             await this.databaseService.restoreCurrentRound(block.data.height);
-            await this.transactionPool.rebuild();
+            await this.transactionPool.readdTransactions();
 
             await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).boot();
 
