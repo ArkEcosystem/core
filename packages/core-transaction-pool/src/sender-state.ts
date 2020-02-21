@@ -1,11 +1,14 @@
 import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import {
     SenderExceededMaximumTransactionCountError,
     TransactionExceedsMaximumByteSizeError,
     TransactionFailedToApplyError,
+    TransactionFailedToVerifyError,
+    TransactionFromFutureError,
+    TransactionFromWrongNetworkError,
     TransactionHasExpiredError,
 } from "./errors";
 import { ExpirationService } from "./expiration-service";
@@ -54,25 +57,40 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
             }
         }
 
+        if (JSON.stringify(transaction.data).length > maxTransactionBytes) {
+            throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
+        }
+
+        const currentNetwork: number = Managers.configManager.get<number>("network.pubKeyHash");
+        if (transaction.data.network && transaction.data.network !== currentNetwork) {
+            throw new TransactionFromWrongNetworkError(transaction, currentNetwork);
+        }
+
+        const now: number = Crypto.Slots.getTime();
+        if (transaction.timestamp > now + 3600) {
+            const secondsInFuture: number = transaction.timestamp - now;
+            throw new TransactionFromFutureError(transaction, secondsInFuture);
+        }
+
         if (this.expirationService.isTransactionExpired(transaction)) {
             const expiredBlocksCount = this.expirationService.getTransactionExpiredBlocksCount(transaction);
             throw new TransactionHasExpiredError(transaction, expiredBlocksCount);
         }
 
-        if (JSON.stringify(transaction.data).length > maxTransactionBytes) {
-            throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
-        }
-
         const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
 
-        try {
-            await handler.throwIfCannotEnterPool(transaction);
-            await handler.apply(transaction);
-            this.transactions.push(transaction);
-            this.logger.info(`Pool ${describeTransaction(transaction)} applied`);
-        } catch (error) {
-            this.logger.warning(`Pool ${describeTransaction(transaction)} apply failed: ${error.message}`);
-            throw new TransactionFailedToApplyError(transaction, error);
+        if (await handler.verify(transaction)) {
+            try {
+                await handler.throwIfCannotEnterPool(transaction);
+                await handler.apply(transaction);
+                this.transactions.push(transaction);
+                this.logger.info(`Pool ${describeTransaction(transaction)} applied`);
+            } catch (error) {
+                this.logger.warning(`Pool ${describeTransaction(transaction)} apply failed: ${error.message}`);
+                throw new TransactionFailedToApplyError(transaction, error);
+            }
+        } else {
+            throw new TransactionFailedToVerifyError(transaction);
         }
     }
 
