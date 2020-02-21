@@ -109,7 +109,7 @@ describe("Wallet Repository", () => {
     });
 
     describe("search", () => {
-        it("should throw is no wallet exists", () => {
+        it("should throw if no wallet exists", () => {
             expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
             expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
         });
@@ -246,7 +246,12 @@ describe("Wallet Repository", () => {
 
     it("should get, set and forget wallets by username", () => {
         const username = "testUsername";
-        const wallet = walletRepo.createWallet("abcdef")
+        const wallet = walletRepo.createWallet("abcdef");
+        /**
+         * TODO: check this is desired behaviour 
+         * A username hasn't been set on the wallet here, it's been set on the indexer.
+         * It means it's possible to look up a wallet by a username which is set on the WalletIndex and not the Wallet itself - this should probably throw. 
+         */
         walletRepo.getIndex("usernames").set(username, wallet);
         expect(walletRepo.findByUsername(username)).toEqual(wallet);
         expect(walletRepo.findByIndex("usernames", username)).toEqual(wallet);
@@ -264,7 +269,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.has(username)).toBeFalse();
     });
 
-    it("should able to reindex forgotten wallets", () => {
+    it("should be able to reindex forgotten wallets", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
         walletRepo.reindex(wallet1);
         expect(walletRepo.has("wallet1")).toBeTrue();
