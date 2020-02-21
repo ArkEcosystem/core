@@ -15,15 +15,10 @@ export const portsSchema = {
     minProperties: 1,
     required: ["@arkecosystem/core-api"],
     additionalProperties: false,
-    properties: {
-        "@arkecosystem/core-api": {
-            type: "integer",
-            minimum: 0,
-            maximum: 65535,
-        },
-    },
     patternProperties: {
-        "^.{1,100}$": {
+        // just allow anything within length limitation of npm package name, more
+        // precise validation will be done in transaction handler
+        "^.{1,214}$": {
             type: "integer",
             minimum: 0,
             maximum: 65535,
