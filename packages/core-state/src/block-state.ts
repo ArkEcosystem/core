@@ -14,6 +14,9 @@ export class BlockState {
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
     private handlerRegistry!: Handlers.Registry;
 
+    @Container.inject(Container.Identifiers.LogService)
+    private logger!: Contracts.Kernel.Logger;
+
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         if (block.data.height === 1) {
             this.initGenesisGeneratorWallet(block.data.generatorPublicKey);
@@ -33,8 +36,8 @@ export class BlockState {
             }
             this.applyBlockToGenerator(generatorWallet, block.data);
         } catch (error) {
-            this.app.log.error(error.stack);
-            this.app.log.error("Failed to apply all transactions in block - reverting previous transactions");
+            this.logger.error(error.stack);
+            this.logger.error("Failed to apply all transactions in block - reverting previous transactions");
             for (const transaction of appliedTransactions.reverse()) {
                 await this.revertTransaction(transaction);
             }
@@ -57,8 +60,8 @@ export class BlockState {
             }
             this.revertBlockFromGenerator(generatorWallet, block.data);
         } catch (error) {
-            this.app.log.error(error.stack);
-            this.app.log.error("Failed to revert all transactions in block - applying previous transactions");
+            this.logger.error(error.stack);
+            this.logger.error("Failed to revert all transactions in block - applying previous transactions");
             for (const transaction of revertedTransactions.reverse()) {
                 await this.applyTransaction(transaction);
             }
