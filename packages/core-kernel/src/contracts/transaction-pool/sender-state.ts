@@ -5,10 +5,10 @@ export interface SenderState {
     getTransactionsFromEarliestNonce(): Iterable<Interfaces.ITransaction>;
     getTransactionsFromLatestNonce(): Iterable<Interfaces.ITransaction>;
 
-    apply(transaction: Interfaces.ITransaction): Promise<void>;
-    revert(): Promise<Interfaces.ITransaction>;
-    remove(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
-    accept(transaction: Interfaces.ITransaction): Interfaces.ITransaction[];
+    addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
+    popTransaction(): Promise<Interfaces.ITransaction>;
+    removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
+    acceptForgedTransaction(transaction: Interfaces.ITransaction): Interfaces.ITransaction[];
 }
 
 export type SenderStateFactory = () => SenderState;

@@ -26,33 +26,33 @@ export class Storage implements Contracts.TransactionPool.Storage {
         this.database.close();
     }
 
-    public add(transaction: Interfaces.ITransaction): void {
-        this.database.prepare("INSERT INTO pool (id, serialized) VALUES (:id, :serialized)").run({
-            id: transaction.id,
-            serialized: transaction.serialized,
-        });
-    }
-
-    public delete(id: string): void {
-        this.database.prepare("DELETE FROM pool WHERE id = ?").run(id);
-    }
-
-    public has(id: string): boolean {
+    public hasTransaction(id: string): boolean {
         return this.database
             .prepare("SELECT COUNT(*) FROM pool WHERE id = ?")
             .pluck(true)
             .get(id) as boolean;
     }
 
-    public clear(): void {
-        this.database.prepare("DELETE FROM pool").run();
-    }
-
-    public all(): Interfaces.ITransaction[] {
+    public getAllTransactions(): Interfaces.ITransaction[] {
         return this.database
             .prepare("SELECT LOWER(HEX(serialized)) FROM pool")
             .pluck(true)
             .all()
             .map(Transactions.TransactionFactory.fromHex);
+    }
+
+    public addTransaction(transaction: Interfaces.ITransaction): void {
+        this.database.prepare("INSERT INTO pool (id, serialized) VALUES (:id, :serialized)").run({
+            id: transaction.id,
+            serialized: transaction.serialized,
+        });
+    }
+
+    public removeTransaction(id: string): void {
+        this.database.prepare("DELETE FROM pool WHERE id = ?").run(id);
+    }
+
+    public flush(): void {
+        this.database.prepare("DELETE FROM pool").run();
     }
 }

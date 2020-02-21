@@ -1,9 +1,10 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface Storage {
-    add(transaction: Interfaces.ITransaction): void;
-    delete(id: string): void;
-    has(id: string): boolean;
-    clear(): void;
-    all(): Interfaces.ITransaction[];
+    hasTransaction(id: string): boolean;
+    getAllTransactions(): Interfaces.ITransaction[];
+
+    addTransaction(transaction: Interfaces.ITransaction): void;
+    removeTransaction(id: string): void;
+    flush(): void;
 }

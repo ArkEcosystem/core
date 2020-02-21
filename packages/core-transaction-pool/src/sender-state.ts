@@ -5,8 +5,8 @@ import { Interfaces } from "@arkecosystem/crypto";
 import {
     SenderExceededMaximumTransactionCountError,
     TransactionExceedsMaximumByteSizeError,
-    TransactionHasExpiredError,
     TransactionFailedToApplyError,
+    TransactionHasExpiredError,
 } from "./errors";
 import { ExpirationService } from "./expiration-service";
 import { describeTransaction } from "./utils";
@@ -41,7 +41,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         return this.transactions.slice().reverse();
     }
 
-    public async apply(transaction: Interfaces.ITransaction): Promise<void> {
+    public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const maxTransactionBytes = this.configuration.getRequired<number>("maxTransactionBytes");
@@ -76,7 +76,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         }
     }
 
-    public async revert(): Promise<Interfaces.ITransaction> {
+    public async popTransaction(): Promise<Interfaces.ITransaction> {
         const transaction = this.transactions.pop();
         if (!transaction) {
             throw new Error("Empty state");
@@ -94,7 +94,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         }
     }
 
-    public async remove(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
         if (this.transactions.length === 0) {
             throw new Error("Empty state");
         }
@@ -105,7 +105,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
                 throw new Error("Unknown transaction");
             }
 
-            removed = removed.concat(await this.revert());
+            removed = removed.concat(await this.popTransaction());
             if (removed.find(t => t.id === transaction.id)) {
                 break;
             }
@@ -113,7 +113,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         return removed;
     }
 
-    public accept(transaction: Interfaces.ITransaction): Interfaces.ITransaction[] {
+    public acceptForgedTransaction(transaction: Interfaces.ITransaction): Interfaces.ITransaction[] {
         const index = this.transactions.findIndex(t => t.id === transaction.id);
         if (index === -1) {
             throw new Error("Unknown transaction");

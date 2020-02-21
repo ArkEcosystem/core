@@ -15,10 +15,6 @@ export class Memory implements Contracts.TransactionPool.Memory {
         return Array.from(this.senderStates.values()).reduce((sum, p) => sum + p.getTransactionsCount(), 0);
     }
 
-    public clear(): void {
-        this.senderStates.clear();
-    }
-
     public hasSenderState(senderPublicKey: string): boolean {
         return this.senderStates.has(senderPublicKey);
     }
@@ -35,7 +31,7 @@ export class Memory implements Contracts.TransactionPool.Memory {
         return this.senderStates.values();
     }
 
-    public async apply(transaction: Interfaces.ITransaction): Promise<void> {
+    public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         let senderState = this.senderStates.get(transaction.data.senderPublicKey);
@@ -46,7 +42,7 @@ export class Memory implements Contracts.TransactionPool.Memory {
         }
 
         try {
-            await senderState.apply(transaction);
+            await senderState.addTransaction(transaction);
         } finally {
             if (senderState.getTransactionsCount() === 0) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
@@ -57,14 +53,14 @@ export class Memory implements Contracts.TransactionPool.Memory {
         }
     }
 
-    public async remove(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const senderState = this.senderStates.get(transaction.data.senderPublicKey);
         AppUtils.assert.defined<Contracts.TransactionPool.SenderState>(senderState);
 
         try {
-            const removedTransactions = await senderState.remove(transaction);
+            const removedTransactions = await senderState.removeTransaction(transaction);
             if (senderState.getTransactionsCount() === 0) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
                 this.logger.info(
@@ -80,14 +76,14 @@ export class Memory implements Contracts.TransactionPool.Memory {
         }
     }
 
-    public accept(transaction: Interfaces.ITransaction): Interfaces.ITransaction[] {
+    public acceptForgedTransaction(transaction: Interfaces.ITransaction): Interfaces.ITransaction[] {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const senderState = this.senderStates.get(transaction.data.senderPublicKey);
         AppUtils.assert.defined<Contracts.TransactionPool.SenderState>(senderState);
 
         try {
-            return senderState.accept(transaction);
+            return senderState.acceptForgedTransaction(transaction);
         } finally {
             if (senderState.getTransactionsCount() === 0) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
@@ -96,5 +92,9 @@ export class Memory implements Contracts.TransactionPool.Memory {
                 );
             }
         }
+    }
+
+    public flush(): void {
+        this.senderStates.clear();
     }
 }

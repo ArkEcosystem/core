@@ -4,13 +4,14 @@ import { SenderState } from "./sender-state";
 
 export interface Memory {
     getSize(): number;
-    clear(): void;
 
     hasSenderState(senderPublicKey: string): boolean;
     getSenderState(senderPublicKey: string): SenderState;
     getSenderStates(): Iterable<SenderState>;
 
-    apply(transaction: Interfaces.ITransaction): Promise<void>;
-    remove(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
-    accept(transaction: Interfaces.ITransaction): Interfaces.ITransaction[];
+    addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
+    removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
+    acceptForgedTransaction(transaction: Interfaces.ITransaction): Interfaces.ITransaction[];
+
+    flush(): void;
 }

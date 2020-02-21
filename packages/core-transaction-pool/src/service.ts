@@ -28,7 +28,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
     public async boot(): Promise<void> {
         if (process.env.CORE_RESET_DATABASE) {
-            this.clear();
+            this.flush();
         }
         await this.rebuild();
     }
@@ -37,13 +37,49 @@ export class Service implements Contracts.TransactionPool.Service {
         return this.memory.getSize();
     }
 
-    public clear(): void {
-        this.memory.clear();
-        this.storage.clear();
+    public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.id);
+        if (this.storage.hasTransaction(transaction.id)) {
+            throw new TransactionAlreadyInPoolError(transaction);
+        }
+        this.storage.addTransaction(transaction);
+
+        try {
+            await this.apply(transaction);
+            this.logger.info(`Pool ${describeTransaction(transaction)} added`);
+        } catch (error) {
+            this.storage.removeTransaction(transaction.id);
+        }
+    }
+
+    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.id);
+        if (this.storage.hasTransaction(transaction.id) === false) {
+            throw new Error("Unknown transaction");
+        }
+
+        for (const removedTransaction of await this.memory.removeTransaction(transaction)) {
+            AppUtils.assert.defined<string>(removedTransaction.id);
+            this.storage.removeTransaction(removedTransaction.id);
+            this.logger.debug(`Pool ${describeTransaction(removedTransaction)} deleted`);
+        }
+    }
+
+    public acceptForgedTransaction(transaction: Interfaces.ITransaction): void {
+        AppUtils.assert.defined<string>(transaction.id);
+        if (this.storage.hasTransaction(transaction.id) === false) {
+            return;
+        }
+
+        for (const removedTransaction of this.memory.acceptForgedTransaction(transaction)) {
+            AppUtils.assert.defined<string>(removedTransaction.id);
+            this.storage.removeTransaction(removedTransaction.id);
+            this.logger.debug(`Pool ${describeTransaction(removedTransaction)} deleted`);
+        }
     }
 
     public async rebuild(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
-        this.memory.clear();
+        this.memory.flush();
 
         let prevCount = 0;
         let rebuiltCount = 0;
@@ -52,20 +88,20 @@ export class Service implements Contracts.TransactionPool.Service {
             for (const transaction of prevTransactions) {
                 try {
                     await this.apply(transaction);
-                    this.storage.add(transaction);
+                    this.storage.addTransaction(transaction);
                     prevCount++;
                     rebuiltCount++;
                 } catch (error) {}
             }
         }
 
-        for (const transaction of this.storage.all()) {
+        for (const transaction of this.storage.getAllTransactions()) {
             try {
                 await this.apply(transaction);
                 rebuiltCount++;
             } catch (error) {
                 AppUtils.assert.defined<string>(transaction.id);
-                this.storage.delete(transaction.id);
+                this.storage.removeTransaction(transaction.id);
             }
         }
 
@@ -76,45 +112,14 @@ export class Service implements Contracts.TransactionPool.Service {
         }
     }
 
-    public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.id);
-        if (this.storage.has(transaction.id)) {
-            throw new TransactionAlreadyInPoolError(transaction);
-        }
-        await this.apply(transaction);
-        this.storage.add(transaction);
-        this.logger.info(`Pool ${describeTransaction(transaction)} added`);
-    }
-
-    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        AppUtils.assert.defined<string>(transaction.id);
-        if (this.storage.has(transaction.id) === false) {
-            throw new Error("Unknown transaction");
-        }
-
-        for (const removedTransaction of await this.memory.remove(transaction)) {
-            AppUtils.assert.defined<string>(removedTransaction.id);
-            this.storage.delete(removedTransaction.id);
-            this.logger.debug(`Pool ${describeTransaction(removedTransaction)} deleted`);
-        }
-    }
-
-    public acceptForgedTransaction(transaction: Interfaces.ITransaction): void {
-        AppUtils.assert.defined<string>(transaction.id);
-        if (this.storage.has(transaction.id) === false) {
-            return;
-        }
-
-        for (const removedTransaction of this.memory.accept(transaction)) {
-            AppUtils.assert.defined<string>(removedTransaction.id);
-            this.storage.delete(removedTransaction.id);
-            this.logger.debug(`Pool ${describeTransaction(removedTransaction)} deleted`);
-        }
-    }
-
     public async cleanUp(): Promise<void> {
         await this.cleanExpired();
         await this.cleanLowestPriority();
+    }
+
+    public flush(): void {
+        this.memory.flush();
+        this.storage.flush();
     }
 
     private async apply(transaction: Interfaces.ITransaction): Promise<void> {
@@ -134,7 +139,7 @@ export class Service implements Contracts.TransactionPool.Service {
             }
         }
 
-        await this.memory.apply(transaction);
+        await this.memory.addTransaction(transaction);
         await this.cleanLowestPriority();
     }
 
