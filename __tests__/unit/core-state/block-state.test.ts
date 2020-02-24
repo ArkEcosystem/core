@@ -10,6 +10,12 @@ import { BlockState } from "../../../packages/core-state/src/block-state";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
 import { registerIndexers, registerFactories } from "../../../packages/core-state/src/wallets/indexers";
 import { IBlock, ITransaction } from "@arkecosystem/crypto/dist/interfaces";
+import { DelegateResignationBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/delegate-resignation";
+import { VoteBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/vote";
+import { SecondSignatureBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/second-signature";
+import { DelegateRegistrationBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/delegate-registration";
+import { TransferBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/transfer";
+import { IPFSBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/ipfs";
 
 let sandbox: Sandbox;
 let blockState: BlockState;
@@ -129,8 +135,8 @@ beforeAll(() => {
     factory = new FactoryBuilder();
 
     Factories.registerBlockFactory(factory);
-
     Factories.registerTransactionFactory(factory);
+    Factories.registerWalletFactory(factory);
 
     Managers.configManager.setFromPreset("testnet");
 });
@@ -202,6 +208,7 @@ describe("BlockState", () => {
         jest.spyOn((blockState as any), "initGenesisGeneratorWallet");
         jest.spyOn((blockState as any), "applyBlockToGenerator");
         jest.spyOn((blockState as any), "revertTransaction");
+        jest.spyOn((blockState as any), "applyVoteBalances");
 
         applySpy.mockReset();
         revertSpy.mockReset();
@@ -280,6 +287,78 @@ describe("BlockState", () => {
                 expect(error).toBeInstanceOf(Error);
                 expect(error.message).toBe("Fake error");
             }
+        });
+    });
+
+    describe.only("applyTransaction", () => {
+
+        let sender: Contracts.State.Wallet;
+        let recipient: Contracts.State.Wallet;
+
+        const factory = new FactoryBuilder();
+
+        Factories.registerTransactionFactory(factory);
+        Factories.registerWalletFactory(factory);
+
+        sender = factory
+            .get("Wallet")
+            .withOptions({
+                passphrase: "testPassphrase1",
+                nonce: 0
+            })
+            .make();
+
+        recipient  = factory
+            .get("Wallet")
+            .withOptions({
+                passphrase: "testPassphrase2",
+            })
+            .make();
+
+        const transfer = (<TransferBuilder>factory
+            .get("Transfer")
+            .withOptions({ amount: 96579, senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .make());
+
+        const delegateReg = (<DelegateRegistrationBuilder>factory
+            .get("DelegateRegistration")
+            .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .make())
+            .sign("delegatePassphrase")
+            .build();
+    
+        const secondSign = (<SecondSignatureBuilder>factory
+            .get("Transfer")
+            .withOptions({ amount: 10000000, senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .make());
+
+        const vote = (<VoteBuilder>factory
+            .get("Vote")
+            .withOptions({ publicKey: recipient.publicKey, senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .make());
+        
+        const delegateRes = (<DelegateResignationBuilder>factory
+            .get("DelegateResignation")
+            .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .make())
+            .sign("delegatePassphrase")
+            .build();
+
+        describe.each`
+            type                        | transaction
+            ${"transfer"}               | ${transfer}
+            ${"delegateRegistration"}   | ${delegateReg}
+            ${"2nd sign"}               | ${secondSign}
+            ${"vote"}                   | ${vote}
+            ${"delegateResignation"}    | ${delegateRes}
+        `("when the transaction is a $type", ({ type, transaction }) => {
+
+            it("should call the transaction handler apply the transaction to the sender & recipient", async () => {
+                
+                await blockState.applyTransaction(transaction);
+    
+                expect(applySpy).toHaveBeenCalledWith(transaction);
+            });
         });
     });
 });
