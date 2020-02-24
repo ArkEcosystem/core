@@ -14,12 +14,10 @@ import { registerIndexers, registerFactories } from "../../../packages/core-stat
 export interface Spies {
     applySpy: jest.SpyInstance,
     revertSpy: jest.SpyInstance,
-    logger: {
-        error: jest.SpyInstance,
-    }
+    errorLoggerSpy: jest.SpyInstance,
 }
 
-export const setUp = (spies: Spies): Setup => {
+export const setUp = (): Setup => {
     const sandbox = new Sandbox();
 
     sandbox.app
@@ -92,16 +90,25 @@ export const setUp = (spies: Spies): Setup => {
     const walletRepo: WalletRepository = sandbox.app
         .get(Container.Identifiers.WalletRepository);
 
+
+    const applySpy: jest.SpyInstance = jest.fn();
+    const revertSpy: jest.SpyInstance = jest.fn();
+    const errorLoggerSpy: jest.SpyInstance = jest.fn();
+
+    const logger = {
+        error: errorLoggerSpy
+    };
+
     sandbox.app
-        .bind(Container.Identifiers.LogService)
-        .toConstantValue(spies.logger);
+    .bind(Container.Identifiers.LogService)
+    .toConstantValue(logger);
 
     @Container.injectable()
     class MockHandler {
         public getActivatedHandlerForData() {
             return {
-                apply: spies.applySpy,
-                revert: spies.revertSpy,
+                apply: applySpy,
+                revert: revertSpy,
             };
         }
     }
@@ -129,7 +136,12 @@ export const setUp = (spies: Spies): Setup => {
         sandbox,
         walletRepo,
         factory,
-        blockState
+        blockState,
+        spies: {
+            applySpy,
+            revertSpy,
+            errorLoggerSpy,
+        }
     }
 }
 
@@ -138,4 +150,5 @@ export interface Setup {
     walletRepo: WalletRepository;
     factory: FactoryBuilder;
     blockState: BlockState;
+    spies: Spies
 }

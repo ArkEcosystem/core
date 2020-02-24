@@ -20,17 +20,16 @@ let blockState: BlockState;
 let factory: FactoryBuilder;
 let blocks: IBlock[];
 let walletRepo: WalletRepository;
-const applySpy: jest.SpyInstance = jest.fn();
-const revertSpy: jest.SpyInstance = jest.fn();
-const logger = {
-    error: jest.fn()
-};
+let applySpy: jest.SpyInstance;
+let revertSpy: jest.SpyInstance;
 
 beforeAll(() => {
-    const initialisedServices = setUp({applySpy, revertSpy, logger});
-    walletRepo = initialisedServices.walletRepo;
-    blockState = initialisedServices.blockState;
-    factory = initialisedServices.factory;
+    const initialEnv = setUp();
+    walletRepo = initialEnv.walletRepo;
+    blockState = initialEnv.blockState;
+    factory = initialEnv.factory;
+    applySpy = initialEnv.spies.applySpy;
+    revertSpy = initialEnv.spies.revertSpy;
 
     jest.spyOn(blockState, "applyTransaction");
     jest.spyOn(blockState, "revertTransaction");
