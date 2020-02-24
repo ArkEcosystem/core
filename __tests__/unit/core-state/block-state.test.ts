@@ -201,6 +201,7 @@ describe("BlockState", () => {
         jest.spyOn(blockState, "applyTransaction");
         jest.spyOn((blockState as any), "initGenesisGeneratorWallet");
         jest.spyOn((blockState as any), "applyBlockToGenerator");
+        jest.spyOn((blockState as any), "revertTransaction");
 
         applySpy.mockReset();
         revertSpy.mockReset();
@@ -235,5 +236,35 @@ describe("BlockState", () => {
     it("should throw if there is no generator wallet", () => {
         walletRepo.forgetByPublicKey(generatorWallet.publicKey);
         expect(async () => await blockState.applyBlock(blocks[0])).toReject();
+    });
+
+    describe("when 1 transaction fails while applying it", () => {
+        it.only("should revert sequentially (from last to first) all the transactions of the block", async () => {
+            // @ts-ignore
+            jest.spyOn(blockState, "applyTransaction").mockImplementation(tx => {
+                if (tx === blocks[0].transactions[2]) {
+                    throw new Error("Fake error");
+                }
+            });
+
+            expect(blocks[0].transactions.length).toBe(3);
+
+            try {
+                await blockState.applyBlock(blocks[0]);
+                expect(undefined).toBe("this should fail if no error is thrown");
+            } catch (error) {
+                expect(blockState.revertTransaction).toHaveBeenCalledTimes(2);
+                expect(revertSpy).toHaveBeenCalledTimes(2);
+
+                for (const transaction of blocks[0].transactions.slice(0, 1)) {
+                    const i = blocks[0].transactions.slice(0, 1).indexOf(transaction);
+                    const total = blocks[0].transactions.slice(0, 1).length;
+                    expect(blockState.revertTransaction).toHaveBeenNthCalledWith(
+                        total + 1 - i,
+                        blocks[0].transactions[i],
+                    );
+                }
+            }
+        });
     });
 });
