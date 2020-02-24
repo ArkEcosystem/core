@@ -1,5 +1,5 @@
 import { State } from "@arkecosystem/core-interfaces";
-import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "./interfaces";
+import { IBusinessWalletAttributes } from "./interfaces";
 
 export enum MagistrateIndex {
     Businesses = "businesses",
