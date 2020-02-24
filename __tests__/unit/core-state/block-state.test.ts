@@ -1,5 +1,5 @@
 import "jest-extended";
-import { Container, Providers, Services } from "@arkecosystem/core-kernel";
+import { Container, Providers, Services, Contracts } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
@@ -163,8 +163,9 @@ beforeEach(() => {
 });
 
 describe("BlockState", () => {
+    let generatorWallet: Contracts.State.Wallet;
     beforeEach(() => {
-        const generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
+        generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
 
         generatorWallet.setAttribute("delegate", {
             username: "test",
@@ -175,10 +176,7 @@ describe("BlockState", () => {
         });
 
         walletRepo.reindex(generatorWallet);
-    });
 
-    it("should apply sequentially the transactions of the block", async () => {
-        
         const txs: ITransaction[] = [];
         for (let i = 0; i < 3; i++) {
             txs[i] = Transactions.BuilderFactory.vote()
@@ -193,11 +191,22 @@ describe("BlockState", () => {
         data.transactions.push(txs[1].data);
         data.transactions.push(txs[2].data);
         data.numberOfTransactions = 3; // NOTE: if transactions are added to a fixture the NoT needs to be increased
+    });
+
+    it("should apply sequentially the transactions of the block", async () => {
 
         await blockState.applyBlock(blocks[0]);
 
         for (let i = 0; i < blocks[0].transactions.length; i++) {
             expect(blockState.applyTransaction).toHaveBeenNthCalledWith(i + 1, blocks[0].transactions[i]);
+        }
+    });
+
+    it("should apply the block data to the delegate", async () => {
+        await blockState.applyBlock(blocks[0]);
+
+        for (let i = 0; i < blocks[0].transactions.length; i++) {
+            expect((blockState as any).applyBlockToGenerator).toHaveBeenNthCalledWith(i + 1, [generatorWallet, blocks[0].data]);
         }
     });
 });
