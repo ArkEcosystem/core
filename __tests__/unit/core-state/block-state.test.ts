@@ -209,4 +209,9 @@ describe("BlockState", () => {
             expect((blockState as any).applyBlockToGenerator).toHaveBeenNthCalledWith(i + 1, [generatorWallet, blocks[0].data]);
         }
     });
+
+    it("should throw if there is no generator wallet", async () => {
+        walletRepo.forgetByPublicKey(generatorWallet.publicKey);
+        expect(async () => await blockState.applyBlock(blocks[0])).toReject();
+    });
 });
