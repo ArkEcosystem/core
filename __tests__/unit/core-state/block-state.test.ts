@@ -239,7 +239,7 @@ describe("BlockState", () => {
     });
 
     describe("when 1 transaction fails while applying it", () => {
-        it.only("should revert sequentially (from last to first) all the transactions of the block", async () => {
+        it("should revert sequentially (from last to first) all the transactions of the block", async () => {
             // @ts-ignore
             jest.spyOn(blockState, "applyTransaction").mockImplementation(tx => {
                 if (tx === blocks[0].transactions[2]) {
@@ -264,6 +264,21 @@ describe("BlockState", () => {
                         blocks[0].transactions[i],
                     );
                 }
+            }
+        });
+
+        it("throws the Error", async () => {
+            blockState.applyTransaction = jest.fn(tx => {
+                throw new Error("Fake error");
+            });
+
+            try {
+                await blockState.applyBlock(blocks[0]);
+
+                expect(undefined).toBe("this should fail if no error is thrown");
+            } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+                expect(error.message).toBe("Fake error");
             }
         });
     });
