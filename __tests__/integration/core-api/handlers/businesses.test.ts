@@ -110,6 +110,19 @@ describe("API 2.0 - Businesses", () => {
         });
     });
 
+    describe("GET /businesses/:businessId/bridgechains/:bridgechainId", () => {
+        it.each(Object.entries(validIdentifiers))("should GET a business bridgechains by %s : %s", async (_, value) => {
+            const response = await utils.request(
+                "GET",
+                `businesses/${value}/bridgechains/${bridgechainAsset.genesisHash}`,
+            );
+            expect(response).toBeSuccessfulResponse();
+            expect(response.data.data).toBeObject();
+
+            expect(response.data.data.bridgechainAsset.genesisHash).toEqual(bridgechainAsset.genesisHash);
+        });
+    });
+
     describe("POST /businesses/search", () => {
         it("should POST a search for businesses by name", async () => {
             const response = await utils.request("POST", "businesses/search", {
