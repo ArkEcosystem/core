@@ -7,6 +7,7 @@ import delay from "delay";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
 import { IBlock } from "@arkecosystem/crypto/dist/interfaces";
 import { setUp } from "../setup";
+import { makeChainedBlocks } from "../helper";
 
 let blocks: IBlock[];
 let stateStorage: StateStore;
@@ -22,21 +23,6 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-    const makeChainedBlocks = (length: number, blockFactory): IBlock[] => {
-        const entitites: IBlock[] = [];
-        let previousBlock; // first case uses genesis IBlockData
-        const getPreviousBlock = () => previousBlock;
-
-        for (let i = 0; i < length; i++) {
-            if (previousBlock) {
-                blockFactory.withOptions({getPreviousBlock});
-            }
-            const entity: IBlock = blockFactory.make();
-            entitites.push(entity);
-            previousBlock = entity.data;
-        }
-        return entitites;
-    }
     blocks = makeChainedBlocks(101, factoryInstance.get("Block"));
     stateStorage.clear();
 });
