@@ -1,36 +1,27 @@
-import { Container, Services } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
 
 import { WalletIndex } from "../../../../packages/core-state/src/wallets/wallet-index";
-import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
-import { Sandbox } from "@packages/core-test-framework/src";
+import { Factory } from "../../../../packages/core-test-framework/src/factories/factory";
+import { setUp } from "../setup";
 
-let sandbox: Sandbox;
-let factory: FactoryBuilder;
-let wallet: Wallets.Wallet;
-let walletIndex: WalletIndex;
+let factoryInstance: Factory;
 
 beforeAll(() => {
-    sandbox = new Sandbox();
-
-    sandbox.app
-        .bind<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .to(Services.Attributes.AttributeSet)
-        .inSingletonScope();
-
-    factory = new FactoryBuilder();
-
-    Factories.registerWalletFactory(factory);
-});
-
-beforeEach(() => {
-    wallet = factory.get("Wallet").make<Wallets.Wallet>();
-    walletIndex = new WalletIndex((index, wallet) => {
-        index.set(wallet.address, wallet);
-    });
+    const { factory } = setUp();
+    factoryInstance = factory.get("Wallet");
 });
 
 describe("WalletIndex", () => {
+    let wallet: Wallets.Wallet;
+    let walletIndex: WalletIndex;
+
+    beforeAll(() => {
+        wallet = factoryInstance.make<Wallets.Wallet>();
+        walletIndex = new WalletIndex((index, wallet) => {
+            index.set(wallet.address, wallet);
+        });
+    });
+
     it("should index and forget wallets", () => {
         expect(walletIndex.has(wallet.address)).toBeFalse();
 
