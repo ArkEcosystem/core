@@ -2,7 +2,6 @@ import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosyste
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
-import { ExpirationService } from "./expiration-service";
 import { describeTransaction } from "./utils";
 
 @Container.injectable()
@@ -23,8 +22,8 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
 
-    @Container.inject(ExpirationService)
-    private readonly expirationService!: ExpirationService;
+    @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
+    private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
     public async boot(): Promise<void> {
         if (process.env.CORE_RESET_DATABASE) {

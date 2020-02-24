@@ -11,7 +11,6 @@ import {
     TransactionFromWrongNetworkError,
     TransactionHasExpiredError,
 } from "./errors";
-import { ExpirationService } from "./expiration-service";
 import { describeTransaction } from "./utils";
 
 @Container.injectable()
@@ -27,8 +26,8 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     @Container.tagged("state", "copy-on-write")
     private readonly handlerRegistry!: Handlers.Registry;
 
-    @Container.inject(ExpirationService)
-    private readonly expirationService!: ExpirationService;
+    @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
+    private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
     private readonly transactions: Interfaces.ITransaction[] = [];
 

@@ -23,7 +23,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
     public async register(): Promise<void> {
         this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
         this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
-        this.app.bind(ExpirationService).toSelf();
+        this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
         this.app
             .bind(Container.Identifiers.TransactionPoolMemory)
             .to(Memory)
