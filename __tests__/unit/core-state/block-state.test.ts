@@ -16,6 +16,8 @@ import { SecondSignatureBuilder } from "@arkecosystem/crypto/dist/transactions/b
 import { DelegateRegistrationBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/delegate-registration";
 import { TransferBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/transfer";
 import { IPFSBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/ipfs";
+import { HtlcLockBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/htlc-lock";
+import { HtlcRefundBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/htlc-refund";
 
 let sandbox: Sandbox;
 let blockState: BlockState;
@@ -139,6 +141,15 @@ beforeAll(() => {
     Factories.registerWalletFactory(factory);
 
     Managers.configManager.setFromPreset("testnet");
+
+    jest.spyOn(blockState, "applyTransaction");
+    jest.spyOn(blockState, "revertTransaction");
+    jest.spyOn(blockState, "increaseWalletDelegateVoteBalance");
+    jest.spyOn(blockState, "decreaseWalletDelegateVoteBalance");
+    jest.spyOn((blockState as any), "initGenesisGeneratorWallet");
+    jest.spyOn((blockState as any), "applyBlockToGenerator");
+    jest.spyOn((blockState as any), "applyVoteBalances");
+    jest.spyOn((blockState as any), "revertBlockFromGenerator");
 });
 
 beforeEach(() => {
@@ -170,6 +181,10 @@ beforeEach(() => {
     blocks = makeChainedBlocks(101, factory.get("Block"));
 
     walletRepo.reset();
+
+    jest.clearAllMocks();
+    applySpy.mockClear();
+    revertSpy.mockClear();
 });
 
 describe("BlockState", () => {
@@ -202,16 +217,7 @@ describe("BlockState", () => {
         data.transactions.push(txs[1].data);
         data.transactions.push(txs[2].data);
         data.numberOfTransactions = 3; // NOTE: if transactions are added to a fixture the NoT needs to be increased
-        blocks[0].transactions = txs;
-
-        jest.spyOn(blockState, "applyTransaction");
-        jest.spyOn((blockState as any), "initGenesisGeneratorWallet");
-        jest.spyOn((blockState as any), "applyBlockToGenerator");
-        jest.spyOn((blockState as any), "revertTransaction");
-        jest.spyOn((blockState as any), "applyVoteBalances");
-
-        applySpy.mockReset();
-        revertSpy.mockReset();
+        blocks[0].transactions = txs;;
     });
 
     it("should apply sequentially the transactions of the block", async () => {
@@ -236,8 +242,49 @@ describe("BlockState", () => {
     });
 
     it("should apply the block data to the delegate", async () => {
+        const delegateBefore = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+        const balanceBefore = generatorWallet.balance;
+
         await blockState.applyBlock(blocks[0]);
+
         expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith( generatorWallet, blocks[0].data);
+        expect((blockState as any).increaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+
+        const balanceIncrease = blocks[0].data.transactions.reduce((acc, currentTransaction) => acc.plus(currentTransaction.amount), Utils.BigNumber.ZERO);
+        const delegateAfter = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+        const productsBlocks = 1;
+        const forgedFees = delegateBefore.forgedFees.plus(blocks[0].data.totalFee);
+        const forgedRewards = delegateBefore.forgedRewards.plus(blocks[0].data.reward);
+
+        expect(delegateAfter.producedBlocks).toEqual(productsBlocks);
+        expect(delegateAfter.forgedFees).toEqual(forgedFees);
+        expect(delegateAfter.forgedRewards).toEqual(forgedRewards);
+        expect(delegateAfter.lastBlock).toEqual(blocks[0].data);
+
+        // TODO: use transactions that affect the balance
+        expect(generatorWallet.balance).toEqual(balanceBefore.plus(balanceIncrease));
+    });
+
+    it("should revert the block data for the delegate", async () => {
+        const balanceBefore = generatorWallet.balance;
+
+        await blockState.applyBlock(blocks[0]);
+        await blockState.revertBlock(blocks[0]);
+
+        expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith( generatorWallet, blocks[0].data);
+        expect((blockState as any).revertBlockFromGenerator).toHaveBeenCalledWith( generatorWallet, blocks[0].data);
+        expect((blockState as any).increaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+        expect((blockState as any).decreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+
+        const delegate = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+
+        expect(delegate.producedBlocks).toEqual(0);
+        expect(delegate.forgedFees).toEqual(Utils.BigNumber.ZERO);
+        expect(delegate.forgedRewards).toEqual(Utils.BigNumber.ZERO);
+        expect(delegate.lastBlock).toEqual(undefined);
+
+        // TODO: use transactions that affect the balance 
+        expect(generatorWallet.balance).toEqual(balanceBefore);
     });
 
     it("should throw if there is no generator wallet", () => {
