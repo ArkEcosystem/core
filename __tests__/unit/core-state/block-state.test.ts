@@ -105,8 +105,8 @@ beforeAll(() => {
     class MockHandler {
         public getActivatedHandlerForData() {
             return {
-                apply: () => { console.log("Apply called") },
-                revert: () => { console.log("Revert called") },
+                apply: jest.fn(),
+                revert: jest.fn(),
             };
         }
     }
@@ -164,6 +164,7 @@ beforeEach(() => {
 
 describe("BlockState", () => {
     let generatorWallet: Contracts.State.Wallet;
+
     beforeEach(() => {
         generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
 
@@ -191,10 +192,14 @@ describe("BlockState", () => {
         data.transactions.push(txs[1].data);
         data.transactions.push(txs[2].data);
         data.numberOfTransactions = 3; // NOTE: if transactions are added to a fixture the NoT needs to be increased
+        blocks[0].transactions = txs;
+
+        jest.spyOn(blockState, "applyTransaction");
+        jest.spyOn((blockState as any), "initGenesisGeneratorWallet");
+        jest.spyOn((blockState as any), "applyBlockToGenerator");
     });
 
     it("should apply sequentially the transactions of the block", async () => {
-
         await blockState.applyBlock(blocks[0]);
 
         for (let i = 0; i < blocks[0].transactions.length; i++) {
@@ -202,15 +207,18 @@ describe("BlockState", () => {
         }
     });
 
-    it("should apply the block data to the delegate", async () => {
+    it("should init generator wallet on genesis block", async () => {
+        blocks[0].data.height = 1;
         await blockState.applyBlock(blocks[0]);
-
-        for (let i = 0; i < blocks[0].transactions.length; i++) {
-            expect((blockState as any).applyBlockToGenerator).toHaveBeenNthCalledWith(i + 1, [generatorWallet, blocks[0].data]);
-        }
+        expect((blockState as any).initGenesisGeneratorWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
     });
 
-    it("should throw if there is no generator wallet", async () => {
+    it("should apply the block data to the delegate", async () => {
+        await blockState.applyBlock(blocks[0]);
+        expect((blockState as any).applyBlockToGenerator).toHaveBeenNthCalledWith(3, generatorWallet, blocks[0].data);
+    });
+
+    it("should throw if there is no generator wallet", () => {
         walletRepo.forgetByPublicKey(generatorWallet.publicKey);
         expect(async () => await blockState.applyBlock(blocks[0])).toReject();
     });
