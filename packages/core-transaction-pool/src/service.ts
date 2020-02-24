@@ -45,7 +45,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
         try {
             await this.addTransactionToMempool(transaction);
-            this.logger.info(`Pool ${describeTransaction(transaction)} added`);
+            this.logger.info(`TransactionPool.Service ${describeTransaction(transaction)} added`);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
             throw error;
@@ -61,7 +61,7 @@ export class Service implements Contracts.TransactionPool.Service {
         for (const removedTransaction of await this.memory.removeTransaction(transaction)) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
-            this.logger.debug(`Pool ${describeTransaction(removedTransaction)} deleted`);
+            this.logger.debug(`TransactionPool.Service ${describeTransaction(removedTransaction)} removed`);
         }
     }
 
@@ -74,7 +74,7 @@ export class Service implements Contracts.TransactionPool.Service {
         for (const removedTransaction of this.memory.acceptForgedTransaction(transaction)) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
-            this.logger.debug(`Pool ${describeTransaction(removedTransaction)} deleted`);
+            this.logger.debug(`TransactionPool.Service ${describeTransaction(removedTransaction)} removed`);
         }
     }
 
@@ -106,9 +106,9 @@ export class Service implements Contracts.TransactionPool.Service {
         }
 
         if (prevTransactions) {
-            this.logger.info(`Pool rebuilt ${rebuiltCount} transactions (including ${prevCount} previous)`);
+            this.logger.info(`TransactionPool.Service re-added ${rebuiltCount} transactions (${prevCount} previous)`);
         } else {
-            this.logger.info(`Pool rebuilt ${rebuiltCount} transactions`);
+            this.logger.info(`TransactionPool.Service re-added ${rebuiltCount} transactions`);
         }
     }
 

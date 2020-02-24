@@ -83,9 +83,9 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
                 await handler.throwIfCannotEnterPool(transaction);
                 await handler.apply(transaction);
                 this.transactions.push(transaction);
-                this.logger.info(`Pool ${describeTransaction(transaction)} applied`);
+                this.logger.info(`SenderState ${describeTransaction(transaction)} added`);
             } catch (error) {
-                this.logger.warning(`Pool ${describeTransaction(transaction)} apply failed: ${error.message}`);
+                this.logger.warning(`SenderState ${describeTransaction(transaction)} apply failed: ${error.message}`);
                 throw new TransactionFailedToApplyError(transaction, error);
             }
         } else {
