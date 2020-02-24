@@ -195,6 +195,25 @@ describe("Transaction Forging - Bridgechain registration", () => {
         });
 
         it("should reject bridgechain registration, because business resigned [Signed with 1 Passphrase]", async () => {
+            // first resign bridgechains
+            const bridgechainResignation1 = TransactionFactory.bridgechainResignation(
+                "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+            )
+                .withPassphrase(secrets[0])
+                .createOne();
+            await expect(bridgechainResignation1).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainResignation1.id).toBeForged();
+
+            const bridgechainResignation2 = TransactionFactory.bridgechainResignation(
+                "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+            )
+                .withPassphrase(secrets[0])
+                .createOne();
+            await expect(bridgechainResignation2).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainResignation2.id).toBeForged();
+
             // Business resignation
             const businessResignation = TransactionFactory.businessResignation()
                 .withPassphrase(secrets[0])
