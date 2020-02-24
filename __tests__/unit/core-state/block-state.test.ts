@@ -1,14 +1,10 @@
 import "jest-extended";
-import { Container, Providers, Services, Contracts } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@packages/core-test-framework/src";
+import { Contracts } from "@arkecosystem/core-kernel";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
-import { Managers, Utils, Transactions } from "@arkecosystem/crypto";
-import { defaults } from "../../../packages/core-state/src/defaults";
-import { StateStore } from "../../../packages/core-state/src/stores/state";
+import { Utils, Transactions } from "@arkecosystem/crypto";
 import { BlockState } from "../../../packages/core-state/src/block-state";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { registerIndexers, registerFactories } from "../../../packages/core-state/src/wallets/indexers";
 import { IBlock, ITransaction } from "@arkecosystem/crypto/dist/interfaces";
 import { DelegateResignationBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/delegate-resignation";
 import { VoteBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/vote";
@@ -18,129 +14,23 @@ import { TransferBuilder } from "@arkecosystem/crypto/dist/transactions/builders
 import { IPFSBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/ipfs";
 import { HtlcLockBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/htlc-lock";
 import { HtlcRefundBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/htlc-refund";
+import { setUp } from "./setup";
 
-let sandbox: Sandbox;
 let blockState: BlockState;
 let factory: FactoryBuilder;
 let blocks: IBlock[];
 let walletRepo: WalletRepository;
-let applySpy: jest.SpyInstance;
-let revertSpy: jest.SpyInstance;
+const applySpy: jest.SpyInstance = jest.fn();
+const revertSpy: jest.SpyInstance = jest.fn();
+const logger = {
+    error: jest.fn()
+};
 
-// TODO: Sandbox initialisation is the same everytime - pull this out
 beforeAll(() => {
-    sandbox = new Sandbox();
-
-    sandbox.app
-        .bind(Container.Identifiers.WalletAttributes)
-        .to(Services.Attributes.AttributeSet)
-        .inSingletonScope();
-
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("delegate");
-    
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("delegate.username");
-    
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("delegate.voteBalance");
-
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("vote");
-
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("delegate.resigned");
-
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("htlc");
-    
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("htlc.locks");
-
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("ipfs");
-    
-    sandbox.app
-        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("ipfs.hashes");
-
-    registerIndexers(sandbox.app);
-    registerFactories(sandbox.app);
-
-    sandbox.app
-        .bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .inSingletonScope();
-
-    sandbox.app
-        .get<any>(Container.Identifiers.PluginConfiguration)
-        .set("storage.maxLastBlocks", defaults.storage.maxLastBlocks);
-
-    sandbox.app
-        .get<any>(Container.Identifiers.PluginConfiguration)
-        .set("storage.maxLastTransactionIds", defaults.storage.maxLastTransactionIds);
-
-    sandbox.app
-        .bind(Container.Identifiers.StateStore)
-        .to(StateStore)
-        .inSingletonScope();
-
-    sandbox.app
-        .bind(Container.Identifiers.WalletRepository)
-        .to(WalletRepository)
-        .inSingletonScope();
-
-    walletRepo = sandbox.app
-        .get(Container.Identifiers.WalletRepository);
-
-    const logger = {
-        error: jest.fn(),
-    };
-    
-    sandbox.app
-        .bind(Container.Identifiers.LogService)
-        .toConstantValue(logger);
-
-    jest.spyOn(logger, "error");
-
-    applySpy = jest.fn();
-    revertSpy = jest.fn();
-    @Container.injectable()
-    class MockHandler {
-        public getActivatedHandlerForData() {
-            return {
-                apply: applySpy,
-                revert: revertSpy,
-            };
-        }
-    }
-
-    sandbox.app
-        .bind(Container.Identifiers.TransactionHandlerRegistry)
-        .to(MockHandler)
-
-    sandbox.app
-        .bind(Container.Identifiers.BlockState)
-        .to(BlockState);
-
-    blockState = sandbox.app
-        .get<any>(Container.Identifiers.BlockState);
-
-    factory = new FactoryBuilder();
-
-    Factories.registerBlockFactory(factory);
-    Factories.registerTransactionFactory(factory);
-    Factories.registerWalletFactory(factory);
-
-    Managers.configManager.setFromPreset("testnet");
+    const initialisedServices = setUp({applySpy, revertSpy, logger});
+    walletRepo = initialisedServices.walletRepo;
+    blockState = initialisedServices.blockState;
+    factory = initialisedServices.factory;
 
     jest.spyOn(blockState, "applyTransaction");
     jest.spyOn(blockState, "revertTransaction");
