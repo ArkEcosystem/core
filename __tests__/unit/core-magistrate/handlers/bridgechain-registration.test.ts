@@ -17,11 +17,7 @@ import {
     IBridgechainWalletAttributes,
     IBusinessWalletAttributes,
 } from "../../../../packages/core-magistrate-transactions/src/interfaces";
-import {
-    bridgechainIndexer,
-    businessIndexer,
-    MagistrateIndex,
-} from "../../../../packages/core-magistrate-transactions/src/wallet-manager";
+import { businessIndexer, MagistrateIndex } from "../../../../packages/core-magistrate-transactions/src/wallet-manager";
 import { bridgechainRegistrationAsset1, bridgechainRegistrationAsset2, businessRegistrationAsset1 } from "../helper";
 
 jest.mock("@arkecosystem/core-container", () => {
@@ -69,7 +65,6 @@ describe("should test marketplace transaction handlers", () => {
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);
-        walletManager.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make("500000000000000");

@@ -15,11 +15,7 @@ import {
     BridgechainUpdateTransactionHandler,
     BusinessRegistrationTransactionHandler,
 } from "../../../../packages/core-magistrate-transactions/src/handlers";
-import {
-    bridgechainIndexer,
-    businessIndexer,
-    MagistrateIndex,
-} from "../../../../packages/core-magistrate-transactions/src/wallet-manager";
+import { businessIndexer, MagistrateIndex } from "../../../../packages/core-magistrate-transactions/src/wallet-manager";
 import {
     bridgechainRegistrationAsset1,
     bridgechainRegistrationAsset2,
@@ -75,7 +71,6 @@ describe("Bridgechain update handler", () => {
 
         walletManager = new Wallets.WalletManager();
         walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);
-        walletManager.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
 
         senderWallet = new Wallets.Wallet("ANBkoGqWeTSiaEVgVzSKZd3jS7UWzv9PSo");
         senderWallet.balance = Utils.BigNumber.make("500000000000000");

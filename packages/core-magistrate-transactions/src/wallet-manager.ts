@@ -13,13 +13,3 @@ export const businessIndexer = (index: State.IWalletIndex, wallet: State.IWallet
         }
     }
 };
-
-export const bridgechainIndexer = (index: State.IWalletIndex, wallet: State.IWallet): void => {
-    if (wallet.hasAttribute("business.bridgechains")) {
-        const bridgechains: Record<string, IBridgechainWalletAttributes> = wallet.getAttribute("business.bridgechains");
-        for (const bridgechainId of Object.keys(bridgechains)) {
-            // TODO: allow generic index values to create more sophisticated indexes like publicKey -> bridgechains
-            index.set(bridgechainId, wallet);
-        }
-    }
-};

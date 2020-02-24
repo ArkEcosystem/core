@@ -10,7 +10,7 @@ import {
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
 } from "./handlers";
-import { bridgechainIndexer, businessIndexer, MagistrateIndex } from "./wallet-manager";
+import { businessIndexer, MagistrateIndex } from "./wallet-manager";
 
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
