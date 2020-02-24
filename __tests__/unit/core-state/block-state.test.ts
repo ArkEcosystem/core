@@ -3,7 +3,7 @@ import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
-import { Blocks, Managers, Utils, Transactions } from "@arkecosystem/crypto";
+import { Managers, Utils, Transactions } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../packages/core-state/src/stores/state";
 import { BlockState } from "../../../packages/core-state/src/block-state";
@@ -11,7 +11,6 @@ import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
 import { registerIndexers, registerFactories } from "../../../packages/core-state/src/wallets/indexers";
 import { IBlock, ITransaction } from "@arkecosystem/crypto/dist/interfaces";
 
-let { BlockFactory } = Blocks;
 let sandbox: Sandbox;
 let blockState: BlockState;
 let factory: FactoryBuilder;
@@ -35,10 +34,9 @@ beforeAll(() => {
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("delegate.username");
     
-    // TODO: check this is needed
     sandbox.app
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
-        .set("delegate.votebalance");
+        .set("delegate.voteBalance");
 
     sandbox.app
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
@@ -88,7 +86,7 @@ beforeAll(() => {
     sandbox.app
         .bind(Container.Identifiers.WalletRepository)
         .to(WalletRepository)
-        .inSingletonScope(); // TODO: these should probably all be intialised this way, in fact - this whole set up should be pulled out
+        .inSingletonScope();
 
     walletRepo = sandbox.app
         .get(Container.Identifiers.WalletRepository);
@@ -101,13 +99,11 @@ beforeAll(() => {
         .bind(Container.Identifiers.LogService)
         .toConstantValue(logger);
 
-    jest.spyOn(logger, "error"); // const spy = j
+    jest.spyOn(logger, "error");
 
     @Container.injectable()
     class MockHandler {
         public getActivatedHandlerForData() {
-            // this should be a method that returns a transaction handler
-            // this transaction handler should have a method on it to that we want to test too
             return {
                 apply: () => { console.log("Apply called") },
                 revert: () => { console.log("Revert called") },
@@ -197,12 +193,11 @@ describe("BlockState", () => {
         data.transactions.push(txs[1].data);
         data.transactions.push(txs[2].data);
         data.numberOfTransactions = 3; // NOTE: if transactions are added to a fixture the NoT needs to be increased
-        const madeBlock = BlockFactory.fromData(data);
 
-        await blockState.applyBlock(madeBlock);
+        await blockState.applyBlock(blocks[0]);
 
-        for (let i = 0; i < madeBlock.transactions.length; i++) {
-            expect(blockState.applyTransaction).toHaveBeenNthCalledWith(i + 1, madeBlock.transactions[i]);
+        for (let i = 0; i < blocks[0].transactions.length; i++) {
+            expect(blockState.applyTransaction).toHaveBeenNthCalledWith(i + 1, blocks[0].transactions[i]);
         }
     });
 });
