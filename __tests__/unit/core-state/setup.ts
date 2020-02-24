@@ -8,13 +8,21 @@ import { Managers } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../packages/core-state/src/stores/state";
 import { BlockState } from "../../../packages/core-state/src/block-state";
-import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
+import { WalletRepository } from "../../../packages/core-state/src/wallets";
 import { registerIndexers, registerFactories } from "../../../packages/core-state/src/wallets/indexers";
 
 export interface Spies {
     applySpy: jest.SpyInstance,
     revertSpy: jest.SpyInstance,
     errorLoggerSpy: jest.SpyInstance,
+}
+
+export interface Setup {
+    sandbox: Sandbox;
+    walletRepo: WalletRepository;
+    factory: FactoryBuilder;
+    blockState: BlockState;
+    spies: Spies
 }
 
 export const setUp = (): Setup => {
@@ -143,12 +151,4 @@ export const setUp = (): Setup => {
             errorLoggerSpy,
         }
     }
-}
-
-export interface Setup {
-    sandbox: Sandbox;
-    walletRepo: WalletRepository;
-    factory: FactoryBuilder;
-    blockState: BlockState;
-    spies: Spies
 }
