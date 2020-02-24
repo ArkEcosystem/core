@@ -16,6 +16,8 @@ let blockState: BlockState;
 let factory: FactoryBuilder;
 let blocks: IBlock[];
 let walletRepo: WalletRepository;
+let applySpy: jest.SpyInstance;
+let revertSpy: jest.SpyInstance;
 
 // TODO: Sandbox initialisation is the same everytime - pull this out
 beforeAll(() => {
@@ -101,12 +103,14 @@ beforeAll(() => {
 
     jest.spyOn(logger, "error");
 
+    applySpy = jest.fn();
+    revertSpy = jest.fn();
     @Container.injectable()
     class MockHandler {
         public getActivatedHandlerForData() {
             return {
-                apply: jest.fn(),
-                revert: jest.fn(),
+                apply: applySpy,
+                revert: revertSpy,
             };
         }
     }
@@ -197,6 +201,9 @@ describe("BlockState", () => {
         jest.spyOn(blockState, "applyTransaction");
         jest.spyOn((blockState as any), "initGenesisGeneratorWallet");
         jest.spyOn((blockState as any), "applyBlockToGenerator");
+
+        applySpy.mockReset();
+        revertSpy.mockReset();
     });
 
     it("should apply sequentially the transactions of the block", async () => {
@@ -207,6 +214,13 @@ describe("BlockState", () => {
         }
     });
 
+    it("should call the handler for each transaction", async () => {
+        await blockState.applyBlock(blocks[0]);
+
+        expect(applySpy).toHaveBeenCalledTimes(blocks[0].transactions.length);
+        expect(revertSpy).not.toHaveBeenCalled();
+    });
+
     it("should init generator wallet on genesis block", async () => {
         blocks[0].data.height = 1;
         await blockState.applyBlock(blocks[0]);
@@ -215,7 +229,7 @@ describe("BlockState", () => {
 
     it("should apply the block data to the delegate", async () => {
         await blockState.applyBlock(blocks[0]);
-        expect((blockState as any).applyBlockToGenerator).toHaveBeenNthCalledWith(3, generatorWallet, blocks[0].data);
+        expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith( generatorWallet, blocks[0].data);
     });
 
     it("should throw if there is no generator wallet", () => {
