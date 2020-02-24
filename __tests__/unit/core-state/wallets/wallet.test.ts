@@ -1,30 +1,23 @@
 import "jest-extended";
 
-import { Sandbox } from "@packages/core-test-framework/src";
 import { attributes } from '@arkecosystem/core-test-framework/src/internal/wallet-attributes';
-import { Container, Services } from "@arkecosystem/core-kernel";
+import { Services } from "@arkecosystem/core-kernel";
 
 import { Wallet } from "@arkecosystem/core-state/src/wallets";
 import { AttributeMap } from "@arkecosystem/core-kernel/dist/services/attributes";
-
-let sandbox: Sandbox;
-
-let attributeMap: AttributeMap;
+import { setUp } from "../setup";
 
 beforeAll(() => {
-    sandbox = new Sandbox();
-
-    sandbox.app
-        .bind(Container.Identifiers.WalletAttributes)
-        .to(Services.Attributes.AttributeSet)
-        .inSingletonScope();
-});
-
-beforeEach(() => {
-    attributeMap = new Services.Attributes.AttributeMap(attributes);
+    setUp();
 });
 
 describe("Models - Wallet", () => {
+    let attributeMap: AttributeMap;
+
+    beforeEach(() => {
+        attributeMap = new Services.Attributes.AttributeMap(attributes);
+    });
+
     it("returns the address", () => {
         const address = "Abcde";
         const wallet = new Wallet(address, attributeMap);
