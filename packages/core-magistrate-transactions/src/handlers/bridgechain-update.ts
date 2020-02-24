@@ -12,11 +12,13 @@ import {
     BridgechainIsResignedError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
+    PortKeyMustBeValidPackageNameError,
 } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
+import { packageNameRegex } from "./utils";
 
 export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
@@ -87,6 +89,12 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
         if (bridgechainAttributes.resigned) {
             throw new BridgechainIsResignedError();
+        }
+
+        for (const portKey of Object.keys(bridgechainUpdate.ports || {})) {
+            if (!packageNameRegex.test(portKey)) {
+                throw new PortKeyMustBeValidPackageNameError();
+            }
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, walletManager);

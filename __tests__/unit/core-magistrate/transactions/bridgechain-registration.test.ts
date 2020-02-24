@@ -250,5 +250,50 @@ describe("Bridgechain registration transaction", () => {
                 expect(error).not.toBeUndefined();
             });
         });
+
+        describe("should test edge cases for ports", () => {
+            it.each([["empty is invalid", {}], ["needs to include core-api", { "@arkecosystem/not-core-api": 123 }]])(
+                "should fail to validate for '%s' case",
+                (_, ports) => {
+                    const bridgechainRegistration = builder
+                        .bridgechainRegistrationAsset({
+                            name: "google",
+                            genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                            bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                            bridgechainAssetRepository: "http://www.repository.com/google/asset",
+                            seedNodes: ["66.102.0.0"],
+                            ports,
+                        })
+                        .sign("passphrase");
+
+                    const struct = bridgechainRegistration.getStruct();
+                    const { error } = Validation.validator.validate(transactionSchema, struct);
+                    console.log(JSON.stringify(struct));
+                    expect(error).not.toBeUndefined();
+                },
+            );
+
+            it.each([
+                [{ "@arkecosystem/core-api": 123 }],
+                [{ "@arkecosystem/core-api": 123, "@valid/pa_ckage-name": 124 }],
+                [{ "@arkecosystem/core-api": 123, "valid-package_name": 124 }],
+                [{ "@arkecosystem/core-api": 123, "@invalid/UPPERCASE": 124 }],
+                [{ "@arkecosystem/core-api": 123, "@invalid/char)": 124 }],
+            ])("should validate", ports => {
+                const bridgechainRegistration = builder
+                    .bridgechainRegistrationAsset({
+                        name: "google",
+                        genesisHash: "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f",
+                        bridgechainRepository: "http://www.repository.com/google/syzkaller",
+                        bridgechainAssetRepository: "http://www.repository.com/google/asset",
+                        seedNodes: ["66.102.0.0"],
+                        ports,
+                    })
+                    .sign("passphrase");
+
+                const { error } = Validation.validator.validate(transactionSchema, bridgechainRegistration.getStruct());
+                expect(error).toBeUndefined();
+            });
+        });
     });
 });

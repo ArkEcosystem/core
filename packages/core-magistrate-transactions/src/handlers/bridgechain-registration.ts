@@ -6,12 +6,14 @@ import {
     BridgechainAlreadyRegisteredError,
     BusinessIsResignedError,
     GenesisHashAlreadyRegisteredError,
+    PortKeyMustBeValidPackageNameError,
     WalletIsNotBusinessError,
 } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
 import { BusinessRegistrationTransactionHandler } from "./business-registration";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
+import { packageNameRegex } from "./utils";
 
 export class BridgechainRegistrationTransactionHandler extends MagistrateTransactionHandler {
     public getConstructor(): Transactions.TransactionConstructor {
@@ -85,6 +87,12 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
         if (bridgechains && bridgechains[data.asset.bridgechainRegistration.genesisHash]) {
             throw new GenesisHashAlreadyRegisteredError();
+        }
+
+        for (const portKey of Object.keys(data.asset.bridgechainRegistration.ports)) {
+            if (!packageNameRegex.test(portKey)) {
+                throw new PortKeyMustBeValidPackageNameError();
+            }
         }
 
         return super.throwIfCannotBeApplied(transaction, wallet, walletManager);

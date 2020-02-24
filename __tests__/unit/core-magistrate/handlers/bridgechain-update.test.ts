@@ -9,6 +9,7 @@ import { Managers, Utils } from "@arkecosystem/crypto";
 import {
     BridgechainIsNotRegisteredByWalletError,
     BusinessIsNotRegisteredError,
+    PortKeyMustBeValidPackageNameError,
 } from "../../../../packages/core-magistrate-transactions/src/errors";
 import {
     BridgechainRegistrationTransactionHandler,
@@ -122,6 +123,26 @@ describe("Bridgechain update handler", () => {
                     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
                 await bridgechainRegistrationHandler.applyToSender(bridgechainRegistration.build(), walletManager);
             });
+
+            it.each([["@invalid/UPPERCASE"], ["@invalid/char)"]])(
+                "should throw because ports contains invalid package name",
+                async invalidName => {
+                    const actual = bridgechainUpdateBuilder
+                        .bridgechainUpdateAsset({
+                            ...bridgechainUpdateAsset1,
+                            ports: {
+                                ...bridgechainUpdateAsset1.ports,
+                                [invalidName]: 4444,
+                            },
+                        })
+                        .nonce("3")
+                        .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+                    await expect(
+                        bridgechainUpdateHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
+                    ).rejects.toThrowError(PortKeyMustBeValidPackageNameError);
+                },
+            );
 
             it("should not throw because bridgechain is registered", async () => {
                 const actual = bridgechainUpdateBuilder

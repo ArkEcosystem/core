@@ -7,6 +7,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import {
     BridgechainAlreadyRegisteredError,
+    PortKeyMustBeValidPackageNameError,
     WalletIsNotBusinessError,
 } from "../../../../packages/core-magistrate-transactions/src/errors";
 import {
@@ -150,6 +151,30 @@ describe("should test marketplace transaction handlers", () => {
                     bridgechainRegistrationHandler.throwIfCannotBeApplied(actual.build(), senderWallet, walletManager),
                 ).toResolve();
             });
+
+            it.each([["@invalid/UPPERCASE"], ["@invalid/char)"]])(
+                "should throw because ports contains invalid package name",
+                async invalidName => {
+                    const actual = bridgechainRegistrationBuilder
+                        .bridgechainRegistrationAsset({
+                            ...bridgechainRegistrationAsset1,
+                            ports: {
+                                ...bridgechainRegistrationAsset1.ports,
+                                [invalidName]: 4444,
+                            },
+                        })
+                        .nonce("2")
+                        .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire");
+
+                    await expect(
+                        bridgechainRegistrationHandler.throwIfCannotBeApplied(
+                            actual.build(),
+                            senderWallet,
+                            walletManager,
+                        ),
+                    ).rejects.toThrowError(PortKeyMustBeValidPackageNameError);
+                },
+            );
         });
 
         describe("applyToSender tests", () => {
