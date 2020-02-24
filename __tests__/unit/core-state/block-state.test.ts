@@ -390,6 +390,25 @@ describe("BlockState", () => {
             .make())
             .sign("delegatePassphrase")
             .build();
+        
+        const ipfs = (<IPFSBuilder>factory
+            .get("Ipfs")
+            .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .make());
+        
+        const htlcLock = (<HtlcLockBuilder>factory
+            .get("HtlcLock")
+            .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .make());
+
+        const htlcRefund = (<HtlcRefundBuilder>factory
+            .get("HtlcRefund")
+            .withOptions({ secretHash: "secretHash", senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .make());
+
+        beforeEach(() => {
+            jest.clearAllMocks();
+        });
 
         describe.each`
             type                        | transaction
@@ -398,12 +417,14 @@ describe("BlockState", () => {
             ${"2nd sign"}               | ${secondSign}
             ${"vote"}                   | ${vote}
             ${"delegateResignation"}    | ${delegateRes}
-        `("when the transaction is a $type", ({ type, transaction }) => {
+            ${"ipfs"}                   | ${ipfs}
+            ${"htlcLock"}               | ${htlcLock}
+            ${"htlcRefund"}              | ${htlcRefund}
+        `("when the transaction is a $type", ({ transaction }) => {
 
             it("should call the transaction handler apply the transaction to the sender & recipient", async () => {
-                
                 await blockState.applyTransaction(transaction);
-    
+
                 expect(applySpy).toHaveBeenCalledWith(transaction);
             });
         });
