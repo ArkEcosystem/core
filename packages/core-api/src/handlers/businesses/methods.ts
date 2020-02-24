@@ -56,6 +56,21 @@ const bridgechains = async request => {
     return toPagination(bridgechains, "bridgechain");
 };
 
+const bridgechain = async request => {
+    const wallet = databaseService.wallets.findById(Database.SearchScope.Wallets, request.params.businessId);
+
+    if (!wallet || !wallet.hasAttribute("business")) {
+        return Boom.notFound("Business not found");
+    }
+
+    const bridgechains = wallet.getAttribute("business.bridgechains");
+    if (!bridgechains || !bridgechains[request.params.bridgechainId]) {
+        return Boom.notFound("Bridgechain not found");
+    }
+
+    return respondWithResource(bridgechains[request.params.bridgechainId], "bridgechain");
+};
+
 const search = async request => {
     const businesses = databaseService.wallets.search(Database.SearchScope.Businesses, {
         ...request.payload,
@@ -77,6 +92,10 @@ export const registerMethods = server => {
             id: request.params.id,
             ...request.query,
             ...paginate(request),
+        }))
+        .method("v2.businesses.bridgechain", bridgechain, 8, request => ({
+            businessId: request.params.businessId,
+            bridgechainId: request.params.bridgechainId,
         }))
         .method("v2.businesses.search", search, 30, request => ({
             ...request.payload,

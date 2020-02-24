@@ -20,7 +20,7 @@ export const show: object = {
     },
     query: {
         transform: Joi.bool().default(true),
-    }
+    },
 };
 
 export const bridgechains: object = {
@@ -33,6 +33,15 @@ export const bridgechains: object = {
             orderBy: orderBy(bridgechainIteratees),
             isResigned: Joi.bool(),
         },
+    },
+};
+
+export const bridgechain: object = {
+    params: {
+        businessId: walletId,
+        bridgechainId: Joi.string()
+            .hex()
+            .length(64), // genesisHash
     },
 };
 
