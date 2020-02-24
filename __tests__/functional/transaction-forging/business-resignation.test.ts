@@ -81,6 +81,43 @@ describe("Transaction Forging - Business resignation", () => {
             await expect(businessResignation.id).toBeForged();
             await expect(businessResignation2.id).not.toBeForged();
         });
+
+        it("should reject business resignation, because bridgechain is not resigned [Signed with 1 Passphrase]", async () => {
+            // Registering a business
+            const businessRegistration = TransactionFactory.businessRegistration({
+                name: "ark",
+                website: "https://ark.io",
+            })
+                .withPassphrase(secrets[2])
+                .createOne();
+
+            await expect(businessRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessRegistration.id).toBeForged();
+
+            const bridgechainRegistration = TransactionFactory.bridgechainRegistration({
+                name: "cryptoProject2",
+                seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
+                genesisHash: "d4735e3a265e16eee03f59718b9b5d03019c07d8b6c51f90da3a666eec13ab35",
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
+                ports: { "@arkecosystem/core-api": 12345 },
+            })
+                .withPassphrase(secrets[2])
+                .createOne();
+
+            await expect(bridgechainRegistration).toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(bridgechainRegistration.id).toBeForged();
+
+            const businessResignation = TransactionFactory.businessResignation()
+                .withPassphrase(secrets[2])
+                .createOne();
+
+            await expect(businessResignation).not.toBeAccepted();
+            await support.snoozeForBlock(1);
+            await expect(businessResignation.id).not.toBeForged();
+        });
     });
 
     describe("Signed with 2 Passphrases", () => {
