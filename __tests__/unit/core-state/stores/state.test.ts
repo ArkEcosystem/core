@@ -1,47 +1,22 @@
 import "jest-extended";
-import { Container, Providers } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@packages/core-test-framework/src";
-import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
+import { Container } from "@arkecosystem/core-kernel";
+import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 
-import { Blocks, Interfaces, Managers } from "@arkecosystem/crypto";
+import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
-import { defaults } from "../../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../../packages/core-state/src/stores/state";
 import { IBlock } from "@arkecosystem/crypto/dist/interfaces";
+import { setUp } from "../setup";
 
 let blocks: IBlock[];
-
 let stateStorage: StateStore;
-
-let sandbox: Sandbox;
-
-let factory: FactoryBuilder;
+let factoryInstance: FactoryBuilder;
+let logger: jest.SpyInstance;
 
 beforeAll(() => {
-    sandbox = new Sandbox();
-    sandbox.app
-        .bind(Container.Identifiers.PluginConfiguration)
-        .to(Providers.PluginConfiguration)
-        .inSingletonScope();
-
-    sandbox.app
-        .get<any>(Container.Identifiers.PluginConfiguration)
-        .set("storage.maxLastBlocks", defaults.storage.maxLastBlocks);
-
-    sandbox.app
-        .get<any>(Container.Identifiers.PluginConfiguration)
-        .set("storage.maxLastTransactionIds", defaults.storage.maxLastTransactionIds);
-
-    sandbox.app
-        .bind(Container.Identifiers.StateStore)
-        .to(StateStore)
-        .inSingletonScope();
-    
-    factory = new FactoryBuilder();
-
-    Factories.registerBlockFactory(factory);
-
-    Managers.configManager.setFromPreset("testnet");
+    const { sandbox, factory, spies } = setUp();
+    factoryInstance = factory;
+    logger = spies.logger.info;
     
     stateStorage = sandbox.app.get(Container.Identifiers.StateStore);
 });
@@ -62,7 +37,7 @@ beforeEach(() => {
         }
         return entitites;
     }
-    blocks = makeChainedBlocks(101, factory.get("Block"));
+    blocks = makeChainedBlocks(101, factoryInstance.get("Block"));
     stateStorage.clear();
 });
 
@@ -375,15 +350,8 @@ describe("State Storage", () => {
                 block: blocks[3].data,
             };
 
-            const logger = {
-                info: jest.fn(),
-            };
-        
-            sandbox.app.bind(Container.Identifiers.LogService).toConstantValue(logger);
-
             stateStorage.pushPingBlock(blocks[5].data);
-            const spy = jest.spyOn(logger, "info");
-            expect(spy).toHaveBeenCalledWith(`Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`);
+            expect(logger).toHaveBeenCalledWith(`Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`);
             expect(stateStorage.blockPing).toBeObject();
             expect(stateStorage.blockPing.block).toBe(blocks[5].data);
             expect(stateStorage.blockPing.count).toBe(1);

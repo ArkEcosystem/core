@@ -14,7 +14,10 @@ import { registerIndexers, registerFactories } from "../../../packages/core-stat
 export interface Spies {
     applySpy: jest.SpyInstance,
     revertSpy: jest.SpyInstance,
-    errorLoggerSpy: jest.SpyInstance,
+    logger: {
+        error: jest.SpyInstance,
+        info: jest.SpyInstance
+    }
 }
 
 export interface Setup {
@@ -101,10 +104,12 @@ export const setUp = (): Setup => {
 
     const applySpy: jest.SpyInstance = jest.fn();
     const revertSpy: jest.SpyInstance = jest.fn();
-    const errorLoggerSpy: jest.SpyInstance = jest.fn();
+    const error: jest.SpyInstance = jest.fn();
+    const info: jest.SpyInstance = jest.fn();
 
     const logger = {
-        error: errorLoggerSpy
+        error,
+        info
     };
 
     sandbox.app
@@ -148,7 +153,7 @@ export const setUp = (): Setup => {
         spies: {
             applySpy,
             revertSpy,
-            errorLoggerSpy,
+            logger,
         }
     }
 }
