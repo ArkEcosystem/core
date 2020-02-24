@@ -6,6 +6,7 @@ import Hapi from "@hapi/hapi";
 
 import { TransactionResource } from "../resources";
 import { Controller } from "./controller";
+import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class TransactionsController extends Controller {
@@ -62,20 +63,27 @@ export class TransactionsController extends Controller {
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const pagination = super.paginate(request);
-        const all = Array.from(this.poolQuery.getAllFromHighestPriority());
-        const transactions = all.slice(pagination.offset, pagination.offset + pagination.limit);
+        const pagination: Repositories.Search.SearchPagination = super.paginate(request);
+        const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getAllFromHighestPriority());
+        const transactions: Interfaces.ITransaction[] = all.slice(
+            pagination.offset,
+            pagination.offset + pagination.limit,
+        );
         const rows = transactions.map(t => ({ serialized: t.serialized.toString("hex") }));
 
         return super.toPagination({ count: all.length, rows }, TransactionResource, !!request.query.transform);
     }
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transactionQuery = this.poolQuery.getAllFromHighestPriority().whereId(request.params.id);
+        const transactionQuery: Contracts.TransactionPool.QueryIterable = this.poolQuery
+            .getAllFromHighestPriority()
+            .whereId(request.params.id);
+
         if (transactionQuery.has() === false) {
             return Boom.notFound("Transaction not found");
         }
-        const transaction = transactionQuery.first();
+
+        const transaction: Interfaces.ITransaction = transactionQuery.first();
         const data = { id: transaction.id, serialized: transaction.serialized.toString("hex") };
 
         return super.respondWithResource(data, TransactionResource, !!request.query.transform);

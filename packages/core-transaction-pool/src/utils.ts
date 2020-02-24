@@ -1,5 +1,5 @@
 import { Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Enums, Identities, Interfaces } from "@arkecosystem/crypto";
+import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 
 export type Comparator<T> = (a: T, b: T) => number;
 
@@ -72,9 +72,9 @@ export const describeTransactionType = (transaction: Interfaces.ITransaction): s
 export const describeTransaction = (transaction: Interfaces.ITransaction): string => {
     AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-    const id = transaction.id;
-    const address = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
-    const nonce = transaction.data.nonce!;
+    const id: string | undefined = transaction.id;
+    const address: string | undefined = Identities.Address.fromPublicKey(transaction.data.senderPublicKey);
+    const nonce: Utils.BigNumber | undefined = transaction.data.nonce;
 
     return `${address}#${nonce} ${id} (${describeTransactionType(transaction)})`;
 };

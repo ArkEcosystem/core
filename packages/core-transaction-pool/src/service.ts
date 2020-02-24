@@ -125,7 +125,7 @@ export class Service implements Contracts.TransactionPool.Service {
     private async addTransactionToMempool(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const maxTransactionsInPool = this.configuration.getRequired<number>("maxTransactionsInPool");
+        const maxTransactionsInPool: number = this.configuration.getRequired<number>("maxTransactionsInPool");
 
         if (this.getPoolSize() >= maxTransactionsInPool) {
             await this.cleanExpired();

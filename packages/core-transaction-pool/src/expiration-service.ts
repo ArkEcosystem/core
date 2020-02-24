@@ -11,9 +11,9 @@ export class ExpirationService {
     private readonly stateStore!: Contracts.State.StateStore;
 
     public getTransactionExpiredBlocksCount(transaction: Interfaces.ITransaction): number {
-        const maxTransactionAge = this.configuration.getRequired<number>("maxTransactionAge");
-        const currentHeight = this.stateStore.getLastHeight();
-        const nextHeight = currentHeight + 1;
+        const maxTransactionAge: number = this.configuration.getRequired<number>("maxTransactionAge");
+        const currentHeight: number = this.stateStore.getLastHeight();
+        const nextHeight: number = currentHeight + 1;
 
         if (transaction.data.version && transaction.data.version >= 2) {
             if (transaction.data.expiration) {
@@ -23,9 +23,9 @@ export class ExpirationService {
             }
         }
 
-        const blockTime = Managers.configManager.getMilestone(currentHeight).blocktime;
-        const createdSecondsAgo = Crypto.Slots.getTime() - transaction.data.timestamp;
-        const createdBlocksAgo = Math.floor(createdSecondsAgo / blockTime); // ! varying block times
+        const blockTime: number = Managers.configManager.getMilestone(currentHeight).blocktime;
+        const createdSecondsAgo: number = Crypto.Slots.getTime() - transaction.data.timestamp;
+        const createdBlocksAgo: number = Math.floor(createdSecondsAgo / blockTime); // ! varying block times
 
         return Math.max(createdBlocksAgo - maxTransactionAge + 1, 0);
     }

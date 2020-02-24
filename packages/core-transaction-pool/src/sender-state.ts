@@ -46,9 +46,9 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const maxTransactionBytes = this.configuration.getRequired<number>("maxTransactionBytes");
-        const maxTransactionsPerSender = this.configuration.getRequired<number>("maxTransactionsPerSender");
-        const allowedSenders = this.configuration.getOptional<string[]>("allowedSenders", []);
+        const maxTransactionBytes: number = this.configuration.getRequired<number>("maxTransactionBytes");
+        const maxTransactionsPerSender: number = this.configuration.getRequired<number>("maxTransactionsPerSender");
+        const allowedSenders: string[] = this.configuration.getOptional<string[]>("allowedSenders", []);
 
         if (this.getTransactionsCount() >= maxTransactionsPerSender) {
             if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
@@ -76,7 +76,9 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
             throw new TransactionHasExpiredError(transaction, expiredBlocksCount);
         }
 
-        const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
+        const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
+            transaction.data,
+        );
 
         if (await handler.verify(transaction)) {
             try {
@@ -94,13 +96,15 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     }
 
     public async popTransaction(): Promise<Interfaces.ITransaction> {
-        const transaction = this.transactions.pop();
+        const transaction: Interfaces.ITransaction | undefined = this.transactions.pop();
         if (!transaction) {
             throw new Error("Empty state");
         }
 
         try {
-            const handler = await this.handlerRegistry.getActivatedHandlerForData(transaction.data);
+            const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
+                transaction.data,
+            );
             await handler.revert(transaction);
             this.logger.info(`Pool ${describeTransaction(transaction)} reverted`);
             return transaction;
@@ -131,7 +135,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     }
 
     public acceptForgedTransaction(transaction: Interfaces.ITransaction): Interfaces.ITransaction[] {
-        const index = this.transactions.findIndex(t => t.id === transaction.id);
+        const index: number = this.transactions.findIndex(t => t.id === transaction.id);
         if (index === -1) {
             throw new Error("Unknown transaction");
         }
