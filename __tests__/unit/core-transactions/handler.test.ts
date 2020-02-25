@@ -4,11 +4,13 @@ import passphrases from "@arkecosystem/core-test-framework/src/internal/passphra
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { Contracts, Services, Application, Container, Providers } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils, } from "@arkecosystem/crypto";
+import { DelegateEvent } from "@arkecosystem/core-kernel/src/enums";
 import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
 import { Memory } from "@arkecosystem/core-transaction-pool";
+import { NullEventDispatcher } from "@arkecosystem/core-kernel/src/services/events/drivers/null";
 import { One, Two } from "@arkecosystem/core-transactions/src/handlers";
 import { Query } from "@arkecosystem/core-transaction-pool/src/query";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
@@ -176,6 +178,11 @@ beforeEach(() => {
     app
         .bind(Identifiers.WalletRepository)
         .to(Wallets.WalletRepository)
+        .inSingletonScope();
+
+    app
+        .bind(Identifiers.EventDispatcherService)
+        .to(NullEventDispatcher)
         .inSingletonScope();
 
     app.bind(Identifiers.TransactionHandler).to(One.TransferTransactionHandler);
@@ -766,6 +773,18 @@ describe("DelegateRegistrationTransaction", () => {
         })
     });
 
+    describe("emitEvents", () => {
+        it("should dispatch", async () => {
+            let emitter:  Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService);
+
+            const spy = jest.spyOn(emitter, 'dispatch');
+
+            handler.emitEvents(delegateRegistrationTransaction, emitter);
+
+            expect(spy).toHaveBeenCalledWith(DelegateEvent.Registered, expect.anything());
+        })
+    });
+
     describe("throwIfCannotEnterPool", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).toResolve();
@@ -924,6 +943,22 @@ describe("VoteTransaction", () => {
 
             mockTransaction = unvoteTransaction;
             await expect(handler.bootstrap()).toResolve();
+        });
+    });
+
+    describe("emitEvents", () => {
+        it("should dispatch", async () => {
+            let emitter:  Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService);
+
+            const spy = jest.spyOn(emitter, 'dispatch');
+
+            handler.emitEvents(voteTransaction, emitter);
+
+            expect(spy).toHaveBeenCalledWith("wallet.vote", expect.anything());
+
+            handler.emitEvents(unvoteTransaction, emitter);
+
+            expect(spy).toHaveBeenCalledWith("wallet.unvote", expect.anything());
         });
     });
 
@@ -1091,6 +1126,18 @@ describe("DelegateResignationTransaction", () => {
             mockTransaction = delegateResignationTransaction;
             await expect(handler.bootstrap()).toResolve();
         })
+    });
+
+    describe("emitEvents", () => {
+        it("should dispatch", async () => {
+            let emitter:  Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService);
+
+            const spy = jest.spyOn(emitter, 'dispatch');
+
+            handler.emitEvents(delegateResignationTransaction, emitter);
+
+            expect(spy).toHaveBeenCalledWith(DelegateEvent.Resigned, expect.anything());
+        });
     });
 
     describe("throwIfCannotEnterPool", () => {
@@ -2216,57 +2263,63 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
             await expect(handler.throwIfCannotEnterPool(htlcRefundTransaction)).rejects.toThrowError(Contracts.TransactionPool.PoolError);
         });
 
-        describe("apply", () => {
-            it("should apply htlc refund transaction", async () => {
-                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository)).toResolve();
+        it("should throw if transaction by sender already in pool", async () => {
+            app.get<Memory>(Identifiers.TransactionPoolMemory).remember(htlcRefundTransaction);
 
-                const balanceBefore = lockWallet.balance;
+            await expect(handler.throwIfCannotEnterPool(htlcRefundTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+        });
+    });
 
-                // @ts-ignore
-                expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
+    describe("apply", () => {
+        it("should apply htlc refund transaction", async () => {
+            await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository)).toResolve();
 
-                await handler.apply(htlcRefundTransaction, walletRepository);
+            const balanceBefore = lockWallet.balance;
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
-                expect(lockWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee));
-            });
+            // @ts-ignore
+            expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
 
-            it("should apply htlc refund transaction - when sender is not refund wallet", async () => {
-                const dummyPassphrase = "not recipient of lock";
-                const dummyWallet: Wallets.Wallet = factoryBuilder
-                    .get("Wallet")
-                    .withOptions({
-                        passphrase: dummyPassphrase,
-                        nonce: 0
-                    })
-                    .make();
+            await handler.apply(htlcRefundTransaction, walletRepository);
 
-                walletRepository.reindex(dummyWallet);
+            expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee));
+        });
 
-                htlcRefundTransaction = BuilderFactory.htlcRefund()
-                    .htlcRefundAsset({
-                        lockTransactionId: htlcLockTransaction.id!
-                    })
-                    .nonce("1")
-                    .sign(dummyPassphrase)
-                    .build();
+        it("should apply htlc refund transaction - when sender is not refund wallet", async () => {
+            const dummyPassphrase = "not recipient of lock";
+            const dummyWallet: Wallets.Wallet = factoryBuilder
+                .get("Wallet")
+                .withOptions({
+                    passphrase: dummyPassphrase,
+                    nonce: 0
+                })
+                .make();
 
-                await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, dummyWallet, walletRepository)).toResolve();
+            walletRepository.reindex(dummyWallet);
 
-                const balanceBefore = lockWallet.balance;
+            htlcRefundTransaction = BuilderFactory.htlcRefund()
+                .htlcRefundAsset({
+                    lockTransactionId: htlcLockTransaction.id!
+                })
+                .nonce("1")
+                .sign(dummyPassphrase)
+                .build();
 
-                // @ts-ignore
-                expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
+            await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, dummyWallet, walletRepository)).toResolve();
 
-                await handler.apply(htlcRefundTransaction, walletRepository);
+            const balanceBefore = lockWallet.balance;
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
-                expect(lockWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee));
-            });
+            // @ts-ignore
+            expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toBeDefined();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
+
+            await handler.apply(htlcRefundTransaction, walletRepository);
+
+            expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+            expect(lockWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee));
         });
     });
 
