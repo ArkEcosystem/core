@@ -31,6 +31,21 @@ beforeAll(() => {
     factory = initialEnv.factory;
     applySpy = initialEnv.spies.applySpy;
     revertSpy = initialEnv.spies.revertSpy;
+});
+
+export const addTransactionsToBlock = (txs: ITransaction[], block: IBlock) => {
+    const { data } = block;
+    data.transactions = [];
+    txs.forEach(tx => data.transactions.push(tx.data));
+    data.transactions.push(txs[0].data);
+    data.transactions.push(txs[1].data);
+    data.transactions.push(txs[2].data);
+    data.numberOfTransactions = txs.length; // NOTE: if transactions are added to a fixture the NoT needs to be increased
+    block.transactions = txs;
+}
+
+beforeAll(() => {
+    blocks = makeChainedBlocks(101, factory.get("Block"));
 
     jest.spyOn(blockState, "applyTransaction");
     jest.spyOn(blockState, "revertTransaction");
@@ -40,16 +55,8 @@ beforeAll(() => {
     jest.spyOn((blockState as any), "applyBlockToGenerator");
     jest.spyOn((blockState as any), "applyVoteBalances");
     jest.spyOn((blockState as any), "revertBlockFromGenerator");
-});
-
-beforeEach(() => {
-    blocks = makeChainedBlocks(101, factory.get("Block"));
 
     walletRepo.reset();
-
-    jest.clearAllMocks();
-    applySpy.mockClear();
-    revertSpy.mockClear();
 });
 
 describe("BlockState", () => {
@@ -68,15 +75,17 @@ describe("BlockState", () => {
 
         walletRepo.reindex(generatorWallet);
 
-        const txs: ITransaction[] = makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]);
+        addTransactionsToBlock(
+            makeVoteTransactions(
+                3, 
+                [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]
+            ),
+            blocks[0]
+        );
+    });
 
-        const { data } = blocks[0];
-        data.transactions = [];
-        data.transactions.push(txs[0].data);
-        data.transactions.push(txs[1].data);
-        data.transactions.push(txs[2].data);
-        data.numberOfTransactions = 3; // NOTE: if transactions are added to a fixture the NoT needs to be increased
-        blocks[0].transactions = txs;;
+    afterEach(() => {
+        jest.clearAllMocks();
     });
 
     it("should apply sequentially the transactions of the block", async () => {
@@ -196,7 +205,7 @@ describe("BlockState", () => {
         });
     });
 
-    describe.only("applyTransaction", () => {
+    describe("applyTransaction", () => {
 
         let sender: Contracts.State.Wallet;
         let recipient: Contracts.State.Wallet;
@@ -264,10 +273,6 @@ describe("BlockState", () => {
             .get("HtlcRefund")
             .withOptions({ secretHash: "secretHash", senderPublicKey: sender.publicKey, recipientId: recipient.address })
             .make());
-
-        beforeEach(() => {
-            jest.clearAllMocks();
-        });
 
         describe.each`
             type                        | transaction
