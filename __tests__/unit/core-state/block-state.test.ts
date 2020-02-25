@@ -2,7 +2,7 @@ import "jest-extended";
 import { Contracts } from "@arkecosystem/core-kernel";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
-import { Utils, Transactions } from "@arkecosystem/crypto";
+import { Utils } from "@arkecosystem/crypto";
 import { BlockState } from "../../../packages/core-state/src/block-state";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
 import { IBlock, ITransaction } from "@arkecosystem/crypto/dist/interfaces";
@@ -14,6 +14,7 @@ import { TransferBuilder } from "@arkecosystem/crypto/dist/transactions/builders
 import { IPFSBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/ipfs";
 import { HtlcLockBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/htlc-lock";
 import { HtlcRefundBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/htlc-refund";
+import { makeChainedBlocks, makeVoteTransactions } from "./helper";
 import { setUp } from "./setup";
 
 let blockState: BlockState;
@@ -42,31 +43,6 @@ beforeAll(() => {
 });
 
 beforeEach(() => {
-    // TODO: is is better to use core-test-framework Transaction builder instead?
-    const txs: ITransaction[] = [];
-    for (let i = 0; i < 3; i++) {
-        txs[i] = Transactions.BuilderFactory.vote()
-            .sign(Math.random().toString(36))
-            .votesAsset([`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`])
-            .build();
-    }
-
-    // TODO: pull this out into helper
-    const makeChainedBlocks = (length: number, blockFactory): IBlock[] => {
-        const entitites: IBlock[] = [];
-        let previousBlock; // first case uses genesis IBlockData
-        const getPreviousBlock = () => previousBlock;
-
-        for (let i = 0; i < length; i++) {
-            if (previousBlock) {
-                blockFactory.withOptions({getPreviousBlock}); // TODO: could add transactions in here, instead of setting them on the block object below (in tests)
-            }
-            const entity: IBlock = blockFactory.make();
-            entitites.push(entity);
-            previousBlock = entity.data;
-        }
-        return entitites;
-    }
     blocks = makeChainedBlocks(101, factory.get("Block"));
 
     walletRepo.reset();
@@ -92,13 +68,7 @@ describe("BlockState", () => {
 
         walletRepo.reindex(generatorWallet);
 
-        const txs: ITransaction[] = [];
-        for (let i = 0; i < 3; i++) {
-            txs[i] = Transactions.BuilderFactory.vote()
-                .sign(Math.random().toString(36))
-                .votesAsset([`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`])
-                .build();
-        }
+        const txs: ITransaction[] = makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]);
 
         const { data } = blocks[0];
         data.transactions = [];
