@@ -224,13 +224,13 @@ beforeEach(() => {
     secondSignatureWallet = factoryBuilder
         .get("Wallet")
         .withOptions({
-            passphrase: "glow boss party require silk interest pyramid marriage try wisdom snow grab",
+            passphrase: "venue below waste gather spin cruise title still boost mother flash tuna",
             nonce: 0
         })
         .make();
 
     secondSignatureWallet.balance = Utils.BigNumber.make(7527654310);
-    // secondSignatureWallet.setAttribute("secondPublicKey",  "0377f81a18d25d77b100cb17e829a72259f08334d064f6c887298917a04df8f647");
+    secondSignatureWallet.setAttribute("secondPublicKey",  "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17");
 
 
     recipientWallet = factoryBuilder
@@ -247,13 +247,14 @@ beforeEach(() => {
 
 describe("TransferTransaction", () => {
     let transferTransaction: Interfaces.ITransaction;
-    // let secondSignatureTransferTransaction: Interfaces.ITransaction;
+    let secondSignatureTransferTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
     let pubKeyHash: number;
 
     beforeEach(async () => {
         pubKeyHash = Managers.configManager.get("network.pubKeyHash");
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Transfer, Enums.TransactionTypeGroup.Core), 2);
 
         transferTransaction = BuilderFactory.transfer()
             .recipientId(recipientWallet.address)
@@ -262,13 +263,18 @@ describe("TransferTransaction", () => {
             .nonce("1")
             .build();
 
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Transfer, Enums.TransactionTypeGroup.Core), 2);
+        secondSignatureTransferTransaction = BuilderFactory.transfer()
+            .recipientId(recipientWallet.address)
+            .amount("1")
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
+            .build();
     });
 
     afterEach(async () => {
         Managers.configManager.set("network.pubKeyHash", pubKeyHash);
     });
-
 
     describe("bootstrap", () => {
         it("should resolve", async () => {
@@ -280,41 +286,10 @@ describe("TransferTransaction", () => {
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(transferTransaction, senderWallet, walletRepository)).toResolve();
+        });
 
-            // let secondSignatureTransaction = BuilderFactory.secondSignature()
-            //     // .get("SecondSignature")
-            //     // .withOptions({ passphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire" })
-            //     // .make())
-            //     .signatureAsset("venue below waste gather spin cruise title still boost mother flash tuna")
-            //     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
-            //     .nonce(Utils.BigNumber.make(1).toString())
-            //     .build();
-            //
-            // const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-            // let secondSignatureHandler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.SecondSignature, Enums.TransactionTypeGroup.Core), 2);
-            //
-            // await secondSignatureHandler.apply(secondSignatureTransaction, walletRepository);
-            //
-            // let transferBuilder: TransferBuilder = <TransferBuilder>factoryBuilder
-            //     .get("Transfer").make();
-            //
-            // let transferBuilder2: TransferBuilder = BuilderFactory.transfer();
-            //
-            // console.log(transferBuilder, transferBuilder2);
-            //
-            //
-            // let secondSignatureTransferTransaction = transferBuilder2
-            //     .recipientId(recipientWallet.address)
-            //     .amount("1")
-            //     .vendorField("dummy")
-            //     .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
-            //     .secondSign("venue below waste gather spin cruise title still boost mother flash tuna")
-            //     .nonce("2")
-            //     .build();
-            //
-            //
-            // console.log(await handler.throwIfCannotBeApplied(secondSignatureTransferTransaction, senderWallet, walletRepository));
-            // await expect(handler.throwIfCannotBeApplied(secondSignatureTransferTransaction, senderWallet, walletRepository)).toResolve();
+        it("should not throw with second sign", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignatureTransferTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should throw", async () => {
@@ -753,6 +728,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
 
 describe("DelegateRegistrationTransaction", () => {
     let delegateRegistrationTransaction: Interfaces.ITransaction;
+    let secondSignaturedDelegateRegistrationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
 
     beforeEach(async () => {
@@ -763,6 +739,13 @@ describe("DelegateRegistrationTransaction", () => {
             .usernameAsset("dummy")
             .nonce("1")
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .build();
+
+        secondSignaturedDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
+            .usernameAsset("dummy")
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
             .build();
     });
 
@@ -790,7 +773,11 @@ describe("DelegateRegistrationTransaction", () => {
             await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).toResolve();
         });
 
-        it("should throw if wallet already has a multi signature", async () => {
+        it("should not throw with second sign", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignaturedDelegateRegistrationTransaction, secondSignatureWallet, walletRepository)).toResolve();
+        });
+
+        it("should throw if wallet has a multi signature", async () => {
             const multiSignatureAsset: IMultiSignatureAsset = {
                 min: 2,
                 publicKeys: [
@@ -903,7 +890,9 @@ describe("DelegateRegistrationTransaction", () => {
 
 describe("VoteTransaction", () => {
     let voteTransaction: Interfaces.ITransaction;
+    let secondSignatureVoteTransaction: Interfaces.ITransaction;
     let unvoteTransaction: Interfaces.ITransaction;
+    let secondSignatureUnvoteTransaction: Interfaces.ITransaction;
     let delegateWallet: Wallets.Wallet;
     let handler: TransactionHandler;
 
@@ -925,14 +914,28 @@ describe("VoteTransaction", () => {
 
         voteTransaction = BuilderFactory.vote()
             .votesAsset(["+" + delegateWallet.publicKey!])
-            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .nonce("1")
+            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .build();
+
+        secondSignatureVoteTransaction = BuilderFactory.vote()
+            .votesAsset(["+" + delegateWallet.publicKey!])
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
             .build();
 
         unvoteTransaction = BuilderFactory.vote()
             .votesAsset(["-" + delegateWallet.publicKey!])
-            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .nonce("1")
+            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
+            .build();
+
+        secondSignatureUnvoteTransaction = BuilderFactory.vote()
+            .votesAsset(["-" + delegateWallet.publicKey!])
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
             .build();
     });
 
@@ -967,9 +970,18 @@ describe("VoteTransaction", () => {
             await expect(handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository)).toResolve();
         });
 
+        it("should not throw with second sign vote", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignatureVoteTransaction, secondSignatureWallet, walletRepository)).toResolve();
+        });
+
         it("should not throw if the unvote is valid and the wallet has voted", async () => {
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
             await expect(handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw with second sign unvote", async () => {
+            secondSignatureWallet.setAttribute("vote", delegateWallet.publicKey);
+            await expect(handler.throwIfCannotBeApplied(secondSignatureUnvoteTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should throw if wallet has already voted", async () => {
@@ -1079,6 +1091,7 @@ describe("DelegateResignationTransaction", () => {
     let delegatePassphrase = "my secret passphrase";
 
     let delegateResignationTransaction: Interfaces.ITransaction;
+    let secondSignatureDelegateResignationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
     let voteHandler: TransactionHandler;
 
@@ -1116,8 +1129,14 @@ describe("DelegateResignationTransaction", () => {
         walletRepository.reindex(delegateWallet);
 
         delegateResignationTransaction = BuilderFactory.delegateResignation()
-            .sign(delegatePassphrase)
             .nonce("1")
+            .sign(delegatePassphrase)
+            .build();
+
+        secondSignatureDelegateResignationTransaction = BuilderFactory.delegateResignation()
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
             .build();
     });
 
@@ -1143,6 +1162,12 @@ describe("DelegateResignationTransaction", () => {
     describe("throwIfCannotEnterPool", () => {
         it("should not throw if wallet is a delegate", async () => {
             await expect(handler.throwIfCannotBeApplied(delegateResignationTransaction, delegateWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw if wallet is a delegate - second sign", async () => {
+            secondSignatureWallet.setAttribute("delegate", {username: "dummy"});
+            walletRepository.reindex(secondSignatureWallet);
+            await expect(handler.throwIfCannotBeApplied(secondSignatureDelegateResignationTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should not throw if wallet is a delegate due too many delegates", async () => {
@@ -1279,9 +1304,7 @@ describe("DelegateResignationTransaction", () => {
 
 describe("MultiSignatureRegistrationTransaction", () => {
     let multiSignatureTransaction: Interfaces.ITransaction;
-    let firstSenderWallet: Wallets.Wallet;
-    let secondSenderWallet: Wallets.Wallet;
-    let thirdSenderWallet: Wallets.Wallet;
+    let secondSignatureMultiSignatureTransaction: Interfaces.ITransaction;
     let recipientWallet: Wallets.Wallet;
     let handler: TransactionHandler;
 
@@ -1289,41 +1312,19 @@ describe("MultiSignatureRegistrationTransaction", () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiSignature, Enums.TransactionTypeGroup.Core), 2);
 
-        firstSenderWallet = factoryBuilder
-            .get("Wallet")
-            .withOptions({
-                passphrase: "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire",
-                nonce: 0
-            })
-            .make();
-        firstSenderWallet.balance = Utils.BigNumber.make(100390000000);
-
-        secondSenderWallet = factoryBuilder
-            .get("Wallet")
-            .withOptions({
-                passphrase: "venue below waste gather spin cruise title still boost mother flash tuna",
-                nonce: 0
-            })
-            .make();
-
-        thirdSenderWallet = factoryBuilder
-            .get("Wallet")
-            .withOptions({
-                passphrase: "craft imitate step mixture patch forest volcano business charge around girl confirm",
-                nonce: 0
-            })
-            .make();
+        senderWallet.balance = Utils.BigNumber.make(100390000000);
 
         const multiSignatureAsset: IMultiSignatureAsset = {
+            publicKeys: [
+                Identities.PublicKey.fromPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire"),
+                Identities.PublicKey.fromPassphrase("venue below waste gather spin cruise title still boost mother flash tuna"),
+                Identities.PublicKey.fromPassphrase("craft imitate step mixture patch forest volcano business charge around girl confirm"),
+            ],
             min: 2,
-            publicKeys: [firstSenderWallet.publicKey!, secondSenderWallet.publicKey!, thirdSenderWallet.publicKey!]
         };
 
         recipientWallet = new Wallets.Wallet(Identities.Address.fromMultiSignatureAsset(multiSignatureAsset), new Services.Attributes.AttributeMap(getWalletAttributeSet()),);
 
-        walletRepository.reindex(firstSenderWallet);
-        walletRepository.reindex(secondSenderWallet);
-        walletRepository.reindex(thirdSenderWallet);
         walletRepository.reindex(recipientWallet);
 
         multiSignatureTransaction = BuilderFactory.multiSignature()
@@ -1336,6 +1337,25 @@ describe("MultiSignatureRegistrationTransaction", () => {
             .multiSign("craft imitate step mixture patch forest volcano business charge around girl confirm", 2)
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .build();
+
+        secondSignatureMultiSignatureTransaction = BuilderFactory.multiSignature()
+            .multiSignatureAsset({
+                publicKeys: [
+                    Identities.PublicKey.fromPassphrase("venue below waste gather spin cruise title still boost mother flash tuna"),
+                    Identities.PublicKey.fromPassphrase("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire"),
+                    Identities.PublicKey.fromPassphrase("craft imitate step mixture patch forest volcano business charge around girl confirm"),
+                ],
+                min: 2
+            })
+            .senderPublicKey(Identities.PublicKey.fromPassphrase("venue below waste gather spin cruise title still boost mother flash tuna"))
+            .nonce("1")
+            .recipientId(recipientWallet.publicKey!)
+            .multiSign("venue below waste gather spin cruise title still boost mother flash tuna", 0)
+            .multiSign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire", 1)
+            .multiSign("craft imitate step mixture patch forest volcano business charge around girl confirm", 2)
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
+            .build();
     });
 
     describe("bootstrap", () => {
@@ -1347,22 +1367,26 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
     describe("throwIfCannotEnterPool", () => {
         it("should not throw", async () => {
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, firstSenderWallet, walletRepository)).toResolve();
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw - second sign", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignatureMultiSignatureTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should throw if the wallet already has multisignatures", async () => {
             recipientWallet.setAttribute("multiSignature", multiSignatureTransaction.data.asset!.multiSignature);
 
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, firstSenderWallet, walletRepository)).rejects.toThrow(
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
                 MultiSignatureAlreadyRegisteredError,
             );
         });
 
         it("should throw if failure to verify signatures", async () => {
             handler.verifySignatures = jest.fn(() => false);
-            firstSenderWallet.forgetAttribute("multiSignature");
+            senderWallet.forgetAttribute("multiSignature");
 
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, firstSenderWallet, walletRepository)).rejects.toThrow(
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
                 InvalidMultiSignatureError,
             );
         });
@@ -1377,25 +1401,25 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if the number of keys is less than minimum", async () => {
-            firstSenderWallet.forgetAttribute("multiSignature");
+            senderWallet.forgetAttribute("multiSignature");
 
             handler.verifySignatures = jest.fn(() => true);
             Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
 
             multiSignatureTransaction.data.asset!.multiSignature!.publicKeys.splice(0, 2);
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, firstSenderWallet, walletRepository)).rejects.toThrow(
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
                 MultiSignatureMinimumKeysError,
             );
         });
 
         it("should throw if the number of keys does not equal the signature count", async () => {
-            firstSenderWallet.forgetAttribute("multiSignature");
+            senderWallet.forgetAttribute("multiSignature");
 
             handler.verifySignatures = jest.fn(() => true);
             Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
 
             multiSignatureTransaction.data.signatures!.splice(0, 2);
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, firstSenderWallet, walletRepository)).rejects.toThrow(
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
                 MultiSignatureKeyCountMismatchError,
             );
         });
@@ -1443,7 +1467,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
             const transferBuilder = (<TransferBuilder>factoryBuilder
                 .get("Transfer")
-                .withOptions({ amount: 10000000, senderPublicKey: firstSenderWallet.publicKey, recipientId: multiSigWallet.address })
+                .withOptions({ amount: 10000000, senderPublicKey: senderWallet.publicKey, recipientId: multiSigWallet.address })
                 .make())
                 .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
                 .nonce("1");
@@ -1468,10 +1492,10 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if wallet has insufficient funds", async () => {
-            firstSenderWallet.forgetAttribute("multiSignature");
-            firstSenderWallet.balance = Utils.BigNumber.ZERO;
+            senderWallet.forgetAttribute("multiSignature");
+            senderWallet.balance = Utils.BigNumber.ZERO;
 
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, firstSenderWallet, walletRepository)).rejects.toThrow(
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
                 InsufficientBalanceError,
             );
         });
@@ -1493,30 +1517,30 @@ describe("MultiSignatureRegistrationTransaction", () => {
         it("should be ok", async () => {
             recipientWallet.forgetAttribute("multiSignature");
 
-            expect(firstSenderWallet.hasAttribute("multiSignature")).toBeFalse();
+            expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
             expect(recipientWallet.hasAttribute("multiSignature")).toBeFalse();
 
-            expect(firstSenderWallet.balance).toEqual(Utils.BigNumber.make(100390000000));
+            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(100390000000));
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
 
             await handler.apply(multiSignatureTransaction, walletRepository);
 
-            expect(firstSenderWallet.balance).toEqual(Utils.BigNumber.make(98390000000));
+            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(98390000000));
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
 
-            expect(firstSenderWallet.hasAttribute("multiSignature")).toBeFalse();
+            expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
             expect(recipientWallet.getAttribute("multiSignature")).toEqual(multiSignatureTransaction.data.asset!.multiSignature);
         });
     });
 
     describe("revert", () => {
         it("should be ok", async () => {
-            firstSenderWallet.nonce = Utils.BigNumber.make(1);
+            senderWallet.nonce = Utils.BigNumber.make(1);
 
             await handler.revert(multiSignatureTransaction, walletRepository);
 
-            expect(firstSenderWallet.nonce.isZero()).toBeTrue();
-            expect(firstSenderWallet.hasMultiSignature()).toBeFalse();
+            expect(senderWallet.nonce.isZero()).toBeTrue();
+            expect(senderWallet.hasMultiSignature()).toBeFalse();
             expect(recipientWallet.hasMultiSignature()).toBeFalse();
         });
     });
@@ -1524,10 +1548,12 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
 describe("Ipfs", () => {
     let ipfsTransaction: Interfaces.ITransaction;
+    let secondSignatureIpfsTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
 
     beforeEach(async () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Ipfs, Enums.TransactionTypeGroup.Core), 2);
 
         ipfsTransaction = BuilderFactory.ipfs()
             .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w")
@@ -1535,7 +1561,12 @@ describe("Ipfs", () => {
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .build();
 
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Ipfs, Enums.TransactionTypeGroup.Core), 2);
+        secondSignatureIpfsTransaction = BuilderFactory.ipfs()
+            .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w")
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
+            .build();
     });
 
     describe("bootstrap", () => {
@@ -1548,6 +1579,10 @@ describe("Ipfs", () => {
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw - second sign", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignatureIpfsTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should throw if wallet has insufficient funds", async () => {
@@ -1605,22 +1640,33 @@ describe("Ipfs", () => {
 
 describe("MultiPaymentTransaction", () => {
     let multiPaymentTransaction: Interfaces.ITransaction;
+    let secondSignatureMultiPaymentTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
 
     beforeEach(async () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiPayment, Enums.TransactionTypeGroup.Core), 2);
 
         multiPaymentTransaction = BuilderFactory.multiPayment()
-            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
             .addPayment("AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD", "20")
             .addPayment("AJwD3UJM7UESFnP1fsKYr4EX9Gc1EJNSqm", "30")
             .addPayment("AUsi9ZcFkcwG7WMpRE121TR4HaTjnAP7qD", "40")
             .addPayment("ARugw4i18i2pVnYZEMWKJj2mAnQQ97wuat", "50")
             .nonce("1")
+            .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .build();
 
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiPayment, Enums.TransactionTypeGroup.Core), 2);
+        secondSignatureMultiPaymentTransaction = BuilderFactory.multiPayment()
+            .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
+            .addPayment("AFyjB5jULQiYNsp37wwipCm9c7V1xEzTJD", "20")
+            .addPayment("AJwD3UJM7UESFnP1fsKYr4EX9Gc1EJNSqm", "30")
+            .addPayment("AUsi9ZcFkcwG7WMpRE121TR4HaTjnAP7qD", "40")
+            .addPayment("ARugw4i18i2pVnYZEMWKJj2mAnQQ97wuat", "50")
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
+            .build();
     });
 
     describe("bootstrap", () => {
@@ -1633,6 +1679,10 @@ describe("MultiPaymentTransaction", () => {
     describe("throwIfCannotEnterPool", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw - second sign", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignatureMultiPaymentTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should throw if wallet has insufficient funds", async () => {
@@ -1702,6 +1752,7 @@ describe("MultiPaymentTransaction", () => {
 
 describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", expirationType => {
     let htlcLockTransaction: Interfaces.ITransaction;
+    let secondSignatureHtlcLockTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
 
     beforeAll(() => {
@@ -1727,6 +1778,18 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
             .nonce("1")
             .sign("clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire")
             .build();
+
+        secondSignatureHtlcLockTransaction = BuilderFactory.htlcLock()
+            .htlcLockAsset({
+                secretHash: htlcSecretHashHex,
+                expiration: expiration
+            })
+            .recipientId(recipientWallet.address)
+            .amount("1")
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
+            .build();
     });
 
     describe("bootstrap", () => {
@@ -1739,6 +1802,10 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(htlcLockTransaction, senderWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw - second sign", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignatureHtlcLockTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should throw if wallet has insufficient funds", async () => {
@@ -1812,6 +1879,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
 describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", expirationType => {
     let htlcLockTransaction: Interfaces.ITransaction;
     let htlcClaimTransaction: Interfaces.ITransaction;
+    let secondSignHtlcClaimTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
     let lockWallet: Wallets.Wallet;
     let claimWallet: Wallets.Wallet;
@@ -1884,6 +1952,16 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
             .nonce("1")
             .sign(claimPassphrase)
             .build();
+
+        secondSignHtlcClaimTransaction = BuilderFactory.htlcClaim()
+            .htlcClaimAsset({
+                unlockSecret: htlcSecretHex,
+                lockTransactionId: htlcLockTransaction.id!,
+            })
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
+            .build();
     });
 
     describe("bootstrap", () => {
@@ -1896,6 +1974,10 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw - second sign", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignHtlcClaimTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should throw if no wallet has a lock with associated transaction id", async () => {
@@ -2100,6 +2182,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
     const lockPassphrase = "craft imitate step mixture patch forest volcano business charge around girl confirm";
     let htlcLockTransaction: Interfaces.ITransaction;
     let htlcRefundTransaction: Interfaces.ITransaction;
+    let secondSignatureHtlcRefundTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
     let lockWallet: Wallets.Wallet;
 
@@ -2157,6 +2240,15 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
             .nonce("1")
             .sign(lockPassphrase)
             .build();
+
+        secondSignatureHtlcRefundTransaction = BuilderFactory.htlcRefund()
+            .htlcRefundAsset({
+                lockTransactionId: htlcLockTransaction.id!
+            })
+            .nonce("1")
+            .sign("venue below waste gather spin cruise title still boost mother flash tuna")
+            .secondSign("craft imitate step mixture patch forest volcano business charge around girl confirm")
+            .build();
     });
 
     describe("bootstrap", () => {
@@ -2169,6 +2261,10 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw - second sign", async () => {
+            await expect(handler.throwIfCannotBeApplied(secondSignatureHtlcRefundTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
         it("should throw if no wallet has a lock with associated transaction id", async () => {
