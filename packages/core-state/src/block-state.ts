@@ -9,6 +9,8 @@ export class BlockState {
     private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.WalletRepository)
+    @Container.tagged("state", "blockchain") // TODO: Without this line - and despite
+    // being intialised in the same way as the service provider - the tests fail to find a correct binding
     private walletRepository!: Contracts.State.WalletRepository;
 
     @Container.inject(Container.Identifiers.TransactionHandlerRegistry)
