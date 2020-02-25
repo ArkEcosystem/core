@@ -19,7 +19,7 @@ beforeAll(() => {
     debugLogger = initialEnv.spies.logger.debug;
 });
 
-const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo: WalletRepository) => {
+export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo: WalletRepository) => {
     for (let i = 0; i < numberDelegates; i++) {
         const delegateKey = i.toString().repeat(66);
         const delegate = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKey));
