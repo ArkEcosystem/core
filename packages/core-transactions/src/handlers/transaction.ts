@@ -31,15 +31,12 @@ export abstract class TransactionHandler {
     @Container.inject(Container.Identifiers.WalletRepository)
     protected readonly walletRepository!: Contracts.State.WalletRepository;
 
-    public async verify(
-        transaction: Interfaces.ITransaction,
-        customWalletRepository?: Contracts.State.WalletRepository,
-    ): Promise<boolean> {
-        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
-
+    public async verify(transaction: Interfaces.ITransaction): Promise<boolean> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+            transaction.data.senderPublicKey,
+        );
 
         if (senderWallet.hasMultiSignature()) {
             transaction.isVerified = this.verifySignatures(senderWallet, transaction.data);
