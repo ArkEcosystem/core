@@ -65,6 +65,10 @@ export const setUp = (): Setup => {
 
     sandbox.app
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("delegate.rank");
+
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("htlc");
     
     sandbox.app
