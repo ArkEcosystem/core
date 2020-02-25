@@ -26,26 +26,27 @@ export class Collator implements Contracts.TransactionPool.Collator {
     private readonly logger!: Contracts.Kernel.Logger;
 
     public async getBlockCandidateTransactions(): Promise<Interfaces.ITransaction[]> {
-        let bytesLeft = this.configuration.get<number>("maxTransactionBytes") ?? null;
+        let bytesLeft: number | undefined = this.configuration.get<number>("maxTransactionBytes");
 
-        const height = this.blockchain.getLastBlock().data.height;
+        const height: number = this.blockchain.getLastBlock().data.height;
         const milestone = Managers.configManager.getMilestone(height);
         const transactions: Interfaces.ITransaction[] = [];
-        const validator = this.createTransactionValidator();
+        const validator: Contracts.State.TransactionValidator = this.createTransactionValidator();
 
         for (const transaction of this.memory.allSortedByFee().slice()) {
             if (transactions.length === milestone.block.maxTransactions) {
                 break;
             }
 
+            if (bytesLeft !== undefined) {
+                bytesLeft -= JSON.stringify(transaction.data).length;
+                if (bytesLeft < 0) {
+                    break;
+                }
+            }
+
             try {
                 await validator.validate(transaction);
-                if (bytesLeft !== null) {
-                    bytesLeft -= JSON.stringify(transaction.data).length;
-                    if (bytesLeft < 0) {
-                        break;
-                    }
-                }
                 transactions.push(transaction);
             } catch (error) {
                 this.pool.removeTransactionById(transaction.id!);
