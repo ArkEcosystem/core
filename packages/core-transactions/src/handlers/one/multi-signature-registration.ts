@@ -69,14 +69,10 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository | undefined,
-    ): Promise<void> {
-        return;
-    }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository | undefined,
-    ): Promise<void> {
-        return;
-    }
+    ): Promise<void> {}
 }
