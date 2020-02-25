@@ -10,7 +10,7 @@ import {
     BusinessResignationTransactionHandler,
     BusinessUpdateTransactionHandler,
 } from "./handlers";
-import { bridgechainIndexer, businessIndexer, MagistrateIndex } from "./wallet-manager";
+import { businessIndexer, MagistrateIndex } from "./wallet-manager";
 
 export const plugin: Container.IPluginDescriptor = {
     pkg: require("../package.json"),
@@ -26,7 +26,6 @@ export const plugin: Container.IPluginDescriptor = {
             .once(ApplicationEvents.StateStarting, (database: Database.IDatabaseService) => {
                 const walletManager = database.walletManager;
                 walletManager.registerIndex(MagistrateIndex.Businesses, businessIndexer);
-                walletManager.registerIndex(MagistrateIndex.Bridgechains, bridgechainIndexer);
             });
 
         Handlers.Registry.registerTransactionHandler(BusinessRegistrationTransactionHandler);

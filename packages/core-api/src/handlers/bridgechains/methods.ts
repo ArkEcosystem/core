@@ -1,8 +1,7 @@
 import { app } from "@arkecosystem/core-container";
 import { Database } from "@arkecosystem/core-interfaces";
-import Boom from "@hapi/boom";
 import { ServerCache } from "../../services";
-import { paginate, respondWithResource, toPagination } from "../utils";
+import { paginate, toPagination } from "../utils";
 
 const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
 
@@ -13,18 +12,6 @@ const index = async request => {
     });
 
     return toPagination(bridgechains, "bridgechain");
-};
-
-const show = async request => {
-    const bridgechain = databaseService.wallets.search(Database.SearchScope.Bridgechains, {
-        genesisHash: request.params.id,
-    }).rows[0];
-
-    if (!bridgechain) {
-        return Boom.notFound("Bridgechain not found");
-    }
-
-    return respondWithResource(bridgechain, "bridgechain");
 };
 
 const search = async request => {
@@ -43,7 +30,6 @@ export const registerMethods = server => {
             ...request.query,
             ...paginate(request),
         }))
-        .method("v2.bridgechains.show", show, 8, request => ({ id: request.params.id }))
         .method("v2.bridgechains.search", search, 30, request => ({
             ...request.payload,
             ...request.query,

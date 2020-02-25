@@ -75,20 +75,6 @@ describe("API 2.0 - Bridgechains", () => {
         });
     });
 
-    describe("GET /bridgechains/:id", () => {
-        it("should GET bridgechains by id (genesisHash)", async () => {
-            const response = await utils.request("GET", `bridgechains/${bridgechainAsset.genesisHash}`);
-            expect(response).toBeSuccessfulResponse();
-            expect(response.data.data).toBeObject();
-            expect(response.data.data.publicKey).toEqual(publicKey);
-            expect(response.data.data.name).toEqual(bridgechainAsset.name);
-            expect(response.data.data.seedNodes).toEqual(bridgechainAsset.seedNodes);
-            expect(response.data.data.genesisHash).toEqual(bridgechainAsset.genesisHash);
-            expect(response.data.data.bridgechainRepository).toEqual(bridgechainAsset.bridgechainRepository);
-            expect(response.data.data.ports).toEqual(bridgechainAsset.ports);
-        });
-    });
-
     describe("POST /bridgechains/search", () => {
         it("should POST a search for bridgechains by name", async () => {
             const response = await utils.request("POST", "bridgechains/search", {
