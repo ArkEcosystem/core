@@ -6,6 +6,7 @@ import { WalletRepository } from "../../../../packages/core-state/src/wallets";
 import { Identities, Utils as CryptoUtils } from "@arkecosystem/crypto";
 import { SATOSHI } from "@arkecosystem/crypto/dist/constants";
 import { Utils } from "@arkecosystem/core-kernel";
+import { RoundInfo } from "@arkecosystem/core-kernel/dist/contracts/shared";
 
 let dposState: DposState;
 let walletRepo: WalletRepository;
@@ -18,46 +19,35 @@ beforeAll(() => {
     debugLogger = initialEnv.spies.logger.debug;
 });
 
+const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo: WalletRepository) => {
+    for (let i = 0; i < numberDelegates; i++) {
+        const delegateKey = i.toString().repeat(66);
+        const delegate = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKey));
+        delegate.publicKey = delegateKey;
+        delegate.setAttribute("delegate.username", `delegate${i}`);
+        delegate.setAttribute("delegate.voteBalance", CryptoUtils.BigNumber.ZERO);
+
+        const voter = walletRepo.createWallet(Identities.Address.fromPublicKey((i + numberDelegates).toString().repeat(66)));
+        const totalBalance = CryptoUtils.BigNumber.make(i + 1)
+            .times(1000)
+            .times(SATOSHI);
+        voter.balance = totalBalance.div(2);
+        voter.publicKey = `v${delegateKey}`;
+        voter.setAttribute("vote", delegateKey);
+        // TODO: is this correct?
+        // that buildVoteBalances should only be triggered if there is a htlc lockedBalance?
+        voter.setAttribute("htlc.lockedBalance", totalBalance.div(2));
+
+        walletRepo.index([delegate, voter]);
+    }
+}
+
 describe("dpos", () => {
 
     beforeEach(() => {
         walletRepo.reset();
-        for (let i = 0; i < 5; i++) {
-            const delegateKey = i.toString().repeat(66);
-            const delegate = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKey));
-            delegate.publicKey = delegateKey;
-            delegate.setAttribute("delegate.username", `delegate${i}`);
-            delegate.setAttribute("delegate.voteBalance", CryptoUtils.BigNumber.ZERO);
 
-            const voter = walletRepo.createWallet(Identities.Address.fromPublicKey((i + 5).toString().repeat(66)));
-            const totalBalance = CryptoUtils.BigNumber.make(i + 1)
-                .times(1000)
-                .times(SATOSHI);
-            voter.balance = totalBalance.div(2);
-            voter.publicKey = `v${delegateKey}`;
-            voter.setAttribute("vote", delegateKey);
-            // TODO: is this correct?
-            // that buildVoteBalances should only be triggered if there is a htlc lockedBalance?
-            voter.setAttribute("htlc.lockedBalance", totalBalance.div(2));
-
-            walletRepo.index([delegate, voter]);
-        }
-    });
-
-    describe("getRoundInfo", () => {
-
-    });
-
-    describe("getAllDelegates", () => {
-
-    });
-
-    describe("getActiveDelegates", () => {
-
-    });
-
-    describe("getRoundDelegates", () => {
-
+        buildDelegateAndVoteWallets(5, walletRepo);
     });
 
     describe("buildVoteBalances", () => {
@@ -122,6 +112,34 @@ describe("dpos", () => {
             expect(() => delegates[4].getAttribute("delegate.round")).toThrow();
 
             expect(debugLogger).toHaveBeenCalledWith("Loaded 4 active delegates");
+        });
+    });
+
+    describe("getters", () => {
+        let round: RoundInfo;
+
+        beforeEach(() => {
+            dposState.buildVoteBalances();
+            dposState.buildDelegateRanking();
+            round = Utils.roundCalculator.calculateRound(1);
+            round.maxDelegates = 5;
+            dposState.setDelegatesRound(round);
+        });
+
+        it("getRoundInfo", () => {
+            expect(dposState.getRoundInfo()).toEqual(round);
+        });
+    
+        it("getAllDelegates", () => {
+            expect(dposState.getAllDelegates()).toEqual(walletRepo.allByUsername());
+        });
+    
+        it("getActiveDelegates", () => {
+            expect(dposState.getActiveDelegates()).toContainAllValues(walletRepo.allByUsername() as any);
+        });
+    
+        it("getRoundDelegates", () => {
+            expect(dposState.getRoundDelegates()).toContainAllValues(walletRepo.allByUsername() as any);
         });
     });
 });
