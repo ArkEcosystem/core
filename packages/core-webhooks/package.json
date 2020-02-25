@@ -28,13 +28,13 @@
         "@hapi/joi": "^15.1.0",
         "fs-extra": "^8.1.0",
         "lowdb": "^1.0.0",
-        "uuid": "^3.3.2"
+        "uuid": "^7.0.0"
     },
     "devDependencies": {
         "@types/fs-extra": "^8.0.0",
         "@types/hapi__boom": "^7.4.0",
         "@types/hapi__joi": "^15.0.2",
-        "@types/uuid": "^3.4.5"
+        "@types/uuid": "^7.0.0"
     },
     "engines": {
         "node": ">=10.x"

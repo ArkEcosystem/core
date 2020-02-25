@@ -67,7 +67,7 @@
         "@types/pretty-ms": "^5.0.1",
         "@types/prompts": "^2.4.0",
         "@types/rimraf": "^2.0.2",
-        "@types/uuid": "^3.4.5",
+        "@types/uuid": "^7.0.0",
         "babel-loader": "^8.0.6",
         "codecov": "^3.6.1",
         "create-hash": "^1.2.0",
@@ -91,7 +91,7 @@
         "tslint-config-prettier": "^1.18.0",
         "typescript": "^3.7.2",
         "typesync": "^0.6.1",
-        "uuid": "^3.3.3"
+        "uuid": "^7.0.0"
     },
     "workspaces": [
         "packages/*",
