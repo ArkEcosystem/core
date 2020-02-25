@@ -13,8 +13,8 @@ describe("Collator", () => {
         const configuration = { get: jest.fn() };
         const createTransactionValidator = jest.fn(() => validator);
         const blockchain = { getLastBlock: jest.fn() };
-        const pool = { cleanUp: jest.fn(), removeTransaction: jest.fn() };
-        const poolQuery = { getAllFromHighestPriority: jest.fn() };
+        const pool = { removeTransactionById: jest.fn() };
+        const memory = { allSortedByFee: jest.fn() };
         const logger = { error: jest.fn() };
 
         beforeAll(() => {
@@ -25,7 +25,7 @@ describe("Collator", () => {
                 .toConstantValue(createTransactionValidator);
             container.bind(Container.Identifiers.BlockchainService).toConstantValue(blockchain);
             container.bind(Container.Identifiers.TransactionPoolService).toConstantValue(pool);
-            container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQuery);
+            container.bind(Container.Identifiers.TransactionPoolMemory).toConstantValue(memory);
             container.bind(Container.Identifiers.LogService).toConstantValue(logger);
         });
 
@@ -34,8 +34,7 @@ describe("Collator", () => {
             configuration.get.mockClear();
             createTransactionValidator.mockClear();
             blockchain.getLastBlock.mockClear();
-            pool.cleanUp.mockClear();
-            poolQuery.getAllFromHighestPriority.mockClear();
+            memory.allSortedByFee.mockClear();
             logger.error.mockClear();
         });
 
@@ -46,7 +45,7 @@ describe("Collator", () => {
 
             (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
             blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
-            poolQuery.getAllFromHighestPriority.mockReturnValueOnce(poolTransactions);
+            memory.allSortedByFee.mockReturnValueOnce(poolTransactions);
 
             const collator = container.resolve(Collator);
             const candidateTransaction = await collator.getBlockCandidateTransactions();
@@ -55,7 +54,6 @@ describe("Collator", () => {
             expect(configuration.get).toBeCalled();
             expect(Managers.configManager.getMilestone).toBeCalled();
             expect(createTransactionValidator).toBeCalled();
-            expect(pool.cleanUp).toBeCalled();
             expect(validator.validate).toBeCalledTimes(5);
         });
 
@@ -67,7 +65,7 @@ describe("Collator", () => {
             (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
             configuration.get.mockReturnValueOnce(25);
             blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
-            poolQuery.getAllFromHighestPriority.mockReturnValueOnce(poolTransactions);
+            memory.allSortedByFee.mockReturnValueOnce(poolTransactions);
 
             const collator = container.resolve(Collator);
             const candidateTransaction = await collator.getBlockCandidateTransactions();
@@ -76,7 +74,6 @@ describe("Collator", () => {
             expect(configuration.get).toBeCalled();
             expect(Managers.configManager.getMilestone).toBeCalled();
             expect(createTransactionValidator).toBeCalled();
-            expect(pool.cleanUp).toBeCalled();
             expect(validator.validate).toBeCalledTimes(2);
         });
     });
