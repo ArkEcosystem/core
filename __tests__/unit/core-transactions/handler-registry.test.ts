@@ -20,6 +20,7 @@ const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE = 8;
 const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE = 15;
 
 const TEST_TRANSACTION_TYPE = 100;
+const DEPENDANT_TEST_TRANSACTION_TYPE = 101;
 const { schemas } = Transactions;
 
 abstract class TestTransaction extends Transactions.Transaction {
@@ -41,6 +42,25 @@ abstract class TestTransaction extends Transactions.Transaction {
     }
 }
 
+abstract class TestWithDependencyTransaction extends Transactions.Transaction {
+    public static type: number = DEPENDANT_TEST_TRANSACTION_TYPE;
+    public static typeGroup: number = Enums.TransactionTypeGroup.Test;
+    public static key: string = 'test_with_dependency';
+
+    deserialize(buf: ByteBuffer): void {
+    }
+
+    serialize(): ByteBuffer | undefined {
+        return undefined
+    }
+
+    public static getSchema(): TransactionSchema {
+        return schemas.extend(schemas.transactionBaseSchema, {
+            $id: "test_with_dependency",
+        })
+    }
+}
+
 class TestTransactionHandler extends TransactionHandler {
     dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
@@ -52,6 +72,33 @@ class TestTransactionHandler extends TransactionHandler {
 
     getConstructor(): Transactions.TransactionConstructor {
         return TestTransaction;
+    }
+
+    async bootstrap(): Promise<void> {
+        return;
+    }
+
+    async isActivated(): Promise<boolean> {
+        return true;
+    }
+
+    async applyToRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository): Promise<void> {}
+
+    async revertForRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository): Promise<void> {}
+}
+
+
+class TestWithDependencyTransactionHandler extends TransactionHandler {
+    dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
+        return [TestTransactionHandler];
+    }
+
+    walletAttributes(): ReadonlyArray<string> {
+        return [];
+    }
+
+    getConstructor(): Transactions.TransactionConstructor {
+        return TestWithDependencyTransaction;
     }
 
     async bootstrap(): Promise<void> {
@@ -141,6 +188,23 @@ describe("Registry", () => {
         expect(() => {
             app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
         }).not.toThrowError()
+    });
+
+    it("should register a custom type with dependency", async () => {
+        app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
+        app.bind(Identifiers.TransactionHandler).to(TestWithDependencyTransactionHandler);
+
+        expect(() => {
+            app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        }).not.toThrowError()
+    });
+
+    it("should register a custom type with missing dependency", async () => {
+        app.bind(Identifiers.TransactionHandler).to(TestWithDependencyTransactionHandler);
+
+        expect(() => {
+            app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        }).toThrowError();
     });
 
     it("should be able to return handler by data", async () => {
