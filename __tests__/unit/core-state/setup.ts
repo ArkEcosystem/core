@@ -70,6 +70,10 @@ export const setUp = (): Setup => {
     sandbox.app
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("htlc.locks");
+    
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("htlc.lockedBalance");
 
     sandbox.app
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
