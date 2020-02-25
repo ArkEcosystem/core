@@ -20,7 +20,8 @@ export interface Spies {
     revertSpy: jest.SpyInstance,
     logger: {
         error: jest.SpyInstance,
-        info: jest.SpyInstance
+        info: jest.SpyInstance,
+        debug: jest.SpyInstance,
     }
 }
 
@@ -66,6 +67,10 @@ export const setUp = (): Setup => {
     sandbox.app
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("delegate.rank");
+    
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("delegate.round");
 
     sandbox.app
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
@@ -130,10 +135,12 @@ export const setUp = (): Setup => {
     const revertSpy: jest.SpyInstance = jest.fn();
     const error: jest.SpyInstance = jest.fn();
     const info: jest.SpyInstance = jest.fn();
-
+    const debug: jest.SpyInstance = jest.fn();
+    
     const logger = {
         error,
-        info
+        info,
+        debug,
     };
 
     sandbox.app

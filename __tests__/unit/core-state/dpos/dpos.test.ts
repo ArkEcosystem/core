@@ -9,11 +9,13 @@ import { Utils } from "@arkecosystem/core-kernel";
 
 let dposState: DposState;
 let walletRepo: WalletRepository;
+let debugLogger: jest.SpyInstance;
 
 beforeAll(() => {
     const initialEnv = setUp();
     dposState = initialEnv.dPosState;
     walletRepo = initialEnv.walletRepo;
+    debugLogger = initialEnv.spies.logger.debug;
 });
 
 describe("dpos", () => {
@@ -92,8 +94,34 @@ describe("dpos", () => {
     });
 
     describe("setDelegatesRound", () => {
-        dposState.buildVoteBalances();
-        dposState.buildDelegateRanking();
-        dposState.setDelegatesRound(Utils.roundCalculator.calculateRound(1));
+        it("should throw if there are not enough delegates", () => {
+            dposState.buildVoteBalances();
+            dposState.buildDelegateRanking();
+            const round = Utils.roundCalculator.calculateRound(1);
+            const errorMessage = `Expected to find 51 delegates but only found 5.This indicates an issue with the genesis block & delegates`;
+            expect(() => dposState.setDelegatesRound(round)).toThrowError(errorMessage);
+        });
+
+        it("should set the delegates of a round", () => {
+            dposState.buildVoteBalances();
+            dposState.buildDelegateRanking();
+            const round = Utils.roundCalculator.calculateRound(1);
+            round.maxDelegates = 4;
+            dposState.setDelegatesRound(round);
+            const delegates = dposState.getActiveDelegates();
+            const roundDelegates= dposState.getRoundDelegates();
+            expect(dposState.getRoundInfo()).toEqual(round);
+            expect(roundDelegates).toEqual(delegates.slice(0, 4));
+
+            for (let i = 0; i < round.maxDelegates; i++) {
+                const delegate = walletRepo.findByPublicKey(roundDelegates[i].publicKey);
+                expect(delegate.getAttribute("delegate.round")).toEqual(round.round);
+            }
+            // TODO: when we remove Assertion checks, this won't throw
+            // instead it should not.toEqual(round)
+            expect(() => delegates[4].getAttribute("delegate.round")).toThrow();
+
+            expect(debugLogger).toHaveBeenCalledWith("Loaded 4 active delegates");
+        });
     });
 });
