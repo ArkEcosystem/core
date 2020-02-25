@@ -1,5 +1,6 @@
 import { TransactionTypeGroup } from "../../enums";
 import { NotImplemented } from "../../errors";
+import { Address } from "../../identities";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
 import { configManager } from "../../managers/config";
 import { BigNumber } from "../../utils/bignum";
@@ -65,6 +66,20 @@ export abstract class Transaction implements ITransaction {
         }
 
         return data;
+    }
+
+    public toString(): string {
+        if (this.data && this.data.id && this.data.senderPublicKey && this.data.nonce) {
+            const address: string = Address.fromPublicKey(this.data.senderPublicKey);
+            const nonce: BigNumber = this.data.nonce;
+            const key: string = (this as any).__proto__.constructor.key;
+            const version: string = (this as any).__proto__.constructor.version;
+            const id: string = this.data.id;
+
+            return `${address}#${nonce} (${key} v${version}) ${id}`;
+        } else {
+            return "serialized";
+        }
     }
 
     public hasVendorField(): boolean {
