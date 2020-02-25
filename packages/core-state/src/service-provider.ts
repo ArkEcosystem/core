@@ -11,7 +11,7 @@ import { TransactionValidator } from "./transaction-validator";
 import { TempWalletRepository, WalletRepository } from "./wallets";
 import { registerFactories, registerIndexers } from "./wallets/indexers";
 
-const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
+export const dposPreviousRoundStateProvider = (context: Container.interfaces.Context) => {
     return async (
         blocks: Interfaces.IBlock[],
         roundInfo: Contracts.Shared.RoundInfo,

@@ -10,19 +10,6 @@ beforeAll(() => {
     dposState = initialEnv.dPosState;
 });
 
-describe("dposPreviousRound", () => {
-    describe("revert", () => {
-        
-    });
-    describe("getAllDelegates", () => {
-
-    });
-    
-    describe("getRoundDelegates", () => {
-
-    });
-});
-
 describe("dpos", () => {
 
     describe("getRoundInfo", () => {

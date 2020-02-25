@@ -12,6 +12,8 @@ import { WalletRepository, TempWalletRepository } from "../../../packages/core-s
 import { registerIndexers, registerFactories } from "../../../packages/core-state/src/wallets/indexers";
 import { DposState } from "../../../packages/core-state/src/dpos/dpos";
 import { PluginConfiguration } from "@arkecosystem/core-kernel/dist/providers";
+import { dposPreviousRoundStateProvider } from "../../../packages/core-state/src";
+import { DposPreviousRoundStateProvider } from "@arkecosystem/core-kernel/dist/contracts/state";
 
 export interface Spies {
     applySpy: jest.SpyInstance,
@@ -29,6 +31,7 @@ export interface Setup {
     factory: FactoryBuilder;
     blockState: BlockState;
     dPosState: DposState;
+    dposPreviousRound: DposPreviousRoundStateProvider;
     spies: Spies
 }
 
@@ -150,6 +153,13 @@ export const setUp = (): Setup => {
     sandbox.app
         .bind(Container.Identifiers.DposState)
         .to(DposState);
+    
+    sandbox.app
+        .bind<DposPreviousRoundStateProvider>(Container.Identifiers.DposPreviousRoundStateProvider)
+        .toProvider(dposPreviousRoundStateProvider);
+
+    const dposPreviousRound = sandbox.app
+        .get<DposPreviousRoundStateProvider>(Container.Identifiers.DposPreviousRoundStateProvider);
 
     const blockState = sandbox.app
         .get<BlockState>(Container.Identifiers.BlockState);
@@ -172,6 +182,7 @@ export const setUp = (): Setup => {
         factory,
         blockState,
         dPosState,
+        dposPreviousRound,
         spies: {
             applySpy,
             revertSpy,
