@@ -3,8 +3,8 @@ import { Utils } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class DposState implements Contracts.State.DposState {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
+    @Container.inject(Container.Identifiers.LogService)
+    private logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain") // TODO: see todo in block-state
@@ -107,7 +107,7 @@ export class DposState implements Contracts.State.DposState {
             this.activeDelegates[i].setAttribute("delegate.round", roundInfo.round);
             this.roundDelegates.push(this.activeDelegates[i]);
         }
-        this.app.log.debug(
+        this.logger.debug(
             `Loaded ${roundInfo.maxDelegates} active ` + AppUtils.pluralize("delegate", roundInfo.maxDelegates),
         );
     }
