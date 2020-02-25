@@ -10,6 +10,8 @@ import { StateStore } from "../../../packages/core-state/src/stores/state";
 import { BlockState } from "../../../packages/core-state/src/block-state";
 import { WalletRepository, TempWalletRepository } from "../../../packages/core-state/src/wallets";
 import { registerIndexers, registerFactories } from "../../../packages/core-state/src/wallets/indexers";
+import { DposState } from "../../../packages/core-state/src/dpos/dpos";
+import { PluginConfiguration } from "@arkecosystem/core-kernel/dist/providers";
 
 export interface Spies {
     applySpy: jest.SpyInstance,
@@ -26,6 +28,7 @@ export interface Setup {
     tempWalletRepo: TempWalletRepository;
     factory: FactoryBuilder;
     blockState: BlockState;
+    dPosState: DposState;
     spies: Spies
 }
 
@@ -82,11 +85,11 @@ export const setUp = (): Setup => {
         .inSingletonScope();
 
     sandbox.app
-        .get<any>(Container.Identifiers.PluginConfiguration)
+        .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
         .set("storage.maxLastBlocks", defaults.storage.maxLastBlocks);
 
     sandbox.app
-        .get<any>(Container.Identifiers.PluginConfiguration)
+        .get<PluginConfiguration>(Container.Identifiers.PluginConfiguration)
         .set("storage.maxLastTransactionIds", defaults.storage.maxLastTransactionIds);
 
     sandbox.app
@@ -143,9 +146,16 @@ export const setUp = (): Setup => {
     sandbox.app
         .bind(Container.Identifiers.BlockState)
         .to(BlockState);
+    
+    sandbox.app
+        .bind(Container.Identifiers.DposState)
+        .to(DposState);
 
     const blockState = sandbox.app
-        .get<any>(Container.Identifiers.BlockState);
+        .get<BlockState>(Container.Identifiers.BlockState);
+
+    const dPosState = sandbox.app
+        .get<DposState>(Container.Identifiers.DposState);
 
     const factory = new FactoryBuilder();
 
@@ -161,6 +171,7 @@ export const setUp = (): Setup => {
         tempWalletRepo,
         factory,
         blockState,
+        dPosState,
         spies: {
             applySpy,
             revertSpy,
