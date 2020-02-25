@@ -8,7 +8,7 @@ import { Managers } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../packages/core-state/src/stores/state";
 import { BlockState } from "../../../packages/core-state/src/block-state";
-import { WalletRepository } from "../../../packages/core-state/src/wallets";
+import { WalletRepository, TempWalletRepository } from "../../../packages/core-state/src/wallets";
 import { registerIndexers, registerFactories } from "../../../packages/core-state/src/wallets/indexers";
 
 export interface Spies {
@@ -23,6 +23,7 @@ export interface Spies {
 export interface Setup {
     sandbox: Sandbox;
     walletRepo: WalletRepository;
+    tempWalletRepo: TempWalletRepository;
     factory: FactoryBuilder;
     blockState: BlockState;
     spies: Spies
@@ -96,11 +97,20 @@ export const setUp = (): Setup => {
     sandbox.app
         .bind(Container.Identifiers.WalletRepository)
         .to(WalletRepository)
-        .inSingletonScope();
+        .inSingletonScope()
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
+
+    sandbox.app
+        .bind(Container.Identifiers.WalletRepository)
+        .to(TempWalletRepository)
+        .inRequestScope()
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "temp"));
+
+    const tempWalletRepo: TempWalletRepository = sandbox.app
+        .getTagged(Container.Identifiers.WalletRepository, "state", "temp");
 
     const walletRepo: WalletRepository = sandbox.app
-        .get(Container.Identifiers.WalletRepository);
-
+        .getTagged(Container.Identifiers.WalletRepository, "state", "blockchain");
 
     const applySpy: jest.SpyInstance = jest.fn();
     const revertSpy: jest.SpyInstance = jest.fn();
@@ -113,8 +123,8 @@ export const setUp = (): Setup => {
     };
 
     sandbox.app
-    .bind(Container.Identifiers.LogService)
-    .toConstantValue(logger);
+        .bind(Container.Identifiers.LogService)
+        .toConstantValue(logger);
 
     @Container.injectable()
     class MockHandler {
@@ -148,6 +158,7 @@ export const setUp = (): Setup => {
     return {
         sandbox,
         walletRepo,
+        tempWalletRepo,
         factory,
         blockState,
         spies: {

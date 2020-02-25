@@ -12,11 +12,12 @@ beforeAll(() => {
     walletRepoInstance = walletRepo;
 });
 
-beforeEach(() => {
-    walletRepoInstance.reset();
-});
-
 describe("Wallet Repository", () => {
+
+    beforeEach(() => {
+        walletRepoInstance.reset();
+    });
+
     it("should create a wallet", () => {
         const wallet = walletRepoInstance.createWallet("abcd");
         expect(wallet.address).toEqual("abcd");
