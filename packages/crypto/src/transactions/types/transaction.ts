@@ -76,7 +76,7 @@ export abstract class Transaction implements ITransaction {
             const version: string = (this as any).__proto__.constructor.version;
             const id: string = this.data.id;
 
-            return `${address}#${nonce} (${key} v${version}) ${id}`;
+            return `${address} #${nonce} ${key} v${version} ${id}`;
         } else {
             return "serialized";
         }
