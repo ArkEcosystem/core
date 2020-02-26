@@ -47,7 +47,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
                 }
                 transactions.push(transaction);
             } catch (error) {
-                this.logger.error(`${transaction} failed to collate: ${error.message}`);
+                this.logger.warning(`${transaction} failed to collate: ${error.message}`);
                 await this.pool.removeTransaction(transaction);
             }
         }

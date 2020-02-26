@@ -44,7 +44,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
         try {
             await this.addTransactionToMempool(transaction);
-            this.logger.info(`${transaction} added to pool`);
+            this.logger.debug(`${transaction} added to pool`);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
             throw error;
@@ -76,7 +76,7 @@ export class Service implements Contracts.TransactionPool.Service {
             this.logger.debug(`${removedTransaction} removed from pool`);
         }
 
-        this.logger.debug(`${transaction} accepted by pool`);
+        this.logger.debug(`${transaction} forged and accepted by pool`);
     }
 
     public async readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
@@ -106,11 +106,9 @@ export class Service implements Contracts.TransactionPool.Service {
             }
         }
 
-        if (prevTransactions) {
-            this.logger.info(`${rebuiltCount} transactions re-added to pool (${prevCount} previous)`);
-        } else {
-            this.logger.info(`${rebuiltCount} transactions re-added to pool`);
-        }
+        this.logger.debug(
+            `${AppUtils.pluralize("transaction", rebuiltCount, true)} re-added to pool (${prevCount} previous)`,
+        );
     }
 
     public async cleanUp(): Promise<void> {
@@ -147,7 +145,7 @@ export class Service implements Contracts.TransactionPool.Service {
     private async cleanExpired(): Promise<void> {
         for (const transaction of this.poolQuery.getAll()) {
             if (this.expirationService.isTransactionExpired(transaction)) {
-                this.logger.debug(`${transaction} expired`);
+                this.logger.warning(`${transaction} expired`);
                 await this.removeTransaction(transaction);
             }
         }

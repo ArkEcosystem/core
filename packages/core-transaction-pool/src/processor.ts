@@ -58,7 +58,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
 
                         this.logger.warning(`${transaction} failed to enter pool: ${error.message}`);
                     } else {
-                        this.logger.error(`${transaction} failed to enter pool: ${error.stack}`);
+                        this.logger.error(`${transaction} caused error entering pool: ${error.stack}`);
                         throw error;
                     }
                 }
