@@ -28,6 +28,7 @@ export interface Spies {
     getBlockRewardsSpy: jest.SpyInstance,
     getSentTransactionSpy: jest.SpyInstance,
     getRegisteredHandlersSpy: jest.SpyInstance,
+    dispatchSpy: jest.SpyInstance,
 }
 
 export interface Setup {
@@ -206,10 +207,12 @@ export const setUp = (): Setup => {
         }
     }
 
+    const dispatchSpy = jest.fn();
+
     @Container.injectable()
     class MockEventDispatcher {
-        public dispatch() {
-            return jest.fn();
+        public dispatch(data) {
+            return dispatchSpy(data);
         }
     }
 
@@ -282,6 +285,7 @@ export const setUp = (): Setup => {
             getBlockRewardsSpy,
             getSentTransactionSpy,
             getRegisteredHandlersSpy,
+            dispatchSpy,
         }
     }
 }
