@@ -320,6 +320,17 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
     });
 
     describe("apply",  () => {
+        let pubKeyHash: number;
+
+        beforeEach(() => {
+            pubKeyHash = configManager.get("network.pubKeyHash");
+        });
+
+        afterEach(() => {
+            configManager.set("exceptions.transactions", []);
+            configManager.set("network.pubKeyHash", pubKeyHash);
+        });
+
         it("should apply htlc claim transaction", async () => {
             await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
 
@@ -333,6 +344,13 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
             expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
             expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
             expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
+        });
+
+        it("should apply htlc claim transaction defined as exception", async () => {
+            configManager.set("network.pubKeyHash", 99);
+            configManager.set("exceptions.transactions", [htlcClaimTransaction.id]);
+
+            expect(handler.apply(htlcClaimTransaction, walletRepository)).toResolve()
         });
 
         it("should apply htlc claim transaction - when sender is not claim wallet", async () => {

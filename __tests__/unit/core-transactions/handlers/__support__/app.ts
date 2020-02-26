@@ -23,9 +23,17 @@ import { getWalletAttributeSet } from "@packages/core-test-framework/src/interna
 import { transactionRepository } from "../__mocks__/transaction-repository";
 import { blockRepository } from "../__mocks__/block-repository";
 
+const logger = {
+    notice: jest.fn(),
+    debug: jest.fn(),
+    warning: jest.fn(),
+};
+
 export const initApp = (): Application => {
     const app: Application = new Application(new Container.Container());
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("testnet");
+
+    app.bind(Identifiers.LogService).toConstantValue(logger);
 
     app
         .bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)

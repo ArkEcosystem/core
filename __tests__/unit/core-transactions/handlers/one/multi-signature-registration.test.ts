@@ -112,7 +112,25 @@ describe("MultiSignatureRegistrationTransaction", () => {
     // });
 
     describe("throwIfCannotBeApplied", () => {
+        let pubKeyHash: number;
+
+        beforeEach(() => {
+            pubKeyHash = configManager.get("network.pubKeyHash");
+        });
+
+        afterEach(() => {
+            configManager.set("exceptions.transactions", []);
+            configManager.set("network.pubKeyHash", pubKeyHash);
+        });
+
         it("should throw", async () => {
+            configManager.set("network.pubKeyHash", 99);
+            configManager.set("exceptions.transactions", [multiSignatureTransaction.id]);
+
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw defined as exception", async () => {
             await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(LegacyMultiSignatureError);
         });
     });

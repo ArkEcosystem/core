@@ -106,7 +106,25 @@ describe("Ipfs", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
+        let pubKeyHash: number;
+
+        beforeEach(() => {
+            pubKeyHash = configManager.get("network.pubKeyHash");
+        });
+
+        afterEach(() => {
+            configManager.set("exceptions.transactions", []);
+            configManager.set("network.pubKeyHash", pubKeyHash);
+        });
+
         it("should not throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
+        });
+
+        it("should not throw defined as exception", async () => {
+            configManager.set("network.pubKeyHash", 99);
+            configManager.set("exceptions.transactions", [ipfsTransaction.id]);
+
             await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
         });
 

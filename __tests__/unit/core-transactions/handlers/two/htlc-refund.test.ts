@@ -284,6 +284,17 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
     });
 
     describe("apply", () => {
+        let pubKeyHash: number;
+
+        beforeEach(() => {
+            pubKeyHash = configManager.get("network.pubKeyHash");
+        });
+
+        afterEach(() => {
+            configManager.set("exceptions.transactions", []);
+            configManager.set("network.pubKeyHash", pubKeyHash);
+        });
+
         it("should apply htlc refund transaction", async () => {
             await expect(handler.throwIfCannotBeApplied(htlcRefundTransaction, lockWallet, walletRepository)).toResolve();
 
@@ -298,6 +309,13 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
             expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
             expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
             expect(lockWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcRefundTransaction.data.fee));
+        });
+
+        it("should apply htlc refund transaction defined as exception", async () => {
+            configManager.set("network.pubKeyHash", 99);
+            configManager.set("exceptions.transactions", [htlcRefundTransaction.id]);
+
+            await expect(handler.apply(htlcRefundTransaction, walletRepository)).toResolve();
         });
 
         it("should apply htlc refund transaction - when sender is not refund wallet", async () => {

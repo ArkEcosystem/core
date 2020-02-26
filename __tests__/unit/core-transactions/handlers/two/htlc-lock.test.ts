@@ -138,7 +138,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
 
         it("should resolve with open transaction", async () => {
             // @ts-ignore
-            htlcLockTransaction.open = true;
+            htlcLockTransaction.data.open = true;
             setMockTransaction(htlcLockTransaction);
             await expect(handler.bootstrap()).toResolve();
         });

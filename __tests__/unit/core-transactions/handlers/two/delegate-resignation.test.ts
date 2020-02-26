@@ -129,6 +129,15 @@ describe("DelegateResignationTransaction", () => {
         it("should resolve", async () => {
             setMockTransaction(delegateResignationTransaction);
             await expect(handler.bootstrap()).toResolve();
+        });
+
+        it("should resolve - simulate genesis wallet", async () => {
+            allDelegates[0].forgetAttribute("delegate");
+
+            walletRepository.reindex(allDelegates[0]);
+
+            setMockTransaction(delegateResignationTransaction);
+            await expect(handler.bootstrap()).toResolve();
         })
     });
 
