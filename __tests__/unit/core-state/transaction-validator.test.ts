@@ -1,38 +1,19 @@
 import "jest-extended";
 
-import { Sandbox } from "@packages/core-test-framework/src";
-import { Container, Utils } from "@arkecosystem/core-kernel";
+// import { Sandbox } from "@packages/core-test-framework/src";
+import { Utils } from "@arkecosystem/core-kernel";
 import { TransactionValidator } from "@arkecosystem/core-state/src/transaction-validator";
 import { makeVoteTransactions } from "./helper";
 import { AssertionError } from "assert";
+import { setUp } from "./setup";
 
 let transactionValidator: TransactionValidator;
 let applySpy: jest.SpyInstance;
 
 beforeAll(async () => {
-    // TODO: fix tagging issue and move this out
-    const sandbox = new Sandbox();
-
-    applySpy = jest.fn();
-    @Container.injectable()
-    class MockHandler {
-        public getActivatedHandlerForData() {
-            return {
-                apply: applySpy,
-            };
-        }
-    }
-
-    sandbox.app
-        .bind(Container.Identifiers.TransactionHandlerRegistry)
-        .to(MockHandler);
-    
-    sandbox.app
-        .bind(Container.Identifiers.TransactionValidator)
-        .to(TransactionValidator);
-
-    transactionValidator = sandbox.app
-        .get(Container.Identifiers.TransactionValidator);
+    const initialEnv = setUp();
+    transactionValidator = initialEnv.transactionValidator;
+    applySpy = initialEnv.spies.applySpy;
 });
 
 describe("Transaction Validator", () => {

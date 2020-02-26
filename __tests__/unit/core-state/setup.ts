@@ -4,7 +4,7 @@ import { Container, Providers, Services } from "@arkecosystem/core-kernel";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
-import { Managers } from "@arkecosystem/crypto";
+import { Managers, Utils } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../packages/core-state/src/stores/state";
 import { BlockState } from "../../../packages/core-state/src/block-state";
@@ -14,6 +14,8 @@ import { DposState } from "../../../packages/core-state/src/dpos/dpos";
 import { PluginConfiguration } from "@arkecosystem/core-kernel/dist/providers";
 import { dposPreviousRoundStateProvider } from "../../../packages/core-state/src";
 import { DposPreviousRoundStateProvider } from "@arkecosystem/core-kernel/dist/contracts/state";
+import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
+import { TransactionValidator } from "@arkecosystem/core-state/src/transaction-validator";
 
 export interface Spies {
     applySpy: jest.SpyInstance,
@@ -22,7 +24,10 @@ export interface Spies {
         error: jest.SpyInstance,
         info: jest.SpyInstance,
         debug: jest.SpyInstance,
-    }
+    },
+    getBlockRewardsSpy: jest.SpyInstance,
+    getSentTransactionSpy: jest.SpyInstance,
+    getRegisteredHandlersSpy: jest.SpyInstance,
 }
 
 export interface Setup {
@@ -31,8 +36,11 @@ export interface Setup {
     tempWalletRepo: TempWalletRepository;
     factory: FactoryBuilder;
     blockState: BlockState;
+    stateStore: StateStore;
     dPosState: DposState;
     dposPreviousRound: DposPreviousRoundStateProvider;
+    stateBuilder: StateBuilder;
+    transactionValidator: TransactionValidator;
     spies: Spies
 }
 
@@ -112,6 +120,9 @@ export const setUp = (): Setup => {
         .bind(Container.Identifiers.StateStore)
         .to(StateStore)
         .inSingletonScope();
+    
+    const stateStore: StateStore = sandbox.app
+        .get(Container.Identifiers.StateStore);
 
     sandbox.app
         .bind(Container.Identifiers.WalletRepository)
@@ -147,6 +158,8 @@ export const setUp = (): Setup => {
         .bind(Container.Identifiers.LogService)
         .toConstantValue(logger);
 
+    const getRegisteredHandlersSpy = jest.fn();
+
     @Container.injectable()
     class MockHandler {
         public getActivatedHandlerForData() {
@@ -155,20 +168,71 @@ export const setUp = (): Setup => {
                 revert: revertSpy,
             };
         }
+        public getRegisteredHandlers() {
+            getRegisteredHandlersSpy();
+            return [];
+        }
     }
 
     sandbox.app
         .bind(Container.Identifiers.TransactionHandlerRegistry)
         .to(MockHandler);
 
+    const getBlockRewardsSpy = jest.fn();
+
+    @Container.injectable()
+    class MockBlockRepository {
+        public getBlockRewards() {
+            getBlockRewardsSpy();
+            return [{
+                generatorPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
+                rewards: Utils.BigNumber.ZERO,
+            }];
+        }
+    }
+
+    const getSentTransactionSpy = jest.fn();
+
+    @Container.injectable()
+    class MockTransactionRepository {
+        public getSentTransactions() {
+            getSentTransactionSpy();
+            return [{
+                senderPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
+                amount: Utils.BigNumber.ZERO,
+                fee: Utils.BigNumber.ZERO,
+                nonce: Utils.BigNumber.ZERO,
+            }];
+        }
+    }
+
+    @Container.injectable()
+    class MockEventDispatcher {
+        public dispatch() {
+            return jest.fn();
+        }
+    }
+
+    sandbox.app.container.bind(Container.Identifiers.BlockRepository).to(MockBlockRepository);
+    sandbox.app.container.bind(Container.Identifiers.TransactionRepository).to(MockTransactionRepository);
+    sandbox.app.container.bind(Container.Identifiers.EventDispatcherService).to(MockEventDispatcher);
+
     sandbox.app
         .bind(Container.Identifiers.BlockState)
         .to(BlockState);
-    
+
     sandbox.app
         .bind(Container.Identifiers.DposState)
-        .to(DposState);
-    
+        .to(DposState)
+        .inSingletonScope()
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "blockchain"));
+
+    sandbox.app
+        .bind(Container.Identifiers.DposState)
+        .to(DposState)
+        .inRequestScope()
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "temp"));
+  
     sandbox.app
         .bind<DposPreviousRoundStateProvider>(Container.Identifiers.DposPreviousRoundStateProvider)
         .toProvider(dposPreviousRoundStateProvider);
@@ -180,7 +244,17 @@ export const setUp = (): Setup => {
         .get<BlockState>(Container.Identifiers.BlockState);
 
     const dPosState = sandbox.app
-        .get<DposState>(Container.Identifiers.DposState);
+        .getTagged<DposState>(Container.Identifiers.DposState, "state", "blockchain");
+
+
+    sandbox.app
+        .bind(Container.Identifiers.TransactionValidator)
+        .to(TransactionValidator);
+
+    const transactionValidator: TransactionValidator = sandbox.app
+        .get(Container.Identifiers.TransactionValidator);
+
+    const stateBuilder = sandbox.app.resolve<StateBuilder>(StateBuilder);
 
     const factory = new FactoryBuilder();
 
@@ -196,12 +270,18 @@ export const setUp = (): Setup => {
         tempWalletRepo,
         factory,
         blockState,
+        stateStore,
         dPosState,
         dposPreviousRound,
+        stateBuilder,
+        transactionValidator,
         spies: {
             applySpy,
             revertSpy,
             logger,
+            getBlockRewardsSpy,
+            getSentTransactionSpy,
+            getRegisteredHandlersSpy,
         }
     }
 }

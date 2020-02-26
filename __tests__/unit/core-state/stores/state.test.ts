@@ -11,19 +11,19 @@ import { makeChainedBlocks } from "../helper";
 
 let blocks: IBlock[];
 let stateStorage: StateStore;
-let factoryInstance: FactoryBuilder;
+let factory: FactoryBuilder;
 let logger: jest.SpyInstance;
 
 beforeAll(() => {
-    const { sandbox, factory, spies } = setUp();
-    factoryInstance = factory;
-    logger = spies.logger.info;
+    const initalEnv = setUp();
+    factory = initalEnv.factory;
+    logger = initalEnv.spies.logger.info;
     
-    stateStorage = sandbox.app.get(Container.Identifiers.StateStore);
+    stateStorage =  initalEnv. sandbox.app.get(Container.Identifiers.StateStore);
 });
 
 beforeEach(() => {
-    blocks = makeChainedBlocks(101, factoryInstance.get("Block"));
+    blocks = makeChainedBlocks(101, factory.get("Block"));
     stateStorage.clear();
 });
 
