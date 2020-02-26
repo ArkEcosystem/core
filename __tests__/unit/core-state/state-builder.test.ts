@@ -4,6 +4,7 @@ import { setUp, setUpDefaults } from "./setup";
 import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
 import { Enums, Utils } from "@arkecosystem/core-kernel";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
+import { AssertionError } from "assert";
 
 let stateBuilder: StateBuilder;
 let getBlockRewardsSpy: jest.SpyInstance;
@@ -73,6 +74,17 @@ describe("StateBuilder", () => {
                 
         expect(wallet.nonce).toEqual(Utils.BigNumber.make(setUpDefaults.getSentTransaction.nonce));
         expect(wallet.balance).toEqual(expectedBalance);
+    });
+
+    // TODO: this tests fails, but presumably should pass?
+    it("should throw if any wallet balance is negative", async () => {
+        const wallet = walletRepo.findByPublicKey(senderKey);
+        wallet.balance = Utils.BigNumber.make(-80000);
+        walletRepo.reindex(wallet);
+
+        expect.assertions(1);
+        stateBuilder.run().catch(e => expect(e).toBeInstanceOf(AssertionError));
+
     });
 
     it("should emit an event when the builder is finished", async () => {

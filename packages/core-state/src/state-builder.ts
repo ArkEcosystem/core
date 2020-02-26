@@ -117,6 +117,8 @@ export class StateBuilder {
                 const negativeBalances: Record<string, string> | undefined = wallet.publicKey
                     ? negativeBalanceExceptions[wallet.publicKey]
                     : undefined;
+
+                // TODO: check this is desired implementation?
                 if (negativeBalances && !wallet.balance.isEqualTo(negativeBalances[wallet.nonce.toString()] || 0)) {
                     this.logger.warning(`Wallet '${wallet.address}' has a negative balance of '${wallet.balance}'`);
                     throw new Error("Non-genesis wallet with negative balance.");

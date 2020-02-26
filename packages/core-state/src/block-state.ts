@@ -26,10 +26,13 @@ export class BlockState {
 
         const generatorWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
         if (!generatorWallet) {
+            /**
+             * TODO: until the Asserts are removed (i.e. inside findByPublicKey) this is effectively
+             * dead code, since the line above would always throw (rather than return undefined).
+             */
             const msg = `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
             this.app.terminate(msg);
         }
-
         const appliedTransactions: Interfaces.ITransaction[] = [];
         try {
             for (const transaction of block.transactions) {
