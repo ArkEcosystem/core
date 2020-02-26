@@ -11,6 +11,8 @@ let getSentTransactionSpy: jest.SpyInstance;
 let getRegisteredHandlersSpy: jest.SpyInstance;
 let dispatchSpy: jest.SpyInstance;
 const generatorKey = setUpDefaults.getBlockRewards.generatorPublicKey;
+const senderKey = setUpDefaults.getSentTransaction.senderPublicKey;
+
 let walletRepo: WalletRepository;
 
 beforeAll(async () => {
@@ -57,6 +59,19 @@ describe("StateBuilder", () => {
         
         await stateBuilder.run();
 
+        expect(wallet.balance).toEqual(expectedBalance);
+    });
+
+    it("should apply the transaction data to the sender", async () => {
+        const wallet = walletRepo.findByPublicKey(senderKey);
+        wallet.balance = Utils.BigNumber.make(80000);
+        walletRepo.reindex(wallet);
+
+        const expectedBalance = wallet.balance.minus(setUpDefaults.getSentTransaction.amount).minus(setUpDefaults.getSentTransaction.fee);
+
+        await stateBuilder.run();
+                
+        expect(wallet.nonce).toEqual(Utils.BigNumber.make(setUpDefaults.getSentTransaction.nonce));
         expect(wallet.balance).toEqual(expectedBalance);
     });
 
