@@ -35,46 +35,37 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
                 height,
             });
 
-            if (transaction.data.fee.isGreaterThan(minFeePool)) {
-                this.logger.debug(
-                    `Transaction ${transaction.id} eligible to enter pool - ` +
-                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is greater than ` +
-                        `minimum fee (${Utils.formatSatoshi(minFeePool)})`,
+            if (transaction.data.fee.isGreaterThanEqual(minFeePool)) {
+                this.logger.info(
+                    `${transaction} eligible to enter pool ` +
+                        `(fee of ${Utils.formatSatoshi(transaction.data.fee)} >= ` +
+                        `minimum fee ${Utils.formatSatoshi(minFeePool)})`,
                 );
                 return true;
-            }
-
-            if (transaction.data.fee.isEqualTo(minFeePool)) {
-                this.logger.debug(
-                    `Transaction ${transaction.id} eligible to enter pool - ` +
-                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is equal to ` +
-                        `minimum fee (${Utils.formatSatoshi(minFeePool)})`,
+            } else {
+                this.logger.info(
+                    `${transaction} not eligible to enter pool ` +
+                        `(fee of ${Utils.formatSatoshi(transaction.data.fee)} < ` +
+                        `minimum fee ${Utils.formatSatoshi(minFeePool)})`,
                 );
-                return true;
+                return false;
             }
-
-            this.logger.debug(
-                `Transaction ${transaction.id} not eligible to enter pool - ` +
-                    `fee of ${Utils.formatSatoshi(transaction.data.fee)} is smaller than ` +
-                    `minimum fee (${Utils.formatSatoshi(minFeePool)})`,
-            );
-            return false;
         } else {
             if (transaction.data.fee.isEqualTo(transaction.staticFee)) {
-                this.logger.debug(
-                    `Transaction ${transaction.id} eligible to enter pool - ` +
-                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is equal to ` +
-                        `static fee (${Utils.formatSatoshi(transaction.staticFee)})`,
+                this.logger.info(
+                    `${transaction} eligible to enter pool ` +
+                        `(fee of ${Utils.formatSatoshi(transaction.data.fee)} = ` +
+                        `static fee ${Utils.formatSatoshi(transaction.staticFee)})`,
                 );
                 return true;
+            } else {
+                this.logger.info(
+                    `${transaction} not eligible to enter pool ` +
+                        `(fee of ${Utils.formatSatoshi(transaction.data.fee)} != ` +
+                        `static fee ${Utils.formatSatoshi(transaction.staticFee)})`,
+                );
+                return false;
             }
-
-            this.logger.debug(
-                `Transaction ${transaction.id} not eligible to enter pool - ` +
-                    `fee of ${Utils.formatSatoshi(transaction.data.fee)} does not match ` +
-                    `static fee (${Utils.formatSatoshi(transaction.staticFee)})`,
-            );
-            return false;
         }
     }
 
@@ -95,46 +86,37 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
                 height,
             });
 
-            if (transaction.data.fee.isGreaterThan(minFeeBroadcast)) {
-                this.logger.debug(
-                    `Transaction ${transaction.id} eligible for broadcast - ` +
-                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is greater than ` +
-                        `minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
+            if (transaction.data.fee.isGreaterThanEqual(minFeeBroadcast)) {
+                this.logger.info(
+                    `${transaction} eligible for broadcast ` +
+                        `(fee of ${Utils.formatSatoshi(transaction.data.fee)} >= ` +
+                        `minimum fee ${Utils.formatSatoshi(minFeeBroadcast)})`,
                 );
                 return true;
-            }
-
-            if (transaction.data.fee.isEqualTo(minFeeBroadcast)) {
-                this.logger.debug(
-                    `Transaction ${transaction.id} eligible for broadcast - ` +
-                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is equal to ` +
-                        `minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
+            } else {
+                this.logger.info(
+                    `${transaction} not eligible for broadcast ` +
+                        `(fee of ${Utils.formatSatoshi(transaction.data.fee)} < ` +
+                        `minimum fee ${Utils.formatSatoshi(minFeeBroadcast)})`,
                 );
-                return true;
+                return false;
             }
-
-            this.logger.debug(
-                `Transaction ${transaction.id} not eligible for broadcast - ` +
-                    `fee of ${Utils.formatSatoshi(transaction.data.fee)} is smaller than ` +
-                    `minimum fee (${Utils.formatSatoshi(minFeeBroadcast)})`,
-            );
-            return false;
         } else {
             if (transaction.data.fee.isEqualTo(transaction.staticFee)) {
-                this.logger.debug(
-                    `Transaction ${transaction.id} eligible for broadcast - ` +
-                        `fee of ${Utils.formatSatoshi(transaction.data.fee)} is equal to ` +
-                        `static fee (${Utils.formatSatoshi(transaction.staticFee)})`,
+                this.logger.info(
+                    `${transaction} eligible for broadcast ` +
+                        `(fee of ${Utils.formatSatoshi(transaction.data.fee)} = ` +
+                        `static fee ${Utils.formatSatoshi(transaction.staticFee)})`,
                 );
                 return true;
+            } else {
+                this.logger.info(
+                    `${transaction} not eligible for broadcast ` +
+                        `(fee of ${Utils.formatSatoshi(transaction.data.fee)} != ` +
+                        `static fee ${Utils.formatSatoshi(transaction.staticFee)})`,
+                );
+                return false;
             }
-
-            this.logger.debug(
-                `Transaction ${transaction.id} not eligible for broadcast - ` +
-                    `fee of ${Utils.formatSatoshi(transaction.data.fee)} does not match ` +
-                    `static fee (${Utils.formatSatoshi(transaction.staticFee)})`,
-            );
-            return false;
         }
     }
 }

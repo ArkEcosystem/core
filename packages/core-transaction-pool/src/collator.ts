@@ -1,8 +1,6 @@
 import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 
-import { describeTransaction } from "./utils";
-
 @Container.injectable()
 export class Collator implements Contracts.TransactionPool.Collator {
     @Container.inject(Container.Identifiers.PluginConfiguration)
@@ -49,7 +47,7 @@ export class Collator implements Contracts.TransactionPool.Collator {
                 }
                 transactions.push(transaction);
             } catch (error) {
-                this.logger.error(`Pool ${describeTransaction(transaction)} failed to collate: ${error.message}`);
+                this.logger.error(`${transaction} failed to collate: ${error.message}`);
                 await this.pool.removeTransaction(transaction);
             }
         }

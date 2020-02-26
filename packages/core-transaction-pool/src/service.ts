@@ -2,7 +2,6 @@ import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosyste
 import { Interfaces } from "@arkecosystem/crypto";
 
 import { TransactionAlreadyInPoolError, TransactionPoolFullError } from "./errors";
-import { describeTransaction } from "./utils";
 
 @Container.injectable()
 export class Service implements Contracts.TransactionPool.Service {
@@ -45,7 +44,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
         try {
             await this.addTransactionToMempool(transaction);
-            this.logger.info(`TransactionPool.Service ${describeTransaction(transaction)} added`);
+            this.logger.info(`${transaction} added to pool`);
         } catch (error) {
             this.storage.removeTransaction(transaction.id);
             throw error;
@@ -61,7 +60,7 @@ export class Service implements Contracts.TransactionPool.Service {
         for (const removedTransaction of await this.memory.removeTransaction(transaction)) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
-            this.logger.debug(`TransactionPool.Service ${describeTransaction(removedTransaction)} removed`);
+            this.logger.debug(`${removedTransaction} removed from pool`);
         }
     }
 
@@ -74,8 +73,10 @@ export class Service implements Contracts.TransactionPool.Service {
         for (const removedTransaction of this.memory.acceptForgedTransaction(transaction)) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
-            this.logger.debug(`TransactionPool.Service ${describeTransaction(removedTransaction)} removed`);
+            this.logger.debug(`${removedTransaction} removed from pool`);
         }
+
+        this.logger.debug(`${transaction} accepted by pool`);
     }
 
     public async readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
@@ -106,9 +107,9 @@ export class Service implements Contracts.TransactionPool.Service {
         }
 
         if (prevTransactions) {
-            this.logger.info(`TransactionPool.Service re-added ${rebuiltCount} transactions (${prevCount} previous)`);
+            this.logger.info(`${rebuiltCount} transactions re-added to pool (${prevCount} previous)`);
         } else {
-            this.logger.info(`TransactionPool.Service re-added ${rebuiltCount} transactions`);
+            this.logger.info(`${rebuiltCount} transactions re-added to pool`);
         }
     }
 
@@ -146,7 +147,7 @@ export class Service implements Contracts.TransactionPool.Service {
     private async cleanExpired(): Promise<void> {
         for (const transaction of this.poolQuery.getAll()) {
             if (this.expirationService.isTransactionExpired(transaction)) {
-                this.logger.debug(`Pool ${describeTransaction(transaction)} expired`);
+                this.logger.debug(`${transaction} expired`);
                 await this.removeTransaction(transaction);
             }
         }

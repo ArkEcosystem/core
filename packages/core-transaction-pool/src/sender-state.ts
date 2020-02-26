@@ -11,13 +11,9 @@ import {
     TransactionFromWrongNetworkError,
     TransactionHasExpiredError,
 } from "./errors";
-import { describeTransaction } from "./utils";
 
 @Container.injectable()
 export class SenderState implements Contracts.TransactionPool.SenderState {
-    @Container.inject(Container.Identifiers.LogService)
-    private readonly logger!: Contracts.Kernel.Logger;
-
     @Container.inject(Container.Identifiers.PluginConfiguration)
     @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
     private readonly configuration!: Providers.PluginConfiguration;
@@ -85,9 +81,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
                 await handler.throwIfCannotEnterPool(transaction);
                 await handler.apply(transaction);
                 this.transactions.push(transaction);
-                this.logger.info(`SenderState ${describeTransaction(transaction)} added`);
             } catch (error) {
-                this.logger.warning(`SenderState ${describeTransaction(transaction)} apply failed: ${error.message}`);
                 throw new TransactionFailedToApplyError(transaction, error);
             }
         } else {
@@ -106,10 +100,8 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
                 transaction.data,
             );
             await handler.revert(transaction);
-            this.logger.info(`Pool ${describeTransaction(transaction)} reverted`);
             return transaction;
         } catch (error) {
-            this.logger.warning(`Pool ${describeTransaction(transaction)} revert failed: ${error.message}`);
             this.transactions.push(transaction);
             throw error;
         }
@@ -142,10 +134,8 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
 
         if (index === 0) {
             this.transactions.shift();
-            this.logger.debug(`Pool ${describeTransaction(transaction)} accepted being lowest nonce`);
             return [transaction];
         } else {
-            this.logger.debug(`Pool ${describeTransaction(transaction)} accepted and ${index} previous transactions`);
             return this.transactions.splice(0, index + 1);
         }
     }

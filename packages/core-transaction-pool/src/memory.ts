@@ -38,7 +38,7 @@ export class Memory implements Contracts.TransactionPool.Memory {
         if (!senderState) {
             senderState = this.createSenderState();
             this.senderStates.set(transaction.data.senderPublicKey, senderState);
-            this.logger.info(`Mempool ${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} created`);
+            this.logger.info(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state created`);
         }
 
         try {
@@ -47,7 +47,7 @@ export class Memory implements Contracts.TransactionPool.Memory {
             if (senderState.getTransactionsCount() === 0) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
                 this.logger.info(
-                    `Mempool ${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`,
+                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state forgotten`,
                 );
             }
         }
@@ -64,14 +64,14 @@ export class Memory implements Contracts.TransactionPool.Memory {
             if (senderState.getTransactionsCount() === 0) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
                 this.logger.info(
-                    `Mempool ${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`,
+                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state forgotten`,
                 );
             }
             return removedTransactions;
         } catch (error) {
             const removedTransactions = Array.from(senderState.getTransactionsFromEarliestNonce());
             this.senderStates.delete(transaction.data.senderPublicKey);
-            this.logger.info(`Mempool ${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
+            this.logger.info(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state forgotten`);
             return removedTransactions;
         }
     }
@@ -88,7 +88,7 @@ export class Memory implements Contracts.TransactionPool.Memory {
             if (senderState.getTransactionsCount() === 0) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
                 this.logger.info(
-                    `Mempool ${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`,
+                    `${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} state forgotten`,
                 );
             }
         }
