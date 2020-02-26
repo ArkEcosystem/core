@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+process.env.LD_PRELOAD = 'libjemalloc.so'
+
 require('@oclif/command').run()
 .then(require('@oclif/command/flush'))
 .catch(require('@oclif/errors/handle'))
