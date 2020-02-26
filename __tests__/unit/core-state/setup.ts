@@ -159,7 +159,7 @@ export const setUp = (): Setup => {
 
     sandbox.app
         .bind(Container.Identifiers.TransactionHandlerRegistry)
-        .to(MockHandler)
+        .to(MockHandler);
 
     sandbox.app
         .bind(Container.Identifiers.BlockState)
