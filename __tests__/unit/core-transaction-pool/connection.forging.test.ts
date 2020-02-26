@@ -7,7 +7,6 @@ import ByteBuffer from "bytebuffer";
 import { Wallets } from "@arkecosystem/core-state";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Constants, Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import Long from "long";
 import { Connection } from "../../../packages/core-transaction-pool/src/connection";
 import { defaults } from "../../../packages/core-transaction-pool/src/defaults";
 import { Memory } from "../../../packages/core-transaction-pool/src/memory";
@@ -115,7 +114,8 @@ describe("Connection", () => {
         const writeUint32 = (txField, value) =>
             options[txField] ? options[txField](buffer) : buffer.writeUint32(value);
         const writeUint64 = (txField, value) =>
-            options[txField] ? options[txField](buffer) : buffer.writeUint64(Long.fromString(value.toFixed()));
+            // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+            options[txField] ? options[txField](buffer) : buffer.writeUint64(value.toFixed());
         const append = (txField, value, encoding = "utf8") =>
             options[txField] ? options[txField](buffer) : buffer.append(value, encoding);
 

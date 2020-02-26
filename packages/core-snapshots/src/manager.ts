@@ -86,7 +86,7 @@ export class SnapshotManager {
         this.database.close();
     }
 
-    public async rollbackByHeight(height: number) {
+    public async rollbackByHeight(height: number, backupTransactions: boolean = true) {
         if (!height || height <= 0) {
             app.forceExit(`Rollback height ${height.toLocaleString()} is invalid.`);
         }
@@ -104,11 +104,13 @@ export class SnapshotManager {
         const rollbackBlock = await this.database.getBlockByHeight(height);
         const queryTransactionBackup = await this.database.getTransactionsBackupQuery(rollbackBlock.timestamp);
 
-        await backupTransactionsToJSON(
-            `rollbackTransactionBackup.${+height + 1}.${currentHeight}.json`,
-            queryTransactionBackup,
-            this.database,
-        );
+        if (backupTransactions) {
+            await backupTransactionsToJSON(
+                `rollbackTransactionBackup.${+height + 1}.${currentHeight}.json`,
+                queryTransactionBackup,
+                this.database,
+            );
+        }
 
         const newLastBlock = await this.database.rollbackChain(roundInfo);
         logger.info(
@@ -118,10 +120,10 @@ export class SnapshotManager {
         this.database.close();
     }
 
-    public async rollbackByNumber(amount: number) {
+    public async rollbackByNumber(amount: number, backupTransactions: boolean = true) {
         const { height } = await this.database.getLastBlock();
 
-        return this.rollbackByHeight(height - amount);
+        return this.rollbackByHeight(height - amount, backupTransactions);
     }
 
     private async init(options, exportAction: boolean = false) {
