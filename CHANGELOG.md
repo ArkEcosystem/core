@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [2.6.11] - 2020-02-26
+
+### Fixed
+
+-   ... ([#XXXX])
+
 ## [2.6.10] - 2020-02-20
 
 ### Fixed
@@ -874,6 +880,7 @@ Closed security vulnerabilities:
 -   Initial Release
 
 [unreleased]: https://github.com/ARKEcosystem/core/compare/master...develop
+[2.6.11]: https://github.com/ARKEcosystem/core/compare/2.6.10...2.6.11
 [2.6.10]: https://github.com/ARKEcosystem/core/compare/2.6.9...2.6.10
 [2.6.9]: https://github.com/ARKEcosystem/core/compare/2.6.1...2.6.9
 [2.6.1]: https://github.com/ARKEcosystem/core/compare/2.6.0...2.6.1
