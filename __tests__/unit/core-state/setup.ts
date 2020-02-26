@@ -24,6 +24,7 @@ export interface Spies {
         error: jest.SpyInstance,
         info: jest.SpyInstance,
         debug: jest.SpyInstance,
+        warning: jest.SpyInstance;
     },
     getBlockRewardsSpy: jest.SpyInstance,
     getSentTransactionSpy: jest.SpyInstance,
@@ -162,11 +163,13 @@ export const setUp = (setUpOptions = setUpDefaults): Setup => {
     const error: jest.SpyInstance = jest.fn();
     const info: jest.SpyInstance = jest.fn();
     const debug: jest.SpyInstance = jest.fn();
-    
+    const warning: jest.SpyInstance = jest.fn();
+
     const logger = {
         error,
         info,
         debug,
+        warning,
     };
 
     sandbox.app

@@ -34,6 +34,8 @@ describe("Transaction Validator", () => {
         );
         const copiedTransaction = (Utils.cloneObject(transaction[0]) as any);
         copiedTransaction.id = "wrong";
+        
+        expect.assertions(1);
         transactionValidator.validate(copiedTransaction).catch(e => expect(e).toBeInstanceOf(AssertionError));
     });
 });

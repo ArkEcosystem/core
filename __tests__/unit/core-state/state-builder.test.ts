@@ -4,7 +4,6 @@ import { setUp, setUpDefaults } from "./setup";
 import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
 import { Enums, Utils } from "@arkecosystem/core-kernel";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { AssertionError } from "assert";
 
 let stateBuilder: StateBuilder;
 let getBlockRewardsSpy: jest.SpyInstance;
@@ -13,6 +12,8 @@ let getRegisteredHandlersSpy: jest.SpyInstance;
 let dispatchSpy: jest.SpyInstance;
 const generatorKey = setUpDefaults.getBlockRewards.generatorPublicKey;
 const senderKey = setUpDefaults.getSentTransaction.senderPublicKey;
+
+let loggerWarningSpy: jest.SpyInstance;
 
 let walletRepo: WalletRepository;
 
@@ -26,6 +27,7 @@ beforeAll(async () => {
     getSentTransactionSpy = initialEnv.spies.getSentTransactionSpy;
     getRegisteredHandlersSpy = initialEnv.spies.getRegisteredHandlersSpy;
     dispatchSpy = initialEnv.spies.dispatchSpy;
+    loggerWarningSpy = initialEnv.spies.logger.warning;
 });
 
 describe("StateBuilder", () => {
@@ -77,19 +79,32 @@ describe("StateBuilder", () => {
     });
 
     // TODO: this tests fails, but presumably should pass?
-    it("should throw if any wallet balance is negative", async () => {
+    it("should exit app if any wallet balance is negative", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
         wallet.balance = Utils.BigNumber.make(-80000);
+        wallet.publicKey = senderKey;
+
         walletRepo.reindex(wallet);
 
-        expect.assertions(1);
-        stateBuilder.run().catch(e => expect(e).toBeInstanceOf(AssertionError));
+        await stateBuilder.run();
 
+        expect(loggerWarningSpy).toHaveBeenCalledWith("Wallet ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp has a negative balance of '-80000'")
     });
 
     it("should emit an event when the builder is finished", async () => {
         await stateBuilder.run();
 
         expect(dispatchSpy).toHaveBeenCalledWith(Enums.StateEvent.BuilderFinished);
+    });
+
+    it("should exit app if any vote balance is negative", async () => {
+        const wallet = walletRepo.findByPublicKey(senderKey);
+        wallet.balance = Utils.BigNumber.ZERO;
+        walletRepo.reindex(wallet);
+        wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(-100));
+
+        await stateBuilder.run();
+
+        expect(loggerWarningSpy).toHaveBeenCalledWith("Wallet ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp has a negative vote balance of '-100'")
     });
 });
