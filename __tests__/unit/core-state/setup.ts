@@ -45,7 +45,21 @@ export interface Setup {
     spies: Spies
 }
 
-export const setUp = (): Setup => {
+export const setUpDefaults = {
+    getSentTransaction: {
+        senderPublicKey: "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece",
+        amount: Utils.BigNumber.make(22222),
+        fee: Utils.BigNumber.make(33333),
+        nonce: Utils.BigNumber.ONE,
+    },
+    getBlockRewards: {
+        generatorPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
+        rewards: Utils.BigNumber.make(10000),
+    },        
+    getRegisteredHandlers: [],
+}
+
+export const setUp = (setUpOptions = setUpDefaults): Setup => {
     const sandbox = new Sandbox();
 
     sandbox.app
@@ -171,7 +185,7 @@ export const setUp = (): Setup => {
         }
         public getRegisteredHandlers() {
             getRegisteredHandlersSpy();
-            return [];
+            return setUpOptions.getRegisteredHandlers;
         }
     }
 
@@ -185,10 +199,7 @@ export const setUp = (): Setup => {
     class MockBlockRepository {
         public getBlockRewards() {
             getBlockRewardsSpy();
-            return [{
-                generatorPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
-                rewards: Utils.BigNumber.ZERO,
-            }];
+            return [setUpOptions.getBlockRewards];
         }
     }
 
@@ -198,12 +209,7 @@ export const setUp = (): Setup => {
     class MockTransactionRepository {
         public getSentTransactions() {
             getSentTransactionSpy();
-            return [{
-                senderPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
-                amount: Utils.BigNumber.ZERO,
-                fee: Utils.BigNumber.ZERO,
-                nonce: Utils.BigNumber.ZERO,
-            }];
+            return [setUpOptions.getSentTransaction];
         }
     }
 
