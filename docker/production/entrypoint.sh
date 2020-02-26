@@ -25,7 +25,7 @@ fi
 
 # relay
 if [[ "$MODE" = "relay" ]]; then
-    ark relay:start --no-daemon
+    ark relay:run
 fi
 
 # forging
@@ -33,10 +33,10 @@ if [ "$MODE" = "forger" ] && [ -n "$SECRET" ] && [ -n "$CORE_FORGER_PASSWORD" ];
     export CORE_FORGER_BIP38=$(grep bip38 /home/node/.config/ark-core/$NETWORK/delegates.json | awk '{print $2}' | tr -d '"')
     export CORE_FORGER_PASSWORD
     sudo rm -rf /run/secrets/*
-    ark core:start --no-daemon
+    ark core:run
 elif [ "$MODE" = "forger" ] && [ -z "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
     echo "set SECRET and/or CORE_FORGER_PASWORD if you want to run a forger"
     exit
 elif [ "$MODE" = "forger" ] && [ -n "$SECRET" ] && [ -z "$CORE_FORGER_PASSWORD" ]; then
-    ark core:start --no-daemon
+    ark core:run
 fi

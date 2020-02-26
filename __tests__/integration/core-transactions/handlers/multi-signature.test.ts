@@ -57,8 +57,11 @@ describe("Multi signature handler bootstrap", () => {
         await stateBuilder.run();
 
         const multiSigAddress = Identities.Address.fromMultiSignatureAsset(transaction.asset.multiSignature);
-        const senderWallet = walletManager.findByAddress(multiSigAddress);
-        expect(senderWallet.balance).toEqual(Utils.BigNumber.ZERO);
-        expect(senderWallet.getAttribute("multiSignature")).toEqual(transaction.asset.multiSignature);
+        const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(transaction.asset.multiSignature);
+        const multisigWallet = walletManager.findByAddress(multiSigAddress);
+
+        expect(multisigWallet.balance).toEqual(Utils.BigNumber.ZERO);
+        expect(multisigWallet.publicKey).toEqual(multiSigPublicKey);
+        expect(multisigWallet.getAttribute("multiSignature")).toEqual(transaction.asset.multiSignature);
     });
 });

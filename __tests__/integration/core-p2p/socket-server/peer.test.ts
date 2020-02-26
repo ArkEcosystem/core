@@ -6,6 +6,7 @@ import { defaults } from "../mocks/p2p-options";
 import { Blocks, Managers } from "@arkecosystem/crypto/src";
 import unitnetMilestones from "@arkecosystem/crypto/src/networks/unitnet/milestones.json";
 import delay from "delay";
+import net from "net";
 import SocketCluster from "socketcluster";
 import socketCluster from "socketcluster-client";
 import { startSocketServer } from "../../../../packages/core-p2p/src/socket-server";
@@ -533,6 +534,36 @@ describe("Peer socket endpoint", () => {
             send(stringifiedPayload);
             await delay(500);
             expect(socket.state).not.toBe("open");
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
+        });
+
+        it("should close the connection when the HTTP url is not valid", async () => {
+            const socket = new net.Socket();
+            socket.connect(4007, "127.0.0.1", function() {
+                socket.write("GET /invalid/ HTTP/1.0\r\n\r\n");
+            });
+            await delay(500);
+            expect(socket.destroyed).toBe(true);
+
+            socket.connect(4007, "127.0.0.1");
+            await delay(500);
+            expect(socket.destroyed).toBe(true);
+
+            // kill workers to reset ipLastError (or we won't pass handshake for 1 minute)
+            server.killWorkers({ immediate: true });
+            await delay(2000); // give time to workers to respawn
+        });
+
+        it("should close the connection if the initial HTTP request is not processed within 2 seconds", async () => {
+            const socket = new net.Socket();
+            socket.connect(4007, "127.0.0.1");
+            await delay(500);
+            expect(socket.destroyed).toBe(false);
+            await delay(2000);
+            expect(socket.destroyed).toBe(true);
         });
     });
 });

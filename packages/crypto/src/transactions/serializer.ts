@@ -1,6 +1,5 @@
 /* tslint:disable:no-shadowed-variable */
 import ByteBuffer from "bytebuffer";
-import Long from "long";
 import { Utils } from "..";
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";
@@ -149,8 +148,10 @@ export class Serializer {
             }
         }
 
-        bb.writeInt64(Long.fromString(transaction.amount.toString()));
-        bb.writeInt64(Long.fromString(transaction.fee.toString()));
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        bb.writeInt64(transaction.amount.toString());
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        bb.writeInt64(transaction.fee.toString());
 
         if (assetSize > 0) {
             for (let i = 0; i < assetSize; i++) {
@@ -199,11 +200,13 @@ export class Serializer {
         } else {
             buffer.writeUint32(transaction.typeGroup);
             buffer.writeUint16(transaction.type);
-            buffer.writeUint64(Long.fromString(transaction.nonce.toString()));
+            // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+            buffer.writeUint64(transaction.nonce.toString());
         }
 
         buffer.append(transaction.senderPublicKey, "hex");
-        buffer.writeUint64(Long.fromString(transaction.fee.toString()));
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(transaction.fee.toString());
     }
 
     private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {

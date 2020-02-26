@@ -81,13 +81,13 @@ export class DatabaseService implements Database.IDatabaseService {
             this.blocksInCurrentRound.push(block);
         }
 
+        this.detectMissedBlocks(block);
+
         await this.applyRound(block.data.height);
 
         for (const transaction of block.transactions) {
             await this.emitTransactionEvents(transaction);
         }
-
-        this.detectMissedBlocks(block);
 
         this.emitter.emit(ApplicationEvents.BlockApplied, block.data);
     }

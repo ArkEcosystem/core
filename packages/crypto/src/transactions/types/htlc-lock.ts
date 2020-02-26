@@ -1,5 +1,4 @@
 import ByteBuffer from "bytebuffer";
-import Long from "long";
 import { TransactionType, TransactionTypeGroup } from "../../enums";
 import { Address } from "../../identities";
 import { ISerializeOptions } from "../../interfaces";
@@ -33,7 +32,8 @@ export class HtlcLockTransaction extends Transaction {
 
         const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 1 + 4 + 21, true);
 
-        buffer.writeUint64(Long.fromString(data.amount.toString()));
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(data.amount.toString());
         buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
         buffer.writeUint8(data.asset.lock.expiration.type);
         buffer.writeUint32(data.asset.lock.expiration.value);
