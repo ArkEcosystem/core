@@ -38,6 +38,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     @Container.inject(Container.Identifiers.StateMachine)
     private readonly stateMachine!: StateMachine;
 
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
+    
+    private missedBlocks: number = 0;
+
     /**
      * Create a new blockchain manager instance.
      * @param  {Object} options
@@ -59,16 +64,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.queue = async.queue((blockList: { blocks: Interfaces.IBlockData[] }, cb) => {
             try {
-                return this.processBlocks(
-                    blockList.blocks.map(b => {
-                        const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(b);
-
-                        Utils.assert.defined<Interfaces.IBlock>(block);
-
-                        return block;
-                    }),
-                    cb,
-                );
+                return this.processBlocks(blockList.blocks, cb);
             } catch (error) {
                 this.app.log.error(
                     `Failed to process ${blockList.blocks.length} blocks from height ${blockList.blocks[0].height} in queue.`,
@@ -115,6 +111,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).cleansePeers({
             forcePing: true,
             peerCount: 10,
+        });
+
+        this.emitter.on(Enums.ForgerEvent.Missing, () => {
+            this.checkMissingBlocks();
+        });
+
+        this.emitter.on(Enums.RoundEvent.Applied, () => {
+            this.missedBlocks = 0;
         });
 
         return true;
@@ -358,14 +362,14 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     /**
      * Process the given block.
      */
-    public async processBlocks(blocks: Interfaces.IBlock[], callback): Promise<Interfaces.IBlock[]> {
+    public async processBlocks(blocks: Interfaces.IBlockData[], callback): Promise<Interfaces.IBlock[]> {
         const acceptedBlocks: Interfaces.IBlock[] = [];
         let lastProcessResult: BlockProcessorResult | undefined;
 
         if (
             blocks[0] &&
-            !Utils.isBlockChained(this.getLastBlock().data, blocks[0].data, this.app.log) &&
-            !CryptoUtils.isException(blocks[0].data.id)
+            !Utils.isBlockChained(this.getLastBlock().data, blocks[0], this.app.log) &&
+            !CryptoUtils.isException(blocks[0].id)
         ) {
             // Discard remaining blocks as it won't go anywhere anyway.
             this.clearQueue();
@@ -374,15 +378,19 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         }
 
         let forkBlock: Interfaces.IBlock | undefined = undefined;
+        let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
         for (const block of blocks) {
-            lastProcessResult = await this.blockProcessor.process(block);
+            const blockInstance = Blocks.BlockFactory.fromData(block);
+            lastProcessResult = await this.blockProcessor.process(blockInstance);
+            lastProcessedBlock = blockInstance;
 
             if (lastProcessResult === BlockProcessorResult.Accepted) {
-                acceptedBlocks.push(block);
+                acceptedBlocks.push(blockInstance);
             } else {
                 if (lastProcessResult === BlockProcessorResult.Rollback) {
-                    forkBlock = block;
+                    forkBlock = blockInstance;
                 }
+
                 break; // if one block is not accepted, the other ones won't be chained anyway
             }
         }
@@ -428,13 +436,13 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             lastProcessResult === BlockProcessorResult.Accepted ||
             lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
         ) {
-            const currentBlock: Interfaces.IBlock = blocks[blocks.length - 1];
-            const blocktime: number = Managers.configManager.getMilestone(currentBlock.data.height).blocktime;
+            // broadcast last processed block
+            const blocktime: number = Managers.configManager.getMilestone(lastProcessedBlock.data.height).blocktime;
 
-            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= currentBlock.data.timestamp) {
+            if (this.state.started && Crypto.Slots.getSlotNumber() * blocktime <= lastProcessedBlock.data.timestamp) {
                 this.app
                     .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
-                    .broadcastBlock(currentBlock);
+                    .broadcastBlock(lastProcessedBlock);
             }
         } else if (forkBlock) {
             this.forkBlock(forkBlock);
@@ -465,6 +473,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      */
     public forkBlock(block: Interfaces.IBlock, numberOfBlockToRollback?: number): void {
         this.state.forkedBlock = block;
+
+        this.clearAndStopQueue();
 
         if (numberOfBlockToRollback) {
             this.state.numberOfBlocksToRollback = numberOfBlockToRollback;
@@ -533,5 +543,24 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
      */
     public pushPingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         this.state.pushPingBlock(block, fromForger);
+    }
+
+    /**
+     * Check if the blockchain should roll back due to missing blocks.
+     */
+    public async checkMissingBlocks(): Promise<void> {
+        this.missedBlocks++;
+        if (
+            this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1 &&
+            Math.random() <= 0.8
+        ) {
+            const networkStatus = await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).checkNetworkHealth();
+            if (networkStatus.forked) {
+                this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
+                this.dispatch("FORK");
+            }
+
+            this.missedBlocks = 0;
+        }
     }
 }

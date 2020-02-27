@@ -42,6 +42,14 @@ export const getConfig = ({ app }: { app: Contracts.Kernel.Application }): Recor
         Container.Identifiers.PluginConfiguration,
         "plugin",
         "@arkecosystem/core-p2p",
-    );
-    return configuration.all();
+    ).all();
+
+    // add maxTransactionsPerRequest config from transaction pool
+    configuration.maxTransactionsPerRequest = app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-transaction-pool",
+    ).getOptional<number>("maxTransactionsPerRequest", 40);
+
+    return configuration;
 };

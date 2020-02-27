@@ -269,7 +269,7 @@ export class StateStore implements Contracts.State.StateStore {
         if (this.blockPing) {
             this.app.log.info(
                 `Previous block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
-                    this.blockPing.count
+                this.blockPing.count
                 } times`,
             );
         }

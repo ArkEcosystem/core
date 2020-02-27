@@ -411,10 +411,13 @@ export class TransactionFactory {
 
             if (sign) {
                 const aip11: boolean = Managers.configManager.getMilestone().aip11;
+                const htlcEnabled: boolean = Managers.configManager.getMilestone().htlcEnabled;
                 if (this.builder.data.version === 1 && aip11) {
                     Managers.configManager.getMilestone().aip11 = false;
+                    Managers.configManager.getMilestone().htlcEnabled = false;
                 } else if (isDevelop) {
                     Managers.configManager.getMilestone().aip11 = true;
+                    Managers.configManager.getMilestone().htlcEnabled = htlcEnabled;
                 }
 
                 this.builder.sign(this.passphrase);
@@ -428,6 +431,7 @@ export class TransactionFactory {
 
             if (isDevelop) {
                 Managers.configManager.getMilestone().aip11 = true;
+                Managers.configManager.getMilestone().htlcEnabled = true;
             }
 
             transactions.push(transaction);

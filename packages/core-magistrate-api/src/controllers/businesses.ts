@@ -1,6 +1,6 @@
 import { Controller } from "@arkecosystem/core-api";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import Boom from "@hapi/boom";
+import { Boom } from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { BridgechainResource, BusinessResource } from "../resources";
@@ -21,7 +21,14 @@ export class BusinessController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const business = this.walletRepository.findByPublicKey(request.params.id);
+        const wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, request.params.id);
+        if (!wallet || !wallet.hasAttribute("business")) {
+            return Boom.notFound("Business not found");
+        }
+
+        const business = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
+            publicKey: wallet.publicKey
+        }).rows[0];
         if (!business) {
             return Boom.notFound("Business not found");
         }
@@ -31,16 +38,14 @@ export class BusinessController extends Controller {
 
     public async bridgechains(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const business = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
-                publicKey: request.params.id,
-            });
+            const wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, request.params.id);
 
-            if (!business) {
+            if (!wallet || !wallet.hasAttribute("business")) {
                 return Boom.notFound("Business not found");
             }
 
             const bridgechains = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
-                publicKey: request.params.id,
+                publicKey: wallet.publicKey,
                 ...request.query,
                 ...this.paginate(request),
             });

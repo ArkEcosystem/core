@@ -24,31 +24,15 @@ export class WalletResource implements Resource {
      * @memberof Resource
      */
     public transform(resource): object {
-        // FIXME
-        const business: any = undefined;
-        // if (app.has("core-magistrate-transactions")) {
-        //     business = wallet.getAttribute("business");
-
-        //     if (business) {
-        //         business = {
-        //             ...business.businessAsset,
-        //             publicKey: wallet.publicKey,
-        //             resigned: business.resigned,
-        //         };
-        //     }
-        // }
 
         return {
             address: resource.address,
             publicKey: resource.publicKey,
-            username: resource.hasAttribute("delegate.username")
-                ? resource.getAttribute("delegate.username")
-                : undefined,
             nonce: resource.nonce.toFixed(),
-            secondPublicKey: resource.hasAttribute("secondPublicKey")
-                ? resource.getAttribute("secondPublicKey")
-                : undefined,
             balance: Utils.BigNumber.make(resource.balance).toFixed(),
+            attributes: resource.getAttributes(),
+
+            // TODO: remove with v3
             lockedBalance: resource.hasAttribute("htlc.lockedBalance")
                 ? resource.getAttribute("htlc.lockedBalance").toFixed()
                 : undefined,
@@ -58,7 +42,6 @@ export class WalletResource implements Resource {
             multiSignature: resource.hasAttribute("multiSignature")
                 ? resource.getAttribute("multiSignature")
                 : undefined,
-            business,
         };
     }
 }

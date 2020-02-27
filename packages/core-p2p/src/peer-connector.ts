@@ -1,5 +1,6 @@
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { create, SCClientSocket } from "socketcluster-client";
+import { codec } from "./utils/sc-codec";
 
 // todo: review the implementation
 @Container.injectable()
@@ -84,7 +85,8 @@ export class PeerConnector implements Contracts.P2P.PeerConnector {
             port: peer.port,
             hostname: peer.ip,
             ackTimeout: Math.max(getBlocksTimeout, verifyTimeout),
-            perMessageDeflate: true,
+            perMessageDeflate: false,
+            codecEngine: codec,
         });
 
         const socket = (connection as any).transport.socket;

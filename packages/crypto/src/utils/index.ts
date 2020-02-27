@@ -64,7 +64,7 @@ export const numberToHex = (num: number, padding = 2): string => {
 
 export const maxVendorFieldLength = (height?: number): number => configManager.getMilestone(height).vendorFieldLength;
 
-export const isSupportedTansactionVersion = (version: number): boolean => {
+export const isSupportedTransactionVersion = (version: number): boolean => {
     const aip11: boolean = configManager.getMilestone().aip11;
 
     if (aip11 && version !== 2) {

@@ -313,11 +313,16 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
                                 }).andWhere("recipient_id IS NULL");
                             }),
                         )
-                        .orWhere(`asset @> :paymentAsset`, {
-                            paymentAsset: {
-                                payment: [{ recipientId: first.value }],
-                            },
-                        });
+                        .orWhere(
+                            new Brackets(qb => {
+                                qb.where("type = 6").andWhere("type_group = 1")
+                                .andWhere(`asset @> :paymentAsset`, {
+                                    paymentAsset: {
+                                        payment: [{ recipientId: first.value }],
+                                    },
+                                });
+                            }),
+                        );
                 }
             } else if (rest.length) {
                 const first = rest.shift();
@@ -331,11 +336,16 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
             if (walletAddress) {
                 queryBuilder[useWhere ? "where" : "andWhere"]("recipient_id = :walletAddress", {
                     walletAddress,
-                }).orWhere(`asset @> :paymentAsset`, {
-                    paymentAsset: {
-                        payment: [{ recipientId: walletAddress }],
-                    },
-                });
+                }).orWhere(
+                    new Brackets(qb => {
+                        qb.where("type = 6").andWhere("type_group = 1")
+                        .andWhere(`asset @> :paymentAsset`, {
+                            paymentAsset: {
+                                payment: [{ recipientId: walletAddress }],
+                            }
+                        });
+                    }),
+                );
 
                 // We do not know public key for cold wallets
                 if (walletPublicKey) {

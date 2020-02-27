@@ -69,7 +69,7 @@ export class Command extends Commands.Command {
             .setFlag(
                 "rewardAmount",
                 "The number of the block reward per forged block.",
-                Joi.number().default(200000000),
+                Joi.string().default("200000000"),
             )
             .setFlag("pubKeyHash", "The public key hash.", Joi.number())
             .setFlag("wif", "The WIF (Wallet Import Format) that should be used.", Joi.number())
@@ -134,6 +134,8 @@ export class Command extends Commands.Command {
 
         const delegates: any[] = this.generateCoreDelegates(flags.delegates, flags.pubKeyHash);
 
+        const genesisWallet = this.createWallet(flags.pubKeyHash);
+
         await this.components.taskList([
             {
                 title: "Prepare directories.",
@@ -151,10 +153,20 @@ export class Command extends Commands.Command {
                 },
             },
             {
+                title: "Persist genesis wallet to genesis-wallet.json in core config path.",
+                task: async () => {
+                    writeJSONSync(
+                        resolve(coreConfigDest, "genesis-wallet.json"),
+                        genesisWallet,
+                        { spaces: 4 },
+                    );
+                },
+            },
+            {
                 title: "Generate crypto network configuration.",
                 task: async () => {
                     const genesisBlock = this.generateCryptoGenesisBlock(
-                        this.createWallet(flags.pubKeyHash),
+                        genesisWallet,
                         delegates,
                         flags.pubKeyHash,
                         flags.premine,
@@ -260,12 +272,12 @@ export class Command extends Commands.Command {
         maxTransactions: number,
         maxPayload: number,
         rewardHeight: number,
-        rewardAmount: number,
+        rewardAmount: string,
     ) {
         return [
             {
                 height: 1,
-                reward: 0,
+                reward: "0",
                 activeDelegates,
                 blocktime,
                 block: {

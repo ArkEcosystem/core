@@ -1,6 +1,4 @@
 import ByteBuffer from "bytebuffer";
-import Long from "long";
-
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { Address } from "../../../identities";
 import { ISerializeOptions } from "../../../interfaces";
@@ -22,7 +20,8 @@ export abstract class HtlcLockTransaction extends Transaction {
     }
 
     public verify(): boolean {
-        return configManager.getMilestone().aip11 && super.verify();
+        const milestone = configManager.getMilestone();
+        return milestone.aip11 === true && milestone.htlcEnabled === true && super.verify();
     }
 
     public hasVendorField(): boolean {
@@ -34,7 +33,8 @@ export abstract class HtlcLockTransaction extends Transaction {
 
         const buffer: ByteBuffer = new ByteBuffer(8 + 32 + 1 + 4 + 21, true);
 
-        buffer.writeUint64(Long.fromString(data.amount.toString()));
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(data.amount.toString());
 
         if (data.asset && data.asset.lock) {
             buffer.append(Buffer.from(data.asset.lock.secretHash, "hex"));
