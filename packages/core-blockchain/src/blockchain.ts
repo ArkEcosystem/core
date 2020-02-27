@@ -113,13 +113,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             peerCount: 10,
         });
 
-        this.emitter.on(Enums.ForgerEvent.Missing, () => {
-            this.checkMissingBlocks();
-        });
+        this.emitter.listen(Enums.ForgerEvent.Missing, { handle: this.checkMissingBlocks });
 
-        this.emitter.on(Enums.RoundEvent.Applied, () => {
-            this.missedBlocks = 0;
-        });
+        this.emitter.listen(Enums.RoundEvent.Applied, { handle: () => { this.missedBlocks = 0; }});
 
         return true;
     }
@@ -381,6 +377,8 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         let lastProcessedBlock: Interfaces.IBlock | undefined = undefined;
         for (const block of blocks) {
             const blockInstance = Blocks.BlockFactory.fromData(block);
+            Utils.assert.defined<Interfaces.IBlock>(blockInstance);
+
             lastProcessResult = await this.blockProcessor.process(blockInstance);
             lastProcessedBlock = blockInstance;
 
@@ -433,8 +431,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         }
 
         if (
-            lastProcessResult === BlockProcessorResult.Accepted ||
-            lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted
+            (lastProcessResult === BlockProcessorResult.Accepted ||
+            lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
+            lastProcessedBlock
         ) {
             // broadcast last processed block
             const blocktime: number = Managers.configManager.getMilestone(lastProcessedBlock.data.height).blocktime;

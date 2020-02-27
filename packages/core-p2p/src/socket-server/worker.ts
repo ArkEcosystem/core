@@ -17,7 +17,7 @@ export class Worker extends SCWorker {
     private config: Record<string, any> = {};
     private handlers: string[] = [];
     private ipLastError: Record<string, number> = {};
-    private rateLimiter: RateLimiter;
+    private rateLimiter: RateLimiter | undefined;
     private rateLimitedEndpoints: any;
 
     public async run() {
@@ -61,7 +61,7 @@ export class Worker extends SCWorker {
     private async loadHandlers(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getHandlers");
         for (const [version, handlers] of Object.entries(data)) {
-            for (const handler of Object.values(handlers)) {
+            for (const handler of Object.values(handlers as object)) {
                 this.handlers.push(`p2p.${version}.${handler}`);
             }
         }
@@ -266,7 +266,7 @@ export class Worker extends SCWorker {
         const rateLimitedEndpoints = this.getRateLimitedEndpoints();
         const useLocalRateLimiter: boolean = !rateLimitedEndpoints[req.event];
         if (useLocalRateLimiter) {
-            if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
+            if (this.rateLimiter && await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
                 req.socket.terminate();
                 return;
             }

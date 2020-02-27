@@ -49,7 +49,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             peer,
             "p2p.peer.postBlock",
             {
-                block: Blocks.Block.serializeWithTransactions({
+                block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
                     transactions: block.transactions.map(tx => tx.data),
                 }),
@@ -171,7 +171,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
     public async hasCommonBlocks(peer: Contracts.P2P.Peer, ids: string[], timeoutMsec?: number): Promise<any> {
         try {
-            const getCommonBlocksTimeout = timeoutMsec < 5000 ? timeoutMsec : 5000;
+            const getCommonBlocksTimeout = timeoutMsec && timeoutMsec < 5000 ? timeoutMsec : 5000;
             const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, getCommonBlocksTimeout);
 
             if (!body || !body.common) {

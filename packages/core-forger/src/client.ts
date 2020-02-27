@@ -76,11 +76,11 @@ export class Client {
     }
 
     /**
-     * @param {Interfaces.IBlockJson} block
+     * @param {Interfaces.IBlock} block
      * @returns {Promise<void>}
      * @memberof Client
      */
-    public async broadcastBlock(block: Interfaces.IBlockJson): Promise<void> {
+    public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
         this.logger.debug(
             `Broadcasting block ${block.data.height.toLocaleString()} (${block.data.id}) with ${
                 block.data.numberOfTransactions
@@ -89,7 +89,7 @@ export class Client {
 
         try {
             await this.emit("p2p.peer.postBlock", {
-                block: Blocks.Block.serializeWithTransactions({
+                block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
                     transactions: block.transactions.map(tx => tx.data),
                 }),

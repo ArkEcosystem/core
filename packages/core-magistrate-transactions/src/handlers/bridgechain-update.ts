@@ -176,10 +176,13 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        Utils.assert.defined<object>(transaction.data.asset);
+        Utils.assert.defined<number>(transaction.data.typeGroup);
 
         // Here we have to "replay" all bridgechain registration and update transactions for this bridgechain id
         // (except the current one being reverted) to rebuild previous wallet state.
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        Utils.assert.defined<string>(sender.publicKey);
 
         const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
             "business",
@@ -235,7 +238,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             },
         );
 
-        let bridgechainAsset: MagistrateInterfaces.IBridgechainRegistrationAsset;
+        let bridgechainAsset: MagistrateInterfaces.IBridgechainRegistrationAsset | undefined = undefined;
         for (const dbRegistrationTx of dbRegistrationTransactions.rows) {
             if (dbRegistrationTx.asset.bridgechainRegistration.genesisHash === bridgechainId) {
                 bridgechainAsset = dbRegistrationTx.asset
@@ -243,6 +246,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
                 break;
             }
         }
+        Utils.assert.defined<MagistrateInterfaces.IBridgechainRegistrationAsset>(bridgechainAsset);
 
         for (const dbUpdateTx of dbUpdateTransactions.rows) {
             const bridgechainUpdateAsset = dbUpdateTx.asset
@@ -257,6 +261,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             };
         }
 
+        Utils.assert.defined<object>(businessAttributes.bridgechains);
         businessAttributes.bridgechains[bridgechainId] = { bridgechainAsset };
 
         walletRepository.reindex(sender);

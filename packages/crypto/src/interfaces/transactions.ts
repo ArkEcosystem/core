@@ -1,3 +1,4 @@
+import ByteBuffer from "bytebuffer";
 import { ErrorObject } from "ajv";
 
 import { HtlcLockExpirationType } from "../enums";

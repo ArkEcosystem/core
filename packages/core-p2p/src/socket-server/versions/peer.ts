@@ -1,6 +1,6 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Manager, Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Managers, Crypto, Interfaces } from "@arkecosystem/crypto";
 
 import { PeerService } from "../../contracts";
 import { MissingCommonBlockError } from "../../errors";
@@ -85,7 +85,7 @@ export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Applicatio
 
     const deserializedHeader = Blocks.Deserializer.deserialize(blockHex, true);
 
-    if (deserializedHeader.data.numberOfTransactions > Manager.configManager.getMilestone().block.maxTransactions) {
+    if (deserializedHeader.data.numberOfTransactions > Managers.configManager.getMilestone().block.maxTransactions) {
         throw new TooManyTransactionsError(deserializedHeader.data);
     }
 
@@ -116,7 +116,7 @@ export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Applicatio
         }
     }
 
-    if (block.transactions.length > Manager.configManager.getMilestone().block.maxTransactions) {
+    if (block.transactions && block.transactions.length > Managers.configManager.getMilestone().block.maxTransactions) {
         throw new TooManyTransactionsError(block);
     }
 

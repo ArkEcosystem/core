@@ -7,7 +7,6 @@ import { ISerializeOptions } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
 import { isException } from "../utils";
-import { TransactionTypeFactory } from "./types/factory";
 import { isSupportedTransactionVersion } from "../utils";
 import { TransactionTypeFactory } from "./types";
 
@@ -113,7 +112,9 @@ export class Serializer {
             bb.flip();
 
             assetBytes = bb.toBuffer();
-            assetSize = assetBytes.length;
+            if (assetBytes) {
+                assetSize = assetBytes.length;                
+            }
         }
 
         const bb: ByteBuffer = new ByteBuffer(1 + 4 + 32 + 8 + 8 + 21 + 64 + 64 + 64 + assetSize, true);

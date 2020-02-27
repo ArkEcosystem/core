@@ -84,15 +84,20 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             const bridgechainValues: IBridgechainWalletAttributes[] = Object.values(bridgechains);
 
             for (const bridgechain of bridgechainValues) {
-                if (bridgechain.bridgechainAsset.genesisHash === data.asset.bridgechainRegistration.genesisHash) {
+                if (
+                    data.asset &&
+                    bridgechain.bridgechainAsset.genesisHash === data.asset.bridgechainRegistration.genesisHash
+                ) {
                     throw new GenesisHashAlreadyRegisteredError();
                 }
             }
         }
 
-        for (const portKey of Object.keys(data.asset.bridgechainRegistration.ports)) {
-            if (!packageNameRegex.test(portKey)) {
-                throw new PortKeyMustBeValidPackageNameError();
+        if (data.asset) {
+            for (const portKey of Object.keys(data.asset.bridgechainRegistration.ports)) {
+                if (!packageNameRegex.test(portKey)) {
+                    throw new PortKeyMustBeValidPackageNameError();
+                }
             }
         }
 

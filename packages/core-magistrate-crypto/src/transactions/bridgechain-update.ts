@@ -108,7 +108,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         let bridgechainRepositoryBufferLength = 1;
-        let bridgechainRepositoryBuffer: Buffer;
+        let bridgechainRepositoryBuffer: Buffer | undefined = undefined;
         const bridgechainRepository = bridgechainUpdateAsset.bridgechainRepository;
         if (bridgechainRepository) {
             bridgechainRepositoryBuffer = Buffer.from(bridgechainRepository, "utf8");
@@ -116,7 +116,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         let bridgechainAssetRepositoryBufferLength = 1;
-        let bridgechainAssetRepositoryBuffer: Buffer;
+        let bridgechainAssetRepositoryBuffer: Buffer | undefined = undefined;
         const bridgechainAssetRepository = bridgechainUpdateAsset.bridgechainAssetRepository;
         if (bridgechainAssetRepository) {
             bridgechainAssetRepositoryBuffer = Buffer.from(bridgechainAssetRepository, "utf8");

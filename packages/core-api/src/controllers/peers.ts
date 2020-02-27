@@ -20,7 +20,7 @@ export class PeersController extends Controller {
             const versionRange = semver.validRange(decodeURIComponent((request.query as any).version));
 
             if (versionRange) {
-                result = result.filter(peer => semver.satisfies(peer.version, versionRange));
+                result = result.filter(peer => peer.version && semver.satisfies(peer.version, versionRange));
             } else {
                 return Boom.notFound("Invalid version range provided");
             }

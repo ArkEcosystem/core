@@ -121,10 +121,12 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        Utils.assert.defined<number>(transaction.data.typeGroup);
 
         // Here we have to "replay" all business registration and update transactions
         // (except the current one being reverted) to rebuild previous wallet state.
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        Utils.assert.defined<string>(sender.publicKey);
 
         const dbRegistrationTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
             {

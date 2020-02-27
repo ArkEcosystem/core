@@ -85,7 +85,7 @@ export class BridgechainRegistrationTransaction extends Transactions.Transaction
         const bridgechainRepositoryBufferLength: number = bridgechainRepositoryBuffer.length;
 
         let bridgechainAssetRepositoryBufferLength = 1;
-        let bridgechainAssetRepositoryBuffer: Buffer;
+        let bridgechainAssetRepositoryBuffer: Buffer | undefined = undefined;
         if (bridgechainRegistrationAsset.bridgechainAssetRepository) {
             bridgechainAssetRepositoryBuffer = Buffer.from(
                 bridgechainRegistrationAsset.bridgechainAssetRepository,

@@ -1,6 +1,6 @@
 import { Controller } from "@arkecosystem/core-api";
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Boom } from "@hapi/boom";
+import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { BridgechainResource, BusinessResource } from "../resources";
@@ -24,6 +24,10 @@ export class BusinessController extends Controller {
         const wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, request.params.id);
         if (!wallet || !wallet.hasAttribute("business")) {
             return Boom.notFound("Business not found");
+        }
+
+        if (!wallet.publicKey) {
+            return Boom.internal("Wallet missing public key property");
         }
 
         const business = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
