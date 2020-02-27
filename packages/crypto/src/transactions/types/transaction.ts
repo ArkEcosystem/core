@@ -69,17 +69,25 @@ export abstract class Transaction implements ITransaction {
     }
 
     public toString(): string {
-        if (this.data && this.data.id && this.data.senderPublicKey && this.data.nonce) {
-            const address: string = Address.fromPublicKey(this.data.senderPublicKey);
-            const nonce: BigNumber = this.data.nonce;
-            const key: string = (this as any).__proto__.constructor.key;
-            const version: string = (this as any).__proto__.constructor.version;
-            const id: string = this.data.id;
+        const parts: string[] = [];
 
-            return `${address} #${nonce} ${key} v${version} ${id}`;
-        } else {
-            return "serialized";
+        if (this.data.senderPublicKey) {
+            parts.push(Address.fromPublicKey(this.data.senderPublicKey));
         }
+
+        if (this.data.nonce) {
+            parts.push(`#${this.data.nonce}`);
+        }
+
+        const key: string = (this as any).__proto__.constructor.key;
+        const version: string = (this as any).__proto__.constructor.version;
+        parts.push(`${key} v${version}`);
+
+        if (this.data.id) {
+            parts.push(this.data.id);
+        }
+
+        return parts.join(" ");
     }
 
     public hasVendorField(): boolean {
