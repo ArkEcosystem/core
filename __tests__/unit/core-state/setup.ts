@@ -8,7 +8,7 @@ import { Managers, Utils } from "@arkecosystem/crypto";
 import { defaults } from "../../../packages/core-state/src/defaults";
 import { StateStore } from "../../../packages/core-state/src/stores/state";
 import { BlockState } from "../../../packages/core-state/src/block-state";
-import { WalletRepository, TempWalletRepository } from "../../../packages/core-state/src/wallets";
+import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "../../../packages/core-state/src/wallets";
 import { registerIndexers, registerFactories } from "../../../packages/core-state/src/wallets/indexers";
 import { DposState } from "../../../packages/core-state/src/dpos/dpos";
 import { PluginConfiguration } from "@arkecosystem/core-kernel/dist/providers";
@@ -35,7 +35,8 @@ export interface Spies {
 export interface Setup {
     sandbox: Sandbox;
     walletRepo: WalletRepository;
-    tempWalletRepo: TempWalletRepository;
+    walletRepoClone: WalletRepositoryClone;
+    walletRepoCopyOnWrite: WalletRepositoryCopyOnWrite;
     factory: FactoryBuilder;
     blockState: BlockState;
     stateStore: StateStore;
@@ -148,15 +149,24 @@ export const setUp = (setUpOptions = setUpDefaults): Setup => {
 
     sandbox.app
         .bind(Container.Identifiers.WalletRepository)
-        .to(TempWalletRepository)
+        .to(WalletRepositoryClone)
         .inRequestScope()
-        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "temp"));
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "clone"));
 
-    const tempWalletRepo: TempWalletRepository = sandbox.app
-        .getTagged(Container.Identifiers.WalletRepository, "state", "temp");
+    sandbox.app
+        .bind(Container.Identifiers.WalletRepository)
+        .to(WalletRepositoryCopyOnWrite)
+        .inRequestScope()
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "copy-on-write"));
+
+    const walletRepoClone: WalletRepositoryClone = sandbox.app
+        .getTagged(Container.Identifiers.WalletRepository, "state", "clone");
 
     const walletRepo: WalletRepository = sandbox.app
         .getTagged(Container.Identifiers.WalletRepository, "state", "blockchain");
+    
+    const walletRepoCopyOnWrite: WalletRepositoryCopyOnWrite = sandbox.app
+        .getTagged(Container.Identifiers.WalletRepository, "state", "copy-on-write");
 
     const applySpy: jest.SpyInstance = jest.fn();
     const revertSpy: jest.SpyInstance = jest.fn();
@@ -243,7 +253,7 @@ export const setUp = (setUpOptions = setUpDefaults): Setup => {
         .bind(Container.Identifiers.DposState)
         .to(DposState)
         .inRequestScope()
-        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "temp"));
+        .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "clone"));
   
     sandbox.app
         .bind<DposPreviousRoundStateProvider>(Container.Identifiers.DposPreviousRoundStateProvider)
@@ -279,7 +289,8 @@ export const setUp = (setUpOptions = setUpDefaults): Setup => {
     return {
         sandbox,
         walletRepo,
-        tempWalletRepo,
+        walletRepoClone,
+        walletRepoCopyOnWrite,
         factory,
         blockState,
         stateStore,
