@@ -4,7 +4,6 @@ import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     NotSupportedForMultiSignatureWalletError,
     WalletIsAlreadyDelegateError,
-    WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
 } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
@@ -66,10 +65,6 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<string>(data.asset?.delegate?.username);
 
         const username: string = data.asset.delegate.username;
-
-        if (!username) {
-            throw new WalletNotADelegateError();
-        }
 
         if (wallet.isDelegate()) {
             throw new WalletIsAlreadyDelegateError();

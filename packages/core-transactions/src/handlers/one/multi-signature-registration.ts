@@ -28,7 +28,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const multiSignature: Contracts.State.WalletMultiSignatureAttributes =
-                transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+                transaction.asset.multiSignature || transaction.asset.multiSignatureLegacy;
             multiSignature.legacy = true;
 
             if (wallet.hasMultiSignature()) {

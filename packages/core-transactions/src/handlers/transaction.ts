@@ -263,12 +263,12 @@ export abstract class TransactionHandler {
                 transaction.data.senderPublicKey,
             );
 
-            if (dbSender.getAttribute<any>("multiSignature").legacy) {
-                throw new LegacyMultiSignatureError();
-            }
-
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
+            }
+
+            if (dbSender.getAttribute<any>("multiSignature").legacy) {
+                throw new LegacyMultiSignatureError();
             }
 
             if (!this.verifySignatures(dbSender, data, dbSender.getAttribute("multiSignature"))) {
@@ -299,6 +299,7 @@ export abstract class TransactionHandler {
      * Verify that the transaction's nonce is the same as the wallet nonce, so that the
      * transaction can be reverted from the wallet. Throw an exception if it is not.
      *
+     * @param wallet
      * @param {Interfaces.ITransaction} transaction
      * @memberof Wallet
      */
