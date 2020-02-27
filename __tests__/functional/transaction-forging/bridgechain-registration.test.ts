@@ -244,7 +244,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             // Registering a bridgechain
             const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
-                    name: "cryptoProject",
+                    name: "cryptoProject2",
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
@@ -322,7 +322,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             // Registering a bridgechain
             const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
-                    name: "cryptoProject",
+                    name: "cryptoProject3",
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
