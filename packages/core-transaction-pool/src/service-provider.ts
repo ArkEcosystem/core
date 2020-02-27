@@ -3,10 +3,12 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Cleaner } from "./cleaner";
 import { Collator } from "./collator";
 import { Connection } from "./connection";
+import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { Memory } from "./memory";
 import { PoolWalletRepository } from "./pool-wallet-repository";
+import { Processor } from "./processor";
+import { Query } from "./query";
 import { Storage } from "./storage";
-import { Synchronizer } from "./synchronizer";
 
 /**
  * @export
@@ -36,11 +38,6 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .inSingletonScope();
 
         this.app
-            .bind(Container.Identifiers.TransactionPoolSynchronizer)
-            .to(Synchronizer)
-            .inSingletonScope();
-
-        this.app
             .bind(Container.Identifiers.TransactionPoolCleaner)
             .to(Cleaner)
             .inSingletonScope();
@@ -50,6 +47,14 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .to(Connection)
             .inSingletonScope();
 
+        this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolProcessorFactory)
+            .toAutoFactory(Container.Identifiers.TransactionPoolProcessor);
+
+        this.app.bind(Container.Identifiers.TransactionPoolQuery).to(Query);
+        this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
+
         this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
     }
 
@@ -58,6 +63,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async boot(): Promise<void> {
+        await this.app.get<Storage>(Container.Identifiers.TransactionPoolStorage).boot();
         await this.app.get<Connection>(Container.Identifiers.TransactionPoolService).boot();
     }
 
@@ -66,9 +72,7 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async dispose(): Promise<void> {
-        this.app.get<Synchronizer>(Container.Identifiers.TransactionPoolSynchronizer).syncToPersistentStorage();
-
-        this.app.get<Storage>(Container.Identifiers.TransactionPoolStorage).disconnect();
+        this.app.get<Storage>(Container.Identifiers.TransactionPoolStorage).dispose();
     }
 
     /**

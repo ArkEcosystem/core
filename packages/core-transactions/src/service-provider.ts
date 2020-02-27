@@ -16,8 +16,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .inSingletonScope();
 
         this.app
-            .bind(TransactionHandlerProvider)
-            .toSelf()
+            .bind(Container.Identifiers.TransactionHandlerProvider)
+            .to(TransactionHandlerProvider)
             .inSingletonScope();
 
         this.app

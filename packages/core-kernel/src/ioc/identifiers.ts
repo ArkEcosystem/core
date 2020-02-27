@@ -78,12 +78,16 @@ export const Identifiers = {
     PeerNetworkMonitor: Symbol.for("Peer<NetworkMonitor>"),
     PeerProcessor: Symbol.for("Peer<Processor>"),
     PeerStorage: Symbol.for("Peer<Storage>"),
+    PeerTransactionBroadcaster: Symbol.for("Peer<TransactionBroadcaster>"),
     // Transaction Pool
     TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
     TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
     TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
-    TransactionPoolSynchronizer: Symbol.for("TransactionPool<Synchronizer>"),
     TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
+    TransactionPoolQuery: Symbol.for("TransactionPool<Query>"),
+    TransactionPoolDynamicFeeMatcher: Symbol.for("TransactionPool<DynamicFeeMatcher>"),
+    TransactionPoolProcessor: Symbol.for("TransactionPool<Processor>"),
+    TransactionPoolProcessorFactory: Symbol.for("TransactionPool<ProcessorFactory>"),
 
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),
@@ -91,4 +95,5 @@ export const Identifiers = {
     TransactionHandler: Symbol.for("TransactionHandler"),
     // Registries
     TransactionHandlerRegistry: Symbol.for("Registry<TransactionHandler>"),
+    TransactionHandlerProvider: Symbol.for("Provider<TransactionHandler>"),
 };

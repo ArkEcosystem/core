@@ -1,6 +1,6 @@
 import { Models } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
-import { Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
+import { Enums, Identities, Interfaces, Managers, Transactions } from "@arkecosystem/crypto";
 
 import {
     InvalidMultiSignatureError,
@@ -13,6 +13,9 @@ import { TransactionHandler, TransactionHandlerConstructor } from "../transactio
 
 @Container.injectable()
 export class MultiSignatureRegistrationTransactionHandler extends TransactionHandler {
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
+
     public dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
         return [];
     }
@@ -85,16 +88,21 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: Contracts.TransactionPool.Connection,
-        processor: Contracts.TransactionPool.Processor,
-    ): Promise<boolean> {
-        if (await this.typeFromSenderAlreadyInPool(data, pool, processor)) {
-            return false;
-        }
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        return true;
+        const hasSender: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .has();
+
+        if (hasSender) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Sender ${transaction.data.senderPublicKey} already has a transaction of type '${Enums.TransactionType.MultiSignature}' in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
+        }
     }
 
     public async applyToSender(
