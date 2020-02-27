@@ -39,9 +39,9 @@ export const register = (server: Hapi.Server): void => {
                         .hex()
                         .length(66),
                 }),
-                query: {
+                query: Joi.object({
                     transform: Joi.bool().default(true),
-                },
+                }),
             },
         },
     });
