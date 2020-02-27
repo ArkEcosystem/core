@@ -89,7 +89,6 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
-
             throw new Contracts.TransactionPool.PoolError(
                 `Delegate resignation for "${wallet.getAttribute<string>("delegate.username")}" already in the pool`,
                 "ERR_PENDING",
