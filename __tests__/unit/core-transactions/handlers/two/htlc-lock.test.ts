@@ -2,9 +2,9 @@ import "jest-extended";
 
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Contracts, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils, } from "@arkecosystem/crypto";
-import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
+import { Application, Contracts } from "@arkecosystem/core-kernel";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
@@ -12,10 +12,7 @@ import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
 import { configManager } from "@packages/crypto/src/managers";
-import {
-    HtlcLockExpiredError,
-    InsufficientBalanceError,
-} from "@arkecosystem/core-transactions/src/errors";
+import { HtlcLockExpiredError, InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { setMockTransaction } from "../__mocks__/transaction-repository";
 import {
     buildMultiSignatureWallet,
@@ -78,6 +75,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
     let secondSignatureHtlcLockTransaction: Interfaces.ITransaction;
     let multiSignatureHtlcLockTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
+    let expiration: any;
 
     beforeAll(() => {
         Managers.configManager.setFromPreset("testnet");
@@ -87,7 +85,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.HtlcLock, Enums.TransactionTypeGroup.Core), 2);
 
-        let expiration = {
+        expiration = {
             type: expirationType,
             value: makeNotExpiredTimestamp(expirationType),
         };
@@ -100,7 +98,6 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
             .recipientId(recipientWallet.address)
             .amount("1")
             .nonce("1")
-            .vendorField("dummy")
             .sign(passphrases[0])
             .build();
 
@@ -138,6 +135,24 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
         });
 
         it("should resolve with open transaction", async () => {
+            // @ts-ignore
+            htlcLockTransaction.data.open = true;
+            setMockTransaction(htlcLockTransaction);
+            await expect(handler.bootstrap()).toResolve();
+        });
+
+        it("should resolve with open transaction using vendor field", async () => {
+            htlcLockTransaction = BuilderFactory.htlcLock()
+                .htlcLockAsset({
+                    secretHash: htlcSecretHashHex,
+                    expiration: expiration
+                })
+                .recipientId(recipientWallet.address)
+                .amount("1")
+                .nonce("1")
+                .vendorField("dummy")
+                .sign(passphrases[0])
+                .build();
             // @ts-ignore
             htlcLockTransaction.data.open = true;
             setMockTransaction(htlcLockTransaction);

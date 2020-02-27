@@ -335,6 +335,12 @@ describe("General Tests", () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             await expect(handler.apply(transferTransaction, walletRepository)).rejects.toThrow(InsufficientBalanceError);
         });
+
+        it("should throw with negative balance if environment is not test", async () => {
+            process.env.CORE_ENV === "unitest";
+            senderWallet.balance = Utils.BigNumber.ZERO;
+            await expect(handler.apply(transferTransaction, walletRepository)).rejects.toThrow(InsufficientBalanceError);
+        });
     });
 
     describe("revert", () => {

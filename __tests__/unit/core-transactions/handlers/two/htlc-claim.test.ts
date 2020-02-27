@@ -418,5 +418,29 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
             expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
             expect(claimWallet.balance).toEqual(balanceBefore);
         });
+
+        it("should be ok if lock transaction has vendorField", async () => {
+            htlcLockTransaction.data.vendorField = "dummy";
+
+            await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
+
+            setMockTransaction(htlcLockTransaction);
+            const balanceBefore = claimWallet.balance;
+
+            await handler.apply(htlcClaimTransaction, walletRepository);
+
+            expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+            expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
+
+            await handler.revert(htlcClaimTransaction, walletRepository);
+
+            let foundLockWallet = walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, htlcLockTransaction.id!);
+
+            expect(foundLockWallet).toBeDefined();
+
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
+            expect(claimWallet.balance).toEqual(balanceBefore);
+        });
     });
 });

@@ -1,12 +1,17 @@
 import "jest-extended";
 
-import { Application } from "@packages/core-kernel/src/application";
+import { Application } from "@arkecosystem/core-kernel/src/application";
 import { Container, Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Services, Contracts } from "@arkecosystem/core-kernel";
-import { One, Two, TransactionHandler, TransactionHandlerConstructor } from "@arkecosystem/core-transactions/src/handlers";
+import { Contracts, Services } from "@arkecosystem/core-kernel";
+import {
+    One,
+    TransactionHandler,
+    TransactionHandlerConstructor,
+    Two,
+} from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { TransactionHandlerProvider } from "@arkecosystem/core-transactions/src/handlers/handler-provider";
-import { Interfaces, Transactions, Enums, Utils, Crypto, Identities, Managers } from "@arkecosystem/crypto";
+import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionSchema } from "@arkecosystem/crypto/src/transactions/types/schemas";
 import {
     DeactivatedTransactionHandlerError,
