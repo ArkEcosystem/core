@@ -1,6 +1,15 @@
 #!/usr/bin/env node
 
-process.env.LD_PRELOAD = 'libjemalloc.so'
+if (process.env.LD_PRELOAD !== 'libjemalloc.so') {
+    process.env.LD_PRELOAD = 'libjemalloc.so'
+    let exitStatus = 0
+    try {
+        require('child_process').execSync(process.argv.join(' '), { stdio: [0, 1, 2] })
+    } catch (error) {
+        exitStatus = error.status
+    }
+    process.exit(exitStatus)
+}
 
 require('@oclif/command').run()
 .then(require('@oclif/command/flush'))
