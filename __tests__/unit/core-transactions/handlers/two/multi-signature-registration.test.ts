@@ -2,9 +2,9 @@ import "jest-extended";
 
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Contracts, Services, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils, } from "@arkecosystem/crypto";
-import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
+import { Application, Contracts, Services } from "@arkecosystem/core-kernel";
+import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
@@ -75,6 +75,7 @@ beforeEach(() => {
 describe("MultiSignatureRegistrationTransaction", () => {
     let multiSignatureTransaction: Interfaces.ITransaction;
     let secondSignatureMultiSignatureTransaction: Interfaces.ITransaction;
+    let multiSignatureAsset: IMultiSignatureAsset;
     let recipientWallet: Wallets.Wallet;
     let handler: TransactionHandler;
 
@@ -84,7 +85,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         senderWallet.balance = Utils.BigNumber.make(100390000000);
 
-        const multiSignatureAsset: IMultiSignatureAsset = {
+        multiSignatureAsset = {
             publicKeys: [
                 Identities.PublicKey.fromPassphrase(passphrases[0]),
                 Identities.PublicKey.fromPassphrase(passphrases[1]),
@@ -143,6 +144,10 @@ describe("MultiSignatureRegistrationTransaction", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
+        afterEach(() => {
+            Managers.configManager.getMilestone().aip11 = true;
+        });
+
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).toResolve();
         });
@@ -176,6 +181,24 @@ describe("MultiSignatureRegistrationTransaction", () => {
                 // InvalidMultiSignatureError,
             );
         });
+
+        // it("should throw if aip11 is false", async () => {
+        //     Managers.configManager.getMilestone().aip11 = false;
+        //     multiSignatureTransaction = BuilderFactory.multiSignature()
+        //         .multiSignatureAsset(multiSignatureAsset)
+        //         .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]))
+        //         .nonce("1")
+        //         .recipientId(recipientWallet.publicKey!)
+        //         .multiSign(passphrases[0], 0)
+        //         .multiSign(passphrases[1], 1)
+        //         .multiSign(passphrases[2], 2)
+        //         .sign(passphrases[0])
+        //         .build();
+        //
+        //     await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
+        //         UnexpectedMultiSignatureError
+        //     );
+        // });
 
         it("should throw if the number of keys is less than minimum", async () => {
             senderWallet.forgetAttribute("multiSignature");

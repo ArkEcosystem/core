@@ -100,6 +100,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc lock - expiration type %i", e
             .recipientId(recipientWallet.address)
             .amount("1")
             .nonce("1")
+            .vendorField("dummy")
             .sign(passphrases[0])
             .build();
 

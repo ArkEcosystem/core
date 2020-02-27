@@ -266,6 +266,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
                 .recipientId(claimWallet.address)
                 .amount(amount.toString())
                 .nonce("1")
+                .vendorField("dummy")
                 .sign(lockPassphrase)
                 .build();
 
@@ -387,35 +388,35 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc claim - expiration type %i", 
             expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
             expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
         });
+    });
 
-        describe("revert", () => {
-            it("should be ok", async () => {
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
+    describe("revert", () => {
+        it("should be ok", async () => {
+            await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
 
-                setMockTransaction(htlcLockTransaction);
-                const balanceBefore = claimWallet.balance;
+            setMockTransaction(htlcLockTransaction);
+            const balanceBefore = claimWallet.balance;
 
-                await handler.apply(htlcClaimTransaction, walletRepository);
+            await handler.apply(htlcClaimTransaction, walletRepository);
 
-                expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
-                expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
+            expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
+            expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
 
-                await handler.revert(htlcClaimTransaction, walletRepository);
+            await handler.revert(htlcClaimTransaction, walletRepository);
 
-                let foundLockWallet = walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, htlcLockTransaction.id!);
+            let foundLockWallet = walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, htlcLockTransaction.id!);
 
-                expect(foundLockWallet).toBeDefined();
-                // @ts-ignore
-                expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toEqual({
-                    amount: htlcLockTransaction.data.amount,
-                    recipientId: htlcLockTransaction.data.recipientId,
-                    ...htlcLockTransaction.data.asset!.lock,
-                });
-
-                expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
-                expect(claimWallet.balance).toEqual(balanceBefore);
+            expect(foundLockWallet).toBeDefined();
+            // @ts-ignore
+            expect(lockWallet.getAttribute("htlc.locks")[htlcLockTransaction.id]).toEqual({
+                amount: htlcLockTransaction.data.amount,
+                recipientId: htlcLockTransaction.data.recipientId,
+                ...htlcLockTransaction.data.asset!.lock,
             });
+
+            expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(htlcLockTransaction.data.amount);
+            expect(claimWallet.balance).toEqual(balanceBefore);
         });
     });
 });

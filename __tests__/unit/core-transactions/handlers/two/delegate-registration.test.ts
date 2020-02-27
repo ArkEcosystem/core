@@ -116,6 +116,19 @@ describe("DelegateRegistrationTransaction", () => {
             });
             await expect(handler.bootstrap()).toResolve();
         });
+
+        it("should resolve with bocks and genesis wallet", async () => {
+            setMockBlock({
+                generatorPublicKey: Identities.PublicKey.fromPassphrase(passphrases[0]),
+                totalRewards: "2",
+                totalFees: "2",
+                totalProduced: "1",
+                id: "1",
+                height: "1",
+                timestamp: "1",
+            });
+            await expect(handler.bootstrap()).toResolve();
+        });
     });
 
     describe("emitEvents", () => {

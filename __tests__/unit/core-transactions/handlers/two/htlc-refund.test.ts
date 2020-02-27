@@ -114,6 +114,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
             .recipientId(recipientWallet.address)
             .amount(amount.toString())
             .nonce("1")
+            // .vendorField("dummy")
             .sign(lockPassphrase)
             .build();
 

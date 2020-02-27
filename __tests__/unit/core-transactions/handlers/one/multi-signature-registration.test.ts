@@ -22,7 +22,10 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { LegacyMultiSignatureError } from "@arkecosystem/core-transactions/src/errors";
+import {
+    LegacyMultiSignatureError,
+    MultiSignatureAlreadyRegisteredError,
+} from "@arkecosystem/core-transactions/src/errors";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -70,6 +73,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
     let multiSignatureTransaction: Interfaces.ITransaction;
     let recipientWallet: Wallets.Wallet;
     let handler: TransactionHandler;
+    let multiSignatureAsset: IMultiSignatureAsset;
 
     beforeEach(async () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
@@ -77,7 +81,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         senderWallet.balance = Utils.BigNumber.make(100390000000);
 
-        const multiSignatureAsset: IMultiSignatureAsset = {
+        multiSignatureAsset = {
             publicKeys: [
                 Identities.PublicKey.fromPassphrase(passphrases[0]),
                 Identities.PublicKey.fromPassphrase(passphrases[1]),
@@ -103,13 +107,18 @@ describe("MultiSignatureRegistrationTransaction", () => {
             .build();
     });
 
-    // TODO: Check why is bootstrap method if transaction is not supported
-    // describe("bootstrap", () => {
-    //     it("should resolve", async () => {
-    //         setMockTransaction(multiSignatureTransaction);
-    //         await expect(handler.bootstrap()).toResolve();
-    //     })
-    // });
+    describe("bootstrap", () => {
+        it("should resolve", async () => {
+            setMockTransaction(multiSignatureTransaction);
+            await expect(handler.bootstrap()).toResolve();
+        });
+
+        it("should throw when wallet has multi signature", async () => {
+            senderWallet.setAttribute("multiSignature", multiSignatureAsset);
+            setMockTransaction(multiSignatureTransaction);
+            await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
+        });
+    });
 
     describe("throwIfCannotBeApplied", () => {
         let pubKeyHash: number;
@@ -124,14 +133,14 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw", async () => {
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(LegacyMultiSignatureError);
+        });
+
+        it("should not throw defined as exception", async () => {
             configManager.set("network.pubKeyHash", 99);
             configManager.set("exceptions.transactions", [multiSignatureTransaction.id]);
 
             await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).toResolve();
-        });
-
-        it("should not throw defined as exception", async () => {
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(LegacyMultiSignatureError);
         });
     });
 

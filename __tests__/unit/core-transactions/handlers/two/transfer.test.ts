@@ -2,9 +2,9 @@ import "jest-extended";
 
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Contracts, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils, } from "@arkecosystem/crypto";
-import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
+import { Application, Contracts } from "@arkecosystem/core-kernel";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
@@ -12,6 +12,7 @@ import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
 import { configManager } from "@packages/crypto/src/managers";
+import { TransferTransactionHandler } from "@arkecosystem/core-transactions/src/handlers/one";
 import {
     ColdWalletError,
     InsufficientBalanceError,
@@ -113,6 +114,12 @@ describe("TransferTransaction", () => {
         it("should resolve", async () => {
             setMockTransaction(transferTransaction);
             await expect(handler.bootstrap()).toResolve();
+        })
+    });
+
+    describe("hasVendorField", () => {
+        it("should return true", async () => {
+            await expect((<TransferTransactionHandler>handler).hasVendorField()).toBeTrue();
         })
     });
 
