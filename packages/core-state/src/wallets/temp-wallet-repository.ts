@@ -37,6 +37,7 @@ export class TempWalletRepository extends WalletRepository {
             const wallet: Contracts.State.Wallet = this.findByAddress(Identities.Address.fromPublicKey(publicKey));
             wallet.publicKey = publicKey;
 
+            // TODO: reindexing here means TempWallet acts differently to WalletRepository
             this.reindex(wallet);
 
             return wallet;

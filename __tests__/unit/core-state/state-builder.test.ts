@@ -92,8 +92,8 @@ describe("StateBuilder", () => {
 
         walletRepo.reindex(wallet);
 
-        await stateBuilder.run();
-
+        expect.assertions(2);
+        await stateBuilder.run().catch((e) => expect(e).toEqual("Non-genesis wallet with negative balance."));
         expect(loggerWarningSpy).toHaveBeenCalledWith("Wallet ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp has a negative balance of '-80000'");
     });
 

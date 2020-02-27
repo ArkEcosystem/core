@@ -150,12 +150,14 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         this.getIndex(indexName).forget(key);
     }
 
+    // TODO: naming here implies the behaviour is different to reindexing
     public index(wallets: ReadonlyArray<Contracts.State.Wallet>): void {
         for (const wallet of wallets) {
             this.reindex(wallet);
         }
     }
 
+    // TODO: reindex gives the impression this wallet is already indexed - possibly change name?
     public reindex(wallet: Contracts.State.Wallet): void {
         for (const walletIndex of Object.values(this.indexes)) {
             walletIndex.index(wallet);
