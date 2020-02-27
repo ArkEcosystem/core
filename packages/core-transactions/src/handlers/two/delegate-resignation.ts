@@ -77,13 +77,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             .has();
 
         if (hasSender) {
-            const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
-            const username: string = senderWallet.getAttribute<string>("delegate.username");
-
             throw new Contracts.TransactionPool.PoolError(
-                `Delegate resignation for "${username}" already in the pool`,
+                `Delegate resignation for "${wallet.getAttribute("delegate.username")}" already in the pool`,
                 "ERR_PENDING",
                 transaction,
             );
