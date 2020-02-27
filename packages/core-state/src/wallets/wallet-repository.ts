@@ -386,12 +386,14 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             .values()
             .map(wallet => {
                 const business: any = wallet.getAttribute("business");
-                return params.transform ? {
-                    address: wallet.address,
-                    publicKey: business.publicKey,
-                    ...business.businessAsset,
-                    isResigned: !!business.isResigned,
-                } : wallet;
+                return params.transform
+                    ? {
+                          address: wallet.address,
+                          publicKey: business.publicKey,
+                          ...business.businessAsset,
+                          isResigned: !!business.isResigned,
+                      }
+                    : wallet;
             });
 
         return {

@@ -24,7 +24,6 @@ export class WalletResource implements Resource {
      * @memberof Resource
      */
     public transform(resource): object {
-
         return {
             address: resource.address,
             publicKey: resource.publicKey,

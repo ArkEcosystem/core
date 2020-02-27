@@ -1,10 +1,10 @@
 import Ajv from "ajv";
 import { cidr } from "ip";
-import { RateLimiter } from "../rate-limiter";
-import { buildRateLimiter } from "../utils";
-
 import SCWorker from "socketcluster/scworker";
+
+import { RateLimiter } from "../rate-limiter";
 import { requestSchemas } from "../schemas";
+import { buildRateLimiter } from "../utils";
 import { codec } from "../utils/sc-codec";
 import { validateTransactionLight } from "./utils/validate";
 
@@ -130,7 +130,8 @@ export class Worker extends SCWorker {
                         typeof parsed.data !== "object" ||
                         this.hasAdditionalProperties(parsed) ||
                         (typeof parsed.cid !== "number" &&
-                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined")) ||
+                            parsed.event === "#disconnect" &&
+                            typeof parsed.cid !== "undefined") ||
                         !this.handlers.includes(parsed.event)
                     ) {
                         return this.setErrorForIpAndTerminate(ws, req);
@@ -266,20 +267,20 @@ export class Worker extends SCWorker {
         const rateLimitedEndpoints = this.getRateLimitedEndpoints();
         const useLocalRateLimiter: boolean = !rateLimitedEndpoints[req.event];
         if (useLocalRateLimiter) {
-            if (this.rateLimiter && await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
+            if (
+                this.rateLimiter &&
+                (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event))
+            ) {
                 req.socket.terminate();
                 return;
             }
         } else {
-            const { data } = await this.sendToMasterAsync(
-                "p2p.internal.getRateLimitStatus",
-                {
-                    data: {
-                        ip: req.socket.remoteAddress,
-                        endpoint: req.event,
-                    },
+            const { data } = await this.sendToMasterAsync("p2p.internal.getRateLimitStatus", {
+                data: {
+                    ip: req.socket.remoteAddress,
+                    endpoint: req.event,
                 },
-            );
+            });
             if (data.exceededLimitOnEndpoint) {
                 req.socket.terminate();
                 return;

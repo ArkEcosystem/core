@@ -54,7 +54,7 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
                     transactions: block.transactions.map(tx => tx.data),
                 }),
             },
-            postBlockTimeout
+            postBlockTimeout,
         );
     }
 

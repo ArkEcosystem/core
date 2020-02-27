@@ -155,11 +155,7 @@ export class Command extends Commands.Command {
             {
                 title: "Persist genesis wallet to genesis-wallet.json in core config path.",
                 task: async () => {
-                    writeJSONSync(
-                        resolve(coreConfigDest, "genesis-wallet.json"),
-                        genesisWallet,
-                        { spaces: 4 },
-                    );
+                    writeJSONSync(resolve(coreConfigDest, "genesis-wallet.json"), genesisWallet, { spaces: 4 });
                 },
             },
             {

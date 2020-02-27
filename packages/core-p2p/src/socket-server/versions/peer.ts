@@ -1,6 +1,6 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Blocks, Managers, Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { PeerService } from "../../contracts";
 import { MissingCommonBlockError } from "../../errors";

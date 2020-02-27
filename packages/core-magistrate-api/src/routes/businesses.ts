@@ -41,7 +41,7 @@ export const register = (server: Hapi.Server): void => {
                 }),
                 query: {
                     transform: Joi.bool().default(true),
-                }
+                },
             },
         },
     });

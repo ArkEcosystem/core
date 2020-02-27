@@ -7,6 +7,7 @@ import {
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
+
 import {
     BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
@@ -53,7 +54,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
 
             businessAttributes.bridgechains![bridgechainId].bridgechainAsset = {
                 ...businessAttributes.bridgechains![bridgechainId].bridgechainAsset,
-                ...shallowCloneBridgechainUpdate
+                ...shallowCloneBridgechainUpdate,
             };
 
             this.walletRepository.reindex(wallet);
@@ -74,7 +75,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         }
 
         Utils.assert.defined<MagistrateInterfaces.IBridgechainUpdateAsset>(transaction.data.asset?.bridgechainUpdate);
-        
+
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
@@ -161,7 +162,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         delete shallowCloneBridgechainUpdate.bridgechainId; // we don't want id in wallet bridgechain asset
         bridgechainAttributes.bridgechainAsset = {
             ...bridgechainAttributes.bridgechainAsset,
-            ...shallowCloneBridgechainUpdate
+            ...shallowCloneBridgechainUpdate,
         };
 
         walletRepository.reindex(wallet);
@@ -257,7 +258,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             delete bridgechainUpdateAsset.bridgechainId; // no need for bridgechainId for bridgechain asset
             bridgechainAsset = {
                 ...bridgechainAsset,
-                ...bridgechainUpdateAsset
+                ...bridgechainUpdateAsset,
             };
         }
 

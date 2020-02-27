@@ -13,6 +13,23 @@ export const validate = (schema, data) => {
     }
 };
 
+const objectHasMorePropertiesThan = (obj: object, maxProperties: number) => {
+    let propertiesCount = 0;
+    try {
+        JSON.stringify(obj, (key, value) => {
+            propertiesCount++;
+            if (propertiesCount > maxProperties) {
+                throw new Error("exceeded maxProperties");
+            }
+            return value;
+        });
+    } catch (e) {
+        return true;
+    }
+
+    return false;
+};
+
 // Specific light validation for transaction, to be used in socket workers
 // to perform quick validation on transaction objects received in postTransactions
 // TODO rework with v3 when refactoring p2p layer
@@ -57,21 +74,4 @@ export const validateTransactionLight = (transaction: any): boolean => {
     }
 
     return true;
-};
-
-const objectHasMorePropertiesThan = (obj: object, maxProperties: number) => {
-    let propertiesCount = 0;
-    try {
-        JSON.stringify(obj, (key, value) => {
-            propertiesCount++;
-            if (propertiesCount > maxProperties) {
-                throw new Error("exceeded maxProperties");
-            }
-            return value;
-        });
-    } catch (e) {
-        return true;
-    }
-
-    return false;
 };

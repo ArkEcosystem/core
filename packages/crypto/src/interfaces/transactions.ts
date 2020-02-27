@@ -1,5 +1,5 @@
-import ByteBuffer from "bytebuffer";
 import { ErrorObject } from "ajv";
+import ByteBuffer from "bytebuffer";
 
 import { HtlcLockExpirationType } from "../enums";
 import { BigNumber } from "../utils";

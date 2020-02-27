@@ -6,6 +6,7 @@ import {
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import {
     BridgechainAlreadyRegisteredError,
     BusinessIsResignedError,

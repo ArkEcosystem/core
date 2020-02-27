@@ -31,7 +31,10 @@ const sanitizeRemoteAddress = (ip: string): string | undefined => {
     }
 };
 
-export const isValidPeer = (peer: { ip: string; status?: string | number }, includeNetworkInterfaces: boolean = true): boolean => {
+export const isValidPeer = (
+    peer: { ip: string; status?: string | number },
+    includeNetworkInterfaces: boolean = true,
+): boolean => {
     const sanitizedAddress: string | undefined = sanitizeRemoteAddress(peer.ip);
 
     if (!sanitizedAddress) {

@@ -31,7 +31,7 @@ export class BusinessController extends Controller {
         }
 
         const business = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
-            publicKey: wallet.publicKey
+            publicKey: wallet.publicKey,
         }).rows[0];
         if (!business) {
             return Boom.notFound("Business not found");

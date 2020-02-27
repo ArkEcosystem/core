@@ -7,6 +7,7 @@ import {
 } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
+
 import { BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBusinessWalletAttributes } from "../interfaces";
@@ -186,7 +187,7 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
             }
             businessWalletAsset = {
                 ...businessWalletAsset,
-                ...dbUpdateTx.asset.businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset
+                ...(dbUpdateTx.asset.businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset),
             };
         }
 

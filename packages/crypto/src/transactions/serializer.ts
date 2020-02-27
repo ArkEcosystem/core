@@ -113,7 +113,7 @@ export class Serializer {
 
             assetBytes = bb.toBuffer();
             if (assetBytes) {
-                assetSize = assetBytes.length;                
+                assetSize = assetBytes.length;
             }
         }
 

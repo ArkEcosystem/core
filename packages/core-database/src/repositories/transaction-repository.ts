@@ -315,12 +315,13 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
                         )
                         .orWhere(
                             new Brackets(qb => {
-                                qb.where("type = 6").andWhere("type_group = 1")
-                                .andWhere(`asset @> :paymentAsset`, {
-                                    paymentAsset: {
-                                        payment: [{ recipientId: first.value }],
-                                    },
-                                });
+                                qb.where("type = 6")
+                                    .andWhere("type_group = 1")
+                                    .andWhere(`asset @> :paymentAsset`, {
+                                        paymentAsset: {
+                                            payment: [{ recipientId: first.value }],
+                                        },
+                                    });
                             }),
                         );
                 }
@@ -338,12 +339,13 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
                     walletAddress,
                 }).orWhere(
                     new Brackets(qb => {
-                        qb.where("type = 6").andWhere("type_group = 1")
-                        .andWhere(`asset @> :paymentAsset`, {
-                            paymentAsset: {
-                                payment: [{ recipientId: walletAddress }],
-                            }
-                        });
+                        qb.where("type = 6")
+                            .andWhere("type_group = 1")
+                            .andWhere(`asset @> :paymentAsset`, {
+                                paymentAsset: {
+                                    payment: [{ recipientId: walletAddress }],
+                                },
+                            });
                     }),
                 );
 

@@ -40,7 +40,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
     @Container.inject(Container.Identifiers.EventDispatcherService)
     private readonly emitter!: Contracts.Kernel.EventDispatcher;
-    
+
     private missedBlocks: number = 0;
 
     /**
@@ -115,7 +115,11 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         this.emitter.listen(Enums.ForgerEvent.Missing, { handle: this.checkMissingBlocks });
 
-        this.emitter.listen(Enums.RoundEvent.Applied, { handle: () => { this.missedBlocks = 0; }});
+        this.emitter.listen(Enums.RoundEvent.Applied, {
+            handle: () => {
+                this.missedBlocks = 0;
+            },
+        });
 
         return true;
     }
@@ -432,7 +436,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
 
         if (
             (lastProcessResult === BlockProcessorResult.Accepted ||
-            lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
+                lastProcessResult === BlockProcessorResult.DiscardedButCanBeBroadcasted) &&
             lastProcessedBlock
         ) {
             // broadcast last processed block
@@ -553,7 +557,9 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
             this.missedBlocks >= Managers.configManager.getMilestone().activeDelegates / 3 - 1 &&
             Math.random() <= 0.8
         ) {
-            const networkStatus = await this.app.get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor).checkNetworkHealth();
+            const networkStatus = await this.app
+                .get<Contracts.P2P.NetworkMonitor>(Container.Identifiers.PeerNetworkMonitor)
+                .checkNetworkHealth();
             if (networkStatus.forked) {
                 this.state.numberOfBlocksToRollback = networkStatus.blocksToRollback;
                 this.dispatch("FORK");

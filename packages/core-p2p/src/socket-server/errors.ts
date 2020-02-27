@@ -31,7 +31,7 @@ export class InvalidTransactionsError extends ServerError {
 }
 
 export class TooManyTransactionsError extends ServerError {
-    constructor(block: Interfaces.IBlockData) {
+    public constructor(block: Interfaces.IBlockData) {
         super(
             `Received block ${block.id} at height ${block.height} contained too many transactions (${block.numberOfTransactions}).`,
         );
