@@ -319,6 +319,31 @@ describe("Htlc claim", () => {
 
                 await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
             });
+
+            it("should throw if transaction already in pool", async () => {
+                let anotherHtlcClaimTransaction = BuilderFactory.htlcClaim()
+                    .htlcClaimAsset({
+                        unlockSecret: htlcSecretHex,
+                        lockTransactionId: htlcLockTransaction.id!,
+                    })
+                    .nonce("1")
+                    .sign(passphrases[2])
+                    .build();
+
+                await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(anotherHtlcClaimTransaction);
+
+                lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(6 * 1e8));
+
+                lockWallet.setAttribute("htlc.locks", {
+                    [htlcLockTransaction.id!]: {
+                        amount: htlcLockTransaction.data.amount,
+                        recipientId: htlcLockTransaction.data.recipientId,
+                        ...htlcLockTransaction.data.asset!.lock,
+                    },
+                });
+
+                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+            });
         });
 
         describe("apply",  () => {
