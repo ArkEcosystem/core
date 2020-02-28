@@ -1,13 +1,13 @@
 import { Container, Providers } from "@arkecosystem/core-kernel";
 
-import { Cleaner } from "./cleaner";
 import { Collator } from "./collator";
-import { Connection } from "./connection";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
+import { ExpirationService } from "./expiration-service";
 import { Memory } from "./memory";
-import { PoolWalletRepository } from "./pool-wallet-repository";
 import { Processor } from "./processor";
 import { Query } from "./query";
+import { SenderState } from "./sender-state";
+import { Service } from "./service";
 import { Storage } from "./storage";
 
 /**
@@ -21,41 +21,30 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async register(): Promise<void> {
-        this.app
-            .bind(Container.Identifiers.WalletRepository)
-            .to(PoolWalletRepository)
-            .inSingletonScope()
-            .when(Container.Selectors.anyAncestorOrTargetTaggedFirst("state", "pool"));
-
+        this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
+        this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
+        this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
         this.app
             .bind(Container.Identifiers.TransactionPoolMemory)
             .to(Memory)
             .inSingletonScope();
-
-        this.app
-            .bind(Container.Identifiers.TransactionPoolStorage)
-            .to(Storage)
-            .inSingletonScope();
-
-        this.app
-            .bind(Container.Identifiers.TransactionPoolCleaner)
-            .to(Cleaner)
-            .inSingletonScope();
-
-        this.app
-            .bind(Container.Identifiers.TransactionPoolService)
-            .to(Connection)
-            .inSingletonScope();
-
         this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
         this.app
             .bind(Container.Identifiers.TransactionPoolProcessorFactory)
             .toAutoFactory(Container.Identifiers.TransactionPoolProcessor);
-
         this.app.bind(Container.Identifiers.TransactionPoolQuery).to(Query);
-        this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
-
-        this.app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
+        this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolSenderStateFactory)
+            .toAutoFactory(Container.Identifiers.TransactionPoolSenderState);
+        this.app
+            .bind(Container.Identifiers.TransactionPoolService)
+            .to(Service)
+            .inSingletonScope();
+        this.app
+            .bind(Container.Identifiers.TransactionPoolStorage)
+            .to(Storage)
+            .inSingletonScope();
     }
 
     /**
@@ -63,8 +52,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
      * @memberof ServiceProvider
      */
     public async boot(): Promise<void> {
-        await this.app.get<Storage>(Container.Identifiers.TransactionPoolStorage).boot();
-        await this.app.get<Connection>(Container.Identifiers.TransactionPoolService).boot();
+        this.app.get<Storage>(Container.Identifiers.TransactionPoolStorage).boot();
+        await this.app.get<Service>(Container.Identifiers.TransactionPoolService).boot();
     }
 
     /**

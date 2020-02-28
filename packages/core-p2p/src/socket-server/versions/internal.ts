@@ -1,6 +1,6 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Managers } from "@arkecosystem/crypto";
+import { Crypto, Managers, Interfaces } from "@arkecosystem/crypto";
 import { process } from "ipaddr.js";
 
 import { PeerService } from "../../contracts";
@@ -53,14 +53,18 @@ export const getUnconfirmedTransactions = async ({
 }: {
     app: Contracts.Kernel.Application;
 }): Promise<Contracts.P2P.UnconfirmedTransactions> => {
-    const collator = app.get<Contracts.TransactionPool.Collator>(Container.Identifiers.TransactionPoolCollator);
-    const transactionPool: Contracts.TransactionPool.Connection = app.get<Contracts.TransactionPool.Connection>(
+    const collator: Contracts.TransactionPool.Collator = app.get<Contracts.TransactionPool.Collator>(
+        Container.Identifiers.TransactionPoolCollator,
+    );
+    const transactionPool: Contracts.TransactionPool.Service = app.get<Contracts.TransactionPool.Service>(
         Container.Identifiers.TransactionPoolService,
     );
-    const transactions = await collator.getBlockCandidateTransactions();
-    const poolSize = await transactionPool.getPoolSize();
+    const transactions: Interfaces.ITransaction[] = await collator.getBlockCandidateTransactions();
 
-    return { poolSize, transactions: transactions.map(t => t.serialized.toString("hex")) };
+    return {
+        poolSize: transactionPool.getPoolSize(),
+        transactions: transactions.map(t => t.serialized.toString("hex")),
+    };
 };
 
 export const getCurrentRound = async ({

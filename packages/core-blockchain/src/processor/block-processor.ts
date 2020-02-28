@@ -35,9 +35,6 @@ export class BlockProcessor {
     @Container.inject(Container.Identifiers.TransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
 
-    @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly transactionPool!: Contracts.TransactionPool.Connection;
-
     public async process(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         if (Utils.isException(block.data.id)) {
             return this.app.resolve<ExceptionHandler>(ExceptionHandler).execute(block);
@@ -123,10 +120,6 @@ export class BlockProcessor {
             );
 
             if (forgedIds.length > 0) {
-                if (this.transactionPool) {
-                    this.transactionPool.removeTransactionsById(forgedIds);
-                }
-
                 this.logger.warning(
                     `Block ${block.data.height.toLocaleString()} disregarded, because it contains already forged transactions`,
                 );
