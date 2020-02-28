@@ -3,6 +3,10 @@ import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
 export const requestSchemas = {
     peer: {
+        getPeers: {
+            type: "object",
+            maxProperties: 0,
+        },
         getCommonBlocks: {
             type: "object",
             required: ["ids"],
@@ -16,10 +20,6 @@ export const requestSchemas = {
                     items: { blockId: {} },
                 },
             },
-        },
-        getPeers: {
-            type: "object",
-            maxProperties: 0,
         },
         getStatus: {
             type: "object",
@@ -41,7 +41,7 @@ export const requestSchemas = {
             required: ["block"],
             additionalProperties: false,
             properties: {
-                block: { $ref: "block" },
+                block: { instanceof: "Buffer" },
             },
         },
         postTransactions: {
@@ -222,7 +222,7 @@ export const replySchemas = {
                                     symbol: {
                                         type: "string",
                                         minLength: 1,
-                                        maxLength: 3,
+                                        maxLength: 4,
                                     },
                                 },
                             },

@@ -38,10 +38,22 @@ export const isForgerAuthorized = ({
 };
 
 export const getConfig = ({ app }: { app: Contracts.Kernel.Application }): Record<string, any> => {
-    const configuration = app.getTagged<Providers.PluginConfiguration>(
-        Container.Identifiers.PluginConfiguration,
-        "plugin",
-        "@arkecosystem/core-p2p",
-    );
-    return configuration.all();
+    const configuration = app
+        .getTagged<Providers.PluginConfiguration>(
+            Container.Identifiers.PluginConfiguration,
+            "plugin",
+            "@arkecosystem/core-p2p",
+        )
+        .all();
+
+    // add maxTransactionsPerRequest config from transaction pool
+    configuration.maxTransactionsPerRequest = app
+        .getTagged<Providers.PluginConfiguration>(
+            Container.Identifiers.PluginConfiguration,
+            "plugin",
+            "@arkecosystem/core-transaction-pool",
+        )
+        .getOptional<number>("maxTransactionsPerRequest", 40);
+
+    return configuration;
 };

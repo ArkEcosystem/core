@@ -133,3 +133,7 @@ export const syncBlockchain = ({ app }: { app: Contracts.Kernel.Application }): 
 
     app.get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService).forceWakeup();
 };
+
+export const getRateLimitedEndpoints = ({ service }: { service: PeerService }): string[] => {
+    return service.networkMonitor.getRateLimitedEndpoints();
+};
