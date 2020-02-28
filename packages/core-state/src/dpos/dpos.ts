@@ -34,7 +34,6 @@ export class DposState implements Contracts.State.DposState {
     }
 
     // Only called during integrity verification on boot.
-    // TODO: this only builts htlc locked balances - is this correct? If so, rename
     public buildVoteBalances(): void {
         for (const voter of this.walletRepository.allByPublicKey()) {
             if (voter.hasVoted()) {
@@ -44,12 +43,8 @@ export class DposState implements Contracts.State.DposState {
 
                 const voteBalance: Utils.BigNumber = delegate.getAttribute("delegate.voteBalance");
 
-                if (voter.hasAttribute("htlc.lockedBalance")) {
-                    delegate.setAttribute(
-                        "delegate.voteBalance",
-                        voteBalance.plus(voter.balance).plus(voter.getAttribute("htlc.lockedBalance")),
-                    );
-                }
+                const lockedBalance = voter.getAttribute("htlc.lockedBalance", Utils.BigNumber.ZERO);
+                delegate.setAttribute("delegate.voteBalance", voteBalance.plus(voter.balance).plus(lockedBalance));
             }
         }
     }
