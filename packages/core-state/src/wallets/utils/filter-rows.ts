@@ -9,7 +9,7 @@ import { getProperty } from "./get-property";
  * @param  {Object} filters
  * @return {Array}
  */
-export = <T = any>(
+export default <T = any>(
     rows: ReadonlyArray<T>,
     params: Contracts.Database.QueryParameters,
     filters: Record<string, string[]>,
