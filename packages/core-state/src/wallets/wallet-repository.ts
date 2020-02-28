@@ -141,12 +141,13 @@ export class WalletRepository implements Contracts.State.WalletRepository {
     public forgetByIndex(indexName: string, key: string): void {
         const forgottenWallet = this.getIndex(indexName).get(key);
         for (const index of Object.values(this.indexes)) {
-            index.entries().forEach(([name, wallet]) => {
+            for (const [name, wallet] of index.entries()) {
                 if (wallet.publicKey === forgottenWallet?.publicKey) {
                     index.forget(name);
                 }
-            });
+            }
         }
+        // TODO: check whether this line is still needed?
         this.getIndex(indexName).forget(key);
     }
 
