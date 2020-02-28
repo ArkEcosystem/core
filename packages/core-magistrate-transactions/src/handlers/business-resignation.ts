@@ -1,7 +1,7 @@
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
-import { Interfaces, Transactions } from "@arkecosystem/crypto";
+import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import { BridechainsAreNotResignedError, BusinessIsNotRegisteredError, BusinessIsResignedError } from "../errors";
 import { MagistrateApplicationEvents } from "../events";
 import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../interfaces";
@@ -40,6 +40,10 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         wallet: State.IWallet,
         walletManager: State.IWalletManager,
     ): Promise<void> {
+        if (Utils.isException(transaction.data)) {
+            return;
+        }
+
         if (!wallet.hasAttribute("business")) {
             throw new BusinessIsNotRegisteredError();
         }
