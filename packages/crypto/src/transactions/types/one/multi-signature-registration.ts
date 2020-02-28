@@ -16,7 +16,7 @@ export abstract class MultiSignatureRegistrationTransaction extends Transaction 
     protected static defaultStaticFee: BigNumber = BigNumber.make("500000000");
 
     public static getSchema(): schemas.TransactionSchema {
-        return schemas.multiSignature;
+        return schemas.multiSignatureLegacy;
     }
 
     public static staticFee(feeContext: { height?: number; data?: ITransactionData } = {}): BigNumber {

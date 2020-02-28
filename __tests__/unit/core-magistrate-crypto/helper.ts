@@ -66,6 +66,7 @@ export const bridgechainRegistrationAsset1: IBridgechainRegistrationAsset = {
     seedNodes: ["74.125.224.71", "74.125.224.72", "64.233.173.193", "2001:4860:4860::8888", "2001:4860:4860::8844"],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+    bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
     ports: { "@arkecosystem/core-api": 12345 },
 };
 
@@ -90,12 +91,21 @@ export const bridgechainRegistrationAssetBad: IBridgechainRegistrationAsset = {
     ],
     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
     bridgechainRepository: "arkecosystem1.com/repo",
+    bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
     ports: { "@arkecosystem/core-api": 12345 },
 };
 
-// Birdgechain update assets
+// Bridgechain update assets
 export const bridgechainUpdateAsset1: IBridgechainUpdateAsset = {
     bridgechainId: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
     seedNodes: ["1.1.1.1", "2.2.2.2"],
     ports: { "@arkecosystem/core-api": 12345 },
+    bridgechainRepository: "http://www.newrepository.com/neworg/newrepo",
+    bridgechainAssetRepository: "http://www.newrepository.com/neworg/newassetrepo",
+};
+
+export const bridgechainUpdateAsset2: IBridgechainUpdateAsset = {
+    bridgechainId: bridgechainRegistrationAsset2.genesisHash,
+    seedNodes: ["1.1.1.1", "2.2.2.2"],
+    bridgechainAssetRepository: "http://www.newrepository.com/neworg/newassetrepo",
 };

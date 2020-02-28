@@ -1,6 +1,6 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts, Container } from "@arkecosystem/core-kernel";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import { ApiHelpers } from "@packages/core-test-framework/src";
 

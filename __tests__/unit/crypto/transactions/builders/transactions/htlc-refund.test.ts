@@ -1,20 +1,18 @@
 import "jest-extended";
 
-import { configManager } from "@packages/crypto/src/managers";
+import { Generators } from "@packages/core-test-framework/src";
 import { TransactionType } from "@packages/crypto/src/enums";
+import { configManager } from "@packages/crypto/src/managers";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { HtlcRefundBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-refund";
 import { Two } from "@packages/crypto/src/transactions/types";
 import { BigNumber } from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework/src";
-
 let builder: HtlcRefundBuilder;
 
 beforeEach(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
+    configManager.setConfig(Generators.generateCryptoConfigRaw());
 
     builder = BuilderFactory.htlcRefund();
 });

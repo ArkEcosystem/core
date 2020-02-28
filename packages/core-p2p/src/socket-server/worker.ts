@@ -1,25 +1,55 @@
-import { Contracts } from "@arkecosystem/core-kernel";
 import Ajv from "ajv";
 import { cidr } from "ip";
 import SCWorker from "socketcluster/scworker";
 
+import { RateLimiter } from "../rate-limiter";
 import { requestSchemas } from "../schemas";
+import { buildRateLimiter } from "../utils";
+import { codec } from "../utils/sc-codec";
+import { validateTransactionLight } from "./utils/validate";
 
-const ajv = new Ajv();
+const MINUTE_IN_MILLISECONDS = 1000 * 60;
+const HOUR_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 60;
+
+const ajv = new Ajv({ extendRefs: true });
 
 export class Worker extends SCWorker {
     private config: Record<string, any> = {};
+    private handlers: string[] = [];
+    private ipLastError: Record<string, number> = {};
+    private rateLimiter: RateLimiter | undefined;
+    private rateLimitedEndpoints: any;
 
     public async run() {
         this.log(`Socket worker started, PID: ${process.pid}`);
 
+        this.scServer.setCodecEngine(codec);
+
+        await this.loadRateLimitedEndpoints();
         await this.loadConfiguration();
+
+        this.rateLimiter = buildRateLimiter({
+            rateLimit: this.config.rateLimit,
+            remoteAccess: this.config.remoteAccess,
+            whitelist: this.config.whitelist,
+        });
+
+        // purge ipLastError every hour to free up memory
+        setInterval(() => (this.ipLastError = {}), HOUR_IN_MILLISECONDS);
+
+        await this.loadHandlers();
 
         // @ts-ignore
         this.scServer.wsServer.on("connection", (ws, req) => {
+            const clients = [...Object.values(this.scServer.clients), ...Object.values(this.scServer.pendingClients)];
+            const existingSockets = clients.filter(
+                client =>
+                    client.remoteAddress === req.socket.remoteAddress && client.remotePort !== req.socket.remotePort,
+            );
+            for (const socket of existingSockets) {
+                socket.terminate();
+            }
             this.handlePayload(ws, req);
-            this.handlePing(ws, req);
-            this.handlePong(ws, req);
         });
         this.scServer.on("connection", socket => this.handleConnection(socket));
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_HANDSHAKE_WS, (req, next) =>
@@ -28,89 +58,196 @@ export class Worker extends SCWorker {
         this.scServer.addMiddleware(this.scServer.MIDDLEWARE_EMIT, (req, next) => this.handleEmit(req, next));
     }
 
+    private async loadHandlers(): Promise<void> {
+        const { data } = await this.sendToMasterAsync("p2p.utils.getHandlers");
+        for (const [version, handlers] of Object.entries(data)) {
+            for (const handler of Object.values(handlers as object)) {
+                this.handlers.push(`p2p.${version}.${handler}`);
+            }
+        }
+    }
+
     private async loadConfiguration(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getConfig");
         this.config = data;
     }
 
-    private handlePing(ws, req) {
-        ws.on("ping", () => {
-            ws.terminate();
-        });
+    private async loadRateLimitedEndpoints(): Promise<void> {
+        const { data } = await this.sendToMasterAsync("p2p.internal.getRateLimitedEndpoints", { data: {} });
+        this.rateLimitedEndpoints = (Array.isArray(data) ? data : []).reduce((object, value) => {
+            object[value] = true;
+            return object;
+        }, {});
     }
 
-    private handlePong(ws, req) {
-        ws.on("pong", () => {
-            ws.terminate();
-        });
+    private getRateLimitedEndpoints() {
+        return this.rateLimitedEndpoints;
     }
 
     private handlePayload(ws, req) {
-        ws.on("ping", () => {
-            ws.terminate();
+        ws.removeAllListeners("ping");
+        ws.removeAllListeners("pong");
+        ws.prependListener("ping", () => {
+            this.setErrorForIpAndTerminate(ws, req);
         });
-        ws.on("pong", () => {
-            ws.terminate();
+        ws.prependListener("pong", () => {
+            this.setErrorForIpAndTerminate(ws, req);
         });
-        ws.on("message", message => {
-            try {
-                if (message === "#2") {
-                    const timeNow: number = new Date().getTime() / 1000;
-                    if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
-                        ws.terminate();
-                    }
-                    ws._lastPingTime = timeNow;
-                } else {
+
+        ws.prependListener("error", error => {
+            if (error instanceof RangeError) {
+                this.setErrorForIpAndTerminate(ws, req);
+            }
+        });
+
+        const messageListeners = ws.listeners("message");
+        ws.removeAllListeners("message");
+        ws.prependListener("message", message => {
+            if (ws._disconnected) {
+                return this.setErrorForIpAndTerminate(ws, req);
+            } else if (message === "#2") {
+                const timeNow: number = new Date().getTime() / 1000;
+                if (ws._lastPingTime && timeNow - ws._lastPingTime < 1) {
+                    return this.setErrorForIpAndTerminate(ws, req);
+                }
+                ws._lastPingTime = timeNow;
+            } else if (message.length < 10) {
+                // except for #2 message, we should have JSON with some required properties
+                // (see below) which implies that message length should be longer than 10 chars
+                return this.setErrorForIpAndTerminate(ws, req);
+            } else {
+                try {
                     const parsed = JSON.parse(message);
-                    if (
+                    if (parsed.event === "#disconnect") {
+                        ws._disconnected = true;
+                    } else if (parsed.event === "#handshake") {
+                        if (ws._handshake) {
+                            return this.setErrorForIpAndTerminate(ws, req);
+                        }
+                        ws._handshake = true;
+                    } else if (
                         typeof parsed.event !== "string" ||
                         typeof parsed.data !== "object" ||
+                        this.hasAdditionalProperties(parsed) ||
                         (typeof parsed.cid !== "number" &&
                             parsed.event === "#disconnect" &&
-                            typeof parsed.cid !== "undefined")
+                            typeof parsed.cid !== "undefined") ||
+                        !this.handlers.includes(parsed.event)
                     ) {
-                        ws.terminate();
+                        return this.setErrorForIpAndTerminate(ws, req);
                     }
+                } catch (error) {
+                    return this.setErrorForIpAndTerminate(ws, req);
                 }
-            } catch (error) {
-                ws.terminate();
+            }
+
+            // we call the other listeners ourselves
+            for (const listener of messageListeners) {
+                listener(message);
             }
         });
     }
 
-    private async handleConnection(socket): Promise<void> {
-        const { data } = await this.sendToMasterAsync("p2p.utils.getHandlers");
-
-        for (const [version, handlers] of Object.entries(data)) {
-            // @ts-ignore
-            for (const handler of Object.values(handlers)) {
-                // @ts-ignore
-                socket.on(`p2p.${version}.${handler}`, async (data, res) => {
-                    try {
-                        return res(undefined, await this.sendToMasterAsync(`p2p.${version}.${handler}`, data));
-                    } catch (e) {
-                        return res(e);
-                    }
-                });
+    private hasAdditionalProperties(object): boolean {
+        if (Object.keys(object).filter(key => key !== "event" && key !== "data" && key !== "cid").length) {
+            return true;
+        }
+        const event = object.event.split(".");
+        if (object.event !== "#handshake" && object.event !== "#disconnect") {
+            if (event.length !== 3) {
+                return true;
             }
+            if (Object.keys(object.data).filter(key => key !== "data" && key !== "headers").length) {
+                return true;
+            }
+        }
+        if (object.data.data) {
+            // @ts-ignore
+            const [_, version, handler] = event;
+            const schema = requestSchemas[version][handler];
+            try {
+                if (object.event === "p2p.peer.postTransactions") {
+                    if (
+                        typeof object.data.data === "object" &&
+                        object.data.data.transactions &&
+                        Array.isArray(object.data.data.transactions) &&
+                        object.data.data.transactions.length <= this.config.maxTransactionsPerRequest
+                    ) {
+                        for (const transaction of object.data.data.transactions) {
+                            if (!validateTransactionLight(transaction)) {
+                                return true;
+                            }
+                        }
+                    } else {
+                        return true;
+                    }
+                } else if (schema && !ajv.validate(schema, object.data.data)) {
+                    return true;
+                }
+            } catch {
+                //
+            }
+        }
+        if (object.data.headers) {
+            if (
+                Object.keys(object.data.headers).filter(
+                    key => key !== "version" && key !== "port" && key !== "height" && key !== "Content-Type",
+                ).length
+            ) {
+                return true;
+            }
+            if (
+                (object.data.headers.version && typeof object.data.headers.version !== "string") ||
+                (object.data.headers.port && typeof object.data.headers.port !== "number") ||
+                (object.data.headers["Content-Type"] && typeof object.data.headers["Content-Type"] !== "string") ||
+                (object.data.headers.height && typeof object.data.headers.height !== "number")
+            ) {
+                // this prevents the nesting of other objects inside these properties
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private setErrorForIpAndTerminate(ws, req): void {
+        this.ipLastError[req.socket.remoteAddress] = Date.now();
+        ws.terminate();
+    }
+
+    private async handleConnection(socket): Promise<void> {
+        for (const handler of this.handlers) {
+            // @ts-ignore
+            socket.on(handler, async (data, res) => {
+                try {
+                    return res(undefined, await this.sendToMasterAsync(handler, data));
+                } catch (e) {
+                    return res(e);
+                }
+            });
         }
     }
 
     private async handleHandshake(req, next): Promise<void> {
+        const ip = req.socket.remoteAddress;
+        if (this.ipLastError[ip] && this.ipLastError[ip] > Date.now() - MINUTE_IN_MILLISECONDS) {
+            req.socket.destroy();
+            return;
+        }
+
         const { data }: { data: { blocked: boolean } } = await this.sendToMasterAsync(
             "p2p.internal.isBlockedByRateLimit",
             {
-                data: { ip: req.socket.remoteAddress },
+                data: { ip },
             },
         );
 
-        const isBlacklisted: boolean = (this.config.blacklist || []).includes(req.socket.remoteAddress);
+        const isBlacklisted: boolean = (this.config.blacklist || []).includes(ip);
         if (data.blocked || isBlacklisted) {
             req.socket.destroy();
             return;
         }
 
-        const cidrRemoteAddress = cidr(`${req.socket.remoteAddress}/24`);
+        const cidrRemoteAddress = cidr(`${ip}/24`);
         const sameSubnetSockets = Object.values({ ...this.scServer.clients, ...this.scServer.pendingClients }).filter(
             client => cidr(`${client.remoteAddress}/24`) === cidrRemoteAddress,
         );
@@ -127,20 +264,27 @@ export class Worker extends SCWorker {
             req.socket.terminate();
             return;
         }
-
-        const { data }: { data: Contracts.P2P.IRateLimitStatus } = await this.sendToMasterAsync(
-            "p2p.internal.getRateLimitStatus",
-            {
+        const rateLimitedEndpoints = this.getRateLimitedEndpoints();
+        const useLocalRateLimiter: boolean = !rateLimitedEndpoints[req.event];
+        if (useLocalRateLimiter) {
+            if (
+                this.rateLimiter &&
+                (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event))
+            ) {
+                req.socket.terminate();
+                return;
+            }
+        } else {
+            const { data } = await this.sendToMasterAsync("p2p.internal.getRateLimitStatus", {
                 data: {
                     ip: req.socket.remoteAddress,
                     endpoint: req.event,
                 },
-            },
-        );
-
-        if (data.exceededLimitOnEndpoint) {
-            req.socket.terminate();
-            return;
+            });
+            if (data.exceededLimitOnEndpoint) {
+                req.socket.terminate();
+                return;
+            }
         }
 
         // ensure basic format of incoming data, req.data must be as { data, headers }
@@ -176,19 +320,7 @@ export class Worker extends SCWorker {
                 }
             } else if (version === "peer") {
                 const requestSchema = requestSchemas.peer[handler];
-
-                if (["postTransactions", "postBlock"].includes(handler)) {
-                    // has to be in the peer list to use the endpoint
-                    const {
-                        data: { isPeerOrForger },
-                    } = await this.sendToMasterAsync("p2p.internal.isPeerOrForger", {
-                        data: { ip: req.socket.remoteAddress },
-                    });
-                    if (!isPeerOrForger) {
-                        req.socket.terminate();
-                        return;
-                    }
-                } else if (requestSchema && !ajv.validate(requestSchema, req.data.data)) {
+                if (handler !== "postTransactions" && requestSchema && !ajv.validate(requestSchema, req.data.data)) {
                     req.socket.terminate();
                     return;
                 }
