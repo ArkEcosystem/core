@@ -129,6 +129,24 @@ export abstract class TransactionHandler {
 
         assert(Utils.isException(transaction.data.id) || !newBalance.isNegative());
 
+        // negativeBalanceExceptions check is never executed, because performGenericWalletChecks already checks balance
+        // if (process.env.CORE_ENV === "test") {
+        //     assert(Utils.isException(transaction.data.id) || !newBalance.isNegative());
+        // } else {
+        //     if (newBalance.isNegative()) {
+        //         const negativeBalanceExceptions: Record<string, Record<string, string>> =
+        //             Managers.configManager.get("exceptions.negativeBalances") || {};
+        //
+        //         AppUtils.assert.defined<string>(sender.publicKey);
+        //
+        //         const negativeBalances: Record<string, string> = negativeBalanceExceptions[sender.publicKey] || {};
+        //
+        //         if (!newBalance.isEqualTo(negativeBalances[sender.nonce.toString()] || 0)) {
+        //             throw new InsufficientBalanceError();
+        //         }
+        //     }
+        // }
+
         sender.balance = newBalance;
     }
 
