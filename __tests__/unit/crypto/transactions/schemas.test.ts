@@ -89,10 +89,10 @@ describe("Transfer Transaction", () => {
             .fee(Utils.BigNumber.make(fee).toFixed());
 
         // Bypass vendorfield check by manually assigning a vendorfield > 64 bytes
-        transaction.vendorField("⊁".repeat(22));
+        transaction.data.vendorField = "⊁".repeat(22);
         transaction.sign("passphrase");
 
-        error = Ajv.validate(transactionSchema.$id, transaction.getStruct());
+        error = Ajv.validate(transactionSchema.$id, transaction.data);
         expect(error).not.toBeUndefined();
     });
 
@@ -539,7 +539,7 @@ describe("Multi Signature Registration Transaction", () => {
         multiSignatureAsset.min = 3;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-
+        
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
     });
@@ -764,12 +764,12 @@ describe("Multi Payment Transaction", () => {
 
     it("should be invalid with 0 or 1 payment", () => {
         multiPayment.sign("passphrase");
-        const { error: errorZeroPayment } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
+        const { error: errorZeroPayment } = Ajv.validate(transactionSchema.$id, multiPayment.data);
         expect(errorZeroPayment).not.toBeUndefined();
 
         multiPayment.addPayment(address, "100").sign("passphrase");
 
-        const { error: errorOnePayment } = Ajv.validate(transactionSchema.$id, multiPayment.getStruct());
+        const { error: errorOnePayment } = Ajv.validate(transactionSchema.$id, multiPayment.data);
         expect(errorOnePayment).not.toBeUndefined();
     });
 
@@ -945,9 +945,10 @@ describe("HTLC Lock Transaction", () => {
 describe("HTLC Claim Transaction", () => {
     const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
     const fee = "0";
+    const unlockSecret = "c27f1ce845d8c29eebc9006be932b604fd06755521b1a8b0be4204c65377151a"
     const htlcClaimAsset = {
         lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-        unlockSecret: "my secret that should be 32bytes",
+        unlockSecret,
     };
 
     beforeAll(() => {
@@ -972,7 +973,7 @@ describe("HTLC Claim Transaction", () => {
         transaction
             .htlcClaimAsset({
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb",
-                unlockSecret: "my secret that should be 32bytes",
+                unlockSecret,
             })
             .recipientId(address)
             .fee(fee)
@@ -986,7 +987,7 @@ describe("HTLC Claim Transaction", () => {
         transaction
             .htlcClaimAsset({
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2ebw",
-                unlockSecret: "my secret that should be 32bytes",
+                unlockSecret,
             })
             .recipientId(address)
             .fee(fee)
@@ -1000,7 +1001,7 @@ describe("HTLC Claim Transaction", () => {
         transaction
             .htlcClaimAsset({
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb",
-                unlockSecret: "my secret that should be 32bytes but is not",
+                unlockSecret: "c27f1ce845d8c291b1a8b0be4204c65377151a",
             })
             .recipientId(address)
             .fee(fee)
