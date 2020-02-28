@@ -1,13 +1,12 @@
-/* tslint:disable:no-shadowed-variable */
 import ByteBuffer from "bytebuffer";
-import Long from "long";
-import { Utils } from "..";
+
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import { TransactionVersionError } from "../errors";
 import { Address } from "../identities";
 import { ISerializeOptions } from "../interfaces";
 import { ITransaction, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
+import { isException } from "../utils";
 import { isSupportedTransactionVersion } from "../utils";
 import { TransactionTypeFactory } from "./types";
 
@@ -19,9 +18,9 @@ export class Serializer {
         if (options.acceptLegacyVersion || isSupportedTransactionVersion(version)) {
             if (version === 1) {
                 return this.getBytesV1(transaction, options);
-            } else {
-                return this.serialize(TransactionTypeFactory.create(transaction), options);
             }
+
+            return this.serialize(TransactionTypeFactory.create(transaction), options);
         } else {
             throw new TransactionVersionError(version);
         }
@@ -36,7 +35,13 @@ export class Serializer {
         this.serializeCommon(transaction.data, buffer);
         this.serializeVendorField(transaction, buffer);
 
-        const typeBuffer: ByteBuffer = transaction.serialize(options).flip();
+        const serialized: ByteBuffer | undefined = transaction.serialize(options);
+
+        if (!serialized) {
+            throw new Error();
+        }
+
+        const typeBuffer: ByteBuffer = serialized.flip();
         buffer.append(typeBuffer);
 
         this.serializeSignatures(transaction.data, buffer, options);
@@ -51,59 +56,64 @@ export class Serializer {
      * Serializes the given transaction prior to AIP11 (legacy).
      */
     private static getBytesV1(transaction: ITransactionData, options: ISerializeOptions = {}): Buffer {
-        let assetSize: number = 0;
-        let assetBytes: Buffer | Uint8Array;
+        let assetSize = 0;
+        let assetBytes: Buffer | Uint8Array | undefined;
 
-        switch (transaction.type) {
-            case TransactionType.SecondSignature: {
-                const { signature } = transaction.asset;
-                const bb = new ByteBuffer(33, true);
+        if (transaction.type === TransactionType.SecondSignature && transaction.asset) {
+            const { signature } = transaction.asset;
+            const bb = new ByteBuffer(33, true);
+
+            if (signature && signature.publicKey) {
                 const publicKeyBuffer = Buffer.from(signature.publicKey, "hex");
 
                 for (const byte of publicKeyBuffer) {
                     bb.writeByte(byte);
                 }
-
-                bb.flip();
-
-                assetBytes = new Uint8Array(bb.toArrayBuffer());
-                assetSize = assetBytes.length;
-                break;
             }
 
-            case TransactionType.DelegateRegistration: {
-                assetBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
-                assetSize = assetBytes.length;
-                break;
+            bb.flip();
+
+            assetBytes = new Uint8Array(bb.toArrayBuffer());
+            assetSize = assetBytes.length;
+        }
+
+        if (
+            transaction.type === TransactionType.DelegateRegistration &&
+            transaction.asset &&
+            transaction.asset.delegate
+        ) {
+            assetBytes = Buffer.from(transaction.asset.delegate.username, "utf8");
+            assetSize = assetBytes.length;
+        }
+
+        if (transaction.type === TransactionType.Vote && transaction.asset && transaction.asset.votes) {
+            assetBytes = Buffer.from(transaction.asset.votes.join(""), "utf8");
+            assetSize = assetBytes.length;
+        }
+
+        if (
+            transaction.type === TransactionType.MultiSignature &&
+            transaction.asset &&
+            transaction.asset.multiSignatureLegacy
+        ) {
+            const keysgroupBuffer: Buffer = Buffer.from(
+                transaction.asset.multiSignatureLegacy.keysgroup.join(""),
+                "utf8",
+            );
+            const bb: ByteBuffer = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
+
+            bb.writeByte(transaction.asset.multiSignatureLegacy.min);
+            bb.writeByte(transaction.asset.multiSignatureLegacy.lifetime);
+
+            for (const byte of keysgroupBuffer) {
+                bb.writeByte(byte);
             }
 
-            case TransactionType.Vote: {
-                if (transaction.asset.votes) {
-                    assetBytes = Buffer.from(transaction.asset.votes.join(""), "utf8");
-                    assetSize = assetBytes.length;
-                }
-                break;
-            }
+            bb.flip();
 
-            case TransactionType.MultiSignature: {
-                const keysgroupBuffer: Buffer = Buffer.from(
-                    transaction.asset.multiSignatureLegacy.keysgroup.join(""),
-                    "utf8",
-                );
-                const bb: ByteBuffer = new ByteBuffer(1 + 1 + keysgroupBuffer.length, true);
-
-                bb.writeByte(transaction.asset.multiSignatureLegacy.min);
-                bb.writeByte(transaction.asset.multiSignatureLegacy.lifetime);
-
-                for (const byte of keysgroupBuffer) {
-                    bb.writeByte(byte);
-                }
-
-                bb.flip();
-
-                assetBytes = bb.toBuffer();
+            assetBytes = bb.toBuffer();
+            if (assetBytes) {
                 assetSize = assetBytes.length;
-                break;
             }
         }
 
@@ -111,26 +121,30 @@ export class Serializer {
         bb.writeByte(transaction.type);
         bb.writeInt(transaction.timestamp);
 
-        const senderPublicKeyBuffer: Buffer = Buffer.from(transaction.senderPublicKey, "hex");
-        for (const byte of senderPublicKeyBuffer) {
-            bb.writeByte(byte);
-        }
+        if (transaction.senderPublicKey) {
+            const senderPublicKeyBuffer: Buffer = Buffer.from(transaction.senderPublicKey, "hex");
 
-        // Apply fix for broken type 1 and 4 transactions, which were
-        // erroneously calculated with a recipient id.
-        const { transactionIdFixTable } = configManager.get("exceptions");
-        const isBrokenTransaction: boolean =
-            transactionIdFixTable && Object.values(transactionIdFixTable).includes(transaction.id);
-        if (isBrokenTransaction || (transaction.recipientId && transaction.type !== 1 && transaction.type !== 4)) {
-            const recipientId =
-                transaction.recipientId || Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
-            const recipient = Address.toBuffer(recipientId).addressBuffer;
-            for (const byte of recipient) {
+            for (const byte of senderPublicKeyBuffer) {
                 bb.writeByte(byte);
             }
-        } else {
-            for (let i = 0; i < 21; i++) {
-                bb.writeByte(0);
+
+            // Apply fix for broken type 1 and 4 transactions, which were
+            // erroneously calculated with a recipient id.
+            const { transactionIdFixTable } = configManager.get("exceptions");
+            const isBrokenTransaction: boolean =
+                transactionIdFixTable && Object.values(transactionIdFixTable).includes(transaction.id);
+
+            if (isBrokenTransaction || (transaction.recipientId && transaction.type !== 1 && transaction.type !== 4)) {
+                const recipientId =
+                    transaction.recipientId || Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
+                const recipient = Address.toBuffer(recipientId).addressBuffer;
+                for (const byte of recipient) {
+                    bb.writeByte(byte);
+                }
+            } else {
+                for (let i = 0; i < 21; i++) {
+                    bb.writeByte(0);
+                }
             }
         }
 
@@ -149,10 +163,12 @@ export class Serializer {
             }
         }
 
-        bb.writeInt64(Long.fromString(transaction.amount.toString()));
-        bb.writeInt64(Long.fromString(transaction.fee.toString()));
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        bb.writeInt64(transaction.amount.toString());
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        bb.writeInt64(transaction.fee.toString());
 
-        if (assetSize > 0) {
+        if (assetSize > 0 && assetBytes) {
             for (let i = 0; i < assetSize; i++) {
                 bb.writeByte(assetBytes[i]);
             }
@@ -199,11 +215,19 @@ export class Serializer {
         } else {
             buffer.writeUint32(transaction.typeGroup);
             buffer.writeUint16(transaction.type);
-            buffer.writeUint64(Long.fromString(transaction.nonce.toString()));
+
+            if (transaction.nonce) {
+                // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+                buffer.writeUint64(transaction.nonce.toString());
+            }
         }
 
-        buffer.append(transaction.senderPublicKey, "hex");
-        buffer.writeUint64(Long.fromString(transaction.fee.toString()));
+        if (transaction.senderPublicKey) {
+            buffer.append(transaction.senderPublicKey, "hex");
+        }
+
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(transaction.fee.toString());
     }
 
     private static serializeVendorField(transaction: ITransaction, buffer: ByteBuffer): void {
@@ -231,14 +255,14 @@ export class Serializer {
             buffer.append(transaction.signature, "hex");
         }
 
-        const secondSignature: string = transaction.secondSignature || transaction.signSignature;
+        const secondSignature: string | undefined = transaction.secondSignature || transaction.signSignature;
 
         if (secondSignature && !options.excludeSecondSignature) {
             buffer.append(secondSignature, "hex");
         }
 
         if (transaction.signatures) {
-            if (transaction.version === 1 && Utils.isException(transaction)) {
+            if (transaction.version === 1 && isException(transaction.id)) {
                 buffer.append("ff", "hex"); // 0xff separator to signal start of multi-signature transactions
                 buffer.append(transaction.signatures.join(""), "hex");
             } else if (!options.excludeMultiSignature) {

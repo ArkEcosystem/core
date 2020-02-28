@@ -1,12 +1,8 @@
-// tslint:disable:max-classes-per-file
-
-import { app } from "@arkecosystem/core-container";
-import { Shared, State } from "@arkecosystem/core-interfaces";
-import { roundCalculator } from "@arkecosystem/core-utils";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
-import { Blockchain } from "../../blockchain";
+
 import { BlockProcessorResult } from "../block-processor";
-import { BlockHandler } from "./block-handler";
+import { BlockHandler } from "../contracts";
 
 enum UnchainedBlockStatus {
     NotReadyToAcceptNewHeight,
@@ -19,17 +15,20 @@ enum UnchainedBlockStatus {
 }
 
 class BlockNotReadyCounter {
-    public static maxAttempts: number = 5;
+    public static maxAttempts = 5;
 
-    private id: string = "";
-    private attempts: number = 0;
+    private id = "";
+    private attempts = 0;
 
     public increment(block: Interfaces.IBlock): boolean {
         const { id } = block.data;
-        let attemptsLeft: boolean = false;
+        let attemptsLeft = false;
 
         if (this.id !== id) {
             this.reset();
+
+            Utils.assert.defined<string>(id);
+
             this.id = id;
         }
 
@@ -50,30 +49,44 @@ class BlockNotReadyCounter {
     }
 }
 
-export class UnchainedHandler extends BlockHandler {
+// todo: remove the abstract and instead require a contract to be implemented
+@Container.injectable()
+export class UnchainedHandler implements BlockHandler {
     public static notReadyCounter = new BlockNotReadyCounter();
 
-    public constructor(
-        protected readonly blockchain: Blockchain,
-        protected readonly block: Interfaces.IBlock,
-        private isValidGenerator: boolean,
-    ) {
-        super(blockchain, block);
+    @Container.inject(Container.Identifiers.BlockchainService)
+    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    private isValidGenerator: boolean = false;
+
+    // todo: remove the need for this method
+    public initialize(isValidGenerator: boolean): this {
+        this.isValidGenerator = isValidGenerator;
+
+        return this;
     }
 
-    public async execute(): Promise<BlockProcessorResult> {
-        super.execute();
+    public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
+        this.blockchain.resetLastDownloadedBlock();
 
         this.blockchain.clearQueue();
 
-        const status: UnchainedBlockStatus = this.checkUnchainedBlock();
+        const status: UnchainedBlockStatus = this.checkUnchainedBlock(block);
 
         switch (status) {
             case UnchainedBlockStatus.DoubleForging: {
-                const roundInfo: Shared.IRoundInfo = roundCalculator.calculateRound(this.block.data.height);
-                const delegates: State.IWallet[] = await app.resolvePlugin("database").getActiveDelegates(roundInfo);
+                const roundInfo: Contracts.Shared.RoundInfo = Utils.roundCalculator.calculateRound(block.data.height);
+                const delegates: Contracts.State.Wallet[] = await this.app
+                    .get<any>(Container.Identifiers.DatabaseService)
+                    .getActiveDelegates(roundInfo);
 
-                if (delegates.some(delegate => delegate.publicKey === this.block.data.generatorPublicKey)) {
+                if (delegates.some(delegate => delegate.publicKey === block.data.generatorPublicKey)) {
                     return BlockProcessorResult.Rollback;
                 }
 
@@ -81,7 +94,9 @@ export class UnchainedHandler extends BlockHandler {
             }
 
             case UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts: {
-                this.blockchain.state.numberOfBlocksToRollback = 5000; // TODO: find a better heuristic based on peer information
+                this.app.get<Contracts.State.StateStore>(
+                    Container.Identifiers.StateStore,
+                ).numberOfBlocksToRollback = 5000; // TODO: find a better heuristic based on peer information
                 return BlockProcessorResult.Rollback;
             }
 
@@ -96,12 +111,13 @@ export class UnchainedHandler extends BlockHandler {
         }
     }
 
-    private checkUnchainedBlock(): UnchainedBlockStatus {
+    private checkUnchainedBlock(block: Interfaces.IBlock): UnchainedBlockStatus {
         const lastBlock: Interfaces.IBlock = this.blockchain.getLastBlock();
 
-        if (this.block.data.height > lastBlock.data.height + 1) {
+        // todo: clean up this if-else-if-else-if-else mess
+        if (block.data.height > lastBlock.data.height + 1) {
             this.logger.debug(
-                `Blockchain not ready to accept new block at height ${this.block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()}`,
+                `Blockchain not ready to accept new block at height ${block.data.height.toLocaleString()}. Last block: ${lastBlock.data.height.toLocaleString()}`,
             );
 
             // Also remove all remaining queued blocks. Since blocks are downloaded in batches,
@@ -114,40 +130,38 @@ export class UnchainedHandler extends BlockHandler {
 
             // If we consecutively fail to accept the same block, our chain is likely forked. In this
             // case `increment` returns false.
-            if (UnchainedHandler.notReadyCounter.increment(this.block)) {
+            if (UnchainedHandler.notReadyCounter.increment(block)) {
                 return UnchainedBlockStatus.NotReadyToAcceptNewHeight;
             }
 
             this.logger.debug(
-                `Blockchain is still not ready to accept block at height ${this.block.data.height.toLocaleString()} after ${
+                `Blockchain is still not ready to accept block at height ${block.data.height.toLocaleString()} after ${
                     BlockNotReadyCounter.maxAttempts
                 } tries. Going to rollback. :warning:`,
             );
 
             return UnchainedBlockStatus.ExceededNotReadyToAcceptNewHeightMaxAttempts;
-        } else if (this.block.data.height < lastBlock.data.height) {
-            this.logger.debug(
-                `Block ${this.block.data.height.toLocaleString()} disregarded because already in blockchain`,
-            );
+        } else if (block.data.height < lastBlock.data.height) {
+            this.logger.debug(`Block ${block.data.height.toLocaleString()} disregarded because already in blockchain`);
 
             return UnchainedBlockStatus.AlreadyInBlockchain;
-        } else if (this.block.data.height === lastBlock.data.height && this.block.data.id === lastBlock.data.id) {
-            this.logger.debug(`Block ${this.block.data.height.toLocaleString()} just received`);
+        } else if (block.data.height === lastBlock.data.height && block.data.id === lastBlock.data.id) {
+            this.logger.debug(`Block ${block.data.height.toLocaleString()} just received`);
 
             return UnchainedBlockStatus.EqualToLastBlock;
-        } else if (this.block.data.timestamp < lastBlock.data.timestamp) {
+        } else if (block.data.timestamp < lastBlock.data.timestamp) {
             this.logger.debug(
-                `Block ${this.block.data.height.toLocaleString()} disregarded, because the timestamp is lower than the previous timestamp.`,
+                `Block ${block.data.height.toLocaleString()} disregarded, because the timestamp is lower than the previous timestamp.`,
             );
             return UnchainedBlockStatus.InvalidTimestamp;
         } else {
             if (this.isValidGenerator) {
-                this.logger.warn(`Detect double forging by ${this.block.data.generatorPublicKey}`);
+                this.logger.warning(`Detect double forging by ${block.data.generatorPublicKey}`);
                 return UnchainedBlockStatus.DoubleForging;
             }
 
             this.logger.info(
-                `Forked block disregarded because it is not allowed to be forged. Caused by delegate: ${this.block.data.generatorPublicKey}`,
+                `Forked block disregarded because it is not allowed to be forged. Caused by delegate: ${block.data.generatorPublicKey}`,
             );
 
             return UnchainedBlockStatus.GeneratorMismatch;

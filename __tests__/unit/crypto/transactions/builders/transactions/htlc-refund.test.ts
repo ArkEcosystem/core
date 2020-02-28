@@ -1,24 +1,26 @@
 import "jest-extended";
 
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
-import { HtlcRefundBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-refund";
-import { HtlcRefundTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-refund";
-import { BigNumber } from "../../../../../../packages/crypto/src/utils";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { Generators } from "@packages/core-test-framework/src";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { HtlcRefundBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-refund";
+import { Two } from "@packages/crypto/src/transactions/types";
+import { BigNumber } from "@packages/crypto/src/utils";
 
 let builder: HtlcRefundBuilder;
 
 beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    configManager.setConfig(Generators.generateCryptoConfigRaw());
+
     builder = BuilderFactory.htlcRefund();
 });
 
 describe("Htlc refund Transaction", () => {
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.HtlcRefund);
-        expect(builder).toHaveProperty("data.fee", HtlcRefundTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.HtlcRefundTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", BigNumber.make(0));
         expect(builder).toHaveProperty("data.asset", {});
     });

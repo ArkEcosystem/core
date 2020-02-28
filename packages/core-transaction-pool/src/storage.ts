@@ -1,99 +1,58 @@
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
-import { strictEqual } from "assert";
 import BetterSqlite3 from "better-sqlite3";
 import { ensureFileSync } from "fs-extra";
 
-export class Storage {
-    private readonly table: string = "pool";
-    private database: BetterSqlite3.Database;
+@Container.injectable()
+export class Storage implements Contracts.TransactionPool.Storage {
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-transaction-pool")
+    private readonly configuration!: Providers.PluginConfiguration;
 
-    public connect(file: string) {
-        ensureFileSync(file);
+    private database!: BetterSqlite3.Database;
 
-        this.database = new BetterSqlite3(file);
+    public boot(): void {
+        const filename = this.configuration.getRequired<string>("storage");
+        ensureFileSync(filename);
 
+        this.database = new BetterSqlite3(filename);
         this.database.exec(`
-      PRAGMA journal_mode=WAL;
-      CREATE TABLE IF NOT EXISTS ${this.table} (
-        "id" VARCHAR(64) PRIMARY KEY,
-        "serialized" BLOB NOT NULL
-      );
-    `);
+            PRAGMA journal_mode = WAL;
+            CREATE TABLE IF NOT EXISTS pool (id VARCHAR(64) PRIMARY KEY, serialized BLOB NOT NULL);
+        `);
     }
 
-    public disconnect(): void {
+    public dispose(): void {
         this.database.close();
-        this.database = undefined;
     }
 
-    public bulkAdd(data: Interfaces.ITransaction[]): void {
-        if (data.length === 0) {
-            return;
-        }
-
-        const insertStatement: BetterSqlite3.Statement = this.database.prepare(
-            `INSERT INTO ${this.table} ` + "(id, serialized) VALUES " + "(:id, :serialized);",
-        );
-
-        try {
-            this.database.prepare("BEGIN;").run();
-
-            for (const transaction of data) {
-                insertStatement.run({ id: transaction.id, serialized: transaction.serialized });
-            }
-
-            this.database.prepare("COMMIT;").run();
-        } finally {
-            if (this.database.inTransaction) {
-                this.database.prepare("ROLLBACK;").run();
-            }
-        }
+    public hasTransaction(id: string): boolean {
+        return this.database
+            .prepare("SELECT COUNT(*) FROM pool WHERE id = ?")
+            .pluck(true)
+            .get(id) as boolean;
     }
 
-    public bulkRemoveById(ids: string[]): void {
-        if (ids.length === 0) {
-            return;
-        }
-
-        const deleteStatement: BetterSqlite3.Statement = this.database.prepare(
-            `DELETE FROM ${this.table} WHERE id = :id;`,
-        );
-
-        this.database.prepare("BEGIN;").run();
-
-        for (const id of ids) {
-            deleteStatement.run({ id });
-        }
-
-        this.database.prepare("COMMIT;").run();
+    public getAllTransactions(): Interfaces.ITransaction[] {
+        return this.database
+            .prepare("SELECT LOWER(HEX(serialized)) FROM pool")
+            .pluck(true)
+            .all()
+            .map(Transactions.TransactionFactory.fromHex);
     }
 
-    public loadAll(): Interfaces.ITransaction[] {
-        const rows: Array<{ id: string; serialized: string }> = this.database
-            .prepare(`SELECT id, LOWER(HEX(serialized)) AS serialized FROM ${this.table};`)
-            .all();
-
-        const transactions: Interfaces.ITransaction[] = [];
-
-        const invalidIds: string[] = [];
-        for (const row of rows) {
-            try {
-                const transaction: Interfaces.ITransaction = Transactions.TransactionFactory.fromHex(row.serialized);
-
-                strictEqual(row.id, transaction.id);
-
-                transaction.isVerified ? transactions.push(transaction) : invalidIds.push(row.id);
-            } catch {
-                invalidIds.push(row.id);
-            }
-        }
-
-        this.bulkRemoveById(invalidIds);
-
-        return transactions;
+    public addTransaction(transaction: Interfaces.ITransaction): void {
+        this.database.prepare("INSERT INTO pool (id, serialized) VALUES (:id, :serialized)").run({
+            id: transaction.id,
+            serialized: transaction.serialized,
+        });
     }
 
-    public deleteAll(): void {
-        this.database.exec(`DELETE FROM ${this.table};`);
+    public removeTransaction(id: string): void {
+        this.database.prepare("DELETE FROM pool WHERE id = ?").run(id);
+    }
+
+    public flush(): void {
+        this.database.prepare("DELETE FROM pool").run();
     }
 }

@@ -1,7 +1,5 @@
-// tslint:disable:max-classes-per-file
-
 export class P2PError extends Error {
-    constructor(message: string) {
+    public constructor(message: string) {
         super(message);
 
         Object.defineProperty(this, "message", {
@@ -19,25 +17,25 @@ export class P2PError extends Error {
 }
 
 export class PeerStatusResponseError extends P2PError {
-    constructor(ip: string) {
+    public constructor(ip: string) {
         super(`Failed to retrieve status from peer ${ip}.`);
     }
 }
 
 export class PeerPingTimeoutError extends P2PError {
-    constructor(latency: number) {
+    public constructor(latency: number) {
         super(`Ping timeout (${latency} ms)`);
     }
 }
 
 export class PeerVerificationFailedError extends P2PError {
-    constructor() {
+    public constructor() {
         super("Peer verification failed.");
     }
 }
 
 export class MissingCommonBlockError extends P2PError {
-    constructor() {
+    public constructor() {
         super("Couldn't find any common blocks.");
     }
 }

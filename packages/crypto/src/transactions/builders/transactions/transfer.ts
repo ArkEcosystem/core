@@ -1,15 +1,15 @@
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { TransferTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class TransferBuilder extends TransactionBuilder<TransferBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
-        this.data.type = TransferTransaction.type;
-        this.data.typeGroup = TransferTransaction.typeGroup;
-        this.data.fee = TransferTransaction.staticFee();
+        this.data.type = Two.TransferTransaction.type;
+        this.data.typeGroup = Two.TransferTransaction.typeGroup;
+        this.data.fee = Two.TransferTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;
         this.data.senderPublicKey = undefined;

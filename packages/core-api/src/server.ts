@@ -1,137 +1,169 @@
-import { app } from "@arkecosystem/core-container";
-import { createServer, mountServer, plugins } from "@arkecosystem/core-http-utils";
-import { Logger } from "@arkecosystem/core-interfaces";
-import Hapi from "@hapi/hapi";
-import { get } from "dottie";
+import { Container, Contracts, Providers, Types } from "@arkecosystem/core-kernel";
+import { badData } from "@hapi/boom";
+import { Server as HapiServer, ServerInjectOptions, ServerInjectResponse, ServerRoute } from "@hapi/hapi";
+import { readFileSync } from "fs";
 
+import { createSchemas } from "./schemas";
+
+// todo: review the implementation
+@Container.injectable()
 export class Server {
-    private logger = app.resolvePlugin<Logger.ILogger>("logger");
+    /**
+     * @private
+     * @type {Contracts.Kernel.Application}
+     * @memberof Server
+     */
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
 
-    private http: any;
-    private https: any;
+    /**
+     * @private
+     * @type {Providers.PluginConfiguration}
+     * @memberof Server
+     */
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-api")
+    private readonly configuration!: Providers.PluginConfiguration;
 
-    public constructor(private config: any) {}
+    /**
+     * @private
+     * @type {HapiServer}
+     * @memberof Server
+     */
+    private server: HapiServer;
 
-    public async start(): Promise<void> {
-        const options = {
-            host: this.config.host,
-            port: this.config.port,
-        };
+    /**
+     * @private
+     * @type {string}
+     * @memberof Server
+     */
+    private name!: string;
 
-        if (this.config.enabled) {
-            this.http = await createServer(options);
-            this.http.app.config = this.config;
-
-            this.registerPlugins("HTTP", this.http);
-        }
-
-        if (this.config.ssl.enabled) {
-            this.https = await createServer({
-                ...options,
-                ...{ host: this.config.ssl.host, port: this.config.ssl.port },
-                ...{ tls: { key: this.config.ssl.key, cert: this.config.ssl.cert } },
-            });
-            this.https.app.config = this.config;
-
-            this.registerPlugins("HTTPS", this.https);
-        }
-    }
-
-    public async stop(): Promise<void> {
-        if (this.http) {
-            this.logger.info(`Stopping Public HTTP API`);
-            await this.http.stop();
-        }
-
-        if (this.https) {
-            this.logger.info(`Stopping Public HTTPS API`);
-            await this.https.stop();
-        }
-    }
-
-    public async restart(): Promise<void> {
-        if (this.http) {
-            await this.http.stop();
-            await this.http.start();
-        }
-
-        if (this.https) {
-            await this.https.stop();
-            await this.https.start();
-        }
-    }
-
-    public instance(type: string): Hapi.Server {
-        return this[type];
-    }
-
-    private async registerPlugins(name: string, server: Hapi.Server): Promise<void> {
-        await server.register({ plugin: plugins.contentType });
-
-        await server.register({
-            plugin: plugins.corsHeaders,
-        });
-
-        await server.register({
-            plugin: plugins.whitelist,
-            options: {
-                whitelist: this.config.whitelist,
+    /**
+     * @param {string} name
+     * @param {Types.JsonObject} optionsServer
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async initialize(name: string, optionsServer: Types.JsonObject): Promise<void> {
+        this.name = name;
+        this.server = new HapiServer(this.getServerOptions(optionsServer));
+        this.server.app.app = this.app;
+        this.server.app.schemas = createSchemas({
+            pagination: {
+                limit: this.configuration.getRequired<number>("plugins.pagination.limit"),
             },
         });
 
-        await server.register({
-            plugin: require("./plugins/set-headers"),
-        });
+        this.server.ext({
+            type: "onPreHandler",
+            async method(request, h) {
+                request.headers["content-type"] = "application/json";
 
-        await server.register(plugins.hapiAjv);
-
-        await server.register({
-            plugin: require("hapi-rate-limit"),
-            options: this.config.rateLimit,
-        });
-
-        await server.register({
-            plugin: require("./plugins/pagination"),
-            options: {
-                query: {
-                    limit: {
-                        default: get(this.config, "pagination.limit", 100),
-                    },
-                },
+                return h.continue;
             },
         });
 
-        await server.register({
-            plugin: require("./handlers"),
-            routes: { prefix: "/api" },
-        });
-
-        for (const plugin of this.config.plugins) {
-            if (typeof plugin.plugin === "string") {
-                plugin.plugin = require(plugin.plugin);
-            }
-
-            await server.register(plugin);
-        }
-
-        server.route({
+        this.server.route({
             method: "GET",
             path: "/",
             handler() {
                 return { data: "Hello World!" };
             },
         });
+    }
 
-        // @TODO: remove this with the release of 3.0 - adds support for /api and /api/v2
-        server.ext("onRequest", (request: Hapi.Request, h: Hapi.ResponseToolkit) => {
-            if (request.url) {
-                const path: string = request.url.pathname.replace("/v2", "");
-                request.setUrl(request.url.search ? `${path}${request.url.search}` : path);
-            }
+    /**
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async boot(): Promise<void> {
+        try {
+            await this.server.start();
 
-            return h.continue;
-        });
+            this.app.log.info(`${this.name} Server started at ${this.server.info.uri}`);
+        } catch {
+            await this.app.terminate(`Failed to start ${this.name} Server!`);
+        }
+    }
 
-        await mountServer(`Public ${name.toUpperCase()} API`, server);
+    /**
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async dispose(): Promise<void> {
+        try {
+            await this.server.stop();
+
+            this.app.log.info(`${this.name} Server stopped at ${this.server.info.uri}`);
+        } catch {
+            await this.app.terminate(`Failed to stop ${this.name} Server!`);
+        }
+    }
+
+    /**
+     * @param {(any|any[])} plugins
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    // @todo: add proper types
+    public async register(plugins: any | any[]): Promise<void> {
+        return this.server.register(plugins);
+    }
+
+    /**
+     * @param {(ServerRoute | ServerRoute[])} routes
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async route(routes: ServerRoute | ServerRoute[]): Promise<void> {
+        return this.server.route(routes);
+    }
+
+    /**
+     * @param {(string | ServerInjectOptions)} options
+     * @returns {Promise<void>}
+     * @memberof Server
+     */
+    public async inject(options: string | ServerInjectOptions): Promise<ServerInjectResponse> {
+        return this.server.inject(options);
+    }
+
+    /**
+     * @private
+     * @param {Record<string, any>} options
+     * @returns {object}
+     * @memberof Server
+     */
+    private getServerOptions(options: Record<string, any>): object {
+        options = { ...options };
+
+        delete options.enabled;
+
+        if (options.tls) {
+            options.tls.key = readFileSync(options.tls.key).toString();
+            options.tls.cert = readFileSync(options.tls.cert).toString();
+        }
+
+        return {
+            ...{
+                router: {
+                    stripTrailingSlash: true,
+                },
+                routes: {
+                    payload: {
+                        async failAction(request, h, err) {
+                            return badData(err.message);
+                        },
+                    },
+                    validate: {
+                        async failAction(request, h, err) {
+                            return badData(err.message);
+                        },
+                    },
+                },
+            },
+            ...options,
+        };
     }
 }

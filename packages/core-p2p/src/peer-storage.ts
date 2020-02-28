@@ -1,60 +1,69 @@
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { cidr } from "ip";
-import { PeerRepository } from "./peer-repository";
 
-export class PeerStorage implements P2P.IPeerStorage {
-    private readonly peers: PeerRepository<P2P.IPeer> = new PeerRepository<P2P.IPeer>();
-    private readonly peersPending: PeerRepository<P2P.IPeer> = new PeerRepository<P2P.IPeer>();
+// todo: review the implementation
+@Container.injectable()
+export class PeerStorage implements Contracts.P2P.PeerStorage {
+    private readonly peers: Map<string, Contracts.P2P.Peer> = new Map<string, Contracts.P2P.Peer>();
+    private readonly peersPending: Map<string, Contracts.P2P.Peer> = new Map<string, Contracts.P2P.Peer>();
 
-    public getPeers(): P2P.IPeer[] {
-        return this.peers.values();
+    public getPeers(): Contracts.P2P.Peer[] {
+        return [...this.peers.values()];
     }
 
     public hasPeers(): boolean {
-        return this.peers.isNotEmpty();
+        return this.peers.size !== 0;
     }
 
-    public getPeer(ip: string): P2P.IPeer {
-        return this.peers.get(ip);
+    public getPeer(ip: string): Contracts.P2P.Peer {
+        const peer: Contracts.P2P.Peer | undefined = this.peers.get(ip);
+
+        Utils.assert.defined<Contracts.P2P.Peer>(peer);
+
+        return peer;
     }
 
-    public setPeer(peer: P2P.IPeer): void {
+    public setPeer(peer: Contracts.P2P.Peer): void {
         this.peers.set(peer.ip, peer);
     }
 
-    public forgetPeer(peer: P2P.IPeer): void {
-        this.peers.forget(peer.ip);
+    public forgetPeer(peer: Contracts.P2P.Peer): void {
+        this.peers.delete(peer.ip);
     }
 
     public hasPeer(ip: string): boolean {
         return this.peers.has(ip);
     }
 
-    public getPendingPeers(): P2P.IPeer[] {
-        return this.peersPending.values();
+    public getPendingPeers(): Contracts.P2P.Peer[] {
+        return [...this.peersPending.values()];
     }
 
     public hasPendingPeers(): boolean {
-        return this.peersPending.isNotEmpty();
+        return this.peersPending.size !== 0;
     }
 
-    public getPendingPeer(ip: string): P2P.IPeer {
-        return this.peersPending.get(ip);
+    public getPendingPeer(ip: string): Contracts.P2P.Peer {
+        const peer: Contracts.P2P.Peer | undefined = this.peersPending.get(ip);
+
+        Utils.assert.defined<Contracts.P2P.Peer>(peer);
+
+        return peer;
     }
 
-    public setPendingPeer(peer: P2P.IPeer): void {
+    public setPendingPeer(peer: Contracts.P2P.Peer): void {
         this.peersPending.set(peer.ip, peer);
     }
 
-    public forgetPendingPeer(peer: P2P.IPeer): void {
-        this.peersPending.forget(peer.ip);
+    public forgetPendingPeer(peer: Contracts.P2P.Peer): void {
+        this.peersPending.delete(peer.ip);
     }
 
     public hasPendingPeer(ip: string): boolean {
         return this.peersPending.has(ip);
     }
 
-    public getSameSubnetPeers(ip: string): P2P.IPeer[] {
+    public getSameSubnetPeers(ip: string): Contracts.P2P.Peer[] {
         return this.getPeers().filter(peer => cidr(`${peer.ip}/24`) === cidr(`${ip}/24`));
     }
 }

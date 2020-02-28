@@ -1,37 +1,59 @@
-import { app } from "@arkecosystem/core-container";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
+
 import { isWhitelisted } from "../../utils/is-whitelisted";
 import * as internalHandlers from "./internal";
 import * as peerHandlers from "./peer";
 
-export const isAppReady = (): { ready: boolean } => {
+export const isAppReady = ({ app }: { app: Contracts.Kernel.Application }): { ready: boolean } => {
     return {
         ready:
-            !!app.resolvePlugin("transaction-pool") && !!app.resolvePlugin("blockchain") && !!app.resolvePlugin("p2p"),
+            app.isBound(Container.Identifiers.TransactionPoolService) &&
+            app.isBound(Container.Identifiers.BlockchainService) &&
+            app.isBound(Container.Identifiers.PeerNetworkMonitor),
     };
 };
 
-export const getHandlers = (): { [key: string]: string[] } => {
-    return {
-        peer: Object.keys(peerHandlers),
-        internal: Object.keys(internalHandlers),
-    };
+export const getHandlers = (): { [key: string]: string[] } => ({
+    peer: Object.keys(peerHandlers),
+    internal: Object.keys(internalHandlers),
+});
+
+export const log = ({ app, req }: { app: Contracts.Kernel.Application; req: any }): void =>
+    app.log[req.data.level](req.data.message);
+
+export const isForgerAuthorized = ({
+    app,
+    req,
+}: {
+    app: Contracts.Kernel.Application;
+    req: any;
+}): { authorized: boolean } => {
+    const configuration = app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-p2p",
+    );
+    const authorized = isWhitelisted(configuration.getOptional<string[]>("remoteAccess", []), req.data.ip);
+    return { authorized };
 };
 
-export const log = ({ req }): void => {
-    app.resolvePlugin("logger")[req.data.level](req.data.message);
-};
-
-export const isForgerAuthorized = ({ req }): { authorized: boolean } => {
-    return { authorized: isWhitelisted(app.resolveOptions("p2p").remoteAccess, req.data.ip) };
-};
-
-export const getConfig = (): Record<string, any> => {
-    const config = app.resolveOptions("p2p");
+export const getConfig = ({ app }: { app: Contracts.Kernel.Application }): Record<string, any> => {
+    const configuration = app
+        .getTagged<Providers.PluginConfiguration>(
+            Container.Identifiers.PluginConfiguration,
+            "plugin",
+            "@arkecosystem/core-p2p",
+        )
+        .all();
 
     // add maxTransactionsPerRequest config from transaction pool
-    config.maxTransactionsPerRequest = app.has("transaction-pool")
-        ? app.resolveOptions("transaction-pool").maxTransactionsPerRequest || 40
-        : 40;
+    configuration.maxTransactionsPerRequest = app
+        .getTagged<Providers.PluginConfiguration>(
+            Container.Identifiers.PluginConfiguration,
+            "plugin",
+            "@arkecosystem/core-transaction-pool",
+        )
+        .getOptional<number>("maxTransactionsPerRequest", 40);
 
-    return config;
+    return configuration;
 };

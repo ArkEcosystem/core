@@ -1,27 +1,29 @@
 import "jest-extended";
 
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import {
-    MaximumPaymentCountExceededError,
-    MinimumPaymentCountSubceededError,
-} from "../../../../../../packages/crypto/src/errors";
-import { BuilderFactory, MultiPaymentTransaction } from "../../../../../../packages/crypto/src/transactions";
-import { MultiPaymentBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-payment";
-import { BigNumber } from "../../../../../../packages/crypto/src/utils";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { MaximumPaymentCountExceededError } from "@packages/crypto/src/errors";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { MultiPaymentBuilder } from "@packages/crypto/src/transactions/builders/transactions/multi-payment";
+import { Two } from "@packages/crypto/src/transactions/types";
+import { BigNumber } from "@packages/crypto/src/utils";
+
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: MultiPaymentBuilder;
 
 beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = Generators.generateCryptoConfigRaw();
+    configManager.setConfig(config);
+
     builder = BuilderFactory.multiPayment();
 });
 
 describe("Multi Payment Transaction", () => {
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.MultiPayment);
-        expect(builder).toHaveProperty("data.fee", MultiPaymentTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.MultiPaymentTransaction.staticFee());
         expect(builder).toHaveProperty("data.asset.payments", []);
         expect(builder).toHaveProperty("data.vendorField", undefined);
     });
@@ -60,20 +62,6 @@ describe("Multi Payment Transaction", () => {
             builder.data.asset.payments = new Array(500);
 
             expect(() => builder.addPayment("address", "2")).toThrow(MaximumPaymentCountExceededError);
-        });
-    });
-
-    describe("getStruct", () => {
-        it("should throw if payments is undefined", () => {
-            builder.data.asset.payments = undefined;
-
-            expect(() => builder.getStruct()).toThrow(MinimumPaymentCountSubceededError);
-        });
-
-        it("should throw if payments count is less than min required", () => {
-            builder.addPayment("address", "1");
-
-            expect(() => builder.getStruct()).toThrow(MinimumPaymentCountSubceededError);
         });
     });
 });

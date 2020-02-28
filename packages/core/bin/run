@@ -1,5 +1,5 @@
 #!/usr/bin/env node
 
-require('@oclif/command').run()
-.then(require('@oclif/command/flush'))
-.catch(require('@oclif/errors/handle'))
+const CommandLineInterface = new (require("../dist").CommandLineInterface)(process.argv.slice(2));
+
+CommandLineInterface.execute();

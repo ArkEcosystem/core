@@ -1,17 +1,49 @@
-/* tslint:disable:no-shadowed-variable member-ordering max-classes-per-file */
-
-import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces } from "@arkecosystem/crypto";
+
 import { NetworkStateStatus } from "./enums";
 
-class QuorumDetails implements P2P.IQuorumDetails {
+class QuorumDetails {
+    /**
+     * Number of peers on same height, with same block and same slot. Used for
+     * quorum calculation.
+     */
     public peersQuorum = 0;
+
+    /**
+     * Number of peers which do not meet the quorum requirements. Used for
+     * quorum calculation.
+     */
     public peersNoQuorum = 0;
+
+    /**
+     * Number of overheight peers.
+     */
     public peersOverHeight = 0;
+
+    /**
+     * All overheight block headers grouped by id.
+     */
     public peersOverHeightBlockHeaders: { [id: string]: any } = {};
+
+    /**
+     * The following properties are not mutual exclusive for a peer
+     * and imply a peer is on the same `nodeHeight`.
+     */
+
+    /**
+     * Number of peers that are on a different chain (forked).
+     */
     public peersForked = 0;
+
+    /**
+     * Number of peers with a different slot.
+     */
     public peersDifferentSlot = 0;
+
+    /**
+     * Number of peers where forging is not allowed.
+     */
     public peersForgingNotAllowed = 0;
 
     public getQuorum() {
@@ -21,12 +53,13 @@ class QuorumDetails implements P2P.IQuorumDetails {
     }
 }
 
-export class NetworkState implements P2P.INetworkState {
-    public nodeHeight: number;
-    public lastBlockId: string;
+// todo: review the implementation
+export class NetworkState implements Contracts.P2P.NetworkState {
+    public nodeHeight: number | undefined;
+    public lastBlockId: string | undefined;
     private quorumDetails: QuorumDetails;
 
-    public constructor(readonly status: NetworkStateStatus, lastBlock?: Interfaces.IBlock) {
+    public constructor(public readonly status: NetworkStateStatus, lastBlock?: Interfaces.IBlock) {
         this.quorumDetails = new QuorumDetails();
 
         if (lastBlock) {
@@ -34,16 +67,23 @@ export class NetworkState implements P2P.INetworkState {
         }
     }
 
-    public setLastBlock(lastBlock: Interfaces.IBlock): void {
-        this.nodeHeight = lastBlock.data.height;
-        this.lastBlockId = lastBlock.data.id;
-    }
+    public static analyze(
+        monitor: Contracts.P2P.NetworkMonitor,
+        storage: Contracts.P2P.PeerStorage,
+    ): Contracts.P2P.NetworkState {
+        // @ts-ignore - app exists but isn't on the interface for now
+        const lastBlock: Interfaces.IBlock = monitor.app
+            .get<any>(Container.Identifiers.BlockchainService)
+            .getLastBlock();
 
-    public static analyze(monitor: P2P.INetworkMonitor, storage: P2P.IPeerStorage): P2P.INetworkState {
-        const lastBlock: Interfaces.IBlock = app.resolvePlugin("blockchain").getLastBlock();
-
-        const peers: P2P.IPeer[] = storage.getPeers();
-        const minimumNetworkReach: number = app.resolveOptions("p2p").minimumNetworkReach || 20;
+        const peers: Contracts.P2P.Peer[] = storage.getPeers();
+        // @ts-ignore - app exists but isn't on the interface for now
+        const configuration = monitor.app.getTagged<Providers.PluginConfiguration>(
+            Container.Identifiers.PluginConfiguration,
+            "plugin",
+            "@arkecosystem/core-p2p",
+        );
+        const minimumNetworkReach = configuration.getOptional<number>("minimumNetworkReach", 20);
 
         if (monitor.isColdStart()) {
             monitor.completeColdStart();
@@ -57,7 +97,7 @@ export class NetworkState implements P2P.INetworkState {
         return this.analyzeNetwork(lastBlock, peers);
     }
 
-    public static parse(data: any): P2P.INetworkState {
+    public static parse(data: any): Contracts.P2P.NetworkState {
         if (!data || data.status === undefined) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }
@@ -68,6 +108,22 @@ export class NetworkState implements P2P.INetworkState {
         Object.assign(networkState.quorumDetails, data.quorumDetails);
 
         return networkState;
+    }
+
+    private static analyzeNetwork(lastBlock, peers: Contracts.P2P.Peer[]): Contracts.P2P.NetworkState {
+        const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
+        const currentSlot = Crypto.Slots.getSlotNumber();
+
+        for (const peer of peers) {
+            networkState.update(peer, currentSlot);
+        }
+
+        return networkState;
+    }
+
+    public setLastBlock(lastBlock: Interfaces.IBlock): void {
+        this.nodeHeight = lastBlock.data.height;
+        this.lastBlockId = lastBlock.data.id;
     }
 
     public getQuorum(): number {
@@ -90,19 +146,8 @@ export class NetworkState implements P2P.INetworkState {
         return JSON.stringify(data, undefined, 2);
     }
 
-    private static analyzeNetwork(lastBlock, peers: P2P.IPeer[]): P2P.INetworkState {
-        const networkState = new NetworkState(NetworkStateStatus.Default, lastBlock);
-        const currentSlot = Crypto.Slots.getSlotNumber();
-
-        for (const peer of peers) {
-            networkState.update(peer, currentSlot);
-        }
-
-        return networkState;
-    }
-
-    private update(peer: P2P.IPeer, currentSlot: number): void {
-        if (peer.state.height > this.nodeHeight) {
+    private update(peer: Contracts.P2P.Peer, currentSlot: number): void {
+        if (Utils.assert.defined<number>(peer.state.height) > Utils.assert.defined<number>(this.nodeHeight)) {
             this.quorumDetails.peersNoQuorum++;
             this.quorumDetails.peersOverHeight++;
             this.quorumDetails.peersOverHeightBlockHeaders[peer.state.header.id] = peer.state.header;

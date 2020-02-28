@@ -1,83 +1,96 @@
+import "@packages/core-test-framework/src/matchers";
+
+import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
-import { TransactionFactory } from "../../helpers/transaction-factory";
-import { secrets } from "../../utils/config/testnet/delegates.json";
+
+import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import * as support from "./__support__";
 
-beforeAll(support.setUp);
-afterAll(support.tearDown);
+let app: Contracts.Kernel.Application;
+beforeAll(async () => (app = await support.setUp()));
+afterAll(async () => await support.tearDown());
 
 describe("Transaction Forging - Business resignation", () => {
     describe("Signed with 1 Passphrase", () => {
         it("should broadcast, accept and forge it [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            let businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            let businessRegistration = TransactionFactory.initialize(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
 
             // Resigning a business
-            const businessResignation = TransactionFactory.businessResignation()
+            const businessResignation = TransactionFactory.initialize(app)
+                .businessResignation()
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessResignation).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessResignation.id).toBeForged();
 
             // Reject a new registration
-            businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            businessRegistration = TransactionFactory.initialize(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessRegistration).toBeRejected();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessRegistration.id).not.toBeForged();
         });
 
         it("should reject business resignation, because business resigned [Signed with 1 Passphrase]", async () => {
-            const businessResignation = TransactionFactory.businessResignation()
+            const businessResignation = TransactionFactory.initialize(app)
+                .businessResignation()
+                .businessResignation()
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(businessResignation).toBeRejected();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessResignation.id).not.toBeForged();
         });
 
         it("should reject business resignation, because business resignation is already in the pool [Signed with 1 Passphrase]", async () => {
             // Registering a business
-            const businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            const businessRegistration = TransactionFactory.initialize(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(secrets[1])
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
 
-            const businessResignation = TransactionFactory.businessResignation()
+            const businessResignation = TransactionFactory.initialize(app)
+                .businessResignation()
                 .withPassphrase(secrets[1])
                 .createOne();
 
-            const businessResignation2 = TransactionFactory.businessResignation()
+            const businessResignation2 = TransactionFactory.initialize(app)
+                .businessResignation()
                 .withPassphrase(secrets[1])
                 .withNonce(businessResignation.nonce.plus(1))
                 .createOne();
 
             await expect([businessResignation, businessResignation2]).not.toBeAllAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessResignation.id).toBeForged();
             await expect(businessResignation2.id).not.toBeForged();
         });
@@ -90,67 +103,73 @@ describe("Transaction Forging - Business resignation", () => {
 
         it("should broadcast, accept and forge it [Signed with 2 Passphrases] ", async () => {
             // Initial Funds
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 250 * 1e8)
+            const initialFunds = TransactionFactory.initialize(app)
+                .transfer(Identities.Address.fromPassphrase(passphrase), 250 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(initialFunds).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(initialFunds.id).toBeForged();
 
             // Register a second passphrase
-            const secondSignature = TransactionFactory.secondSignature(secondPassphrase)
+            const secondSignature = TransactionFactory.initialize(app)
+                .secondSignature(secondPassphrase)
                 .withPassphrase(passphrase)
                 .createOne();
 
             await expect(secondSignature).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(secondSignature.id).toBeForged();
 
             // Registering a business
-            let businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            let businessRegistration = TransactionFactory.initialize(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
 
             // Resigning a business
-            let businessResignation = TransactionFactory.businessResignation()
+            let businessResignation = TransactionFactory.initialize(app)
+                .businessResignation()
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
 
             await expect(businessResignation).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessResignation.id).toBeForged();
 
             // Reject a second resignation
-            businessResignation = TransactionFactory.businessResignation()
+            businessResignation = TransactionFactory.initialize(app)
+                .businessResignation()
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
 
             await expect(businessResignation).toBeRejected();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessResignation.id).not.toBeForged();
 
             // Reject a new registration
-            businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            businessRegistration = TransactionFactory.initialize(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withPassphrase(passphrase)
                 .withSecondPassphrase(secondPassphrase)
                 .createOne();
 
             await expect(businessRegistration).toBeRejected();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessRegistration.id).not.toBeForged();
         });
     });
@@ -166,80 +185,87 @@ describe("Transaction Forging - Business resignation", () => {
 
         it("should broadcast, accept and forge it [3-of-3 multisig]", async () => {
             // Funds to register a multi signature wallet
-            const initialFunds = TransactionFactory.transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
+            const initialFunds = TransactionFactory.initialize(app)
+                .transfer(Identities.Address.fromPassphrase(passphrase), 50 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(initialFunds).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(initialFunds.id).toBeForged();
 
             // Registering a multi-signature wallet
-            const multiSignature = TransactionFactory.multiSignature(participants, 3)
+            const multiSignature = TransactionFactory.initialize(app)
+                .multiSignature(participants, 3)
                 .withPassphrase(passphrase)
                 .withPassphraseList(passphrases)
                 .createOne();
 
             await expect(multiSignature).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(multiSignature.id).toBeForged();
 
             // Send funds to multi signature wallet
             const multiSigAddress = Identities.Address.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
             const multiSigPublicKey = Identities.PublicKey.fromMultiSignatureAsset(multiSignature.asset.multiSignature);
 
-            const multiSignatureFunds = TransactionFactory.transfer(multiSigAddress, 300 * 1e8)
+            const multiSignatureFunds = TransactionFactory.initialize(app)
+                .transfer(multiSigAddress, 300 * 1e8)
                 .withPassphrase(secrets[0])
                 .createOne();
 
             await expect(multiSignatureFunds).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(multiSignatureFunds.id).toBeForged();
 
             // Registering a business
-            let businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            let businessRegistration = TransactionFactory.initialize(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
             await expect(businessRegistration).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessRegistration.id).toBeForged();
 
             // Resigning a business
-            let businessResignation = TransactionFactory.businessResignation()
+            let businessResignation = TransactionFactory.initialize(app)
+                .businessResignation()
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
             await expect(businessResignation).toBeAccepted();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessResignation.id).toBeForged();
 
             // Reject a second resignation
-            businessResignation = TransactionFactory.businessResignation()
+            businessResignation = TransactionFactory.initialize(app)
+                .businessResignation()
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
             await expect(businessResignation).toBeRejected();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessResignation.id).not.toBeForged();
 
             // Reject a new registration
-            businessRegistration = TransactionFactory.businessRegistration({
-                name: "ark",
-                website: "https://ark.io",
-            })
+            businessRegistration = TransactionFactory.initialize(app)
+                .businessRegistration({
+                    name: "ark",
+                    website: "https://ark.io",
+                })
                 .withSenderPublicKey(multiSigPublicKey)
                 .withPassphraseList(passphrases)
                 .createOne();
 
             await expect(businessRegistration).toBeRejected();
-            await support.snoozeForBlock(1);
+            await snoozeForBlock(1);
             await expect(businessRegistration.id).not.toBeForged();
         });
     });

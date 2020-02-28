@@ -1,5 +1,7 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBridgechainPorts, IBridgechainUpdateAsset } from "../interfaces";
 import { portsSchema, seedNodesSchema } from "./utils/bridgechain-schemas";
@@ -10,6 +12,9 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
     public static typeGroup: number = MagistrateTransactionGroup;
     public static type = MagistrateTransactionType.BridgechainUpdate;
     public static key: string = "bridgechainUpdate";
+    public static version: number = 2;
+
+    protected static defaultStaticFee = Utils.BigNumber.make(MagistrateTransactionStaticFees.BridgechainUpdate);
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
@@ -59,15 +64,16 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
             },
         });
     }
-    protected static defaultStaticFee = Utils.BigNumber.make(MagistrateTransactionStaticFees.BridgechainUpdate);
 
     public serialize(): ByteBuffer {
         const { data } = this;
 
-        const bridgechainUpdateAsset = data.asset.bridgechainUpdate as IBridgechainUpdateAsset;
+        AppUtils.assert.defined<IBridgechainUpdateAsset>(data.asset?.bridgechainUpdate);
+
+        const bridgechainUpdateAsset: IBridgechainUpdateAsset = data.asset.bridgechainUpdate;
 
         const seedNodesBuffers: Buffer[] = [];
-        const seedNodes: string[] = bridgechainUpdateAsset.seedNodes;
+        const seedNodes: string[] | undefined = bridgechainUpdateAsset.seedNodes;
 
         let seedNodesBuffersLength: number = 1;
 
@@ -81,7 +87,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
         seedNodesBuffersLength += seedNodesBuffers.length;
 
-        const ports: IBridgechainPorts = bridgechainUpdateAsset.ports;
+        const ports: IBridgechainPorts | undefined = bridgechainUpdateAsset.ports;
         let portsLength: number = 0;
 
         const portNamesBuffers: Buffer[] = [];
@@ -103,7 +109,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         let bridgechainRepositoryBufferLength = 1;
-        let bridgechainRepositoryBuffer: Buffer;
+        let bridgechainRepositoryBuffer: Buffer | undefined = undefined;
         const bridgechainRepository = bridgechainUpdateAsset.bridgechainRepository;
         if (bridgechainRepository) {
             bridgechainRepositoryBuffer = Buffer.from(bridgechainRepository, "utf8");
@@ -111,7 +117,7 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         }
 
         let bridgechainAssetRepositoryBufferLength = 1;
-        let bridgechainAssetRepositoryBuffer: Buffer;
+        let bridgechainAssetRepositoryBuffer: Buffer | undefined = undefined;
         const bridgechainAssetRepository = bridgechainUpdateAsset.bridgechainAssetRepository;
         if (bridgechainAssetRepository) {
             bridgechainAssetRepositoryBuffer = Buffer.from(bridgechainAssetRepository, "utf8");
@@ -128,8 +134,8 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
         );
 
         buffer.append(bridgechainUpdateAsset.bridgechainId, "hex");
-
         buffer.writeUint8(seedNodesBuffers.length);
+
         for (const seedBuf of seedNodesBuffers) {
             buffer.writeUint8(seedBuf.length);
             buffer.append(seedBuf);
@@ -161,7 +167,6 @@ export class BridgechainUpdateTransaction extends Transactions.Transaction {
 
     public deserialize(buf: ByteBuffer): void {
         const { data } = this;
-
         const bridgechainId: string = buf.readBytes(32).toString("hex");
 
         const bridgechainUpdate: IBridgechainUpdateAsset = {

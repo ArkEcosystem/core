@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+
 import { IBlockData, ITransaction } from "../interfaces";
 import { configManager } from "../managers";
 import { TransactionFactory } from "../transactions";
@@ -54,8 +55,9 @@ export class Deserializer {
         const constants = configManager.getMilestone(block.height - 1 || 1);
 
         if (constants.block.idFullSha256) {
-            block.previousBlockHex = buf.readBytes(32).toString("hex");
-            block.previousBlock = block.previousBlockHex;
+            const previousBlockFullSha256 = buf.readBytes(32).toString("hex");
+            block.previousBlockHex = previousBlockFullSha256;
+            block.previousBlock = previousBlockFullSha256;
         } else {
             block.previousBlockHex = buf.readBytes(8).toString("hex");
             block.previousBlock = BigNumber.make(`0x${block.previousBlockHex}`).toString();
@@ -90,7 +92,7 @@ export class Deserializer {
         buf: ByteBuffer,
         deserializeTransactionsUnchecked: boolean = false,
     ): ITransaction[] {
-        const transactionLengths = [];
+        const transactionLengths: number[] = [];
 
         for (let i = 0; i < block.numberOfTransactions; i++) {
             transactionLengths.push(buf.readUint32());

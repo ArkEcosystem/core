@@ -1,11 +1,10 @@
-import { P2P } from "@arkecosystem/core-interfaces";
 import Ajv from "ajv";
 import { cidr } from "ip";
-import { RateLimiter } from "../rate-limiter";
-import { buildRateLimiter } from "../utils";
-
 import SCWorker from "socketcluster/scworker";
+
+import { RateLimiter } from "../rate-limiter";
 import { requestSchemas } from "../schemas";
+import { buildRateLimiter } from "../utils";
 import { codec } from "../utils/sc-codec";
 import { validateTransactionLight } from "./utils/validate";
 
@@ -15,10 +14,10 @@ const HOUR_IN_MILLISECONDS = MINUTE_IN_MILLISECONDS * 60;
 const ajv = new Ajv({ extendRefs: true });
 
 export class Worker extends SCWorker {
-    private config: Record<string, any>;
+    private config: Record<string, any> = {};
     private handlers: string[] = [];
     private ipLastError: Record<string, number> = {};
-    private rateLimiter: RateLimiter;
+    private rateLimiter: RateLimiter | undefined;
     private rateLimitedEndpoints: any;
 
     public async run() {
@@ -62,7 +61,7 @@ export class Worker extends SCWorker {
     private async loadHandlers(): Promise<void> {
         const { data } = await this.sendToMasterAsync("p2p.utils.getHandlers");
         for (const [version, handlers] of Object.entries(data)) {
-            for (const handler of Object.values(handlers)) {
+            for (const handler of Object.values(handlers as object)) {
                 this.handlers.push(`p2p.${version}.${handler}`);
             }
         }
@@ -131,7 +130,8 @@ export class Worker extends SCWorker {
                         typeof parsed.data !== "object" ||
                         this.hasAdditionalProperties(parsed) ||
                         (typeof parsed.cid !== "number" &&
-                            (parsed.event === "#disconnect" && typeof parsed.cid !== "undefined")) ||
+                            parsed.event === "#disconnect" &&
+                            typeof parsed.cid !== "undefined") ||
                         !this.handlers.includes(parsed.event)
                     ) {
                         return this.setErrorForIpAndTerminate(ws, req);
@@ -267,20 +267,20 @@ export class Worker extends SCWorker {
         const rateLimitedEndpoints = this.getRateLimitedEndpoints();
         const useLocalRateLimiter: boolean = !rateLimitedEndpoints[req.event];
         if (useLocalRateLimiter) {
-            if (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event)) {
+            if (
+                this.rateLimiter &&
+                (await this.rateLimiter.hasExceededRateLimit(req.socket.remoteAddress, req.event))
+            ) {
                 req.socket.terminate();
                 return;
             }
         } else {
-            const { data }: { data: P2P.IRateLimitStatus } = await this.sendToMasterAsync(
-                "p2p.internal.getRateLimitStatus",
-                {
-                    data: {
-                        ip: req.socket.remoteAddress,
-                        endpoint: req.event,
-                    },
+            const { data } = await this.sendToMasterAsync("p2p.internal.getRateLimitStatus", {
+                data: {
+                    ip: req.socket.remoteAddress,
+                    endpoint: req.event,
                 },
-            );
+            });
             if (data.exceededLimitOnEndpoint) {
                 req.socket.terminate();
                 return;
@@ -303,6 +303,7 @@ export class Worker extends SCWorker {
 
             // Check that blockchain, tx-pool and p2p are ready
             const isAppReady: boolean = (await this.sendToMasterAsync("p2p.utils.isAppReady")).data.ready;
+
             if (!isAppReady) {
                 next(new Error("App is not ready."));
                 return;
@@ -349,7 +350,7 @@ export class Worker extends SCWorker {
         next();
     }
 
-    private async log(message: string, level: string = "info"): Promise<void> {
+    private async log(message: string, level = "info"): Promise<void> {
         try {
             await this.sendToMasterAsync("p2p.utils.log", {
                 data: { level, message },
@@ -372,5 +373,4 @@ export class Worker extends SCWorker {
     }
 }
 
-// tslint:disable-next-line
 new Worker();

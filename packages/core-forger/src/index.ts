@@ -1,2 +1,2 @@
-export * from "./plugin";
-export * from "./delegate";
+export * from "./delegate-factory";
+export * from "./service-provider";

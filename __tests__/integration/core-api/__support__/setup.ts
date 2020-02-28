@@ -1,76 +1,129 @@
-import { app } from "@arkecosystem/core-container";
-import { Database, State } from "@arkecosystem/core-interfaces";
+import { Contracts, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-import delay from "delay";
-import { defaults } from "../../../../packages/core-api/src/defaults";
-import { plugin } from "../../../../packages/core-api/src/plugin";
-import { defaults as defaultsPeer } from "../../../../packages/core-p2p/src/defaults";
-import { registerWithContainer, setUpContainer } from "../../../utils/helpers/container";
 
-import { delegates } from "../../../utils/fixtures";
-import { generateRound } from "./utils/generate-round";
+import { ServiceProvider } from "@packages/core-api/src";
+import { Sandbox } from "@packages/core-test-framework/src";
+import { resolve } from "path";
 
-import { sortBy } from "@arkecosystem/utils";
-import { asValue } from "awilix";
+const sandbox: Sandbox = new Sandbox();
 
-const round = generateRound(delegates.map(delegate => delegate.publicKey), 1);
-
-const options = {
-    enabled: true,
-    host: "0.0.0.0",
-    port: 4003,
-    whitelist: ["*"],
-};
-
-const setUp = async () => {
+export const setUp = async () => {
     jest.setTimeout(60000);
 
     process.env.DISABLE_P2P_SERVER = "true"; // no need for p2p socket server to run
     process.env.CORE_RESET_DATABASE = "1";
 
-    await setUpContainer({
-        exclude: [
-            "@arkecosystem/core-webhooks",
-            "@arkecosystem/core-forger",
-            "@arkecosystem/core-exchange-json-rpc",
-            "@arkecosystem/core-api",
-        ],
-    });
+    await sandbox
+        .withCoreOptions({
+            app: {
+                core: {
+                    plugins: [
+                        {
+                            package: "@arkecosystem/core-state",
+                        },
+                        {
+                            package: "@arkecosystem/core-database",
+                        },
+                        {
+                            package: "@arkecosystem/core-transactions",
+                        },
+                        {
+                            package: "@arkecosystem/core-magistrate-transactions",
+                        },
+                        {
+                            package: "@arkecosystem/core-transaction-pool",
+                        },
+                        {
+                            package: "@arkecosystem/core-p2p",
+                        },
+                        {
+                            package: "@arkecosystem/core-blockchain",
+                        },
+                        {
+                            package: "@arkecosystem/core-forger",
+                        },
+                    ],
+                },
+                relay: {
+                    plugins: [
+                        {
+                            package: "@arkecosystem/core-state",
+                        },
+                        {
+                            package: "@arkecosystem/core-database",
+                        },
+                        {
+                            package: "@arkecosystem/core-transactions",
+                        },
+                        {
+                            package: "@arkecosystem/core-magistrate-transactions",
+                        },
+                        {
+                            package: "@arkecosystem/core-transaction-pool",
+                        },
+                        {
+                            package: "@arkecosystem/core-p2p",
+                        },
+                        {
+                            package: "@arkecosystem/core-blockchain",
+                        },
+                    ],
+                },
+                forger: {
+                    plugins: [
+                        {
+                            package: "@arkecosystem/core-forger",
+                        },
+                    ],
+                },
+            },
+        })
+        .boot(async ({ app }) => {
+            await app.bootstrap({
+                flags: {
+                    token: "ark",
+                    network: "unitnet",
+                    env: "test",
+                    processType: "core",
+                },
+            });
 
-    app.register("pkg.p2p.opts", asValue(defaultsPeer));
+            // We need to manually register the service provider from source so that jest can collect coverage.
+            sandbox.registerServiceProvider({
+                name: "@arkecosystem/core-api",
+                path: resolve(__dirname, "../../../../packages/core-api"),
+                klass: ServiceProvider,
+            });
 
-    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    await databaseService.buildWallets();
-    await databaseService.saveRound(round);
+            await app.boot();
 
-    app.register("pkg.api.opts", asValue({ ...defaults, ...options }));
+            await AppUtils.sleep(1000); // give some more time for api server to be up
+        });
 
-    await registerWithContainer(plugin, options);
-    await delay(1000); // give some more time for api server to be up
+    return sandbox.app;
 };
 
-const tearDown = async () => {
-    await app.tearDown();
+export const tearDown = async () => sandbox.dispose();
 
-    await plugin.deregister(app, options);
-};
-
-const calculateRanks = async () => {
-    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-
-    const delegateWallets = Object.values(databaseService.walletManager.allByUsername()).sort(
-        (a: State.IWallet, b: State.IWallet) =>
-            b
-                .getAttribute<Utils.BigNumber>("delegate.voteBalance")
-                .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
+export const calculateRanks = async () => {
+    const walletRepository = sandbox.app.getTagged<Contracts.State.WalletRepository>(
+        Container.Identifiers.WalletRepository,
+        "state",
+        "blockchain",
     );
 
-    for (const delegate of sortBy(delegateWallets, "publicKey")) {
-        const wallet = databaseService.walletManager.findByPublicKey(delegate.publicKey);
-        wallet.setAttribute("delegate.rank", delegateWallets.indexOf(delegate) + 1);
+    const delegateWallets = Object.values(
+        walletRepository.allByUsername(),
+    ).sort((a: Contracts.State.Wallet, b: Contracts.State.Wallet) =>
+        b
+            .getAttribute<Utils.BigNumber>("delegate.voteBalance")
+            .comparedTo(a.getAttribute<Utils.BigNumber>("delegate.voteBalance")),
+    );
 
-        databaseService.walletManager.reindex(wallet);
-    }
+    AppUtils.sortBy(delegateWallets, wallet => wallet.publicKey).forEach((delegate, i) => {
+        const wallet = walletRepository.findByPublicKey(delegate.publicKey!);
+        wallet.setAttribute("delegate.rank", i + 1);
+
+        walletRepository.reindex(wallet);
+    });
 };
-
-export { calculateRanks, setUp, tearDown };

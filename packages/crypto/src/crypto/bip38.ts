@@ -1,5 +1,3 @@
-// tslint:disable:no-bitwise
-
 /**
  * Based on: https://github.com/bitcoinjs/bip38 @ 8e3a2cc6f7391782f3012129924a73bb632a3d4d
  */
@@ -9,6 +7,7 @@ import { secp256k1 } from "bcrypto";
 import aes from "browserify-aes";
 import xor from "buffer-xor/inplace";
 import crypto from "crypto";
+
 import { HashAlgorithms } from "../crypto";
 import {
     Bip38CompressionError,

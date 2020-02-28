@@ -1,28 +1,32 @@
-// tslint:disable:variable-name
-
-import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger, State } from "@arkecosystem/core-interfaces";
+import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces, Managers } from "@arkecosystem/crypto";
 import assert from "assert";
 import { OrderedMap, OrderedSet, Seq } from "immutable";
 
-/**
- * @TODO
- * - extract block and transaction behaviours into their respective stores
- */
-export class StateStore implements State.IStateStore {
-    // @TODO: make all properties private and expose them one-by-one through a getter if used outside of this class
+// todo: extract block and transaction behaviours into their respective stores
+// todo: review the implementation
+@Container.injectable()
+export class StateStore implements Contracts.State.StateStore {
+    // @todo: make all properties private and expose them one-by-one through a getter if used outside of this class
     public blockchain: any = {};
     public genesisBlock: Interfaces.IBlock | undefined = undefined;
     public lastDownloadedBlock: Interfaces.IBlockData | undefined = undefined;
     public blockPing: any = undefined;
-    public started: boolean = false;
+    public started = false;
     public forkedBlock: Interfaces.IBlock | undefined = undefined;
     public wakeUpTimeout: any = undefined;
-    public noBlockCounter: number = 0;
-    public p2pUpdateCounter: number = 0;
+    public noBlockCounter = 0;
+    public p2pUpdateCounter = 0;
     public numberOfBlocksToRollback: number | undefined = undefined;
-    public networkStart: boolean = false;
+    public networkStart = false;
+
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-state")
+    private readonly configuration!: Providers.PluginConfiguration;
+
     // Stores the last n blocks in ascending height. The amount of last blocks
     // can be configured with the option `state.maxLastBlocks`.
     private lastBlocks: OrderedMap<number, Interfaces.IBlock> = OrderedMap<number, Interfaces.IBlock>();
@@ -32,7 +36,7 @@ export class StateStore implements State.IStateStore {
 
     /**
      * Resets the state.
-     * @TODO: remove the need for this method.
+     * @todo: remove the need for this method.
      */
     public reset(blockchainMachine): void {
         this.blockchain = blockchainMachine.initialState;
@@ -66,7 +70,9 @@ export class StateStore implements State.IStateStore {
     /**
      * Get the genesis block.
      */
-    public getGenesisBlock(): Interfaces.IBlock | undefined {
+    public getGenesisBlock(): Interfaces.IBlock {
+        Utils.assert.defined<Interfaces.IBlock>(this.genesisBlock);
+
         return this.genesisBlock;
     }
 
@@ -80,8 +86,12 @@ export class StateStore implements State.IStateStore {
     /**
      * Get the last block.
      */
-    public getLastBlock(): Interfaces.IBlock | undefined {
-        return this.lastBlocks.last() || undefined;
+    public getLastBlock(): Interfaces.IBlock {
+        const lastBlock: Interfaces.IBlock | undefined = this.lastBlocks.last();
+
+        Utils.assert.defined<Interfaces.IBlock>(lastBlock);
+
+        return lastBlock;
     }
 
     /**
@@ -99,11 +109,15 @@ export class StateStore implements State.IStateStore {
         Managers.configManager.setHeight(block.data.height);
 
         if (Managers.configManager.isNewMilestone()) {
-            app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("internal.milestone.changed");
+            this.app
+                .get<Contracts.Kernel.EventDispatcher>(Container.Identifiers.EventDispatcherService)
+                .dispatch(Enums.CryptoEvent.MilestoneChanged);
         }
 
         // Delete oldest block if size exceeds the maximum
-        if (this.lastBlocks.size > app.resolveOptions("state").storage.maxLastBlocks) {
+        const maxLastBlocks = this.configuration.getRequired<number>("storage.maxLastBlocks");
+
+        if (this.lastBlocks.size > maxLastBlocks) {
             this.lastBlocks = this.lastBlocks.delete(this.lastBlocks.first<Interfaces.IBlock>().data.height);
         }
 
@@ -135,7 +149,11 @@ export class StateStore implements State.IStateStore {
         return this.lastBlocks
             .valueSeq()
             .reverse()
-            .map(b => b.data.id)
+            .map(b => {
+                Utils.assert.defined<string>(b.data.id);
+
+                return b.data.id;
+            })
             .toArray();
     }
 
@@ -145,11 +163,13 @@ export class StateStore implements State.IStateStore {
      * @param {Number} end
      */
     public getLastBlocksByHeight(start: number, end?: number, headersOnly?: boolean): Interfaces.IBlockData[] {
-        end = end || start;
+        const tail: number | undefined = end || start;
+
+        Utils.assert.defined<number>(tail);
 
         const blocks = this.lastBlocks
             .valueSeq()
-            .filter(block => block.data.height >= start && block.data.height <= end);
+            .filter(block => block.data.height >= start && block.data.height <= tail);
 
         return this.mapToBlockData(blocks, headersOnly).toArray() as Interfaces.IBlockData[];
     }
@@ -165,7 +185,11 @@ export class StateStore implements State.IStateStore {
         }
 
         return this.getLastBlocksData(true)
-            .filter(block => idsHash[block.id])
+            .filter(block => {
+                Utils.assert.defined<string>(block.id);
+
+                return idsHash[block.id];
+            })
             .toArray() as Interfaces.IBlockData[];
     }
 
@@ -177,23 +201,30 @@ export class StateStore implements State.IStateStore {
     ): { added: Interfaces.ITransactionData[]; notAdded: Interfaces.ITransactionData[] } {
         const notAdded: Interfaces.ITransactionData[] = [];
         const added: Interfaces.ITransactionData[] = transactions.filter(tx => {
+            Utils.assert.defined<string>(tx.id);
+
             if (this.cachedTransactionIds.has(tx.id)) {
                 notAdded.push(tx);
+
                 return false;
             }
+
             return true;
         });
 
         this.cachedTransactionIds = this.cachedTransactionIds.withMutations(cache => {
             for (const tx of added) {
+                Utils.assert.defined<string>(tx.id);
+
                 cache.add(tx.id);
             }
         });
 
         // Cap the Set of last transaction ids to maxLastTransactionIds
-        const limit = app.resolveOptions("state").storage.maxLastTransactionIds;
-        if (this.cachedTransactionIds.size > limit) {
-            this.cachedTransactionIds = this.cachedTransactionIds.takeLast(limit);
+        const maxLastTransactionIds = this.configuration.getRequired<number>("storage.maxLastTransactionIds");
+
+        if (this.cachedTransactionIds.size > maxLastTransactionIds) {
+            this.cachedTransactionIds = this.cachedTransactionIds.takeLast(maxLastTransactionIds);
         }
 
         return { added, notAdded };
@@ -234,11 +265,11 @@ export class StateStore implements State.IStateStore {
     /**
      * Push ping block.
      */
-    public pushPingBlock(block: Interfaces.IBlockData, fromForger: boolean = false): void {
+    public pushPingBlock(block: Interfaces.IBlockData, fromForger = false): void {
         if (this.blockPing) {
-            app.resolvePlugin<Logger.ILogger>("logger").info(
+            this.app.log.info(
                 `Previous block ${this.blockPing.block.height.toLocaleString()} pinged blockchain ${
-                this.blockPing.count
+                    this.blockPing.count
                 } times`,
             );
         }

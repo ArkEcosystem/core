@@ -1,15 +1,15 @@
 import { IHtlcRefundAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { HtlcRefundTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class HtlcRefundBuilder extends TransactionBuilder<HtlcRefundBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
-        this.data.type = HtlcRefundTransaction.type;
-        this.data.typeGroup = HtlcRefundTransaction.typeGroup;
-        this.data.fee = HtlcRefundTransaction.staticFee();
+        this.data.type = Two.HtlcRefundTransaction.type;
+        this.data.typeGroup = Two.HtlcRefundTransaction.typeGroup;
+        this.data.fee = Two.HtlcRefundTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.asset = {};
     }

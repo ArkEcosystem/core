@@ -1,25 +1,28 @@
 import "jest-extended";
 
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
-import { HtlcClaimBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-claim";
-import { HtlcClaimTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-claim";
-import { BigNumber } from "../../../../../../packages/crypto/src/utils";
-import { transactionBuilder } from "./__shared__/transaction-builder";
-import { htlcSecretHex } from "../../../../../utils/fixtures";
+import { Generators } from "@packages/core-test-framework/src";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { HtlcClaimBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-claim";
+import { Two } from "@packages/crypto/src/transactions/types";
+import { BigNumber } from "@packages/crypto/src/utils";
+
+import { htlcSecretHex } from "../../__fixtures__/htlc";
 
 let builder: HtlcClaimBuilder;
 
 beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    configManager.setConfig(Generators.generateCryptoConfigRaw());
+
     builder = BuilderFactory.htlcClaim();
 });
 
 describe("Htlc claim Transaction", () => {
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.HtlcClaim);
-        expect(builder).toHaveProperty("data.fee", HtlcClaimTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.HtlcClaimTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", BigNumber.make(0));
         expect(builder).toHaveProperty("data.asset", {});
     });

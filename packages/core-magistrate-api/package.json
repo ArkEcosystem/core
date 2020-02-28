@@ -1,0 +1,46 @@
+{
+    "name": "@arkecosystem/core-magistrate-api",
+    "version": "3.0.0-next.0",
+    "description": "Magistrate API for ARK Core",
+    "license": "MIT",
+    "contributors": [
+        "Brian Faust <brian@ark.io>",
+        "Joshua Noack <joshua@ark.io>"
+    ],
+    "files": [
+        "dist"
+    ],
+    "main": "dist/index",
+    "types": "dist/index",
+    "scripts": {
+        "build": "yarn clean && yarn compile",
+        "build:watch": "yarn clean && yarn compile -w",
+        "build:docs": "../../node_modules/typedoc/bin/typedoc --out docs src",
+        "clean": "del dist",
+        "compile": "../../node_modules/typescript/bin/tsc",
+        "prepublishOnly": "yarn build",
+        "pretest": "bash ../../scripts/pre-test.sh"
+    },
+    "dependencies": {
+        "@arkecosystem/core-api": "^3.0.0-next.0",
+        "@arkecosystem/core-kernel": "^3.0.0-next.0",
+        "@hapi/boom": "^8.0.1",
+        "@hapi/hapi": "^18.4.0",
+        "@hapi/joi": "^17.1.0"
+    },
+    "devDependencies": {
+        "@types/hapi__boom": "^7.4.1",
+        "@types/hapi__joi": "^16.0.4"
+    },
+    "engines": {
+        "node": ">=10.x"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "arkecosystem": {
+        "core": {
+            "alias": "magistrate-api"
+        }
+    }
+}

@@ -1,2 +1,0 @@
-ALTER TABLE transactions DROP COLUMN IF EXISTS type_group;
-ALTER TABLE transactions ADD COLUMN type_group INTEGER NOT NULL DEFAULT 1;

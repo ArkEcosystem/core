@@ -4,12 +4,12 @@ import { IMultiSignatureAsset, ISchemaValidationResult, ITransactionData } from 
 import { configManager } from "../managers";
 import { isException } from "../utils";
 import { validator } from "../validation";
-import { TransactionTypeFactory } from "./types";
+import { TransactionTypeFactory } from "./types/factory";
 import { Utils } from "./utils";
 
 export class Verifier {
     public static verify(data: ITransactionData): boolean {
-        if (isException(data)) {
+        if (isException(data.id)) {
             return true;
         }
 
@@ -21,7 +21,7 @@ export class Verifier {
     }
 
     public static verifySecondSignature(transaction: ITransactionData, publicKey: string): boolean {
-        const secondSignature: string = transaction.secondSignature || transaction.signSignature;
+        const secondSignature: string | undefined = transaction.secondSignature || transaction.signSignature;
 
         if (!secondSignature) {
             return false;
@@ -48,28 +48,31 @@ export class Verifier {
         const publicKeyIndexes: { [index: number]: boolean } = {};
         let verified: boolean = false;
         let verifiedSignatures: number = 0;
-        for (let i = 0; i < signatures.length; i++) {
-            const signature: string = signatures[i];
-            const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
 
-            if (!publicKeyIndexes[publicKeyIndex]) {
-                publicKeyIndexes[publicKeyIndex] = true;
-            } else {
-                throw new DuplicateParticipantInMultiSignatureError();
-            }
+        if (signatures) {
+            for (let i = 0; i < signatures.length; i++) {
+                const signature: string = signatures[i];
+                const publicKeyIndex: number = parseInt(signature.slice(0, 2), 16);
 
-            const partialSignature: string = signature.slice(2, 130);
-            const publicKey: string = publicKeys[publicKeyIndex];
+                if (!publicKeyIndexes[publicKeyIndex]) {
+                    publicKeyIndexes[publicKeyIndex] = true;
+                } else {
+                    throw new DuplicateParticipantInMultiSignatureError();
+                }
 
-            if (Hash.verifySchnorr(hash, partialSignature, publicKey)) {
-                verifiedSignatures++;
-            }
+                const partialSignature: string = signature.slice(2, 130);
+                const publicKey: string = publicKeys[publicKeyIndex];
 
-            if (verifiedSignatures === min) {
-                verified = true;
-                break;
-            } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
-                break;
+                if (Hash.verifySchnorr(hash, partialSignature, publicKey)) {
+                    verifiedSignatures++;
+                }
+
+                if (verifiedSignatures === min) {
+                    verified = true;
+                    break;
+                } else if (signatures.length - (i + 1 - verifiedSignatures) < min) {
+                    break;
+                }
             }
         }
 
@@ -79,7 +82,7 @@ export class Verifier {
     public static verifyHash(data: ITransactionData): boolean {
         const { signature, senderPublicKey } = data;
 
-        if (!signature) {
+        if (!signature || !senderPublicKey) {
             return false;
         }
 
@@ -91,8 +94,15 @@ export class Verifier {
         return this.internalVerifySignature(hash, signature, senderPublicKey);
     }
 
-    public static verifySchema(data: ITransactionData, strict: boolean = true): ISchemaValidationResult {
-        const { $id } = TransactionTypeFactory.get(data.type, data.typeGroup).getSchema();
+    public static verifySchema(data: ITransactionData, strict = true): ISchemaValidationResult {
+        const transactionType = TransactionTypeFactory.get(data.type, data.typeGroup, data.version);
+
+        if (!transactionType) {
+            throw new Error();
+        }
+
+        const { $id } = transactionType.getSchema();
+
         return validator.validate(strict ? `${$id}Strict` : `${$id}`, data);
     }
 

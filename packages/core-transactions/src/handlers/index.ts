@@ -1,4 +1,6 @@
-import { transactionHandlerRegistry as Registry } from "./handler-registry";
+import { TransactionHandlerRegistry } from "./handler-registry";
+import * as One from "./one";
 import { TransactionHandler, TransactionHandlerConstructor } from "./transaction";
+import * as Two from "./two";
 
-export { Registry, TransactionHandler, TransactionHandlerConstructor };
+export { One, Two, TransactionHandler, TransactionHandlerConstructor, TransactionHandlerRegistry as Registry };

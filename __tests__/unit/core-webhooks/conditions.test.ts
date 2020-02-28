@@ -12,7 +12,7 @@ import {
     notBetween,
     regexp,
     truthy,
-} from "../../../packages/core-webhooks/src/conditions";
+} from "@packages/core-webhooks/src/conditions";
 
 // TODO: fix bignumber decimal comparison
 describe.skip("Conditions - between", () => {

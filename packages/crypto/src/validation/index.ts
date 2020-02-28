@@ -1,5 +1,6 @@
 import Ajv from "ajv";
 import ajvKeywords from "ajv-keywords";
+
 import { ISchemaValidationResult } from "../interfaces";
 import { signedSchema, strictSchema, TransactionSchema } from "../transactions/types/schemas";
 import { formats } from "./formats";
@@ -7,15 +8,15 @@ import { keywords } from "./keywords";
 import { schemas } from "./schemas";
 
 export class Validator {
-    public static make(options: Record<string, any> = {}): Validator {
-        return new Validator(options);
-    }
-
     private ajv: Ajv.Ajv;
     private readonly transactionSchemas: Map<string, TransactionSchema> = new Map<string, TransactionSchema>();
 
     private constructor(options: Record<string, any>) {
         this.ajv = this.instantiateAjv(options);
+    }
+
+    public static make(options: Record<string, any> = {}): Validator {
+        return new Validator(options);
     }
 
     public getInstance(): Ajv.Ajv {
@@ -70,7 +71,7 @@ export class Validator {
 
             const error = ajv.errors ? ajv.errorsText() : undefined;
 
-            return { value: data, error, errors: ajv.errors };
+            return { value: data, error, errors: ajv.errors || undefined };
         } catch (error) {
             return { value: undefined, error: error.stack, errors: [] };
         }
@@ -100,19 +101,23 @@ export class Validator {
     }
 
     private extendTransactionSchema(ajv: Ajv.Ajv, schema: TransactionSchema, remove?: boolean) {
+        if (ajv.getSchema(schema.$id)) {
+            remove = true;
+        }
+
         if (remove) {
             this.transactionSchemas.delete(schema.$id);
 
             ajv.removeSchema(schema.$id);
             ajv.removeSchema(`${schema.$id}Signed`);
             ajv.removeSchema(`${schema.$id}Strict`);
-        } else {
-            this.transactionSchemas.set(schema.$id, schema);
-
-            ajv.addSchema(schema);
-            ajv.addSchema(signedSchema(schema));
-            ajv.addSchema(strictSchema(schema));
         }
+
+        this.transactionSchemas.set(schema.$id, schema);
+
+        ajv.addSchema(schema);
+        ajv.addSchema(signedSchema(schema));
+        ajv.addSchema(strictSchema(schema));
 
         this.updateTransactionArray(ajv);
     }

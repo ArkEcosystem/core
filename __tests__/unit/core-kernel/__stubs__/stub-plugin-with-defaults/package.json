@@ -1,0 +1,5 @@
+{
+    "name": "stub-plugin-with-defaults",
+    "version": "1.0.0",
+    "main": "dist/index"
+}

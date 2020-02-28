@@ -1,7 +1,9 @@
 import "jest-extended";
 
+import { Generators } from "@packages/core-test-framework/src";
 import ByteBuffer from "bytebuffer";
 import Long from "long";
+
 import { Enums, Errors, Utils } from "../../../../packages/crypto/src";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import {
@@ -17,12 +19,10 @@ import { TransactionFactory, Utils as TransactionUtils, Verifier } from "../../.
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { Deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
+import { htlcSecretHashHex, htlcSecretHex } from "./__fixtures__/htlc";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
-import { htlcSecretHex, htlcSecretHashHex } from "../../../utils/fixtures";
 
-configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
-
-describe("Transaction serializer / Deserializer", () => {
+describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
         const fieldsToCheck = ["version", "network", "type", "senderPublicKey", "fee", "amount"];
         if (deserialized.data.version === 1) {
@@ -164,7 +164,8 @@ describe("Transaction serializer / Deserializer", () => {
         let multiSignatureRegistration;
 
         beforeEach(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
 
             const participant1 = Keys.fromPassphrase("secret 1");
             const participant2 = Keys.fromPassphrase("secret 2");
@@ -224,7 +225,8 @@ describe("Transaction serializer / Deserializer", () => {
         ];
 
         beforeAll(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         beforeEach(() => {
@@ -285,7 +287,8 @@ describe("Transaction serializer / Deserializer", () => {
 
     describe("ser/deserialize - multi payment", () => {
         beforeAll(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -359,7 +362,8 @@ describe("Transaction serializer / Deserializer", () => {
         };
 
         beforeAll(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -392,16 +396,8 @@ describe("Transaction serializer / Deserializer", () => {
                 .build();
 
             configManager.getMilestone().aip11 = false;
-            configManager.getMilestone().htlcEnabled = true;
             expect(htlcLock.verify()).toBeFalse();
             configManager.getMilestone().aip11 = true;
-            configManager.getMilestone().htlcEnabled = false;
-            expect(htlcLock.verify()).toBeFalse();
-            configManager.getMilestone().aip11 = false;
-            configManager.getMilestone().htlcEnabled = false;
-            expect(htlcLock.verify()).toBeFalse();
-            configManager.getMilestone().aip11 = true;
-            configManager.getMilestone().htlcEnabled = true;
             expect(htlcLock.verify()).toBeTrue();
         });
     });
@@ -413,7 +409,8 @@ describe("Transaction serializer / Deserializer", () => {
         };
 
         beforeAll(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -453,7 +450,8 @@ describe("Transaction serializer / Deserializer", () => {
         };
 
         beforeAll(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should ser/deserialize giving back original fields", () => {
@@ -489,7 +487,8 @@ describe("Transaction serializer / Deserializer", () => {
 
     describe("deserialize - others", () => {
         beforeAll(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
         });
 
         it("should throw if type is not supported", () => {

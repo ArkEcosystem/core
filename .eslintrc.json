@@ -1,0 +1,52 @@
+{
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        "project": "./tsconfig.eslint.json"
+    },
+    "plugins": ["@typescript-eslint", "jest", "prettier", "simple-import-sort"],
+    "extends": [
+        "eslint:recommended",
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:jest/recommended",
+        "plugin:prettier/recommended",
+        "prettier/@typescript-eslint"
+    ],
+    "rules": {
+        "@typescript-eslint/await-thenable": "off",
+        "@typescript-eslint/ban-ts-ignore": "off",
+        "@typescript-eslint/camelcase": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/explicit-member-accessibility": ["error"],
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/member-ordering": ["error"],
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "@typescript-eslint/no-misused-promises": "off",
+        "@typescript-eslint/no-namespace": "off",
+        "@typescript-eslint/no-non-null-assertion": "off",
+        "@typescript-eslint/no-unnecessary-condition": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/prefer-regexp-exec": "off",
+        "@typescript-eslint/require-await": "off",
+        "@typescript-eslint/unbound-method": "off",
+        "jest/no-standalone-expect": "off",
+        "no-async-promise-executor": "off",
+        "no-empty": "off",
+        "no-inferrable-types": "off",
+        "no-prototype-builtins": "off",
+        "prefer-const": [
+            "error",
+            {
+                "destructuring": "all"
+            }
+        ],
+        "prettier/prettier": "error",
+        "require-atomic-updates": "off",
+        "simple-import-sort/sort": "error"
+    }
+}

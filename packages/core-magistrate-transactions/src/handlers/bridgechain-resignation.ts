@@ -1,11 +1,10 @@
-import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
-import {
-    Enums,
-    Interfaces as MagistrateInterfaces,
-    Transactions as MagistrateTransactions,
-} from "@arkecosystem/core-magistrate-crypto";
+import { Models } from "@arkecosystem/core-database";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
+import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Interfaces as MagistrateInterfaces } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
+
 import {
     BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
@@ -17,45 +16,47 @@ import { IBridgechainWalletAttributes, IBusinessWalletAttributes } from "../inte
 import { BridgechainRegistrationTransactionHandler } from "./bridgechain-registration";
 import { MagistrateTransactionHandler } from "./magistrate-handler";
 
+@Container.injectable()
 export class BridgechainResignationTransactionHandler extends MagistrateTransactionHandler {
-    public getConstructor(): Transactions.TransactionConstructor {
-        return MagistrateTransactions.BridgechainResignationTransaction;
-    }
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
 
     public dependencies(): ReadonlyArray<Handlers.TransactionHandlerConstructor> {
         return [BridgechainRegistrationTransactionHandler];
+    }
+
+    public getConstructor(): Transactions.TransactionConstructor {
+        return MagistrateTransactions.BridgechainResignationTransaction;
     }
 
     public walletAttributes(): ReadonlyArray<string> {
         return ["business.bridgechains.bridgechain.resigned"];
     }
 
-    public async bootstrap(connection: Database.IConnection, walletManager: State.IWalletManager): Promise<void> {
-        const reader: TransactionReader = await TransactionReader.create(connection, this.getConstructor());
+    public async bootstrap(): Promise<void> {
+        const reader: TransactionReader = this.getTransactionReader();
+        const transactions: Models.Transaction[] = await reader.read();
 
-        while (reader.hasNext()) {
-            const transactions = await reader.read();
+        for (const transaction of transactions) {
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
+            const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
+                "business",
+            );
 
-            for (const transaction of transactions) {
-                const wallet: State.IWallet = walletManager.findByPublicKey(transaction.senderPublicKey);
-                const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
-                    "business",
-                );
+            const bridgechainAsset = businessAttributes.bridgechains![
+                transaction.asset.bridgechainResignation.bridgechainId
+            ];
+            bridgechainAsset.resigned = true;
 
-                const bridgechainAsset =
-                    businessAttributes.bridgechains[transaction.asset.bridgechainResignation.bridgechainId];
-                bridgechainAsset.resigned = true;
-
-                wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-                walletManager.reindex(wallet);
-            }
+            wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
+            this.walletRepository.reindex(wallet);
         }
     }
 
     public async throwIfCannotBeApplied(
         transaction: Interfaces.ITransaction,
-        wallet: State.IWallet,
-        walletManager: State.IWalletManager,
+        wallet: Contracts.State.Wallet,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
         if (!wallet.hasAttribute("business")) {
             throw new WalletIsNotBusinessError();
@@ -64,6 +65,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         const businessAttributes: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>(
             "business",
         );
+
         if (businessAttributes.resigned) {
             throw new BusinessIsResignedError();
         }
@@ -71,8 +73,15 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             throw new BridgechainIsNotRegisteredByWalletError();
         }
 
+        Utils.assert.defined<MagistrateInterfaces.IBridgechainResignationAsset>(
+            transaction.data.asset?.bridgechainResignation,
+        );
+
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
+
+        Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
+
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainResignation.bridgechainId];
         if (!bridgechainAttributes) {
@@ -83,84 +92,93 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             throw new BridgechainIsResignedError();
         }
 
-        return super.throwIfCannotBeApplied(transaction, wallet, walletManager);
+        return super.throwIfCannotBeApplied(transaction, wallet, customWalletRepository);
     }
 
-    public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
-        emitter.emit(MagistrateApplicationEvents.BridgechainResigned, transaction.data);
+    public emitEvents(transaction: Interfaces.ITransaction, emitter: Contracts.Kernel.EventDispatcher): void {
+        emitter.dispatch(MagistrateApplicationEvents.BridgechainResigned, transaction.data);
     }
 
-    public async canEnterTransactionPool(
-        data: Interfaces.ITransactionData,
-        pool: TransactionPool.IConnection,
-        processor: TransactionPool.IProcessor,
-    ): Promise<{ type: string; message: string } | null> {
-        const { bridgechainId }: { bridgechainId: string } = data.asset.bridgechainResignation;
+    public async throwIfCannotEnterPool(transaction: Interfaces.ITransaction): Promise<void> {
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const bridgechainResignationsInPool: Interfaces.ITransactionData[] = Array.from(
-            await pool.getTransactionsByType(
-                Enums.MagistrateTransactionType.BridgechainResignation,
-                Enums.MagistrateTransactionGroup,
-            ),
-        ).map((memTx: Interfaces.ITransaction) => memTx.data);
+        const bridgechainId: string = transaction.data.asset!.bridgechainResignation.bridgechainId;
+        const hasResignation: boolean = this.poolQuery
+            .getAllBySender(transaction.data.senderPublicKey)
+            .whereKind(transaction)
+            .wherePredicate(t => t.data.asset?.bridgechainResignation.bridgechainId === bridgechainId)
+            .has();
 
-        if (
-            bridgechainResignationsInPool.some(
-                resignation =>
-                    resignation.senderPublicKey === data.senderPublicKey &&
-                    resignation.asset.bridgechainResignation.bridgechainId === bridgechainId,
-            )
-        ) {
-            return {
-                type: "ERR_PENDING",
-                message: `Bridgechain resignation for bridgechainId "${bridgechainId}" already in the pool`,
-            };
+        if (hasResignation) {
+            throw new Contracts.TransactionPool.PoolError(
+                `Bridgechain resignation for bridgechainId "${bridgechainId}" already in the pool`,
+                "ERR_PENDING",
+                transaction,
+            );
         }
-
-        return null;
     }
 
     public async applyToSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.applyToSender(transaction, walletManager);
+        await super.applyToSender(transaction, customWalletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
-            "business",
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const businessAttributes: IBusinessWalletAttributes = walletRepository
+            .findByPublicKey(transaction.data.senderPublicKey)
+            .getAttribute<IBusinessWalletAttributes>("business");
+
+        Utils.assert.defined<MagistrateInterfaces.IBridgechainResignationAsset>(
+            transaction.data.asset?.bridgechainResignation,
         );
 
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
+
+        Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
+
         businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = true;
     }
 
     public async revertForSender(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        customWalletRepository?: Contracts.State.WalletRepository,
     ): Promise<void> {
-        await super.revertForSender(transaction, walletManager);
+        await super.revertForSender(transaction, customWalletRepository);
 
-        const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-        const businessAttributes: IBusinessWalletAttributes = sender.getAttribute<IBusinessWalletAttributes>(
-            "business",
+        const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
+
+        Utils.assert.defined<string>(transaction.data.senderPublicKey);
+
+        const businessAttributes: IBusinessWalletAttributes = walletRepository
+            .findByPublicKey(transaction.data.senderPublicKey)
+            .getAttribute<IBusinessWalletAttributes>("business");
+
+        Utils.assert.defined<MagistrateInterfaces.IBridgechainResignationAsset>(
+            transaction.data.asset?.bridgechainResignation,
         );
 
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
             transaction.data.asset.bridgechainResignation;
+
+        Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
+
         businessAttributes.bridgechains[bridgechainResignation.bridgechainId].resigned = false;
     }
 
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line: no-empty
     ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
-        walletManager: State.IWalletManager,
+        customWalletRepository?: Contracts.State.WalletRepository,
         // tslint:disable-next-line:no-empty
     ): Promise<void> {}
 }

@@ -1,19 +1,22 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
-import Sntp from "@hapi/sntp";
-import shuffle from "lodash.shuffle";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
+import Sntp, { TimeOptions } from "@hapi/sntp";
 
-export const checkNTP = (hosts, timeout = 1000): any => {
-    const logger = app.resolvePlugin<Logger.ILogger>("logger");
-
+export const checkNTP = (
+    app: Contracts.Kernel.Application,
+    hosts: string[],
+    timeout: number = 1000,
+): Promise<{ time: TimeOptions; host: string }> => {
     return new Promise(async (resolve, reject) => {
-        for (const host of shuffle(hosts)) {
+        for (const host of Utils.shuffle(hosts)) {
             try {
-                const time: Sntp.TimeOptions = await Sntp.time({ host, timeout });
+                const time: Sntp.TimeOptions = await Sntp.time({
+                    host,
+                    timeout,
+                });
 
                 return resolve({ time, host });
             } catch (err) {
-                logger.error(`Host ${host} responsed with: ${err.message}`);
+                app.log.error(`Host ${host} responsed with: ${err.message}`);
             }
         }
 

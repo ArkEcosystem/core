@@ -1,10 +1,11 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { MagistrateTransactionGroup, MagistrateTransactionType } from "../enums";
 import { IBusinessRegistrationAsset } from "../interfaces";
 import { BusinessRegistrationTransaction } from "../transactions";
 
 export class BusinessRegistrationBuilder extends Transactions.TransactionBuilder<BusinessRegistrationBuilder> {
-    constructor() {
+    public constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;
@@ -15,9 +16,12 @@ export class BusinessRegistrationBuilder extends Transactions.TransactionBuilder
     }
 
     public businessRegistrationAsset(businessAsset: IBusinessRegistrationAsset): BusinessRegistrationBuilder {
-        this.data.asset.businessRegistration = {
-            ...businessAsset,
-        };
+        if (this.data.asset && this.data.asset.businessRegistration) {
+            this.data.asset.businessRegistration = {
+                ...businessAsset,
+            };
+        }
+
         return this;
     }
 

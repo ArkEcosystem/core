@@ -1,16 +1,16 @@
 import { Keys } from "../../../identities";
 import { ITransactionAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { SecondSignatureRegistrationTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
-        this.data.type = SecondSignatureRegistrationTransaction.type;
-        this.data.typeGroup = SecondSignatureRegistrationTransaction.typeGroup;
-        this.data.fee = SecondSignatureRegistrationTransaction.staticFee();
+        this.data.type = Two.SecondSignatureRegistrationTransaction.type;
+        this.data.typeGroup = Two.SecondSignatureRegistrationTransaction.typeGroup;
+        this.data.fee = Two.SecondSignatureRegistrationTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.recipientId = undefined;
         this.data.senderPublicKey = undefined;
@@ -18,7 +18,10 @@ export class SecondSignatureBuilder extends TransactionBuilder<SecondSignatureBu
     }
 
     public signatureAsset(secondPassphrase: string): SecondSignatureBuilder {
-        this.data.asset.signature.publicKey = Keys.fromPassphrase(secondPassphrase).publicKey;
+        if (this.data.asset && this.data.asset.signature) {
+            this.data.asset.signature.publicKey = Keys.fromPassphrase(secondPassphrase).publicKey;
+        }
+
         return this;
     }
 

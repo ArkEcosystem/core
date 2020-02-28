@@ -1,15 +1,15 @@
 import { IHtlcClaimAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { HtlcClaimTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class HtlcClaimBuilder extends TransactionBuilder<HtlcClaimBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
-        this.data.type = HtlcClaimTransaction.type;
-        this.data.typeGroup = HtlcClaimTransaction.typeGroup;
-        this.data.fee = HtlcClaimTransaction.staticFee();
+        this.data.type = Two.HtlcClaimTransaction.type;
+        this.data.typeGroup = Two.HtlcClaimTransaction.typeGroup;
+        this.data.fee = Two.HtlcClaimTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.asset = {};
     }

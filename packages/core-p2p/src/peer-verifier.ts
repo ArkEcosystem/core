@@ -1,33 +1,64 @@
-// tslint:disable:max-classes-per-file
-import { app } from "@arkecosystem/core-container";
-import { Database, Logger, P2P, Shared, State } from "@arkecosystem/core-interfaces";
-import { CappedSet, NSect, roundCalculator } from "@arkecosystem/core-utils";
+import { DatabaseService } from "@arkecosystem/core-database";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import assert from "assert";
 import pluralize from "pluralize";
 import { inspect } from "util";
+
 import { Severity } from "./enums";
 
-export class PeerVerificationResult implements P2P.IPeerVerificationResult {
-    public constructor(readonly myHeight: number, readonly hisHeight: number, readonly highestCommonHeight: number) {}
+export class PeerVerificationResult {
+    public constructor(
+        public readonly myHeight: number,
+        public readonly hisHeight: number,
+        public readonly highestCommonHeight: number,
+    ) {}
 
-    get forked(): boolean {
+    public get forked(): boolean {
         return this.highestCommonHeight !== this.myHeight && this.highestCommonHeight !== this.hisHeight;
     }
 }
 
-export class PeerVerifier {
+// todo: review the implementation
+@Container.injectable()
+export class PeerVerifier implements Contracts.P2P.PeerVerifier {
     /**
      * A cache of verified blocks' ids. A block is verified if it is connected to a chain
      * in which all blocks (including that one) are signed by the corresponding delegates.
      */
-    private static readonly verifiedBlocks = new CappedSet();
-    private readonly database: Database.IDatabaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private logPrefix: string;
+    private static readonly verifiedBlocks = new Utils.CappedSet();
 
-    public constructor(private readonly communicator: P2P.IPeerCommunicator, private readonly peer: P2P.IPeer) {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.DposState)
+    private readonly dposState!: Contracts.State.DposState;
+
+    // todo: make use of ioc
+    private database!: DatabaseService;
+    private logger!: Contracts.Kernel.Logger;
+    private logPrefix!: string;
+
+    private communicator!: Contracts.P2P.PeerCommunicator;
+    private peer!: Contracts.P2P.Peer;
+
+    // // todo: make use of ioc
+    // public constructor(
+    //     private readonly communicator: Contracts.P2P.PeerCommunicator,
+    //     private readonly peer: Contracts.P2P.Peer,
+    // ) {
+    //     this.logPrefix = `Peer verify ${peer.ip}:`;
+    // }
+
+    public initialize(communicator: Contracts.P2P.PeerCommunicator, peer: Contracts.P2P.Peer) {
+        this.communicator = communicator;
+        this.peer = peer;
+        this.database = this.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
+        this.logger = this.app.log;
+
         this.logPrefix = `Peer verify ${peer.ip}:`;
+
+        return this;
     }
 
     /**
@@ -74,14 +105,14 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     public async checkState(
-        claimedState: P2P.IPeerState,
+        claimedState: Contracts.P2P.PeerState,
         deadline: number,
     ): Promise<PeerVerificationResult | undefined> {
         if (!this.checkStateHeader(claimedState)) {
             return undefined;
         }
 
-        const claimedHeight: number = Number(claimedState.header.height);
+        const claimedHeight = Number(claimedState.header.height);
         const ourHeight: number = this.ourHeight();
         if (await this.weHavePeersHighestBlock(claimedState, ourHeight)) {
             // Case3 and Case5
@@ -102,9 +133,9 @@ export class PeerVerifier {
         return new PeerVerificationResult(ourHeight, claimedHeight, highestCommonBlockHeight);
     }
 
-    private checkStateHeader(claimedState: P2P.IPeerState): boolean {
+    private checkStateHeader(claimedState: Contracts.P2P.PeerState): boolean {
         const blockHeader: Interfaces.IBlockData = claimedState.header as Interfaces.IBlockData;
-        const claimedHeight: number = Number(blockHeader.height);
+        const claimedHeight = Number(blockHeader.height);
         if (claimedHeight !== claimedState.height) {
             this.log(
                 Severity.DEBUG_EXTRA,
@@ -115,9 +146,8 @@ export class PeerVerifier {
         }
 
         try {
-            const ownBlock: Interfaces.IBlock = app
-                .resolvePlugin<State.IStateService>("state")
-                .getStore()
+            const ownBlock: Interfaces.IBlock | undefined = this.app
+                .get<Contracts.State.StateStore>(Container.Identifiers.StateStore)
                 .getLastBlocks()
                 .find(block => block.data.height === blockHeader.height);
 
@@ -126,8 +156,8 @@ export class PeerVerifier {
                 return true;
             }
 
-            const claimedBlock: Interfaces.IBlock = Blocks.BlockFactory.fromData(blockHeader);
-            if (claimedBlock.verifySignature()) {
+            const claimedBlock: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockHeader);
+            if (claimedBlock && claimedBlock.verifySignature()) {
                 return true;
             }
 
@@ -146,12 +176,15 @@ export class PeerVerifier {
     }
 
     private ourHeight(): number {
-        const height: number = app
-            .resolvePlugin<State.IStateService>("state")
-            .getStore()
-            .getLastHeight();
+        let height: number | undefined;
 
-        assert(Number.isInteger(height), `Couldn't derive our chain height: ${height}`);
+        try {
+            height = this.app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore).getLastHeight();
+
+            assert(Number.isInteger(height));
+        } catch (error) {
+            throw new Error(`Couldn't derive our chain height: ${height}`);
+        }
 
         return height;
     }
@@ -233,7 +266,7 @@ export class PeerVerifier {
         claimedHeight: number,
         ourHeight: number,
         deadline: number,
-    ): Promise<number> {
+    ): Promise<number | undefined> {
         // The highest common block is in the interval [1, min(claimed height, our height)].
         // Search in that interval using an 8-ary search. Compared to binary search this
         // will do more comparisons. However, comparisons are practically for free while
@@ -244,7 +277,7 @@ export class PeerVerifier {
 
         const nAry = 8;
 
-        const probe = async (heightsToProbe: number[]): Promise<number> => {
+        const probe = async (heightsToProbe: number[]): Promise<number | undefined> => {
             const ourBlocks = await this.database.getBlocksByHeight(heightsToProbe);
 
             assert.strictEqual(ourBlocks.length, heightsToProbe.length);
@@ -253,6 +286,8 @@ export class PeerVerifier {
             const probesHeightById = {};
 
             for (const b of ourBlocks) {
+                Utils.assert.defined<string>(b.id);
+
                 probesIdByHeight[b.height] = b.id;
                 probesHeightById[b.id] = b.height;
             }
@@ -302,7 +337,7 @@ export class PeerVerifier {
             return highestCommon.height;
         };
 
-        const nSect = new NSect(nAry, probe);
+        const nSect = new Utils.NSect(nAry, probe);
 
         const highestCommonBlockHeight = await nSect.find(1, Math.min(claimedHeight, ourHeight));
 
@@ -324,7 +359,7 @@ export class PeerVerifier {
      * @throws {Error} if the state verification could not complete before the deadline
      */
     private async verifyPeerBlocks(startHeight: number, claimedHeight: number, deadline: number): Promise<boolean> {
-        const roundInfo = roundCalculator.calculateRound(startHeight);
+        const roundInfo = Utils.roundCalculator.calculateRound(startHeight);
         const { maxDelegates, roundHeight } = roundInfo;
         const lastBlockHeightInRound = roundHeight + maxDelegates;
 
@@ -365,31 +400,27 @@ export class PeerVerifier {
     /**
      * Get the delegates for the given round.
      */
-    private async getDelegatesByRound(roundInfo: Shared.IRoundInfo): Promise<Record<string, State.IWallet>> {
-        const { round, maxDelegates } = roundInfo;
-
+    private async getDelegatesByRound(
+        roundInfo: Contracts.Shared.RoundInfo,
+    ): Promise<Record<string, Contracts.State.Wallet>> {
         let delegates = await this.database.getActiveDelegates(roundInfo);
 
         if (delegates.length === 0) {
             // This must be the current round, still not saved into the database (it is saved
             // only after it has completed). So fetch the list of delegates from the wallet
             // manager.
-
-            delegates = this.database.walletManager.loadActiveDelegateList(roundInfo);
-            assert.strictEqual(
-                delegates.length,
-                maxDelegates,
-                `Couldn't derive the list of delegates for round ${round}. The database ` +
-                    `returned empty list and the wallet manager returned ${this.anyToString(delegates)}.`,
-            );
+            // ! looks like DoS attack vector
+            const dposRound = this.dposState.getRoundInfo();
+            assert.strictEqual(dposRound.round, roundInfo.round);
+            assert.strictEqual(dposRound.maxDelegates, roundInfo.maxDelegates);
+            delegates = this.dposState.getRoundDelegates().slice();
         }
 
-        const delegatesByPublicKey = {} as Record<string, State.IWallet>;
-
+        const delegatesByPublicKey: Record<string, Contracts.State.Wallet> = {};
         for (const delegate of delegates) {
+            Utils.assert.defined<string>(delegate.publicKey);
             delegatesByPublicKey[delegate.publicKey] = delegate;
         }
-
         return delegatesByPublicKey;
     }
 
@@ -459,7 +490,7 @@ export class PeerVerifier {
     private async verifyPeerBlock(
         blockData: Interfaces.IBlockData,
         expectedHeight: number,
-        delegatesByPublicKey: Record<string, State.IWallet>,
+        delegatesByPublicKey: Record<string, Contracts.State.Wallet>,
     ): Promise<boolean> {
         if (PeerVerifier.verifiedBlocks.has(blockData.id)) {
             this.log(
@@ -470,7 +501,10 @@ export class PeerVerifier {
             return true;
         }
 
-        const block = Blocks.BlockFactory.fromData(blockData);
+        const block: Interfaces.IBlock | undefined = Blocks.BlockFactory.fromData(blockData);
+
+        Utils.assert.defined<number>(block);
+
         if (!block.verifySignature()) {
             this.log(
                 Severity.DEBUG_EXTRA,
@@ -542,7 +576,7 @@ export class PeerVerifier {
      * logged if enabled in the environment.
      */
     private log(severity: Severity, msg: string): void {
-        const fullMsg: string = `${this.logPrefix} ${msg}`;
+        const fullMsg = `${this.logPrefix} ${msg}`;
         switch (severity) {
             case Severity.DEBUG_EXTRA:
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {

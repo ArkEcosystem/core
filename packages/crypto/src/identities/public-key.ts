@@ -1,10 +1,9 @@
 import { secp256k1 } from "bcrypto";
-import { Utils } from "..";
+
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "../errors";
 import { IMultiSignatureAsset } from "../interfaces";
-import { configManager } from "../managers";
 import { NetworkType } from "../types";
-import { Address } from "./address";
+import { numberToHex } from "../utils";
 import { Keys } from "./keys";
 
 export class PublicKey {
@@ -29,7 +28,7 @@ export class PublicKey {
             throw new InvalidMultiSignatureAssetError();
         }
 
-        const minKey: string = PublicKey.fromPassphrase(Utils.numberToHex(min));
+        const minKey: string = PublicKey.fromPassphrase(numberToHex(min));
         const keys: string[] = [minKey, ...publicKeys];
 
         return keys.reduce((previousValue: string, currentValue: string) =>
@@ -37,17 +36,5 @@ export class PublicKey {
                 .publicKeyAdd(Buffer.from(previousValue, "hex"), Buffer.from(currentValue, "hex"), true)
                 .toString("hex"),
         );
-    }
-
-    public static validate(publicKey: string, networkVersion?: number): boolean {
-        if (!networkVersion) {
-            networkVersion = configManager.get("network.pubKeyHash");
-        }
-
-        try {
-            return Address.fromPublicKey(publicKey, networkVersion).length === 34;
-        } catch (e) {
-            return false;
-        }
     }
 }

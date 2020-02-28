@@ -1,4 +1,5 @@
 import ByteBuffer from "bytebuffer";
+
 import { TransactionType, TransactionTypeGroup } from "../enums";
 import {
     DuplicateParticipantInMultiSignatureError,
@@ -12,6 +13,23 @@ import { TransactionTypeFactory } from "./types";
 
 // Reference: https://github.com/ArkEcosystem/AIPs/blob/master/AIPS/aip-11.md
 export class Deserializer {
+    public static applyV1Compatibility(transaction: ITransactionData): void {
+        transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
+        transaction.typeGroup = TransactionTypeGroup.Core;
+
+        if (transaction.type === TransactionType.Vote && transaction.senderPublicKey) {
+            transaction.recipientId = Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
+        } else if (
+            transaction.type === TransactionType.MultiSignature &&
+            transaction.asset &&
+            transaction.asset.multiSignatureLegacy
+        ) {
+            transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
+                k.startsWith("+") ? k : `+${k}`,
+            );
+        }
+    }
+
     public static deserialize(serialized: string | Buffer, options: IDeserializeOptions = {}): ITransaction {
         const data = {} as ITransactionData;
 
@@ -26,12 +44,14 @@ export class Deserializer {
 
         this.deserializeSignatures(data, buffer);
 
-        if (options.acceptLegacyVersion || isSupportedTransactionVersion(data.version)) {
-            if (data.version === 1) {
-                this.applyV1Compatibility(data);
+        if (data.version) {
+            if (options.acceptLegacyVersion || isSupportedTransactionVersion(data.version)) {
+                if (data.version === 1) {
+                    this.applyV1Compatibility(data);
+                }
+            } else {
+                throw new TransactionVersionError(data.version);
             }
-        } else {
-            throw new TransactionVersionError(data.version);
         }
 
         instance.serialized = buffer.flip().toBuffer();
@@ -189,20 +209,6 @@ export class Deserializer {
         }
 
         return false;
-    }
-
-    // tslint:disable-next-line:member-ordering
-    public static applyV1Compatibility(transaction: ITransactionData): void {
-        transaction.secondSignature = transaction.secondSignature || transaction.signSignature;
-        transaction.typeGroup = TransactionTypeGroup.Core;
-
-        if (transaction.type === TransactionType.Vote) {
-            transaction.recipientId = Address.fromPublicKey(transaction.senderPublicKey, transaction.network);
-        } else if (transaction.type === TransactionType.MultiSignature) {
-            transaction.asset.multiSignatureLegacy.keysgroup = transaction.asset.multiSignatureLegacy.keysgroup.map(k =>
-                k.startsWith("+") ? k : `+${k}`,
-            );
-        }
     }
 
     private static getByteBuffer(serialized: Buffer | string): ByteBuffer {

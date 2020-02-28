@@ -1,6 +1,6 @@
 import assert from "assert";
 import ByteBuffer from "bytebuffer";
-import Long from "long";
+
 import { PreviousBlockIdFormatError } from "../errors";
 import { IBlock, IBlockData, ITransactionData } from "../interfaces";
 import { configManager } from "../managers/config";
@@ -9,7 +9,7 @@ import { Block } from "./block";
 
 export class Serializer {
     public static size(block: IBlock): number {
-        let size = this.headerSize(block.data) + block.data.blockSignature.length / 2;
+        let size = this.headerSize(block.data) + block.data.blockSignature!.length / 2;
 
         for (const transaction of block.transactions) {
             size += 4 /* tx length */ + transaction.serialized.length;
@@ -37,7 +37,7 @@ export class Serializer {
         return buffer.flip().toBuffer();
     }
 
-    public static serialize(block: IBlockData, includeSignature: boolean = true): Buffer {
+    public static serialize(block: IBlockData, includeSignature = true): Buffer {
         const buffer: ByteBuffer = new ByteBuffer(512, true);
 
         this.serializeHeader(block, buffer);
@@ -52,7 +52,8 @@ export class Serializer {
     private static headerSize(block: IBlockData): number {
         const constants = configManager.getMilestone(block.height - 1 || 1);
 
-        return 4 + // version
+        return (
+            4 + // version
             4 + // timestamp
             4 + // height
             (constants.block.idFullSha256 ? 32 : 8) + // previousBlock
@@ -62,7 +63,8 @@ export class Serializer {
             8 + // reward
             4 + // payloadLength
             block.payloadHash.length / 2 +
-            block.generatorPublicKey.length / 2;
+            block.generatorPublicKey.length / 2
+        );
     }
 
     private static serializeHeader(block: IBlockData, buffer: ByteBuffer): void {
@@ -83,9 +85,12 @@ export class Serializer {
         buffer.writeUint32(block.height);
         buffer.append(block.previousBlockHex, "hex");
         buffer.writeUint32(block.numberOfTransactions);
-        buffer.writeUint64(Long.fromString(block.totalAmount.toString()));
-        buffer.writeUint64(Long.fromString(block.totalFee.toString()));
-        buffer.writeUint64(Long.fromString(block.reward.toString()));
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(block.totalAmount.toString());
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(block.totalFee.toString());
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(block.reward.toString());
         buffer.writeUint32(block.payloadLength);
         buffer.append(block.payloadHash, "hex");
         buffer.append(block.generatorPublicKey, "hex");

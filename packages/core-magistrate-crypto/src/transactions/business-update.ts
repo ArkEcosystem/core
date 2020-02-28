@@ -1,5 +1,7 @@
+import { Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 import { IBusinessUpdateAsset } from "../interfaces";
 import { businessSchema } from "./utils/business-schema";
@@ -10,6 +12,11 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
     public static typeGroup: number = MagistrateTransactionGroup;
     public static type: number = MagistrateTransactionType.BusinessUpdate;
     public static key: string = "businessUpdate";
+    public static version: number = 2;
+
+    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
+        MagistrateTransactionStaticFees.BusinessUpdate,
+    );
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
@@ -48,24 +55,23 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
         });
     }
 
-    protected static defaultStaticFee: Utils.BigNumber = Utils.BigNumber.make(
-        MagistrateTransactionStaticFees.BusinessUpdate,
-    );
-
     public serialize(): ByteBuffer {
         const { data } = this;
-        const businessUpdateAsset = data.asset.businessUpdate as IBusinessUpdateAsset;
 
-        let businessName: Buffer;
+        AppUtils.assert.defined<IBusinessUpdateAsset>(data.asset?.businessUpdate);
+
+        const businessUpdateAsset: IBusinessUpdateAsset = data.asset.businessUpdate;
+
+        let businessName: Buffer | undefined;
         let businessNameLength: number = 0;
 
-        let businessWebsite: Buffer;
+        let businessWebsite: Buffer | undefined;
         let businessWebsiteLength: number = 0;
 
-        let businessVat: Buffer;
+        let businessVat: Buffer | undefined;
         let businessVatLength: number = 0;
 
-        let businessRepository: Buffer;
+        let businessRepository: Buffer | undefined;
         let businessRepositoryLength: number = 0;
 
         if (businessUpdateAsset.name) {
@@ -94,22 +100,22 @@ export class BusinessUpdateTransaction extends Transactions.Transaction {
         );
 
         buffer.writeByte(businessNameLength);
-        if (businessNameLength !== 0) {
+        if (businessName && businessNameLength !== 0) {
             buffer.append(businessName);
         }
 
         buffer.writeByte(businessWebsiteLength);
-        if (businessWebsiteLength !== 0) {
+        if (businessWebsite && businessWebsiteLength !== 0) {
             buffer.append(businessWebsite);
         }
 
         buffer.writeByte(businessVatLength);
-        if (businessVatLength !== 0) {
+        if (businessVat && businessVatLength !== 0) {
             buffer.append(businessVat);
         }
 
         buffer.writeByte(businessRepositoryLength);
-        if (businessRepositoryLength !== 0) {
+        if (businessRepository && businessRepositoryLength !== 0) {
             buffer.append(businessRepository);
         }
 

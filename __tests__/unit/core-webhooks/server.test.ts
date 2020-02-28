@@ -1,14 +1,17 @@
 import "jest-extended";
 
-import { app } from "@arkecosystem/core-container";
-import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
-import { Server } from "http";
-import { tmpdir } from "os";
-import { database } from "../../../packages/core-webhooks/src/database";
-import { startServer } from "../../../packages/core-webhooks/src/server";
+import { dirSync, setGracefulCleanup } from "tmp";
+
+import { Application } from "@packages/core-kernel/src/application";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
+import { Enums } from "@packages/core-kernel/src";
+import { Database } from "@packages/core-webhooks/src/database";
+import { Identifiers as WebhookIdentifiers } from "@packages/core-webhooks/src/identifiers";
+import { Server } from "@packages/core-webhooks/src/server";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 const postData = {
-    event: ApplicationEvents.BlockForged,
+    event: Enums.BlockEvent.Forged,
     target: "https://httpbin.org/post",
     enabled: true,
     conditions: [
@@ -25,30 +28,53 @@ const postData = {
     ],
 };
 
-const request = async (server, method, path, payload = {}) => {
+const request = async (server: Server, method, path, payload = {}) => {
     const response = await server.inject({ method, url: `http://localhost:4004/api/${path}`, payload });
 
-    return { body: response.result, status: response.statusCode };
+    return { body: response.result as any, status: response.statusCode };
 };
 
 const createWebhook = (server, data?: any) => request(server, "POST", "webhooks", data || postData);
 
 let server: Server;
-beforeAll(async () => {
-    process.env.CORE_PATH_CACHE = tmpdir();
 
-    app.resolvePlugin = jest.fn().mockReturnValue(console);
+beforeEach(async () => {
+    const app: Application = new Application(new Container());
 
-    database.make();
+    app.bind(Identifiers.EventDispatcherService)
+        .to(MemoryEventDispatcher)
+        .inSingletonScope();
 
-    server = await startServer({
+    app.bind(Identifiers.LogService).toConstantValue({ info: jest.fn(), notice: jest.fn(), debug: jest.fn() });
+
+    app.bind("path.cache").toConstantValue(dirSync().name);
+
+    app.bind<Database>(WebhookIdentifiers.Database)
+        .to(Database)
+        .inSingletonScope();
+
+    app.get<Database>(WebhookIdentifiers.Database).boot();
+
+    // Setup Server...
+    app.bind(WebhookIdentifiers.Server)
+        .to(Server)
+        .inSingletonScope();
+
+    server = app.get<Server>(WebhookIdentifiers.Server);
+
+    server.register({
         host: "0.0.0.0",
         port: 4004,
-        whitelist: ["127.0.0.1", "::ffff:127.0.0.1"],
     });
+
+    await server.boot();
 });
 
-describe("API 2.0 - Webhooks", () => {
+afterEach(async () => server.dispose());
+
+afterAll(() => setGracefulCleanup());
+
+describe("Webhooks", () => {
     it("should GET all the webhooks", async () => {
         const response = await request(server, "GET", "webhooks");
 
@@ -64,7 +90,7 @@ describe("API 2.0 - Webhooks", () => {
 
     it("should POST a new webhook with a complex condition", async () => {
         const response = await createWebhook(server, {
-            event: ApplicationEvents.BlockForged,
+            event: Enums.BlockEvent.Forged,
             target: "https://httpbin.org/post",
             enabled: true,
             conditions: [
@@ -84,7 +110,7 @@ describe("API 2.0 - Webhooks", () => {
 
     it("should POST a new webhook with an empty array as condition", async () => {
         const response = await createWebhook(server, {
-            event: ApplicationEvents.BlockForged,
+            event: Enums.BlockEvent.Forged,
             target: "https://httpbin.org/post",
             enabled: true,
             conditions: [],

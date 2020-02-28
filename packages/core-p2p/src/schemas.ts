@@ -1,4 +1,5 @@
-import { app } from "@arkecosystem/core-container";
+// @ts-ignore
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
 export const requestSchemas = {
     peer: {
@@ -11,7 +12,13 @@ export const requestSchemas = {
             required: ["ids"],
             additionalProperties: false,
             properties: {
-                ids: { type: "array", additionalItems: false, minItems: 1, maxItems: 10, items: { blockId: {} } },
+                ids: {
+                    type: "array",
+                    additionalItems: false,
+                    minItems: 1,
+                    maxItems: 10,
+                    items: { blockId: {} },
+                },
             },
         },
         getStatus: {
@@ -45,9 +52,16 @@ export const requestSchemas = {
                 transactions: {
                     $ref: "transactions",
                     minItems: 1,
-                    maxItems: app.has("transaction-pool")
-                        ? app.resolveOptions("transaction-pool").maxTransactionsPerRequest || 40
-                        : 40,
+                    maxItems: 40, // todo: get the application instance in here
+                    // maxItems: app.isBound(Container.Identifiers.TransactionPoolService)
+                    //     ? app
+                    //         .get<Providers.ServiceProviderRepository>(
+                    //             Container.Identifiers.ServiceProviderRepository,
+                    //         )
+                    //         .get("transactionPool")
+                    //         .config()
+                    //         .get<number>("maxTransactionsPerRequest") || 40
+                    //     : 40,
                 },
             },
         },

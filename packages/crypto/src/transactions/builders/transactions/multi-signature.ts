@@ -1,14 +1,14 @@
 import { IMultiSignatureAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { MultiSignatureRegistrationTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
-        this.data.type = MultiSignatureRegistrationTransaction.type;
-        this.data.typeGroup = MultiSignatureRegistrationTransaction.typeGroup;
+        this.data.type = Two.MultiSignatureRegistrationTransaction.type;
+        this.data.typeGroup = Two.MultiSignatureRegistrationTransaction.typeGroup;
         this.data.version = 2;
         this.data.fee = BigNumber.ZERO;
         this.data.amount = BigNumber.ZERO;
@@ -18,25 +18,31 @@ export class MultiSignatureBuilder extends TransactionBuilder<MultiSignatureBuil
     }
 
     public participant(publicKey: string): MultiSignatureBuilder {
-        const { publicKeys }: IMultiSignatureAsset = this.data.asset.multiSignature;
+        if (this.data.asset && this.data.asset.multiSignature) {
+            const { publicKeys }: IMultiSignatureAsset = this.data.asset.multiSignature;
 
-        if (publicKeys.length <= 16) {
-            publicKeys.push(publicKey);
-            this.data.fee = MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
+            if (publicKeys.length <= 16) {
+                publicKeys.push(publicKey);
+                this.data.fee = Two.MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
+            }
         }
 
         return this;
     }
 
     public min(min: number): MultiSignatureBuilder {
-        this.data.asset.multiSignature.min = min;
+        if (this.data.asset && this.data.asset.multiSignature) {
+            this.data.asset.multiSignature.min = min;
+        }
 
         return this;
     }
 
     public multiSignatureAsset(multiSignature: IMultiSignatureAsset): MultiSignatureBuilder {
-        this.data.asset.multiSignature = multiSignature;
-        this.data.fee = MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
+        if (this.data.asset && this.data.asset.multiSignature) {
+            this.data.asset.multiSignature = multiSignature;
+            this.data.fee = Two.MultiSignatureRegistrationTransaction.staticFee({ data: this.data });
+        }
 
         return this;
     }

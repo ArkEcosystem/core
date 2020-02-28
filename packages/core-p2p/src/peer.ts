@@ -1,45 +1,106 @@
-import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Contracts } from "@arkecosystem/core-kernel";
 import dayjs, { Dayjs } from "dayjs";
+
 import { PeerVerificationResult } from "./peer-verifier";
 
-export class Peer implements P2P.IPeer {
-    public readonly ports: P2P.IPeerPorts = {};
-    public readonly port: number = +app.resolveOptions("p2p").server.port;
+/**
+ * @export
+ * @class Peer
+ * @implements {Contracts.P2P.Peer}
+ */
+export class Peer implements Contracts.P2P.Peer {
+    /**
+     * @type {Contracts.P2P.PeerPorts}
+     * @memberof Peer
+     */
+    public readonly ports: Contracts.P2P.PeerPorts = {};
 
-    public version: string;
-    public latency: number;
+    /**
+     * @type {(string | undefined)}
+     * @memberof Peer
+     */
+    public version: string | undefined;
+
+    /**
+     * @type {(number | undefined)}
+     * @memberof Peer
+     */
+    public latency: number | undefined;
+
+    /**
+     * @type {(Dayjs | undefined)}
+     * @memberof Peer
+     */
     public lastPinged: Dayjs | undefined;
+
+    /**
+     * @type {(PeerVerificationResult | undefined)}
+     * @memberof Peer
+     */
     public verificationResult: PeerVerificationResult | undefined;
 
-    public state: P2P.IPeerState = {
+    /**
+     * @type {Contracts.P2P.PeerState}
+     * @memberof Peer
+     */
+    public state: Contracts.P2P.PeerState = {
         height: undefined,
         forgingAllowed: undefined,
         currentSlot: undefined,
         header: {},
     };
 
-    public plugins: P2P.IPeerPlugins = {};
+    /**
+     * @type {Contracts.P2P.PeerPlugins}
+     * @memberof Peer
+     */
+    public plugins: Contracts.P2P.PeerPlugins = {};
 
-    constructor(readonly ip: string) {}
+    /**
+     * @param {string} ip
+     * @param {number} port
+     * @memberof Peer
+     */
+    public constructor(public readonly ip: string, public readonly port: number) {}
 
-    get url(): string {
+    /**
+     * @readonly
+     * @type {string}
+     * @memberof Peer
+     */
+    public get url(): string {
         return `${this.port % 443 === 0 ? "https://" : "http://"}${this.ip}:${this.port}`;
     }
 
+    /**
+     * @returns {boolean}
+     * @memberof Peer
+     */
     public isVerified(): boolean {
         return this.verificationResult instanceof PeerVerificationResult;
     }
 
+    /**
+     * @returns {boolean}
+     * @memberof Peer
+     */
     public isForked(): boolean {
-        return this.isVerified() && this.verificationResult.forked;
+        return !!(this.isVerified() && this.verificationResult && this.verificationResult.forked);
     }
 
+    /**
+     * @returns {boolean}
+     * @memberof Peer
+     */
     public recentlyPinged(): boolean {
         return !!this.lastPinged && dayjs().diff(this.lastPinged, "minute") < 2;
     }
 
-    public toBroadcast(): P2P.IPeerBroadcast {
+    /**
+     * @returns {Contracts.P2P.PeerBroadcast}
+     * @memberof Peer
+     */
+    public toBroadcast(): Contracts.P2P.PeerBroadcast {
         return {
             ip: this.ip,
             ports: this.ports,

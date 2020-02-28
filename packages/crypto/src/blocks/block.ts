@@ -4,11 +4,53 @@ import { IBlock, IBlockData, IBlockJson, IBlockVerification, ITransaction, ITran
 import { configManager } from "../managers/config";
 import { BigNumber, isException } from "../utils";
 import { validator } from "../validation";
-import { Deserializer } from "./deserializer";
 import { Serializer } from "./serializer";
 
 export class Block implements IBlock {
-    public static applySchema(data: IBlockData): IBlockData {
+    // @ts-ignore - todo: this is public but not initialised on creation, either make it private or declare it as undefined
+    public serialized: string;
+    public data: IBlockData;
+    public transactions: ITransaction[];
+    public verification: IBlockVerification;
+
+    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
+        this.data = data;
+
+        // TODO genesis block calculated id is wrong for some reason
+        if (this.data.height === 1) {
+            if (id) {
+                this.applyGenesisBlockFix(id);
+            } else if (data.id) {
+                this.applyGenesisBlockFix(data.id);
+            }
+        }
+
+        // fix on real timestamp, this is overloading transaction
+        // timestamp with block timestamp for storage only
+        // also add sequence to keep database sequence
+        this.transactions = transactions.map((transaction, index) => {
+            transaction.data.blockId = this.data.id;
+            transaction.timestamp = this.data.timestamp;
+            transaction.data.sequence = index;
+            return transaction;
+        });
+
+        delete this.data.transactions;
+
+        this.verification = this.verify();
+
+        // Order of transactions messed up in mainnet V1
+        const { wrongTransactionOrder } = configManager.get("exceptions");
+        if (this.data.id && wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
+            const fixedOrderIds = wrongTransactionOrder[this.data.id];
+
+            this.transactions = fixedOrderIds.map((id: string) =>
+                this.transactions.find(transaction => transaction.id === id),
+            );
+        }
+    }
+
+    public static applySchema(data: IBlockData): IBlockData | undefined {
         let result = validator.validate("block", data);
 
         if (!result.error) {
@@ -17,19 +59,27 @@ export class Block implements IBlock {
 
         result = validator.validateException("block", data);
 
+        if (!result.errors) {
+            return result.value;
+        }
+
         for (const err of result.errors) {
             let fatal = false;
 
             const match = err.dataPath.match(/\.transactions\[([0-9]+)\]/);
             if (match === null) {
-                if (!isException(data)) {
+                if (!isException(data.id)) {
                     fatal = true;
                 }
             } else {
                 const txIndex = match[1];
-                const tx = data.transactions[txIndex];
-                if (tx.id === undefined || !isException(tx)) {
-                    fatal = true;
+
+                if (data.transactions) {
+                    const tx = data.transactions[txIndex];
+
+                    if (tx.id === undefined || !isException(tx.id)) {
+                        fatal = true;
+                    }
                 }
             }
 
@@ -45,21 +95,9 @@ export class Block implements IBlock {
         return result.value;
     }
 
-    public static deserialize(hexString: string, headerOnly: boolean = false): IBlockData {
-        return Deserializer.deserialize(hexString, headerOnly).data;
-    }
-
-    public static serializeWithTransactions(block: IBlockData) {
-        return Serializer.serializeWithTransactions(block);
-    }
-
-    public static serialize(block: IBlockData, includeSignature: boolean = true) {
-        return Serializer.serialize(block, includeSignature);
-    }
-
     public static getIdHex(data: IBlockData): string {
         const constants = configManager.getMilestone(data.height);
-        const payloadHash: Buffer = Block.serialize(data);
+        const payloadHash: Buffer = Serializer.serialize(data);
 
         const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
@@ -89,44 +127,6 @@ export class Block implements IBlock {
         return constants.block.idFullSha256 ? idHex : BigNumber.make(`0x${idHex}`).toString();
     }
 
-    public serialized: string;
-    public data: IBlockData;
-    public transactions: ITransaction[];
-    public verification: IBlockVerification;
-
-    public constructor({ data, transactions, id }: { data: IBlockData; transactions: ITransaction[]; id?: string }) {
-        this.data = data;
-
-        // TODO genesis block calculated id is wrong for some reason
-        if (this.data.height === 1) {
-            this.applyGenesisBlockFix(id || data.id);
-        }
-
-        // fix on real timestamp, this is overloading transaction
-        // timestamp with block timestamp for storage only
-        // also add sequence to keep database sequence
-        this.transactions = transactions.map((transaction, index) => {
-            transaction.data.blockId = this.data.id;
-            transaction.timestamp = this.data.timestamp;
-            transaction.data.sequence = index;
-            return transaction;
-        });
-
-        delete this.data.transactions;
-
-        this.verification = this.verify();
-
-        // Order of transactions messed up in mainnet V1
-        const { wrongTransactionOrder } = configManager.get("exceptions");
-        if (wrongTransactionOrder && wrongTransactionOrder[this.data.id]) {
-            const fixedOrderIds = wrongTransactionOrder[this.data.id];
-
-            this.transactions = fixedOrderIds.map((id: string) =>
-                this.transactions.find(transaction => transaction.id === id),
-            );
-        }
-    }
-
     public getHeader(): IBlockData {
         const header: IBlockData = Object.assign({}, this.data);
         delete header.transactions;
@@ -135,8 +135,12 @@ export class Block implements IBlock {
     }
 
     public verifySignature(): boolean {
-        const bytes: Buffer = Block.serialize(this.data, false);
+        const bytes: Buffer = Serializer.serialize(this.data, false);
         const hash: Buffer = HashAlgorithms.sha256(bytes);
+
+        if (!this.data.blockSignature) {
+            throw new Error();
+        }
 
         return Hash.verifyECDSA(hash, this.data.blockSignature, this.data.generatorPublicKey);
     }
@@ -168,7 +172,7 @@ export class Block implements IBlock {
                 }
             }
 
-            if (!(block.reward as BigNumber).isEqualTo(constants.reward)) {
+            if (!block.reward.isEqualTo(constants.reward)) {
                 result.errors.push(["Invalid block reward:", block.reward, "expected:", constants.reward].join(" "));
             }
 
@@ -186,14 +190,9 @@ export class Block implements IBlock {
                 result.errors.push("Invalid block timestamp");
             }
 
-            const serializedBuffer = Block.serializeWithTransactions({
-                ...block,
-                transactions: this.transactions.map(tx => tx.data),
-            });
-            if (serializedBuffer.byteLength > constants.block.maxPayload) {
-                result.errors.push(
-                    `Payload is too large: ${serializedBuffer.byteLength} > ${constants.block.maxPayload}`,
-                );
+            const size: number = Serializer.size(this);
+            if (size > constants.block.maxPayload) {
+                result.errors.push(`Payload is too large: ${size} > ${constants.block.maxPayload}`);
             }
 
             const invalidTransactions: ITransaction[] = this.transactions.filter(tx => !tx.verified);
@@ -225,13 +224,21 @@ export class Block implements IBlock {
 
             const payloadBuffers: Buffer[] = [];
             for (const transaction of this.transactions) {
+                if (!transaction.data || !transaction.data.id) {
+                    throw new Error();
+                }
+
                 const bytes: Buffer = Buffer.from(transaction.data.id, "hex");
 
                 if (appliedTransactions[transaction.data.id]) {
                     result.errors.push(`Encountered duplicate transaction: ${transaction.data.id}`);
                 }
 
-                if (transaction.data.expiration > 0 && transaction.data.expiration <= this.data.height) {
+                if (
+                    transaction.data.expiration &&
+                    transaction.data.expiration > 0 &&
+                    transaction.data.expiration <= this.data.height
+                ) {
                     const isException =
                         configManager.get("network.name") === "devnet" && constants.ignoreExpiredTransactions;
                     if (!isException) {

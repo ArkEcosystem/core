@@ -1,17 +1,23 @@
-import Boom from "@hapi/boom";
-import { IWebhook } from "../interfaces";
+import { Boom, notFound } from "@hapi/boom";
 
-export const transformResource = (model): IWebhook => {
-    return {
-        id: model.id,
-        event: model.event,
-        target: model.target,
-        token: model.token,
-        enabled: model.enabled,
-        conditions: model.conditions,
-    };
-};
+import { Webhook } from "../interfaces";
 
-export const respondWithResource = data => {
-    return data ? { data: transformResource(data) } : Boom.notFound();
-};
+/**
+ * @param {*} model
+ * @returns {Webhook}
+ */
+export const transformResource = (model): Webhook => ({
+    id: model.id,
+    event: model.event,
+    target: model.target,
+    token: model.token,
+    enabled: model.enabled,
+    conditions: model.conditions,
+});
+
+/**
+ * @param {*} data
+ * @returns {{ data: Webhook }}
+ */
+export const respondWithResource = (data): { data: Webhook } | Boom<Webhook> =>
+    data ? { data: transformResource(data) } : notFound();

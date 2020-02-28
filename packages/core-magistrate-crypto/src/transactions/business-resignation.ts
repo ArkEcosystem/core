@@ -1,5 +1,6 @@
 import { Transactions, Utils } from "@arkecosystem/crypto";
 import ByteBuffer from "bytebuffer";
+
 import { MagistrateTransactionGroup, MagistrateTransactionStaticFees, MagistrateTransactionType } from "../enums";
 
 const { schemas } = Transactions;
@@ -8,6 +9,9 @@ export class BusinessResignationTransaction extends Transactions.Transaction {
     public static typeGroup: number = MagistrateTransactionGroup;
     public static type: number = MagistrateTransactionType.BusinessResignation;
     public static key: string = "businessResignation";
+    public static version: number = 2;
+
+    protected static defaultStaticFee = Utils.BigNumber.make(MagistrateTransactionStaticFees.BusinessResignation);
 
     public static getSchema(): Transactions.schemas.TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
@@ -20,8 +24,6 @@ export class BusinessResignationTransaction extends Transactions.Transaction {
             },
         });
     }
-    protected static defaultStaticFee = Utils.BigNumber.make(MagistrateTransactionStaticFees.BusinessResignation);
-
     public serialize(): ByteBuffer {
         return new ByteBuffer(0);
     }

@@ -2,16 +2,16 @@ import { MaximumPaymentCountExceededError, MinimumPaymentCountSubceededError } f
 import { ITransactionData } from "../../../interfaces";
 import { configManager } from "../../../managers";
 import { BigNumber } from "../../../utils";
-import { MultiPaymentTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
-        this.data.type = MultiPaymentTransaction.type;
-        this.data.typeGroup = MultiPaymentTransaction.typeGroup;
-        this.data.fee = MultiPaymentTransaction.staticFee();
+        this.data.type = Two.MultiPaymentTransaction.type;
+        this.data.typeGroup = Two.MultiPaymentTransaction.typeGroup;
+        this.data.fee = Two.MultiPaymentTransaction.staticFee();
         this.data.vendorField = undefined;
         this.data.asset = {
             payments: [],
@@ -20,22 +20,24 @@ export class MultiPaymentBuilder extends TransactionBuilder<MultiPaymentBuilder>
     }
 
     public addPayment(recipientId: string, amount: string): MultiPaymentBuilder {
-        const limit: number = configManager.getMilestone().multiPaymentLimit || 500;
+        if (this.data.asset && this.data.asset.payments) {
+            const limit: number = configManager.getMilestone().multiPaymentLimit || 256;
+            if (this.data.asset.payments.length >= limit) {
+                throw new MaximumPaymentCountExceededError(limit);
+            }
 
-        if (this.data.asset.payments.length >= limit) {
-            throw new MaximumPaymentCountExceededError(limit);
+            this.data.asset.payments.push({
+                amount: BigNumber.make(amount),
+                recipientId,
+            });
         }
-
-        this.data.asset.payments.push({
-            amount: BigNumber.make(amount),
-            recipientId,
-        });
 
         return this;
     }
 
     public getStruct(): ITransactionData {
         if (
+            !this.data.asset ||
             !this.data.asset.payments ||
             !Array.isArray(this.data.asset.payments) ||
             this.data.asset.payments.length <= 1

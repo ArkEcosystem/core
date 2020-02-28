@@ -1,9 +1,10 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { MagistrateTransactionGroup, MagistrateTransactionType } from "../enums";
 import { BusinessResignationTransaction } from "../transactions";
 
 export class BusinessResignationBuilder extends Transactions.TransactionBuilder<BusinessResignationBuilder> {
-    constructor() {
+    public constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;

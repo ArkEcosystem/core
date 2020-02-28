@@ -1,13 +1,14 @@
 import "jest-extended";
 
 import ajv from "ajv";
-import { ITransactionData } from "../../../../packages/crypto/src/interfaces/transactions";
-import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
-import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
-import { BigNumber } from "../../../../packages/crypto/src/utils";
-import { validator } from "../../../../packages/crypto/src/validation";
-import { block2, genesisBlock } from "../../../utils/fixtures/unitnet/blocks";
+import { IBlock, ITransactionData } from "@packages/crypto/src/interfaces";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionTypeFactory } from "@packages/crypto/src/transactions";
+import { TransactionSchema } from "@packages/crypto/src/transactions/types/schemas";
+import { BigNumber } from "@packages/crypto/src/utils";
+import { validator } from "@packages/crypto/src/validation";
+
+import { Factories, Generators } from "@packages/core-test-framework/src";
 
 describe("validator", () => {
     describe("validate", () => {
@@ -255,25 +256,43 @@ describe("validator", () => {
         describe("block", () => {
             beforeAll(() => {
                 TransactionTypeFactory.get(0); // Make sure registry is loaded, since it adds the "transactions" schema.
-                configManager.setFromPreset("unitnet");
+
+                // todo: completely wrap this into a function to hide the generation and setting of the config?
+                configManager.setConfig(Generators.generateCryptoConfigRaw());
             });
 
             it("should be ok", () => {
-                expect(validator.validate("block", block2).error).toBeUndefined();
-                expect(validator.validate("block", genesisBlock).error).toBeUndefined();
+                const block: IBlock = Factories.factory("Block")
+                    .withOptions({
+                        config: configManager.all(),
+                        nonce: "0",
+                        transactionsCount: 10,
+                    })
+                    .make();
+
+                expect(validator.validate("block", block.toJson()).error).toBeUndefined();
+                expect(validator.validate("block", configManager.get("genesisBlock")).error).toBeUndefined();
             });
 
             it("should not be ok", () => {
-                block2.numberOfTransactions = 1;
-                expect(validator.validate("block", block2).error).not.toBeUndefined();
-                block2.numberOfTransactions = 11;
-                expect(validator.validate("block", block2).error).not.toBeUndefined();
-                block2.numberOfTransactions = 10;
-                expect(validator.validate("block", block2).error).toBeUndefined();
-                block2.transactions[0] = {} as any;
-                expect(validator.validate("block", block2).error).not.toBeUndefined();
-                block2.transactions[0] = 1234 as any;
-                expect(validator.validate("block", block2).error).not.toBeUndefined();
+                const block: IBlock = Factories.factory("Block")
+                    .withOptions({
+                        config: configManager.all(),
+                        nonce: "0",
+                        transactionsCount: 10,
+                    })
+                    .make();
+
+                block.data.numberOfTransactions = 1;
+                expect(validator.validate("block", block.toJson()).error).not.toBeUndefined();
+                block.data.numberOfTransactions = 11;
+                expect(validator.validate("block", block.toJson()).error).not.toBeUndefined();
+                block.data.numberOfTransactions = 10;
+                expect(validator.validate("block", block.toJson()).error).toBeUndefined();
+                block.transactions[0] = {} as any;
+                expect(validator.validate("block", block).error).not.toBeUndefined();
+                block.transactions[0] = 1234 as any;
+                expect(validator.validate("block", block).error).not.toBeUndefined();
             });
         });
     });

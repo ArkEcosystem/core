@@ -1,23 +1,22 @@
 import "jest-extended";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { TransactionVersionError } from "@packages/crypto/src/errors";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
+import { MultiSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/multi-signature";
+import * as Utils from "@packages/crypto/src/utils";
 
-configManager.setFromPreset("testnet");
-configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
-
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { TransactionVersionError } from "../../../../../../packages/crypto/src/errors";
-import {
-    BuilderFactory,
-    MultiSignatureRegistrationTransaction,
-} from "../../../../../../packages/crypto/src/transactions";
-import { MultiSignatureBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/multi-signature";
-import * as Utils from "../../../../../../packages/crypto/src/utils";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: MultiSignatureBuilder;
 
 beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = Generators.generateCryptoConfigRaw();
+    configManager.setConfig(config);
+
     builder = BuilderFactory.multiSignature();
 });
 
@@ -61,8 +60,6 @@ describe("Multi Signature Transaction", () => {
         });
     });
 
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.MultiSignature);
         expect(builder).toHaveProperty("data.version", 0x02);
@@ -75,7 +72,7 @@ describe("Multi Signature Transaction", () => {
     });
 
     describe("multiSignatureAsset", () => {
-        const multiSignatureFee = MultiSignatureRegistrationTransaction.staticFee();
+        const multiSignatureFee = Two.MultiSignatureRegistrationTransaction.staticFee();
         const multiSignature = {
             publicKeys: ["key a", "key b", "key c"],
             min: 1,

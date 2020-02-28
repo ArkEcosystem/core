@@ -27,6 +27,7 @@ export const decorate = () => {
                 delete response[key];
             }
 
+            // @ts-ignore
             return this.response({
                 results,
                 totalCount,

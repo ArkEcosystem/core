@@ -1,20 +1,42 @@
+import { DatabaseService } from "@arkecosystem/core-database";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { Interfaces } from "@arkecosystem/crypto";
-import { BlockProcessorResult } from "../block-processor";
-import { AcceptBlockHandler } from "./accept-block-handler";
-import { BlockHandler } from "./block-handler";
 
-export class ExceptionHandler extends BlockHandler {
-    public async execute(): Promise<BlockProcessorResult> {
-        // Ensure the block has not been forged yet, as an exceptional
-        // block bypasses all other checks.
-        const forgedBlock: Interfaces.IBlock = await this.blockchain.database.getBlock(this.block.data.id);
+import { BlockProcessorResult } from "../block-processor";
+import { BlockHandler } from "../contracts";
+import { AcceptBlockHandler } from "./accept-block-handler";
+
+// todo: remove the abstract and instead require a contract to be implemented
+@Container.injectable()
+export class ExceptionHandler implements BlockHandler {
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
+
+    @Container.inject(Container.Identifiers.BlockchainService)
+    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    @Container.inject(Container.Identifiers.DatabaseService)
+    private readonly database!: DatabaseService;
+
+    public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
+        Utils.assert.defined<string>(block.data.id);
+
+        const id: string = block.data.id;
+
+        // Ensure the block has not been forged yet, as an exceptional block bypasses all other checks.
+        const forgedBlock: Interfaces.IBlock | undefined = await this.database.getBlock(id);
 
         if (forgedBlock) {
-            return super.execute();
+            this.blockchain.resetLastDownloadedBlock();
+
+            return BlockProcessorResult.Rejected;
         }
 
-        this.logger.warn(`Block ${this.block.data.height.toLocaleString()} (${this.block.data.id}) forcibly accepted.`);
+        this.logger.warning(`Block ${block.data.height.toLocaleString()} (${id}) forcibly accepted.`);
 
-        return new AcceptBlockHandler(this.blockchain, this.block).execute();
+        return this.app.resolve<AcceptBlockHandler>(AcceptBlockHandler).execute(block);
     }
 }

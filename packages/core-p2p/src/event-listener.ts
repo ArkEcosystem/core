@@ -1,19 +1,23 @@
-import { app } from "@arkecosystem/core-container";
-import { EventEmitter, P2P } from "@arkecosystem/core-interfaces";
+import { Container, Contracts, Enums } from "@arkecosystem/core-kernel";
 
+import { DisconnectPeer } from "./listeners";
+
+// todo: review the implementation
+@Container.injectable()
 export class EventListener {
-    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
 
-    public constructor(service: P2P.IPeerService) {
-        const connector: P2P.IPeerConnector = service.getConnector();
-        const storage: P2P.IPeerStorage = service.getStorage();
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
 
-        this.emitter.on("internal.p2p.disconnectPeer", ({ peer }) => {
-            connector.disconnect(peer);
-            storage.forgetPeer(peer);
-        });
+    @Container.inject(Container.Identifiers.PeerNetworkMonitor)
+    private readonly networkMonitor!: Contracts.P2P.NetworkMonitor;
 
-        const exitHandler = () => service.getMonitor().stopServer();
+    public initialize() {
+        this.emitter.listen(Enums.PeerEvent.Disconnect, this.app.resolve(DisconnectPeer));
+
+        const exitHandler = () => this.networkMonitor.dispose();
 
         process.on("SIGINT", exitHandler);
         process.on("exit", exitHandler);

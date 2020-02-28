@@ -1,5 +1,6 @@
 import { BIP32Interface, fromPrivateKey, fromSeed } from "bip32";
 import { mnemonicToSeedSync } from "bip39";
+
 import { IKeyPair } from "../interfaces";
 import { configManager } from "../managers";
 
@@ -28,6 +29,10 @@ export class HDWallet {
      * Get key pair from the given node.
      */
     public static getKeys(node: BIP32Interface): IKeyPair {
+        if (!node.privateKey) {
+            throw new Error();
+        }
+
         return {
             publicKey: node.publicKey.toString("hex"),
             privateKey: node.privateKey.toString("hex"),
@@ -38,7 +43,7 @@ export class HDWallet {
     /**
      * Derives a node from the coin type as specified by slip44.
      */
-    public static deriveSlip44(root: BIP32Interface, hardened: boolean = true): BIP32Interface {
+    public static deriveSlip44(root: BIP32Interface, hardened = true): BIP32Interface {
         return root.derivePath(`m/44'/${this.slip44}${hardened ? "'" : ""}`);
     }
 

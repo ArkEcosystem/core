@@ -1,20 +1,22 @@
+import { Utils } from "@arkecosystem/core-kernel";
 import { RateLimiterMemory, RLWrapperBlackAndWhite } from "rate-limiter-flexible";
 
-export interface IRateLimiterConfiguration {
+export interface RateLimiterConfiguration {
     rateLimit: number;
     duration?: number;
     blockDuration?: number;
 }
 
-export interface IEndpointRateLimiterConfiguration extends IRateLimiterConfiguration {
+export interface EndpointRateLimiterConfiguration extends RateLimiterConfiguration {
     endpoint: string;
 }
 
-export interface IRateLimiterConfigurations {
-    global: IRateLimiterConfiguration;
-    endpoints: IEndpointRateLimiterConfiguration[];
+export interface RateLimiterConfigurations {
+    global: RateLimiterConfiguration;
+    endpoints: EndpointRateLimiterConfiguration[];
 }
 
+// todo: review the implementation
 export class RateLimiter {
     private global: RateLimiterMemory;
     private endpoints: Map<string, RateLimiterMemory>;
@@ -24,7 +26,7 @@ export class RateLimiter {
         configurations,
     }: {
         whitelist: string[];
-        configurations: IRateLimiterConfigurations;
+        configurations: RateLimiterConfigurations;
     }) {
         configurations.endpoints = configurations.endpoints || [];
 
@@ -41,7 +43,11 @@ export class RateLimiter {
             await this.global.consume(ip);
 
             if (endpoint && this.endpoints.has(endpoint)) {
-                await this.endpoints.get(endpoint).consume(ip);
+                const rateLimiter: RateLimiterMemory | undefined = this.endpoints.get(endpoint);
+
+                Utils.assert.defined<RateLimiterMemory>(rateLimiter);
+
+                await rateLimiter.consume(ip);
             }
         } catch {
             return true;
@@ -59,7 +65,7 @@ export class RateLimiter {
         return res !== null && res.remainingPoints <= 0;
     }
 
-    private buildRateLimiter(configuration: IRateLimiterConfiguration, whitelist: string[]): RateLimiterMemory {
+    private buildRateLimiter(configuration: RateLimiterConfiguration, whitelist: string[]): RateLimiterMemory {
         return new RLWrapperBlackAndWhite({
             limiter: new RateLimiterMemory({
                 points: configuration.rateLimit,

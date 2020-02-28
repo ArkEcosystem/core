@@ -3,13 +3,14 @@ import { IBlock, IBlockData, IBlockJson, IKeyPair, ITransaction } from "../inter
 import { BigNumber } from "../utils";
 import { Block } from "./block";
 import { Deserializer } from "./deserializer";
+import { Serializer } from "./serializer";
 
 export class BlockFactory {
-    // @TODO: add a proper type hint for data
-    public static make(data: any, keys: IKeyPair): IBlock {
+    // @todo: add a proper type hint for data
+    public static make(data: any, keys: IKeyPair): IBlock | undefined {
         data.generatorPublicKey = keys.publicKey;
 
-        const payloadHash: Buffer = Block.serialize(data, false);
+        const payloadHash: Buffer = Serializer.serialize(data, false);
         const hash: Buffer = HashAlgorithms.sha256(payloadHash);
 
         data.blockSignature = Hash.signECDSA(hash, keys);
@@ -23,37 +24,54 @@ export class BlockFactory {
     }
 
     public static fromBytes(buffer: Buffer): IBlock {
-        return this.fromSerialized(buffer ? buffer.toString("hex") : undefined);
+        return this.fromSerialized(buffer.toString("hex"));
     }
 
-    public static fromJson(json: IBlockJson): IBlock {
+    public static fromJson(json: IBlockJson): IBlock | undefined {
         // @ts-ignore
         const data: IBlockData = { ...json };
         data.totalAmount = BigNumber.make(data.totalAmount);
         data.totalFee = BigNumber.make(data.totalFee);
         data.reward = BigNumber.make(data.reward);
 
-        for (const transaction of data.transactions) {
-            transaction.amount = BigNumber.make(transaction.amount);
-            transaction.fee = BigNumber.make(transaction.fee);
+        if (data.transactions) {
+            for (const transaction of data.transactions) {
+                transaction.amount = BigNumber.make(transaction.amount);
+                transaction.fee = BigNumber.make(transaction.fee);
+            }
         }
 
         return this.fromData(data);
     }
 
-    public static fromData(data: IBlockData, options: { deserializeTransactionsUnchecked?: boolean } = {}): IBlock {
-        data = Block.applySchema(data);
+    public static fromData(
+        data: IBlockData,
+        options: { deserializeTransactionsUnchecked?: boolean } = {},
+    ): IBlock | undefined {
+        const block: IBlockData | undefined = Block.applySchema(data);
 
-        const serialized: string = Block.serializeWithTransactions(data).toString("hex");
-        const block: IBlock = new Block({ ...Deserializer.deserialize(serialized, false, options), id: data.id });
-        block.serialized = serialized;
+        if (block) {
+            const serialized: string = Serializer.serializeWithTransactions(data).toString("hex");
+            const block: IBlock = new Block({
+                ...Deserializer.deserialize(serialized, false, options),
+                id: data.id,
+            });
+            block.serialized = serialized;
 
-        return block;
+            return block;
+        }
+
+        return undefined;
     }
 
     private static fromSerialized(serialized: string): IBlock {
         const deserialized: { data: IBlockData; transactions: ITransaction[] } = Deserializer.deserialize(serialized);
-        deserialized.data = Block.applySchema(deserialized.data);
+
+        const validated: IBlockData | undefined = Block.applySchema(deserialized.data);
+
+        if (validated) {
+            deserialized.data = validated;
+        }
 
         const block: IBlock = new Block(deserialized);
         block.serialized = serialized;

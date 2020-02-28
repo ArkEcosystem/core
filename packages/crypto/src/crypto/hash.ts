@@ -1,4 +1,5 @@
 import { secp256k1 } from "bcrypto";
+
 import { IKeyPair } from "../interfaces";
 
 export class Hash {

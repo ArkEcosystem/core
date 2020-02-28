@@ -1,7 +1,8 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Managers } from "@arkecosystem/crypto";
 import SocketCluster from "socketcluster";
+
+import { PeerService } from "../contracts";
 import { requestSchemas } from "../schemas";
 import { ServerError } from "./errors";
 import { payloadProcessor } from "./payload-processor";
@@ -9,10 +10,23 @@ import { getHeaders } from "./utils/get-headers";
 import { validate } from "./utils/validate";
 import * as handlers from "./versions";
 
-export const startSocketServer = async (service: P2P.IPeerService, config: Record<string, any>): Promise<any> => {
+// todo: review implementation
+export const startSocketServer = async (
+    app: Contracts.Kernel.Application,
+    service: PeerService,
+    config: Record<string, any>,
+): Promise<any> => {
     // when testing we also need to get socket files from dist folder
+    // todo: get rid of thise, no test vars in production code
     const relativeSocketPath = process.env.CORE_ENV === "test" ? "/../../dist/socket-server" : "";
 
+    const configuration = app.getTagged<Providers.PluginConfiguration>(
+        Container.Identifiers.PluginConfiguration,
+        "plugin",
+        "@arkecosystem/core-p2p",
+    );
+    const getBlocksTimeout = configuration.getRequired<number>("getBlocksTimeout");
+    const verifyTimeout = configuration.getRequired<number>("verifyTimeout");
     const blockMaxPayload = Managers.configManager
         .getMilestones()
         .reduce((acc, curr) => Math.max(acc, (curr.block || {}).maxPayload || 0), 0);
@@ -30,14 +44,14 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             wsEngine: "ws",
             // See https://github.com/SocketCluster/socketcluster/issues/506 about
             // details on how pingTimeout works.
-            pingTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
-            perMessageDeflate: true,
+            pingTimeout: Math.max(getBlocksTimeout, verifyTimeout),
+            perMessageDeflate: false,
             maxPayload: blockMaxPayload + 10 * 1024, // 10KB margin vs block maxPayload to allow few additional chars for p2p message
         },
         ...config.server,
     });
 
-    server.on("fail", data => app.resolvePlugin<Logger.ILogger>("logger").error(data.message));
+    server.on("fail", data => app.log.error(data.message));
 
     // socketcluster types do not allow on("workerMessage") so casting as any
     (server as any).on("workerMessage", async (workerId, req, res) => {
@@ -66,16 +80,15 @@ export const startSocketServer = async (service: P2P.IPeerService, config: Recor
             }
 
             return res(undefined, {
-                data: (await handlers[version][method]({ service, req })) || {},
-                headers: getHeaders(),
+                data: (await handlers[version][method]({ app, service, req })) || {},
+                headers: getHeaders(app),
             });
         } catch (error) {
             if (error instanceof ServerError) {
                 return res(error);
             }
 
-            app.resolvePlugin<Logger.ILogger>("logger").error(error.message);
-
+            app.log.error(error.message);
             return res(new Error(`${req.endpoint} responded with ${error.message}`));
         }
     });

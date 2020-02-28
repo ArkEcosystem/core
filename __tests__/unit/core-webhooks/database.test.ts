@@ -1,11 +1,13 @@
 import "jest-extended";
 
-process.env.CORE_PATH_CACHE = process.env.HOME;
+import { Application } from "@packages/core-kernel/src/application";
+import { Container } from "@packages/core-kernel/src/ioc";
+import { Database } from "@packages/core-webhooks/src/database";
+import { Identifiers } from "@packages/core-webhooks/src/identifiers";
+import { Webhook } from "@packages/core-webhooks/src/interfaces";
+import { dirSync, setGracefulCleanup } from "tmp";
 
-import { database } from "../../../packages/core-webhooks/src/database";
-import { IWebhook } from "../../../packages/core-webhooks/src/interfaces";
-
-const dummyWebhook: IWebhook = {
+const dummyWebhook: Webhook = {
     id: "id",
     token: "token",
     event: "event",
@@ -20,10 +22,24 @@ const dummyWebhook: IWebhook = {
     ],
 };
 
-beforeEach(() => database.make());
-afterEach(() => database.reset());
+let app: Application;
+let database: Database;
 
-describe("Conditions - between", () => {
+beforeEach(() => {
+    app = new Application(new Container());
+    app.bind("path.cache").toConstantValue(dirSync().name);
+
+    app.bind<Database>(Identifiers.Database)
+        .to(Database)
+        .inSingletonScope();
+
+    database = app.get<Database>(Identifiers.Database);
+    database.boot();
+});
+
+afterAll(() => setGracefulCleanup());
+
+describe("Database", () => {
     it("should return all webhooks", () => {
         database.create(dummyWebhook);
 
@@ -37,7 +53,7 @@ describe("Conditions - between", () => {
     });
 
     it("should find webhooks by their event", () => {
-        const webhook: IWebhook = database.create(dummyWebhook);
+        const webhook: Webhook = database.create(dummyWebhook);
 
         const rows = database.findByEvent("event");
 
@@ -50,20 +66,20 @@ describe("Conditions - between", () => {
     });
 
     it("should create a new webhook", () => {
-        const webhook: IWebhook = database.create(dummyWebhook);
+        const webhook: Webhook = database.create(dummyWebhook);
 
         expect(database.create(webhook)).toEqual(webhook);
     });
 
     it("should update an existing webhook", () => {
-        const webhook: IWebhook = database.create(dummyWebhook);
-        const updated: IWebhook = database.update(webhook.id, dummyWebhook);
+        const webhook: Webhook = database.create(dummyWebhook);
+        const updated: Webhook = database.update(webhook.id, dummyWebhook);
 
         expect(database.findById(webhook.id)).toEqual(updated);
     });
 
     it("should delete an existing webhook", () => {
-        const webhook: IWebhook = database.create(dummyWebhook);
+        const webhook: Webhook = database.create(dummyWebhook);
 
         expect(database.findById(webhook.id)).toEqual(webhook);
 

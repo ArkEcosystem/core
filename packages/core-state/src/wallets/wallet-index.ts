@@ -1,13 +1,14 @@
-import { State } from "@arkecosystem/core-interfaces";
+// import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
 
-export class WalletIndex implements State.IWalletIndex {
-    private walletIndex: Record<string, State.IWallet>;
+export class WalletIndex implements Contracts.State.WalletIndex {
+    private walletIndex: Record<string, Contracts.State.Wallet>;
 
-    public constructor(public readonly indexer: State.WalletIndexer) {
+    public constructor(public readonly indexer: Contracts.State.WalletIndexer) {
         this.walletIndex = {};
     }
 
-    public entries(): ReadonlyArray<[string, State.IWallet]> {
+    public entries(): ReadonlyArray<[string, Contracts.State.Wallet]> {
         return Object.entries(this.walletIndex);
     }
 
@@ -15,11 +16,11 @@ export class WalletIndex implements State.IWalletIndex {
         return Object.keys(this.walletIndex);
     }
 
-    public values(): ReadonlyArray<State.IWallet> {
+    public values(): ReadonlyArray<Contracts.State.Wallet> {
         return Object.values(this.walletIndex);
     }
 
-    public index(wallet: State.IWallet): void {
+    public index(wallet: Contracts.State.Wallet): void {
         this.indexer(this, wallet);
     }
 
@@ -27,11 +28,11 @@ export class WalletIndex implements State.IWalletIndex {
         return !!this.walletIndex[key];
     }
 
-    public get(key: string): State.IWallet | undefined {
+    public get(key: string): Contracts.State.Wallet {
         return this.walletIndex[key];
     }
 
-    public set(key: string, wallet: State.IWallet): void {
+    public set(key: string, wallet: Contracts.State.Wallet): void {
         this.walletIndex[key] = wallet;
     }
 
@@ -41,5 +42,15 @@ export class WalletIndex implements State.IWalletIndex {
 
     public clear(): void {
         this.walletIndex = {};
+    }
+
+    public clone(): Contracts.State.WalletIndex {
+        const walletIndex = new WalletIndex(this.indexer);
+
+        for (const [key, value] of Object.entries(this.walletIndex)) {
+            walletIndex.set(key, value.clone());
+        }
+
+        return walletIndex;
     }
 }

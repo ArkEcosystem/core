@@ -1,0 +1,16 @@
+{
+    "name": "stub-plugin",
+    "version": "1.0.0",
+    "main": "dist/index",
+    "arkecosystem": {
+        "core": {
+            "required": true,
+            "alias": "some-alias",
+            "dependencies": [
+                {
+                    "name": "some-dependency"
+                }
+            ]
+        }
+    }
+}

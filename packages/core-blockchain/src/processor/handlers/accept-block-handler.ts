@@ -1,48 +1,69 @@
+import { DatabaseService } from "@arkecosystem/core-database";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces } from "@arkecosystem/crypto";
+
 import { BlockProcessorResult } from "../block-processor";
-import { BlockHandler } from "./block-handler";
+import { BlockHandler } from "../contracts";
 
-export class AcceptBlockHandler extends BlockHandler {
-    public async execute(): Promise<BlockProcessorResult> {
-        const { database, state, transactionPool } = this.blockchain;
+// todo: remove the abstract and instead require a contract to be implemented
+@Container.injectable()
+export class AcceptBlockHandler implements BlockHandler {
+    @Container.inject(Container.Identifiers.Application)
+    protected readonly app!: Contracts.Kernel.Application;
 
+    @Container.inject(Container.Identifiers.BlockchainService)
+    protected readonly blockchain!: Contracts.Blockchain.Blockchain;
+
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    @Container.inject(Container.Identifiers.StateStore)
+    private readonly state!: Contracts.State.StateStore;
+
+    @Container.inject(Container.Identifiers.DatabaseService)
+    private readonly database!: DatabaseService;
+
+    @Container.inject(Container.Identifiers.TransactionPoolService)
+    private readonly transactionPool!: Contracts.TransactionPool.Service;
+
+    public async execute(block: Interfaces.IBlock): Promise<BlockProcessorResult> {
         try {
-            await database.applyBlock(this.block);
+            await this.database.applyBlock(block);
 
             // Check if we recovered from a fork
-            if (state.forkedBlock && state.forkedBlock.data.height === this.block.data.height) {
+            if (this.state.forkedBlock && this.state.forkedBlock.data.height === block.data.height) {
                 this.logger.info("Successfully recovered from fork");
-                state.forkedBlock = undefined;
+                this.state.forkedBlock = undefined;
             }
 
-            if (transactionPool) {
-                try {
-                    await transactionPool.acceptChainedBlock(this.block);
-                } catch (error) {
-                    this.logger.warn("Issue applying block to transaction pool");
-                    this.logger.debug(error.stack);
+            if (this.transactionPool) {
+                for (const transaction of block.transactions) {
+                    this.transactionPool.acceptForgedTransaction(transaction);
                 }
             }
 
             // Reset wake-up timer after chaining a block, since there's no need to
             // wake up at all if blocks arrive periodically. Only wake up when there are
             // no new blocks.
-            if (state.started) {
+            if (this.state.started) {
                 this.blockchain.resetWakeUp();
             }
 
-            state.setLastBlock(this.block);
+            this.state.setLastBlock(block);
 
             // Ensure the lastDownloadedBlock is never behind the last accepted block.
-            if (state.lastDownloadedBlock && state.lastDownloadedBlock.height < this.block.data.height) {
-                state.lastDownloadedBlock = this.block.data;
+            if (this.state.lastDownloadedBlock && this.state.lastDownloadedBlock.height < block.data.height) {
+                this.state.lastDownloadedBlock = block.data;
             }
 
             return BlockProcessorResult.Accepted;
         } catch (error) {
-            this.logger.warn(`Refused new block ${JSON.stringify(this.block.data)}`);
+            this.logger.warning(`Refused new block ${JSON.stringify(block.data)}`);
             this.logger.debug(error.stack);
 
-            return super.execute();
+            this.blockchain.resetLastDownloadedBlock();
+
+            return BlockProcessorResult.Rejected;
         }
     }
 }

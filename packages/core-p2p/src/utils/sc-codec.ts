@@ -2,7 +2,7 @@
 // with change
 
 const base64Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-const validJSONStartRegex = /^[ \n\r\t]*[{\[]/;
+const validJSONStartRegex = /^[ \n\r\t]*[{[]/;
 
 const arrayBufferToBase64 = arraybuffer => {
     const bytes = new Uint8Array(arraybuffer);

@@ -15,10 +15,10 @@ import {
     TransactionFactory,
     Utils as TransactionUtils,
 } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory as TestTransactionFactory } from "../../../helpers/transaction-factory";
+import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
 
-configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+import { Generators } from "@packages/core-test-framework/src";
 
 let transactionData: ITransactionData;
 let transactionDataJSON;
@@ -81,15 +81,15 @@ const createRandomTx = type => {
                 Math.floor(Math.random() * (max - min)) + min,
             );
 
-            for (const participant of participants) {
+            participants.forEach(participant => {
                 multiSigRegistration.participant(participant.publicKey);
-            }
+            });
 
             multiSigRegistration.senderPublicKey(participants[0].publicKey);
 
-            for (const passphrase of passphrases) {
-                multiSigRegistration.multiSign(passphrase, passphrases.indexOf(passphrase));
-            }
+            passphrases.forEach((passphrase, index) => {
+                multiSigRegistration.multiSign(passphrase, index);
+            });
 
             transaction = multiSigRegistration.sign(passphrases[0]).build();
 
@@ -117,34 +117,35 @@ describe("Transaction", () => {
 
     describe("toBytes / fromBytes", () => {
         it("should verify all transactions", () => {
-            for (let i = 0; i < 3; i++) {
-                const transaction = createRandomTx(i);
-                const newTransaction = TransactionFactory.fromBytes(TransactionUtils.toBytes(transaction.data));
+            [0, 1, 2, 3]
+                .map(type => createRandomTx(type))
+                .forEach(transaction => {
+                    const newTransaction = TransactionFactory.fromBytes(TransactionUtils.toBytes(transaction.data));
 
-                // TODO: Remove both from data when not needed
-                delete transaction.data.signSignature;
-                if (transaction.data.recipientId === undefined) {
-                    delete transaction.data.recipientId;
-                }
+                    // TODO: Remove both from data when not needed
+                    delete transaction.data.signSignature;
+                    if (transaction.data.recipientId === undefined) {
+                        delete transaction.data.recipientId;
+                    }
 
-                // @TODO: double check
-                if (!transaction.data.secondSignature) {
-                    delete transaction.data.secondSignature;
-                }
+                    // @TODO: double check
+                    if (!transaction.data.secondSignature) {
+                        delete transaction.data.secondSignature;
+                    }
 
-                if (transaction.data.version === 1) {
-                    delete transaction.data.typeGroup;
-                    delete transaction.data.nonce;
-                }
+                    if (transaction.data.version === 1) {
+                        delete transaction.data.typeGroup;
+                        delete transaction.data.nonce;
+                    }
 
-                // @ts-ignore
-                transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
-                // @ts-ignore
-                transaction.data.fee = Utils.BigNumber.make(transaction.data.fee).toFixed();
+                    // @ts-ignore
+                    transaction.data.amount = Utils.BigNumber.make(transaction.data.amount).toFixed();
+                    // @ts-ignore
+                    transaction.data.fee = Utils.BigNumber.make(transaction.data.fee).toFixed();
 
-                expect(newTransaction.toJson()).toMatchObject(transaction.data);
-                expect(newTransaction.verified).toBeTrue();
-            }
+                    expect(newTransaction.toJson()).toMatchObject(transaction.data);
+                    expect(newTransaction.verified).toBeTrue();
+                });
         });
 
         it("should create a transaction", () => {
@@ -155,14 +156,15 @@ describe("Transaction", () => {
         });
 
         it("should throw when getting garbage", () => {
-            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(InvalidTransactionBytesError);
+            expect(() => TransactionFactory.fromBytes(undefined)).toThrow(TypeError);
             expect(() => TransactionFactory.fromBytes(Buffer.from("garbage"))).toThrow(InvalidTransactionBytesError);
             expect(() => TransactionFactory.fromHex(undefined)).toThrow(InvalidTransactionBytesError);
             expect(() => TransactionFactory.fromHex("affe")).toThrow(InvalidTransactionBytesError);
         });
 
         it("should throw when getting an unsupported version", () => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
 
             const transaction = BuilderFactory.transfer()
                 .recipientId("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff")
@@ -185,9 +187,11 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
 
-            transaction = TestTransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+            transaction = TestTransactionFactory.initialize()
+                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
                 .withVersion(2)
@@ -212,9 +216,11 @@ describe("Transaction", () => {
         let transaction: ITransactionData;
 
         beforeEach(() => {
-            configManager.setFromPreset("testnet");
+            // todo: completely wrap this into a function to hide the generation and setting of the config?
+            configManager.setConfig(Generators.generateCryptoConfigRaw());
 
-            transaction = TestTransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+            transaction = TestTransactionFactory.initialize()
+                .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
                 .withFee(2000)
                 .withPassphrase("secret")
                 .withVersion(2)

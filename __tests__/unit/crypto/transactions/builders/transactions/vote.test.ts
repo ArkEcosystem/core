@@ -1,22 +1,29 @@
 import "jest-extended";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
+import { Factories, Generators } from "@packages/core-test-framework/src";
 
-configManager.setFromPreset("testnet");
-
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { Keys } from "../../../../../../packages/crypto/src/identities";
-import { BuilderFactory, VoteTransaction } from "../../../../../../packages/crypto/src/transactions";
-import { VoteBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/vote";
-import * as Utils from "../../../../../../packages/crypto/src/utils";
-import { identity } from "../../../../../utils/identities";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { Keys } from "@packages/crypto/src/identities";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
+import { VoteBuilder } from "@packages/crypto/src/transactions/builders/transactions/vote";
+import * as Utils from "@packages/crypto/src/utils";
 
 let builder: VoteBuilder;
+let identity;
 
-beforeEach(() => {
-    builder = BuilderFactory.vote();
+beforeAll(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = Generators.generateCryptoConfigRaw();
+    configManager.setConfig(config);
+
+    identity = Factories.factory("Identity")
+        .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
+        .make();
 });
+
+beforeEach(() => (builder = BuilderFactory.vote()));
 
 describe("Vote Transaction", () => {
     describe("verify", () => {
@@ -40,11 +47,9 @@ describe("Vote Transaction", () => {
         });
     });
 
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.Vote);
-        expect(builder).toHaveProperty("data.fee", VoteTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.VoteTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);
         expect(builder).toHaveProperty("data.senderPublicKey", undefined);
@@ -62,9 +67,10 @@ describe("Vote Transaction", () => {
 
     describe("sign", () => {
         it("establishes the recipient id", () => {
-            jest.spyOn(Keys, "fromWIF").mockReturnValueOnce(identity.keys);
+            jest.spyOn(Keys, "fromPassphrase").mockReturnValueOnce(identity.keys);
 
             builder.sign(identity.bip39);
+
             expect(builder.data.recipientId).toBe(identity.address);
         });
     });

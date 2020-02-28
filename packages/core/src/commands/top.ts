@@ -1,39 +1,73 @@
-import { ProcessDescription } from "@typeskrift/foreman";
-import Table from "cli-table3";
+import { Commands, Container, Contracts, Services } from "@arkecosystem/core-cli";
+import { prettyBytes, prettyTime } from "@arkecosystem/utils";
+import Joi from "@hapi/joi";
 import dayjs from "dayjs";
-import prettyBytes from "pretty-bytes";
-import prettyMs from "pretty-ms";
-import { processManager } from "../process-manager";
-import { CommandFlags } from "../types";
-import { renderTable } from "../utils";
-import { BaseCommand } from "./command";
 
-export class TopCommand extends BaseCommand {
-    public static description: string = "List all core daemons";
+/**
+ * @export
+ * @class Command
+ * @extends {Commands.Command}
+ */
+@Container.injectable()
+export class Command extends Commands.Command {
+    /**
+     * The console command signature.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public signature: string = "top";
 
-    public static examples: string[] = [
-        `List all core daemons
-$ ark top
-`,
-    ];
+    /**
+     * The console command description.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public description: string = "List all Core daemons.";
 
-    public static flags: CommandFlags = {
-        ...BaseCommand.flagsNetwork,
-    };
+    /**
+     * Indicates whether the command requires a network to be present.
+     *
+     * @type {boolean}
+     * @memberof Command
+     */
+    public requiresNetwork: boolean = false;
 
-    public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(TopCommand);
+    /**
+     * @private
+     * @type {ProcessManager}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.ProcessManager)
+    private readonly processManager!: Services.ProcessManager;
 
-        const processes: ProcessDescription[] = processManager
-            .list()
-            .filter((p: ProcessDescription) => p.name.startsWith(flags.token));
+    /**
+     * Configure the console command.
+     *
+     * @returns {void}
+     * @memberof Command
+     */
+    public configure(): void {
+        this.definition.setFlag("token", "The name of the token.", Joi.string().default("ark"));
+    }
+
+    /**
+     * Execute the console command.
+     *
+     * @returns {Promise<void>}
+     * @memberof Command
+     */
+    public async execute(): Promise<void> {
+        const processes: Contracts.ProcessDescription[] = (
+            this.processManager.list() || []
+        ).filter((p: Contracts.ProcessDescription) => p.name.startsWith(this.getFlag("token")));
 
         if (!processes || !Object.keys(processes).length) {
-            this.warn("No processes are running.");
-            return;
+            this.components.fatal("No processes are running.");
         }
 
-        renderTable(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], (table: Table.Table) => {
+        this.components.table(["ID", "Name", "Version", "Status", "Uptime", "CPU", "RAM"], table => {
             for (const process of processes) {
                 // @ts-ignore
                 table.push([
@@ -42,8 +76,7 @@ $ ark top
                     // @ts-ignore
                     process.pm2_env.version,
                     process.pm2_env.status,
-                    // @ts-ignore
-                    prettyMs(dayjs().diff(process.pm2_env.pm_uptime)),
+                    prettyTime(dayjs().diff(process.pm2_env.pm_uptime)),
                     `${process.monit.cpu}%`,
                     prettyBytes(process.monit.memory),
                 ]);

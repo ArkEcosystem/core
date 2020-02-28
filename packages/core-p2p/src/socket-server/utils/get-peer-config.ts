@@ -1,22 +1,22 @@
-import { app } from "@arkecosystem/core-container";
-import { Plugins } from "@arkecosystem/core-utils";
-import { IPeerConfig } from "../../interfaces";
+// import { Plugins } from "@arkecosystem/core-kernel";
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Managers } from "@arkecosystem/crypto";
 
-export const getPeerConfig = (): IPeerConfig => {
-    const appConfig = app.getConfig();
-
+export const getPeerConfig = (app: Contracts.Kernel.Application): Contracts.P2P.PeerConfig => {
     return {
-        version: app.getVersion(),
+        version: app.version(),
         network: {
-            version: appConfig.get("network.pubKeyHash"),
-            name: appConfig.get("network.name"),
-            nethash: appConfig.get("network.nethash"),
-            explorer: appConfig.get("network.client.explorer"),
+            version: Managers.configManager.get("network.pubKeyHash"),
+            name: Managers.configManager.get("network.name"),
+            nethash: Managers.configManager.get("network.nethash"),
+            explorer: Managers.configManager.get("network.client.explorer"),
             token: {
-                name: appConfig.get("network.client.token"),
-                symbol: appConfig.get("network.client.symbol"),
+                name: Managers.configManager.get("network.client.token"),
+                symbol: Managers.configManager.get("network.client.symbol"),
             },
         },
-        plugins: Plugins.transformPlugins(appConfig.config.plugins),
+        plugins: {},
+        // todo: review and re-enable
+        // plugins: Plugins.transformPlugins(appConfig.config.plugins),
     };
 };

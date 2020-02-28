@@ -1,7 +1,7 @@
 // Based on https://github.com/fknop/hapi-pagination
 
+import { Utils } from "@arkecosystem/core-kernel";
 import Hoek from "@hapi/hoek";
-import { get } from "dottie";
 import Qs from "querystring";
 
 interface IRoute {
@@ -42,7 +42,7 @@ export class Ext {
         { method: "post", path: "/wallets/search" },
     ];
 
-    constructor(private readonly config) {}
+    public constructor(private readonly config) {}
 
     public isValidRoute(request) {
         if (!this.hasPagination(request)) {
@@ -76,7 +76,7 @@ export class Ext {
             };
 
             setParam("page", 1);
-            setParam("limit", get(this.config, "query.limit.default", 100));
+            setParam("limit", Utils.get(this.config, "query.limit.default", 100));
         }
 
         return h.continue;
@@ -102,14 +102,14 @@ export class Ext {
         const currentPage = query.page;
         const currentLimit = query.limit;
 
-        const { totalCount } = !!source.totalCount ? source : request;
+        const { totalCount } = source.totalCount ? source : request;
 
-        let pageCount: number;
+        let pageCount: number = 1;
         if (totalCount) {
             pageCount = Math.trunc(totalCount / currentLimit) + (totalCount % currentLimit === 0 ? 0 : 1);
         }
 
-        const getUri = (page: number | null): string =>
+        const getUri = (page: number | null): string | null =>
             // tslint:disable-next-line: no-null-keyword
             page ? baseUri + Qs.stringify(Hoek.applyToDefaults({ ...query, ...request.orig.query }, { page })) : null;
 

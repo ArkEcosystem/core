@@ -1,4 +1,5 @@
 import { Validation } from "@arkecosystem/crypto";
+
 import { SocketErrors } from "../../enums";
 
 export const validate = (schema, data) => {
@@ -10,6 +11,23 @@ export const validate = (schema, data) => {
 
         throw error;
     }
+};
+
+const objectHasMorePropertiesThan = (obj: object, maxProperties: number) => {
+    let propertiesCount = 0;
+    try {
+        JSON.stringify(obj, (key, value) => {
+            propertiesCount++;
+            if (propertiesCount > maxProperties) {
+                throw new Error("exceeded maxProperties");
+            }
+            return value;
+        });
+    } catch (e) {
+        return true;
+    }
+
+    return false;
 };
 
 // Specific light validation for transaction, to be used in socket workers
@@ -56,21 +74,4 @@ export const validateTransactionLight = (transaction: any): boolean => {
     }
 
     return true;
-};
-
-const objectHasMorePropertiesThan = (obj: object, maxProperties: number) => {
-    let propertiesCount = 0;
-    try {
-        JSON.stringify(obj, (key, value) => {
-            propertiesCount++;
-            if (propertiesCount > maxProperties) {
-                throw new Error("exceeded maxProperties");
-            }
-            return value;
-        });
-    } catch (e) {
-        return true;
-    }
-
-    return false;
 };

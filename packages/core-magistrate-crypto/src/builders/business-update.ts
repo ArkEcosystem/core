@@ -1,10 +1,11 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { MagistrateTransactionGroup, MagistrateTransactionType } from "../enums";
 import { IBusinessUpdateAsset } from "../interfaces";
 import { BusinessUpdateTransaction } from "../transactions";
 
 export class BusinessUpdateBuilder extends Transactions.TransactionBuilder<BusinessUpdateBuilder> {
-    constructor() {
+    public constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;
@@ -22,9 +23,12 @@ export class BusinessUpdateBuilder extends Transactions.TransactionBuilder<Busin
     }
 
     public businessUpdateAsset(businessAsset: IBusinessUpdateAsset): BusinessUpdateBuilder {
-        this.data.asset.businessUpdate = {
-            ...businessAsset,
-        };
+        if (this.data.asset && this.data.asset.businessUpdate) {
+            this.data.asset.businessUpdate = {
+                ...businessAsset,
+            };
+        }
+
         return this;
     }
 

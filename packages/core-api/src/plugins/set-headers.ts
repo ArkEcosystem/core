@@ -1,5 +1,6 @@
 import Hapi from "@hapi/hapi";
 
+// todo: review the implementation - still needed?
 export = {
     name: "set-headers",
     version: "1.0.0",
@@ -9,12 +10,9 @@ export = {
             async method(request, h) {
                 const response = request.response;
 
-                // @ts-ignore
                 if (response.isBoom && response.data) {
-                    // Deleting the property beforehand makes it appear last in the response body.
-                    // @ts-ignore
                     delete response.output.payload.error;
-                    // @ts-ignore
+
                     response.output = { payload: { error: response.data } };
                 }
 

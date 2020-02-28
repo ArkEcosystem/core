@@ -1,17 +1,17 @@
 import { IHtlcLockAsset, ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { HtlcLockTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class HtlcLockBuilder extends TransactionBuilder<HtlcLockBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
-        this.data.type = HtlcLockTransaction.type;
-        this.data.typeGroup = HtlcLockTransaction.typeGroup;
+        this.data.type = Two.HtlcLockTransaction.type;
+        this.data.typeGroup = Two.HtlcLockTransaction.typeGroup;
         this.data.recipientId = undefined;
         this.data.amount = BigNumber.ZERO;
-        this.data.fee = HtlcLockTransaction.staticFee();
+        this.data.fee = Two.HtlcLockTransaction.staticFee();
         this.data.vendorField = undefined;
         this.data.asset = {};
     }

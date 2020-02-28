@@ -1,15 +1,15 @@
 import { ITransactionData } from "../../../interfaces";
 import { BigNumber } from "../../../utils";
-import { IpfsTransaction } from "../../types";
+import { Two } from "../../types";
 import { TransactionBuilder } from "./transaction";
 
 export class IPFSBuilder extends TransactionBuilder<IPFSBuilder> {
-    constructor() {
+    public constructor() {
         super();
 
-        this.data.type = IpfsTransaction.type;
-        this.data.typeGroup = IpfsTransaction.typeGroup;
-        this.data.fee = IpfsTransaction.staticFee();
+        this.data.type = Two.IpfsTransaction.type;
+        this.data.typeGroup = Two.IpfsTransaction.typeGroup;
+        this.data.fee = Two.IpfsTransaction.staticFee();
         this.data.amount = BigNumber.ZERO;
         this.data.asset = {};
     }

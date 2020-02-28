@@ -1,6 +1,6 @@
 import { Keys } from "../identities";
 import { IKeyPair, IMessage } from "../interfaces";
-import { INetwork } from "../interfaces/networks";
+import { Network } from "../interfaces/networks";
 import { configManager } from "../managers";
 import { Hash } from "./hash";
 import { HashAlgorithms } from "./hash-algorithms";
@@ -16,7 +16,7 @@ export class Message {
         };
     }
 
-    public static signWithWif(message: string, wif: string, network?: INetwork): IMessage {
+    public static signWithWif(message: string, wif: string, network?: Network): IMessage {
         if (!network) {
             network = configManager.get("network");
         }

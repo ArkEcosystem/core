@@ -3,18 +3,27 @@ import "jest-extended";
 import { Hash } from "../../../../packages/crypto/src/crypto";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Utils as TransactionUtils } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory } from "../../../helpers/transaction-factory";
-import { identity } from "../../../utils/identities";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 
-const transaction = TransactionFactory.transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
+import { Factories, Generators } from "@packages/core-test-framework/src";
+
+const transaction = TransactionFactory.initialize()
+    .transfer("AJWRd23HNEhPLkK1ymMnwnDBX2a7QBZqff", 1000)
     .withVersion(2)
     .withFee(2000)
     .withPassphrase("secret")
     .createOne();
 
+let identity;
+
 beforeEach(() => {
-    configManager.setFromPreset("testnet");
-    configManager.setHeight(2); // aip11 (v2 transactions) is true from height 2 on testnet
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = Generators.generateCryptoConfigRaw();
+    configManager.setConfig(config);
+
+    identity = Factories.factory("Identity")
+        .withOptions({ passphrase: "this is a top secret passphrase" })
+        .make();
 });
 
 describe("Hash", () => {

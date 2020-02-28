@@ -1,24 +1,31 @@
 import "jest-extended";
 
-import { configManager } from "../../../../../../packages/crypto/src/managers";
-
-configManager.setFromPreset("testnet");
-
 import { Utils } from "@arkecosystem/crypto";
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { VendorFieldLengthExceededError } from "../../../../../../packages/crypto/src/errors";
-import { Keys, WIF } from "../../../../../../packages/crypto/src/identities";
-import { devnet } from "../../../../../../packages/crypto/src/networks";
-import { BuilderFactory, TransferTransaction } from "../../../../../../packages/crypto/src/transactions";
-import { TransferBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/transfer";
-import { identity } from "../../../../../utils/identities";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { Keys, WIF } from "@packages/crypto/src/identities";
+import { devnet } from "@packages/crypto/src/networks";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
+import { TransferBuilder } from "@packages/crypto/src/transactions/builders/transactions/transfer";
+
+import { Factories, Generators } from "@packages/core-test-framework/src";
 
 let builder: TransferBuilder;
+let identity;
 
-beforeEach(() => {
-    builder = BuilderFactory.transfer();
+beforeAll(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = Generators.generateCryptoConfigRaw();
+    configManager.setConfig(config);
+
+    identity = Factories.factory("Identity")
+        .withOptions({ passphrase: "this is a top secret passphrase", network: config.network })
+        .make();
 });
+
+beforeEach(() => (builder = BuilderFactory.transfer()));
 
 describe("Transfer Transaction", () => {
     describe("verify", () => {
@@ -94,11 +101,9 @@ describe("Transfer Transaction", () => {
         });
     });
 
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.Transfer);
-        expect(builder).toHaveProperty("data.fee", TransferTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.TransferTransaction.staticFee());
         expect(builder).toHaveProperty("data.amount", Utils.BigNumber.make(0));
         expect(builder).toHaveProperty("data.recipientId", undefined);
         expect(builder).toHaveProperty("data.senderPublicKey", undefined);
@@ -109,10 +114,6 @@ describe("Transfer Transaction", () => {
         it("should set the vendorField", () => {
             builder.vendorField("fake");
             expect(builder.data.vendorField).toBe("fake");
-        });
-
-        it("should throw an error because the vendorField value exceeds the allowed maximum length", () => {
-            expect(() => builder.vendorField("a".repeat(65))).toThrowError(VendorFieldLengthExceededError);
         });
     });
 });

@@ -1,22 +1,31 @@
-import { app } from "@arkecosystem/core-container";
-import { P2P } from "@arkecosystem/core-interfaces";
+import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
 import { create, SCClientSocket } from "socketcluster-client";
-import { PeerRepository } from "./peer-repository";
+
 import { codec } from "./utils/sc-codec";
 
-export class PeerConnector implements P2P.IPeerConnector {
-    private readonly connections: PeerRepository<SCClientSocket> = new PeerRepository<SCClientSocket>();
+// todo: review the implementation
+@Container.injectable()
+export class PeerConnector implements Contracts.P2P.PeerConnector {
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-p2p")
+    private readonly configuration!: Providers.PluginConfiguration;
+
+    private readonly connections: Utils.Collection<SCClientSocket> = new Utils.Collection<SCClientSocket>();
     private readonly errors: Map<string, string> = new Map<string, string>();
 
     public all(): SCClientSocket[] {
         return this.connections.values();
     }
 
-    public connection(peer: P2P.IPeer): SCClientSocket {
-        return this.connections.get(peer.ip);
+    public connection(peer: Contracts.P2P.Peer): SCClientSocket {
+        const connection: SCClientSocket | undefined = this.connections.get(peer.ip);
+
+        Utils.assert.defined<SCClientSocket>(connection);
+
+        return connection;
     }
 
-    public connect(peer: P2P.IPeer, maxPayload?: number): SCClientSocket {
+    public connect(peer: Contracts.P2P.Peer, maxPayload?: number): SCClientSocket {
         const connection = this.connection(peer) || this.create(peer);
 
         const socket = (connection as any).transport.socket;
@@ -29,7 +38,7 @@ export class PeerConnector implements P2P.IPeerConnector {
         return connection;
     }
 
-    public disconnect(peer: P2P.IPeer): void {
+    public disconnect(peer: Contracts.P2P.Peer): void {
         const connection = this.connection(peer);
 
         if (connection) {
@@ -39,7 +48,7 @@ export class PeerConnector implements P2P.IPeerConnector {
         }
     }
 
-    public terminate(peer: P2P.IPeer): void {
+    public terminate(peer: Contracts.P2P.Peer): void {
         const connection = this.connection(peer);
 
         if (connection) {
@@ -49,32 +58,35 @@ export class PeerConnector implements P2P.IPeerConnector {
         }
     }
 
-    public emit(peer: P2P.IPeer, event: string, data: any): void {
-        this.connection(peer).emit(event, data);
+    public emit(peer: Contracts.P2P.Peer, event: string, data: any): void {
+        this.connection(peer).on(event, data);
     }
 
-    public getError(peer: P2P.IPeer): string {
+    public getError(peer: Contracts.P2P.Peer): string | undefined {
         return this.errors.get(peer.ip);
     }
 
-    public setError(peer: P2P.IPeer, error: string): void {
+    public setError(peer: Contracts.P2P.Peer, error: string): void {
         this.errors.set(peer.ip, error);
     }
 
-    public hasError(peer: P2P.IPeer, error: string): boolean {
+    public hasError(peer: Contracts.P2P.Peer, error: string): boolean {
         return this.getError(peer) === error;
     }
 
-    public forgetError(peer: P2P.IPeer): void {
+    public forgetError(peer: Contracts.P2P.Peer): void {
         this.errors.delete(peer.ip);
     }
 
-    private create(peer: P2P.IPeer): SCClientSocket {
+    private create(peer: Contracts.P2P.Peer): SCClientSocket {
+        const getBlocksTimeout = this.configuration.getRequired<number>("getBlocksTimeout");
+        const verifyTimeout = this.configuration.getRequired<number>("verifyTimeout");
+
         const connection = create({
             port: peer.port,
             hostname: peer.ip,
-            ackTimeout: Math.max(app.resolveOptions("p2p").getBlocksTimeout, app.resolveOptions("p2p").verifyTimeout),
-            perMessageDeflate: true,
+            ackTimeout: Math.max(getBlocksTimeout, verifyTimeout),
+            perMessageDeflate: false,
             codecEngine: codec,
         });
 

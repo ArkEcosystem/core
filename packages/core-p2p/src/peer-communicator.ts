@@ -1,41 +1,55 @@
-import { app } from "@arkecosystem/core-container";
-import { EventEmitter, Logger, P2P } from "@arkecosystem/core-interfaces";
-import { httpie } from "@arkecosystem/core-utils";
+import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
 import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
+
 import { constants } from "./constants";
 import { SocketErrors } from "./enums";
 import { PeerPingTimeoutError, PeerStatusResponseError, PeerVerificationFailedError } from "./errors";
-import { IPeerConfig, IPeerPingResponse } from "./interfaces";
 import { PeerVerifier } from "./peer-verifier";
 import { RateLimiter } from "./rate-limiter";
 import { replySchemas } from "./schemas";
 import { buildRateLimiter, isValidVersion, socketEmit } from "./utils";
 
-export class PeerCommunicator implements P2P.IPeerCommunicator {
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private readonly emitter: EventEmitter.EventEmitter = app.resolvePlugin<EventEmitter.EventEmitter>("event-emitter");
-    private outgoingRateLimiter: RateLimiter;
+// todo: review the implementation
+@Container.injectable()
+export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
+    @Container.inject(Container.Identifiers.Application)
+    private readonly app!: Contracts.Kernel.Application;
 
-    constructor(private readonly connector: P2P.IPeerConnector) {
+    @Container.inject(Container.Identifiers.PluginConfiguration)
+    @Container.tagged("plugin", "@arkecosystem/core-p2p")
+    private readonly configuration!: Providers.PluginConfiguration;
+
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    @Container.inject(Container.Identifiers.EventDispatcherService)
+    private readonly emitter!: Contracts.Kernel.EventDispatcher;
+
+    @Container.inject(Container.Identifiers.PeerConnector)
+    private readonly connector!: Contracts.P2P.PeerConnector;
+
+    private outgoingRateLimiter!: RateLimiter;
+
+    public initialize() {
         this.outgoingRateLimiter = buildRateLimiter({
             // White listing anybody here means we would not throttle ourselves when sending
             // them requests, ie we could spam them.
             whitelist: [],
             remoteAccess: [],
-            rateLimit: app.resolveOptions("p2p").rateLimit,
+            rateLimit: this.configuration.getOptional<boolean>("rateLimit", false),
         });
     }
 
-    public async postBlock(peer: P2P.IPeer, block: Interfaces.IBlock) {
+    public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlock) {
         const postBlockTimeout = 10000;
         return this.emit(
             peer,
             "p2p.peer.postBlock",
             {
-                block: Blocks.Block.serializeWithTransactions({
+                block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
                     transactions: block.transactions.map(tx => tx.data),
                 }),
@@ -44,12 +58,12 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         );
     }
 
-    public async postTransactions(peer: P2P.IPeer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
+    public async postTransactions(peer: Contracts.P2P.Peer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
         const postTransactionsTimeout = 10000;
         return this.emit(peer, "p2p.peer.postTransactions", { transactions }, postTransactionsTimeout);
     }
 
-    public async ping(peer: P2P.IPeer, timeoutMsec: number, force: boolean = false): Promise<any> {
+    public async ping(peer: Contracts.P2P.Peer, timeoutMsec: number, force = false): Promise<any> {
         const deadline = new Date().getTime() + timeoutMsec;
 
         if (peer.recentlyPinged() && !force) {
@@ -57,7 +71,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
 
         const getStatusTimeout = timeoutMsec < 5000 ? timeoutMsec : 5000;
-        const pingResponse: IPeerPingResponse = await this.emit(
+        const pingResponse: Contracts.P2P.PeerPingResponse = await this.emit(
             peer,
             "p2p.peer.getStatus",
             undefined,
@@ -73,7 +87,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 throw new PeerVerificationFailedError();
             }
 
-            const peerVerifier = new PeerVerifier(this, peer);
+            const peerVerifier = this.app.resolve(PeerVerifier).initialize(this, peer);
 
             if (deadline <= new Date().getTime()) {
                 throw new PeerPingTimeoutError(timeoutMsec);
@@ -93,7 +107,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return pingResponse.state;
     }
 
-    public async pingPorts(peer: P2P.IPeer): Promise<void> {
+    public async pingPorts(peer: Contracts.P2P.Peer): Promise<void> {
         Promise.all(
             Object.entries(peer.plugins).map(async ([name, plugin]) => {
                 try {
@@ -102,24 +116,26 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                     const peerHostPort = `${peer.ip}:${plugin.port}`;
 
                     if (name.includes("core-api") || name.includes("core-wallet-api")) {
-                        const { body, status } = await httpie.get(`http://${peerHostPort}/api/node/configuration`);
+                        const { data, statusCode } = await Utils.http.get(
+                            `http://${peerHostPort}/api/node/configuration`,
+                        );
 
-                        if (status === 200) {
+                        if (statusCode === 200) {
                             const ourNethash = Managers.configManager.get("network.nethash");
-                            const hisNethash = body.data.nethash;
+                            const hisNethash = data.data.nethash;
                             if (ourNethash === hisNethash) {
                                 valid = true;
                             } else {
-                                this.logger.warn(
+                                this.logger.warning(
                                     `Disconnecting from ${peerHostPort}: ` +
                                         `nethash mismatch: our=${ourNethash}, his=${hisNethash}.`,
                                 );
-                                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                                this.emitter.dispatch("internal.p2p.disconnectPeer", { peer });
                             }
                         }
                     } else {
-                        const { status } = await httpie.get(`http://${peerHostPort}/`);
-                        valid = status === 200;
+                        const { statusCode } = await Utils.http.get(`http://${peerHostPort}/`);
+                        valid = statusCode === 200;
                     }
 
                     if (valid) {
@@ -132,30 +148,30 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         );
     }
 
-    public validatePeerConfig(peer: P2P.IPeer, config: IPeerConfig): boolean {
-        if (config.network.nethash !== app.getConfig().get("network.nethash")) {
+    public validatePeerConfig(peer: Contracts.P2P.Peer, config: Contracts.P2P.PeerConfig): boolean {
+        if (config.network.nethash !== Managers.configManager.get("network.nethash")) {
             return false;
         }
 
         peer.version = config.version;
 
-        if (!isValidVersion(peer)) {
+        if (!isValidVersion(this.app, peer)) {
             return false;
         }
 
         return true;
     }
 
-    public async getPeers(peer: P2P.IPeer): Promise<any> {
+    public async getPeers(peer: Contracts.P2P.Peer): Promise<any> {
         this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
         const getPeersTimeout = 5000;
         return this.emit(peer, "p2p.peer.getPeers", undefined, getPeersTimeout);
     }
 
-    public async hasCommonBlocks(peer: P2P.IPeer, ids: string[], timeoutMsec?: number): Promise<any> {
+    public async hasCommonBlocks(peer: Contracts.P2P.Peer, ids: string[], timeoutMsec?: number): Promise<any> {
         try {
-            const getCommonBlocksTimeout = timeoutMsec < 5000 ? timeoutMsec : 5000;
+            const getCommonBlocksTimeout = timeoutMsec && timeoutMsec < 5000 ? timeoutMsec : 5000;
             const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, getCommonBlocksTimeout);
 
             if (!body || !body.common) {
@@ -168,14 +184,14 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
 
             this.logger.error(`Could not determine common blocks with ${peer.ip}${sfx}: ${error.message}`);
 
-            this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+            this.emitter.dispatch(Enums.PeerEvent.Disconnect, { peer });
         }
 
         return false;
     }
 
     public async getPeerBlocks(
-        peer: P2P.IPeer,
+        peer: Contracts.P2P.Peer,
         {
             fromBlockHeight,
             blockLimit = constants.MAX_DOWNLOAD_BLOCKS,
@@ -193,7 +209,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 headersOnly,
                 serialized: true,
             },
-            app.resolveOptions("p2p").getBlocksTimeout,
+            this.configuration.getRequired<number>("getBlocksTimeout"),
             maxPayload,
         );
 
@@ -219,13 +235,13 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return peerBlocks;
     }
 
-    private parseHeaders(peer: P2P.IPeer, response): void {
+    private parseHeaders(peer: Contracts.P2P.Peer, response): void {
         if (response.headers.height) {
             peer.state.height = +response.headers.height;
         }
     }
 
-    private validateReply(peer: P2P.IPeer, reply: any, endpoint: string): boolean {
+    private validateReply(peer: Contracts.P2P.Peer, reply: any, endpoint: string): boolean {
         const schema = replySchemas[endpoint];
         if (schema === undefined) {
             this.logger.error(`Can't validate reply from "${endpoint}": none of the predefined schemas matches.`);
@@ -244,7 +260,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return true;
     }
 
-    private async emit(peer: P2P.IPeer, event: string, data?: any, timeout?: number, maxPayload?: number) {
+    private async emit(peer: Contracts.P2P.Peer, event: string, data?: any, timeout?: number, maxPayload?: number) {
         await this.throttle(peer, event);
 
         let response;
@@ -280,7 +296,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         return response.data;
     }
 
-    private async throttle(peer: P2P.IPeer, event: string): Promise<void> {
+    private async throttle(peer: Contracts.P2P.Peer, event: string): Promise<void> {
         const msBeforeReCheck = 1000;
         while (await this.outgoingRateLimiter.hasExceededRateLimit(peer.ip, event)) {
             this.logger.debug(
@@ -290,7 +306,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
         }
     }
 
-    private handleSocketError(peer: P2P.IPeer, event: string, error: Error): void {
+    private handleSocketError(peer: Contracts.P2P.Peer, event: string, error: Error): void {
         if (!error.name) {
             return;
         }
@@ -310,7 +326,7 @@ export class PeerCommunicator implements P2P.IPeerCommunicator {
                 if (process.env.CORE_P2P_PEER_VERIFIER_DEBUG_EXTRA) {
                     this.logger.debug(`Socket error (peer ${peer.ip}) : ${error.message}`);
                 }
-                this.emitter.emit("internal.p2p.disconnectPeer", { peer });
+                this.emitter.dispatch(Enums.PeerEvent.Disconnect, { peer });
         }
     }
 }

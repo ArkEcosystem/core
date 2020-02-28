@@ -1,25 +1,27 @@
 import "jest-extended";
 
-import { HtlcLockExpirationType, TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions";
-import { HtlcLockBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/htlc-lock";
-import { HtlcLockTransaction } from "../../../../../../packages/crypto/src/transactions/types/htlc-lock";
-import { transactionBuilder } from "./__shared__/transaction-builder";
+import { Generators } from "@packages/core-test-framework/src";
+import { HtlcLockExpirationType, TransactionType } from "@packages/crypto/src/enums";
+import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { HtlcLockBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-lock";
+import { Two } from "@packages/crypto/src/transactions/types";
 
 const { EpochTimestamp } = HtlcLockExpirationType;
 
 let builder: HtlcLockBuilder;
 
 beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    configManager.setConfig(Generators.generateCryptoConfigRaw());
+
     builder = BuilderFactory.htlcLock();
 });
 
 describe("Htlc lock Transaction", () => {
-    transactionBuilder(() => builder);
-
     it("should have its specific properties", () => {
         expect(builder).toHaveProperty("data.type", TransactionType.HtlcLock);
-        expect(builder).toHaveProperty("data.fee", HtlcLockTransaction.staticFee());
+        expect(builder).toHaveProperty("data.fee", Two.HtlcLockTransaction.staticFee());
         expect(builder).toHaveProperty("data.asset", {});
     });
 

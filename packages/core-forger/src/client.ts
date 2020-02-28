@@ -1,19 +1,46 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger, P2P } from "@arkecosystem/core-interfaces";
+import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import { codec, NetworkState, NetworkStateStatus, socketEmit } from "@arkecosystem/core-p2p";
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
-import delay from "delay";
 import socketCluster from "socketcluster-client";
+
 import { HostNoResponseError, RelayCommunicationError } from "./errors";
-import { IRelayHost } from "./interfaces";
+import { RelayHost } from "./interfaces";
 
+// todo: review the implementation and make use of ioc
+/**
+ * @export
+ * @class Client
+ */
+@Container.injectable()
 export class Client {
-    public hosts: IRelayHost[];
-    private readonly logger: Logger.ILogger = app.resolvePlugin<Logger.ILogger>("logger");
-    private host: IRelayHost;
+    /**
+     * @type {RelayHost[]}
+     * @memberof Client
+     */
+    public hosts: RelayHost[] = [];
 
-    constructor(hosts: IRelayHost[]) {
-        this.hosts = hosts.map(host => {
+    /**
+     * @private
+     * @type {RelayHost}
+     * @memberof Client
+     */
+    // @ts-ignore
+    private host: RelayHost;
+
+    /**
+     * @private
+     * @type {Contracts.Kernel.Logger}
+     * @memberof Client
+     */
+    @Container.inject(Container.Identifiers.LogService)
+    private readonly logger!: Contracts.Kernel.Logger;
+
+    /**
+     * @param {RelayHost[]} hosts
+     * @memberof Client
+     */
+    public register(hosts: RelayHost[]) {
+        this.hosts = hosts.map((host: RelayHost) => {
             host.socket = socketCluster.create({
                 ...host,
                 autoReconnectOptions: {
@@ -35,6 +62,24 @@ export class Client {
         this.host = this.hosts[0];
     }
 
+    /**
+     * @memberof Client
+     */
+    public dispose(): void {
+        for (const host of this.hosts) {
+            const socket: socketCluster.SCClientSocket | undefined = host.socket;
+
+            if (socket) {
+                socket.disconnect();
+            }
+        }
+    }
+
+    /**
+     * @param {Interfaces.IBlock} block
+     * @returns {Promise<void>}
+     * @memberof Client
+     */
     public async broadcastBlock(block: Interfaces.IBlock): Promise<void> {
         this.logger.debug(
             `Broadcasting block ${block.data.height.toLocaleString()} (${block.data.id}) with ${
@@ -44,7 +89,7 @@ export class Client {
 
         try {
             await this.emit("p2p.peer.postBlock", {
-                block: Blocks.Block.serializeWithTransactions({
+                block: Blocks.Serializer.serializeWithTransactions({
                     ...block.data,
                     transactions: block.transactions.map(tx => tx.data),
                 }),
@@ -54,6 +99,10 @@ export class Client {
         }
     }
 
+    /**
+     * @returns {Promise<void>}
+     * @memberof Client
+     */
     public async syncWithNetwork(): Promise<void> {
         await this.selectHost();
 
@@ -66,24 +115,44 @@ export class Client {
         }
     }
 
-    public async getRound(): Promise<P2P.ICurrentRound> {
+    /**
+     * @returns {Promise<Contracts.P2P.CurrentRound>}
+     * @memberof Client
+     */
+    public async getRound(): Promise<Contracts.P2P.CurrentRound> {
         await this.selectHost();
 
-        return this.emit<P2P.ICurrentRound>("p2p.internal.getCurrentRound");
+        return this.emit<Contracts.P2P.CurrentRound>("p2p.internal.getCurrentRound");
     }
 
-    public async getNetworkState(): Promise<P2P.INetworkState> {
+    public async getNetworkState(): Promise<Contracts.P2P.NetworkState> {
         try {
-            return NetworkState.parse(await this.emit<P2P.INetworkState>("p2p.internal.getNetworkState", {}, 4000));
+            return NetworkState.parse(
+                await this.emit<Contracts.P2P.NetworkState>("p2p.internal.getNetworkState", {}, 4000),
+            );
         } catch (err) {
             return new NetworkState(NetworkStateStatus.Unknown);
         }
     }
 
-    public async getTransactions(): Promise<P2P.IForgingTransactions> {
-        return this.emit<P2P.IForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
+    /**
+     * @returns {Promise<Contracts.P2P.ForgingTransactions>}
+     * @memberof Client
+     */
+    /**
+     * @returns {Promise<Contracts.P2P.ForgingTransactions>}
+     * @memberof Client
+     */
+    public async getTransactions(): Promise<Contracts.P2P.ForgingTransactions> {
+        return this.emit<Contracts.P2P.ForgingTransactions>("p2p.internal.getUnconfirmedTransactions");
     }
 
+    /**
+     * @param {string} event
+     * @param {({ error: string } | { activeDelegates: string[] } | Interfaces.IBlockData | Interfaces.ITransactionData)} body
+     * @returns {Promise<void>}
+     * @memberof Client
+     */
     public async emitEvent(
         event: string,
         body: { error: string } | { activeDelegates: string[] } | Interfaces.IBlockData | Interfaces.ITransactionData,
@@ -94,7 +163,7 @@ export class Client {
 
         const allowedHosts: string[] = ["127.0.0.1", "::ffff:127.0.0.1"];
 
-        const host: IRelayHost = this.hosts.find(item =>
+        const host: RelayHost | undefined = this.hosts.find(item =>
             allowedHosts.some(allowedHost => item.hostname.includes(allowedHost)),
         );
 
@@ -110,16 +179,20 @@ export class Client {
         }
     }
 
+    /**
+     * @returns {Promise<void>}
+     * @memberof Client
+     */
     public async selectHost(): Promise<void> {
         for (let i = 0; i < 10; i++) {
             for (const host of this.hosts) {
-                if (host.socket.getState() === host.socket.OPEN) {
+                if (host.socket && host.socket.getState() === host.socket.OPEN) {
                     this.host = host;
                     return;
                 }
             }
 
-            await delay(100);
+            await Utils.sleep(100);
         }
 
         this.logger.debug(
@@ -131,9 +204,20 @@ export class Client {
         throw new HostNoResponseError(this.hosts.map(host => host.hostname).join());
     }
 
-    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout: number = 4000): Promise<T> {
+    /**
+     * @private
+     * @template T
+     * @param {string} event
+     * @param {Record<string, any>} [data={}]
+     * @param {number} [timeout=4000]
+     * @returns {Promise<T>}
+     * @memberof Client
+     */
+    private async emit<T = object>(event: string, data: Record<string, any> = {}, timeout = 4000): Promise<T> {
         try {
-            const response: P2P.IResponse<T> = await socketEmit(
+            Utils.assert.defined<socketCluster.SCClientSocket>(this.host.socket);
+
+            const response: Contracts.P2P.Response<T> = await socketEmit(
                 this.host.hostname,
                 this.host.socket,
                 event,

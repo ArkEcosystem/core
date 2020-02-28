@@ -1,10 +1,11 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { MagistrateTransactionGroup, MagistrateTransactionType } from "../enums";
 import { IBridgechainUpdateAsset } from "../interfaces";
 import { BridgechainUpdateTransaction } from "../transactions";
 
 export class BridgechainUpdateBuilder extends Transactions.TransactionBuilder<BridgechainUpdateBuilder> {
-    constructor() {
+    public constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;
@@ -15,9 +16,12 @@ export class BridgechainUpdateBuilder extends Transactions.TransactionBuilder<Br
     }
 
     public bridgechainUpdateAsset(bridgechainUpdateAsset: IBridgechainUpdateAsset): BridgechainUpdateBuilder {
-        this.data.asset.bridgechainUpdate = {
-            ...bridgechainUpdateAsset,
-        };
+        if (this.data.asset && this.data.asset.bridgechainUpdate) {
+            this.data.asset.bridgechainUpdate = {
+                ...bridgechainUpdateAsset,
+            };
+        }
+
         return this;
     }
 

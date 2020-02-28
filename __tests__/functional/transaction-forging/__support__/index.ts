@@ -1,96 +1,86 @@
 import "jest-extended";
 
-import { Blockchain, Container, Database, State } from "@arkecosystem/core-interfaces";
-import { Wallets } from "@arkecosystem/core-state";
-import { Identities, Managers, Utils } from "@arkecosystem/crypto";
-import { Crypto } from "@arkecosystem/crypto";
-import delay from "delay";
-import cloneDeep from "lodash.clonedeep";
-import { secrets } from "../../../utils/config/testnet/delegates.json";
-import { setUpContainer } from "../../../utils/helpers/container";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Identities, Utils } from "@arkecosystem/crypto";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 
 jest.setTimeout(1200000);
 
-let app: Container.IContainer;
-export const setUp = async (): Promise<Container.IContainer> => {
-    try {
-        process.env.CORE_RESET_DATABASE = "1";
+import { DatabaseService } from "@arkecosystem/core-database";
+import { Sandbox } from "@packages/core-test-framework/src";
 
-        app = await setUpContainer({
-            include: [
-                "@arkecosystem/core-event-emitter",
-                "@arkecosystem/core-logger-pino",
-                "@arkecosystem/core-state",
-                "@arkecosystem/core-database-postgres",
-                "@arkecosystem/core-magistrate-transactions",
-                "@arkecosystem/core-transaction-pool",
-                "@arkecosystem/core-p2p",
-                "@arkecosystem/core-blockchain",
-                "@arkecosystem/core-api",
-                "@arkecosystem/core-forger",
-            ],
+const sandbox: Sandbox = new Sandbox();
+
+export const setUp = async (): Promise<Contracts.Kernel.Application> => {
+    process.env.CORE_RESET_DATABASE = "1";
+
+    await sandbox.boot(async ({ app }) => {
+        await app.bootstrap({
+            flags: {
+                token: "ark",
+                network: "unitnet",
+                env: "test",
+                processType: "core",
+            },
+            plugins: {
+                include: [
+                    "@arkecosystem/core-state",
+                    "@arkecosystem/core-database",
+                    "@arkecosystem/core-transactions",
+                    "@arkecosystem/core-magistrate-transactions",
+                    "@arkecosystem/core-transaction-pool",
+                    "@arkecosystem/core-p2p",
+                    "@arkecosystem/core-blockchain",
+                    "@arkecosystem/core-api",
+                    "@arkecosystem/core-forger",
+                ],
+                options: {
+                    "@arkecosystem/core-blockchain": {
+                        networkStart: true,
+                    },
+                },
+            },
         });
 
-        const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-        await databaseService.reset();
+        await app.boot();
+
+        const databaseService = app.get<DatabaseService>(Container.Identifiers.DatabaseService);
+        const walletRepository = app.getTagged<Contracts.State.WalletRepository>(
+            Container.Identifiers.WalletRepository,
+            "state",
+            "blockchain",
+        );
+
         await databaseService.buildWallets();
         await databaseService.saveRound(
-            secrets.map(secret =>
-                Object.assign(new Wallets.Wallet(Identities.Address.fromPassphrase(secret)), {
-                    publicKey: Identities.PublicKey.fromPassphrase(secret),
-                    attributes: {
-                        delegate: {
-                            voteBalance: Utils.BigNumber.make("245098000000000"),
-                            round: 1,
-                        },
-                    },
-                }),
-            ),
+            secrets.map((secret, i) => {
+                const wallet = walletRepository.findByPublicKey(Identities.PublicKey.fromPassphrase(secret));
+
+                wallet.setAttribute("delegate", {
+                    username: `genesis_${i + 1}`,
+                    voteBalance: Utils.BigNumber.make("300000000000000"),
+                    forgedFees: Utils.BigNumber.ZERO,
+                    forgedRewards: Utils.BigNumber.ZERO,
+                    producedBlocks: 0,
+                    round: 1,
+                    rank: undefined,
+                });
+
+                return wallet;
+            }),
         );
+
         await (databaseService as any).initializeActiveDelegates(1);
-    } catch (error) {
-        console.error(error.stack);
-    }
-    return app;
+    });
+
+    return sandbox.app;
 };
 
 export const tearDown = async (): Promise<void> => {
-    const databaseService = app.resolvePlugin<Database.IDatabaseService>("database");
-    await databaseService.reset();
+    // const databaseService = sandbox.app.get<DatabaseService>(Container.Identifiers.DatabaseService);
+    // await databaseService.reset();
 
-    await app.tearDown();
-};
-
-export const snoozeForBlock = async (sleep: number = 0, height: number = 1): Promise<void> => {
-    const blockTime = Managers.configManager.getMilestone(height).blocktime * 1000;
-    const remainingTimeInSlot = Crypto.Slots.getTimeInMsUntilNextSlot();
-    const sleepTime = sleep * 1000;
-
-    return delay(blockTime + remainingTimeInSlot + sleepTime);
-};
-
-export const revertLastBlock = async () => {
-    const blockchainService: Blockchain.IBlockchain = app.resolvePlugin<Blockchain.IBlockchain>("blockchain");
-    await blockchainService.removeBlocks(1);
-};
-
-export const injectMilestone = (index: number, milestone: Record<string, any>): void => {
-    (Managers.configManager as any).milestones.splice(
-        index,
-        0,
-        Object.assign(cloneDeep(Managers.configManager.getMilestone()), milestone),
-    );
-};
-
-export const getLastHeight = (): number => {
-    return app
-        .resolvePlugin<State.IStateService>("state")
-        .getStore()
-        .getLastHeight();
-};
-
-export const getSenderNonce = (senderPublicKey: string): Utils.BigNumber => {
-    return app.resolvePlugin<Database.IDatabaseService>("database").walletManager.getNonce(senderPublicKey);
+    await sandbox.dispose();
 };
 
 export const passphrases = {

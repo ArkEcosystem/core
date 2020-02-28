@@ -1,19 +1,27 @@
-import { app } from "@arkecosystem/core-container";
-import { Blockchain } from "@arkecosystem/core-interfaces";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 
-export const getHeaders = () => {
-    const headers = {
-        version: app.getVersion(),
-        port: app.resolveOptions("p2p").port,
+export const getHeaders = (app: Contracts.Kernel.Application) => {
+    const headers: {
+        version: string | undefined;
+        port: number | undefined;
+        height: number | undefined;
+    } = {
+        version: app.version(),
+        port: app
+            .getTagged<Providers.PluginConfiguration>(
+                Container.Identifiers.PluginConfiguration,
+                "plugin",
+                "@arkecosystem/core-p2p",
+            )
+            .get<number>("port"),
         height: undefined,
     };
 
-    if (app.has("blockchain")) {
-        const lastBlock = app.resolvePlugin<Blockchain.IBlockchain>("blockchain").getLastBlock();
-
-        if (lastBlock) {
-            headers.height = lastBlock.data.height;
-        }
+    const state: Contracts.State.StateStore = app.get<Contracts.State.StateStore>(Container.Identifiers.StateStore);
+    if (state.started) {
+        headers.height = app
+            .get<Contracts.Blockchain.Blockchain>(Container.Identifiers.BlockchainService)
+            .getLastHeight();
     }
 
     return headers;

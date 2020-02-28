@@ -1,12 +1,22 @@
 import "jest-extended";
 
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { DelegateRegistrationTransaction, Utils } from "../../../../../../packages/crypto/src/transactions";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions/builders";
-import { DelegateRegistrationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-registration";
-import { BigNumber } from "../../../../../../packages/crypto/src/utils";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { Utils } from "@packages/crypto/src/transactions";
+import { Two } from "@packages/crypto/src/transactions/types";
+import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
+import { DelegateRegistrationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-registration";
+import { BigNumber } from "@packages/crypto/src/utils";
+
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: DelegateRegistrationBuilder;
+
+beforeEach(() => {
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = Generators.generateCryptoConfigRaw();
+    configManager.setConfig(config);
+});
 
 describe("Delegate Registration Transaction", () => {
     describe("verify", () => {
@@ -40,7 +50,7 @@ describe("Delegate Registration Transaction", () => {
         it("should have its specific properties", () => {
             expect(builder).toHaveProperty("data.type", TransactionType.DelegateRegistration);
             expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
-            expect(builder).toHaveProperty("data.fee", DelegateRegistrationTransaction.staticFee());
+            expect(builder).toHaveProperty("data.fee", Two.DelegateRegistrationTransaction.staticFee());
             expect(builder).toHaveProperty("data.recipientId", undefined);
             expect(builder).toHaveProperty("data.senderPublicKey", undefined);
             expect(builder).toHaveProperty("data.asset", { delegate: {} });
@@ -62,6 +72,7 @@ describe("Delegate Registration Transaction", () => {
     });
 
     // FIXME problems with ark-js V1
+    // note: this will only work with v1 transactions as v2 transactions don't have a timestamp
     describe("getStruct", () => {
         beforeEach(() => {
             builder = BuilderFactory.delegateRegistration().usernameAsset("homer");
@@ -73,7 +84,9 @@ describe("Delegate Registration Transaction", () => {
 
         describe("when is signed", () => {
             beforeEach(() => {
-                builder.sign("any pass");
+                configManager.getMilestone().aip11 = false;
+
+                builder.version(1).sign("any pass");
             });
 
             it("returns the id", () => {

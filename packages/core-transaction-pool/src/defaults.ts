@@ -38,4 +38,5 @@ export const defaults = {
             bridgechainResignation: 100,
         },
     },
+    maxTransactionBytes: 2000000 // TODO think of a value that makes sense ?
 };

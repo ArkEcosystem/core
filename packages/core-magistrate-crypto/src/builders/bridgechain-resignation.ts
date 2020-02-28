@@ -1,9 +1,10 @@
 import { Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
+
 import { MagistrateTransactionGroup, MagistrateTransactionType } from "../enums";
 import { BridgechainResignationTransaction } from "../transactions";
 
 export class BridgechainResignationBuilder extends Transactions.TransactionBuilder<BridgechainResignationBuilder> {
-    constructor() {
+    public constructor() {
         super();
         this.data.version = 2;
         this.data.typeGroup = MagistrateTransactionGroup;
@@ -14,7 +15,10 @@ export class BridgechainResignationBuilder extends Transactions.TransactionBuild
     }
 
     public bridgechainResignationAsset(bridgechainId: string): BridgechainResignationBuilder {
-        this.data.asset.bridgechainResignation.bridgechainId = bridgechainId;
+        if (this.data.asset && this.data.asset.bridgechainResignation) {
+            this.data.asset.bridgechainResignation.bridgechainId = bridgechainId;
+        }
+
         return this;
     }
 

@@ -1,11 +1,9 @@
-import { app } from "@arkecosystem/core-container";
-import { Logger } from "@arkecosystem/core-interfaces";
+import { Contracts, Utils } from "@arkecosystem/core-kernel";
 import dns from "dns";
-import shuffle from "lodash.shuffle";
 import util from "util";
 
-export const checkDNS = async hosts => {
-    hosts = shuffle(hosts);
+export const checkDNS = async (app: Contracts.Kernel.Application, hosts: string[]) => {
+    hosts = Utils.shuffle(hosts);
 
     const lookupService = util.promisify(dns.lookupService);
 
@@ -15,7 +13,7 @@ export const checkDNS = async hosts => {
 
             return Promise.resolve(hosts[i]);
         } catch (err) {
-            app.resolvePlugin<Logger.ILogger>("logger").error(err.message);
+            app.log.error(err.message);
         }
     }
 

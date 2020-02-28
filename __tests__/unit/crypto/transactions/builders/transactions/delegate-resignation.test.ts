@@ -1,18 +1,22 @@
 import "jest-extended";
 
-import { TransactionType } from "../../../../../../packages/crypto/src/enums";
-import { configManager } from "../../../../../../packages/crypto/src/managers";
-import { DelegateResignationTransaction } from "../../../../../../packages/crypto/src/transactions/";
-import { BuilderFactory } from "../../../../../../packages/crypto/src/transactions/builders";
-import { DelegateResignationBuilder } from "../../../../../../packages/crypto/src/transactions/builders/transactions/delegate-resignation";
-import { BigNumber } from "../../../../../../packages/crypto/src/utils";
+import { configManager } from "@packages/crypto/src/managers";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { BuilderFactory } from "@packages/crypto/src/transactions/builders";
+import { DelegateResignationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-resignation";
+import { BigNumber } from "@packages/crypto/src/utils";
+import { Two } from "@packages/crypto/src/transactions/types";
+
+import { Generators } from "@packages/core-test-framework/src";
 
 let builder: DelegateResignationBuilder;
 
 beforeEach(() => {
-    builder = BuilderFactory.delegateResignation();
+    // todo: completely wrap this into a function to hide the generation and setting of the config?
+    const config = Generators.generateCryptoConfigRaw();
+    configManager.setConfig(config);
 
-    configManager.getMilestone().aip11 = true;
+    builder = BuilderFactory.delegateResignation();
 });
 
 describe("Delegate Resignation Transaction", () => {
@@ -36,7 +40,7 @@ describe("Delegate Resignation Transaction", () => {
         it("should have its specific properties", () => {
             expect(builder).toHaveProperty("data.type", TransactionType.DelegateResignation);
             expect(builder).toHaveProperty("data.amount", BigNumber.ZERO);
-            expect(builder).toHaveProperty("data.fee", DelegateResignationTransaction.staticFee());
+            expect(builder).toHaveProperty("data.fee", Two.DelegateResignationTransaction.staticFee());
             expect(builder).toHaveProperty("data.senderPublicKey", undefined);
         });
 

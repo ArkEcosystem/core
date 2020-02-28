@@ -1,53 +1,90 @@
-import { flags } from "@oclif/command";
-import cli from "cli-ux";
+import { Commands, Container, Services } from "@arkecosystem/core-cli";
+import Joi from "@hapi/joi";
 
-import { confirm } from "../helpers/prompts";
-import { installFromChannel } from "../helpers/update";
-import { CommandFlags } from "../types";
-import { BaseCommand } from "./command";
+/**
+ * @export
+ * @class Command
+ * @extends {Commands.Command}
+ */
+@Container.injectable()
+export class Command extends Commands.Command {
+    /**
+     * The console command signature.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public signature: string = "reinstall";
 
-export class ReinstallCommand extends BaseCommand {
-    public static description: string = "Reinstall the core";
+    /**
+     * The console command description.
+     *
+     * @type {string}
+     * @memberof Command
+     */
+    public description: string = "Reinstall the Core installation";
 
-    public static flags: CommandFlags = {
-        force: flags.boolean({
-            description: "force a reinstall",
-        }),
-    };
+    /**
+     * Indicates whether the command requires a network to be present.
+     *
+     * @type {boolean}
+     * @memberof Command
+     */
+    public requiresNetwork: boolean = false;
 
-    public async run(): Promise<void> {
-        const { flags } = await this.parseWithNetwork(ReinstallCommand);
+    /**
+     * @private
+     * @type {Installer}
+     * @memberof Command
+     */
+    @Container.inject(Container.Identifiers.Installer)
+    private readonly installer!: Services.Installer;
 
-        if (flags.force) {
-            return this.performInstall(flags);
-        }
-
-        try {
-            await confirm("Are you sure you want to reinstall?", async () => {
-                try {
-                    await this.performInstall(flags);
-                } catch (err) {
-                    this.error(err.message);
-                } finally {
-                    cli.action.stop();
-                }
-            });
-        } catch (err) {
-            this.error(err.message);
-        }
+    /**
+     * Configure the console command.
+     *
+     * @returns {void}
+     * @memberof Command
+     */
+    public configure(): void {
+        this.definition.setFlag("force", "Force a reinstall.", Joi.boolean());
     }
 
-    private async performInstall(flags: CommandFlags): Promise<void> {
-        cli.action.start(`Reinstalling ${this.config.version}`);
+    /**
+     * Execute the console command.
+     *
+     * @returns {Promise<void>}
+     * @memberof Command
+     */
+    public async execute(): Promise<void> {
+        if (this.getFlag("force")) {
+            return this.performInstall();
+        }
 
-        await installFromChannel(this.config.name, this.config.version);
+        if (await this.components.confirm("Are you sure you want to reinstall?")) {
+            //Come back to this
+            return this.performInstall();
+        }
 
-        cli.action.stop();
+        this.components.fatal("You'll need to confirm the reinstall to continue.");
+    }
 
-        this.warn(`Version ${this.config.version} has been installed.`);
+    /**
+     * @private
+     * @returns {Promise<void>}
+     * @memberof Command
+     */
+    private async performInstall(): Promise<void> {
+        const spinner = this.components.spinner(`Reinstalling ${this.pkg.version}`);
 
-        await this.restartRunningProcessPrompt(`${flags.token}-core`);
-        await this.restartRunningProcessPrompt(`${flags.token}-relay`);
-        await this.restartRunningProcessPrompt(`${flags.token}-forger`);
+        spinner.start();
+
+        this.installer.installFromChannel(this.pkg.name!, this.pkg.version!);
+
+        spinner.succeed();
+
+        await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-core`);
+        await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-relay`);
+        await this.actions.restartRunningProcessWithPrompt(`${this.getFlag("token")}-forger`);
     }
 }

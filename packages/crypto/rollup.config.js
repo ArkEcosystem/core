@@ -9,21 +9,19 @@ export default {
     output: [
         {
             file: pkg.main,
-            format: "cjs"
+            format: "cjs",
         },
         {
             file: pkg.module,
-            format: "es" // the preferred format
+            format: "es", // the preferred format
         },
         {
             file: pkg.browser,
             format: "iife",
-            name: "ArkCrypto" // the global which can be used in a browser
-        }
+            name: "ArkCrypto", // the global which can be used in a browser
+        },
     ],
-    external: [
-        ...Object.keys(pkg.dependencies || {})
-    ],
+    external: [...Object.keys(pkg.dependencies || {})],
     plugins: [
         json({
             // for tree-shaking, properties will be declared as
@@ -35,13 +33,13 @@ export default {
         }),
         nodeResolve({
             jsnext: true,
-            main: true
+            main: true,
         }),
         commonjs({
             namedExports: {
-                "dist/index.js": ["__moduleExports"]
-            }
+                "dist/index.js": ["__moduleExports"],
+            },
         }),
-        terser() // minifies generated bundles
-    ]
+        terser(), // minifies generated bundles
+    ],
 };
