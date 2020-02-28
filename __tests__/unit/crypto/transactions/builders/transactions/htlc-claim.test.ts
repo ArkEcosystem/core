@@ -14,8 +14,7 @@ let builder: HtlcClaimBuilder;
 
 beforeEach(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?
-    const config = Generators.generateCryptoConfigRaw();
-    configManager.setConfig(config);
+    configManager.setConfig(Generators.generateCryptoConfigRaw());
 
     builder = BuilderFactory.htlcClaim();
 });
