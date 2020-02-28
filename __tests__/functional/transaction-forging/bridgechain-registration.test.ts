@@ -2,10 +2,10 @@ import "@packages/core-test-framework/src/matchers";
 
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities } from "@arkecosystem/crypto";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 import { generateMnemonic } from "bip39";
 
-import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
-import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import * as support from "./__support__";
 
 let app: Contracts.Kernel.Application;
@@ -155,7 +155,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             // Bridgechain resignation
             const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
-                    name: "cryptoProject",
+                    name: "cryptoProject3",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
@@ -186,7 +186,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             // Bridgechain registration
             const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
-                    name: "cryptoProject",
+                    name: "cryptoProject4",
                     seedNodes: ["1.2.3.4", "2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
                     bridgechainRepository: "repository.com/myorg/myrepo",
@@ -244,7 +244,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             // Registering a bridgechain
             const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
-                    name: "cryptoProject2",
+                    name: "cryptoProject5",
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "2c624232cdd221771294dfbb310aca000a0df6ac8b66b696d90ef06fdefb64a3",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
@@ -322,7 +322,7 @@ describe("Transaction Forging - Bridgechain registration", () => {
             // Registering a bridgechain
             const bridgechainRegistration = TransactionFactory.initialize(app)
                 .bridgechainRegistration({
-                    name: "cryptoProject3",
+                    name: "cryptoProject6",
                     seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                     genesisHash: "19581e27de7ced00ff1ce50b2047e7a567c76b1cbaebabe5ef03f7c3017bb5b7",
                     bridgechainRepository: "http://www.repository.com/myorg/myrepo",
