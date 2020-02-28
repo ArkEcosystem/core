@@ -96,7 +96,7 @@
         "sinon": "^7.5.0",
         "tmp": "^0.1.0",
         "ts-jest": "^24.2.0",
-        "typedoc": "^0.15.5",
+        "typedoc": "^0.16.0",
         "typescript": "^3.7.3",
         "typesync": "^0.6.1",
         "uuid": "^3.3.3"
