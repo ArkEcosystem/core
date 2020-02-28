@@ -1,13 +1,14 @@
 import "jest-extended";
 
-import { configManager } from "@packages/crypto/src/managers";
+import { Generators } from "@packages/core-test-framework/src";
 import { TransactionType } from "@packages/crypto/src/enums";
+import { configManager } from "@packages/crypto/src/managers";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
 import { HtlcClaimBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-claim";
 import { Two } from "@packages/crypto/src/transactions/types";
 import { BigNumber } from "@packages/crypto/src/utils";
 
-import { Generators } from "@packages/core-test-framework/src";
+import { htlcSecretHex } from "../../__fixtures__/htlc";
 
 let builder: HtlcClaimBuilder;
 
@@ -31,7 +32,7 @@ describe("Htlc claim Transaction", () => {
         it("should set the htlc claim asset", () => {
             const htlcClaimAsset = {
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-                unlockSecret: "my secret that should be 32bytes",
+                unlockSecret: htlcSecretHex,
             };
 
             builder.htlcClaimAsset(htlcClaimAsset);
@@ -43,7 +44,7 @@ describe("Htlc claim Transaction", () => {
     describe("verify", () => {
         const htlcClaimAsset = {
             lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-            unlockSecret: "my secret that should be 32bytes",
+            unlockSecret: htlcSecretHex,
         };
 
         it("should be valid with a signature", () => {
