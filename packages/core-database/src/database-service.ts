@@ -57,6 +57,7 @@ export class DatabaseService {
     public async initialize(): Promise<void> {
         if (process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = false;
+            Managers.configManager.getMilestone().htlcEnabled = false;
         }
 
         try {
@@ -106,6 +107,8 @@ export class DatabaseService {
         if (this.blocksInCurrentRound) {
             this.blocksInCurrentRound.push(block);
         }
+
+        this.detectMissedBlocks(block);
 
         await this.applyRound(block.data.height);
 
@@ -256,8 +259,8 @@ export class DatabaseService {
 
         if (blocks.length !== limit) {
             blocks = headersOnly
-                ? await this.blockRepository.findByHeightRangeWithTransactions(start, end)
-                : await this.blockRepository.findByHeightRange(start, end);
+                ? await this.blockRepository.findByHeightRange(start, end)
+                : await this.blockRepository.findByHeightRangeWithTransactions(start, end);
         }
 
         return blocks;
@@ -363,7 +366,7 @@ export class DatabaseService {
                     return this.app.get<any>(Container.Identifiers.StateStore).getGenesisBlock();
                 }
 
-                return Blocks.BlockFactory.fromData(block);
+                return Blocks.BlockFactory.fromData(block, { deserializeTransactionsUnchecked: true });
             },
         );
     }
@@ -390,6 +393,7 @@ export class DatabaseService {
 
         if (block.height === 1 && process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = true;
+            Managers.configManager.getMilestone().htlcEnabled = true;
         }
 
         return lastBlock;
@@ -637,6 +641,7 @@ export class DatabaseService {
 
         if (process.env.CORE_ENV === "test") {
             Managers.configManager.getMilestone().aip11 = true;
+            Managers.configManager.getMilestone().htlcEnabled = true;
         }
 
         this.configureState(lastBlock);

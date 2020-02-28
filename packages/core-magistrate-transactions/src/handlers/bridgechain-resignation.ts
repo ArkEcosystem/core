@@ -6,7 +6,7 @@ import { Handlers, TransactionReader } from "@arkecosystem/core-transactions";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 
 import {
-    BridgechainIsNotRegisteredError,
+    BridgechainIsNotRegisteredByWalletError,
     BridgechainIsResignedError,
     BusinessIsResignedError,
     WalletIsNotBusinessError,
@@ -69,6 +69,9 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         if (businessAttributes.resigned) {
             throw new BusinessIsResignedError();
         }
+        if (!businessAttributes.bridgechains) {
+            throw new BridgechainIsNotRegisteredByWalletError();
+        }
 
         Utils.assert.defined<MagistrateInterfaces.IBridgechainResignationAsset>(
             transaction.data.asset?.bridgechainResignation,
@@ -81,9 +84,8 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
 
         const bridgechainAttributes: IBridgechainWalletAttributes =
             businessAttributes.bridgechains[bridgechainResignation.bridgechainId];
-
         if (!bridgechainAttributes) {
-            throw new BridgechainIsNotRegisteredError();
+            throw new BridgechainIsNotRegisteredByWalletError();
         }
 
         if (bridgechainAttributes.resigned) {

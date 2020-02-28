@@ -21,7 +21,18 @@ export class BusinessController extends Controller {
     }
 
     public async show(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const business = this.walletRepository.findByPublicKey(request.params.id);
+        const wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, request.params.id);
+        if (!wallet || !wallet.hasAttribute("business")) {
+            return Boom.notFound("Business not found");
+        }
+
+        if (!wallet.publicKey) {
+            return Boom.internal("Wallet missing public key property");
+        }
+
+        const business = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
+            publicKey: wallet.publicKey,
+        }).rows[0];
         if (!business) {
             return Boom.notFound("Business not found");
         }
@@ -31,16 +42,14 @@ export class BusinessController extends Controller {
 
     public async bridgechains(request: Hapi.Request, h: Hapi.ResponseToolkit) {
         try {
-            const business = this.walletRepository.search(Contracts.State.SearchScope.Businesses, {
-                publicKey: request.params.id,
-            });
+            const wallet = this.walletRepository.findByScope(Contracts.State.SearchScope.Wallets, request.params.id);
 
-            if (!business) {
+            if (!wallet || !wallet.hasAttribute("business")) {
                 return Boom.notFound("Business not found");
             }
 
             const bridgechains = this.walletRepository.search(Contracts.State.SearchScope.Bridgechains, {
-                publicKey: request.params.id,
+                publicKey: wallet.publicKey,
                 ...request.query,
                 ...this.paginate(request),
             });

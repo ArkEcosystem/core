@@ -33,8 +33,8 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         const transactions: Models.Transaction[] = await reader.read();
         for (const transaction of transactions) {
             const multiSignature: Contracts.State.WalletMultiSignatureAttributes = transaction.asset.multiSignature!;
-            const wallet: Contracts.State.Wallet = this.walletRepository.findByAddress(
-                Identities.Address.fromMultiSignatureAsset(multiSignature),
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+                Identities.PublicKey.fromMultiSignatureAsset(multiSignature),
             );
 
             if (wallet.hasMultiSignature()) {
@@ -74,8 +74,8 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset.multiSignature);
 
-        const multiSigAddress: string = Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature);
-        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(multiSigAddress);
+        const multiSigPublicKey: string = Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature);
+        const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(multiSigPublicKey);
 
         if (recipientWallet.hasMultiSignature()) {
             throw new MultiSignatureAlreadyRegisteredError();
@@ -116,7 +116,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(transaction.data.asset?.multiSignature);
 
         walletRepository
-            .findByAddress(Identities.Address.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
+            .findByPublicKey(Identities.PublicKey.fromMultiSignatureAsset(transaction.data.asset.multiSignature))
             .setAttribute("multiSignature", transaction.data.asset.multiSignature);
     }
 
@@ -139,8 +139,8 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
 
-        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
-            Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
+        const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
         );
 
         recipientWallet.setAttribute("multiSignature", data.asset.multiSignature);
@@ -156,8 +156,8 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
 
         AppUtils.assert.defined<Interfaces.IMultiSignatureAsset>(data.asset?.multiSignature);
 
-        const recipientWallet: Contracts.State.Wallet = walletRepository.findByAddress(
-            Identities.Address.fromMultiSignatureAsset(data.asset.multiSignature),
+        const recipientWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(
+            Identities.PublicKey.fromMultiSignatureAsset(data.asset.multiSignature),
         );
 
         recipientWallet.forgetAttribute("multiSignature");

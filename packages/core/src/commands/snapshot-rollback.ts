@@ -38,7 +38,8 @@ export class Command extends Commands.Command {
             .setFlag("skipCompression", "Skip gzip compression.", Joi.boolean())
             .setFlag("trace", "Dumps generated queries and settings to console.", Joi.boolean())
             .setFlag("height", "The height after the roll back.", Joi.number())
-            .setFlag("number", "The number of blocks to roll back.", Joi.number());
+            .setFlag("number", "The number of blocks to roll back.", Joi.number())
+            .setFlag("export", "Export the rolled back transactions.", Joi.boolean().default(true));
     }
 
     /**
