@@ -1,4 +1,4 @@
-import { TransactionStore } from "../../../../packages/core-state/src/stores/transactions";
+import { TransactionStore } from "@arkecosystem/core-state/src/stores/transactions";
 import { Interfaces } from "@packages/crypto/src";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 

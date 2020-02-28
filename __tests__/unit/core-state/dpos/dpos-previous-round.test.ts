@@ -1,13 +1,13 @@
 import "jest-extended";
 
 import { setUp } from "../setup";
-import { DposState } from "../../../../packages/core-state/src/dpos/dpos";
+import { DposState } from "@arkecosystem/core-state/src/dpos/dpos";
 import { Utils } from "@arkecosystem/core-kernel";
 import { buildDelegateAndVoteWallets } from "./dpos.test";
-import { WalletRepository } from "../../../../packages/core-state/src/wallets";
+import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
 import { RoundInfo } from "@arkecosystem/core-kernel/dist/contracts/shared";
 import { DposPreviousRoundStateProvider } from "@arkecosystem/core-kernel/dist/contracts/state";
-import { DposPreviousRoundState } from "../../../../packages/core-state/src/dpos";
+import { DposPreviousRoundState } from "@arkecosystem/core-state/src/dpos";
 import { makeChainedBlocks, makeVoteTransactions } from "../helper";
 import { addTransactionsToBlock } from "../block-state.test";
 import { IBlock } from "@arkecosystem/crypto/dist/interfaces";

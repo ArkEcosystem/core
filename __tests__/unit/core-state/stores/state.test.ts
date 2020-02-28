@@ -1,10 +1,10 @@
 import "jest-extended";
 import { Container } from "@arkecosystem/core-kernel";
-import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import { FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 
 import { Blocks, Interfaces } from "@arkecosystem/crypto";
 import delay from "delay";
-import { StateStore } from "../../../../packages/core-state/src/stores/state";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { IBlock } from "@arkecosystem/crypto/dist/interfaces";
 import { setUp } from "../setup";
 import { makeChainedBlocks } from "../helper";

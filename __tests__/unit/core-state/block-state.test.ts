@@ -3,7 +3,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
 import { Utils } from "@arkecosystem/crypto";
-import { BlockState } from "../../../packages/core-state/src/block-state";
+import { BlockState } from "@arkecosystem/core-state/src/block-state";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
 import { IBlock, ITransaction } from "@arkecosystem/crypto/dist/interfaces";
 import { DelegateResignationBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/delegate-resignation";
