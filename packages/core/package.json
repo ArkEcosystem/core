@@ -63,10 +63,13 @@
         "fs-extra": "^8.1.0",
         "ngrok": "^3.2.5",
         "nodejs-tail": "^1.1.0",
+        "pretty-bytes": "^5.2.0",
+        "pretty-ms": "^6.0.0",
+        "prompts": "^2.1.0",
         "read-last-lines": "^1.7.1",
         "simple-git": "^1.126.0",
-        "tar": "^5.0.5",
-        "type-fest": "^0.8.1",
+        "tar": "^6.0.0",
+        "type-fest": "^0.11.0",
         "wif": "^2.0.6"
     },
     "engines": {

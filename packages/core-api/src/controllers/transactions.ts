@@ -1,12 +1,12 @@
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
-import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { TransactionResource } from "../resources";
 import { Controller } from "./controller";
+import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class TransactionsController extends Controller {
@@ -16,8 +16,8 @@ export class TransactionsController extends Controller {
     @Container.inject(Container.Identifiers.BlockchainService)
     protected readonly blockchain!: Contracts.Blockchain.Blockchain;
 
-    @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly transactionPool!: Contracts.TransactionPool.Connection;
+    @Container.inject(Container.Identifiers.TransactionPoolQuery)
+    private readonly poolQuery!: Contracts.TransactionPool.Query;
 
     @Container.inject(Container.Identifiers.TransactionRepository)
     private readonly transactionRepository!: Repositories.TransactionRepository;
@@ -63,30 +63,30 @@ export class TransactionsController extends Controller {
     }
 
     public async unconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const pagination = super.paginate(request);
-        const transactions = await this.transactionPool.getTransactions(pagination.offset, pagination.limit);
-        const poolSize = await this.transactionPool.getPoolSize();
-        const data = transactions.map(t => ({ serialized: t.serialized.toString("hex") }));
-
-        return super.toPagination(
-            { count: poolSize, rows: data },
-            TransactionResource,
-            (request.query.transform as unknown) as boolean,
+        const pagination: Repositories.Search.SearchPagination = super.paginate(request);
+        const all: Interfaces.ITransaction[] = Array.from(this.poolQuery.getAllFromHighestPriority());
+        const transactions: Interfaces.ITransaction[] = all.slice(
+            pagination.offset,
+            pagination.offset + pagination.limit,
         );
+        const rows = transactions.map(t => ({ serialized: t.serialized.toString("hex") }));
+
+        return super.toPagination({ count: all.length, rows }, TransactionResource, !!request.query.transform);
     }
 
     public async showUnconfirmed(request: Hapi.Request, h: Hapi.ResponseToolkit) {
-        const transaction: Interfaces.ITransaction | undefined = await this.transactionPool.getTransaction(
-            request.params.id,
-        );
+        const transactionQuery: Contracts.TransactionPool.QueryIterable = this.poolQuery
+            .getAllFromHighestPriority()
+            .whereId(request.params.id);
 
-        if (!transaction) {
+        if (transactionQuery.has() === false) {
             return Boom.notFound("Transaction not found");
         }
 
+        const transaction: Interfaces.ITransaction = transactionQuery.first();
         const data = { id: transaction.id, serialized: transaction.serialized.toString("hex") };
 
-        return super.respondWithResource(data, TransactionResource, (request.query.transform as unknown) as boolean);
+        return super.respondWithResource(data, TransactionResource, !!request.query.transform);
     }
 
     public async search(request: Hapi.Request, h: Hapi.ResponseToolkit) {

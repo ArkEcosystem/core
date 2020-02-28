@@ -1,10 +1,12 @@
 import "jest-extended";
 
+import { Address } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { devnet } from "../../../../packages/crypto/src/networks";
 import { TransactionFactory } from "../../../../packages/crypto/src/transactions";
-import { BigNumber } from "../../../../packages/crypto/src/utils";
 import { Two } from "../../../../packages/crypto/src/transactions/types";
+import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
+import { BigNumber } from "../../../../packages/crypto/src/utils";
 
 describe("Transaction", () => {
     describe("should deserialize correctly some tests transactions", () => {
@@ -174,6 +176,39 @@ describe("Transaction", () => {
             );
 
             devnet.milestones.pop();
+        });
+    });
+
+    describe("toString", () => {
+        it("should describe v1 transaction", () => {
+            configManager.getMilestone().aip11 = false;
+
+            const senderAddress = Address.fromPassphrase("sender's secret");
+            const recipientAddress = Address.fromPassphrase("recipient's secret");
+            const transaction = BuilderFactory.transfer()
+                .version(1)
+                .amount("100")
+                .recipientId(recipientAddress)
+                .sign("sender's secret")
+                .build();
+
+            expect(String(transaction)).toMatch(new RegExp(`^${senderAddress} transfer v1 [0-9a-f]{64}$`));
+        });
+
+        it("should describe v2 transaction", () => {
+            configManager.getMilestone().aip11 = true;
+
+            const senderAddress = Address.fromPassphrase("sender's secret");
+            const recipientAddress = Address.fromPassphrase("recipient's secret");
+            const transaction = BuilderFactory.transfer()
+                .version(2)
+                .amount("100")
+                .recipientId(recipientAddress)
+                .nonce("1")
+                .sign("sender's secret")
+                .build();
+
+            expect(String(transaction)).toMatch(new RegExp(`^${senderAddress} #1 transfer v2 [0-9a-f]{64}$`));
         });
     });
 });

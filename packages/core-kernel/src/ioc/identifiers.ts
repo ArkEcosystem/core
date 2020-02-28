@@ -37,7 +37,6 @@ export const Identifiers = {
     QueueService: Symbol.for("Service<Queue>"),
     ScheduleService: Symbol.for("Service<Schedule>"),
     SnapshotService: Symbol.for("Service<Snapshot>"),
-    TransactionPoolService: Symbol.for("Service<TransactionPool>"),
     TriggerService: Symbol.for("Service<Actions>"),
     ValidationService: Symbol.for("Service<Validation>"),
     // Factories
@@ -65,8 +64,8 @@ export const Identifiers = {
     StateStore: Symbol.for("State<StateStore>"),
     StateTransactionStore: Symbol.for("State<TransactionStore>"),
     WalletFactory: Symbol.for("State<WalletFactory>"),
-    TransactionValidator: Symbol("State<TransactionValidator>"),
-    TransactionValidatorFactory: Symbol("State<TransactionValidatorFactory>"),
+    TransactionValidator: Symbol.for("State<TransactionValidator>"),
+    TransactionValidatorFactory: Symbol.for("State<TransactionValidatorFactory>"),
 
     // Derived states
     DposState: Symbol.for("State<DposState>"),
@@ -80,6 +79,7 @@ export const Identifiers = {
     PeerStorage: Symbol.for("Peer<Storage>"),
     PeerTransactionBroadcaster: Symbol.for("Peer<TransactionBroadcaster>"),
     // Transaction Pool
+    TransactionPoolService: Symbol.for("TransactionPool<Service>"),
     TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
     TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
     TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
@@ -88,6 +88,9 @@ export const Identifiers = {
     TransactionPoolDynamicFeeMatcher: Symbol.for("TransactionPool<DynamicFeeMatcher>"),
     TransactionPoolProcessor: Symbol.for("TransactionPool<Processor>"),
     TransactionPoolProcessorFactory: Symbol.for("TransactionPool<ProcessorFactory>"),
+    TransactionPoolSenderState: Symbol.for("TransactionPool<SenderState>"),
+    TransactionPoolSenderStateFactory: Symbol.for("TransactionPool<SenderStateFactory>"),
+    TransactionPoolExpirationService: Symbol.for("TransactionPool<ExpirationService>"),
 
     // Transactions - @todo: better names that won't clash
     WalletAttributes: Symbol.for("Wallet<Attributes>"),

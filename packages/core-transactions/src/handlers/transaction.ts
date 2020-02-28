@@ -317,11 +317,12 @@ export abstract class TransactionHandler {
 
     public abstract walletAttributes(): ReadonlyArray<string>;
 
-    public abstract async isActivated(): Promise<boolean>;
+    public abstract isActivated(): Promise<boolean>;
 
     /**
      * Wallet logic
      */
+
     public abstract async bootstrap(): Promise<void>;
 
     public abstract async applyToRecipient(
