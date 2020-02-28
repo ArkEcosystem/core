@@ -15,7 +15,7 @@ export class Processor implements Contracts.TransactionPool.Processor {
     private readonly logger!: Contracts.Kernel.Logger;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly pool!: Contracts.TransactionPool.Connection;
+    private readonly pool!: Contracts.TransactionPool.Service;
 
     @Container.inject(Container.Identifiers.TransactionPoolDynamicFeeMatcher)
     private readonly dynamicFeeMatcher!: Contracts.TransactionPool.DynamicFeeMatcher;
@@ -56,8 +56,9 @@ export class Processor implements Contracts.TransactionPool.Processor {
                             message: error.message,
                         };
 
-                        this.logger.warning(error.message);
+                        this.logger.warning(`${transaction} failed to enter pool: ${error.message}`);
                     } else {
+                        this.logger.error(`${transaction} caused error entering pool: ${error.stack}`);
                         throw error;
                     }
                 }

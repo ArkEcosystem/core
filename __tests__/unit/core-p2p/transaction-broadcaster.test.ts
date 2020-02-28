@@ -21,11 +21,11 @@ describe("TransactionBroadcaster", () => {
         });
 
         beforeEach(() => {
-            logger.warning.mockReset();
-            logger.debug.mockReset();
-            configuration.getRequired.mockReset();
-            storage.getPeers.mockReset();
-            communicator.postTransactions.mockReset();
+            logger.warning.mockClear();
+            logger.debug.mockClear();
+            configuration.getRequired.mockClear();
+            storage.getPeers.mockClear();
+            communicator.postTransactions.mockClear();
         });
 
         it("should warn when attempting to broadcast empty array", async () => {

@@ -8,8 +8,8 @@ export type ProcessorError = {
 export interface Processor {
     accept: string[];
     broadcast: string[];
-    invalid: string[];
     excess: string[];
+    invalid: string[];
     errors?: { [id: string]: ProcessorError };
 
     process(data: Interfaces.ITransactionData[]): Promise<void>;

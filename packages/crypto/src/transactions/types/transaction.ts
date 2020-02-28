@@ -2,6 +2,7 @@ import ByteBuffer from "bytebuffer";
 
 import { TransactionTypeGroup } from "../../enums";
 import { NotImplemented } from "../../errors";
+import { Address } from "../../identities";
 import { ISchemaValidationResult, ITransaction, ITransactionData, ITransactionJson } from "../../interfaces";
 import { configManager } from "../../managers/config";
 import { BigNumber } from "../../utils/bignum";
@@ -67,6 +68,28 @@ export abstract class Transaction implements ITransaction {
         }
 
         return data;
+    }
+
+    public toString(): string {
+        const parts: string[] = [];
+
+        if (this.data.senderPublicKey) {
+            parts.push(Address.fromPublicKey(this.data.senderPublicKey));
+        }
+
+        if (this.data.nonce) {
+            parts.push(`#${this.data.nonce}`);
+        }
+
+        const key: string = (this as any).__proto__.constructor.key;
+        const version: string = (this as any).__proto__.constructor.version;
+        parts.push(`${key} v${version}`);
+
+        if (this.data.id) {
+            parts.push(this.data.id);
+        }
+
+        return parts.join(" ");
     }
 
     public hasVendorField(): boolean {

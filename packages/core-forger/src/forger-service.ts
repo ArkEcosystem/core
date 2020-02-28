@@ -90,7 +90,7 @@ export class ForgerService {
 
             timeout = Crypto.Slots.getTimeInMsUntilNextSlot();
         } catch (error) {
-            this.logger.warning("Waiting for a responsive host.");
+            this.logger.warning("Waiting for a responsive host");
         } finally {
             this.checkLater(timeout);
         }
@@ -261,7 +261,7 @@ export class ForgerService {
         );
         this.logger.debug(
             `Received ${AppUtils.pluralize("transaction", transactions.length, true)} ` +
-                `from the pool containing ${response.poolSize}`,
+                `from the pool containing ${AppUtils.pluralize("transaction", response.poolSize, true)} total`,
         );
         return transactions;
     }
