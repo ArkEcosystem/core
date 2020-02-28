@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import ByteBuffer from "bytebuffer";
 import { Application } from "@arkecosystem/core-kernel/src/application";
 import { Container, Identifiers } from "@arkecosystem/core-kernel/src/ioc";
 import { Contracts, Services } from "@arkecosystem/core-kernel";
@@ -21,8 +22,8 @@ import {
 let app: Application;
 
 const NUMBER_OF_REGISTERED_CORE_HANDLERS = 16;
-const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE = 8;
-const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE = 15;
+const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE = 8; // TODO: Check if correct
+const NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE = 12;
 
 const TEST_TRANSACTION_TYPE = 100;
 const DEPENDANT_TEST_TRANSACTION_TYPE = 101;

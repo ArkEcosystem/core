@@ -1,3 +1,3 @@
-export const htlcSecretHex = "my secret that should be 32bytes";
+export const htlcSecretHex = "c27f1ce845d8c29eebc9006be932b604fd06755521b1a8b0be4204c65377151a";
 
-export const htlcSecretHashHex = "317fcab2563aa3a1549fab4a83f9ec073f07db8ea081f7eded87b6f322fe9a09";
+export const htlcSecretHashHex = "9c1a3815d49e0c9f78b872bfb017e825ea2db708158b70815526a830c85912b4";

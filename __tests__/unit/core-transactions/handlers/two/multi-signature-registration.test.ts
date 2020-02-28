@@ -6,7 +6,7 @@ import { Application, Contracts, Services } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
-import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
+import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
 import { Memory } from "@arkecosystem/core-transaction-pool";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
@@ -21,11 +21,10 @@ import {
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
-    MultiSignatureMinimumKeysError,
+    MultiSignatureMinimumKeysError, UnexpectedMultiSignatureError,
 } from "@arkecosystem/core-transactions/src/errors";
 import { setMockTransaction } from "../__mocks__/transaction-repository";
 import {
-    buildMultiSignatureWallet,
     buildRecipientWallet,
     buildSecondSignatureWallet,
     buildSenderWallet,
@@ -35,7 +34,6 @@ import {
 let app: Application;
 let senderWallet: Wallets.Wallet;
 let secondSignatureWallet: Wallets.Wallet;
-let multiSignatureWallet: Wallets.Wallet;
 let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
@@ -63,12 +61,10 @@ beforeEach(() => {
 
     senderWallet = buildSenderWallet(factoryBuilder);
     secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
-    multiSignatureWallet = buildMultiSignatureWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
     walletRepository.reindex(senderWallet);
     walletRepository.reindex(secondSignatureWallet);
-    walletRepository.reindex(multiSignatureWallet);
     walletRepository.reindex(recipientWallet);
 });
 
@@ -76,7 +72,6 @@ describe("MultiSignatureRegistrationTransaction", () => {
     let multiSignatureTransaction: Interfaces.ITransaction;
     let secondSignatureMultiSignatureTransaction: Interfaces.ITransaction;
     let multiSignatureAsset: IMultiSignatureAsset;
-    let recipientWallet: Wallets.Wallet;
     let handler: TransactionHandler;
 
     beforeEach(async () => {
@@ -100,7 +95,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         multiSignatureTransaction = BuilderFactory.multiSignature()
             .multiSignatureAsset(multiSignatureAsset)
-            .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]))
+            .senderPublicKey(senderWallet.publicKey!)
             .nonce("1")
             .recipientId(recipientWallet.publicKey!)
             .multiSign(passphrases[0], 0)
@@ -149,6 +144,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should not throw", async () => {
+            console.log(recipientWallet);
             await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).toResolve();
         });
 
@@ -171,6 +167,30 @@ describe("MultiSignatureRegistrationTransaction", () => {
             await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
                 InvalidMultiSignatureError,
             );
+        });
+
+        it("should throw with aip11 set to false and transaction is legacy", async () => {
+            let legacyAssset: IMultiSignatureLegacyAsset = {
+                keysgroup: [
+                    "+039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
+                    "+028d3611c4f32feca3e6713992ae9387e18a0e01954046511878fe078703324dc0",
+                    "+021d3932ab673230486d0f956d05b9e88791ee298d9af2d6df7d9ed5bb861c92dd",
+                ],
+                min: 3,
+                lifetime: 0,
+                // @ts-ignore
+                legacy: true,
+            };
+
+            multiSignatureTransaction.data.version = 1;
+            multiSignatureTransaction.data.timestamp = 1000;
+            multiSignatureTransaction.data.asset!.legacyAsset = legacyAssset;
+
+            Managers.configManager.getMilestone().aip11 = false;
+
+            handler.verifySignatures = jest.fn().mockReturnValue(true);
+
+            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(UnexpectedMultiSignatureError);
         });
 
         // TODO: check value 02 thwors DuplicateParticipantInMultiSignatureError, 03 throws nodeError
