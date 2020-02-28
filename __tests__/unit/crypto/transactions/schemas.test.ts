@@ -8,6 +8,7 @@ import { IMultiSignatureAsset } from "../../../../packages/crypto/src/interfaces
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
+import { schemas } from "../../../../packages/crypto/src/transactions/types";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
 import { htlcSecretHex } from "./__fixtures__/htlc";
@@ -740,7 +741,7 @@ describe("Multi Signature Registration Transaction", () => {
             id: "32aa60577531c190e6a29d28f434367c84c2f0a62eceba5c5483a3983639d51a",
         };
 
-        const { error } = Ajv.validate(transactionSchema.$id, legacyMultiSignature);
+        const { error } = Ajv.validate(schemas.multiSignatureLegacy, legacyMultiSignature);
         expect(error).toBeUndefined();
     });
 });
