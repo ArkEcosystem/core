@@ -86,8 +86,6 @@ describe("Transaction Forging - HTLC Refund", () => {
         await expect(secondSignature.id).toBeForged();
 
         // Initial htlc lock transaction
-        const secret = "my secret that should be 32bytes";
-        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const lockTransaction = TransactionFactory.initialize(app)
             .htlcLock(
                 {
@@ -163,8 +161,6 @@ describe("Transaction Forging - HTLC Refund", () => {
         await expect(multiSignatureFunds.id).toBeForged();
 
         // Initial htlc lock transaction
-        const secret = "my secret that should be 32bytes";
-        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const lockTransaction = TransactionFactory.initialize(app)
             .htlcLock(
                 {
