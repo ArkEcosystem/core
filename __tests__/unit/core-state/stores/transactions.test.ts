@@ -1,5 +1,5 @@
-import { TransactionStore } from "@arkecosystem/core-state/src/stores/transactions";
-import { Interfaces } from "@packages/crypto/src";
+import { TransactionStore } from "@packages/core-state/src/stores/transactions";
+import { ITransaction } from "@packages/crypto/src/interfaces";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
 let factory: FactoryBuilder;
@@ -11,7 +11,7 @@ beforeEach(() => {
 
 describe("TransactionStore", () => {
     it("should push and get a transaction", () => {
-        const transaction: Interfaces.ITransaction = factory
+        const transaction: ITransaction = factory
                 .get("Transfer")
                 .make();
 

@@ -1,16 +1,16 @@
 import "jest-extended";
 
 import { setUp } from "../setup";
-import { DposState } from "@arkecosystem/core-state/src/dpos/dpos";
-import { Utils } from "@arkecosystem/core-kernel";
+import { DposState } from "@packages/core-state/src/dpos/dpos";
+import { Utils } from "@packages/core-kernel/src";
 import { buildDelegateAndVoteWallets } from "./dpos.test";
-import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { RoundInfo } from "@arkecosystem/core-kernel/dist/contracts/shared";
-import { DposPreviousRoundStateProvider } from "@arkecosystem/core-kernel/dist/contracts/state";
-import { DposPreviousRoundState } from "@arkecosystem/core-state/src/dpos";
+import { WalletRepository } from "@packages/core-state/src/wallets";
+import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
+import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
+import { DposPreviousRoundState } from "@packages/core-state/src/dpos";
 import { makeChainedBlocks, makeVoteTransactions } from "../helper";
 import { addTransactionsToBlock } from "../block-state.test";
-import { IBlock } from "@arkecosystem/crypto/dist/interfaces";
+import { IBlock } from "@packages/crypto/src/interfaces";
 
 let dposState: DposState;
 let dposPreviousRoundStateProv: DposPreviousRoundStateProvider;

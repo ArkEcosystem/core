@@ -1,7 +1,7 @@
-import { Wallets } from "@arkecosystem/core-state";
+import { Wallets } from "@packages/core-state/src";
 
-import { WalletIndex } from "@arkecosystem/core-state/src/wallets/wallet-index";
-import { Factory } from "@arkecosystem/core-test-framework/src/factories/factory";
+import { WalletIndex } from "@packages/core-state/src/wallets/wallet-index";
+import { Factory } from "@packages/core-test-framework/src/factories/factory";
 import { setUp } from "../setup";
 
 let factoryInstance: Factory;

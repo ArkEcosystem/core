@@ -1,9 +1,9 @@
 import "jest-extended";
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@packages/core-kernel/src";
 
-import { Utils } from "@arkecosystem/crypto";
-import { Wallet, WalletRepositoryClone, WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { addressesIndexer, publicKeysIndexer, ipfsIndexer, locksIndexer, resignationsIndexer, usernamesIndexer } from "@arkecosystem/core-state/src/wallets/indexers/indexers";
+import { Utils } from "@packages/crypto/src";
+import { Wallet, WalletRepositoryClone, WalletRepository } from "@packages/core-state/src/wallets";
+import { addressesIndexer, publicKeysIndexer, ipfsIndexer, locksIndexer, resignationsIndexer, usernamesIndexer } from "@packages/core-state/src/wallets/indexers/indexers";
 import { setUp } from "../setup";
 
 let walletRepoClone: WalletRepositoryClone;

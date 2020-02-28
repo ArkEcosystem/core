@@ -1,19 +1,19 @@
 import "jest-extended";
-import { Contracts } from "@arkecosystem/core-kernel";
+import { Contracts } from "@packages/core-kernel/src";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
-import { Utils } from "@arkecosystem/crypto";
-import { BlockState } from "@arkecosystem/core-state/src/block-state";
-import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { IBlock, ITransaction } from "@arkecosystem/crypto/dist/interfaces";
-import { DelegateResignationBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/delegate-resignation";
-import { VoteBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/vote";
-import { SecondSignatureBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/second-signature";
-import { DelegateRegistrationBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/delegate-registration";
-import { TransferBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/transfer";
-import { IPFSBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/ipfs";
-import { HtlcLockBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/htlc-lock";
-import { HtlcRefundBuilder } from "@arkecosystem/crypto/dist/transactions/builders/transactions/htlc-refund";
+import { Utils } from "@packages/crypto/src";
+import { BlockState } from "@packages/core-state/src/block-state";
+import { WalletRepository } from "@packages/core-state/src/wallets";
+import { IBlock, ITransaction } from "@packages/crypto/src/interfaces";
+import { DelegateResignationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-resignation";
+import { VoteBuilder } from "@packages/crypto/src/transactions/builders/transactions/vote";
+import { SecondSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/second-signature";
+import { DelegateRegistrationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-registration";
+import { TransferBuilder } from "@packages/crypto/src/transactions/builders/transactions/transfer";
+import { IPFSBuilder } from "@packages/crypto/src/transactions/builders/transactions/ipfs";
+import { HtlcLockBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-lock";
+import { HtlcRefundBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-refund";
 import { makeChainedBlocks, makeVoteTransactions } from "./helper";
 import { setUp } from "./setup";
 
@@ -239,7 +239,7 @@ describe("BlockState", () => {
             ${"delegateResignation"}    | ${delegateRes}
             ${"ipfs"}                   | ${ipfs}
             ${"htlcLock"}               | ${htlcLock}
-            ${"htlcRefund"}              | ${htlcRefund}
+            ${"htlcRefund"}             | ${htlcRefund}
         `("when the transaction is a $type", ({ transaction }) => {
 
             it("should call the transaction handler apply the transaction to the sender & recipient", async () => {

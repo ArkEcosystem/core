@@ -1,8 +1,7 @@
 import "jest-extended";
 
-// import { Sandbox } from "@packages/core-test-framework/src";
-import { Utils } from "@arkecosystem/core-kernel";
-import { TransactionValidator } from "@arkecosystem/core-state/src/transaction-validator";
+import { Utils } from "@packages/core-kernel/src";
+import { TransactionValidator } from "@packages/core-state/src/transaction-validator";
 import { makeVoteTransactions } from "./helper";
 import { AssertionError } from "assert";
 import { setUp } from "./setup";

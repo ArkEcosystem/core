@@ -1,12 +1,12 @@
 import "jest-extended";
 
 import { setUp } from "../setup";
-import { DposState } from "@arkecosystem/core-state/src/dpos/dpos";
-import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { Identities, Utils as CryptoUtils } from "@arkecosystem/crypto";
-import { SATOSHI } from "@arkecosystem/crypto/dist/constants";
-import { Utils } from "@arkecosystem/core-kernel";
-import { RoundInfo } from "@arkecosystem/core-kernel/dist/contracts/shared";
+import { DposState } from "@packages/core-state/src/dpos/dpos";
+import { WalletRepository } from "@packages/core-state/src/wallets";
+import { Identities, Utils as CryptoUtils } from "@packages/crypto/src";
+import { SATOSHI } from "@packages/crypto/src/constants";
+import { Utils } from "@packages/core-kernel/src";
+import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
 
 let dposState: DposState;
 let walletRepo: WalletRepository;

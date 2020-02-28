@@ -1,21 +1,21 @@
 import "jest-extended";
 
-import { Container, Providers, Services } from "@arkecosystem/core-kernel";
+import { Container, Providers, Services } from "@packages/core-kernel/src";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
-import { Managers, Utils } from "@arkecosystem/crypto";
-import { defaults } from "@arkecosystem/core-state/src/defaults";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { BlockState } from "@arkecosystem/core-state/src/block-state";
-import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "@arkecosystem/core-state/src/wallets";
-import { registerIndexers, registerFactories } from "@arkecosystem/core-state/src/wallets/indexers";
-import { DposState } from "@arkecosystem/core-state/src/dpos/dpos";
-import { PluginConfiguration } from "@arkecosystem/core-kernel/dist/providers";
-import { dposPreviousRoundStateProvider } from "@arkecosystem/core-state/src";
-import { DposPreviousRoundStateProvider } from "@arkecosystem/core-kernel/dist/contracts/state";
-import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
-import { TransactionValidator } from "@arkecosystem/core-state/src/transaction-validator";
+import { Managers, Utils } from "@packages/crypto/src";
+import { defaults } from "@packages/core-state/src/defaults";
+import { StateStore } from "@packages/core-state/src/stores/state";
+import { BlockState } from "@packages/core-state/src/block-state";
+import { WalletRepository, WalletRepositoryClone, WalletRepositoryCopyOnWrite } from "@packages/core-state/src/wallets";
+import { registerIndexers, registerFactories } from "@packages/core-state/src/wallets/indexers";
+import { DposState } from "@packages/core-state/src/dpos/dpos";
+import { PluginConfiguration } from "@packages/core-kernel/src/providers";
+import { dposPreviousRoundStateProvider } from "@packages/core-state/src";
+import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
+import { StateBuilder } from "@packages/core-state/src/state-builder";
+import { TransactionValidator } from "@packages/core-state/src/transaction-validator";
 
 export interface Spies {
     applySpy: jest.SpyInstance,

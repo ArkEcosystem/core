@@ -1,10 +1,9 @@
 import "jest-extended";
 
-import { attributes } from '@arkecosystem/core-test-framework/src/internal/wallet-attributes';
-import { Services } from "@arkecosystem/core-kernel";
+import { attributes } from '@packages/core-test-framework/src/internal/wallet-attributes';
+import { Wallet } from "@packages/core-state/src/wallets";
+import { Services } from "@packages/core-kernel";
 
-import { Wallet } from "@arkecosystem/core-state/src/wallets";
-import { AttributeMap } from "@arkecosystem/core-kernel/dist/services/attributes";
 import { setUp } from "../setup";
 
 beforeAll(() => {
@@ -12,7 +11,7 @@ beforeAll(() => {
 });
 
 describe("Models - Wallet", () => {
-    let attributeMap: AttributeMap;
+    let attributeMap;
 
     beforeEach(() => {
         attributeMap = new Services.Attributes.AttributeMap(attributes);

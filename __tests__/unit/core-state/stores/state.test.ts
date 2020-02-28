@@ -1,11 +1,11 @@
 import "jest-extended";
-import { Container } from "@arkecosystem/core-kernel";
-import { FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import { Container } from "@packages/core-kernel/src";
+import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 
-import { Blocks, Interfaces } from "@arkecosystem/crypto";
+import { IBlockData, ITransactionData, IBlock } from "@packages/crypto/src/interfaces";
+import { Block } from "@packages/crypto/src/blocks/block";
 import delay from "delay";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { IBlock } from "@arkecosystem/crypto/dist/interfaces";
+import { StateStore } from "@packages/core-state/src/stores/state";
 import { setUp } from "../setup";
 import { makeChainedBlocks } from "../helper";
 
@@ -108,7 +108,7 @@ describe("State Storage", () => {
             expect(lastBlocks).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
-                expect(lastBlocks[i]).toBeInstanceOf(Blocks.Block);
+                expect(lastBlocks[i]).toBeInstanceOf(Block);
                 expect(lastBlocks[i].data.height).toBe(6 - i); // Height started at 2
                 expect(lastBlocks[i]).toBe(blocks[4 - i]);
             }
@@ -121,11 +121,11 @@ describe("State Storage", () => {
                 stateStorage.setLastBlock(blocks[i]);
             }
 
-            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as Interfaces.IBlockData[];
+            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as IBlockData[];
             expect(lastBlocksData).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
-                expect(lastBlocksData[0]).not.toBeInstanceOf(Blocks.Block);
+                expect(lastBlocksData[0]).not.toBeInstanceOf(Block);
                 expect(lastBlocksData[i].height).toBe(6 - i); // Height started at 2
                 expect(lastBlocksData[i]).toHaveProperty("transactions");
                 delete lastBlocksData[i].transactions;
@@ -206,7 +206,7 @@ describe("State Storage", () => {
 
     describe("cacheTransactions", () => {
         it("should add transaction id", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
@@ -214,11 +214,11 @@ describe("State Storage", () => {
         });
 
         it("should not add duplicate transaction ids", () => {
-            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
                 added: [{ id: "1" }],
                 notAdded: [],
             });
-            expect(stateStorage.cacheTransactions([{ id: "1" } as Interfaces.ITransactionData])).toEqual({
+            expect(stateStorage.cacheTransactions([{ id: "1" } as ITransactionData])).toEqual({
                 added: [],
                 notAdded: [{ id: "1" }],
             });

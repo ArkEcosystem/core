@@ -1,5 +1,5 @@
-import { Interfaces } from "@arkecosystem/crypto";
-import { BlockStore } from "@arkecosystem/core-state/src/stores/blocks";
+import { Interfaces } from "@packages/crypto/src";
+import { BlockStore } from "@packages/core-state/src/stores/blocks";
 
 describe("BlockStore", () => {
     it("should push and get a block", () => {
