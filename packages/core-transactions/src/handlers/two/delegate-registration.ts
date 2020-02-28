@@ -49,6 +49,11 @@ export class DelegateRegistrationTransactionHandler extends One.DelegateRegistra
         for (const block of lastForgedBlocks) {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(block.generatorPublicKey);
 
+            // Genesis wallet is empty
+            if (!wallet.hasAttribute("delegate")) {
+                continue;
+            }
+
             wallet.setAttribute("delegate.lastBlock", block);
         }
     }

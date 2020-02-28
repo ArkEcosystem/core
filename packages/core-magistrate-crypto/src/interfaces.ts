@@ -21,6 +21,7 @@ export interface IBridgechainRegistrationAsset {
     seedNodes: string[];
     genesisHash: string;
     bridgechainRepository: string;
+    bridgechainAssetRepository?: string;
     ports: IBridgechainPorts;
 }
 
@@ -28,6 +29,8 @@ export interface IBridgechainUpdateAsset {
     bridgechainId: string;
     seedNodes?: string[];
     ports?: IBridgechainPorts;
+    bridgechainRepository?: string;
+    bridgechainAssetRepository?: string;
 }
 
 export interface IBridgechainResignationAsset {

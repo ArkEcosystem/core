@@ -32,7 +32,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
     }
 
     public async isActivated(): Promise<boolean> {
-        return Managers.configManager.getMilestone().aip11 === true;
+        const milestone = Managers.configManager.getMilestone();
+        return milestone.aip11 === true && milestone.htlcEnabled === true;
     }
 
     public dynamicFee(context: Contracts.Shared.DynamicFeeContext): Utils.BigNumber {
@@ -71,7 +72,8 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             throw new HtlcLockExpiredError();
         }
 
-        const unlockSecretHash: string = Crypto.HashAlgorithms.sha256(claimAsset.unlockSecret).toString("hex");
+        const unlockSecretBytes = Buffer.from(claimAsset.unlockSecret, "hex");
+        const unlockSecretHash: string = Crypto.HashAlgorithms.sha256(unlockSecretBytes).toString("hex");
         if (lock.secretHash !== unlockSecretHash) {
             throw new HtlcSecretHashMismatchError();
         }

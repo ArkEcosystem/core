@@ -5,7 +5,7 @@ import { Peer, PeerConfig } from "./peer";
 export interface PeerCommunicator {
     initialize();
 
-    postBlock(peer: Peer, block: Interfaces.IBlockJson);
+    postBlock(peer: Peer, block: Interfaces.IBlock);
 
     postTransactions(peer: Peer, transactions: Interfaces.ITransactionJson[]): Promise<any>;
 

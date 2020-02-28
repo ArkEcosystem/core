@@ -1,21 +1,29 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Managers } from "@arkecosystem/crypto";
-
+import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
+import { Identities, Interfaces, Managers } from "@arkecosystem/crypto";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import {
-    snoozeForBlock,
     getLastHeight,
     injectMilestone,
+    snoozeForBlock,
     TransactionFactory,
 } from "@packages/core-test-framework/src/utils";
-import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+
 import * as support from "./__support__";
 
 const { passphrase, secondPassphrase } = support.passphrases;
 
 let app: Contracts.Kernel.Application;
-beforeAll(async () => (app = await support.setUp()));
+let networkConfig: Interfaces.NetworkConfig;
+
+beforeAll(async () => {
+    app = await support.setUp();
+
+    // todo: remove the need for this and manual calls to withNetworkConfig on the transaction factory
+    networkConfig = app.get<Services.Config.ConfigRepository>(Container.Identifiers.ConfigRepository).get("crypto");
+});
+
 afterAll(async () => await support.tearDown());
 
 describe("Transaction Forging - Transfer", () => {
@@ -153,6 +161,7 @@ describe("Transaction Forging - Transfer", () => {
 
     it("should accept V1 before AIP11 milestone and reject after AIP11 milestone", async () => {
         const transfer = TransactionFactory.initialize(app)
+            .withNetworkConfig(networkConfig)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[0])
             .createOne();
@@ -162,6 +171,7 @@ describe("Transaction Forging - Transfer", () => {
         await expect(transfer.id).toBeForged();
 
         const transfersLegacyWithoutNonce = TransactionFactory.initialize(app)
+            .withNetworkConfig(networkConfig)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withVersion(1)
             .withPassphrase(secrets[0])
@@ -189,6 +199,7 @@ describe("Transaction Forging - Transfer", () => {
 
         // and accepts V2
         const transferWithNonce = TransactionFactory.initialize(app)
+            .withNetworkConfig(networkConfig)
             .transfer(Identities.Address.fromPassphrase(passphrase))
             .withPassphrase(secrets[1])
             .createOne();

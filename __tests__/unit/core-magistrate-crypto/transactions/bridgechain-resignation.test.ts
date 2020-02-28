@@ -3,6 +3,7 @@ import "jest-extended";
 import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
+
 import { checkCommonFields } from "../helper";
 
 const genesisHash = "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61";
@@ -10,6 +11,8 @@ let builder: MagistrateBuilders.BridgechainResignationBuilder;
 
 describe("Bridgechain registration transaction", () => {
     Managers.configManager.setFromPreset("testnet");
+    Managers.configManager.setHeight(2);
+
     Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BridgechainResignationTransaction);
 
     beforeEach(() => {

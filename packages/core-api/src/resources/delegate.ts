@@ -32,7 +32,7 @@ export class DelegateResource implements Resource {
             publicKey: resource.publicKey,
             votes: Utils.BigNumber.make(attributes.voteBalance).toFixed(),
             rank: attributes.rank,
-            isResigned: attributes.resigned,
+            isResigned: !!attributes.resigned,
             blocks: {
                 produced: attributes.producedBlocks,
             },
