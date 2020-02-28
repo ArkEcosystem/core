@@ -26,7 +26,7 @@ export const trailingSlash = {
 
                 const { statusCode } = await wreck.request("head", path, { baseUrl: origin });
 
-                if (statusCode < 400) {
+                if (statusCode && statusCode < 400) {
                     return h.redirect(`${origin}${search ? path + search : path}`).permanent();
                 }
             } catch {
