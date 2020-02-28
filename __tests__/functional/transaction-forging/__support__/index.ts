@@ -1,13 +1,13 @@
 import "jest-extended";
 
-import { Contracts, Container } from "@arkecosystem/core-kernel";
-import { Utils, Identities } from "@arkecosystem/crypto";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Identities, Utils } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 
 jest.setTimeout(1200000);
 
-import { Sandbox } from "@packages/core-test-framework/src";
 import { DatabaseService } from "@arkecosystem/core-database";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 const sandbox: Sandbox = new Sandbox();
 

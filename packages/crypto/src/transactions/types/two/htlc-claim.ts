@@ -20,7 +20,8 @@ export abstract class HtlcClaimTransaction extends Transaction {
     }
 
     public verify(): boolean {
-        return configManager.getMilestone().aip11 && super.verify();
+        const milestone = configManager.getMilestone();
+        return milestone.aip11 === true && milestone.htlcEnabled === true && super.verify();
     }
 
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
@@ -30,7 +31,7 @@ export abstract class HtlcClaimTransaction extends Transaction {
 
         if (data.asset && data.asset.claim) {
             buffer.append(Buffer.from(data.asset.claim.lockTransactionId, "hex"));
-            buffer.writeString(data.asset.claim.unlockSecret);
+            buffer.append(Buffer.from(data.asset.claim.unlockSecret, "hex"));
         }
 
         return buffer;
@@ -40,7 +41,7 @@ export abstract class HtlcClaimTransaction extends Transaction {
         const { data } = this;
 
         const lockTransactionId: string = buf.readBytes(32).toString("hex");
-        const unlockSecret: string = buf.readString(32);
+        const unlockSecret: string = buf.readBytes(32).toString("hex");
 
         data.asset = {
             claim: {

@@ -30,6 +30,14 @@ export class InvalidTransactionsError extends ServerError {
     }
 }
 
+export class TooManyTransactionsError extends ServerError {
+    public constructor(block: Interfaces.IBlockData) {
+        super(
+            `Received block ${block.id} at height ${block.height} contained too many transactions (${block.numberOfTransactions}).`,
+        );
+    }
+}
+
 export class UnchainedBlockError extends ServerError {
     public constructor(lastHeight: number, nextHeight: number) {
         super(`Last received block ${nextHeight} cannot be chained to ${lastHeight}.`);

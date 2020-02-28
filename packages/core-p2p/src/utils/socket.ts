@@ -38,6 +38,7 @@ export const socketEmit = async (
             clearTimeout(timeoutHandle!);
             const error = new Error(`Socket emit "${event}" : timed out (${timeout}ms)`);
             error.name = SocketErrors.Timeout;
+
             reject(error);
         }, timeout || 0);
     };

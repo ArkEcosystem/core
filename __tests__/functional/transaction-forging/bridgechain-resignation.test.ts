@@ -2,10 +2,10 @@ import "@packages/core-test-framework/src/matchers";
 
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities } from "@arkecosystem/crypto";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 import { generateMnemonic } from "bip39";
 
-import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
-import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import * as support from "./__support__";
 
 let app: Contracts.Kernel.Application;
@@ -146,7 +146,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
 
             // Registering a bridgechain
             const bridgechainRegistrationAsset = {
-                name: "cryptoProject",
+                name: "cryptoProject3",
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "3fdba35f04dc8c462986c992bcf875546257113072a909c162f7e470e581e278",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",
@@ -237,7 +237,7 @@ describe("Transaction Forging - Bridgechain resignation", () => {
 
             // Registering a bridgechain
             const bridgechainRegistrationAsset = {
-                name: "cryptoProject",
+                name: "cryptoProject4",
                 seedNodes: ["2001:0db8:85a3:0000:0000:8a2e:0370:7334"],
                 genesisHash: "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
                 bridgechainRepository: "http://www.repository.com/myorg/myrepo",

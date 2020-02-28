@@ -1,11 +1,11 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces } from "@arkecosystem/crypto";
+import { Blocks, Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import { PeerService } from "../../contracts";
 import { MissingCommonBlockError } from "../../errors";
 import { isWhitelisted } from "../../utils";
-import { UnchainedBlockError } from "../errors";
+import { TooManyTransactionsError, UnchainedBlockError } from "../errors";
 import { getPeerConfig } from "../utils/get-peer-config";
 import { mapAddr } from "../utils/map-addr";
 
@@ -81,7 +81,24 @@ export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Applicatio
         Container.Identifiers.BlockchainService,
     );
 
-    const block: Interfaces.IBlockData = req.data.block;
+    const blockHex: string = (req.data.block as Buffer).toString("hex");
+
+    const deserializedHeader = Blocks.Deserializer.deserialize(blockHex, true);
+
+    if (deserializedHeader.data.numberOfTransactions > Managers.configManager.getMilestone().block.maxTransactions) {
+        throw new TooManyTransactionsError(deserializedHeader.data);
+    }
+
+    const deserialized: {
+        data: Interfaces.IBlockData;
+        transactions: Interfaces.ITransaction[];
+    } = Blocks.Deserializer.deserialize(blockHex);
+
+    const block: Interfaces.IBlockData = {
+        ...deserialized.data,
+        transactions: deserialized.transactions.map(tx => tx.data),
+    };
+
     const fromForger: boolean = isWhitelisted(
         configuration.getOptional<string[]>("remoteAccess", []),
         req.headers.remoteAddress,
@@ -97,6 +114,10 @@ export const postBlock = async ({ app, req }: { app: Contracts.Kernel.Applicatio
         if (!Utils.isBlockChained(lastDownloadedBlock, block)) {
             throw new UnchainedBlockError(lastDownloadedBlock.height, block.height);
         }
+    }
+
+    if (block.transactions && block.transactions.length > Managers.configManager.getMilestone().block.maxTransactions) {
+        throw new TooManyTransactionsError(block);
     }
 
     app.log.info(

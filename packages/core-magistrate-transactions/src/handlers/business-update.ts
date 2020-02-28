@@ -1,6 +1,7 @@
-import { Models } from "@arkecosystem/core-database";
+import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils } from "@arkecosystem/core-kernel";
 import {
+    Enums,
     Interfaces as MagistrateInterfaces,
     Transactions as MagistrateTransactions,
 } from "@arkecosystem/core-magistrate-crypto";
@@ -121,44 +122,72 @@ export class BusinessUpdateTransactionHandler extends MagistrateTransactionHandl
         const walletRepository: Contracts.State.WalletRepository = customWalletRepository ?? this.walletRepository;
 
         Utils.assert.defined<string>(transaction.data.senderPublicKey);
+        Utils.assert.defined<number>(transaction.data.typeGroup);
 
+        // Here we have to "replay" all business registration and update transactions
+        // (except the current one being reverted) to rebuild previous wallet state.
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
+        Utils.assert.defined<string>(sender.publicKey);
 
-        let businessWalletAsset: MagistrateInterfaces.IBusinessRegistrationAsset = sender.getAttribute<
-            IBusinessWalletAttributes
-        >("business").businessAsset;
+        const dbRegistrationTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+            {
+                criteria: [
+                    {
+                        field: "senderPublicKey",
+                        value: sender.publicKey,
+                        operator: Repositories.Search.SearchOperator.Equal,
+                    },
+                    {
+                        field: "type",
+                        value: Enums.MagistrateTransactionType.BusinessRegistration,
+                        operator: Repositories.Search.SearchOperator.Equal,
+                    },
+                    {
+                        field: "typeGroup",
+                        value: transaction.data.typeGroup,
+                        operator: Repositories.Search.SearchOperator.Equal,
+                    },
+                ],
+            },
+        );
+        const dbUpdateTransactions: Repositories.RepositorySearchResult<Models.Transaction> = await this.transactionRepository.search(
+            {
+                criteria: [
+                    {
+                        field: "senderPublicKey",
+                        value: sender.publicKey,
+                        operator: Repositories.Search.SearchOperator.Equal,
+                    },
+                    {
+                        field: "type",
+                        value: Enums.MagistrateTransactionType.BusinessUpdate,
+                        operator: Repositories.Search.SearchOperator.Equal,
+                    },
+                    {
+                        field: "typeGroup",
+                        value: transaction.data.typeGroup,
+                        operator: Repositories.Search.SearchOperator.Equal,
+                    },
+                ],
+                orderBy: [
+                    {
+                        direction: "ASC",
+                        field: "nonce",
+                    },
+                ],
+            },
+        );
 
-        let reader: TransactionReader = this.getTransactionReader();
-        const updateTransactions: Models.Transaction[] = await reader.read();
+        let businessWalletAsset = dbRegistrationTransactions.rows[0].asset
+            .businessRegistration as MagistrateInterfaces.IBusinessRegistrationAsset;
 
-        if (updateTransactions.length > 0) {
-            const updateTransaction: Models.Transaction | undefined = updateTransactions.pop();
-
-            Utils.assert.defined<Models.Transaction>(updateTransaction);
-
-            const previousUpdate: MagistrateInterfaces.IBusinessUpdateAsset = updateTransaction.asset.businessUpdate;
-
+        for (const dbUpdateTx of dbUpdateTransactions.rows) {
+            if (dbUpdateTx.id === transaction.id) {
+                continue;
+            }
             businessWalletAsset = {
                 ...businessWalletAsset,
-                ...previousUpdate,
-            };
-        } else {
-            reader = this.app
-                .resolve<TransactionReader>(TransactionReader)
-                .initialize(MagistrateTransactions.BusinessRegistrationTransaction);
-
-            const registerTransactions: Models.Transaction[] = await reader.read();
-
-            const registerTransaction: Models.Transaction | undefined = registerTransactions.pop();
-
-            Utils.assert.defined<Models.Transaction>(registerTransaction);
-
-            const previousRegistration: MagistrateInterfaces.IBusinessRegistrationAsset =
-                registerTransaction.asset.businessRegistration;
-
-            businessWalletAsset = {
-                ...businessWalletAsset,
-                ...previousRegistration,
+                ...(dbUpdateTx.asset.businessUpdate as MagistrateInterfaces.IBusinessUpdateAsset),
             };
         }
 

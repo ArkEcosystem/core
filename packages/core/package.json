@@ -54,7 +54,7 @@
         "@arkecosystem/core-transaction-pool": "^3.0.0-next.0",
         "@arkecosystem/core-transactions": "^3.0.0-next.0",
         "@arkecosystem/core-webhooks": "^3.0.0-next.0",
-        "@hapi/joi": "^16.1.8",
+        "@hapi/joi": "^17.1.0",
         "bip39": "^3.0.2",
         "bytebuffer": "^5.0.1",
         "env-paths": "^2.2.0",

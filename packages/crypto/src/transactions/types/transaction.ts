@@ -1,3 +1,5 @@
+import ByteBuffer from "bytebuffer";
+
 import { TransactionTypeGroup } from "../../enums";
 import { NotImplemented } from "../../errors";
 import { Address } from "../../identities";

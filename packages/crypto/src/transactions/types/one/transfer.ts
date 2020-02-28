@@ -1,5 +1,4 @@
 import ByteBuffer from "bytebuffer";
-import Long from "long";
 
 import { TransactionType, TransactionTypeGroup } from "../../../enums";
 import { Address } from "../../../identities";
@@ -27,7 +26,8 @@ export abstract class TransferTransaction extends Transaction {
     public serialize(options?: ISerializeOptions): ByteBuffer | undefined {
         const { data } = this;
         const buffer: ByteBuffer = new ByteBuffer(24, true);
-        buffer.writeUint64(Long.fromString(data.amount.toString()));
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(data.amount.toString());
         buffer.writeUint32(data.expiration || 0);
 
         if (data.recipientId) {

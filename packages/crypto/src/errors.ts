@@ -118,6 +118,12 @@ export class TransactionVersionAlreadyRegisteredError extends CryptoError {
     }
 }
 
+export class CoreTransactionTypeGroupImmutableError extends CryptoError {
+    public constructor() {
+        super(`The Core transaction type group is immutable.`);
+    }
+}
+
 export class MissingMilestoneFeeError extends CryptoError {
     public constructor(name: string) {
         super(`Missing milestone fee for '${name}'.`);
@@ -127,6 +133,18 @@ export class MissingMilestoneFeeError extends CryptoError {
 export class MaximumPaymentCountExceededError extends CryptoError {
     public constructor(limit: number) {
         super(`Number of payments exceeded the allowed maximum of ${limit}.`);
+    }
+}
+
+export class MinimumPaymentCountSubceededError extends CryptoError {
+    public constructor() {
+        super(`Number of payments subceeded the required minimum of 2.`);
+    }
+}
+
+export class VendorFieldLengthExceededError extends CryptoError {
+    public constructor(limit: number) {
+        super(`Length of vendor field exceeded the allowed maximum ${limit}.`);
     }
 }
 
