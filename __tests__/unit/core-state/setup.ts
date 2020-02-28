@@ -48,16 +48,16 @@ export interface Setup {
 }
 
 export const setUpDefaults = {
-    getSentTransaction: {
+    getSentTransaction: [{
         senderPublicKey: "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece",
         amount: Utils.BigNumber.make(22222),
         fee: Utils.BigNumber.make(33333),
         nonce: Utils.BigNumber.ONE,
-    },
-    getBlockRewards: {
+    }],
+    getBlockRewards: [{
         generatorPublicKey: "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37",
         rewards: Utils.BigNumber.make(10000),
-    },        
+    }],        
     getRegisteredHandlers: [],
 }
 
@@ -212,7 +212,7 @@ export const setUp = (setUpOptions = setUpDefaults): Setup => {
     class MockBlockRepository {
         public getBlockRewards() {
             getBlockRewardsSpy();
-            return [setUpOptions.getBlockRewards];
+            return setUpOptions.getBlockRewards;
         }
     }
 
@@ -222,7 +222,7 @@ export const setUp = (setUpOptions = setUpDefaults): Setup => {
     class MockTransactionRepository {
         public getSentTransactions() {
             getSentTransactionSpy();
-            return [setUpOptions.getSentTransaction];
+            return setUpOptions.getSentTransaction;
         }
     }
 
