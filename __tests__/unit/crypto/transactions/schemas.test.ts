@@ -950,7 +950,6 @@ describe("HTLC Lock Transaction", () => {
 describe("HTLC Claim Transaction", () => {
     const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
     const fee = "0";
-    const unlockSecret = "c27f1ce845d8c29eebc9006be932b604fd06755521b1a8b0be4204c65377151a";
     const htlcClaimAsset = {
         lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
         unlockSecret: htlcSecretHex,
