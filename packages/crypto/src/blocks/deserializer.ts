@@ -55,8 +55,9 @@ export class Deserializer {
         const constants = configManager.getMilestone(block.height - 1 || 1);
 
         if (constants.block.idFullSha256) {
-            block.previousBlockHex = buf.readBytes(32).toString("hex");
-            block.previousBlock = block.previousBlockHex;
+            const previousBlockFullSha256 = buf.readBytes(32).toString("hex");
+            block.previousBlockHex = previousBlockFullSha256;
+            block.previousBlock = previousBlockFullSha256;
         } else {
             block.previousBlockHex = buf.readBytes(8).toString("hex");
             block.previousBlock = BigNumber.make(`0x${block.previousBlockHex}`).toString();

@@ -1,11 +1,10 @@
 import "jest-extended";
 
 import { Console } from "@arkecosystem/core-test-framework";
-
 import { Command } from "@packages/core/src/commands/network-generate";
+import fs from "fs-extra";
 import { resolve } from "path";
 import prompts from "prompts";
-import fs from "fs-extra";
 
 // jest.mock("fs-extra");
 
@@ -50,7 +49,7 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(6); // 4x Core + 2x Crypto
+        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
 
         expect(writeFileSync).toHaveBeenCalled();
         expect(copyFileSync).toHaveBeenCalledTimes(2);
@@ -183,7 +182,7 @@ describe("GenerateCommand", () => {
         expect(ensureDirSync).toHaveBeenCalledWith(configCore);
         expect(ensureDirSync).toHaveBeenCalledWith(configCrypto);
 
-        expect(writeJSONSync).toHaveBeenCalledTimes(6); // 4x Core + 2x Crypto
+        expect(writeJSONSync).toHaveBeenCalledTimes(7); // 5x Core + 2x Crypto
 
         expect(writeFileSync).toHaveBeenCalled();
         expect(copyFileSync).toHaveBeenCalledTimes(2);

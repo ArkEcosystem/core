@@ -28,7 +28,7 @@
         "@arkecosystem/crypto": "^3.0.0-next.0",
         "@hapi/boom": "^8.0.1",
         "@hapi/hapi": "^18.4.0",
-        "@hapi/joi": "^16.1.8",
+        "@hapi/joi": "^17.1.0",
         "ajv": "^6.10.2",
         "ip": "^1.1.5",
         "node-cache": "^5.0.2",
