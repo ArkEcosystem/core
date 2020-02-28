@@ -15,7 +15,7 @@ const vendorField = (ajv: Ajv) => {
 const validPeer = (ajv: Ajv) => {
     ajv.addFormat("peer", (ip: string) => {
         try {
-            return isValidPeer({ ip });
+            return isValidPeer({ ip }, false);
         } catch {
             return false;
         }

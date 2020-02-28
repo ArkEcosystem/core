@@ -1,6 +1,5 @@
 import assert from "assert";
 import ByteBuffer from "bytebuffer";
-import Long from "long";
 
 import { PreviousBlockIdFormatError } from "../errors";
 import { IBlock, IBlockData, ITransactionData } from "../interfaces";
@@ -86,9 +85,12 @@ export class Serializer {
         buffer.writeUint32(block.height);
         buffer.append(block.previousBlockHex, "hex");
         buffer.writeUint32(block.numberOfTransactions);
-        buffer.writeUint64(Long.fromString(block.totalAmount.toString()));
-        buffer.writeUint64(Long.fromString(block.totalFee.toString()));
-        buffer.writeUint64(Long.fromString(block.reward.toString()));
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(block.totalAmount.toString());
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(block.totalFee.toString());
+        // @ts-ignore - The ByteBuffer types say we can't use strings but the code actually handles them.
+        buffer.writeUint64(block.reward.toString());
         buffer.writeUint32(block.payloadLength);
         buffer.append(block.payloadHash, "hex");
         buffer.append(block.generatorPublicKey, "hex");

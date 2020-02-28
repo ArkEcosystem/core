@@ -1,5 +1,5 @@
 import { Container, Contracts, Enums, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
+import { Blocks, Interfaces, Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import dayjs from "dayjs";
 import delay from "delay";
 import { SCClientSocket } from "socketcluster-client";
@@ -43,12 +43,24 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
         });
     }
 
-    public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlockJson) {
-        return this.emit(peer, "p2p.peer.postBlock", { block }, 5000);
+    public async postBlock(peer: Contracts.P2P.Peer, block: Interfaces.IBlock) {
+        const postBlockTimeout = 10000;
+        return this.emit(
+            peer,
+            "p2p.peer.postBlock",
+            {
+                block: Blocks.Serializer.serializeWithTransactions({
+                    ...block.data,
+                    transactions: block.transactions.map(tx => tx.data),
+                }),
+            },
+            postBlockTimeout,
+        );
     }
 
     public async postTransactions(peer: Contracts.P2P.Peer, transactions: Interfaces.ITransactionJson[]): Promise<any> {
-        return this.emit(peer, "p2p.peer.postTransactions", { transactions });
+        const postTransactionsTimeout = 10000;
+        return this.emit(peer, "p2p.peer.postTransactions", { transactions }, postTransactionsTimeout);
     }
 
     public async ping(peer: Contracts.P2P.Peer, timeoutMsec: number, force = false): Promise<any> {
@@ -58,11 +70,12 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
             return undefined;
         }
 
+        const getStatusTimeout = timeoutMsec < 5000 ? timeoutMsec : 5000;
         const pingResponse: Contracts.P2P.PeerPingResponse = await this.emit(
             peer,
             "p2p.peer.getStatus",
             undefined,
-            timeoutMsec,
+            getStatusTimeout,
         );
 
         if (!pingResponse) {
@@ -152,12 +165,14 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
     public async getPeers(peer: Contracts.P2P.Peer): Promise<any> {
         this.logger.debug(`Fetching a fresh peer list from ${peer.url}`);
 
-        return this.emit(peer, "p2p.peer.getPeers");
+        const getPeersTimeout = 5000;
+        return this.emit(peer, "p2p.peer.getPeers", undefined, getPeersTimeout);
     }
 
     public async hasCommonBlocks(peer: Contracts.P2P.Peer, ids: string[], timeoutMsec?: number): Promise<any> {
         try {
-            const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, timeoutMsec);
+            const getCommonBlocksTimeout = timeoutMsec && timeoutMsec < 5000 ? timeoutMsec : 5000;
+            const body: any = await this.emit(peer, "p2p.peer.getCommonBlocks", { ids }, getCommonBlocksTimeout);
 
             if (!body || !body.common) {
                 return false;
@@ -256,7 +271,6 @@ export class PeerCommunicator implements Contracts.P2P.PeerCommunicator {
 
             maxPayload = maxPayload || 100 * constants.KILOBYTE; // 100KB by default, enough for most requests
             const connection: SCClientSocket = this.connector.connect(peer, maxPayload);
-
             response = await socketEmit(
                 peer.ip,
                 connection,

@@ -388,7 +388,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     private searchBusinesses(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["publicKey", "vat"],
+            exact: ["address", "isResigned", "publicKey", "vat"],
             like: ["name", "repository", "website"],
         };
 
@@ -396,17 +396,14 @@ export class WalletRepository implements Contracts.State.WalletRepository {
             .values()
             .map(wallet => {
                 const business: any = wallet.getAttribute("business");
-                const businessData = {
-                    address: wallet.address,
-                    publicKey: business.publicKey,
-                    ...business.businessAsset,
-                };
-
-                if (business.resigned) {
-                    businessData.isResigned = true;
-                }
-
-                return businessData;
+                return params.transform
+                    ? {
+                          address: wallet.address,
+                          publicKey: business.publicKey,
+                          ...business.businessAsset,
+                          isResigned: !!business.isResigned,
+                      }
+                    : wallet;
             });
 
         return {
@@ -418,7 +415,7 @@ export class WalletRepository implements Contracts.State.WalletRepository {
 
     private searchBridgechains(params: Contracts.Database.QueryParameters = {}): Contracts.State.SearchContext<any> {
         const query: Record<string, string[]> = {
-            exact: ["genesisHash", "publicKey"],
+            exact: ["isResigned", "genesisHash", "publicKey"],
             like: ["bridgechainRepository", "name"],
             every: ["seedNodes"],
         };
@@ -431,7 +428,9 @@ export class WalletRepository implements Contracts.State.WalletRepository {
                     const bridgechain: any = bridgechains[genesisHash];
                     acc.push({
                         publicKey: wallet.publicKey,
+                        address: wallet.address,
                         ...bridgechain.bridgechainAsset,
+                        isResigned: !!bridgechain.resigned,
                     });
                 }
 
