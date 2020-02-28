@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Generators } from "@packages/core-test-framework/src";
 import ByteBuffer from "bytebuffer";
-import Long from "long";
 
 import { Enums, Errors, Utils } from "../../../../packages/crypto/src";
 import { Hash } from "../../../../packages/crypto/src/crypto";
@@ -500,9 +499,9 @@ describe("Transaction serializer / deserializer", () => {
                 buffer.writeByte(transaction.network);
                 buffer.writeUint32(Enums.TransactionTypeGroup.Core);
                 buffer.writeUint16(transaction.type);
-                buffer.writeUint64(Long.fromString(transaction.nonce.toFixed()));
+                buffer.writeUint64(transaction.nonce.toFixed());
                 buffer.append(transaction.senderPublicKey, "hex");
-                buffer.writeUint64(Long.fromString(Utils.BigNumber.make(transaction.fee).toFixed()));
+                buffer.writeUint64(Utils.BigNumber.make(transaction.fee).toFixed());
                 buffer.writeByte(0x00);
 
                 return Buffer.from(buffer.flip().toBuffer());
