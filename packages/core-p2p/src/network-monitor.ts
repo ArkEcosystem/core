@@ -189,7 +189,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
         }
     }
 
-    public async discoverPeers(initialRun?: boolean): Promise<boolean> {
+    public async discoverPeers(pingAll?: boolean): Promise<boolean> {
         const maxPeersPerPeer = 50;
         const ownPeers: Contracts.P2P.Peer[] = this.storage.getPeers();
         const theirPeers: Contracts.P2P.Peer[] = Object.values(
@@ -223,9 +223,9 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
                 .reduce((acc: object, curr: Contracts.P2P.Peer) => ({ ...acc, ...curr }), {}),
         );
 
-        if (initialRun || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.5) {
+        if (pingAll || !this.hasMinimumPeers() || ownPeers.length < theirPeers.length * 0.75) {
             await Promise.all(theirPeers.map(p => this.processor.validateAndAcceptPeer(p, { lessVerbose: true })));
-            this.pingPeerPorts(initialRun);
+            this.pingPeerPorts(pingAll);
 
             return true;
         }
@@ -240,6 +240,10 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             blocked: await this.rateLimiter.isBlocked(ip),
             exceededLimitOnEndpoint: await this.rateLimiter.hasExceededRateLimit(ip, endpoint),
         };
+    }
+
+    public getRateLimitedEndpoints(): string[] {
+        return this.rateLimiter.getRateLimitedEndpoints();
     }
 
     public async isBlockedByRateLimit(ip: string): Promise<boolean> {
@@ -282,6 +286,7 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
     }
 
     public async checkNetworkHealth(): Promise<Contracts.P2P.NetworkStatus> {
+        await this.discoverPeers(true);
         await this.cleansePeers({ forcePing: true });
 
         const lastBlock: Interfaces.IBlock = this.app
@@ -510,12 +515,12 @@ export class NetworkMonitor implements Contracts.P2P.NetworkMonitor {
             )}`,
         );
 
-        await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block.toJson())));
+        await Promise.all(peers.map(peer => this.communicator.postBlock(peer, block)));
     }
 
-    private async pingPeerPorts(initialRun?: boolean): Promise<void> {
+    private async pingPeerPorts(pingAll?: boolean): Promise<void> {
         let peers = this.storage.getPeers();
-        if (!initialRun) {
+        if (!pingAll) {
             peers = Utils.shuffle(peers).slice(0, Math.floor(peers.length / 2));
         }
 

@@ -11,12 +11,14 @@ export const seedNodesSchema = {
 
 export const portsSchema = {
     type: "object",
-    maxProperties: 1,
+    maxProperties: 10,
     minProperties: 1,
     required: ["@arkecosystem/core-api"],
     additionalProperties: false,
-    properties: {
-        "@arkecosystem/core-api": {
+    patternProperties: {
+        // just allow anything within length limitation of npm package name, more
+        // precise validation will be done in transaction handler
+        "^.{1,214}$": {
             type: "integer",
             minimum: 0,
             maximum: 65535,
