@@ -15,7 +15,7 @@ describe("Collator", () => {
         const blockchain = { getLastBlock: jest.fn() };
         const pool = { cleanUp: jest.fn(), removeTransaction: jest.fn() };
         const poolQuery = { getAllFromHighestPriority: jest.fn() };
-        const logger = { error: jest.fn() };
+        const logger = { warning: jest.fn(), error: jest.fn() };
 
         beforeAll(() => {
             container.unbindAll();
@@ -78,6 +78,29 @@ describe("Collator", () => {
             expect(createTransactionValidator).toBeCalled();
             expect(pool.cleanUp).toBeCalled();
             expect(validator.validate).toBeCalledTimes(2);
+        });
+
+        it("should remove invalid transaction from pool", async () => {
+            const poolTransactions = new Array(5).fill({ data: "12345678" });
+            const milestone = { block: { maxTransactions: 5 } };
+            const lastBlock = { data: { height: 10 } };
+
+            (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
+            blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
+            poolQuery.getAllFromHighestPriority.mockReturnValueOnce(poolTransactions);
+            validator.validate.mockRejectedValueOnce(new Error("Some error"));
+
+            const collator = container.resolve(Collator);
+            const candidateTransaction = await collator.getBlockCandidateTransactions();
+
+            expect(candidateTransaction.length).toBe(4);
+            expect(configuration.get).toBeCalled();
+            expect(Managers.configManager.getMilestone).toBeCalled();
+            expect(createTransactionValidator).toBeCalled();
+            expect(pool.cleanUp).toBeCalled();
+            expect(validator.validate).toBeCalledTimes(5);
+            expect(logger.warning).toBeCalledTimes(1);
+            expect(pool.removeTransaction).toBeCalledTimes(1);
         });
     });
 });
