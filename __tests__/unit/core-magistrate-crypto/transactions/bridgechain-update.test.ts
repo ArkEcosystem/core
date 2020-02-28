@@ -3,6 +3,7 @@ import "jest-extended";
 import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import { BridgechainUpdateTransaction } from "@packages/core-magistrate-crypto/src/transactions";
+
 import { bridgechainUpdateAsset1, checkCommonFields } from "../helper";
 
 const genesisHash = "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61";
@@ -10,6 +11,7 @@ let builder: MagistrateBuilders.BridgechainUpdateBuilder;
 
 describe("Bridgechain update ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
+    Managers.configManager.setHeight(2);
 
     Transactions.TransactionRegistry.registerTransactionType(BridgechainUpdateTransaction);
 

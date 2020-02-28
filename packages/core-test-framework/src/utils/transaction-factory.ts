@@ -15,10 +15,11 @@ interface IPassphrasePair {
     secondPassphrase: string;
 }
 
-// todo: eventually replace this by the use of real factories
+// todo: replace this by the use of real factories
 export class TransactionFactory {
     private builder: any;
     private network: Types.NetworkName = "testnet";
+    private networkConfig: Interfaces.NetworkConfig | undefined;
     private nonce: Utils.BigNumber | undefined;
     private fee: Utils.BigNumber | undefined;
     private timestamp: number | undefined;
@@ -242,6 +243,12 @@ export class TransactionFactory {
         return this;
     }
 
+    public withNetworkConfig(networkConfig: Interfaces.NetworkConfig): TransactionFactory {
+        this.networkConfig = networkConfig;
+
+        return this;
+    }
+
     public withHeight(height: number): TransactionFactory {
         Managers.configManager.setHeight(height);
 
@@ -339,7 +346,11 @@ export class TransactionFactory {
     }
 
     private sign<T>(quantity: number, method: string): T[] {
-        Managers.configManager.setFromPreset(this.network);
+        if (this.networkConfig !== undefined) {
+            Managers.configManager.setConfig(this.networkConfig);
+        } else {
+            Managers.configManager.setFromPreset(this.network);
+        }
 
         // // ensure we use aip11
         // Managers.configManager.getMilestone().aip11 = true;
@@ -411,10 +422,14 @@ export class TransactionFactory {
 
             if (sign) {
                 const aip11: boolean = Managers.configManager.getMilestone().aip11;
+                const htlcEnabled: boolean = Managers.configManager.getMilestone().htlcEnabled;
+
                 if (this.builder.data.version === 1 && aip11) {
                     Managers.configManager.getMilestone().aip11 = false;
+                    Managers.configManager.getMilestone().htlcEnabled = false;
                 } else if (isDevelop) {
                     Managers.configManager.getMilestone().aip11 = true;
+                    Managers.configManager.getMilestone().htlcEnabled = htlcEnabled;
                 }
 
                 this.builder.sign(this.passphrase);
@@ -428,6 +443,7 @@ export class TransactionFactory {
 
             if (isDevelop) {
                 Managers.configManager.getMilestone().aip11 = true;
+                Managers.configManager.getMilestone().htlcEnabled = true;
             }
 
             transactions.push(transaction);

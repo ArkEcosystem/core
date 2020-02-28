@@ -71,7 +71,7 @@
         "codecov": "^3.6.1",
         "cpy-cli": "^3.0.0",
         "create-hash": "^1.2.0",
-        "cross-env": "^6.0.3",
+        "cross-env": "^7.0.0",
         "del-cli": "^3.0.0",
         "depcheck": "^0.9.1",
         "eslint": "^6.7.2",
