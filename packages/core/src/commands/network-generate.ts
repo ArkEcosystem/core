@@ -69,7 +69,9 @@ export class Command extends Commands.Command {
             .setFlag(
                 "rewardAmount",
                 "The number of the block reward per forged block.",
-                Joi.string().default("200000000"),
+                Joi.alternatives()
+                    .try(Joi.string(), Joi.number())
+                    .default("200000000"),
             )
             .setFlag("pubKeyHash", "The public key hash.", Joi.number())
             .setFlag("wif", "The WIF (Wallet Import Format) that should be used.", Joi.number())
