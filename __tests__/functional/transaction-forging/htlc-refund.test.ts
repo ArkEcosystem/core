@@ -2,9 +2,10 @@ import "@packages/core-test-framework/src/matchers";
 
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Enums, Identities } from "@arkecosystem/crypto";
-
-import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
+
+import { htlcSecretHashHex } from "../../unit/crypto/transactions/__fixtures__/htlc";
 import * as support from "./__support__";
 
 const { passphrase, secondPassphrase } = support.passphrases;
@@ -28,12 +29,10 @@ describe("Transaction Forging - HTLC Refund", () => {
         await expect(initialFunds.id).toBeForged();
 
         // Submit htlc lock transaction
-        const secret = "my secret that should be 32bytes";
-        const secretHash = Crypto.HashAlgorithms.sha256(secret).toString("hex");
         const lockTransaction = TransactionFactory.initialize(app)
             .htlcLock(
                 {
-                    secretHash,
+                    secretHash: htlcSecretHashHex,
                     expiration: {
                         type: EpochTimestamp,
                         value: Crypto.Slots.getTime() + 4,
@@ -92,7 +91,7 @@ describe("Transaction Forging - HTLC Refund", () => {
         const lockTransaction = TransactionFactory.initialize(app)
             .htlcLock(
                 {
-                    secretHash,
+                    secretHash: htlcSecretHashHex,
                     expiration: {
                         type: EpochTimestamp,
                         value: Crypto.Slots.getTime() + 4,
@@ -169,7 +168,7 @@ describe("Transaction Forging - HTLC Refund", () => {
         const lockTransaction = TransactionFactory.initialize(app)
             .htlcLock(
                 {
-                    secretHash,
+                    secretHash: htlcSecretHashHex,
                     expiration: {
                         type: EpochTimestamp,
                         value: Crypto.Slots.getTime() + 4,

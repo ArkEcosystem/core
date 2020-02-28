@@ -1,5 +1,7 @@
+import { Generators } from "@packages/core-test-framework/src";
+
 import { ARKTOSHI } from "../../../../packages/crypto/src/constants";
-import { HtlcLockExpirationType, TransactionType } from "../../../../packages/crypto/src/enums";
+import { HtlcLockExpirationType, TransactionType, TransactionTypeGroup } from "../../../../packages/crypto/src/enums";
 import { PublicKey } from "../../../../packages/crypto/src/identities";
 import { Utils } from "../../../../packages/crypto/src/index";
 import { IMultiSignatureAsset } from "../../../../packages/crypto/src/interfaces";
@@ -8,8 +10,7 @@ import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionTypeFactory } from "../../../../packages/crypto/src/transactions";
 import { TransactionSchema } from "../../../../packages/crypto/src/transactions/types/schemas";
 import { validator as Ajv } from "../../../../packages/crypto/src/validation";
-
-import { Generators } from "@packages/core-test-framework/src";
+import { htlcSecretHex } from "./__fixtures__/htlc";
 
 let transaction;
 let transactionSchema: TransactionSchema;
@@ -513,7 +514,11 @@ describe("Multi Signature Registration Transaction", () => {
     let multiSignatureAsset: IMultiSignatureAsset;
 
     beforeAll(() => {
-        transactionSchema = TransactionTypeFactory.get(TransactionType.MultiSignature).getSchema();
+        transactionSchema = TransactionTypeFactory.get(
+            TransactionType.MultiSignature,
+            TransactionTypeGroup.Core,
+            2,
+        ).getSchema();
     });
 
     beforeEach(() => {
@@ -539,7 +544,7 @@ describe("Multi Signature Registration Transaction", () => {
         multiSignatureAsset.min = 3;
         transaction.multiSignatureAsset(multiSignatureAsset).sign("passphrase");
         signTransaction(transaction, passphrases);
-        
+
         const { error } = Ajv.validate(transactionSchema.$id, transaction.getStruct());
         expect(error).toBeUndefined();
     });
@@ -945,10 +950,10 @@ describe("HTLC Lock Transaction", () => {
 describe("HTLC Claim Transaction", () => {
     const address = "DTRdbaUW3RQQSL5By4G43JVaeHiqfVp9oh";
     const fee = "0";
-    const unlockSecret = "c27f1ce845d8c29eebc9006be932b604fd06755521b1a8b0be4204c65377151a"
+    const unlockSecret = "c27f1ce845d8c29eebc9006be932b604fd06755521b1a8b0be4204c65377151a";
     const htlcClaimAsset = {
         lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-        unlockSecret,
+        unlockSecret: htlcSecretHex,
     };
 
     beforeAll(() => {
@@ -973,7 +978,7 @@ describe("HTLC Claim Transaction", () => {
         transaction
             .htlcClaimAsset({
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb",
-                unlockSecret,
+                unlockSecret: htlcSecretHex,
             })
             .recipientId(address)
             .fee(fee)
@@ -987,7 +992,7 @@ describe("HTLC Claim Transaction", () => {
         transaction
             .htlcClaimAsset({
                 lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2ebw",
-                unlockSecret,
+                unlockSecret: htlcSecretHex,
             })
             .recipientId(address)
             .fee(fee)

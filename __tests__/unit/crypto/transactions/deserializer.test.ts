@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { Generators } from "@packages/core-test-framework/src";
 import ByteBuffer from "bytebuffer";
 import Long from "long";
 
@@ -18,9 +19,8 @@ import { TransactionFactory, Utils as TransactionUtils, Verifier } from "../../.
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions/builders";
 import { Deserializer } from "../../../../packages/crypto/src/transactions/deserializer";
 import { Serializer } from "../../../../packages/crypto/src/transactions/serializer";
+import { htlcSecretHashHex, htlcSecretHex } from "./__fixtures__/htlc";
 import { legacyMultiSignatureRegistration } from "./__fixtures__/transaction";
-
-import { Generators } from "@packages/core-test-framework/src";
 
 describe("Transaction serializer / deserializer", () => {
     const checkCommonFields = (deserialized: ITransaction, expected) => {
@@ -354,7 +354,7 @@ describe("Transaction serializer / deserializer", () => {
 
     describe("ser/deserialize - htlc lock", () => {
         const htlcLockAsset = {
-            secretHash: "0f128d401958b1b30ad0d10406f47f9489321017b4614e6cb993fc63913c5454",
+            secretHash: htlcSecretHashHex,
             expiration: {
                 type: Enums.HtlcLockExpirationType.EpochTimestamp,
                 value: Math.floor(Date.now() / 1000),
@@ -405,7 +405,7 @@ describe("Transaction serializer / deserializer", () => {
     describe("ser/deserialize - htlc claim", () => {
         const htlcClaimAsset = {
             lockTransactionId: "943c220691e711c39c79d437ce185748a0018940e1a4144293af9d05627d2eb4",
-            unlockSecret: "c27f1ce845d8c29eebc9006be932b604fd06755521b1a8b0be4204c65377151a",
+            unlockSecret: htlcSecretHex,
         };
 
         beforeAll(() => {
