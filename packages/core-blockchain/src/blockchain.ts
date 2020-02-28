@@ -33,7 +33,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
     private readonly blockRepository!: Repositories.BlockRepository;
 
     @Container.inject(Container.Identifiers.TransactionPoolService)
-    private readonly transactionPool!: Contracts.TransactionPool.Connection;
+    private readonly transactionPool!: Contracts.TransactionPool.Service;
 
     @Container.inject(Container.Identifiers.StateMachine)
     private readonly stateMachine!: StateMachine;
@@ -330,7 +330,7 @@ export class Blockchain implements Contracts.Blockchain.Blockchain {
         await this.blockRepository.deleteBlocks(removedBlocks);
 
         if (this.transactionPool) {
-            await this.transactionPool.replay(removedTransactions.reverse());
+            this.transactionPool.readdTransactions(removedTransactions.reverse());
         }
     }
 

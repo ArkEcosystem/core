@@ -1,7 +1,7 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { Enums, Interfaces } from "@arkecosystem/crypto";
 
-import { Memory } from "./memory";
+import { Comparator, IteratorMany } from "./utils";
 
 class QueryIterable implements Contracts.TransactionPool.QueryIterable {
     public transactions: Iterable<Interfaces.ITransaction>;
@@ -65,13 +65,72 @@ class QueryIterable implements Contracts.TransactionPool.QueryIterable {
 @Container.injectable()
 export class Query implements Contracts.TransactionPool.Query {
     @Container.inject(Container.Identifiers.TransactionPoolMemory)
-    private readonly memory!: Memory;
+    private readonly memory!: Contracts.TransactionPool.Memory;
 
-    public getAll(): Contracts.TransactionPool.QueryIterable {
-        return new QueryIterable(this.memory.getAll());
+    public getAll(): QueryIterable {
+        const iterable: Iterable<Interfaces.ITransaction> = function*(this: Query) {
+            for (const senderState of this.memory.getSenderStates()) {
+                for (const transaction of senderState.getTransactionsFromLatestNonce()) {
+                    yield transaction;
+                }
+            }
+        }.bind(this)();
+
+        return new QueryIterable(iterable);
     }
 
-    public getAllBySender(senderPublicKey: string): Contracts.TransactionPool.QueryIterable {
-        return new QueryIterable(this.memory.getBySender(senderPublicKey));
+    public getAllBySender(senderPublicKey: string): QueryIterable {
+        const iterable: Iterable<Interfaces.ITransaction> = function*(this: Query) {
+            if (this.memory.hasSenderState(senderPublicKey)) {
+                const transactions = this.memory.getSenderState(senderPublicKey).getTransactionsFromEarliestNonce();
+                for (const transaction of transactions) {
+                    yield transaction;
+                }
+            }
+        }.bind(this)();
+
+        return new QueryIterable(iterable);
+    }
+
+    public getAllFromLowestPriority(): QueryIterable {
+        const iterable = {
+            [Symbol.iterator]: () => {
+                const comparator: Comparator<Interfaces.ITransaction> = (
+                    a: Interfaces.ITransaction,
+                    b: Interfaces.ITransaction,
+                ) => {
+                    return a.data.fee.comparedTo(b.data.fee);
+                };
+
+                const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.memory.getSenderStates())
+                    .map(s => s.getTransactionsFromLatestNonce())
+                    .map(i => i[Symbol.iterator]());
+
+                return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
+            },
+        };
+
+        return new QueryIterable(iterable);
+    }
+
+    public getAllFromHighestPriority(): QueryIterable {
+        const iterable = {
+            [Symbol.iterator]: () => {
+                const comparator: Comparator<Interfaces.ITransaction> = (
+                    a: Interfaces.ITransaction,
+                    b: Interfaces.ITransaction,
+                ) => {
+                    return b.data.fee.comparedTo(a.data.fee);
+                };
+
+                const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.memory.getSenderStates())
+                    .map(s => s.getTransactionsFromEarliestNonce())
+                    .map(i => i[Symbol.iterator]());
+
+                return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
+            },
+        };
+
+        return new QueryIterable(iterable);
     }
 }

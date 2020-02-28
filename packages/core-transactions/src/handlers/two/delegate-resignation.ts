@@ -52,21 +52,12 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             throw new WalletAlreadyResignedError();
         }
 
-        const delegates: ReadonlyArray<Contracts.State.Wallet> = this.walletRepository.allByUsername();
-        let requiredDelegates: number = Managers.configManager.getMilestone().activeDelegates + 1;
-        for (const delegate of delegates) {
-            if (requiredDelegates === 0) {
-                break;
-            }
+        const requiredDelegatesCount: number = Managers.configManager.getMilestone().activeDelegates;
+        const currentDelegatesCount: number = this.walletRepository
+            .allByUsername()
+            .filter(w => w.hasAttribute("delegate.resigned") === false).length;
 
-            if (delegate.hasAttribute("delegate.resigned")) {
-                continue;
-            }
-
-            requiredDelegates--;
-        }
-
-        if (requiredDelegates > 0) {
+        if (currentDelegatesCount - 1 < requiredDelegatesCount) {
             throw new NotEnoughDelegatesError();
         }
 
@@ -86,13 +77,11 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
             .has();
 
         if (hasSender) {
-            const senderWallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
+            const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(
                 transaction.data.senderPublicKey,
             );
-            const username: string = senderWallet.getAttribute<string>("delegate.username");
-
             throw new Contracts.TransactionPool.PoolError(
-                `Delegate resignation for "${username}" already in the pool`,
+                `Delegate resignation for "${wallet.getAttribute("delegate.username")}" already in the pool`,
                 "ERR_PENDING",
                 transaction,
             );

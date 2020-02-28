@@ -5,6 +5,8 @@ export type QueryPredicate = (transaction: Interfaces.ITransaction) => boolean;
 export interface Query {
     getAll(): QueryIterable;
     getAllBySender(senderPublicKey: string): QueryIterable;
+    getAllFromLowestPriority(): QueryIterable;
+    getAllFromHighestPriority(): QueryIterable;
 }
 
 export interface QueryIterable extends Iterable<Interfaces.ITransaction> {
