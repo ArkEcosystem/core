@@ -8,7 +8,7 @@ import { DelegateEvent } from "@arkecosystem/core-kernel/src/enums";
 import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
@@ -232,7 +232,7 @@ describe("DelegateResignationTransaction", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            app.get<Memory>(Identifiers.TransactionPoolMemory).remember(delegateResignationTransaction);
+            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(delegateResignationTransaction);
 
             await expect(handler.throwIfCannotEnterPool(delegateResignationTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
         });

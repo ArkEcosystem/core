@@ -8,7 +8,7 @@ import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
@@ -202,24 +202,6 @@ describe("MultiSignatureRegistrationTransaction", () => {
             );
         });
 
-        // it("should throw if aip11 is false", async () => {
-        //     Managers.configManager.getMilestone().aip11 = false;
-        //     multiSignatureTransaction = BuilderFactory.multiSignature()
-        //         .multiSignatureAsset(multiSignatureAsset)
-        //         .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]))
-        //         .nonce("1")
-        //         .recipientId(recipientWallet.publicKey!)
-        //         .multiSign(passphrases[0], 0)
-        //         .multiSign(passphrases[1], 1)
-        //         .multiSign(passphrases[2], 2)
-        //         .sign(passphrases[0])
-        //         .build();
-        //
-        //     await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
-        //         UnexpectedMultiSignatureError
-        //     );
-        // });
-
         it("should throw if the number of keys is less than minimum", async () => {
             senderWallet.forgetAttribute("multiSignature");
 
@@ -327,7 +309,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            app.get<Memory>(Identifiers.TransactionPoolMemory).remember(multiSignatureTransaction);
+            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(multiSignatureTransaction);
 
             await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
         });

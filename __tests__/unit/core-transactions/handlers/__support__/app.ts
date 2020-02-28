@@ -9,7 +9,7 @@ import {
 } from "@packages/core-state/src/wallets/wallet-indexes";
 import { Wallets } from "@packages/core-state";
 import { StateStore } from "@packages/core-state/src/stores/state";
-import { Memory } from "@packages/core-transaction-pool";
+import { Memory } from "@packages/core-transaction-pool/src/memory";
 import { Query } from "@packages/core-transaction-pool/src/query";
 import { NullEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/null";
 import { One, Two } from "@packages/core-transactions/src/handlers";
@@ -22,6 +22,10 @@ import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 import { transactionRepository } from "../__mocks__/transaction-repository";
 import { blockRepository } from "../__mocks__/block-repository";
+import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
+import { Collator } from "@packages/core-transaction-pool/src";
+import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
+import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
 
 const logger = {
     notice: jest.fn(),
@@ -77,6 +81,8 @@ export const initApp = (): Application => {
         .inSingletonScope();
 
     app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set("maxTransactionAge", 500);
+    app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set("maxTransactionBytes", 2000000);
+    app.get<Providers.PluginConfiguration>(Container.Identifiers.PluginConfiguration).set("maxTransactionsPerSender", 300);
 
     app
         .bind(Container.Identifiers.StateStore)
@@ -86,6 +92,15 @@ export const initApp = (): Application => {
     app.bind(Identifiers.TransactionPoolMemory).to(Memory).inSingletonScope();
 
     app.bind(Identifiers.TransactionPoolQuery).to(Query).inSingletonScope();
+
+    app.bind(Container.Identifiers.TransactionPoolCollator).to(Collator);
+    app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
+    app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
+
+    app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
+    app
+        .bind(Container.Identifiers.TransactionPoolSenderStateFactory)
+        .toAutoFactory(Container.Identifiers.TransactionPoolSenderState);
 
     app
         .bind(Identifiers.WalletRepository)
@@ -138,7 +153,7 @@ export const buildSenderWallet = (factoryBuilder: FactoryBuilder): Wallets.Walle
         })
         .make();
 
-    wallet.balance = Utils.BigNumber.make(4527654310);
+    wallet.balance = Utils.BigNumber.make(7527654310);
 
     return wallet
 };

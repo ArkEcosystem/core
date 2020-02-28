@@ -7,7 +7,7 @@ import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkec
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
@@ -73,7 +73,8 @@ beforeEach(() => {
     walletRepository.reindex(recipientWallet);
 });
 
-describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i", expirationType => {
+describe("Htlc refund", () => {
+    describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i", expirationType => {
     const lockPassphrase = passphrases[2];
     let htlcLockTransaction: Interfaces.ITransaction;
     let htlcRefundTransaction: Interfaces.ITransaction;
@@ -278,7 +279,7 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            app.get<Memory>(Identifiers.TransactionPoolMemory).remember(htlcRefundTransaction);
+            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(htlcRefundTransaction);
 
             await expect(handler.throwIfCannotEnterPool(htlcRefundTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
         });
@@ -407,4 +408,5 @@ describe.each([EpochTimestamp, BlockHeight])("Htlc refund - expiration type %i",
             expect(foundLockWallet.balance).toEqual(balanceBefore);
         });
     });
+});
 });

@@ -26,7 +26,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -260,7 +260,7 @@ describe("VoteTransaction", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            app.get<Memory>(Identifiers.TransactionPoolMemory).remember(voteTransaction);
+            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(voteTransaction);
 
             await expect(handler.throwIfCannotEnterPool(voteTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
         });

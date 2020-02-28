@@ -9,7 +9,7 @@ import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
@@ -221,19 +221,31 @@ describe("DelegateRegistrationTransaction", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            app.get<Memory>(Identifiers.TransactionPoolMemory).remember(delegateRegistrationTransaction);
+            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(delegateRegistrationTransaction);
 
             await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
         });
 
         it("should throw if transaction with same username already in pool", async () => {
+            let anotherWallet: Wallets.Wallet = factoryBuilder
+                .get("Wallet")
+                .withOptions({
+                    passphrase: passphrases[2],
+                    nonce: 0
+                })
+                .make();
+
+            anotherWallet.balance = Utils.BigNumber.make(7527654310);
+
+            walletRepository.reindex(anotherWallet);
+
             let anotherDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
                 .usernameAsset("dummy")
                 .nonce("1")
                 .sign(passphrases[2])
                 .build();
 
-            app.get<Memory>(Identifiers.TransactionPoolMemory).remember(anotherDelegateRegistrationTransaction);
+            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(anotherDelegateRegistrationTransaction);
 
             await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
         });

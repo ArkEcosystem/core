@@ -8,7 +8,7 @@ import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
@@ -77,9 +77,9 @@ describe("SecondSignatureRegistrationTransaction", () => {
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.SecondSignature, Enums.TransactionTypeGroup.Core), 2);
 
         secondSignatureTransaction = BuilderFactory.secondSignature()
+            .nonce("1")
             .signatureAsset(passphrases[1])
             .sign(passphrases[0])
-            .nonce("1")
             .build();
     });
 
@@ -141,7 +141,7 @@ describe("SecondSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            app.get<Memory>(Identifiers.TransactionPoolMemory).remember(secondSignatureTransaction);
+            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(secondSignatureTransaction);
 
             await expect(handler.throwIfCannotEnterPool(secondSignatureTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
         });
