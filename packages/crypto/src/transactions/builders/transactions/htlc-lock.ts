@@ -33,6 +33,10 @@ export class HtlcLockBuilder extends TransactionBuilder<HtlcLockBuilder> {
         return struct;
     }
 
+    public expiration(expiration: number): HtlcLockBuilder {
+        return this;
+    }
+
     protected instance(): HtlcLockBuilder {
         return this;
     }
