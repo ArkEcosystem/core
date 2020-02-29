@@ -19,12 +19,6 @@ export class TransactionError extends Error {
     }
 }
 
-export class NotImplemented extends TransactionError {
-    public constructor() {
-        super(`Feature is not available.`);
-    }
-}
-
 export class InvalidTransactionTypeError extends TransactionError {
     public constructor(type: Transactions.InternalTransactionType) {
         super(`Transaction type ${type.toString()} does not exist.`);
@@ -110,12 +104,6 @@ export class WalletNotADelegateError extends TransactionError {
 export class WalletIsAlreadyDelegateError extends TransactionError {
     public constructor() {
         super(`Failed to apply transaction, because the wallet already has a registered username.`);
-    }
-}
-
-export class WalletNoUsernameError extends TransactionError {
-    public constructor() {
-        super(`Failed to apply transaction, because the wallet has no registered username.`);
     }
 }
 
