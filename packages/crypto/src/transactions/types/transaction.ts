@@ -81,9 +81,7 @@ export abstract class Transaction implements ITransaction {
             parts.push(`#${this.data.nonce}`);
         }
 
-        const key: string = (this as any).__proto__.constructor.key;
-        const version: string = (this as any).__proto__.constructor.version;
-        parts.push(`${key} v${version}`);
+        parts.push(`${this.key} v${this.data.version}`);
 
         if (this.data.id) {
             parts.push(this.data.id);

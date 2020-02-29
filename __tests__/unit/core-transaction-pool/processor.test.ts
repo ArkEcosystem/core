@@ -50,12 +50,8 @@ describe("Processor", () => {
             expect(processor.broadcast).toEqual([]);
             expect(processor.invalid).toEqual(["id2"]);
             expect(processor.excess).toEqual([]);
-            expect(processor.errors).toEqual({
-                id2: {
-                    type: "ERR_LOW_FEE",
-                    message: "Transaction id2 fee is to low to include in pool",
-                },
-            });
+            expect(processor.errors.id2).toBeTruthy();
+            expect(processor.errors.id2.type).toBe("ERR_LOW_FEE");
         });
 
         it("should add broadcast eligible transaction", async () => {
@@ -128,12 +124,8 @@ describe("Processor", () => {
             expect(processor.broadcast).toEqual([]);
             expect(processor.invalid).toEqual(["id1"]);
             expect(processor.excess).toEqual(["id1"]);
-            expect(processor.errors).toEqual({
-                id1: {
-                    type: "ERR_EXCEEDS_MAX_COUNT",
-                    message: "Exceeds",
-                },
-            });
+            expect(processor.errors.id1).toBeTruthy();
+            expect(processor.errors.id1.type).toBe("ERR_EXCEEDS_MAX_COUNT");
         });
     });
 });
