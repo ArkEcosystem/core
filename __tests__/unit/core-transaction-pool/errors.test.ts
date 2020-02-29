@@ -1,0 +1,119 @@
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+
+import {
+    SenderExceededMaximumTransactionCountError,
+    TransactionAlreadyInPoolError,
+    TransactionExceedsMaximumByteSizeError,
+    TransactionFailedToApplyError,
+    TransactionFailedToVerifyError,
+    TransactionFeeToLowError,
+    TransactionFromFutureError,
+    TransactionFromWrongNetworkError,
+    TransactionHasExpiredError,
+    TransactionPoolFullError,
+} from "../../../packages/core-transaction-pool/src/errors";
+
+Managers.configManager.getMilestone().aip11 = true;
+
+const transaction = Transactions.BuilderFactory.transfer()
+    .version(2)
+    .amount("100")
+    .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
+    .nonce("1")
+    .fee("900")
+    .sign("sender's secret")
+    .build();
+
+// DLaFiYprzZU2DwV1KPYcDfPr2MJFLSznU7 #1 transfer v2 60596cfae6c4081c2f8f146421ee97dc45f22b11fa308f7eb7967d9d918fa01e
+// console.log(String(transaction));
+
+test("TransactionAlreadyInPoolError", () => {
+    const error = new TransactionAlreadyInPoolError(transaction);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_DUPLICATE");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} is already in pool`);
+});
+
+test("TransactionExceedsMaximumByteSizeError", () => {
+    const error = new TransactionExceedsMaximumByteSizeError(transaction, 1024);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_TOO_LARGE");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} exceeds size limit of 1024 bytes`);
+});
+
+test("TransactionHasExpiredError", () => {
+    const error = new TransactionHasExpiredError(transaction, 1);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_EXPIRED");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} expired 1 block ago`);
+});
+
+test("TransactionFeeToLowError", () => {
+    const error = new TransactionFeeToLowError(transaction);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_LOW_FEE");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} fee is to low to enter the pool`);
+});
+
+test("SenderExceededMaximumTransactionCountError", () => {
+    const error = new SenderExceededMaximumTransactionCountError(transaction, 1);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_EXCEEDS_MAX_COUNT");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} exceeds sender's 1 transaction count limit`);
+});
+
+test("TransactionPoolFullError", () => {
+    const error = new TransactionPoolFullError(transaction, new Utils.BigNumber(1000));
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_POOL_FULL");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} fee 0.000009 DѦ is lower than 0.00001 DѦ already in pool`);
+});
+
+test("TransactionFailedToApplyError", () => {
+    const error = new TransactionFailedToApplyError(transaction, new Error("Something went horribly wrong"));
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_APPLY");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} cannot be applied: Something went horribly wrong`);
+});
+
+test("TransactionFailedToVerifyError", () => {
+    const error = new TransactionFailedToVerifyError(transaction);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_BAD_DATA");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} didn't passed verification`);
+});
+
+test("TransactionFromFutureError", () => {
+    const error = new TransactionFromFutureError(transaction, 1);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_FROM_FUTURE");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} is 1 second in future`);
+});
+
+test("TransactionFromWrongNetworkError", () => {
+    const error = new TransactionFromWrongNetworkError(transaction, 23);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_WRONG_NETWORK");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} network 30 doesn't match node's network 23`);
+});
