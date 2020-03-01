@@ -28,7 +28,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             const multiSignature: Contracts.State.WalletMultiSignatureAttributes =
-                transaction.asset.multisignature || transaction.asset.multiSignatureLegacy;
+                transaction.asset.multiSignature || transaction.asset.multiSignatureLegacy;
             multiSignature.legacy = true;
 
             if (wallet.hasMultiSignature()) {
@@ -69,14 +69,10 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
     public async applyToRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository | undefined,
-    ): Promise<void> {
-        return;
-    }
+    ): Promise<void> {}
 
     public async revertForRecipient(
         transaction: Interfaces.ITransaction,
         customWalletRepository?: Contracts.State.WalletRepository | undefined,
-    ): Promise<void> {
-        return;
-    }
+    ): Promise<void> {}
 }

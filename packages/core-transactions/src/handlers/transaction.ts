@@ -127,22 +127,25 @@ export abstract class TransactionHandler {
 
         const newBalance: Utils.BigNumber = sender.balance.minus(data.amount).minus(data.fee);
 
-        if (process.env.CORE_ENV === "test") {
-            assert(Utils.isException(transaction.data.id) || !newBalance.isNegative());
-        } else {
-            if (newBalance.isNegative()) {
-                const negativeBalanceExceptions: Record<string, Record<string, string>> =
-                    Managers.configManager.get("exceptions.negativeBalances") || {};
+        assert(Utils.isException(transaction.data.id) || !newBalance.isNegative());
 
-                AppUtils.assert.defined<string>(sender.publicKey);
-
-                const negativeBalances: Record<string, string> = negativeBalanceExceptions[sender.publicKey] || {};
-
-                if (!newBalance.isEqualTo(negativeBalances[sender.nonce.toString()] || 0)) {
-                    throw new InsufficientBalanceError();
-                }
-            }
-        }
+        // negativeBalanceExceptions check is never executed, because performGenericWalletChecks already checks balance
+        // if (process.env.CORE_ENV === "test") {
+        //     assert(Utils.isException(transaction.data.id) || !newBalance.isNegative());
+        // } else {
+        //     if (newBalance.isNegative()) {
+        //         const negativeBalanceExceptions: Record<string, Record<string, string>> =
+        //             Managers.configManager.get("exceptions.negativeBalances") || {};
+        //
+        //         AppUtils.assert.defined<string>(sender.publicKey);
+        //
+        //         const negativeBalances: Record<string, string> = negativeBalanceExceptions[sender.publicKey] || {};
+        //
+        //         if (!newBalance.isEqualTo(negativeBalances[sender.nonce.toString()] || 0)) {
+        //             throw new InsufficientBalanceError();
+        //         }
+        //     }
+        // }
 
         sender.balance = newBalance;
     }
@@ -263,12 +266,12 @@ export abstract class TransactionHandler {
                 transaction.data.senderPublicKey,
             );
 
-            if (dbSender.getAttribute<any>("multiSignature").legacy) {
-                throw new LegacyMultiSignatureError();
-            }
-
             if (!dbSender.hasMultiSignature()) {
                 throw new UnexpectedMultiSignatureError();
+            }
+
+            if (dbSender.getAttribute<any>("multiSignature").legacy) {
+                throw new LegacyMultiSignatureError();
             }
 
             if (!this.verifySignatures(dbSender, data, dbSender.getAttribute("multiSignature"))) {
@@ -299,6 +302,7 @@ export abstract class TransactionHandler {
      * Verify that the transaction's nonce is the same as the wallet nonce, so that the
      * transaction can be reverted from the wallet. Throw an exception if it is not.
      *
+     * @param wallet
      * @param {Interfaces.ITransaction} transaction
      * @memberof Wallet
      */

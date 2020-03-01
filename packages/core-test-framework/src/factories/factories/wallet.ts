@@ -2,8 +2,9 @@ import { Wallets } from "@arkecosystem/core-state";
 import { Identities } from "@arkecosystem/crypto";
 import { generateMnemonic } from "bip39";
 
-import { knownAttributes } from "../../internal/wallet-attributes";
+import { getWalletAttributeSet } from "../../internal/wallet-attributes";
 import { FactoryBuilder } from "../factory-builder";
+import { Services } from "@packages/core-kernel";
 
 export const registerWalletFactory = (factory: FactoryBuilder): void => {
     factory.set("Wallet", ({ options }) => {
@@ -11,7 +12,7 @@ export const registerWalletFactory = (factory: FactoryBuilder): void => {
 
         const wallet: Wallets.Wallet = new Wallets.Wallet(
             Identities.Address.fromPassphrase(passphrase),
-            knownAttributes,
+            new Services.Attributes.AttributeMap(getWalletAttributeSet()),
         );
         wallet.publicKey = Identities.PublicKey.fromPassphrase(passphrase);
 

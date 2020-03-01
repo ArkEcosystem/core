@@ -23,9 +23,7 @@ export class SecondSignatureRegistrationTransactionHandler extends TransactionHa
         return Transactions.One.SecondSignatureRegistrationTransaction;
     }
 
-    public async bootstrap(): Promise<void> {
-        return;
-    }
+    public async bootstrap(): Promise<void> {}
 
     public async isActivated(): Promise<boolean> {
         return true;
