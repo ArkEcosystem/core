@@ -47,12 +47,12 @@ test("TransactionExceedsMaximumByteSizeError", () => {
 });
 
 test("TransactionHasExpiredError", () => {
-    const error = new TransactionHasExpiredError(transaction, 1);
+    const error = new TransactionHasExpiredError(transaction, 100);
 
     expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
     expect(error.type).toBe("ERR_EXPIRED");
     expect(error.transaction).toBe(transaction);
-    expect(error.message).toBe(`${transaction} expired 1 block ago`);
+    expect(error.message).toBe(`${transaction} expired at height 100`);
 });
 
 test("TransactionFeeToLowError", () => {

@@ -1,6 +1,6 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
 export interface ExpirationService {
-    getTransactionExpiredBlocksCount(transaction: Interfaces.ITransaction): number;
+    getTransactionExpirationHeight(transaction: Interfaces.ITransaction): number | undefined;
     isTransactionExpired(transaction: Interfaces.ITransaction): boolean;
 }

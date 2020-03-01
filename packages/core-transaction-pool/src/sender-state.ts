@@ -68,8 +68,10 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         }
 
         if (this.expirationService.isTransactionExpired(transaction)) {
-            const expiredBlocksCount = this.expirationService.getTransactionExpiredBlocksCount(transaction);
-            throw new TransactionHasExpiredError(transaction, expiredBlocksCount);
+            const expirationHeight: number | undefined = this.expirationService.getTransactionExpirationHeight(
+                transaction,
+            );
+            throw new TransactionHasExpiredError(transaction, expirationHeight!);
         }
 
         const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(

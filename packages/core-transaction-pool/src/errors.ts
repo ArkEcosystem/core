@@ -21,15 +21,11 @@ export class TransactionExceedsMaximumByteSizeError extends Contracts.Transactio
 }
 
 export class TransactionHasExpiredError extends Contracts.TransactionPool.PoolError {
-    public readonly expiredBlocksCount: number;
+    public readonly expirationHeight: number;
 
-    public constructor(transaction: Interfaces.ITransaction, expiredBlocksCount: number) {
-        super(
-            `${transaction} expired ${AppUtils.pluralize("block", expiredBlocksCount, true)} ago`,
-            "ERR_EXPIRED",
-            transaction,
-        );
-        this.expiredBlocksCount = expiredBlocksCount;
+    public constructor(transaction: Interfaces.ITransaction, expirationHeight: number) {
+        super(`${transaction} expired at height ${expirationHeight}`, "ERR_EXPIRED", transaction);
+        this.expirationHeight = expirationHeight;
     }
 }
 
