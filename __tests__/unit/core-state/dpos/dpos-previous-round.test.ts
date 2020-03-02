@@ -108,13 +108,13 @@ describe("dposPreviousRound", () => {
             jest.spyOn(dposState, "setDelegatesRound");
             jest.spyOn(blockState, "revertBlock");
 
-            const previousRound: DposPreviousRoundState = (await dposPreviousRoundStateProv([], round)) as any;
             blocks[0].data.height = 1;
+            const previousRound: DposPreviousRoundState = (await dposPreviousRoundStateProv([], round)) as any;
 
             previousRound.revert([blocks[0]], round);
 
-            expect(dposState.buildDelegateRanking).not.toHaveBeenCalled();
-            expect(dposState.setDelegatesRound).not.toHaveBeenCalled();
+            expect(dposState.buildDelegateRanking).toHaveBeenCalled();
+            expect(dposState.setDelegatesRound).toHaveBeenCalledWith(round);
             expect(blockState.revertBlock).not.toHaveBeenCalled();
         });
     });
