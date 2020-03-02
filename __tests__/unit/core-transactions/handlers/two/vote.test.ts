@@ -62,10 +62,10 @@ beforeEach(() => {
     multiSignatureWallet = buildMultiSignatureWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
-    walletRepository.reindex(senderWallet);
-    walletRepository.reindex(secondSignatureWallet);
-    walletRepository.reindex(multiSignatureWallet);
-    walletRepository.reindex(recipientWallet);
+    walletRepository.index(senderWallet);
+    walletRepository.index(secondSignatureWallet);
+    walletRepository.index(multiSignatureWallet);
+    walletRepository.index(recipientWallet);
 });
 
 describe("VoteTransaction", () => {
@@ -92,7 +92,7 @@ describe("VoteTransaction", () => {
 
         delegateWallet.setAttribute("delegate", { username: "test" });
 
-        walletRepository.reindex(delegateWallet);
+        walletRepository.index(delegateWallet);
 
         voteTransaction = BuilderFactory.vote()
             .votesAsset(["+" + delegateWallet.publicKey!])
@@ -219,7 +219,7 @@ describe("VoteTransaction", () => {
 
         it("should throw if vote for non delegate wallet", async () => {
             delegateWallet.forgetAttribute("delegate");
-            walletRepository.reindex(delegateWallet);
+            walletRepository.index(delegateWallet);
             await expect(handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository)).rejects.toThrow(
                 VotedForNonDelegateError,
             );

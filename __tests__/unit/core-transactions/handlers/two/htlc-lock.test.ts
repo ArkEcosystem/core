@@ -64,10 +64,10 @@ beforeEach(() => {
     multiSignatureWallet = buildMultiSignatureWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
-    walletRepository.reindex(senderWallet);
-    walletRepository.reindex(secondSignatureWallet);
-    walletRepository.reindex(multiSignatureWallet);
-    walletRepository.reindex(recipientWallet);
+    walletRepository.index(senderWallet);
+    walletRepository.index(secondSignatureWallet);
+    walletRepository.index(multiSignatureWallet);
+    walletRepository.index(recipientWallet);
 });
 
 describe("Htlc lock", () => {
