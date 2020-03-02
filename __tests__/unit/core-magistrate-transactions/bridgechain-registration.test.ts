@@ -62,7 +62,7 @@ beforeEach(() => {
 
     senderWallet = buildSenderWallet(app);
 
-    walletRepository.reindex(senderWallet);
+    walletRepository.index(senderWallet);
 });
 
 describe("BusinessRegistration", () => {
@@ -94,7 +94,7 @@ describe("BusinessRegistration", () => {
 
         senderWallet.setAttribute("business.businessAsset", businessRegistrationAsset);
 
-        walletRepository.reindex(senderWallet);
+        walletRepository.index(senderWallet);
     });
 
     afterEach(() => {
@@ -164,7 +164,7 @@ describe("BusinessRegistration", () => {
 
             senderWallet.setAttribute("business", businessAttributes);
 
-            walletRepository.reindex(senderWallet);
+            walletRepository.index(senderWallet);
 
             await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrowError(BridgechainAlreadyRegisteredError);
         });
@@ -180,7 +180,7 @@ describe("BusinessRegistration", () => {
 
             senderWallet.setAttribute("business", businessAttributes);
 
-            walletRepository.reindex(senderWallet);
+            walletRepository.index(senderWallet);
 
             await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrowError(GenesisHashAlreadyRegisteredError);
         });

@@ -59,7 +59,7 @@ beforeEach(() => {
 
     senderWallet = buildSenderWallet(app);
 
-    walletRepository.reindex(senderWallet);
+    walletRepository.index(senderWallet);
 });
 
 describe("BusinessRegistration", () => {
@@ -82,7 +82,7 @@ describe("BusinessRegistration", () => {
 
         senderWallet.setAttribute("business.businessAsset", businessRegistrationAsset);
 
-        walletRepository.reindex(senderWallet);
+        walletRepository.index(senderWallet);
     });
 
     afterEach(() => {

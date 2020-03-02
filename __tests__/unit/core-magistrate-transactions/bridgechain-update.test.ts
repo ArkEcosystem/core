@@ -66,7 +66,7 @@ beforeEach(() => {
 
     senderWallet = buildSenderWallet(app);
 
-    walletRepository.reindex(senderWallet);
+    walletRepository.index(senderWallet);
 });
 
 describe("BusinessRegistration", () => {
@@ -125,7 +125,7 @@ describe("BusinessRegistration", () => {
             bridgechainAsset: bridgechainRegistrationAsset,
         };
 
-        walletRepository.reindex(senderWallet);
+        walletRepository.index(senderWallet);
     });
 
     afterEach(() => {

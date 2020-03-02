@@ -52,7 +52,7 @@ beforeEach(() => {
 
     senderWallet = buildSenderWallet(app);
 
-    walletRepository.reindex(senderWallet);
+    walletRepository.index(senderWallet);
 });
 
 describe("BusinessRegistration", () => {
