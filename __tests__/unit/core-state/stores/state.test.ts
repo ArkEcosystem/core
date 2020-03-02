@@ -3,7 +3,7 @@ import { Container } from "@packages/core-kernel/src";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 
 import { IBlockData, ITransactionData, IBlock } from "@packages/crypto/src/interfaces";
-import { Block } from "@packages/crypto/src/blocks/block";
+
 import delay from "delay";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { setUp } from "../setup";
@@ -18,8 +18,7 @@ beforeAll(() => {
     const initalEnv = setUp();
     factory = initalEnv.factory;
     logger = initalEnv.spies.logger.info;
-    
-    stateStorage =  initalEnv. sandbox.app.get(Container.Identifiers.StateStore);
+    stateStorage = initalEnv.sandbox.app.get(Container.Identifiers.StateStore);
 });
 
 beforeEach(() => {
@@ -108,7 +107,6 @@ describe("State Storage", () => {
             expect(lastBlocks).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
-                expect(lastBlocks[i]).toBeInstanceOf(Block);
                 expect(lastBlocks[i].data.height).toBe(6 - i); // Height started at 2
                 expect(lastBlocks[i]).toBe(blocks[4 - i]);
             }
@@ -125,7 +123,6 @@ describe("State Storage", () => {
             expect(lastBlocksData).toHaveLength(5);
 
             for (let i = 0; i < 5; i++) {
-                expect(lastBlocksData[0]).not.toBeInstanceOf(Block);
                 expect(lastBlocksData[i].height).toBe(6 - i); // Height started at 2
                 expect(lastBlocksData[i]).toHaveProperty("transactions");
                 delete lastBlocksData[i].transactions;
@@ -146,6 +143,14 @@ describe("State Storage", () => {
             for (let i = 0; i < 5; i++) {
                 expect(lastBlockIds[i]).toBe(blocks[4 - i].data.id);
             }
+        });
+    });
+
+    describe("getGenesisBlock", () => {
+        it("should set and get the genesis block", () => {
+            const genesisBlock = blocks[0];
+            expect(() => stateStorage.setGenesisBlock(genesisBlock)).not.toThrow();
+            expect(stateStorage.getGenesisBlock()).toEqual(genesisBlock);
         });
     });
 
