@@ -113,7 +113,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         });
     }
 
-    private async validateTransaction(transaction: Interfaces.ITransaction): Promise<void> {
+    private validateTransaction(transaction: Interfaces.ITransaction): void {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const maxTransactionBytes: number = this.configuration.getRequired<number>("maxTransactionBytes");
