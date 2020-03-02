@@ -192,7 +192,7 @@ describe("Transaction", () => {
                 .sign("sender's secret")
                 .build();
 
-            expect(String(transaction)).toMatch(new RegExp(`^${senderAddress} Transfer v1 [0-9a-f]{8}$`));
+            expect(String(transaction)).toMatch(new RegExp(`^${senderAddress} [0-9a-f]{8} Transfer v1$`));
         });
 
         it("should describe v2 transaction", () => {
@@ -208,7 +208,7 @@ describe("Transaction", () => {
                 .sign("sender's secret")
                 .build();
 
-            expect(String(transaction)).toMatch(new RegExp(`^${senderAddress}#1 Transfer v2 [0-9a-f]{8}$`));
+            expect(String(transaction)).toMatch(new RegExp(`^${senderAddress}#1 [0-9a-f]{8} Transfer v2$`));
         });
     });
 });

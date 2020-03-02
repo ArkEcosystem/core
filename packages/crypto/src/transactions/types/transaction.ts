@@ -76,7 +76,7 @@ export abstract class Transaction implements ITransaction {
         if (this.data.senderPublicKey && this.data.nonce) {
             parts.push(`${Address.fromPublicKey(this.data.senderPublicKey)}#${this.data.nonce}`);
         } else if (this.data.senderPublicKey) {
-            parts.push(`${Address.fromPublicKey(this.data.senderPublicKey)}#${this.data.nonce}`);
+            parts.push(`${Address.fromPublicKey(this.data.senderPublicKey)}`);
         }
 
         if (this.data.id) {
