@@ -33,7 +33,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
             const ipfsHashes: Contracts.State.WalletIpfsAttributes = wallet.getAttribute("ipfs.hashes");
             ipfsHashes[transaction.asset.ipfs!] = true;
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
     }
 
@@ -78,7 +78,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
 
         sender.getAttribute("ipfs.hashes", {})[transaction.data.asset.ipfs] = true;
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async revertForSender(
@@ -102,7 +102,7 @@ export class IpfsTransactionHandler extends TransactionHandler {
             sender.forgetAttribute("ipfs");
         }
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async applyToRecipient(

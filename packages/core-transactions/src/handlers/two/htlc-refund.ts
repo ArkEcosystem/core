@@ -158,7 +158,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
 
         delete locks[lockId];
 
-        walletRepository.reindex(lockWallet);
+        walletRepository.index(lockWallet);
     }
 
     public async revertForSender(
@@ -208,7 +208,7 @@ export class HtlcRefundTransactionHandler extends TransactionHandler {
             };
         }
 
-        walletRepository.reindex(lockWallet);
+        walletRepository.index(lockWallet);
     }
 
     public async applyToRecipient(

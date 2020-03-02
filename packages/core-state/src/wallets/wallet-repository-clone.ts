@@ -15,7 +15,7 @@ export class WalletRepositoryClone extends WalletRepository {
         }
     }
 
-    public reindex(wallet: Contracts.State.Wallet): void {
-        super.reindex(wallet.clone());
+    public index(wallet: Contracts.State.Wallet): void {
+        super.index(wallet.clone());
     }
 }

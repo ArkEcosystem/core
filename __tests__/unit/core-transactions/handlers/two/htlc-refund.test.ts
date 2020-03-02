@@ -67,10 +67,10 @@ beforeEach(() => {
     multiSignatureWallet = buildMultiSignatureWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
-    walletRepository.reindex(senderWallet);
-    walletRepository.reindex(secondSignatureWallet);
-    walletRepository.reindex(multiSignatureWallet);
-    walletRepository.reindex(recipientWallet);
+    walletRepository.index(senderWallet);
+    walletRepository.index(secondSignatureWallet);
+    walletRepository.index(multiSignatureWallet);
+    walletRepository.index(recipientWallet);
 });
 
 describe("Htlc refund", () => {
@@ -99,7 +99,7 @@ describe("Htlc refund", () => {
                 })
                 .make();
 
-            walletRepository.reindex(lockWallet);
+            walletRepository.index(lockWallet);
 
             const amount = 6 * 1e8;
             let expiration = {
@@ -129,7 +129,7 @@ describe("Htlc refund", () => {
                 },
             });
 
-            walletRepository.reindex(lockWallet);
+            walletRepository.index(lockWallet);
 
             htlcRefundTransaction = BuilderFactory.htlcRefund()
                 .htlcRefundAsset({
@@ -204,7 +204,7 @@ describe("Htlc refund", () => {
                     })
                     .make();
 
-                walletRepository.reindex(dummyWallet);
+                walletRepository.index(dummyWallet);
 
                 htlcRefundTransaction = BuilderFactory.htlcRefund()
                     .htlcRefundAsset({
@@ -245,7 +245,7 @@ describe("Htlc refund", () => {
                     },
                 });
 
-                walletRepository.reindex(lockWallet);
+                walletRepository.index(lockWallet);
 
                 htlcRefundTransaction = BuilderFactory.htlcRefund()
                     .htlcRefundAsset({
@@ -299,7 +299,7 @@ describe("Htlc refund", () => {
                     },
                 });
 
-                walletRepository.reindex(lockWallet);
+                walletRepository.index(lockWallet);
 
                 await expect(handler.throwIfCannotEnterPool(htlcRefundTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
             });
@@ -350,7 +350,7 @@ describe("Htlc refund", () => {
                     })
                     .make();
 
-                walletRepository.reindex(dummyWallet);
+                walletRepository.index(dummyWallet);
 
                 htlcRefundTransaction = BuilderFactory.htlcRefund()
                     .htlcRefundAsset({

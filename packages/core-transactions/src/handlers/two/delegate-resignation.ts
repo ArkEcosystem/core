@@ -32,7 +32,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             wallet.setAttribute("delegate.resigned", true);
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
     }
     public async isActivated(): Promise<boolean> {
@@ -101,7 +101,7 @@ export class DelegateResignationTransactionHandler extends TransactionHandler {
         const senderWallet: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         senderWallet.setAttribute("delegate.resigned", true);
-        walletRepository.reindex(senderWallet);
+        walletRepository.index(senderWallet);
     }
 
     public async revertForSender(

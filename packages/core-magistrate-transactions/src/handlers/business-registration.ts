@@ -47,7 +47,7 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
             };
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", asset);
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
     }
 
@@ -104,7 +104,7 @@ export class BusinessRegistrationTransactionHandler extends MagistrateTransactio
             businessAsset: transaction.data.asset.businessRegistration,
         });
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async revertForSender(
