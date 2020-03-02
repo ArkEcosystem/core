@@ -1,10 +1,18 @@
 import "jest-extended";
-import { Contracts } from "@packages/core-kernel/src";
 
-import { WalletRepository, Wallet } from "@packages/core-state/src/wallets";
-import { addressesIndexer, publicKeysIndexer, ipfsIndexer, locksIndexer, resignationsIndexer, usernamesIndexer } from "@packages/core-state/src/wallets/indexers/indexers";
-import { setUp } from "../setup";
+import { Contracts } from "@packages/core-kernel/src";
+import { Wallet, WalletRepository } from "@packages/core-state/src/wallets";
+import {
+    addressesIndexer,
+    ipfsIndexer,
+    locksIndexer,
+    publicKeysIndexer,
+    resignationsIndexer,
+    usernamesIndexer,
+} from "@packages/core-state/src/wallets/indexers/indexers";
 import { Utils } from "@packages/crypto/src";
+
+import { setUp } from "../setup";
 
 let walletRepo: WalletRepository;
 
@@ -14,7 +22,6 @@ beforeAll(() => {
 });
 
 describe("Wallet Repository", () => {
-
     beforeEach(() => {
         walletRepo.reset();
     });
@@ -26,14 +33,7 @@ describe("Wallet Repository", () => {
     });
 
     it("should be able to look up indexers", () => {
-        const expected = [
-            'addresses',
-            'publicKeys',
-            'usernames',
-            'resignations',
-            'locks',
-            'ipfs'
-        ];
+        const expected = ["addresses", "publicKeys", "usernames", "resignations", "locks", "ipfs"];
         expect(walletRepo.getIndexNames()).toEqual(expected);
         expect(walletRepo.getIndex("addresses").indexer).toEqual(addressesIndexer);
         expect(walletRepo.getIndex("publicKeys").indexer).toEqual(publicKeysIndexer);
@@ -45,15 +45,25 @@ describe("Wallet Repository", () => {
 
     describe("search", () => {
         it("should throw if no wallet exists", () => {
-            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
-            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(
+                `Wallet 1 doesn't exist in indexes`,
+            );
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(
+                `Wallet 1 doesn't exist in indexes`,
+            );
         });
 
         // TODO: is this expected behaviour that you cannot search by these scopes
         it("should throw when looking up via bridgechain, business or locks scope", () => {
-            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Bridgechains, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Bridgechains}`);
-            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Businesses, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Businesses}`);
-            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Locks}`);
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Bridgechains, "1")).toThrowError(
+                `Unknown scope ${Contracts.State.SearchScope.Bridgechains}`,
+            );
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Businesses, "1")).toThrowError(
+                `Unknown scope ${Contracts.State.SearchScope.Businesses}`,
+            );
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(
+                `Unknown scope ${Contracts.State.SearchScope.Locks}`,
+            );
         });
 
         it("should throw when looking up via an unknown search scope", () => {
@@ -72,7 +82,9 @@ describe("Wallet Repository", () => {
             const wallet = walletRepo.createWallet("abcd");
             walletRepo.index(wallet);
 
-            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
+            expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(
+                `Wallet abcd isn't delegate`,
+            );
 
             wallet.setAttribute("delegate", true);
             expect(walletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toEqual(wallet);
@@ -117,7 +129,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.findByAddress(address)).toEqual(wallet);
         expect(walletRepo.has(address)).toBeTrue();
 
-        expect(walletRepo.findByIndex("addresses", address)).toEqual(wallet);        
+        expect(walletRepo.findByIndex("addresses", address)).toEqual(wallet);
         const nonExistingAddress = "abcde";
         expect(walletRepo.has(address)).toBeTrue();
         expect(walletRepo.has(nonExistingAddress)).toBeFalse();
@@ -133,14 +145,14 @@ describe("Wallet Repository", () => {
 
     /**
      * TODO: Check this is desired behaviour.
-     * findByUsername (and corresponding findByIndex/findByIndexes) methods throw if it doesn't exist, 
+     * findByUsername (and corresponding findByIndex/findByIndexes) methods throw if it doesn't exist,
      * where as findByAddress and findByPublicKey can be used for wallet creation.
      */
     it("should create a wallet if one is not found during address lookup", () => {
         expect(() => walletRepo.findByAddress("hello")).not.toThrow();
         expect(walletRepo.findByAddress("iDontExist")).toBeInstanceOf(Wallet);
         expect(walletRepo.has("hello")).toBeTrue();
-        expect(walletRepo.hasByAddress('iDontExist')).toBeTrue();
+        expect(walletRepo.hasByAddress("iDontExist")).toBeTrue();
         /**
          * TODO: check this is desired behaviour
          * Looking up a non-existing address by findByAddress creates a wallet.
@@ -151,12 +163,12 @@ describe("Wallet Repository", () => {
     });
 
     it("should get, set and forget wallets by public key", () => {
-        const wallet = walletRepo.createWallet("abcde")
+        const wallet = walletRepo.createWallet("abcde");
         const publicKey = "02337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
         walletRepo.getIndex("publicKeys").set(publicKey, wallet);
         expect(walletRepo.findByPublicKey(publicKey)).toEqual(wallet);
         expect(walletRepo.findByIndex("publicKeys", publicKey)).toEqual(wallet);
-        
+
         const nonExistingPublicKey = "98727416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
 
         expect(walletRepo.has(publicKey)).toBeTrue();
@@ -189,9 +201,9 @@ describe("Wallet Repository", () => {
         const username = "testUsername";
         const wallet = walletRepo.createWallet("abcdef");
         /**
-         * TODO: check this is desired behaviour 
+         * TODO: check this is desired behaviour
          * A username hasn't been set on the wallet here, it's been set on the indexer.
-         * It means it's possible to look up a wallet by a username which is set on the WalletIndex and not the Wallet itself - this should probably throw. 
+         * It means it's possible to look up a wallet by a username which is set on the WalletIndex and not the Wallet itself - this should probably throw.
          */
         walletRepo.getIndex("usernames").set(username, wallet);
         expect(walletRepo.findByUsername(username)).toEqual(wallet);
@@ -205,7 +217,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.hasByIndex("usernames", username)).toBeTrue();
         expect(walletRepo.hasByIndex("usernames", nonExistingUsername)).toBeFalse();
         expect(walletRepo.allByUsername()).toEqual([wallet]);
-        
+
         walletRepo.forgetByUsername(username);
         expect(walletRepo.has(username)).toBeFalse();
     });
@@ -225,7 +237,7 @@ describe("Wallet Repository", () => {
         for (let i = 0; i < 6; i++) {
             const walletAddress = `wallet${i}`;
             walletAddresses.push(walletAddress);
-            const wallet = walletRepo.createWallet(walletAddress)
+            const wallet = walletRepo.createWallet(walletAddress);
             wallets.push(wallet);
         }
 
@@ -249,7 +261,7 @@ describe("Wallet Repository", () => {
         walletRepo.forgetByIndex("locks", "locks");
         walletRepo.forgetByIndex("ipfs", "ipfs");
 
-        walletAddresses.forEach(address => expect(walletRepo.has(address)).toBeFalse())
+        walletAddresses.forEach(address => expect(walletRepo.has(address)).toBeFalse());
     });
 
     it("should get the nonce of a wallet", () => {
@@ -268,7 +280,11 @@ describe("Wallet Repository", () => {
 
     // TODO: pull this error out into specific error class/type
     it("should throw when looking up a username which doesn't exist", () => {
-        expect(() => walletRepo.findByUsername("iDontExist")).toThrowError("Wallet iDontExist doesn't exist in index usernames");
-        expect(() => walletRepo.findByIndex("usernames", "iDontExist")).toThrowError("Wallet iDontExist doesn't exist in index usernames");
+        expect(() => walletRepo.findByUsername("iDontExist")).toThrowError(
+            "Wallet iDontExist doesn't exist in index usernames",
+        );
+        expect(() => walletRepo.findByIndex("usernames", "iDontExist")).toThrowError(
+            "Wallet iDontExist doesn't exist in index usernames",
+        );
     });
 });
