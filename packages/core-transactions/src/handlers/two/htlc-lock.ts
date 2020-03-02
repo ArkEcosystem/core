@@ -105,7 +105,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         const lockedBalance = sender.getAttribute<Utils.BigNumber>("htlc.lockedBalance", Utils.BigNumber.ZERO);
         sender.setAttribute("htlc.lockedBalance", lockedBalance.plus(transaction.data.amount));
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async revertForSender(
@@ -121,7 +121,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         const lockedBalance = sender.getAttribute<Utils.BigNumber>("htlc.lockedBalance", Utils.BigNumber.ZERO);
         sender.setAttribute("htlc.lockedBalance", lockedBalance.minus(transaction.data.amount));
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async applyToRecipient(
@@ -149,7 +149,7 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         };
         sender.setAttribute("htlc.locks", locks);
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async revertForRecipient(
@@ -165,6 +165,6 @@ export class HtlcLockTransactionHandler extends TransactionHandler {
         delete locks[transaction.id];
         sender.setAttribute("htlc.locks", locks);
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 }

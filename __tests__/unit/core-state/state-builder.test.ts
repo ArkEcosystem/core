@@ -87,7 +87,7 @@ describe("StateBuilder", () => {
     it("should apply block rewards to generator wallet", async () => {
         const wallet = walletRepo.findByPublicKey(generatorKey);
         wallet.balance = Utils.BigNumber.ZERO;
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
         const expectedBalance = wallet.balance.plus(getBlockRewardsDefault.rewards);
         
         await stateBuilder.run();
@@ -98,7 +98,7 @@ describe("StateBuilder", () => {
     it("should apply the transaction data to the sender", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
         wallet.balance = Utils.BigNumber.make(80000);
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
 
         const expectedBalance = wallet.balance.minus(getSentTransactionDefault.amount).minus(getSentTransactionDefault.fee);
 
@@ -113,7 +113,7 @@ describe("StateBuilder", () => {
         wallet.balance = Utils.BigNumber.make(-80000);
         wallet.publicKey = senderKey;
         
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
         
         await stateBuilder.run();
 
@@ -130,7 +130,7 @@ describe("StateBuilder", () => {
         wallet.balance = Utils.BigNumber.make(-80000);
         wallet.publicKey = genesisPublicKeys[0];
 
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
 
         await stateBuilder.run();
         
@@ -144,7 +144,7 @@ describe("StateBuilder", () => {
         const allowedWalletNegativeBalance = Utils.BigNumber.make(5555);
         wallet.balance = allowedWalletNegativeBalance;
         wallet.publicKey = senderKey;
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
 
         const balance: Record<string, Record<string, string>> = {
             [senderKey]: {
@@ -170,7 +170,7 @@ describe("StateBuilder", () => {
         wallet.nonce = getSentTransactionDefault.nonce;
         wallet.balance = Utils.BigNumber.make(-90000);
         wallet.publicKey = senderKey;
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
 
         const balance: Record<string, Record<string, string>> = {
             [senderKey]: {
@@ -200,7 +200,7 @@ describe("StateBuilder", () => {
     it("should exit app if any vote balance is negative", async () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
         wallet.balance = Utils.BigNumber.ZERO;
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
         wallet.setAttribute("delegate.voteBalance", Utils.BigNumber.make(-100));
 
         setUpDefaults.getSentTransaction = [];

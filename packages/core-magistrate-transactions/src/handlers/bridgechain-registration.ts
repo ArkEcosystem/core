@@ -54,7 +54,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
             };
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
     }
 
@@ -159,7 +159,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
         };
 
         sender.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async revertForSender(
@@ -186,7 +186,7 @@ export class BridgechainRegistrationTransactionHandler extends MagistrateTransac
 
         delete businessAttributes.bridgechains[bridgechainId];
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async applyToRecipient(

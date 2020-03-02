@@ -144,7 +144,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
             round: 0,
         });
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async revertForSender(

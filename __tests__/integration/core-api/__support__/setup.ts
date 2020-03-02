@@ -124,6 +124,6 @@ export const calculateRanks = async () => {
         const wallet = walletRepository.findByPublicKey(delegate.publicKey!);
         wallet.setAttribute("delegate.rank", i + 1);
 
-        walletRepository.reindex(wallet);
+        walletRepository.index(wallet);
     });
 };

@@ -378,6 +378,6 @@ export class BlockState {
         const generatorAddress = Identities.Address.fromPublicKey(generatorPublicKey);
         const generatorWallet = this.walletRepository.createWallet(generatorAddress);
         generatorWallet.publicKey = generatorPublicKey;
-        this.walletRepository.reindex(generatorWallet);
+        this.walletRepository.index(generatorWallet);
     }
 }

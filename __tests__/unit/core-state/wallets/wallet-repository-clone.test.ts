@@ -62,11 +62,11 @@ describe("Wallet Repository Clone", () => {
             expect(() => walletRepoClone.findByScope("doesNotExist" as any, "1")).toThrowError(`Unknown scope doesNotExist`);
         });
 
-        it("should have to reindex wallet on original repo in order to search", () => {
+        it("should have to index wallet on original repo in order to search", () => {
             const wallet = walletRepoClone.createWallet("abcd");
             expect(() => walletRepoClone.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toThrow();
 
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(() => walletRepoClone.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).not.toThrow();
             expect(walletRepoClone.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(wallet);
@@ -74,7 +74,7 @@ describe("Wallet Repository Clone", () => {
 
         it("should retrieve existing wallet when searching Delegate Scope", () => {
             const wallet = walletRepoClone.createWallet("abcd");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(() => walletRepoClone.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
 
@@ -87,7 +87,7 @@ describe("Wallet Repository Clone", () => {
         });
     });
     
-    it("findByPublicKey should reindex", () => {
+    it("findByPublicKey should index", () => {
         const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";
         const wallet = walletRepoClone.createWallet(address);
         const publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
@@ -100,8 +100,8 @@ describe("Wallet Repository Clone", () => {
 
         /**
          * TODO: check this is desired behaviour?
-         * TempWalletRepository calls reindex inside findByPublicKey (unlike WalletRepository).
-         * This has the effect that these are now defined without needing to reindex
+         * TempWalletRepository calls index inside findByPublicKey (unlike WalletRepository).
+         * This has the effect that these are now defined without needing to index
          */
         expect(walletRepoClone.findByAddress(address).publicKey).toBeDefined();
         expect(walletRepoClone.findByAddress(address)).toEqual(wallet);
@@ -111,7 +111,7 @@ describe("Wallet Repository Clone", () => {
         const address = "abcd";
 
         const wallet = walletRepoClone.createWallet(address);
-        walletRepoClone.reindex(wallet);
+        walletRepoClone.index(wallet);
     
         /**
          * TODO: check this is desired behaviour
@@ -130,7 +130,7 @@ describe("Wallet Repository Clone", () => {
          */
         expect(walletRepoClone.allByAddress()).toEqual([wallet]);
 
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
             
         expect(walletRepoClone.has(address)).toBeTrue();
         expect(walletRepoClone.hasByAddress(address)).toBeTrue();
@@ -159,12 +159,12 @@ describe("Wallet Repository Clone", () => {
         expect(() => walletRepoClone.findByIndex("addresses", "iAlsoDontExist")).not.toThrow();
     });
 
-    describe("reindex", () => {
+    describe("indexing", () => {
         it("should not affect the original", () => {
             const wallet = walletRepo.createWallet("abcdef");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
-            walletRepoClone.reindex(wallet);
+            walletRepoClone.index(wallet);
 
             expect(walletRepo.findByAddress(wallet.address)).not.toBe(
                 walletRepoClone.findByAddress(wallet.address),
@@ -175,7 +175,7 @@ describe("Wallet Repository Clone", () => {
     describe("findByAddress", () => {
         it("should return a copy", () => {
             const wallet = walletRepo.createWallet("abcdef");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             const tempWallet = walletRepoClone.findByAddress(wallet.address);
             tempWallet.balance = Utils.BigNumber.ONE;
@@ -189,7 +189,7 @@ describe("Wallet Repository Clone", () => {
             const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
             wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
             wallet.balance = Utils.BigNumber.SATOSHI;
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             const tempWallet = walletRepoClone.findByPublicKey(wallet.publicKey);
             tempWallet.balance = Utils.BigNumber.ZERO;
@@ -203,7 +203,7 @@ describe("Wallet Repository Clone", () => {
         it("should return a copy", () => {
             const wallet = walletRepo.createWallet("abcdef");
             wallet.setAttribute("delegate", { username: "test" });
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             const tempWallet = walletRepoClone.findByUsername(wallet.getAttribute("delegate.username"));
             tempWallet.balance = Utils.BigNumber.ONE;
@@ -215,7 +215,7 @@ describe("Wallet Repository Clone", () => {
     describe("hasByAddress", () => {
         it("should be ok", () => {
             const wallet = walletRepo.createWallet("abcdef");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(walletRepoClone.hasByAddress(wallet.address)).toBeTrue();
         });
@@ -225,7 +225,7 @@ describe("Wallet Repository Clone", () => {
         it("should be ok", () => {
             const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
             wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(walletRepoClone.hasByPublicKey(wallet.publicKey)).toBeTrue();
         });
@@ -235,7 +235,7 @@ describe("Wallet Repository Clone", () => {
         it("should be ok", () => {
             const wallet = walletRepo.createWallet("abcdef");
             wallet.setAttribute("delegate", { username: "test" });
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(walletRepoClone.hasByUsername(wallet.getAttribute("delegate.username"))).toBeTrue();
         });

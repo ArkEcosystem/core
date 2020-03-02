@@ -77,7 +77,7 @@ describe("dposPreviousRound", () => {
                 lastBlock: undefined,
             });
     
-            walletRepo.reindex(generatorWallet);
+            walletRepo.index(generatorWallet);
 
             addTransactionsToBlock(
                 makeVoteTransactions(

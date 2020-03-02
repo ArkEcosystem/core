@@ -62,7 +62,7 @@ describe("Wallet Repository", () => {
 
         it("should retrieve existing wallet when searching Wallet Scope", () => {
             const wallet = walletRepo.createWallet("abcd");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).not.toThrow();
             expect(walletRepo.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(wallet);
@@ -70,7 +70,7 @@ describe("Wallet Repository", () => {
 
         it("should retrieve existing wallet when searching Delegate Scope", () => {
             const wallet = walletRepo.createWallet("abcd");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
 
@@ -79,7 +79,7 @@ describe("Wallet Repository", () => {
         });
     });
 
-    it("reindexing should keep indexers in sync", () => {
+    it("indexing should keep indexers in sync", () => {
         const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";
         const wallet = walletRepo.createWallet(address);
         const publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
@@ -93,7 +93,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.findByAddress(address).publicKey).toBeUndefined();
         expect(walletRepo.findByAddress(address)).not.toEqual(wallet);
 
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
 
         expect(walletRepo.findByAddress(address).publicKey).toBe(publicKey);
         expect(walletRepo.findByAddress(address)).toEqual(wallet);
@@ -105,13 +105,13 @@ describe("Wallet Repository", () => {
 
         /**
          * TODO: check this is desired behaviour
-         * after creation a wallet is unknown to indexers (until reindex() is called)
+         * after creation a wallet is unknown to indexers (until index() is called)
          */
         expect(walletRepo.has(address)).toBeFalse();
 
         /**
          * TODO: check this is desired behaviour
-         * findByAddress and findByPublicKey have the effect of reindexing (so the previous check now passes)
+         * findByAddress and findByPublicKey have the effect of indexing (so the previous check now passes)
          * findByUsername does not have this side-effect, so they should probably have different names.
          */
         expect(walletRepo.findByAddress(address)).toEqual(wallet);
@@ -210,12 +210,12 @@ describe("Wallet Repository", () => {
         expect(walletRepo.has(username)).toBeFalse();
     });
 
-    it("should be able to reindex forgotten wallets", () => {
+    it("should be able to index forgotten wallets", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
-        walletRepo.reindex(wallet1);
+        walletRepo.index(wallet1);
         expect(walletRepo.has("wallet1")).toBeTrue();
         walletRepo.forgetByIndex("addresses", "wallet1");
-        walletRepo.reindex(wallet1);
+        walletRepo.index(wallet1);
         expect(walletRepo.has("wallet1")).toBeTrue();
     });
 
@@ -240,7 +240,7 @@ describe("Wallet Repository", () => {
         walletRepo.getIndex("locks").set("lock", wallets[4]);
         walletRepo.getIndex("ipfs").set("ipfs", wallets[5]);
 
-        wallets.forEach(wallet => walletRepo.reindex(wallet));
+        wallets.forEach(wallet => walletRepo.index(wallet));
 
         walletRepo.forgetByIndex("addresses", walletAddresses[0]);
         walletRepo.forgetByIndex("publicKeys", publicKey);
@@ -256,7 +256,7 @@ describe("Wallet Repository", () => {
         const wallet1 = walletRepo.createWallet("wallet1");
         wallet1.nonce = Utils.BigNumber.make(100);
         wallet1.publicKey = "22337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece";
-        walletRepo.reindex(wallet1);
+        walletRepo.index(wallet1);
 
         expect(walletRepo.getNonce(wallet1.publicKey)).toEqual(Utils.BigNumber.make(100));
     });

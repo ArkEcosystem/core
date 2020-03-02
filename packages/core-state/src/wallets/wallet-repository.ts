@@ -151,17 +151,13 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         this.getIndex(indexName).forget(key);
     }
 
-    // TODO: naming here implies the behaviour is different to reindexing
-    public index(wallets: ReadonlyArray<Contracts.State.Wallet>): void {
-        for (const wallet of wallets) {
-            this.reindex(wallet);
-        }
-    }
-
-    // TODO: reindex gives the impression this wallet is already indexed - possibly change name?
-    public reindex(wallet: Contracts.State.Wallet): void {
-        for (const walletIndex of Object.values(this.indexes)) {
-            walletIndex.index(wallet);
+    public index(wallets: Contracts.State.Wallet | ReadonlyArray<Contracts.State.Wallet>): void {
+        if (!Array.isArray(wallets)) {
+            this.indexWallet(wallets as Contracts.State.Wallet);
+        } else {
+            for (const wallet of wallets) {
+                this.indexWallet(wallet);
+            }
         }
     }
 
@@ -239,6 +235,12 @@ export class WalletRepository implements Contracts.State.WalletRepository {
         params: Record<string, any> = {},
     ): Contracts.State.RowsPaginated<Contracts.State.Wallet> {
         return this.search(scope, { ...params, ...{ orderBy: "balance:desc" } });
+    }
+
+    private indexWallet(wallet: Contracts.State.Wallet): void {
+        for (const walletIndex of Object.values(this.indexes)) {
+            walletIndex.index(wallet);
+        }
     }
 
     private searchWallets(

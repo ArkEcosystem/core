@@ -389,13 +389,13 @@ describe("API 2.0 - Wallets", () => {
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
 
             // Give 2 delegates a vote weight
             const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.voteBalance", Utils.BigNumber.make(balance));
-            walletRepository.reindex(delegate1);
+            walletRepository.index(delegate1);
 
             const response = await api.request("POST", "wallets/search", {
                 address,

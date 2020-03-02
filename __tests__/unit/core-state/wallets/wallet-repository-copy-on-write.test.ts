@@ -62,11 +62,11 @@ describe("Wallet Repository Copy On Write", () => {
             expect(() => walletRepoCopyOnWrite.findByScope("doesNotExist" as any, "1")).toThrowError(`Unknown scope doesNotExist`);
         });
 
-        it("should have to reindex wallet on original repo in order to search", () => {
+        it("should have to index wallet on original repo in order to search", () => {
             const wallet = walletRepoCopyOnWrite.createWallet("abcd");
             expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toThrow();
 
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).not.toThrow();
             expect(walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(wallet);
@@ -74,7 +74,7 @@ describe("Wallet Repository Copy On Write", () => {
 
         it("should retrieve existing wallet when searching Delegate Scope", () => {
             const wallet = walletRepoCopyOnWrite.createWallet("abcd");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
 
@@ -87,7 +87,7 @@ describe("Wallet Repository Copy On Write", () => {
         });
     });
     
-    it("findByPublicKey should reindex", () => {
+    it("findByPublicKey should index wallet", () => {
         const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";
         const wallet = walletRepoCopyOnWrite.createWallet(address);
         const publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
@@ -100,8 +100,8 @@ describe("Wallet Repository Copy On Write", () => {
 
         /**
          * TODO: check this is desired behaviour?
-         * TempWalletRepository calls reindex inside findByPublicKey (unlike WalletRepository).
-         * This has the effect that these are now defined without needing to reindex
+         * TempWalletRepository calls index inside findByPublicKey (unlike WalletRepository).
+         * This has the effect that these are now defined without needing to index
          */
         expect(walletRepoCopyOnWrite.findByAddress(address).publicKey).toBeDefined();
         expect(walletRepoCopyOnWrite.findByAddress(address)).toEqual(wallet);
@@ -111,7 +111,7 @@ describe("Wallet Repository Copy On Write", () => {
         const address = "abcd";
 
         const wallet = walletRepoCopyOnWrite.createWallet(address);
-        walletRepoCopyOnWrite.reindex(wallet);
+        walletRepoCopyOnWrite.index(wallet);
     
         /**
          * TODO: check this is desired behaviour
@@ -130,7 +130,7 @@ describe("Wallet Repository Copy On Write", () => {
          */
         expect(walletRepoCopyOnWrite.allByAddress()).toEqual([wallet]);
 
-        walletRepo.reindex(wallet);
+        walletRepo.index(wallet);
             
         expect(walletRepoCopyOnWrite.has(address)).toBeTrue();
         expect(walletRepoCopyOnWrite.hasByAddress(address)).toBeTrue();
@@ -159,12 +159,12 @@ describe("Wallet Repository Copy On Write", () => {
         expect(() => walletRepoCopyOnWrite.findByIndex("addresses", "iAlsoDontExist")).not.toThrow();
     });
 
-    describe("reindex", () => {
+    describe("index", () => {
         it("should not affect the original", () => {
             const wallet = walletRepo.createWallet("abcdef");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
-            walletRepoCopyOnWrite.reindex(wallet);
+            walletRepoCopyOnWrite.index(wallet);
 
             expect(walletRepo.findByAddress(wallet.address)).not.toBe(
                 walletRepoCopyOnWrite.findByAddress(wallet.address),
@@ -175,7 +175,7 @@ describe("Wallet Repository Copy On Write", () => {
     describe("findByAddress", () => {
         it("should return a copy", () => {
             const wallet = walletRepo.createWallet("abcdef");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             const tempWallet = walletRepoCopyOnWrite.findByAddress(wallet.address);
             tempWallet.balance = Utils.BigNumber.ONE;
@@ -189,7 +189,7 @@ describe("Wallet Repository Copy On Write", () => {
             const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
             wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
             wallet.balance = Utils.BigNumber.SATOSHI;
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             const tempWallet = walletRepoCopyOnWrite.findByPublicKey(wallet.publicKey);
             tempWallet.balance = Utils.BigNumber.ZERO;
@@ -203,7 +203,7 @@ describe("Wallet Repository Copy On Write", () => {
         it("should return a copy", () => {
             const wallet = walletRepo.createWallet("abcdef");
             wallet.setAttribute("delegate", { username: "test" });
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             const tempWallet = walletRepoCopyOnWrite.findByUsername(wallet.getAttribute("delegate.username"));
             tempWallet.balance = Utils.BigNumber.ONE;
@@ -215,7 +215,7 @@ describe("Wallet Repository Copy On Write", () => {
     describe("hasByAddress", () => {
         it("should be ok", () => {
             const wallet = walletRepo.createWallet("abcdef");
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(walletRepoCopyOnWrite.hasByAddress(wallet.address)).toBeTrue();
         });
@@ -225,7 +225,7 @@ describe("Wallet Repository Copy On Write", () => {
         it("should be ok", () => {
             const wallet = walletRepo.createWallet("ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp");
             wallet.publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(walletRepoCopyOnWrite.hasByPublicKey(wallet.publicKey)).toBeTrue();
         });
@@ -235,7 +235,7 @@ describe("Wallet Repository Copy On Write", () => {
         it("should be ok", () => {
             const wallet = walletRepo.createWallet("abcdef");
             wallet.setAttribute("delegate", { username: "test" });
-            walletRepo.reindex(wallet);
+            walletRepo.index(wallet);
 
             expect(walletRepoCopyOnWrite.hasByUsername(wallet.getAttribute("delegate.username"))).toBeTrue();
         });
