@@ -100,6 +100,8 @@ export class ReplayBlockchain extends Blockchain {
     }
 
     private async processGenesisBlock(): Promise<void> {
+        Managers.configManager.setHeight(1);
+
         const genesisBlock: Interfaces.IBlock = Blocks.BlockFactory.fromJson(
             Managers.configManager.get("genesisBlock"),
         );
@@ -148,6 +150,8 @@ export class ReplayBlockchain extends Blockchain {
             roundInfo,
             delegates,
         );
+
+        this.memoryDatabase.restoreCurrentRound(1);
 
         this.logger.info("Finished loading genesis block.");
     }
