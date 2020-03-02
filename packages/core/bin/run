@@ -1,5 +1,28 @@
 #!/usr/bin/env node
 
+try {
+    const child_process = require('child_process')
+
+    const jemallocPath = child_process.spawnSync('whereis libjemalloc | xargs -n1 | grep libjemalloc.so', { shell: true }).stdout.toString().trim()
+
+    if (jemallocPath) {
+        if (process.env.LD_PRELOAD !== jemallocPath) {
+            process.env.LD_PRELOAD = jemallocPath
+            let exitStatus = 0
+            try {
+                child_process.execFileSync(process.argv0, process.argv.slice(1), { stdio: [0, 1, 2] })
+            } catch (error) {
+                exitStatus = error.status
+            }
+            process.exit(exitStatus)
+        }
+    } else {
+        console.error('The jemalloc library was not found on your system. It is recommended to install it for better memory management. Falling back to the system default...')
+    }
+} catch (error) {
+    //
+}
+
 require('@oclif/command').run()
 .then(require('@oclif/command/flush'))
 .catch(require('@oclif/errors/handle'))
