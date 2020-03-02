@@ -4,7 +4,6 @@ import { Enums, Interfaces, Transactions, Utils } from "@arkecosystem/crypto";
 import {
     NotSupportedForMultiSignatureWalletError,
     WalletIsAlreadyDelegateError,
-    WalletNotADelegateError,
     WalletUsernameAlreadyRegisteredError,
 } from "../../errors";
 import { TransactionHandler, TransactionHandlerConstructor } from "../transaction";
@@ -40,9 +39,7 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         return Transactions.One.DelegateRegistrationTransaction;
     }
 
-    public async bootstrap(): Promise<void> {
-        return;
-    }
+    public async bootstrap(): Promise<void> {}
 
     public async isActivated(): Promise<boolean> {
         return true;
@@ -68,10 +65,6 @@ export class DelegateRegistrationTransactionHandler extends TransactionHandler {
         AppUtils.assert.defined<string>(data.asset?.delegate?.username);
 
         const username: string = data.asset.delegate.username;
-
-        if (!username) {
-            throw new WalletNotADelegateError();
-        }
 
         if (wallet.isDelegate()) {
             throw new WalletIsAlreadyDelegateError();

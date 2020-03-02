@@ -30,9 +30,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         return Transactions.One.VoteTransaction;
     }
 
-    public async bootstrap(): Promise<void> {
-        return;
-    }
+    public async bootstrap(): Promise<void> {}
 
     public async isActivated(): Promise<boolean> {
         return true;

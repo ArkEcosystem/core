@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { attributes } from '@packages/core-test-framework/src/internal/wallet-attributes';
+import { getWalletAttributeSet } from '@packages/core-test-framework/src/internal/wallet-attributes';
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Services } from "@packages/core-kernel";
 
@@ -14,7 +14,7 @@ describe("Models - Wallet", () => {
     let attributeMap;
 
     beforeEach(() => {
-        attributeMap = new Services.Attributes.AttributeMap(attributes);
+        attributeMap = new Services.Attributes.AttributeMap(getWalletAttributeSet());
     });
 
     it("returns the address", () => {
@@ -24,10 +24,12 @@ describe("Models - Wallet", () => {
     });
 
     it("should get, set and forget custom attributes", () => {
-        attributes.set("customAttribute");
+        const customAttributeSet = getWalletAttributeSet();
+        customAttributeSet.set("customAttribute");
+        const custromAttributeMap = new Services.Attributes.AttributeMap(customAttributeSet);
 
         const address = "Abcde";
-        const wallet = new Wallet(address, attributeMap);
+        const wallet = new Wallet(address, custromAttributeMap);
         const testAttribute = { test: true };
         wallet.setAttribute("customAttribute", testAttribute);
         expect(wallet.hasAttribute("customAttribute")).toBe(true);
@@ -37,7 +39,7 @@ describe("Models - Wallet", () => {
 
         expect(wallet.hasAttribute("customAttribute")).toBe(false);
 
-        attributes.forget("customAttribute");
+        customAttributeSet.forget("customAttribute");
 
         expect(() => wallet.hasAttribute("customAttribute")).toThrow();
         expect(() => wallet.getAttribute("customAttribute")).toThrow();
