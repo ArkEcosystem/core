@@ -27,7 +27,7 @@ export class DelegateRegistrationTransactionHandler extends One.DelegateRegistra
                 rank: undefined,
             });
 
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
 
         const forgedBlocks = await this.blockRepository.getDelegatesForgedBlocks();

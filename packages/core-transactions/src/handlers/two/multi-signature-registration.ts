@@ -42,7 +42,7 @@ export class MultiSignatureRegistrationTransactionHandler extends TransactionHan
             }
 
             wallet.setAttribute("multiSignature", multiSignature);
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
     }
 

@@ -176,9 +176,7 @@ export interface WalletRepository {
 
     getNonce(publicKey: string): Utils.BigNumber;
 
-    index(wallets: ReadonlyArray<Wallet>): void;
-
-    reindex(wallet: Wallet): void;
+    index(wallets: Wallet | ReadonlyArray<Wallet>): void;
 
     forgetByAddress(address: string): void;
 

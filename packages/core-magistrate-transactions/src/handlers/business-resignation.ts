@@ -34,7 +34,7 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         for (const transaction of transactions) {
             const wallet: Contracts.State.Wallet = this.walletRepository.findByPublicKey(transaction.senderPublicKey);
             wallet.setAttribute("business.resigned", true);
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
     }
 
@@ -88,7 +88,7 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.setAttribute("business.resigned", true);
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async revertForSender(
@@ -104,7 +104,7 @@ export class BusinessResignationTransactionHandler extends MagistrateTransaction
         const sender: Contracts.State.Wallet = walletRepository.findByPublicKey(transaction.data.senderPublicKey);
 
         sender.forgetAttribute("business.resigned");
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async applyToRecipient(
