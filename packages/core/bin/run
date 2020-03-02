@@ -4,7 +4,7 @@ if (process.env.LD_PRELOAD !== 'libjemalloc.so') {
     process.env.LD_PRELOAD = 'libjemalloc.so'
     let exitStatus = 0
     try {
-        require('child_process').execSync(process.argv.join(' '), { stdio: [0, 1, 2] })
+        require('child_process').execFileSync(process.argv0, process.argv.slice(1), { stdio: [0, 1, 2] })
     } catch (error) {
         exitStatus = error.status
     }
