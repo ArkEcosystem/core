@@ -10,9 +10,9 @@ import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@packages/crypto/src/managers";
-import { buildSenderWallet, initApp } from "./__support__/app";
-import { setMockTransaction, setMockTransactions } from "./__mocks__/transaction-repository";
+import { configManager } from "@arkecosystem/crypto/src/managers";
+import { buildSenderWallet, initApp } from "../__support__/app";
+import { setMockTransaction, setMockTransactions } from "../__mocks__/transaction-repository";
 import {
     BridgechainRegistrationBuilder,
     BridgechainUpdateBuilder,
@@ -25,7 +25,7 @@ import {
 import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Handlers } from "@arkecosystem/core-magistrate-transactions";
 import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
-import { setMockBlock } from "./__mocks__/block-repository";
+import { setMockBlock } from "../__mocks__/block-repository";
 import {
     BridgechainIsNotRegisteredByWalletError, BridgechainIsResignedError,
     BusinessIsNotRegisteredError,
