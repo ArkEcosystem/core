@@ -1,21 +1,21 @@
 import "jest-extended";
+
 import { Container } from "@packages/core-kernel/src";
-import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
-
-import { IBlockData, ITransactionData, IBlock } from "@packages/crypto/src/interfaces";
-
-import delay from "delay";
 import { StateStore } from "@packages/core-state/src/stores/state";
-import { setUp } from "../setup";
+import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import { IBlock, IBlockData, ITransactionData } from "@packages/crypto/src/interfaces";
+import delay from "delay";
+
 import { makeChainedBlocks } from "../helper";
+import { setUp } from "../setup";
 
 let blocks: IBlock[];
 let stateStorage: StateStore;
 let factory: FactoryBuilder;
 let logger: jest.SpyInstance;
 
-beforeAll(() => {
-    const initalEnv = setUp();
+beforeAll(async () => {
+    const initalEnv = await setUp();
     factory = initalEnv.factory;
     logger = initalEnv.spies.logger.info;
     stateStorage = initalEnv.sandbox.app.get(Container.Identifiers.StateStore);
@@ -29,7 +29,6 @@ beforeEach(() => {
 describe("State Storage", () => {
     describe("getLastHeight", () => {
         it("should return the last block height", () => {
-
             stateStorage.setLastBlock(blocks[0]);
             stateStorage.setLastBlock(blocks[1]);
 
@@ -342,7 +341,9 @@ describe("State Storage", () => {
             };
 
             stateStorage.pushPingBlock(blocks[5].data);
-            expect(logger).toHaveBeenCalledWith(`Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`);
+            expect(logger).toHaveBeenCalledWith(
+                `Previous block ${blocks[3].data.height.toLocaleString()} pinged blockchain 1 times`,
+            );
             expect(stateStorage.blockPing).toBeObject();
             expect(stateStorage.blockPing.block).toBe(blocks[5].data);
             expect(stateStorage.blockPing.count).toBe(1);

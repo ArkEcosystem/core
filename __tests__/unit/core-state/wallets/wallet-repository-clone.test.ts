@@ -17,8 +17,8 @@ import { setUp } from "../setup";
 let walletRepoClone: WalletRepositoryClone;
 let walletRepo: WalletRepository;
 
-beforeAll(() => {
-    const initialEnv = setUp();
+beforeAll(async () => {
+    const initialEnv = await setUp();
     walletRepoClone = initialEnv.walletRepoClone;
     walletRepo = initialEnv.walletRepo;
 });
@@ -107,7 +107,7 @@ describe("Wallet Repository Clone", () => {
             ).toThrowError(`Wallet abcd isn't delegate`);
         });
     });
-    
+
     // TODO: test behaves differently to WalletRepository due to inheritance
     it.skip("findByPublicKey should index", () => {
         const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";

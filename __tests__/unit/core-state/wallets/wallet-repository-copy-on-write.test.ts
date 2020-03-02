@@ -1,16 +1,24 @@
 import "jest-extended";
-import { Contracts } from "@packages/core-kernel/src";
 
-import { Utils } from "@packages/crypto/src";
+import { Contracts } from "@packages/core-kernel/src";
 import { Wallet, WalletRepository, WalletRepositoryCopyOnWrite } from "@packages/core-state/src/wallets";
-import { addressesIndexer, publicKeysIndexer, ipfsIndexer, locksIndexer, resignationsIndexer, usernamesIndexer } from "@packages/core-state/src/wallets/indexers/indexers";
+import {
+    addressesIndexer,
+    ipfsIndexer,
+    locksIndexer,
+    publicKeysIndexer,
+    resignationsIndexer,
+    usernamesIndexer,
+} from "@packages/core-state/src/wallets/indexers/indexers";
+import { Utils } from "@packages/crypto/src";
+
 import { setUp } from "../setup";
 
 let walletRepoCopyOnWrite: WalletRepositoryCopyOnWrite;
 let walletRepo: WalletRepository;
 
-beforeAll(() => {
-    const initialEnv = setUp();
+beforeAll(async () => {
+    const initialEnv = await setUp();
     walletRepoCopyOnWrite = initialEnv.walletRepoCopyOnWrite;
     walletRepo = initialEnv.walletRepo;
 });
@@ -28,14 +36,7 @@ describe("Wallet Repository Copy On Write", () => {
     });
 
     it("should be able to look up indexers", () => {
-        const expected = [
-            'addresses',
-            'publicKeys',
-            'usernames',
-            'resignations',
-            'locks',
-            'ipfs'
-        ];
+        const expected = ["addresses", "publicKeys", "usernames", "resignations", "locks", "ipfs"];
         expect(walletRepoCopyOnWrite.getIndexNames()).toEqual(expected);
         expect(walletRepoCopyOnWrite.getIndex("addresses").indexer).toEqual(addressesIndexer);
         expect(walletRepoCopyOnWrite.getIndex("publicKeys").indexer).toEqual(publicKeysIndexer);
@@ -47,46 +48,68 @@ describe("Wallet Repository Copy On Write", () => {
 
     describe("search", () => {
         it("should throw if no wallet exists", () => {
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(`Wallet 1 doesn't exist in indexes`);
+            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(
+                `Wallet 1 doesn't exist in indexes`,
+            );
+            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, "1")).toThrowError(
+                `Wallet 1 doesn't exist in indexes`,
+            );
         });
 
         // TODO: is this expected behaviour that you cannot search by these scopes
         it("should throw when looking up via bridgechain, business or locks scope", () => {
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Bridgechains, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Bridgechains}`);
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Businesses, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Businesses}`);
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(`Unknown scope ${Contracts.State.SearchScope.Locks}`);
+            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Bridgechains, "1")).toThrowError(
+                `Unknown scope ${Contracts.State.SearchScope.Bridgechains}`,
+            );
+            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Businesses, "1")).toThrowError(
+                `Unknown scope ${Contracts.State.SearchScope.Businesses}`,
+            );
+            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Locks, "1")).toThrowError(
+                `Unknown scope ${Contracts.State.SearchScope.Locks}`,
+            );
         });
 
         it("should throw when looking up via an unknown search scope", () => {
-            expect(() => walletRepoCopyOnWrite.findByScope("doesNotExist" as any, "1")).toThrowError(`Unknown scope doesNotExist`);
+            expect(() => walletRepoCopyOnWrite.findByScope("doesNotExist" as any, "1")).toThrowError(
+                `Unknown scope doesNotExist`,
+            );
         });
 
         it("should have to index wallet on original repo in order to search", () => {
             const wallet = walletRepoCopyOnWrite.createWallet("abcd");
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toThrow();
+            expect(() =>
+                walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address),
+            ).toThrow();
 
             walletRepo.index(wallet);
 
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).not.toThrow();
-            expect(walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(wallet);
+            expect(() =>
+                walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address),
+            ).not.toThrow();
+            expect(walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Wallets, wallet.address)).toEqual(
+                wallet,
+            );
         });
 
         it("should retrieve existing wallet when searching Delegate Scope", () => {
             const wallet = walletRepoCopyOnWrite.createWallet("abcd");
             walletRepo.index(wallet);
 
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
+            expect(() =>
+                walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, wallet.address),
+            ).toThrowError(`Wallet abcd isn't delegate`);
 
             wallet.setAttribute("delegate", true);
             /**
              * TODO: check that TemptempWalletRepo should throw here.
              * WalletRepo does not.
              */
-            expect(() => walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toThrowError(`Wallet abcd isn't delegate`);
+            expect(() =>
+                walletRepoCopyOnWrite.findByScope(Contracts.State.SearchScope.Delegates, wallet.address),
+            ).toThrowError(`Wallet abcd isn't delegate`);
         });
     });
-    
+
     // TODO: test behaves differently to WalletRepository due to inheritance
     it.skip("findByPublicKey should index wallet", () => {
         const address = "ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp";
@@ -114,7 +137,7 @@ describe("Wallet Repository Copy On Write", () => {
 
         const wallet = walletRepoCopyOnWrite.createWallet(address);
         walletRepoCopyOnWrite.index(wallet);
-    
+
         /**
          * TODO: check this is desired behaviour
          * has, hasByAddress and hasByIndex all behave differently because of the problem of inheritance.
@@ -125,15 +148,15 @@ describe("Wallet Repository Copy On Write", () => {
         expect(walletRepoCopyOnWrite.hasByIndex("addresses", address)).toBeFalse();
         /**
          *  For example, because allByAddress is *not* overwritten in TempWalletRepo, this falls back to the WalletRepo base class which returns the wallet, despite hasByAddress being false.
-         * 
+         *
          * We can add all these different methods to TempWalletRepository to make the class behave more sensibly. However, if these methods aren't intended to ever really be called on the temporary version of the wallet repository it makes sense to use a shared base interface, rather than using inheritance.
-         * 
+         *
          * IMO inheritance should be used very sparingly, as it is often difficult to reason about, and calling methods have side effects the calling code may not expect.
          */
         expect(walletRepoCopyOnWrite.allByAddress()).toEqual([wallet]);
 
         walletRepo.index(wallet);
-            
+
         expect(walletRepoCopyOnWrite.has(address)).toBeTrue();
         expect(walletRepoCopyOnWrite.hasByAddress(address)).toBeTrue();
         expect(walletRepoCopyOnWrite.hasByIndex("addresses", address)).toBeTrue();
@@ -149,8 +172,8 @@ describe("Wallet Repository Copy On Write", () => {
         expect(() => walletRepoCopyOnWrite.findByAddress("hello")).not.toThrow();
         expect(walletRepoCopyOnWrite.findByAddress("iDontExist")).toBeInstanceOf(Wallet);
         expect(walletRepoCopyOnWrite.has("hello")).toBeFalse();
-        expect(walletRepoCopyOnWrite.hasByAddress('iDontExist')).toBeFalse();
-       
+        expect(walletRepoCopyOnWrite.hasByAddress("iDontExist")).toBeFalse();
+
         /**
          * TODO: check this is desired behaviour
          * WalletRepo throws here, TempWalletRepo does not.

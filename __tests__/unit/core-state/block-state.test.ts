@@ -1,19 +1,12 @@
 import "jest-extended";
-import { Contracts } from "@packages/core-kernel/src";
-import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
-import { Utils } from "@packages/crypto/src";
+import { Contracts } from "@packages/core-kernel/src";
 import { BlockState } from "@packages/core-state/src/block-state";
 import { WalletRepository } from "@packages/core-state/src/wallets";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import { Utils } from "@packages/crypto/src";
 import { IBlock, ITransaction } from "@packages/crypto/src/interfaces";
-import { DelegateResignationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-resignation";
-import { VoteBuilder } from "@packages/crypto/src/transactions/builders/transactions/vote";
-import { SecondSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/second-signature";
-import { DelegateRegistrationBuilder } from "@packages/crypto/src/transactions/builders/transactions/delegate-registration";
-import { TransferBuilder } from "@packages/crypto/src/transactions/builders/transactions/transfer";
-import { IPFSBuilder } from "@packages/crypto/src/transactions/builders/transactions/ipfs";
-import { HtlcLockBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-lock";
-import { HtlcRefundBuilder } from "@packages/crypto/src/transactions/builders/transactions/htlc-refund";
+
 import { makeChainedBlocks, makeVoteTransactions } from "./helper";
 import { setUp } from "./setup";
 
@@ -24,8 +17,8 @@ let walletRepo: WalletRepository;
 let applySpy: jest.SpyInstance;
 let revertSpy: jest.SpyInstance;
 
-beforeAll(() => {
-    const initialEnv = setUp();
+beforeAll(async () => {
+    const initialEnv = await setUp();
     walletRepo = initialEnv.walletRepo;
     blockState = initialEnv.blockState;
     factory = initialEnv.factory;
@@ -42,7 +35,7 @@ export const addTransactionsToBlock = (txs: ITransaction[], block: IBlock) => {
     data.transactions.push(txs[2].data);
     data.numberOfTransactions = txs.length; // NOTE: if transactions are added to a fixture the NoT needs to be increased
     block.transactions = txs;
-}
+};
 
 beforeAll(() => {
     blocks = makeChainedBlocks(101, factory.get("Block"));
@@ -51,10 +44,10 @@ beforeAll(() => {
     jest.spyOn(blockState, "revertTransaction");
     jest.spyOn(blockState, "increaseWalletDelegateVoteBalance");
     jest.spyOn(blockState, "decreaseWalletDelegateVoteBalance");
-    jest.spyOn((blockState as any), "initGenesisGeneratorWallet");
-    jest.spyOn((blockState as any), "applyBlockToGenerator");
-    jest.spyOn((blockState as any), "applyVoteBalances");
-    jest.spyOn((blockState as any), "revertBlockFromGenerator");
+    jest.spyOn(blockState as any, "initGenesisGeneratorWallet");
+    jest.spyOn(blockState as any, "applyBlockToGenerator");
+    jest.spyOn(blockState as any, "applyVoteBalances");
+    jest.spyOn(blockState as any, "revertBlockFromGenerator");
 
     walletRepo.reset();
 });
@@ -76,11 +69,8 @@ describe("BlockState", () => {
         walletRepo.index(generatorWallet);
 
         addTransactionsToBlock(
-            makeVoteTransactions(
-                3, 
-                [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]
-            ),
-            blocks[0]
+            makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
+            blocks[0],
         );
     });
 
@@ -115,10 +105,16 @@ describe("BlockState", () => {
 
         await blockState.applyBlock(blocks[0]);
 
-        expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith( generatorWallet, blocks[0].data);
-        expect((blockState as any).increaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+        expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect((blockState as any).increaseWalletDelegateVoteBalance).toHaveBeenCalledWith(
+            generatorWallet,
+            Utils.BigNumber.ZERO,
+        );
 
-        const balanceIncrease = blocks[0].data.transactions.reduce((acc, currentTransaction) => acc.plus(currentTransaction.amount), Utils.BigNumber.ZERO);
+        const balanceIncrease = blocks[0].data.transactions.reduce(
+            (acc, currentTransaction) => acc.plus(currentTransaction.amount),
+            Utils.BigNumber.ZERO,
+        );
         const delegateAfter = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         const productsBlocks = 1;
         const forgedFees = delegateBefore.forgedFees.plus(blocks[0].data.totalFee);
@@ -139,10 +135,16 @@ describe("BlockState", () => {
         await blockState.applyBlock(blocks[0]);
         await blockState.revertBlock(blocks[0]);
 
-        expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith( generatorWallet, blocks[0].data);
-        expect((blockState as any).revertBlockFromGenerator).toHaveBeenCalledWith( generatorWallet, blocks[0].data);
-        expect((blockState as any).increaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
-        expect((blockState as any).decreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+        expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect((blockState as any).revertBlockFromGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect((blockState as any).increaseWalletDelegateVoteBalance).toHaveBeenCalledWith(
+            generatorWallet,
+            Utils.BigNumber.ZERO,
+        );
+        expect((blockState as any).decreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(
+            generatorWallet,
+            Utils.BigNumber.ZERO,
+        );
 
         const delegate = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
 
@@ -151,7 +153,7 @@ describe("BlockState", () => {
         expect(delegate.forgedRewards).toEqual(Utils.BigNumber.ZERO);
         expect(delegate.lastBlock).toEqual(undefined);
 
-        // TODO: use transactions that affect the balance 
+        // TODO: use transactions that affect the balance
         expect(generatorWallet.balance).toEqual(balanceBefore);
     });
 
@@ -160,88 +162,92 @@ describe("BlockState", () => {
         expect(async () => await blockState.applyBlock(blocks[0])).toReject();
     });
 
-
     describe("applyTransaction", () => {
-
-        let sender: Contracts.State.Wallet;
-        let recipient: Contracts.State.Wallet;
-
         const factory = new FactoryBuilder();
 
         Factories.registerTransactionFactory(factory);
         Factories.registerWalletFactory(factory);
 
-        sender = factory
+        const sender: any = factory
             .get("Wallet")
             .withOptions({
                 passphrase: "testPassphrase1",
-                nonce: 0
+                nonce: 0,
             })
             .make();
 
-        recipient  = factory
+        const recipient: any = factory
             .get("Wallet")
             .withOptions({
                 passphrase: "testPassphrase2",
             })
             .make();
 
-        const transfer = (<TransferBuilder>factory
+        const transfer = factory
             .get("Transfer")
             .withOptions({ amount: 96579, senderPublicKey: sender.publicKey, recipientId: recipient.address })
-            .make());
+            .make();
 
-        const delegateReg = (<DelegateRegistrationBuilder>factory
+        const delegateReg = factory
             .get("DelegateRegistration")
             .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipient.address })
-            .make())
+            .make()
+            // @ts-ignore
             .sign("delegatePassphrase")
             .build();
-    
-        const secondSign = (<SecondSignatureBuilder>factory
+
+        const secondSign = factory
             .get("Transfer")
             .withOptions({ amount: 10000000, senderPublicKey: sender.publicKey, recipientId: recipient.address })
-            .make());
+            .make();
 
-        const vote = (<VoteBuilder>factory
+        const vote = factory
             .get("Vote")
-            .withOptions({ publicKey: recipient.publicKey, senderPublicKey: sender.publicKey, recipientId: recipient.address })
-            .make());
-        
-        const delegateRes = (<DelegateResignationBuilder>factory
+            .withOptions({
+                publicKey: recipient.publicKey,
+                senderPublicKey: sender.publicKey,
+                recipientId: recipient.address,
+            })
+            .make();
+
+        const delegateRes = factory
             .get("DelegateResignation")
             .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipient.address })
-            .make())
+            .make()
+            // @ts-ignore
             .sign("delegatePassphrase")
             .build();
-        
-        const ipfs = (<IPFSBuilder>factory
+
+        const ipfs = factory
             .get("Ipfs")
             .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
-            .make());
-        
-        const htlcLock = (<HtlcLockBuilder>factory
+            .make();
+
+        const htlcLock = factory
             .get("HtlcLock")
             .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
-            .make());
+            .make();
 
-        const htlcRefund = (<HtlcRefundBuilder>factory
+        const htlcRefund = factory
             .get("HtlcRefund")
-            .withOptions({ secretHash: "secretHash", senderPublicKey: sender.publicKey, recipientId: recipient.address })
-            .make());
+            .withOptions({
+                secretHash: "secretHash",
+                senderPublicKey: sender.publicKey,
+                recipientId: recipient.address,
+            })
+            .make();
 
         describe.each`
-            type                        | transaction
-            ${"transfer"}               | ${transfer}
-            ${"delegateRegistration"}   | ${delegateReg}
-            ${"2nd sign"}               | ${secondSign}
-            ${"vote"}                   | ${vote}
-            ${"delegateResignation"}    | ${delegateRes}
-            ${"ipfs"}                   | ${ipfs}
-            ${"htlcLock"}               | ${htlcLock}
-            ${"htlcRefund"}             | ${htlcRefund}
+            type                      | transaction
+            ${"transfer"}             | ${transfer}
+            ${"delegateRegistration"} | ${delegateReg}
+            ${"2nd sign"}             | ${secondSign}
+            ${"vote"}                 | ${vote}
+            ${"delegateResignation"}  | ${delegateRes}
+            ${"ipfs"}                 | ${ipfs}
+            ${"htlcLock"}             | ${htlcLock}
+            ${"htlcRefund"}           | ${htlcRefund}
         `("when the transaction is a $type", ({ transaction }) => {
-
             it("should call the transaction handler apply the transaction to the sender & recipient", async () => {
                 await blockState.applyTransaction(transaction);
 
@@ -293,5 +299,5 @@ describe("BlockState", () => {
                 expect(error.message).toBe("Fake error");
             }
         });
-    }); 
+    });
 });

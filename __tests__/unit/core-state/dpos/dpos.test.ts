@@ -1,19 +1,20 @@
 import "jest-extended";
 
-import { setUp } from "../setup";
+import { Utils } from "@packages/core-kernel/src";
+import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Identities, Utils as CryptoUtils } from "@packages/crypto/src";
 import { SATOSHI } from "@packages/crypto/src/constants";
-import { Utils } from "@packages/core-kernel/src";
-import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
+
+import { setUp } from "../setup";
 
 let dposState: DposState;
 let walletRepo: WalletRepository;
 let debugLogger: jest.SpyInstance;
 
-beforeAll(() => {
-    const initialEnv = setUp();
+beforeAll(async () => {
+    const initialEnv = await setUp();
     dposState = initialEnv.dPosState;
     walletRepo = initialEnv.walletRepo;
     debugLogger = initialEnv.spies.logger.debug;
@@ -27,7 +28,9 @@ export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo:
         delegate.setAttribute("delegate.username", `delegate${i}`);
         delegate.setAttribute("delegate.voteBalance", CryptoUtils.BigNumber.ZERO);
 
-        const voter = walletRepo.createWallet(Identities.Address.fromPublicKey((i + numberDelegates).toString().repeat(66)));
+        const voter = walletRepo.createWallet(
+            Identities.Address.fromPublicKey((i + numberDelegates).toString().repeat(66)),
+        );
         const totalBalance = CryptoUtils.BigNumber.make(i + 1)
             .times(1000)
             .times(SATOSHI);
@@ -40,10 +43,9 @@ export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo:
 
         walletRepo.index([delegate, voter]);
     }
-}
+};
 
 describe("dpos", () => {
-
     beforeEach(() => {
         walletRepo.reset();
 
@@ -53,7 +55,7 @@ describe("dpos", () => {
     describe("buildVoteBalances", () => {
         it("should update delegate votes of htlc locked balances", async () => {
             dposState.buildVoteBalances();
-    
+
             const delegates = walletRepo.allByUsername();
             for (let i = 0; i < 5; i++) {
                 const delegate = delegates[4 - i];
@@ -99,7 +101,7 @@ describe("dpos", () => {
             round.maxDelegates = 4;
             dposState.setDelegatesRound(round);
             const delegates = dposState.getActiveDelegates();
-            const roundDelegates= dposState.getRoundDelegates();
+            const roundDelegates = dposState.getRoundDelegates();
             expect(dposState.getRoundInfo()).toEqual(round);
             expect(roundDelegates).toEqual(delegates.slice(0, 4));
 
@@ -129,15 +131,15 @@ describe("dpos", () => {
         it("getRoundInfo", () => {
             expect(dposState.getRoundInfo()).toEqual(round);
         });
-    
+
         it("getAllDelegates", () => {
             expect(dposState.getAllDelegates()).toEqual(walletRepo.allByUsername());
         });
-    
+
         it("getActiveDelegates", () => {
             expect(dposState.getActiveDelegates()).toContainAllValues(walletRepo.allByUsername() as any);
         });
-    
+
         it("getRoundDelegates", () => {
             expect(dposState.getRoundDelegates()).toContainAllValues(walletRepo.allByUsername() as any);
         });

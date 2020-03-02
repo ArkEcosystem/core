@@ -1,11 +1,12 @@
 import "jest-extended";
 
-import { setUp, setUpDefaults } from "./setup";
-import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
 import { Enums, Utils } from "@arkecosystem/core-kernel";
+import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
 import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { Sandbox } from "@packages/core-test-framework/src";
 import { Managers } from "@arkecosystem/crypto";
+import { Sandbox } from "@packages/core-test-framework/src";
+
+import { setUp, setUpDefaults } from "./setup";
 
 let stateBuilder: StateBuilder;
 let getBlockRewardsSpy: jest.SpyInstance;
@@ -26,13 +27,13 @@ let loggerWarningSpy: jest.SpyInstance;
 let walletRepo: WalletRepository;
 let restoreDefaultSentTransactions: () => void;
 
-const saveDefaultTransactions = (): () => void => {
+const saveDefaultTransactions = (): (() => void) => {
     const saveTransaction = setUpDefaults.getSentTransaction;
-    return () => setUpDefaults.getSentTransaction = saveTransaction;
-}
+    return () => (setUpDefaults.getSentTransaction = saveTransaction);
+};
 
 beforeAll(async () => {
-    const initialEnv = setUp();
+    const initialEnv = await setUp();
 
     walletRepo = initialEnv.walletRepo;
     stateBuilder = initialEnv.stateBuilder;
@@ -47,17 +48,12 @@ beforeAll(async () => {
     restoreDefaultSentTransactions = saveDefaultTransactions();
 });
 
-
 describe("StateBuilder", () => {
-
     beforeEach(() => {
         jest.clearAllMocks();
         walletRepo.reset();
 
-        sandbox.app.config(
-            "crypto.exceptions.negativeBalances",
-            {},
-        );
+        sandbox.app.config("crypto.exceptions.negativeBalances", {});
 
         restoreDefaultSentTransactions();
 
@@ -89,7 +85,7 @@ describe("StateBuilder", () => {
         wallet.balance = Utils.BigNumber.ZERO;
         walletRepo.index(wallet);
         const expectedBalance = wallet.balance.plus(getBlockRewardsDefault.rewards);
-        
+
         await stateBuilder.run();
 
         expect(wallet.balance).toEqual(expectedBalance);
@@ -100,10 +96,12 @@ describe("StateBuilder", () => {
         wallet.balance = Utils.BigNumber.make(80000);
         walletRepo.index(wallet);
 
-        const expectedBalance = wallet.balance.minus(getSentTransactionDefault.amount).minus(getSentTransactionDefault.fee);
+        const expectedBalance = wallet.balance
+            .minus(getSentTransactionDefault.amount)
+            .minus(getSentTransactionDefault.fee);
 
         await stateBuilder.run();
-                
+
         expect(wallet.nonce).toEqual(getSentTransactionDefault.nonce);
         expect(wallet.balance).toEqual(expectedBalance);
     });
@@ -112,12 +110,14 @@ describe("StateBuilder", () => {
         const wallet = walletRepo.findByPublicKey(senderKey);
         wallet.balance = Utils.BigNumber.make(-80000);
         wallet.publicKey = senderKey;
-        
+
         walletRepo.index(wallet);
-        
+
         await stateBuilder.run();
 
-        expect(loggerWarningSpy).toHaveBeenCalledWith("Wallet DHFTinyrMB1eQT8SKvaKecBKSbAR45EAtV has a negative balance of '-135555'");
+        expect(loggerWarningSpy).toHaveBeenCalledWith(
+            "Wallet ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp has a negative balance of '-135555'",
+        );
         expect(dispatchSpy).not.toHaveBeenCalled();
     });
 
@@ -125,7 +125,7 @@ describe("StateBuilder", () => {
         const genesisPublicKeys: string[] = Managers.configManager
             .get("genesisBlock.transactions")
             .reduce((acc, curr) => [...acc, curr.senderPublicKey], []);
-        
+
         const wallet = walletRepo.findByPublicKey(genesisPublicKeys[0]);
         wallet.balance = Utils.BigNumber.make(-80000);
         wallet.publicKey = genesisPublicKeys[0];
@@ -133,7 +133,7 @@ describe("StateBuilder", () => {
         walletRepo.index(wallet);
 
         await stateBuilder.run();
-        
+
         expect(loggerWarningSpy).not.toHaveBeenCalled();
         expect(dispatchSpy).toHaveBeenCalledWith(Enums.StateEvent.BuilderFinished);
     });
@@ -148,14 +148,11 @@ describe("StateBuilder", () => {
 
         const balance: Record<string, Record<string, string>> = {
             [senderKey]: {
-                [wallet.nonce.toString()]: allowedWalletNegativeBalance.toString()
-            }
-        }
+                [wallet.nonce.toString()]: allowedWalletNegativeBalance.toString(),
+            },
+        };
 
-        sandbox.app.config(
-            "crypto.exceptions.negativeBalances",
-            balance,
-        );
+        sandbox.app.config("crypto.exceptions.negativeBalances", balance);
 
         setUpDefaults.getSentTransaction = [];
 
@@ -174,20 +171,19 @@ describe("StateBuilder", () => {
 
         const balance: Record<string, Record<string, string>> = {
             [senderKey]: {
-                [wallet.nonce.toString()]: Utils.BigNumber.make(-80000).toString()
-            }
-        }
+                [wallet.nonce.toString()]: Utils.BigNumber.make(-80000).toString(),
+            },
+        };
 
-        sandbox.app.config(
-            "crypto.exceptions.negativeBalances",
-            balance,
-        );
+        sandbox.app.config("crypto.exceptions.negativeBalances", balance);
 
         setUpDefaults.getSentTransaction = [];
 
         await stateBuilder.run();
 
-        expect(loggerWarningSpy).toHaveBeenCalledWith("Wallet DHFTinyrMB1eQT8SKvaKecBKSbAR45EAtV has a negative balance of '-90000'");
+        expect(loggerWarningSpy).toHaveBeenCalledWith(
+            "Wallet ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp has a negative balance of '-90000'",
+        );
         expect(dispatchSpy).not.toHaveBeenCalled();
     });
 
@@ -207,6 +203,8 @@ describe("StateBuilder", () => {
 
         await stateBuilder.run();
 
-        expect(loggerWarningSpy).toHaveBeenCalledWith("Wallet DHFTinyrMB1eQT8SKvaKecBKSbAR45EAtV has a negative vote balance of '-100'")
+        expect(loggerWarningSpy).toHaveBeenCalledWith(
+            "Wallet ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp has a negative vote balance of '-100'",
+        );
     });
 });

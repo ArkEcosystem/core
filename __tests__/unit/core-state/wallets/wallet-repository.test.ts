@@ -16,8 +16,8 @@ import { setUp } from "../setup";
 
 let walletRepo: WalletRepository;
 
-beforeAll(() => {
-    const initialEnv = setUp();
+beforeAll(async () => {
+    const initialEnv = await setUp();
     walletRepo = initialEnv.walletRepo;
 });
 
