@@ -64,10 +64,10 @@ beforeEach(() => {
     multiSignatureWallet = buildMultiSignatureWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
-    walletRepository.reindex(senderWallet);
-    walletRepository.reindex(secondSignatureWallet);
-    walletRepository.reindex(multiSignatureWallet);
-    walletRepository.reindex(recipientWallet);
+    walletRepository.index(senderWallet);
+    walletRepository.index(secondSignatureWallet);
+    walletRepository.index(multiSignatureWallet);
+    walletRepository.index(recipientWallet);
 });
 
 describe("DelegateResignationTransaction", () => {
@@ -97,7 +97,7 @@ describe("DelegateResignationTransaction", () => {
 
             delegateWallet.setAttribute("delegate", { username: "username" +  i } );
 
-            walletRepository.reindex(delegateWallet);
+            walletRepository.index(delegateWallet);
             allDelegates.push(delegateWallet);
         }
 
@@ -111,7 +111,7 @@ describe("DelegateResignationTransaction", () => {
 
         delegateWallet.balance = Utils.BigNumber.make(66 * 1e8);
         delegateWallet.setAttribute("delegate", {username: "dummy"});
-        walletRepository.reindex(delegateWallet);
+        walletRepository.index(delegateWallet);
 
         delegateResignationTransaction = BuilderFactory.delegateResignation()
             .nonce("1")
@@ -134,7 +134,7 @@ describe("DelegateResignationTransaction", () => {
         it("should resolve - simulate genesis wallet", async () => {
             allDelegates[0].forgetAttribute("delegate");
 
-            walletRepository.reindex(allDelegates[0]);
+            walletRepository.index(allDelegates[0]);
 
             setMockTransaction(delegateResignationTransaction);
             await expect(handler.bootstrap()).toResolve();
@@ -160,7 +160,7 @@ describe("DelegateResignationTransaction", () => {
 
         it("should not throw if wallet is a delegate - second sign", async () => {
             secondSignatureWallet.setAttribute("delegate", {username: "dummy"});
-            walletRepository.reindex(secondSignatureWallet);
+            walletRepository.index(secondSignatureWallet);
             await expect(handler.throwIfCannotBeApplied(secondSignatureDelegateResignationTransaction, secondSignatureWallet, walletRepository)).toResolve();
         });
 
@@ -174,7 +174,7 @@ describe("DelegateResignationTransaction", () => {
                 .make();
 
             anotherDelegate.setAttribute("delegate", {username: "another"});
-            walletRepository.reindex(anotherDelegate);
+            walletRepository.index(anotherDelegate);
 
             await expect(handler.throwIfCannotBeApplied(delegateResignationTransaction, delegateWallet, walletRepository)).toResolve();
         });
