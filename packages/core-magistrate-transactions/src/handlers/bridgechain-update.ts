@@ -57,7 +57,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
                 ...shallowCloneBridgechainUpdate,
             };
 
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
     }
 
@@ -165,7 +165,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
             ...shallowCloneBridgechainUpdate,
         };
 
-        walletRepository.reindex(wallet);
+        walletRepository.index(wallet);
     }
 
     public async revertForSender(
@@ -265,7 +265,7 @@ export class BridgechainUpdateTransactionHandler extends MagistrateTransactionHa
         Utils.assert.defined<object>(businessAttributes.bridgechains);
         businessAttributes.bridgechains[bridgechainId] = { bridgechainAsset };
 
-        walletRepository.reindex(sender);
+        walletRepository.index(sender);
     }
 
     public async applyToRecipient(

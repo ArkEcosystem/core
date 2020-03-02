@@ -165,9 +165,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
 
         delete locks[lockId];
 
-        walletRepository.reindex(sender);
-        walletRepository.reindex(lockWallet);
-        walletRepository.reindex(recipientWallet);
+        walletRepository.index(sender);
+        walletRepository.index(lockWallet);
+        walletRepository.index(recipientWallet);
     }
 
     public async revertForSender(
@@ -220,9 +220,9 @@ export class HtlcClaimTransactionHandler extends TransactionHandler {
             ...lockTransaction.asset.lock,
         };
 
-        walletRepository.reindex(sender);
-        walletRepository.reindex(lockWallet);
-        walletRepository.reindex(recipientWallet);
+        walletRepository.index(sender);
+        walletRepository.index(lockWallet);
+        walletRepository.index(recipientWallet);
     }
 
     public async applyToRecipient(

@@ -167,7 +167,7 @@ describe("Transaction Forging - Delegate Resignation", () => {
             await expect(transactionsResign.id).not.toBeForged();
 
             for (const delegate of takenDelegates) {
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
         });
     });
