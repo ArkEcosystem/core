@@ -71,10 +71,10 @@ beforeEach(() => {
     multiSignatureWallet = buildMultiSignatureWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
-    walletRepository.reindex(senderWallet);
-    walletRepository.reindex(secondSignatureWallet);
-    walletRepository.reindex(multiSignatureWallet);
-    walletRepository.reindex(recipientWallet);
+    walletRepository.index(senderWallet);
+    walletRepository.index(secondSignatureWallet);
+    walletRepository.index(multiSignatureWallet);
+    walletRepository.index(recipientWallet);
 });
 
 describe("Htlc claim", () => {
@@ -116,8 +116,8 @@ describe("Htlc claim", () => {
                 })
                 .make();
 
-            walletRepository.reindex(lockWallet);
-            walletRepository.reindex(claimWallet);
+            walletRepository.index(lockWallet);
+            walletRepository.index(claimWallet);
 
             let expiration = {
                 type: expirationType,
@@ -145,7 +145,7 @@ describe("Htlc claim", () => {
                 },
             });
 
-            walletRepository.reindex(lockWallet);
+            walletRepository.index(lockWallet);
 
             htlcClaimTransaction = BuilderFactory.htlcClaim()
                 .htlcClaimAsset({
@@ -238,7 +238,7 @@ describe("Htlc claim", () => {
                     })
                     .make();
 
-                walletRepository.reindex(dummyWallet);
+                walletRepository.index(dummyWallet);
 
                 htlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({
@@ -282,7 +282,7 @@ describe("Htlc claim", () => {
                     },
                 });
 
-                walletRepository.reindex(lockWallet);
+                walletRepository.index(lockWallet);
 
                 htlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({
@@ -390,7 +390,7 @@ describe("Htlc claim", () => {
                     })
                     .make();
 
-                walletRepository.reindex(dummyWallet);
+                walletRepository.index(dummyWallet);
 
                 htlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({

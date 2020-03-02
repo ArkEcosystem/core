@@ -64,10 +64,10 @@ beforeEach(() => {
     multiSignatureWallet = buildMultiSignatureWallet();
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
-    walletRepository.reindex(senderWallet);
-    walletRepository.reindex(secondSignatureWallet);
-    walletRepository.reindex(multiSignatureWallet);
-    walletRepository.reindex(recipientWallet);
+    walletRepository.index(senderWallet);
+    walletRepository.index(secondSignatureWallet);
+    walletRepository.index(multiSignatureWallet);
+    walletRepository.index(recipientWallet);
 });
 
 describe("DelegateRegistrationTransaction", () => {
@@ -199,7 +199,7 @@ describe("DelegateRegistrationTransaction", () => {
 
             delegateWallet.setAttribute("delegate", { username: "dummy" });
 
-            walletRepository.reindex(delegateWallet);
+            walletRepository.index(delegateWallet);
 
             await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrow(
                 WalletUsernameAlreadyRegisteredError,
@@ -237,7 +237,7 @@ describe("DelegateRegistrationTransaction", () => {
 
             anotherWallet.balance = Utils.BigNumber.make(7527654310);
 
-            walletRepository.reindex(anotherWallet);
+            walletRepository.index(anotherWallet);
 
             let anotherDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
                 .usernameAsset("dummy")
