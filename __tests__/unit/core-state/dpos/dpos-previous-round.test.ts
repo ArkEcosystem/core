@@ -66,7 +66,7 @@ describe("dposPreviousRound", () => {
     });
 
     describe("revert", () => {
-        it.only("should revert blocks", async () => {
+        it("should revert blocks", async () => {
             const generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
 
             generatorWallet.setAttribute("delegate", {
