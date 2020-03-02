@@ -64,7 +64,7 @@ export const setUpDefaults = {
     getRegisteredHandlers: [],
 };
 
-export const setUp = async (setUpOptions = setUpDefaults): Promise<Setup> => {
+export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Promise<Setup> => {
     const sandbox = new Sandbox();
 
     sandbox.app
@@ -256,12 +256,14 @@ export const setUp = async (setUpOptions = setUpDefaults): Promise<Setup> => {
 
     const stateBuilder = sandbox.app.resolve<StateBuilder>(StateBuilder);
 
-    await sandbox.boot();
+    if (!skipBoot) {
+        await sandbox.boot();
 
-    // todo: get rid of the need for this, requires an instance based crypto package
-    Managers.configManager.setConfig(
-        sandbox.app.get<Services.Config.ConfigRepository>(Container.Identifiers.ConfigRepository).get("crypto"),
-    );
+        // todo: get rid of the need for this, requires an instance based crypto package
+        Managers.configManager.setConfig(
+            sandbox.app.get<Services.Config.ConfigRepository>(Container.Identifiers.ConfigRepository).get("crypto"),
+        );
+    }
 
     const factory = new FactoryBuilder();
 

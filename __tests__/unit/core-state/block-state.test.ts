@@ -5,10 +5,11 @@ import { BlockState } from "@packages/core-state/src/block-state";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Utils } from "@packages/crypto/src";
-import { IBlock, ITransaction } from "@packages/crypto/src/interfaces";
+import { IBlock } from "@packages/crypto/src/interfaces";
 
+import { addTransactionsToBlock } from "./__utils__/transactions";
 import { makeChainedBlocks, makeVoteTransactions } from "./helper";
-import { setUp } from "./setup";
+import { setUp, setUpDefaults } from "./setup";
 
 let blockState: BlockState;
 let factory: FactoryBuilder;
@@ -18,24 +19,13 @@ let applySpy: jest.SpyInstance;
 let revertSpy: jest.SpyInstance;
 
 beforeAll(async () => {
-    const initialEnv = await setUp();
+    const initialEnv = await setUp(setUpDefaults, true); // todo: why do I have to skip booting?
     walletRepo = initialEnv.walletRepo;
     blockState = initialEnv.blockState;
     factory = initialEnv.factory;
     applySpy = initialEnv.spies.applySpy;
     revertSpy = initialEnv.spies.revertSpy;
 });
-
-export const addTransactionsToBlock = (txs: ITransaction[], block: IBlock) => {
-    const { data } = block;
-    data.transactions = [];
-    txs.forEach(tx => data.transactions.push(tx.data));
-    data.transactions.push(txs[0].data);
-    data.transactions.push(txs[1].data);
-    data.transactions.push(txs[2].data);
-    data.numberOfTransactions = txs.length; // NOTE: if transactions are added to a fixture the NoT needs to be increased
-    block.transactions = txs;
-};
 
 beforeAll(() => {
     blocks = makeChainedBlocks(101, factory.get("Block"));

@@ -8,7 +8,7 @@ import { DposState } from "@packages/core-state/src/dpos/dpos";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { IBlock } from "@packages/crypto/src/interfaces";
 
-import { addTransactionsToBlock } from "../block-state.test";
+import { addTransactionsToBlock } from "../__utils__/transactions";
 import { makeChainedBlocks, makeVoteTransactions } from "../helper";
 import { setUp } from "../setup";
 import { buildDelegateAndVoteWallets } from "./dpos.test";
@@ -66,7 +66,7 @@ describe("dposPreviousRound", () => {
     });
 
     describe("revert", () => {
-        it("should revert blocks", async () => {
+        it.only("should revert blocks", async () => {
             const generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
 
             generatorWallet.setAttribute("delegate", {
