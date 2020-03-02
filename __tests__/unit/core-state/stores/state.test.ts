@@ -26,6 +26,8 @@ beforeEach(() => {
     stateStorage.clear();
 });
 
+afterAll(() => jest.clearAllMocks());
+
 describe("State Storage", () => {
     describe("getLastHeight", () => {
         it("should return the last block height", () => {

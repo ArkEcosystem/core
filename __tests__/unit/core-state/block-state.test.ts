@@ -42,6 +42,8 @@ beforeAll(() => {
     walletRepo.reset();
 });
 
+afterAll(() => jest.clearAllMocks());
+
 describe("BlockState", () => {
     let generatorWallet: Contracts.State.Wallet;
 

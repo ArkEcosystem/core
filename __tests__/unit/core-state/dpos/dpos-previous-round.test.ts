@@ -28,6 +28,8 @@ beforeAll(async () => {
     blockState = initialEnv.blockState;
 });
 
+afterAll(() => jest.clearAllMocks());
+
 describe("dposPreviousRound", () => {
     let round: RoundInfo;
     let blocks: IBlock[];
@@ -67,6 +69,10 @@ describe("dposPreviousRound", () => {
 
     describe("revert", () => {
         it("should revert blocks", async () => {
+            jest.spyOn(dposState, "buildDelegateRanking");
+            jest.spyOn(dposState, "setDelegatesRound");
+            jest.spyOn(blockState, "revertBlock");
+            
             const generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
 
             generatorWallet.setAttribute("delegate", {
@@ -90,10 +96,6 @@ describe("dposPreviousRound", () => {
             const previousRound: DposPreviousRoundState = (await dposPreviousRoundStateProv([], round)) as any;
 
             // TODO: fix this test, these aren't being called because of IoC tagging
-            jest.spyOn(dposState, "buildDelegateRanking");
-            jest.spyOn(dposState, "setDelegatesRound");
-            jest.spyOn(blockState, "revertBlock");
-
             previousRound.revert([blocks[0]], round);
 
             expect(dposState.buildDelegateRanking).toHaveBeenCalled();
@@ -102,14 +104,14 @@ describe("dposPreviousRound", () => {
         });
 
         it("should not revert the blocks when height is one", async () => {
+            jest.spyOn(dposState, "buildDelegateRanking");
+            jest.spyOn(dposState, "setDelegatesRound");
+            jest.spyOn(blockState, "revertBlock");
+
             const previousRound: DposPreviousRoundState = (await dposPreviousRoundStateProv([], round)) as any;
             blocks[0].data.height = 1;
 
             previousRound.revert([blocks[0]], round);
-
-            jest.spyOn(dposState, "buildDelegateRanking");
-            jest.spyOn(dposState, "setDelegatesRound");
-            jest.spyOn(blockState, "revertBlock");
 
             expect(dposState.buildDelegateRanking).not.toHaveBeenCalled();
             expect(dposState.setDelegatesRound).not.toHaveBeenCalled();

@@ -48,6 +48,8 @@ beforeAll(async () => {
     restoreDefaultSentTransactions = saveDefaultTransactions();
 });
 
+afterAll(() => jest.clearAllMocks());
+
 describe("StateBuilder", () => {
     beforeEach(() => {
         jest.clearAllMocks();

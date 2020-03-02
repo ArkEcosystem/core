@@ -16,6 +16,8 @@ beforeAll(async () => {
     applySpy = initialEnv.spies.applySpy;
 });
 
+afterAll(() => jest.clearAllMocks());
+
 describe("Transaction Validator", () => {
     it("should validate transactions", async () => {
         const transaction = makeVoteTransactions(1, [
