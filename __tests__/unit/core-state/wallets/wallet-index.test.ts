@@ -1,14 +1,14 @@
 import { Wallets } from "@packages/core-state/src";
-
 import { WalletIndex } from "@packages/core-state/src/wallets/wallet-index";
 import { Factory } from "@packages/core-test-framework/src/factories/factory";
+
 import { setUp } from "../setup";
 
-let factoryInstance: Factory;
+let factory: Factory;
 
-beforeAll(() => {
-    const { factory } = setUp();
-    factoryInstance = factory.get("Wallet");
+beforeAll(async () => {
+    const initialEnv = await setUp();
+    factory = initialEnv.factory.get("Wallet");
 });
 
 describe("WalletIndex", () => {
@@ -16,7 +16,7 @@ describe("WalletIndex", () => {
     let walletIndex: WalletIndex;
 
     beforeAll(() => {
-        wallet = factoryInstance.make<Wallets.Wallet>();
+        wallet = factory.make<Wallets.Wallet>();
         walletIndex = new WalletIndex((index, wallet) => {
             index.set(wallet.address, wallet);
         });
@@ -45,8 +45,8 @@ describe("WalletIndex", () => {
 
         walletIndex.clear();
         expect(walletIndex.has(wallet.address)).toBeFalse();
-    })
-    
+    });
+
     it("should be cloneable", () => {
         const clonedWalletIndex = walletIndex.clone();
         expect(walletIndex).toEqual(clonedWalletIndex);
