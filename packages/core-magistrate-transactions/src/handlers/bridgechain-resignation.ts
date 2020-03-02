@@ -49,7 +49,7 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             bridgechainAsset.resigned = true;
 
             wallet.setAttribute<IBusinessWalletAttributes>("business", businessAttributes);
-            this.walletRepository.reindex(wallet);
+            this.walletRepository.index(wallet);
         }
     }
 

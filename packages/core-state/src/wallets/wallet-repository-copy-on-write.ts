@@ -15,7 +15,7 @@ export class WalletRepositoryCopyOnWrite extends WalletRepository {
     public findByAddress(address: string): Contracts.State.Wallet {
         if (address && !this.hasByAddress(address)) {
             const walletClone = this.blockchainWalletRepository.findByAddress(address).clone();
-            this.reindex(walletClone);
+            this.index(walletClone);
         }
         return this.findByIndex(Contracts.State.WalletIndexes.Addresses, address)!;
     }
@@ -28,14 +28,14 @@ export class WalletRepositoryCopyOnWrite extends WalletRepository {
             return false;
         }
         const walletClone = this.blockchainWalletRepository.findByIndex(index, key).clone();
-        this.reindex(walletClone);
+        this.index(walletClone);
         return true;
     }
 
     public allByUsername(): ReadonlyArray<Contracts.State.Wallet> {
         for (const wallet of this.blockchainWalletRepository.allByUsername()) {
             if (super.hasByAddress(wallet.address) === false) {
-                this.reindex(wallet.clone());
+                this.index(wallet.clone());
             }
         }
         return super.allByUsername();

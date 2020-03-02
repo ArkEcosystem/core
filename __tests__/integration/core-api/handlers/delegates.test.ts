@@ -49,7 +49,7 @@ beforeEach(() => {
     wallet.setAttribute("delegate.producedBlocks", 75);
     wallet.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(delegate.voteBalance));
 
-    walletRepository.reindex(wallet);
+    walletRepository.index(wallet);
 });
 
 const createWallet = (address: string): Contracts.State.Wallet =>
@@ -89,7 +89,7 @@ describe("API 2.0 - Delegates", () => {
                 const delegate = reverseDelegates[i];
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(i * 1e8));
 
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
 
             const response = await api.request("GET", "delegates", { orderBy: "votes:asc" });
@@ -104,7 +104,7 @@ describe("API 2.0 - Delegates", () => {
                 const delegate = originalDelegates[i];
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.ZERO);
 
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
         });
 
@@ -116,7 +116,7 @@ describe("API 2.0 - Delegates", () => {
             );
             const wallet: Contracts.State.Wallet = walletRepository.findByUsername("genesis_1");
             wallet.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(12500000000000000));
-            walletRepository.reindex(wallet);
+            walletRepository.index(wallet);
 
             const response = await api.request("GET", "delegates", { orderBy: "votes:desc" });
             expect(response).toBeSuccessfulResponse();
@@ -274,17 +274,17 @@ describe("API 2.0 - Delegates", () => {
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.ZERO);
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
 
             // Give 2 delegates a vote weight
             const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(10000000 * 1e8));
-            walletRepository.reindex(delegate1);
+            walletRepository.index(delegate1);
 
             const delegate2 = walletRepository.findByUsername("genesis_2");
             delegate2.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(10000000 * 1e8));
-            walletRepository.reindex(delegate2);
+            walletRepository.index(delegate2);
 
             const response = await api.request("POST", "delegates/search", {
                 approval: {
@@ -305,7 +305,7 @@ describe("API 2.0 - Delegates", () => {
             // Make sure all vote balances are at 0
             for (const delegate of walletRepository.allByUsername()) {
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.ZERO);
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
         });
 
@@ -321,17 +321,17 @@ describe("API 2.0 - Delegates", () => {
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.voteBalance", AppUtils.BigNumber.ZERO);
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
 
             // Give 2 delegates a vote weight
             const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(10000000 * 1e8));
-            walletRepository.reindex(delegate1);
+            walletRepository.index(delegate1);
 
             const delegate2 = walletRepository.findByUsername("genesis_2");
             delegate2.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(5000000 * 1e8));
-            walletRepository.reindex(delegate2);
+            walletRepository.index(delegate2);
 
             const response = await api.request("POST", "delegates/search", {
                 approval: {
@@ -492,13 +492,13 @@ describe("API 2.0 - Delegates", () => {
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.producedBlocks", 0);
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
 
             // Give 2 delegates a vote weight
             const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.producedBlocks", delegate.producedBlocks);
-            walletRepository.reindex(delegate1);
+            walletRepository.index(delegate1);
 
             const response = await api.request("POST", "delegates/search", {
                 producedBlocks: {
@@ -548,13 +548,13 @@ describe("API 2.0 - Delegates", () => {
             for (let i = 0; i < delegates.length; i++) {
                 const delegate = delegates[i];
                 delegate.setAttribute("delegate.voteBalance", 0);
-                walletRepository.reindex(delegate);
+                walletRepository.index(delegate);
             }
 
             // Give 2 delegates a vote weight
             const delegate1 = walletRepository.findByUsername("genesis_1");
             delegate1.setAttribute("delegate.voteBalance", AppUtils.BigNumber.make(delegate.voteBalance));
-            walletRepository.reindex(delegate1);
+            walletRepository.index(delegate1);
 
             const response = await api.request("POST", "delegates/search", {
                 voteBalance: {

@@ -63,9 +63,9 @@ beforeEach(() => {
     secondSignatureWallet = buildSecondSignatureWallet(factoryBuilder);
     recipientWallet = buildRecipientWallet(factoryBuilder);
 
-    walletRepository.reindex(senderWallet);
-    walletRepository.reindex(secondSignatureWallet);
-    walletRepository.reindex(recipientWallet);
+    walletRepository.index(senderWallet);
+    walletRepository.index(secondSignatureWallet);
+    walletRepository.index(recipientWallet);
 });
 
 describe("MultiSignatureRegistrationTransaction", () => {
@@ -91,7 +91,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         recipientWallet = new Wallets.Wallet(Identities.Address.fromMultiSignatureAsset(multiSignatureAsset), new Services.Attributes.AttributeMap(getWalletAttributeSet()));
 
-        walletRepository.reindex(recipientWallet);
+        walletRepository.index(recipientWallet);
 
         multiSignatureTransaction = BuilderFactory.multiSignature()
             .multiSignatureAsset(multiSignatureAsset)

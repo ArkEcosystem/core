@@ -56,7 +56,7 @@ describe("API 2.0 - Locks", () => {
 
             wallet.setAttribute("htlc.locks", locks);
 
-            walletRepository.reindex(wallet);
+            walletRepository.index(wallet);
         }
     });
 
@@ -201,7 +201,7 @@ describe("API 2.0 - Locks", () => {
 
         it("should POST a search for locks with the exact vendorField", async () => {
             const wallet = createWallet("secret", { vendorField: "HTLC" });
-            walletRepository.reindex(wallet);
+            walletRepository.index(wallet);
 
             const response = await api.request("POST", "locks/search", {
                 vendorField: "HTLC",
@@ -219,7 +219,7 @@ describe("API 2.0 - Locks", () => {
 
         it("should POST a search for locks within the timestamp range", async () => {
             const wallet = createWallet("secret", { timestamp: 5000 });
-            walletRepository.reindex(wallet);
+            walletRepository.index(wallet);
 
             const response = await api.request("POST", "locks/search", {
                 timestamp: {
