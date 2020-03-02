@@ -11,7 +11,7 @@ export interface Memory {
 
     addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
     removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
-    acceptForgedTransaction(transaction: Interfaces.ITransaction): Interfaces.ITransaction[];
+    acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
 
     flush(): void;
 }

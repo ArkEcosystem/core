@@ -73,19 +73,17 @@ export abstract class Transaction implements ITransaction {
     public toString(): string {
         const parts: string[] = [];
 
-        if (this.data.senderPublicKey) {
-            parts.push(Address.fromPublicKey(this.data.senderPublicKey));
+        if (this.data.senderPublicKey && this.data.nonce) {
+            parts.push(`${Address.fromPublicKey(this.data.senderPublicKey)}#${this.data.nonce}`);
+        } else if (this.data.senderPublicKey) {
+            parts.push(`${Address.fromPublicKey(this.data.senderPublicKey)}#${this.data.nonce}`);
         }
-
-        if (this.data.nonce) {
-            parts.push(`#${this.data.nonce}`);
-        }
-
-        parts.push(`${this.key} v${this.data.version}`);
 
         if (this.data.id) {
-            parts.push(this.data.id);
+            parts.push(this.data.id.slice(-8));
         }
+
+        parts.push(`${this.key[0].toUpperCase()}${this.key.slice(1)} v${this.data.version}`);
 
         return parts.join(" ");
     }

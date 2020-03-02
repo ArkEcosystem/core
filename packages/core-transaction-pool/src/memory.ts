@@ -12,7 +12,7 @@ export class Memory implements Contracts.TransactionPool.Memory {
     private readonly senderStates = new Map<string, Contracts.TransactionPool.SenderState>();
 
     public getSize(): number {
-        return Array.from(this.senderStates.values()).reduce((sum, p) => sum + p.getTransactionsCount(), 0);
+        return Array.from(this.senderStates.values()).reduce((sum, s) => sum + s.getTransactionsCount(), 0);
     }
 
     public hasSenderState(senderPublicKey: string): boolean {
@@ -44,7 +44,7 @@ export class Memory implements Contracts.TransactionPool.Memory {
         try {
             await senderState.addTransaction(transaction);
         } finally {
-            if (senderState.getTransactionsCount() === 0) {
+            if (senderState.isEmpty()) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
                 this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
             }
@@ -58,30 +58,25 @@ export class Memory implements Contracts.TransactionPool.Memory {
         AppUtils.assert.defined<Contracts.TransactionPool.SenderState>(senderState);
 
         try {
-            const removedTransactions = await senderState.removeTransaction(transaction);
-            if (senderState.getTransactionsCount() === 0) {
+            return await senderState.removeTransaction(transaction);
+        } finally {
+            if (senderState.isEmpty()) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
                 this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
             }
-            return removedTransactions;
-        } catch (error) {
-            const removedTransactions = Array.from(senderState.getTransactionsFromEarliestNonce());
-            this.senderStates.delete(transaction.data.senderPublicKey);
-            this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
-            return removedTransactions;
         }
     }
 
-    public acceptForgedTransaction(transaction: Interfaces.ITransaction): Interfaces.ITransaction[] {
+    public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const senderState = this.senderStates.get(transaction.data.senderPublicKey);
         AppUtils.assert.defined<Contracts.TransactionPool.SenderState>(senderState);
 
         try {
-            return senderState.acceptForgedTransaction(transaction);
+            return await senderState.acceptForgedTransaction(transaction);
         } finally {
-            if (senderState.getTransactionsCount() === 0) {
+            if (senderState.isEmpty()) {
                 this.senderStates.delete(transaction.data.senderPublicKey);
                 this.logger.debug(`${Identities.Address.fromPublicKey(transaction.data.senderPublicKey)} forgotten`);
             }

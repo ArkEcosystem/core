@@ -40,8 +40,8 @@ export class Service implements Contracts.TransactionPool.Service {
         if (this.storage.hasTransaction(transaction.id)) {
             throw new TransactionAlreadyInPoolError(transaction);
         }
-        this.storage.addTransaction(transaction);
 
+        this.storage.addTransaction(transaction);
         try {
             await this.addTransactionToMempool(transaction);
             this.logger.debug(`${transaction} added to pool`);
@@ -64,13 +64,13 @@ export class Service implements Contracts.TransactionPool.Service {
         }
     }
 
-    public acceptForgedTransaction(transaction: Interfaces.ITransaction): void {
+    public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.id);
         if (this.storage.hasTransaction(transaction.id) === false) {
             return;
         }
 
-        for (const removedTransaction of this.memory.acceptForgedTransaction(transaction)) {
+        for (const removedTransaction of await this.memory.acceptForgedTransaction(transaction)) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
             this.logger.debug(`${removedTransaction} removed from pool`);

@@ -3,6 +3,7 @@ import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import {
+    RetryTransactionError,
     SenderExceededMaximumTransactionCountError,
     TransactionExceedsMaximumByteSizeError,
     TransactionFailedToApplyError,
@@ -11,6 +12,7 @@ import {
     TransactionFromWrongNetworkError,
     TransactionHasExpiredError,
 } from "./errors";
+import { createLock } from "./utils";
 
 @Container.injectable()
 export class SenderState implements Contracts.TransactionPool.SenderState {
@@ -27,6 +29,14 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
 
     private readonly transactions: Interfaces.ITransaction[] = [];
 
+    private readonly lock = createLock();
+
+    private corrupt = false;
+
+    public isEmpty(): boolean {
+        return this.transactions.length === 0;
+    }
+
     public getTransactionsCount(): number {
         return this.transactions.length;
     }
@@ -40,13 +50,77 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     }
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
+        this.validateTransaction(transaction);
+
+        const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
+            transaction.data,
+        );
+
+        if (await handler.verify(transaction)) {
+            try {
+                await this.lock(async () => {
+                    if (this.corrupt) {
+                        throw new RetryTransactionError(transaction);
+                    }
+
+                    await handler.throwIfCannotEnterPool(transaction);
+                    await handler.apply(transaction);
+                    this.transactions.push(transaction);
+                });
+            } catch (error) {
+                throw new TransactionFailedToApplyError(transaction, error);
+            }
+        } else {
+            throw new TransactionFailedToVerifyError(transaction);
+        }
+    }
+
+    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        return await this.lock(async () => {
+            const index = this.transactions.findIndex(t => t.id === transaction.id);
+            if (index === -1) {
+                return [];
+            }
+
+            const removedTransactions: Interfaces.ITransaction[] = this.transactions
+                .splice(index, this.transactions.length - index)
+                .reverse();
+
+            try {
+                for (const removedTransaction of removedTransactions) {
+                    const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
+                        removedTransaction.data,
+                    );
+                    await handler.revert(transaction);
+                }
+                return removedTransactions;
+            } catch (error) {
+                this.corrupt = true;
+                const otherRemovedTransactions = this.transactions.splice(0, this.transactions.length).reverse();
+                return [...removedTransactions, ...otherRemovedTransactions];
+            }
+        });
+    }
+
+    public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
+        return await this.lock(async () => {
+            const index: number = this.transactions.findIndex(t => t.id === transaction.id);
+            if (index === -1) {
+                return this.transactions.splice(0, this.transactions.length);
+            } else {
+                return this.transactions.splice(0, index + 1);
+            }
+        });
+    }
+
+    private async validateTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const maxTransactionBytes: number = this.configuration.getRequired<number>("maxTransactionBytes");
         const maxTransactionsPerSender: number = this.configuration.getRequired<number>("maxTransactionsPerSender");
         const allowedSenders: string[] = this.configuration.getOptional<string[]>("allowedSenders", []);
 
-        if (this.getTransactionsCount() >= maxTransactionsPerSender) {
+        if (this.transactions.length >= maxTransactionsPerSender) {
             if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
                 throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
             }
@@ -72,73 +146,6 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
                 transaction,
             );
             throw new TransactionHasExpiredError(transaction, expirationHeight!);
-        }
-
-        const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
-            transaction.data,
-        );
-
-        if (await handler.verify(transaction)) {
-            try {
-                await handler.throwIfCannotEnterPool(transaction);
-                await handler.apply(transaction);
-                this.transactions.push(transaction);
-            } catch (error) {
-                throw new TransactionFailedToApplyError(transaction, error);
-            }
-        } else {
-            throw new TransactionFailedToVerifyError(transaction);
-        }
-    }
-
-    public async popTransaction(): Promise<Interfaces.ITransaction> {
-        const transaction: Interfaces.ITransaction | undefined = this.transactions.pop();
-        if (!transaction) {
-            throw new Error("Empty state");
-        }
-
-        try {
-            const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
-                transaction.data,
-            );
-            await handler.revert(transaction);
-            return transaction;
-        } catch (error) {
-            this.transactions.push(transaction);
-            throw error;
-        }
-    }
-
-    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        if (this.transactions.length === 0) {
-            throw new Error("Empty state");
-        }
-
-        let removed: Interfaces.ITransaction[] = [];
-        while (this.transactions.length) {
-            if (!this.transactions.find(t => t.id === transaction.id)) {
-                throw new Error("Unknown transaction");
-            }
-
-            removed = removed.concat(await this.popTransaction());
-            if (removed.find(t => t.id === transaction.id)) {
-                break;
-            }
-        }
-        return removed;
-    }
-
-    public acceptForgedTransaction(transaction: Interfaces.ITransaction): Interfaces.ITransaction[] {
-        const index: number = this.transactions.findIndex(t => t.id === transaction.id);
-        if (index === -1) {
-            throw new Error("Unknown transaction");
-        }
-
-        if (index === 0) {
-            this.transactions.shift();
-            return [transaction];
-        } else {
-            return this.transactions.splice(0, index + 1);
         }
     }
 }
