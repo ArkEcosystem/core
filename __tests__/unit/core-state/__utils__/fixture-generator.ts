@@ -45,21 +45,24 @@ export class FixtureGenerator {
     }
 
     public generateHtlcLocks(): Wallet[] {
-        return this.genesisBlock.transactions.map((transaction, i) => {
-            const address = Identities.Address.fromPublicKey(transaction.senderPublicKey);
-            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(getWalletAttributeSet()));
-            wallet.setAttribute("htlc.locks", {
-                [transaction.id]: {
-                    amount: Utils.BigNumber.make(10),
-                    recipientId: transaction.recipientId,
-                    secretHash: transaction.id,
-                    expiration: {
-                        type: 1,
-                        value: 100 * (i + 1),
+        return this.genesisBlock.transactions
+            .filter(transaction => transaction.recipientId)
+            .map((transaction, i) => {
+                const address = Identities.Address.fromPublicKey(transaction.senderPublicKey);
+                const wallet = new Wallet(address, new Services.Attributes.AttributeMap(getWalletAttributeSet()));
+                wallet.publicKey = transaction.senderPublicKey;
+                wallet.setAttribute("htlc.locks", {
+                    [transaction.id]: {
+                        amount: Utils.BigNumber.make(10),
+                        recipientId: transaction.recipientId,
+                        secretHash: transaction.id,
+                        expiration: {
+                            type: 1,
+                            value: 100 * (i + 1),
+                        },
                     },
-                },
+                });
+                return wallet;
             });
-            return wallet;
-        });
     }
 }

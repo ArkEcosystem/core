@@ -484,16 +484,20 @@ describe("Search", () => {
             );
         });
 
-        it.skip("should return all locks", () => {
+        it("should return all locks", () => {
+            genesisBlock.data = {
+                timestamp: 0,
+            };
             const wallets = fixtureGenerator.generateHtlcLocks();
             walletRepo.index(wallets);
 
             const spyStateStore = jest.spyOn(stateStorage, "getLastBlock");
             // @ts-ignore
-            spyStateStore.mockRejectedValueOnce(genesisBlock);
+            spyStateStore.mockReturnValue(genesisBlock);
 
             const locks = walletRepo.search(Contracts.State.SearchScope.Locks, {});
-            expect(locks.rows).toHaveLength(genesisBlock.transactions.length);
+            expect(wallets.length).not.toEqual(0);
+            expect(locks.rows).toHaveLength(wallets.length);
         });
     });
 
