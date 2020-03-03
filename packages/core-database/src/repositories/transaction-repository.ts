@@ -124,7 +124,7 @@ export class TransactionRepository extends AbstractEntityRepository<Transaction>
         limit?: number,
         offset?: number,
     ): Promise<Array<Transaction & { blockHeight: number; blockGeneratorPublicKey: string; reward: Utils.BigNumber }>> {
-        const transactions = await this.createQueryBuilder("transactions")
+        const transactions = await this.createQueryBuilder()
             .select()
             .addSelect('blocks.height as "blockHeight"')
             .addSelect('blocks.generatorPublicKey as "blockGeneratorPublicKey"')
