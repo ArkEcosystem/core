@@ -28,16 +28,16 @@
         "@arkecosystem/core-state": "^3.0.0-next.0",
         "@arkecosystem/core-transactions": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "async": "^3.1.0",
+        "async": "^3.2.0",
         "delay": "^4.3.0",
         "immutable": "^4.0.0-rc.12",
         "lodash.get": "^4.4.2",
         "pluralize": "^8.0.0",
-        "pretty-ms": "^6.0.0",
-        "xstate": "^4.6.7"
+        "pretty-ms": "^6.0.1",
+        "xstate": "^4.7.8"
     },
     "devDependencies": {
-        "@types/async": "^3.0.3"
+        "@types/async": "^3.0.8"
     },
     "engines": {
         "node": ">=10.x"

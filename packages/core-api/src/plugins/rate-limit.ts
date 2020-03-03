@@ -40,10 +40,10 @@ export = {
             limiter: new RateLimiterMemory({ points: options.points, duration: options.duration }),
             whiteList: options.whitelist || ["*"],
             blackList: options.blacklist || [],
-            isWhite: (ip: string) => {
+            isWhiteListed: (ip: string) => {
                 return isListed(ip, options.whitelist);
             },
-            isBlack: (ip: string) => {
+            isBlackListed: (ip: string) => {
                 return isListed(ip, options.blacklist);
             },
             runActionAnyway: false,

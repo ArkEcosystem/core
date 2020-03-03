@@ -99,7 +99,7 @@ export class Database {
             .push(data)
             .write();
 
-        return this.findById(data.id);
+        return this.findById(data.id!);
     }
 
     /**

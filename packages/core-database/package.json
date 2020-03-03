@@ -24,10 +24,10 @@
     "dependencies": {
         "@arkecosystem/core-kernel": "^3.0.0-next.0",
         "@arkecosystem/crypto": "^3.0.0-next.0",
-        "dayjs": "^1.8.17",
-        "pg": "^7.14.0",
+        "dayjs": "^1.8.21",
+        "pg": "^7.18.2",
         "reflect-metadata": "^0.1.13",
-        "typeorm": "^0.2.21"
+        "typeorm": "^0.2.24"
     },
     "engines": {
         "node": ">=10.x"
