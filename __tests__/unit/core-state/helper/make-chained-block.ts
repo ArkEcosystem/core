@@ -7,11 +7,11 @@ export const makeChainedBlocks = (length: number, blockFactory): IBlock[] => {
 
     for (let i = 0; i < length; i++) {
         if (previousBlock) {
-            blockFactory.withOptions({getPreviousBlock});
+            blockFactory.withOptions({ getPreviousBlock });
         }
         const entity: IBlock = blockFactory.make();
         entitites.push(entity);
         previousBlock = entity.data;
     }
     return entitites;
-}
+};

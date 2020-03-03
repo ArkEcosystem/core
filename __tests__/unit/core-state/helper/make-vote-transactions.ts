@@ -10,4 +10,4 @@ export const makeVoteTransactions = (length: number, voteAssets: string[]): ITra
             .build();
     }
     return txs;
-}
+};

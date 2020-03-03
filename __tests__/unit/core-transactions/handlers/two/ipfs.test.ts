@@ -3,7 +3,7 @@ import "jest-extended";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { Contracts, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils, } from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
@@ -12,10 +12,7 @@ import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
 import { configManager } from "@packages/crypto/src/managers";
-import {
-    InsufficientBalanceError,
-    IpfsHashAlreadyExists,
-} from "@arkecosystem/core-transactions/src/errors";
+import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@arkecosystem/core-transactions/src/errors";
 import { setMockTransaction } from "../__mocks__/transaction-repository";
 import {
     buildMultiSignatureWallet,
@@ -33,11 +30,11 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() , height: 4 };
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue( { data: mockLastBlockData } );
+mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -72,8 +69,13 @@ describe("Ipfs", () => {
     let handler: TransactionHandler;
 
     beforeEach(async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Ipfs, Enums.TransactionTypeGroup.Core), 2);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(
+            Transactions.InternalTransactionType.from(Enums.TransactionType.Ipfs, Enums.TransactionTypeGroup.Core),
+            2,
+        );
 
         ipfsTransaction = BuilderFactory.ipfs()
             .ipfsAsset("QmR45FmbVVrixReBwJkhEKde2qwHYaQzGxu4ZoDeswuF9w")
@@ -102,7 +104,7 @@ describe("Ipfs", () => {
         it("should resolve", async () => {
             setMockTransaction(ipfsTransaction);
             await expect(handler.bootstrap()).toResolve();
-        })
+        });
     });
 
     describe("throwIfCannotBeApplied", () => {
@@ -129,27 +131,31 @@ describe("Ipfs", () => {
         });
 
         it("should not throw - second sign", async () => {
-            await expect(handler.throwIfCannotBeApplied(secondSignatureIpfsTransaction, secondSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(secondSignatureIpfsTransaction, secondSignatureWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should not throw - multi sign", async () => {
-            await expect(handler.throwIfCannotBeApplied(multiSignatureIpfsTransaction, multiSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureIpfsTransaction, multiSignatureWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(InsufficientBalanceError);
         });
 
         it("should throw if hash already exists", async () => {
             await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).toResolve();
             await expect(handler.apply(ipfsTransaction, walletRepository)).toResolve();
-            await expect(handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                IpfsHashAlreadyExists,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(ipfsTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(IpfsHashAlreadyExists);
         });
     });
 
@@ -162,7 +168,9 @@ describe("Ipfs", () => {
             await handler.apply(ipfsTransaction, walletRepository);
 
             expect(
-                senderWallet.getAttribute<Contracts.State.WalletIpfsAttributes>("ipfs.hashes")[ipfsTransaction.data.asset!.ipfs!],
+                senderWallet.getAttribute<Contracts.State.WalletIpfsAttributes>("ipfs.hashes")[
+                    ipfsTransaction.data.asset!.ipfs!
+                ],
             ).toBeTrue();
             expect(senderWallet.balance).toEqual(balanceBefore.minus(ipfsTransaction.data.fee));
         });
@@ -178,7 +186,9 @@ describe("Ipfs", () => {
 
             expect(senderWallet.balance).toEqual(balanceBefore.minus(ipfsTransaction.data.fee));
             expect(
-                senderWallet.getAttribute<Contracts.State.WalletIpfsAttributes>("ipfs.hashes")[ipfsTransaction.data.asset!.ipfs!],
+                senderWallet.getAttribute<Contracts.State.WalletIpfsAttributes>("ipfs.hashes")[
+                    ipfsTransaction.data.asset!.ipfs!
+                ],
             ).toBeTrue();
 
             await handler.revert(ipfsTransaction, walletRepository);

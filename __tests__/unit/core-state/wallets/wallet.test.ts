@@ -1,6 +1,6 @@
 import "jest-extended";
 
-import { getWalletAttributeSet } from '@packages/core-test-framework/src/internal/wallet-attributes';
+import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 import { Wallet } from "@packages/core-state/src/wallets";
 import { Services } from "@packages/core-kernel";
 
@@ -52,7 +52,7 @@ describe("Models - Wallet", () => {
         wallet.setAttribute("delegate", {});
         wallet.setAttribute("vote", {});
 
-        expect(wallet.getAttributes()).toEqual({delegate: {}, vote: {}});
+        expect(wallet.getAttributes()).toEqual({ delegate: {}, vote: {} });
     });
 
     it("should return whether wallet is delegate", () => {

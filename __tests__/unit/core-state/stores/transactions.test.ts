@@ -11,9 +11,7 @@ beforeEach(() => {
 
 describe("TransactionStore", () => {
     it("should push and get a transaction", () => {
-        const transaction: ITransaction = factory
-                .get("Transfer")
-                .make();
+        const transaction: ITransaction = factory.get("Transfer").make();
 
         // TODO: set id using factory
         transaction.data.id = "1";

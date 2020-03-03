@@ -35,11 +35,11 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() , height: 4 };
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue( { data: mockLastBlockData } );
+mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -76,8 +76,16 @@ describe("MultiSignatureRegistrationTransaction", () => {
     let multiSignatureAsset: IMultiSignatureAsset;
 
     beforeEach(async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiSignature, Enums.TransactionTypeGroup.Core), 1);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(
+            Transactions.InternalTransactionType.from(
+                Enums.TransactionType.MultiSignature,
+                Enums.TransactionTypeGroup.Core,
+            ),
+            1,
+        );
 
         senderWallet.balance = Utils.BigNumber.make(100390000000);
 
@@ -90,7 +98,10 @@ describe("MultiSignatureRegistrationTransaction", () => {
             min: 2,
         };
 
-        recipientWallet = new Wallets.Wallet(Identities.Address.fromMultiSignatureAsset(multiSignatureAsset), new Services.Attributes.AttributeMap(getWalletAttributeSet()));
+        recipientWallet = new Wallets.Wallet(
+            Identities.Address.fromMultiSignatureAsset(multiSignatureAsset),
+            new Services.Attributes.AttributeMap(getWalletAttributeSet()),
+        );
 
         walletRepository.index(recipientWallet);
 
@@ -133,20 +144,26 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw", async () => {
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(LegacyMultiSignatureError);
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(LegacyMultiSignatureError);
         });
 
         it("should not throw defined as exception", async () => {
             configManager.set("network.pubKeyHash", 99);
             configManager.set("exceptions.transactions", [multiSignatureTransaction.id]);
 
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).toResolve();
         });
     });
 
     describe("throwIfCannotEnterPool", () => {
         it("should throw", async () => {
-            await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+            await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).rejects.toThrow(
+                Contracts.TransactionPool.PoolError,
+            );
         });
     });
 });
