@@ -1,34 +1,28 @@
 import "jest-extended";
 
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Contracts, Application } from "@arkecosystem/core-kernel";
+import { Application, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
+import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
+import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
+import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
+import { MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-indexes";
+import { Memory } from "@arkecosystem/core-transaction-pool";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
+import { buildSenderWallet, initApp } from "../__support__/app";
 import { configManager } from "@arkecosystem/crypto/src/managers";
-import {
-    buildSenderWallet,
-    initApp,
-} from "../__support__/app";
+import { setMockBlock } from "../__mocks__/block-repository";
 import { setMockTransaction } from "../__mocks__/transaction-repository";
-// import { setMockBlock } from "../__mocks__/block-repository";
 import { BusinessRegistrationBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
 import { IBusinessRegistrationAsset } from "@arkecosystem/core-magistrate-crypto/src/interfaces";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers } from "@arkecosystem/core-magistrate-transactions";
-import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
-import { setMockBlock } from "../__mocks__/block-repository";
-import {
-    BusinessAlreadyRegisteredError,
-} from "@arkecosystem/core-magistrate-transactions/dist/errors";
-import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
-import { Memory } from "@arkecosystem/core-transaction-pool";
-import { MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-indexes";
+import { BusinessAlreadyRegisteredError } from "@arkecosystem/core-magistrate-transactions/src/errors";
+import { BusinessRegistrationTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -50,7 +44,7 @@ beforeEach(() => {
 
     app = initApp();
 
-    app.bind(Identifiers.TransactionHandler).to(Handlers.BusinessRegistrationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 

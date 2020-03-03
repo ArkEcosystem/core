@@ -3,31 +3,37 @@ import "jest-extended";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { Application, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
+import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
+import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@arkecosystem/crypto/src/managers";
 import { buildSenderWallet, initApp } from "../__support__/app";
+import { configManager } from "@arkecosystem/crypto/src/managers";
+import { setMockBlock } from "../__mocks__/block-repository";
 import { setMockTransaction } from "../__mocks__/transaction-repository";
 import { BridgechainRegistrationBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
 import {
     IBridgechainRegistrationAsset,
     IBusinessRegistrationAsset,
 } from "@arkecosystem/core-magistrate-crypto/src/interfaces";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers } from "@arkecosystem/core-magistrate-transactions";
-import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
-import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
 import {
     BridgechainAlreadyRegisteredError,
-    BusinessIsResignedError, GenesisHashAlreadyRegisteredError,
+    BusinessIsResignedError,
+    GenesisHashAlreadyRegisteredError,
+    PortKeyMustBeValidPackageNameError,
     WalletIsNotBusinessError,
-} from "@arkecosystem/core-magistrate-transactions/dist/errors";
-import { setMockBlock } from "../__mocks__/block-repository";
+} from "@arkecosystem/core-magistrate-transactions/src/errors";
+import {
+    BridgechainRegistrationTransactionHandler,
+    BusinessRegistrationTransactionHandler,
+} from "@arkecosystem/core-magistrate-transactions/src/handlers";
+
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -49,8 +55,8 @@ beforeEach(() => {
 
     app = initApp();
 
-    app.bind(Identifiers.TransactionHandler).to(Handlers.BusinessRegistrationTransactionHandler);
-    app.bind(Identifiers.TransactionHandler).to(Handlers.BridgechainRegistrationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -67,23 +73,26 @@ beforeEach(() => {
 describe("BusinessRegistration", () => {
     let bridgechainRegistrationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
-    let businessRegistrationAsset: IBusinessRegistrationAsset = {
-        name: "DummyBusiness",
-        website: "https://www.dummy.example",
-        vat: "EX1234567890",
-        repository: "https://www.dummy.example/repo"
-    };
-    let bridgechainRegistrationAsset: IBridgechainRegistrationAsset = {
-        name: "arkecosystem1",
-        seedNodes: ["74.125.224.71", "74.125.224.72", "64.233.173.193", "2001:4860:4860::8888", "2001:4860:4860::8844"],
-        genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
-        bridgechainRepository: "http://www.repository.com/myorg/myrepo",
-        bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
-        ports: { "@arkecosystem/core-api": 12345 },
-    };
+    let businessRegistrationAsset: IBusinessRegistrationAsset;
+    let bridgechainRegistrationAsset: IBridgechainRegistrationAsset;
 
     beforeEach(async () => {
         handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.MagistrateTransactionType.BridgechainRegistration, Enums.MagistrateTransactionGroup), 2);
+
+        businessRegistrationAsset = {
+            name: "DummyBusiness",
+            website: "https://www.dummy.example",
+            vat: "EX1234567890",
+            repository: "https://www.dummy.example/repo"
+        };
+        bridgechainRegistrationAsset = {
+            name: "arkecosystem1",
+            seedNodes: ["74.125.224.71", "74.125.224.72", "64.233.173.193", "2001:4860:4860::8888", "2001:4860:4860::8844"],
+            genesisHash: "127e6fbfe24a750e72930c220a8e138275656b8e5d8f48a98c3c92df2caba935",
+            bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+            bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
+            ports: { "@arkecosystem/core-api": 12345 },
+        };
 
         bridgechainRegistrationTransaction = new BridgechainRegistrationBuilder()
             .bridgechainRegistrationAsset(bridgechainRegistrationAsset)
@@ -133,11 +142,33 @@ describe("BusinessRegistration", () => {
     });
 
     describe("throwIfCannotBeApplied", () => {
+        let pubKeyHash: number;
+
+        beforeEach(() => {
+            pubKeyHash = configManager.get("network.pubKeyHash");
+        });
+
+        afterEach(() => {
+            configManager.set("exceptions.transactions", []);
+            configManager.set("network.pubKeyHash", pubKeyHash);
+            // Trigger whitelistedBlockAndTransactionIds recalculation
+            Utils.isException(bridgechainRegistrationTransaction.data.id);
+        });
+
         it("should not throw", async () => {
             await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository)).toResolve();
         });
 
-        // TODO: Add exception
+        it("should not throw without custom wallet repository", async () => {
+            await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet)).toResolve();
+        });
+
+        it("should not throw defined as exception", async () => {
+            configManager.set("network.pubKeyHash", 99);
+            configManager.set("exceptions.transactions", [bridgechainRegistrationTransaction.data.id]);
+
+            await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository)).toResolve();
+        });
 
         it("should throw if wallet is not business", async () => {
             senderWallet.forgetAttribute("business");
@@ -184,6 +215,12 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrowError(GenesisHashAlreadyRegisteredError);
         });
 
+        it("should throw if wallet is port name is invalid", async () => {
+            bridgechainRegistrationTransaction.data.asset!.bridgechainRegistration.ports = { "@arkecosystem/INVALID": 55555 };
+
+            await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrowError(PortKeyMustBeValidPackageNameError);
+        });
+
         it("should throw if wallet has insufficient balance", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             await expect(handler.throwIfCannotBeApplied(bridgechainRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrowError(InsufficientBalanceError);
@@ -208,6 +245,18 @@ describe("BusinessRegistration", () => {
                 .minus(bridgechainRegistrationTransaction.data.amount)
                 .minus(bridgechainRegistrationTransaction.data.fee));
         });
+
+        it("should be ok without custom wallet repository", async () => {
+            const senderBalance = senderWallet.balance;
+
+            await handler.apply(bridgechainRegistrationTransaction);
+
+            expect(senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].bridgechainAsset).toEqual(bridgechainRegistrationAsset);
+
+            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance)
+                .minus(bridgechainRegistrationTransaction.data.amount)
+                .minus(bridgechainRegistrationTransaction.data.fee));
+        });
     });
 
     describe("revert", () => {
@@ -219,6 +268,20 @@ describe("BusinessRegistration", () => {
             expect(senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].bridgechainAsset).toEqual(bridgechainRegistrationAsset);
 
             await handler.revert(bridgechainRegistrationTransaction, walletRepository);
+
+            expect(senderWallet.hasAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]).toBeUndefined();
+
+            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+        });
+
+        it("should be ok without custom wallet repository", async () => {
+            const senderBalance = senderWallet.balance;
+
+            await handler.apply(bridgechainRegistrationTransaction);
+
+            expect(senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].bridgechainAsset).toEqual(bridgechainRegistrationAsset);
+
+            await handler.revert(bridgechainRegistrationTransaction);
 
             expect(senderWallet.hasAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash]).toBeUndefined();
 

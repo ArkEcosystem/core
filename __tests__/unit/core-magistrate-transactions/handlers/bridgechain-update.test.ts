@@ -3,35 +3,40 @@ import "jest-extended";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { Application, Contracts } from "@arkecosystem/core-kernel";
 import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
+import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
+import { Memory } from "@arkecosystem/core-transaction-pool";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@arkecosystem/crypto/src/managers";
 import { buildSenderWallet, initApp } from "../__support__/app";
+import { configManager } from "@arkecosystem/crypto/src/managers";
+import { setMockBlock } from "../__mocks__/block-repository";
 import { setMockTransaction, setMockTransactions } from "../__mocks__/transaction-repository";
-import {
-    BridgechainRegistrationBuilder,
-    BridgechainUpdateBuilder,
-} from "@arkecosystem/core-magistrate-crypto/src/builders";
 import {
     IBridgechainRegistrationAsset,
     IBridgechainUpdateAsset,
     IBusinessRegistrationAsset,
 } from "@arkecosystem/core-magistrate-crypto/src/interfaces";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Handlers } from "@arkecosystem/core-magistrate-transactions";
-import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
-import { setMockBlock } from "../__mocks__/block-repository";
 import {
-    BridgechainIsNotRegisteredByWalletError, BridgechainIsResignedError,
+    BridgechainIsNotRegisteredByWalletError,
+    BridgechainIsResignedError,
     BusinessIsNotRegisteredError,
-    BusinessIsResignedError,
-} from "@arkecosystem/core-magistrate-transactions/dist/errors";
-import { Memory } from "@arkecosystem/core-transaction-pool";
+    BusinessIsResignedError, PortKeyMustBeValidPackageNameError,
+} from "@arkecosystem/core-magistrate-transactions/src/errors";
+import {
+    BridgechainRegistrationBuilder,
+    BridgechainUpdateBuilder,
+} from "@arkecosystem/core-magistrate-crypto/src/builders";
+import {
+    BridgechainRegistrationTransactionHandler,
+    BridgechainUpdateTransactionHandler,
+    BusinessRegistrationTransactionHandler,
+} from "@arkecosystem/core-magistrate-transactions/src/handlers";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -53,9 +58,9 @@ beforeEach(() => {
 
     app = initApp();
 
-    app.bind(Identifiers.TransactionHandler).to(Handlers.BusinessRegistrationTransactionHandler);
-    app.bind(Identifiers.TransactionHandler).to(Handlers.BridgechainRegistrationTransactionHandler);
-    app.bind(Identifiers.TransactionHandler).to(Handlers.BridgechainUpdateTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(BusinessRegistrationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(BridgechainRegistrationTransactionHandler);
+    app.bind(Identifiers.TransactionHandler).to(BridgechainUpdateTransactionHandler);
 
     transactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
 
@@ -195,7 +200,6 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository)).rejects.toThrowError(BridgechainIsNotRegisteredByWalletError);
         });
 
-
         it("should throw if bridgechain is not registered", async () => {
             bridgechainUpdateAsset.bridgechainId = "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b";
 
@@ -215,7 +219,11 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository)).rejects.toThrowError(BridgechainIsResignedError);
         });
 
-        // TODO: PortKeyMustBeValidPackageNameError
+        it("should throw if wallet is port name is invalid", async () => {
+            bridgechainUpdateTransaction.data.asset!.bridgechainUpdate.ports = { "@arkecosystem/INVALID": 55555 };
+
+            await expect(handler.throwIfCannotBeApplied(bridgechainUpdateTransaction, senderWallet, walletRepository)).rejects.toThrowError(PortKeyMustBeValidPackageNameError);
+        });
     });
 
     describe("throwIfCannotEnterPool", () => {
@@ -291,7 +299,7 @@ describe("BusinessRegistration", () => {
             console.log(bridgechainRegistrationTransaction);
 
             // @ts-ignore
-            setMockTransactions([bridgechainRegistrationTransaction, secondBridgechainUpdateTransaction]);
+            setMockTransactions([bridgechainRegistrationTransaction, secondBridgechainUpdateTransaction, bridgechainUpdateTransaction]);
 
             await handler.revert(bridgechainUpdateTransaction, walletRepository);
 
