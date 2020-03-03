@@ -11,7 +11,7 @@ export const businessIndexer = (index: Contracts.State.WalletIndex, wallet: Cont
     if (wallet.hasAttribute("business")) {
         const business: IBusinessWalletAttributes = wallet.getAttribute<IBusinessWalletAttributes>("business");
 
-        if (business !== undefined && !business.resigned) {
+        if (business !== undefined) {
             Utils.assert.defined<string>(wallet.publicKey);
             index.set(wallet.publicKey, wallet);
         }
