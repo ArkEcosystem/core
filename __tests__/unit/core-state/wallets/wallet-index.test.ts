@@ -48,6 +48,8 @@ describe("WalletIndex", () => {
     });
 
     it("should be cloneable", () => {
+        walletIndex.index(wallet);
+        walletIndex.set(wallet.address, wallet);
         const clonedWalletIndex = walletIndex.clone();
         expect(walletIndex).toEqual(clonedWalletIndex);
     });
