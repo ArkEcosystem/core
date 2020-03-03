@@ -3,7 +3,9 @@ import { BlockStore } from "@packages/core-state/src/stores/blocks";
 
 describe("BlockStore", () => {
     it("should push and get a block", () => {
-        const block: Interfaces.IBlock = { data: { height: 1, id: "1", previousBlock: undefined } } as Interfaces.IBlock;
+        const block: Interfaces.IBlock = {
+            data: { height: 1, id: "1", previousBlock: undefined },
+        } as Interfaces.IBlock;
 
         const store = new BlockStore(100);
         store.set(block);
@@ -19,7 +21,7 @@ describe("BlockStore", () => {
         expect(() => store.set({ data: { height: 3, id: "3" } } as Interfaces.IBlock)).toThrow();
     });
 
-    it ("should fail to push a block if it does not contain an id", () => {
+    it("should fail to push a block if it does not contain an id", () => {
         const store = new BlockStore(2);
 
         expect(() => store.set({ data: { height: 1 } } as Interfaces.IBlock)).toThrow();

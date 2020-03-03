@@ -1,6 +1,7 @@
 import { Contracts } from "@packages/core-kernel";
 
-export class MockDatabaseModel { // TODO: formerly implemented: Contracts.Database.IModel - does this type exist yet?
+export class MockDatabaseModel {
+    // TODO: formerly implemented: Contracts.Database.IModel - does this type exist yet?
     public getName(): string {
         return this.constructor.name;
     }
@@ -16,8 +17,9 @@ export class MockDatabaseModel { // TODO: formerly implemented: Contracts.Databa
     public getColumnSet(): any {
         return;
     }
-    
-    public getSearchableFields() { // TODO: formerly returned: Database.ISearchableField[] - does this type exist yet?
+
+    public getSearchableFields() {
+        // TODO: formerly returned: Database.ISearchableField[] - does this type exist yet?
         return [
             {
                 fieldName: "id",
@@ -25,11 +27,17 @@ export class MockDatabaseModel { // TODO: formerly implemented: Contracts.Databa
             },
             {
                 fieldName: "timestamp",
-                supportedOperators: [Contracts.Database.SearchOperator.OP_GTE, Contracts.Database.SearchOperator.OP_LTE],
+                supportedOperators: [
+                    Contracts.Database.SearchOperator.OP_GTE,
+                    Contracts.Database.SearchOperator.OP_LTE,
+                ],
             },
             {
                 fieldName: "sentence",
-                supportedOperators: [Contracts.Database.SearchOperator.OP_EQ, Contracts.Database.SearchOperator.OP_LIKE],
+                supportedOperators: [
+                    Contracts.Database.SearchOperator.OP_EQ,
+                    Contracts.Database.SearchOperator.OP_LIKE,
+                ],
             },
             {
                 fieldName: "basket",

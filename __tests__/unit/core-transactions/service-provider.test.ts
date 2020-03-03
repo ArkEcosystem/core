@@ -2,7 +2,6 @@ import "jest-extended";
 import { ServiceProvider } from "@arkecosystem/core-transactions/src";
 import { Application, Container } from "@arkecosystem/core-kernel";
 
-
 let app: Application;
 
 beforeEach(() => {
@@ -22,5 +21,5 @@ describe("ServiceProvider", () => {
 
     it("should be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeTrue();
-    })
+    });
 });

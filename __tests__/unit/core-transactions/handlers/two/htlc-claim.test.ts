@@ -38,7 +38,7 @@ let factoryBuilder: FactoryBuilder;
 
 const { EpochTimestamp, BlockHeight } = Enums.HtlcLockExpirationType;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() , height: 4 };
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 
 const makeBlockHeightTimestamp = (heightRelativeToLastBlock = 2) =>
     mockLastBlockData.height! + heightRelativeToLastBlock;
@@ -49,7 +49,7 @@ const makeNotExpiredTimestamp = type =>
 
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue( { data: mockLastBlockData } );
+mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -97,14 +97,22 @@ describe("Htlc claim", () => {
         });
 
         beforeEach(async () => {
-            const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-            handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.HtlcClaim, Enums.TransactionTypeGroup.Core), 2);
+            const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+                Identifiers.TransactionHandlerRegistry,
+            );
+            handler = transactionHandlerRegistry.getRegisteredHandlerByType(
+                Transactions.InternalTransactionType.from(
+                    Enums.TransactionType.HtlcClaim,
+                    Enums.TransactionTypeGroup.Core,
+                ),
+                2,
+            );
 
             claimWallet = factoryBuilder
                 .get("Wallet")
                 .withOptions({
                     passphrase: claimPassphrase,
-                    nonce: 0
+                    nonce: 0,
                 })
                 .make();
 
@@ -112,7 +120,7 @@ describe("Htlc claim", () => {
                 .get("Wallet")
                 .withOptions({
                     passphrase: lockPassphrase,
-                    nonce: 0
+                    nonce: 0,
                 })
                 .make();
 
@@ -127,7 +135,7 @@ describe("Htlc claim", () => {
             htlcLockTransaction = BuilderFactory.htlcLock()
                 .htlcLockAsset({
                     secretHash: htlcSecretHashHex,
-                    expiration: expiration
+                    expiration: expiration,
                 })
                 .recipientId(claimWallet.address)
                 .amount(amount.toString())
@@ -183,49 +191,70 @@ describe("Htlc claim", () => {
             it("should resolve", async () => {
                 setMockTransaction(htlcLockTransaction);
                 await expect(handler.bootstrap()).toResolve();
-            })
+            });
         });
 
         describe("dynamicFees", () => {
             it("should be zero", async () => {
-                expect(handler.dynamicFee({ transaction: htlcLockTransaction, addonBytes: 137, satoshiPerByte: 3, height: 1  })).toBe(Utils.BigNumber.ZERO);
-            })
+                expect(
+                    handler.dynamicFee({
+                        transaction: htlcLockTransaction,
+                        addonBytes: 137,
+                        satoshiPerByte: 3,
+                        height: 1,
+                    }),
+                ).toBe(Utils.BigNumber.ZERO);
+            });
         });
 
         describe("throwIfCannotBeApplied", () => {
             it("should not throw", async () => {
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
+                ).toResolve();
             });
 
             it("should not throw - second sign", async () => {
-                await expect(handler.throwIfCannotBeApplied(secondSignHtlcClaimTransaction, secondSignatureWallet, walletRepository)).toResolve();
+                await expect(
+                    handler.throwIfCannotBeApplied(
+                        secondSignHtlcClaimTransaction,
+                        secondSignatureWallet,
+                        walletRepository,
+                    ),
+                ).toResolve();
             });
 
             it("should not throw - multi sign", async () => {
-                await expect(handler.throwIfCannotBeApplied(multiSignHtlcClaimTransaction, multiSignatureWallet, walletRepository)).toResolve();
+                await expect(
+                    handler.throwIfCannotBeApplied(
+                        multiSignHtlcClaimTransaction,
+                        multiSignatureWallet,
+                        walletRepository,
+                    ),
+                ).toResolve();
             });
 
             it("should throw if no wallet has a lock with associated transaction id", async () => {
                 lockWallet.setAttribute("htlc.locks", {});
 
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).rejects.toThrow(
-                    HtlcLockTransactionNotFoundError,
-                );
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
+                ).rejects.toThrow(HtlcLockTransactionNotFoundError);
             });
 
             it("should throw if secret hash does not match", async () => {
                 htlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({
                         unlockSecret: "a".repeat(64),
-                        lockTransactionId: htlcLockTransaction.id!
+                        lockTransactionId: htlcLockTransaction.id!,
                     })
                     .nonce("1")
                     .sign(claimPassphrase)
                     .build();
 
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).rejects.toThrow(
-                    HtlcSecretHashMismatchError,
-                );
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
+                ).rejects.toThrow(HtlcSecretHashMismatchError);
             });
 
             it("should not throw if claiming wallet is not recipient of lock transaction", async () => {
@@ -234,7 +263,7 @@ describe("Htlc claim", () => {
                     .get("Wallet")
                     .withOptions({
                         passphrase: dummyPassphrase,
-                        nonce: 0
+                        nonce: 0,
                     })
                     .make();
 
@@ -243,13 +272,15 @@ describe("Htlc claim", () => {
                 htlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({
                         unlockSecret: htlcSecretHex,
-                        lockTransactionId: htlcLockTransaction.id!
+                        lockTransactionId: htlcLockTransaction.id!,
                     })
                     .sign(dummyPassphrase)
                     .nonce("1")
                     .build();
 
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, dummyWallet, walletRepository)).toResolve();
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, dummyWallet, walletRepository),
+                ).toResolve();
             });
 
             it("should throw if lock expired", async () => {
@@ -262,7 +293,7 @@ describe("Htlc claim", () => {
                 htlcLockTransaction = BuilderFactory.htlcLock()
                     .htlcLockAsset({
                         secretHash: htlcSecretHashHex,
-                        expiration: expiration
+                        expiration: expiration,
                     })
                     .recipientId(claimWallet.address)
                     .amount(amount.toString())
@@ -270,7 +301,6 @@ describe("Htlc claim", () => {
                     .vendorField("dummy")
                     .sign(lockPassphrase)
                     .build();
-
 
                 lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
 
@@ -287,37 +317,37 @@ describe("Htlc claim", () => {
                 htlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({
                         unlockSecret: htlcSecretHex,
-                        lockTransactionId: htlcLockTransaction.id!
+                        lockTransactionId: htlcLockTransaction.id!,
                     })
                     .sign(claimPassphrase)
                     .nonce("1")
                     .build();
 
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).rejects.toThrow(
-                    HtlcLockExpiredError,
-                );
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
+                ).rejects.toThrow(HtlcLockExpiredError);
             });
         });
 
         describe("throwIfCannotEnterPool", () => {
             it("should not throw", async () => {
-                await expect(
-                    handler.throwIfCannotEnterPool(
-                        htlcClaimTransaction
-                    ),
-                ).toResolve();
+                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).toResolve();
             });
 
             it("should throw if no wallet has a lock with associated transaction id", async () => {
                 lockWallet.setAttribute("htlc.locks", {});
 
-                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
+                    Contracts.TransactionPool.PoolError,
+                );
             });
 
             it("should throw if transaction by sender already in pool", async () => {
                 await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(htlcClaimTransaction);
 
-                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
+                    Contracts.TransactionPool.PoolError,
+                );
             });
 
             it("should throw if transaction already in pool", async () => {
@@ -342,11 +372,13 @@ describe("Htlc claim", () => {
                     },
                 });
 
-                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+                await expect(handler.throwIfCannotEnterPool(htlcClaimTransaction)).rejects.toThrow(
+                    Contracts.TransactionPool.PoolError,
+                );
             });
         });
 
-        describe("apply",  () => {
+        describe("apply", () => {
             let pubKeyHash: number;
 
             beforeEach(() => {
@@ -359,7 +391,9 @@ describe("Htlc claim", () => {
             });
 
             it("should apply htlc claim transaction", async () => {
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
+                ).toResolve();
 
                 const balanceBefore = claimWallet.balance;
 
@@ -370,14 +404,16 @@ describe("Htlc claim", () => {
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
-                expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
+                expect(claimWallet.balance).toEqual(
+                    balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
+                );
             });
 
             it("should apply htlc claim transaction defined as exception", async () => {
                 configManager.set("network.pubKeyHash", 99);
                 configManager.set("exceptions.transactions", [htlcClaimTransaction.id]);
 
-                expect(handler.apply(htlcClaimTransaction, walletRepository)).toResolve()
+                expect(handler.apply(htlcClaimTransaction, walletRepository)).toResolve();
             });
 
             it("should apply htlc claim transaction - when sender is not claim wallet", async () => {
@@ -386,7 +422,7 @@ describe("Htlc claim", () => {
                     .get("Wallet")
                     .withOptions({
                         passphrase: dummyPassphrase,
-                        nonce: 0
+                        nonce: 0,
                     })
                     .make();
 
@@ -395,13 +431,15 @@ describe("Htlc claim", () => {
                 htlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({
                         unlockSecret: htlcSecretHex,
-                        lockTransactionId: htlcLockTransaction.id!
+                        lockTransactionId: htlcLockTransaction.id!,
                     })
                     .sign(dummyPassphrase)
                     .nonce("1")
                     .build();
 
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, dummyWallet, walletRepository)).toResolve();
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, dummyWallet, walletRepository),
+                ).toResolve();
 
                 const balanceBefore = claimWallet.balance;
 
@@ -412,13 +450,17 @@ describe("Htlc claim", () => {
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
-                expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
+                expect(claimWallet.balance).toEqual(
+                    balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
+                );
             });
         });
 
         describe("revert", () => {
             it("should be ok", async () => {
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
+                ).toResolve();
 
                 setMockTransaction(htlcLockTransaction);
                 const balanceBefore = claimWallet.balance;
@@ -427,11 +469,16 @@ describe("Htlc claim", () => {
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
-                expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
+                expect(claimWallet.balance).toEqual(
+                    balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
+                );
 
                 await handler.revert(htlcClaimTransaction, walletRepository);
 
-                let foundLockWallet = walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, htlcLockTransaction.id!);
+                let foundLockWallet = walletRepository.findByIndex(
+                    Contracts.State.WalletIndexes.Locks,
+                    htlcLockTransaction.id!,
+                );
 
                 expect(foundLockWallet).toBeDefined();
                 // @ts-ignore
@@ -448,7 +495,9 @@ describe("Htlc claim", () => {
             it("should be ok if lock transaction has vendorField", async () => {
                 htlcLockTransaction.data.vendorField = "dummy";
 
-                await expect(handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository)).toResolve();
+                await expect(
+                    handler.throwIfCannotBeApplied(htlcClaimTransaction, claimWallet, walletRepository),
+                ).toResolve();
 
                 setMockTransaction(htlcLockTransaction);
                 const balanceBefore = claimWallet.balance;
@@ -457,11 +506,16 @@ describe("Htlc claim", () => {
 
                 expect(lockWallet.getAttribute("htlc.locks")).toBeEmpty();
                 expect(lockWallet.getAttribute("htlc.lockedBalance")).toEqual(Utils.BigNumber.ZERO);
-                expect(claimWallet.balance).toEqual(balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee));
+                expect(claimWallet.balance).toEqual(
+                    balanceBefore.plus(htlcLockTransaction.data.amount).minus(htlcClaimTransaction.data.fee),
+                );
 
                 await handler.revert(htlcClaimTransaction, walletRepository);
 
-                let foundLockWallet = walletRepository.findByIndex(Contracts.State.WalletIndexes.Locks, htlcLockTransaction.id!);
+                let foundLockWallet = walletRepository.findByIndex(
+                    Contracts.State.WalletIndexes.Locks,
+                    htlcLockTransaction.id!,
+                );
 
                 expect(foundLockWallet).toBeDefined();
 

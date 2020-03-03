@@ -16,7 +16,8 @@ import {
     AlreadyVotedError,
     InsufficientBalanceError,
     NoVoteError,
-    UnvoteMismatchError, VotedForNonDelegateError,
+    UnvoteMismatchError,
+    VotedForNonDelegateError,
 } from "@arkecosystem/core-transactions/src/errors";
 import { setMockTransaction } from "../__mocks__/transaction-repository";
 import {
@@ -36,11 +37,11 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() , height: 4 };
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue( { data: mockLastBlockData } );
+mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -79,14 +80,19 @@ describe("VoteTransaction", () => {
     let handler: TransactionHandler;
 
     beforeEach(async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Vote, Enums.TransactionTypeGroup.Core), 2);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(
+            Transactions.InternalTransactionType.from(Enums.TransactionType.Vote, Enums.TransactionTypeGroup.Core),
+            2,
+        );
 
         delegateWallet = factoryBuilder
             .get("Wallet")
             .withOptions({
                 passphrase: passphrases[8],
-                nonce: 0
+                nonce: 0,
             })
             .make();
 
@@ -168,9 +174,11 @@ describe("VoteTransaction", () => {
 
     describe("emitEvents", () => {
         it("should dispatch", async () => {
-            let emitter:  Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService);
+            let emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
+                Identifiers.EventDispatcherService,
+            );
 
-            const spy = jest.spyOn(emitter, 'dispatch');
+            const spy = jest.spyOn(emitter, "dispatch");
 
             handler.emitEvents(voteTransaction, emitter);
 
@@ -188,11 +196,15 @@ describe("VoteTransaction", () => {
         });
 
         it("should not throw - second sign vote", async () => {
-            await expect(handler.throwIfCannotBeApplied(secondSignatureVoteTransaction, secondSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(secondSignatureVoteTransaction, secondSignatureWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should not throw - multi sign vote", async () => {
-            await expect(handler.throwIfCannotBeApplied(multiSignatureVoteTransaction, multiSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureVoteTransaction, multiSignatureWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should not throw if the unvote is valid and the wallet has voted", async () => {
@@ -202,55 +214,63 @@ describe("VoteTransaction", () => {
 
         it("should not throw - second sign unvote", async () => {
             secondSignatureWallet.setAttribute("vote", delegateWallet.publicKey);
-            await expect(handler.throwIfCannotBeApplied(secondSignatureUnvoteTransaction, secondSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(
+                    secondSignatureUnvoteTransaction,
+                    secondSignatureWallet,
+                    walletRepository,
+                ),
+            ).toResolve();
         });
 
         it("should not throw - multi sign unvote", async () => {
             multiSignatureWallet.setAttribute("vote", delegateWallet.publicKey);
-            await expect(handler.throwIfCannotBeApplied(multiSignatureUnvoteTransaction, multiSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureUnvoteTransaction, multiSignatureWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should throw if wallet has already voted", async () => {
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
-            await expect(handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                AlreadyVotedError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(AlreadyVotedError);
         });
 
         it("should throw if vote for non delegate wallet", async () => {
             delegateWallet.forgetAttribute("delegate");
             walletRepository.index(delegateWallet);
-            await expect(handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                VotedForNonDelegateError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(VotedForNonDelegateError);
         });
 
         it("should throw if the asset public key differs from the currently voted one", async () => {
             senderWallet.setAttribute("vote", "a310ad026647eed112d1a46145eed58b8c19c67c505a67f1199361a511ce7860c0");
-            await expect(handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                UnvoteMismatchError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(UnvoteMismatchError);
         });
 
         it("should throw if unvoting a non-voted wallet", async () => {
-            await expect(handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                NoVoteError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(NoVoteError);
         });
 
         it("should throw if wallet has insufficient funds for vote", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            await expect(handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(voteTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(InsufficientBalanceError);
         });
 
         it("should not if wallet has insufficient funds for unvote", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             senderWallet.setAttribute("vote", delegateWallet.publicKey);
-            await expect(handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(unvoteTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(InsufficientBalanceError);
         });
     });
 
@@ -262,7 +282,9 @@ describe("VoteTransaction", () => {
         it("should throw if transaction by sender already in pool", async () => {
             await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(voteTransaction);
 
-            await expect(handler.throwIfCannotEnterPool(voteTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+            await expect(handler.throwIfCannotEnterPool(voteTransaction)).rejects.toThrow(
+                Contracts.TransactionPool.PoolError,
+            );
         });
     });
 
@@ -323,9 +345,7 @@ describe("VoteTransaction", () => {
                 await handler.revert(unvoteTransaction, walletRepository);
 
                 expect(senderWallet.nonce.isZero()).toBeTrue();
-                expect(senderWallet.getAttribute("vote")).toBe(
-                    delegateWallet.publicKey,
-                );
+                expect(senderWallet.getAttribute("vote")).toBe(delegateWallet.publicKey);
             });
         });
     });

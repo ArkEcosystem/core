@@ -3,7 +3,7 @@ import "jest-extended";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { Contracts, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils, } from "@arkecosystem/crypto";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
@@ -12,9 +12,7 @@ import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
 import { configManager } from "@packages/crypto/src/managers";
-import {
-    InsufficientBalanceError,
-} from "@arkecosystem/core-transactions/src/errors";
+import { InsufficientBalanceError } from "@arkecosystem/core-transactions/src/errors";
 import { setMockTransaction } from "../__mocks__/transaction-repository";
 import {
     buildMultiSignatureWallet,
@@ -32,11 +30,11 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() , height: 4 };
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue( { data: mockLastBlockData } );
+mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -71,8 +69,16 @@ describe("MultiPaymentTransaction", () => {
     let handler: TransactionHandler;
 
     beforeEach(async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiPayment, Enums.TransactionTypeGroup.Core), 2);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(
+            Transactions.InternalTransactionType.from(
+                Enums.TransactionType.MultiPayment,
+                Enums.TransactionTypeGroup.Core,
+            ),
+            2,
+        );
 
         multiPaymentTransaction = BuilderFactory.multiPayment()
             .addPayment("ARYJmeYHSUTgbxaiqsgoPwf6M3CYukqdKN", "10")
@@ -113,34 +119,48 @@ describe("MultiPaymentTransaction", () => {
         it("should resolve", async () => {
             setMockTransaction(multiPaymentTransaction);
             await expect(handler.bootstrap()).toResolve();
-        })
+        });
     });
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should not throw - second sign", async () => {
-            await expect(handler.throwIfCannotBeApplied(secondSignatureMultiPaymentTransaction, secondSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(
+                    secondSignatureMultiPaymentTransaction,
+                    secondSignatureWallet,
+                    walletRepository,
+                ),
+            ).toResolve();
         });
 
         it("should not throw - multi sign", async () => {
-            await expect(handler.throwIfCannotBeApplied(multiSignatureMultiPaymentTransaction, multiSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(
+                    multiSignatureMultiPaymentTransaction,
+                    multiSignatureWallet,
+                    walletRepository,
+                ),
+            ).toResolve();
         });
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(InsufficientBalanceError);
         });
 
         it("should throw if wallet has insufficient funds send all payouts", async () => {
             senderWallet.balance = Utils.BigNumber.make(150); // short by the fee
-            await expect(handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(multiPaymentTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(InsufficientBalanceError);
         });
     });
 
