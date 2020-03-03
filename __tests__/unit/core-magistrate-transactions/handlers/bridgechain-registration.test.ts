@@ -257,6 +257,12 @@ describe("BusinessRegistration", () => {
                 .minus(bridgechainRegistrationTransaction.data.amount)
                 .minus(bridgechainRegistrationTransaction.data.fee));
         });
+
+        it("should throw if transaction asset is missing", async () => {
+            delete bridgechainRegistrationTransaction.data.asset;
+
+            await expect(handler.apply(bridgechainRegistrationTransaction)).rejects.toThrowError()
+        });
     });
 
     describe("revert", () => {
