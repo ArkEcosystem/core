@@ -81,4 +81,17 @@ describe("BlockStore", () => {
         expect(store.count()).toBe(2);
         expect(store.getIds()).toEqual(["2", "3"]);
     });
+
+    it("should clear all blocks", () => {
+        const store = new BlockStore(4);
+
+        for (let i = 1; i < 5; i++) {
+            store.set({ data: { id: i.toString(), height: i } } as Interfaces.IBlock);
+        }
+
+        expect(store.count()).toBe(4);
+        expect(store.values().length).toBe(4);
+        store.clear();
+        expect(store.count()).toBe(0);
+    });
 });
