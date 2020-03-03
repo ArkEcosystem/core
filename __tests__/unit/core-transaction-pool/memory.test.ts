@@ -78,9 +78,9 @@ describe("Memory.getSenderState", () => {
 
         const memory = container.resolve(Memory);
         await memory.addTransaction(transaction);
-        const actualSenderState = memory.getSenderState(Identities.PublicKey.fromPassphrase("sender's key"));
+        const senderState = memory.getSenderState(Identities.PublicKey.fromPassphrase("sender's key"));
 
-        expect(actualSenderState).toBe(expectedSenderState);
+        expect(senderState).toBe(expectedSenderState);
     });
 
     it("should throw if sender's transaction wasn't added previously", async () => {
@@ -135,7 +135,7 @@ describe("Memory.addTransaction", () => {
         expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
-    it("should forget sender state if error was thrown", async () => {
+    it("should forget sender state if it's empty even if error was thrown", async () => {
         const error = new Error("Something went horribly wrong");
         const senderState = { addTransaction: jest.fn(), isEmpty: () => true };
         senderState.addTransaction.mockRejectedValueOnce(error);
@@ -146,21 +146,133 @@ describe("Memory.addTransaction", () => {
         } as Interfaces.ITransaction;
         const memory = container.resolve(Memory);
         const promise = memory.addTransaction(transaction);
-
         await expect(promise).rejects.toThrow(error);
-        expect(senderState.addTransaction).toBeCalledWith(transaction);
+        const has = memory.hasSenderState(transaction.data.senderPublicKey);
+
         expect(logger.debug).toHaveBeenCalledTimes(2);
+        expect(has).toBe(false);
     });
 });
 
 describe("Memory.removeTransaction", () => {
-    it("should throw if removing transaction of sender that wasn't previously added", async () => {
+    it("should return empty array when removing transaction of sender that wasn't previously added", async () => {
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const memory = container.resolve(Memory);
-        const promise = memory.removeTransaction(transaction);
+        const removedTransactions = await memory.removeTransaction(transaction);
 
-        await expect(promise).rejects.toThrow();
+        expect(removedTransactions).toStrictEqual([]);
+    });
+
+    it("should remove previously added transaction and return list of removed transactions", async () => {
+        const transaction = {
+            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+        } as Interfaces.ITransaction;
+        const expectedRemovedTransactions = [transaction];
+        const senderState = {
+            addTransaction: jest.fn(),
+            removeTransaction: jest.fn(() => expectedRemovedTransactions),
+            isEmpty: () => false,
+        };
+        createSenderState.mockReturnValueOnce(senderState);
+
+        const memory = container.resolve(Memory);
+        await memory.addTransaction(transaction);
+        const removedTransactions = await memory.removeTransaction(transaction);
+
+        expect(senderState.removeTransaction).toBeCalledWith(transaction);
+        expect(removedTransactions).toStrictEqual(expectedRemovedTransactions);
+        expect(logger.debug).toHaveBeenCalledTimes(1);
+    });
+
+    it("should forget sender state if it's empty even if error was thrown", async () => {
+        const error = new Error("Something went horribly wrong");
+        const senderState = { addTransaction: jest.fn(), removeTransaction: jest.fn(), isEmpty: jest.fn() };
+        senderState.removeTransaction.mockRejectedValueOnce(error);
+        senderState.isEmpty.mockReturnValueOnce(false).mockReturnValueOnce(true);
+        createSenderState.mockReturnValueOnce(senderState);
+
+        const transaction = {
+            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+        } as Interfaces.ITransaction;
+        const memory = container.resolve(Memory);
+        await memory.addTransaction(transaction);
+        const promise = memory.removeTransaction(transaction);
+        await expect(promise).rejects.toThrow(error);
+        const has = memory.hasSenderState(transaction.data.senderPublicKey);
+
+        expect(logger.debug).toHaveBeenCalledTimes(2);
+        expect(has).toBe(false);
+    });
+});
+
+describe("Memory.acceptForgedTransaction", () => {
+    it("should return empty array when accepting transaction of sender that wasn't previously added", async () => {
+        const transaction = {
+            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+        } as Interfaces.ITransaction;
+        const memory = container.resolve(Memory);
+        const removedTransactions = await memory.acceptForgedTransaction(transaction);
+
+        expect(removedTransactions).toStrictEqual([]);
+    });
+
+    it("should accept previously added transaction and return list of removed transactions", async () => {
+        const transaction = {
+            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+        } as Interfaces.ITransaction;
+        const expectedRemovedTransactions = [transaction];
+        const senderState = {
+            addTransaction: jest.fn(),
+            acceptForgedTransaction: jest.fn(() => expectedRemovedTransactions),
+            isEmpty: () => false,
+        };
+        createSenderState.mockReturnValueOnce(senderState);
+
+        const memory = container.resolve(Memory);
+        await memory.addTransaction(transaction);
+        const removedTransactions = await memory.acceptForgedTransaction(transaction);
+
+        expect(senderState.acceptForgedTransaction).toBeCalledWith(transaction);
+        expect(removedTransactions).toStrictEqual(expectedRemovedTransactions);
+        expect(logger.debug).toHaveBeenCalledTimes(1);
+    });
+
+    it("should forget sender state if it's empty even if error was thrown", async () => {
+        const error = new Error("Something went horribly wrong");
+        const senderState = { addTransaction: jest.fn(), acceptForgedTransaction: jest.fn(), isEmpty: jest.fn() };
+        senderState.acceptForgedTransaction.mockRejectedValueOnce(error);
+        senderState.isEmpty.mockReturnValueOnce(false).mockReturnValueOnce(true);
+        createSenderState.mockReturnValueOnce(senderState);
+
+        const transaction = {
+            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+        } as Interfaces.ITransaction;
+        const memory = container.resolve(Memory);
+        await memory.addTransaction(transaction);
+        const promise = memory.acceptForgedTransaction(transaction);
+        await expect(promise).rejects.toThrow(error);
+        const has = memory.hasSenderState(transaction.data.senderPublicKey);
+
+        expect(logger.debug).toHaveBeenCalledTimes(2);
+        expect(has).toBe(false);
+    });
+});
+
+describe("Memory.flush", () => {
+    it("should remove all sender states", async () => {
+        const senderState = { addTransaction: jest.fn(), isEmpty: () => false };
+        createSenderState.mockReturnValueOnce(senderState);
+
+        const transaction = {
+            data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
+        } as Interfaces.ITransaction;
+        const memory = container.resolve(Memory);
+        await memory.addTransaction(transaction);
+        memory.flush();
+        const has = memory.hasSenderState(transaction.data.senderPublicKey);
+
+        expect(has).toBe(false);
     });
 });

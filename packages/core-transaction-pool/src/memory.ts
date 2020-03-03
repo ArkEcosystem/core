@@ -55,7 +55,9 @@ export class Memory implements Contracts.TransactionPool.Memory {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const senderState = this.senderStates.get(transaction.data.senderPublicKey);
-        AppUtils.assert.defined<Contracts.TransactionPool.SenderState>(senderState);
+        if (!senderState) {
+            return [];
+        }
 
         try {
             return await senderState.removeTransaction(transaction);
@@ -71,7 +73,9 @@ export class Memory implements Contracts.TransactionPool.Memory {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
         const senderState = this.senderStates.get(transaction.data.senderPublicKey);
-        AppUtils.assert.defined<Contracts.TransactionPool.SenderState>(senderState);
+        if (!senderState) {
+            return [];
+        }
 
         try {
             return await senderState.acceptForgedTransaction(transaction);

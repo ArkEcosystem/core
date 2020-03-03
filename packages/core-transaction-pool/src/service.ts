@@ -57,10 +57,16 @@ export class Service implements Contracts.TransactionPool.Service {
             throw new Error("Unknown transaction");
         }
 
-        for (const removedTransaction of await this.memory.removeTransaction(transaction)) {
+        const removedTransactions = await this.memory.removeTransaction(transaction);
+        for (const removedTransaction of removedTransactions) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
             this.logger.debug(`${removedTransaction} removed from pool`);
+        }
+
+        if (!removedTransactions.find(t => t.id === transaction.id)) {
+            this.storage.removeTransaction(transaction.id);
+            this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
         }
     }
 
@@ -70,13 +76,19 @@ export class Service implements Contracts.TransactionPool.Service {
             return;
         }
 
-        for (const removedTransaction of await this.memory.acceptForgedTransaction(transaction)) {
+        const removedTransactions = await this.memory.acceptForgedTransaction(transaction);
+        for (const removedTransaction of removedTransactions) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
             this.logger.debug(`${removedTransaction} removed from pool`);
         }
 
-        this.logger.debug(`${transaction} forged and accepted by pool`);
+        if (removedTransactions.find(t => t.id === transaction.id)) {
+            this.logger.debug(`${transaction} forged and accepted by pool`);
+        } else {
+            this.storage.removeTransaction(transaction.id);
+            this.logger.error(`${transaction} forged and accepted by pool (wasn't in mempool)`);
+        }
     }
 
     public async readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
