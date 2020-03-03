@@ -14,6 +14,7 @@ import {
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
 import { Utils } from "@packages/crypto/src";
+import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 
 import { FixtureGenerator } from "../__utils__/fixture-generator";
 import { setUp } from "../setup";
@@ -493,6 +494,79 @@ describe("Search", () => {
 
             const locks = walletRepo.search(Contracts.State.SearchScope.Locks, {});
             expect(locks.rows).toHaveLength(genesisBlock.transactions.length);
+        });
+    });
+
+    describe("count", () => {
+        it("should be ok", () => {
+            const wallets = fixtureGenerator.generateWallets();
+            walletRepo.index(wallets);
+
+            expect(walletRepo.count(Contracts.State.SearchScope.Wallets)).toBe(52);
+        });
+    });
+
+    describe("top", () => {
+        const top = (params: any = {}) => {
+            return walletRepo.top(Contracts.State.SearchScope.Wallets, params);
+        };
+
+        beforeEach(() => {
+            for (const o of [
+                { address: "dummy-1", balance: Utils.BigNumber.make(1000) },
+                { address: "dummy-2", balance: Utils.BigNumber.make(2000) },
+                { address: "dummy-3", balance: Utils.BigNumber.make(3000) },
+            ]) {
+                const wallet = new Wallet(o.address, new Services.Attributes.AttributeMap(getWalletAttributeSet()));
+                wallet.balance = o.balance;
+                walletRepo.index(wallet);
+            }
+        });
+
+        it("should be ok without params", () => {
+            const { count, rows } = top();
+
+            expect(count).toBe(3);
+            expect(rows.length).toBe(3);
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[2].balance).toEqual(Utils.BigNumber.make(1000));
+        });
+
+        it("should be ok with params", () => {
+            const { count, rows } = top({ offset: 1, limit: 2 });
+
+            expect(count).toBe(3);
+            expect(rows.length).toBe(2);
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(1000));
+        });
+
+        it("should be ok with params (offset = 0)", () => {
+            const { count, rows } = top({ offset: 0, limit: 2 });
+
+            expect(count).toBe(3);
+            expect(rows.length).toBe(2);
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
+        });
+
+        it("should be ok with params (no offset)", () => {
+            const { count, rows } = top({ limit: 2 });
+
+            expect(count).toBe(3);
+            expect(rows.length).toBe(2);
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(3000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(2000));
+        });
+
+        it("should be ok with params (no limit)", () => {
+            const { count, rows } = top({ offset: 1 });
+
+            expect(count).toBe(3);
+            expect(rows.length).toBe(2);
+            expect(rows[0].balance).toEqual(Utils.BigNumber.make(2000));
+            expect(rows[1].balance).toEqual(Utils.BigNumber.make(1000));
         });
     });
 });
