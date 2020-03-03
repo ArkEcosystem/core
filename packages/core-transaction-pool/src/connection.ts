@@ -220,13 +220,7 @@ export class Connection implements TransactionPool.IConnection {
                 ? this.walletManager.findByAddress(data.recipientId)
                 : undefined;
 
-            if (
-                recipientWallet ||
-                (transaction.type === Enums.TransactionType.MultiPayment &&
-                    transaction.typeGroup === Enums.TransactionTypeGroup.Core)
-            ) {
-                await transactionHandler.applyToRecipient(transaction, this.walletManager);
-            }
+            await transactionHandler.applyToRecipient(transaction, this.walletManager);
 
             if (exists) {
                 this.removeTransaction(transaction);
@@ -532,9 +526,7 @@ export class Connection implements TransactionPool.IConnection {
 
                 await handler.applyToSender(transaction, walletManager);
 
-                if (recipient && sender.address !== recipient.address) {
-                    await handler.applyToRecipient(transaction, walletManager);
-                }
+                await handler.applyToRecipient(transaction, walletManager);
 
                 validTransactions.push(transaction);
             } catch (error) {
