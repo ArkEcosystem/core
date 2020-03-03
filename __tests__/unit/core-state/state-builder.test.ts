@@ -23,6 +23,7 @@ const senderKey = getSentTransactionDefault.senderPublicKey;
 let sandbox: Sandbox;
 
 let loggerWarningSpy: jest.SpyInstance;
+let loggerInfoSpy: jest.SpyInstance;
 
 let walletRepo: WalletRepository;
 let restoreDefaultSentTransactions: () => void;
@@ -44,6 +45,7 @@ beforeAll(async () => {
     getRegisteredHandlersSpy = initialEnv.spies.getRegisteredHandlersSpy;
     dispatchSpy = initialEnv.spies.dispatchSpy;
     loggerWarningSpy = initialEnv.spies.logger.warning;
+    loggerInfoSpy = initialEnv.spies.logger.info;
 
     restoreDefaultSentTransactions = saveDefaultTransactions();
 });
@@ -208,5 +210,22 @@ describe("StateBuilder", () => {
         expect(loggerWarningSpy).toHaveBeenCalledWith(
             "Wallet ATtEq2tqNumWgR9q9zF6FjGp34Mp5JpKGp has a negative vote balance of '-100'",
         );
+    });
+
+    it("should capitalise registered handlers", async () => {
+        setUpDefaults.getRegisteredHandlers = [
+            {
+                getConstructor: () => ({
+                    version: 1,
+                    key: "test",
+                }),
+            },
+        ];
+
+        setUpDefaults.getSentTransaction = [];
+
+        await expect(stateBuilder.run()).toResolve();
+
+        expect(loggerInfoSpy).toHaveBeenNthCalledWith(3, `State Generation - Step 3 of 4: Test v1`);
     });
 });
