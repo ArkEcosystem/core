@@ -512,13 +512,6 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
-                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-
-                let recipient: State.IWallet | undefined;
-                if (transaction.data.recipientId) {
-                    recipient = walletManager.findByAddress(transaction.data.recipientId);
-                }
-
                 const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                     transaction.type,
                     transaction.typeGroup,
