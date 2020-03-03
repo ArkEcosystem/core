@@ -250,46 +250,35 @@ describe("BlockState", () => {
 
     describe("when 1 transaction fails while applying it", () => {
         it("should revert sequentially (from last to first) all the transactions of the block", async () => {
+            const spyApplyTransaction = jest.spyOn(blockState, "applyTransaction");
+
             // @ts-ignore
-            jest.spyOn(blockState, "applyTransaction").mockImplementation(tx => {
+            spyApplyTransaction.mockImplementation(tx => {
                 if (tx === blocks[0].transactions[2]) {
                     throw new Error("Fake error");
                 }
             });
 
             expect(blocks[0].transactions.length).toBe(3);
+            await expect(blockState.applyBlock(blocks[0])).rejects.toEqual(Error("Fake error"));
 
-            try {
-                await blockState.applyBlock(blocks[0]);
-                expect(undefined).toBe("this should fail if no error is thrown");
-            } catch (error) {
-                expect(blockState.revertTransaction).toHaveBeenCalledTimes(2);
-                expect(revertSpy).toHaveBeenCalledTimes(2);
+            expect(blockState.revertTransaction).toHaveBeenCalledTimes(2);
+            expect(revertSpy).toHaveBeenCalledTimes(2);
 
-                for (const transaction of blocks[0].transactions.slice(0, 1)) {
-                    const i = blocks[0].transactions.slice(0, 1).indexOf(transaction);
-                    const total = blocks[0].transactions.slice(0, 1).length;
-                    expect(blockState.revertTransaction).toHaveBeenNthCalledWith(
-                        total + 1 - i,
-                        blocks[0].transactions[i],
-                    );
-                }
+            for (const transaction of blocks[0].transactions.slice(0, 1)) {
+                const i = blocks[0].transactions.slice(0, 1).indexOf(transaction);
+                const total = blocks[0].transactions.slice(0, 1).length;
+                expect(blockState.revertTransaction).toHaveBeenNthCalledWith(total + 1 - i, blocks[0].transactions[i]);
             }
         });
 
         it("throws the Error", async () => {
-            jest.spyOn(blockState, "applyTransaction").mockImplementation(() => {
+            const spyApplyTransaction = jest.spyOn(blockState, "applyTransaction");
+
+            spyApplyTransaction.mockImplementation(() => {
                 throw new Error("Fake error");
             });
-
-            try {
-                await blockState.applyBlock(blocks[0]);
-
-                expect(undefined).toBe("this should fail if no error is thrown");
-            } catch (error) {
-                expect(error).toBeInstanceOf(Error);
-                expect(error.message).toBe("Fake error");
-            }
+            await expect(blockState.applyBlock(blocks[0])).rejects.toEqual(Error("Fake error"));
         });
     });
 });

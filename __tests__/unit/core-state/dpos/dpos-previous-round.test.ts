@@ -10,7 +10,7 @@ import { IBlock } from "@packages/crypto/src/interfaces";
 import { addTransactionsToBlock } from "../__utils__/transactions";
 import { makeChainedBlocks, makeVoteTransactions } from "../helper";
 import { setUp } from "../setup";
-import { buildDelegateAndVoteWallets } from "./dpos.test";
+import { buildDelegateAndVoteWallets } from "../__utils__/build-delegate-and-vote-balances"
 
 let dposState: DposState;
 let dposPreviousRoundStateProv: DposPreviousRoundStateProvider;
@@ -70,9 +70,9 @@ describe("dposPreviousRound", () => {
 
     describe("revert", () => {
         it("should revert blocks", async () => {
-            jest.spyOn(dposState, "buildDelegateRanking");
-            jest.spyOn(dposState, "setDelegatesRound");
-            jest.spyOn(blockState, "revertBlock");
+            const spyBuildDelegateRanking = jest.spyOn(dposState, "buildDelegateRanking");
+            const spySetDelegatesRound = jest.spyOn(dposState, "setDelegatesRound");
+            const spyRevertBlock = jest.spyOn(blockState, "revertBlock");
 
             /**
              * @FIXME
@@ -105,15 +105,15 @@ describe("dposPreviousRound", () => {
 
             await dposPreviousRoundStateProv([blocks[0]], round);
 
-            expect(dposState.buildDelegateRanking).toHaveBeenCalled();
-            expect(dposState.setDelegatesRound).toHaveBeenCalledWith(round);
-            expect(blockState.revertBlock).toHaveBeenCalledWith(blocks[0]);
+            expect(spyBuildDelegateRanking).toHaveBeenCalled();
+            expect(spySetDelegatesRound).toHaveBeenCalledWith(round);
+            expect(spyRevertBlock).toHaveBeenCalledWith(blocks[0]);
         });
 
         it("should not revert the blocks when height is one", async () => {
-            jest.spyOn(dposState, "buildDelegateRanking");
-            jest.spyOn(dposState, "setDelegatesRound");
-            jest.spyOn(blockState, "revertBlock");
+            const spyBuildDelegateRanking = jest.spyOn(dposState, "buildDelegateRanking");
+            const spySetDelegatesRound = jest.spyOn(dposState, "setDelegatesRound");
+            const spyRevertBlock = jest.spyOn(blockState, "revertBlock");
 
             /**
              * @FIXME
@@ -128,9 +128,9 @@ describe("dposPreviousRound", () => {
 
             await dposPreviousRoundStateProv([blocks[0]], round);
 
-            expect(dposState.buildDelegateRanking).toHaveBeenCalled();
-            expect(dposState.setDelegatesRound).toHaveBeenCalled();
-            expect(blockState.revertBlock).not.toHaveBeenCalled();
+            expect(spyBuildDelegateRanking).toHaveBeenCalled();
+            expect(spySetDelegatesRound).toHaveBeenCalled();
+            expect(spyRevertBlock).not.toHaveBeenCalled();
         });
     });
 });

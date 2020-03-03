@@ -4,9 +4,9 @@ import { Utils } from "@packages/core-kernel/src";
 import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
 import { WalletRepository } from "@packages/core-state/src/wallets";
-import { Identities, Utils as CryptoUtils } from "@packages/crypto/src";
+import { Utils as CryptoUtils } from "@packages/crypto/src";
 import { SATOSHI } from "@packages/crypto/src/constants";
-
+import { buildDelegateAndVoteWallets } from "../__utils__/build-delegate-and-vote-balances"
 import { setUp } from "../setup";
 
 let dposState: DposState;
@@ -19,31 +19,6 @@ beforeAll(async () => {
     walletRepo = initialEnv.walletRepo;
     debugLogger = initialEnv.spies.logger.debug;
 });
-
-export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo: WalletRepository) => {
-    for (let i = 0; i < numberDelegates; i++) {
-        const delegateKey = i.toString().repeat(66);
-        const delegate = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKey));
-        delegate.publicKey = delegateKey;
-        delegate.setAttribute("delegate.username", `delegate${i}`);
-        delegate.setAttribute("delegate.voteBalance", CryptoUtils.BigNumber.ZERO);
-
-        const voter = walletRepo.createWallet(
-            Identities.Address.fromPublicKey((i + numberDelegates).toString().repeat(66)),
-        );
-        const totalBalance = CryptoUtils.BigNumber.make(i + 1)
-            .times(1000)
-            .times(SATOSHI);
-        voter.balance = totalBalance.div(2);
-        voter.publicKey = `v${delegateKey}`;
-        voter.setAttribute("vote", delegateKey);
-        // TODO: is this correct?
-        // that buildVoteBalances should only be triggered if there is a htlc lockedBalance?
-        voter.setAttribute("htlc.lockedBalance", totalBalance.div(2));
-
-        walletRepo.index([delegate, voter]);
-    }
-};
 
 describe("dpos", () => {
     beforeEach(() => {

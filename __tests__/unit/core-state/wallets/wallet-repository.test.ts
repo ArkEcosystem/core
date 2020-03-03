@@ -43,7 +43,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.getIndex("ipfs").indexer).toEqual(ipfsIndexer);
     });
 
-    describe("search", () => {
+    describe("findByScope", () => {
         it("should throw if no wallet exists", () => {
             expect(() => walletRepo.findByScope(Contracts.State.SearchScope.Wallets, "1")).toThrowError(
                 `Wallet 1 doesn't exist in indexes`,
@@ -88,6 +88,14 @@ describe("Wallet Repository", () => {
 
             wallet.setAttribute("delegate", true);
             expect(walletRepo.findByScope(Contracts.State.SearchScope.Delegates, wallet.address)).toEqual(wallet);
+        });
+    });
+
+    describe.only("search", () => {
+        it("should search something", () => {
+            const wallet = walletRepo.createWallet("abcd");
+            walletRepo.index(wallet);
+            expect(walletRepo.search(Contracts.State.SearchScope.Wallets)).toEqual([wallet]);
         });
     });
 
