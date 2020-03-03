@@ -1,9 +1,8 @@
 import "jest-extended";
 
-import { Utils } from "@packages/core-kernel/src";
+import { Container, Utils } from "@packages/core-kernel/src";
 import { RoundInfo } from "@packages/core-kernel/src/contracts/shared";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
-import { DposPreviousRoundState } from "@packages/core-state/src/dpos";
 import { DposState } from "@packages/core-state/src/dpos/dpos";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { IBlock } from "@packages/crypto/src/interfaces";
@@ -19,8 +18,10 @@ let walletRepo: WalletRepository;
 let factory;
 let blockState;
 
+let initialEnv;
+
 beforeAll(async () => {
-    const initialEnv = await setUp();
+    initialEnv = await setUp();
     dposState = initialEnv.dPosState;
     dposPreviousRoundStateProv = initialEnv.dposPreviousRound;
     walletRepo = initialEnv.walletRepo;
@@ -28,7 +29,7 @@ beforeAll(async () => {
     blockState = initialEnv.blockState;
 });
 
-afterAll(() => jest.clearAllMocks());
+afterEach(() => jest.clearAllMocks());
 
 describe("dposPreviousRound", () => {
     let round: RoundInfo;
@@ -72,7 +73,16 @@ describe("dposPreviousRound", () => {
             jest.spyOn(dposState, "buildDelegateRanking");
             jest.spyOn(dposState, "setDelegatesRound");
             jest.spyOn(blockState, "revertBlock");
-            
+
+            /**
+             * @FIXME
+             * Why do we need to rebind them?
+             * Modifications to dposState and blockState should be in the container
+             * because they are the same objects as in the container while being modified.
+             */
+            initialEnv.sandbox.app.rebind(Container.Identifiers.DposState).toConstantValue(dposState);
+            initialEnv.sandbox.app.rebind(Container.Identifiers.BlockState).toConstantValue(blockState);
+
             const generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
 
             generatorWallet.setAttribute("delegate", {
@@ -93,10 +103,7 @@ describe("dposPreviousRound", () => {
 
             await blockState.applyBlock(blocks[0]);
 
-            const previousRound: DposPreviousRoundState = (await dposPreviousRoundStateProv([], round)) as any;
-
-            // TODO: fix this test, these aren't being called because of IoC tagging
-            previousRound.revert([blocks[0]], round);
+            await dposPreviousRoundStateProv([blocks[0]], round);
 
             expect(dposState.buildDelegateRanking).toHaveBeenCalled();
             expect(dposState.setDelegatesRound).toHaveBeenCalledWith(round);
@@ -108,13 +115,21 @@ describe("dposPreviousRound", () => {
             jest.spyOn(dposState, "setDelegatesRound");
             jest.spyOn(blockState, "revertBlock");
 
-            const previousRound: DposPreviousRoundState = (await dposPreviousRoundStateProv([], round)) as any;
+            /**
+             * @FIXME
+             * Why do we need to rebind them?
+             * Modifications to dposState and blockState should be in the container
+             * because they are the same objects as in the container while being modified.
+             */
+            initialEnv.sandbox.app.rebind(Container.Identifiers.DposState).toConstantValue(dposState);
+            initialEnv.sandbox.app.rebind(Container.Identifiers.BlockState).toConstantValue(blockState);
+
             blocks[0].data.height = 1;
 
-            previousRound.revert([blocks[0]], round);
+            await dposPreviousRoundStateProv([blocks[0]], round);
 
-            expect(dposState.buildDelegateRanking).not.toHaveBeenCalled();
-            expect(dposState.setDelegatesRound).not.toHaveBeenCalled();
+            expect(dposState.buildDelegateRanking).toHaveBeenCalled();
+            expect(dposState.setDelegatesRound).toHaveBeenCalled();
             expect(blockState.revertBlock).not.toHaveBeenCalled();
         });
     });
