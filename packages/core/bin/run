@@ -3,7 +3,7 @@
 try {
     const child_process = require('child_process')
 
-    const jemallocPath = child_process.spawnSync('whereis libjemalloc | xargs -n1 | grep libjemalloc.so', { shell: true }).stdout.toString().split('\n').shift().trim()
+    const jemallocPath = child_process.spawnSync(`ls -d1H $(gcc -print-search-dirs | grep libraries: | awk '{print $2}' | sed -e 's/:/* /g' -e 's/$/*/' -e 's/^.//') | grep libjemalloc.so`, { shell: true }).stdout.toString().split('\n').shift().trim()
 
     if (jemallocPath) {
         if (process.env.LD_PRELOAD !== jemallocPath) {
