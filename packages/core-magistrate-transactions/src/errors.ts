@@ -25,11 +25,11 @@ export class BusinessIsResignedError extends Errors.TransactionError {
     }
 }
 
-export class BridgechainIsNotRegisteredError extends Errors.TransactionError {
-    public constructor() {
-        super(`Failed to apply transaction, because bridgechain is not registered.`);
-    }
-}
+// export class BridgechainIsNotRegisteredError extends Errors.TransactionError {
+//     public constructor() {
+//         super(`Failed to apply transaction, because bridgechain is not registered.`);
+//     }
+// }
 
 export class BridgechainAlreadyRegisteredError extends Errors.TransactionError {
     public constructor() {
