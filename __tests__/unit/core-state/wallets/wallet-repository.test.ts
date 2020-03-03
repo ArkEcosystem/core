@@ -415,21 +415,21 @@ describe("Search", () => {
             expectSearch({ publicKey: wallets[0].publicKey });
         });
 
-        it.skip("should search wallets by the specified secondPublicKey", () => {
+        it("should search wallets by the specified secondPublicKey", () => {
             const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
             expectSearch({ secondPublicKey: wallets[0].getAttribute("secondPublicKey") });
         });
 
-        it.skip("should search wallets by the specified vote", () => {
+        it("should search wallets by the specified vote", () => {
             const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
             expectSearch({ vote: wallets[0].getAttribute("vote") });
         });
 
-        it.skip("should search wallets by the specified username", () => {
+        it("should search wallets by the specified username", () => {
             const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
@@ -460,7 +460,7 @@ describe("Search", () => {
             );
         });
 
-        it.skip("should search wallets by the specified closed interval (included) of voteBalance", () => {
+        it("should search wallets by the specified closed interval (included) of voteBalance", () => {
             const wallets = fixtureGenerator.generateFullWallets();
             for (let i = 0; i < wallets.length; i++) {
                 const wallet = wallets[i];

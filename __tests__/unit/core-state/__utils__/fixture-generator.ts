@@ -9,25 +9,29 @@ import unique from "./unique";
 
 export class FixtureGenerator {
     private genesisSenders;
-    private attributeMap: Services.Attributes.AttributeMap;
 
     public constructor(private genesisBlock) {
         this.genesisSenders = unique(compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)));
-        this.attributeMap = new Services.Attributes.AttributeMap(getWalletAttributeSet());
     }
 
     public generateWallets(): Wallet[] {
         return this.genesisSenders.map((senderPublicKey, index) =>
-            Object.assign(new Wallet(Identities.Address.fromPublicKey(senderPublicKey), this.attributeMap), {
-                balance: Utils.BigNumber.make(index),
-            }),
+            Object.assign(
+                new Wallet(
+                    Identities.Address.fromPublicKey(senderPublicKey),
+                    new Services.Attributes.AttributeMap(getWalletAttributeSet()),
+                ),
+                {
+                    balance: Utils.BigNumber.make(index),
+                },
+            ),
         );
     }
 
     public generateFullWallets(): Wallet[] {
         return this.genesisSenders.map(senderPublicKey => {
             const address = Identities.Address.fromPublicKey(senderPublicKey);
-            const wallet = new Wallet(address, this.attributeMap);
+            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(getWalletAttributeSet()));
             wallet.publicKey = `publicKey-${address}`;
             wallet.setAttribute("delegate", {
                 username: `username-${address}`,
@@ -43,7 +47,7 @@ export class FixtureGenerator {
     public generateHtlcLocks(): Wallet[] {
         return this.genesisBlock.transactions.map((transaction, i) => {
             const address = Identities.Address.fromPublicKey(transaction.senderPublicKey);
-            const wallet = new Wallet(address, this.attributeMap);
+            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(getWalletAttributeSet()));
             wallet.setAttribute("htlc.locks", {
                 [transaction.id]: {
                     amount: Utils.BigNumber.make(10),
