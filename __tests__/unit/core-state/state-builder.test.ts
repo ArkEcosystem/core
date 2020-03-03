@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { Enums, Utils } from "@arkecosystem/core-kernel";
-import { StateBuilder } from "@arkecosystem/core-state/src/state-builder";
-import { WalletRepository } from "@arkecosystem/core-state/src/wallets";
-import { Managers } from "@arkecosystem/crypto";
+import { Enums, Utils } from "@packages/core-kernel";
+import { StateBuilder } from "@packages/core-state/src/state-builder";
+import { WalletRepository } from "@packages/core-state/src/wallets";
+import { Managers } from "@packages/crypto";
 import { Sandbox } from "@packages/core-test-framework/src";
 
 import { setUp, setUpDefaults } from "./setup";
