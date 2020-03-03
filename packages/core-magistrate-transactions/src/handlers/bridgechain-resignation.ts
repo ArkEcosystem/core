@@ -132,12 +132,13 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
             .findByPublicKey(transaction.data.senderPublicKey)
             .getAttribute<IBusinessWalletAttributes>("business");
 
-        Utils.assert.defined<MagistrateInterfaces.IBridgechainResignationAsset>(
-            transaction.data.asset?.bridgechainResignation,
-        );
+        // Line is already checked inside throwIfCannotBeApplied run by super.applyToSender method
+        // Utils.assert.defined<MagistrateInterfaces.IBridgechainResignationAsset>(
+        //     transaction.data.asset?.bridgechainResignation,
+        // );
 
         const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
-            transaction.data.asset.bridgechainResignation;
+            transaction.data.asset!.bridgechainResignation;
 
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
