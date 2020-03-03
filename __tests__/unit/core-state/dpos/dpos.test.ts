@@ -6,7 +6,8 @@ import { DposState } from "@packages/core-state/src/dpos/dpos";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Utils as CryptoUtils } from "@packages/crypto/src";
 import { SATOSHI } from "@packages/crypto/src/constants";
-import { buildDelegateAndVoteWallets } from "../__utils__/build-delegate-and-vote-balances"
+
+import { buildDelegateAndVoteWallets } from "../__utils__/build-delegate-and-vote-balances";
 import { setUp } from "../setup";
 
 let dposState: DposState;
@@ -57,6 +58,33 @@ describe("dpos", () => {
                     CryptoUtils.BigNumber.make((5 - i) * 1000 * SATOSHI),
                 );
             }
+        });
+
+        it("should throw if two wallets have the same public key", () => {
+            const delegates = buildDelegateAndVoteWallets(5, walletRepo);
+            delegates[0].setAttribute("delegate.resigned", true);
+
+            delegates[1].setAttribute("delegate.voteBalance", Utils.BigNumber.make(5467));
+            delegates[2].setAttribute("delegate.voteBalance", Utils.BigNumber.make(5467));
+            delegates[1].publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
+            delegates[2].publicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
+            walletRepo.index([delegates[2], delegates[2]]);
+
+            expect(() => dposState.buildDelegateRanking()).toThrow(
+                'The balance and public key of both delegates are identical! Delegate "delegate2" appears twice in the list.',
+            );
+        });
+
+        it("should not throw if public keys are different and balances are the same", () => {
+            const delegates = buildDelegateAndVoteWallets(5, walletRepo);
+
+            delegates[1].setAttribute("delegate.voteBalance", Utils.BigNumber.make(5467));
+            delegates[2].setAttribute("delegate.voteBalance", Utils.BigNumber.make(5467));
+
+            expect(() => dposState.buildDelegateRanking()).not.toThrow();
+            expect(delegates[1].getAttribute("delegate.rank")).toEqual(1);
+            expect(delegates[2].getAttribute("delegate.rank")).toEqual(2);
+            expect(delegates[0].getAttribute("delegate.rank")).toEqual(3);
         });
     });
 

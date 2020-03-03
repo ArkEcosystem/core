@@ -1,8 +1,9 @@
-import { WalletRepository } from "@packages/core-state/src/wallets";
+import { WalletRepository, Wallet } from "@packages/core-state/src/wallets";
 import { Identities, Utils as CryptoUtils } from "@packages/crypto/src";
 import { SATOSHI } from "@packages/crypto/src/constants";
 
-export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo: WalletRepository) => {
+export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo: WalletRepository): Wallet[] => {
+    const delegates: Wallet[] = [];
     for (let i = 0; i < numberDelegates; i++) {
         const delegateKey = i.toString().repeat(66);
         const delegate = walletRepo.createWallet(Identities.Address.fromPublicKey(delegateKey));
@@ -24,5 +25,7 @@ export const buildDelegateAndVoteWallets = (numberDelegates: number, walletRepo:
         voter.setAttribute("htlc.lockedBalance", totalBalance.div(2));
 
         walletRepo.index([delegate, voter]);
+        delegates.push(delegate as Wallet);
     }
+    return delegates;
 };
