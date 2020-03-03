@@ -13,11 +13,13 @@ let blocks: IBlock[];
 let stateStorage: StateStore;
 let factory: FactoryBuilder;
 let logger: jest.SpyInstance;
+let dispatchSpy: jest.SpyInstance;
 
 beforeAll(async () => {
     const initalEnv = await setUp();
     factory = initalEnv.factory;
     logger = initalEnv.spies.logger.info;
+    dispatchSpy = initalEnv.spies.dispatchSpy;
     stateStorage = initalEnv.sandbox.app.get(Container.Identifiers.StateStore);
 });
 
@@ -129,6 +131,39 @@ describe("State Storage", () => {
                 delete lastBlocksData[i].transactions;
                 expect(lastBlocksData[i]).toEqual(blocks[4 - i].data);
             }
+        });
+
+        it("should return last blocks data with headers only", () => {
+            for (let i = 0; i < 5; i++) {
+                stateStorage.setLastBlock(blocks[i]);
+            }
+
+            const lastBlocksData = stateStorage.getLastBlocksData(true).toArray() as IBlockData[];
+
+            expect(lastBlocksData).toHaveLength(5);
+        });
+
+        it("should return last blocks which have transactions", () => {
+            for (let i = 0; i < 5; i++) {
+                // @ts-ignore
+                blocks[i].transactions = [
+                    // @ts-ignore
+                    {
+                        id: "test",
+                    },
+                ];
+                stateStorage.setLastBlock(blocks[i]);
+            }
+
+            const lastBlocksData = stateStorage.getLastBlocksData().toArray() as IBlockData[];
+
+            expect(lastBlocksData).toHaveLength(5);
+        });
+
+        it("should handle milestones", () => {
+            blocks[0].data.height = 1;
+            stateStorage.setLastBlock(blocks[0]);
+            expect(dispatchSpy).toHaveBeenCalledWith("crypto.milestone.changed");
         });
     });
 
@@ -284,6 +319,17 @@ describe("State Storage", () => {
         });
     });
 
+    describe("reset", () => {
+        it("should reset initial blockchain state", () => {
+            const mockBlockChainMachine = {
+                initialState: "mock",
+            };
+            stateStorage.reset(mockBlockChainMachine);
+
+            expect(stateStorage.blockchain).toEqual(mockBlockChainMachine.initialState);
+        });
+    });
+
     describe("pingBlock", () => {
         it("should return false if there is no blockPing", () => {
             stateStorage.blockPing = undefined;
@@ -349,6 +395,17 @@ describe("State Storage", () => {
             expect(stateStorage.blockPing).toBeObject();
             expect(stateStorage.blockPing.block).toBe(blocks[5].data);
             expect(stateStorage.blockPing.count).toBe(1);
+        });
+    });
+
+    describe("clearWakeUpTimeout", () => {
+        it("it should clear wake up timers", () => {
+            jest.useFakeTimers();
+            stateStorage.wakeUpTimeout = 1;
+
+            stateStorage.clearWakeUpTimeout();
+
+            expect(clearTimeout).toHaveBeenCalledWith(1);
         });
     });
 });
