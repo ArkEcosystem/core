@@ -1,21 +1,21 @@
 import "jest-extended";
 
-import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { BusinessResignationBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
+import { BusinessResignationTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import { Managers, Transactions } from "@arkecosystem/crypto";
 
 import { checkCommonFields } from "../helper";
 
-let builder: MagistrateBuilders.BusinessResignationBuilder;
+let builder: BusinessResignationBuilder;
 
 describe("Business resignation ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
     Managers.configManager.setHeight(2);
 
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessResignationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BusinessResignationTransaction);
 
     beforeEach(() => {
-        builder = new MagistrateBuilders.BusinessResignationBuilder();
+        builder = new BusinessResignationBuilder();
     });
     it("should ser/deserialize giving back original fields", () => {
         const businessResignation = builder

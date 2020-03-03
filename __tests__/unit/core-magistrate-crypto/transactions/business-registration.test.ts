@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { BusinessRegistrationBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
+import { BusinessRegistrationTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
 
 import {
@@ -12,16 +12,16 @@ import {
     checkCommonFields,
 } from "../helper";
 
-let builder: MagistrateBuilders.BusinessRegistrationBuilder;
+let builder: BusinessRegistrationBuilder;
 
 describe("Business registration transaction", () => {
     Managers.configManager.setFromPreset("testnet");
     Managers.configManager.setHeight(2);
 
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessRegistrationTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BusinessRegistrationTransaction);
 
     beforeEach(() => {
-        builder = new MagistrateBuilders.BusinessRegistrationBuilder();
+        builder = new BusinessRegistrationBuilder();
     });
 
     describe("Ser/deser", () => {
@@ -39,7 +39,7 @@ describe("Business registration transaction", () => {
 
             checkCommonFields(deserialized, businessRegistration);
 
-            expect(deserialized.data.asset.businessRegistration).toStrictEqual(businessRegistrationAsset1);
+            expect(deserialized.data.asset!.businessRegistration).toStrictEqual(businessRegistrationAsset1);
         });
         it("should ser/deserialize giving back original fields", () => {
             const businessRegistration = builder
@@ -55,7 +55,7 @@ describe("Business registration transaction", () => {
 
             checkCommonFields(deserialized, businessRegistration);
 
-            expect(deserialized.data.asset.businessRegistration).toStrictEqual(businessRegistrationAsset2);
+            expect(deserialized.data.asset!.businessRegistration).toStrictEqual(businessRegistrationAsset2);
         });
         it("should ser/deserialize giving back original fields", () => {
             const businessRegistration = builder
@@ -71,7 +71,7 @@ describe("Business registration transaction", () => {
 
             checkCommonFields(deserialized, businessRegistration);
 
-            expect(deserialized.data.asset.businessRegistration).toStrictEqual(businessRegistrationAsset3);
+            expect(deserialized.data.asset!.businessRegistration).toStrictEqual(businessRegistrationAsset3);
         });
         it("should ser/deserialize giving back original fields", () => {
             const businessRegistration = builder
@@ -87,7 +87,7 @@ describe("Business registration transaction", () => {
 
             checkCommonFields(deserialized, businessRegistration);
 
-            expect(deserialized.data.asset.businessRegistration).toStrictEqual(businessRegistrationAsset4);
+            expect(deserialized.data.asset!.businessRegistration).toStrictEqual(businessRegistrationAsset4);
         });
     });
 
@@ -95,7 +95,7 @@ describe("Business registration transaction", () => {
         let transactionSchema;
 
         beforeAll(() => {
-            transactionSchema = MagistrateTransactions.BusinessRegistrationTransaction.getSchema();
+            transactionSchema = BusinessRegistrationTransaction.getSchema();
         });
 
         it("should not throw any error ", () => {

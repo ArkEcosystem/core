@@ -1,21 +1,21 @@
 import "jest-extended";
 
-import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
+import { BusinessUpdateBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
+import { BusinessUpdateTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
 import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
 
 import { businessUpdateAsset1, businessUpdateAsset2, businessUpdateAsset3, checkCommonFields } from "../helper";
 
-let builder: MagistrateBuilders.BusinessUpdateBuilder;
+let builder: BusinessUpdateBuilder;
 
 describe("Business update transaction", () => {
     Managers.configManager.setFromPreset("testnet");
     Managers.configManager.setHeight(2);
 
-    Transactions.TransactionRegistry.registerTransactionType(MagistrateTransactions.BusinessUpdateTransaction);
+    Transactions.TransactionRegistry.registerTransactionType(BusinessUpdateTransaction);
 
     beforeEach(() => {
-        builder = new MagistrateBuilders.BusinessUpdateBuilder();
+        builder = new BusinessUpdateBuilder();
     });
 
     describe("Ser/deser", () => {
@@ -61,7 +61,7 @@ describe("Business update transaction", () => {
         let transactionSchema;
 
         beforeAll(() => {
-            transactionSchema = MagistrateTransactions.BusinessUpdateTransaction.getSchema();
+            transactionSchema = BusinessUpdateTransaction.getSchema();
         });
 
         it("should not throw any error ", () => {

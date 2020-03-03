@@ -1,13 +1,13 @@
 import "jest-extended";
 
-import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
+import { BridgechainUpdateBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
 import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
 import { BridgechainUpdateTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 
 import { bridgechainUpdateAsset1, checkCommonFields } from "../helper";
 
 const genesisHash = "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61";
-let builder: MagistrateBuilders.BridgechainUpdateBuilder;
+let builder: BridgechainUpdateBuilder;
 
 describe("Bridgechain update ser/deser", () => {
     Managers.configManager.setFromPreset("testnet");
@@ -16,7 +16,7 @@ describe("Bridgechain update ser/deser", () => {
     Transactions.TransactionRegistry.registerTransactionType(BridgechainUpdateTransaction);
 
     beforeEach(() => {
-        builder = new MagistrateBuilders.BridgechainUpdateBuilder();
+        builder = new BridgechainUpdateBuilder();
     });
 
     it("should ser/deserialize giving back original fields", () => {
@@ -26,6 +26,8 @@ describe("Bridgechain update ser/deser", () => {
                 bridgechainId: genesisHash,
                 seedNodes: ["74.125.224.72"],
                 ports: { "@arkecosystem/core-api": 12345 },
+                bridgechainRepository: "http://www.repository.com/myorg/myrepo",
+                bridgechainAssetRepository: "http://www.repository.com/myorg/myassetrepo",
             })
             .sign("passphrase")
             .getStruct();
