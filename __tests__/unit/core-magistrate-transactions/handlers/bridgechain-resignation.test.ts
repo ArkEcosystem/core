@@ -193,6 +193,13 @@ describe("BusinessRegistration", () => {
             await expect(handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository)).rejects.toThrowError(BridgechainIsResignedError);
         });
 
+        it("should throw if transaction asset is missing", async () => {
+            delete bridgechainResignationTransaction.data.asset;
+
+            await expect(handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository)).rejects.toThrowError()
+        });
+
+
         it("should throw if wallet has insufficient balance", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
             await expect(handler.throwIfCannotBeApplied(bridgechainResignationTransaction, senderWallet, walletRepository)).rejects.toThrowError(InsufficientBalanceError);
@@ -224,6 +231,12 @@ describe("BusinessRegistration", () => {
                 .minus(bridgechainResignationTransaction.data.amount)
                 .minus(bridgechainResignationTransaction.data.fee));
         });
+
+        it("should throw if transaction asset is missing", async () => {
+            delete bridgechainResignationTransaction.data.asset;
+
+            await expect(handler.apply(bridgechainResignationTransaction, walletRepository)).rejects.toThrowError()
+        });
     });
 
     describe("revert", () => {
@@ -239,6 +252,16 @@ describe("BusinessRegistration", () => {
             expect(senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned).toBeFalse();
 
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
+        });
+
+        it("should throw if transaction asset is missing", async () => {
+            await handler.apply(bridgechainResignationTransaction, walletRepository);
+
+            expect(senderWallet.getAttribute("business.bridgechains")[bridgechainRegistrationAsset.genesisHash].resigned).toBeTrue();
+
+            delete bridgechainResignationTransaction.data.asset;
+
+            await expect(handler.revert(bridgechainResignationTransaction, walletRepository)).rejects.toThrowError()
         });
     });
 });

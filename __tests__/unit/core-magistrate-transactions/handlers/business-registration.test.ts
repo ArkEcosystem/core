@@ -154,6 +154,12 @@ describe("BusinessRegistration", () => {
 
             expect(walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!)).toEqual(senderWallet);
         });
+
+        it("should throw if transaction asset is missing", async () => {
+            delete businessRegistrationTransaction.data.asset;
+
+            await expect(handler.apply(businessRegistrationTransaction, walletRepository)).rejects.toThrowError()
+        });
     });
 
     describe("revert", () => {
