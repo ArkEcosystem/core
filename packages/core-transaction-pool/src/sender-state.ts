@@ -143,7 +143,7 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
 
         if (this.expirationService.isExpired(transaction)) {
             const expirationHeight: number = this.expirationService.getExpirationHeight(transaction);
-            throw new TransactionHasExpiredError(transaction, expirationHeight!);
+            throw new TransactionHasExpiredError(transaction, expirationHeight);
         }
     }
 }

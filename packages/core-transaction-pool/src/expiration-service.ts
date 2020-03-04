@@ -12,7 +12,7 @@ export class ExpirationService {
 
     public canExpire(transaction: Interfaces.ITransaction): boolean {
         if (transaction.data.version && transaction.data.version >= 2) {
-            return typeof transaction.data.expiration !== "undefined";
+            return !!transaction.data.expiration;
         } else {
             return true;
         }

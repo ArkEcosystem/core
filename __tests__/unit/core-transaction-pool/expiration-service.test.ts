@@ -28,6 +28,14 @@ describe("ExpirationService.canExpire", () => {
         expect(result).toBe(true);
     });
 
+    it("should return false when checking v2 transaction with 0 expiration", () => {
+        const transaction = { data: { version: 2, expiration: 0 } } as Interfaces.ITransaction;
+        const expirationService = container.resolve(ExpirationService);
+        const result = expirationService.canExpire(transaction);
+
+        expect(result).toBe(false);
+    });
+
     it("should return true when checking v2 transaction with expiration field", () => {
         const transaction = { data: { version: 2, expiration: 100 } } as Interfaces.ITransaction;
         const expirationService = container.resolve(ExpirationService);
