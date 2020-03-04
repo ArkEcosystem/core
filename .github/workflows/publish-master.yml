@@ -21,7 +21,7 @@ jobs:
               run: yarn setup
 
             - name: Publish to NPM
-            - run: |
+              run: |
                 cd crypto && npm publish --access public && cd ..
                 cd core-api && npm publish --access public && cd ..
                 cd core-blockchain && npm publish --access public && cd ..
