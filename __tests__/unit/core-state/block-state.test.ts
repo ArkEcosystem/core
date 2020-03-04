@@ -17,6 +17,8 @@ let blockState: BlockState;
 let factory: FactoryBuilder;
 let blocks: IBlock[];
 let walletRepo: WalletRepository;
+let generatorWallet: Contracts.State.Wallet;
+
 let applySpy: jest.SpyInstance;
 let revertSpy: jest.SpyInstance;
 let spyApplyTransaction: jest.SpyInstance;
@@ -51,41 +53,33 @@ beforeEach(() => {
     spyRevertVoteBalances = jest.spyOn(blockState as any, "revertVoteBalances");
     spyRevertBlockFromGenerator = jest.spyOn(blockState as any, "revertBlockFromGenerator");
 
-    walletRepo.reset();
+    generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
+
+    generatorWallet.setAttribute("delegate", {
+        username: "test",
+        forgedFees: Utils.BigNumber.ZERO,
+        forgedRewards: Utils.BigNumber.ZERO,
+        producedBlocks: 0,
+        lastBlock: undefined,
+    });
+
+    walletRepo.index(generatorWallet);
+
+    addTransactionsToBlock(
+        makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
+        blocks[0],
+    );
 });
 
 afterEach(() => {
+    walletRepo.reset();
+
     jest.clearAllMocks();
     spyApplyTransaction.mockRestore();
     spyRevertTransaction.mockRestore();
 });
 
 describe("BlockState", () => {
-    let generatorWallet: Contracts.State.Wallet;
-
-    beforeEach(() => {
-        generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
-
-        generatorWallet.setAttribute("delegate", {
-            username: "test",
-            forgedFees: Utils.BigNumber.ZERO,
-            forgedRewards: Utils.BigNumber.ZERO,
-            producedBlocks: 0,
-            lastBlock: undefined,
-        });
-
-        walletRepo.index(generatorWallet);
-
-        addTransactionsToBlock(
-            makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
-            blocks[0],
-        );
-    });
-
-    afterEach(() => {
-        jest.clearAllMocks();
-    });
-
     it("should apply sequentially the transactions of the block", async () => {
         await blockState.applyBlock(blocks[0]);
 
@@ -276,9 +270,156 @@ describe("BlockState", () => {
         expect(generatorWallet.balance).toEqual(balanceBefore);
     });
 
+    it("should remove vote balances", async () => {
+        addTransactionsToBlock(
+            makeVoteTransactions(3, [`-${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
+            blocks[0],
+        );
+
+        const balanceBefore = generatorWallet.balance;
+
+        await blockState.applyBlock(blocks[0]);
+        await blockState.revertBlock(blocks[0]);
+
+        expect(spyApplyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect(spyRevertBlockFromGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect(spyIncreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+        expect(spyDecreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+
+        const delegate = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+
+        expect(delegate.producedBlocks).toEqual(0);
+        expect(delegate.forgedFees).toEqual(Utils.BigNumber.ZERO);
+        expect(delegate.forgedRewards).toEqual(Utils.BigNumber.ZERO);
+        expect(delegate.lastBlock).toEqual(undefined);
+
+        // TODO: use transactions that affect the balance
+        expect(generatorWallet.balance).toEqual(balanceBefore);
+    });
+
     it("should throw if there is no generator wallet", () => {
         walletRepo.forgetByPublicKey(generatorWallet.publicKey);
         expect(async () => await blockState.applyBlock(blocks[0])).toReject();
+    });
+
+    it("should update sender's and recipient's delegate's vote balance when applying transaction", async () => {
+        const sendersDelegate = generatorWallet;
+        sendersDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+
+        const senderDelegateBefore = sendersDelegate.getAttribute("delegate.voteBalance");
+
+        const sendingWallet: Wallet = factory
+            .get("Wallet")
+            .withOptions({
+                passphrase: "testPassphrase1",
+                nonce: 0,
+            })
+            .make();
+
+        const recipientWallet: Wallet = factory
+            .get("Wallet")
+            .withOptions({
+                passphrase: "testPassphrase2",
+                nonce: 0,
+            })
+            .make();
+
+        const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
+        sendingWallet.balance = amount;
+
+        const recipientsDelegate = walletRepo.findByPublicKey(
+            "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
+        );
+
+        recipientsDelegate.setAttribute("delegate", {
+            username: "test2",
+            forgedFees: Utils.BigNumber.ZERO,
+            forgedRewards: Utils.BigNumber.ZERO,
+            producedBlocks: 0,
+            lastBlock: undefined,
+        });
+        const recipientsDelegateBefore = Utils.BigNumber.ZERO;
+        recipientsDelegate.setAttribute("delegate.voteBalance", recipientsDelegateBefore);
+
+        sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
+        recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
+
+        walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
+
+        const transferTransaction = factory
+            .get("Transfer")
+            .withOptions({ amount, senderPublicKey: sendingWallet.publicKey, recipientId: recipientWallet.address })
+            .make();
+
+        // @ts-ignore
+        const total: Utils.BigNumber = transferTransaction.data.amount.plus(transferTransaction.data.fee);
+        // @ts-ignore
+        await blockState.applyTransaction(transferTransaction);
+
+        // TODO: is this correct?
+        // why does the sender's delegate remove amount + fee
+        // But recipient only recieves amount (not including fee)?
+        expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(recipientsDelegateBefore.plus(amount));
+        expect(sendersDelegate.getAttribute("delegate.voteBalance")).toEqual(senderDelegateBefore.minus(total));
+    });
+
+    it("should update sender's and recipient's delegate's vote balance when reverting transaction", async () => {
+        const sendersDelegate = generatorWallet;
+        sendersDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+
+        const senderDelegateBefore = sendersDelegate.getAttribute("delegate.voteBalance");
+
+        const sendingWallet: Wallet = factory
+            .get("Wallet")
+            .withOptions({
+                passphrase: "testPassphrase1",
+                nonce: 0,
+            })
+            .make();
+
+        const recipientWallet: Wallet = factory
+            .get("Wallet")
+            .withOptions({
+                passphrase: "testPassphrase2",
+                nonce: 0,
+            })
+            .make();
+
+        const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
+        sendingWallet.balance = amount;
+
+        const recipientsDelegate = walletRepo.findByPublicKey(
+            "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
+        );
+
+        recipientsDelegate.setAttribute("delegate", {
+            username: "test2",
+            forgedFees: Utils.BigNumber.ZERO,
+            forgedRewards: Utils.BigNumber.ZERO,
+            producedBlocks: 0,
+            lastBlock: undefined,
+        });
+        const recipientDelegateBefore = Utils.BigNumber.ZERO;
+        recipientsDelegate.setAttribute("delegate.voteBalance", recipientDelegateBefore);
+
+        sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
+        recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
+
+        walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
+
+        const transferTransaction = factory
+            .get("Transfer")
+            .withOptions({ amount, senderPublicKey: sendingWallet.publicKey, recipientId: recipientWallet.address })
+            .make();
+
+        // @ts-ignore
+        const total: Utils.BigNumber = transferTransaction.data.amount.plus(transferTransaction.data.fee);
+        // @ts-ignore
+        await blockState.revertTransaction(transferTransaction);
+
+        // TODO: is this correct? (see note above)
+        expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(recipientDelegateBefore.minus(amount));
+        expect(sendersDelegate.getAttribute("delegate.voteBalance")).toEqual(senderDelegateBefore.plus(total));
     });
 
     describe("apply and revert transactions", () => {
