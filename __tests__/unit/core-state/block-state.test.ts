@@ -1,12 +1,12 @@
 import "jest-extended";
 
-import { Wallet } from "@packages/core-state/src/wallets";
 import { Contracts } from "@packages/core-kernel/src";
 import { BlockState } from "@packages/core-state/src/block-state";
+import { Wallet } from "@packages/core-state/src/wallets";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
-import { ITransaction } from "@packages/crypto/src/interfaces";
 import { Utils } from "@packages/crypto/src";
+import { ITransaction } from "@packages/crypto/src/interfaces";
 import { IBlock } from "@packages/crypto/src/interfaces";
 
 import { addTransactionsToBlock } from "./__utils__/transactions";
@@ -38,7 +38,7 @@ beforeAll(async () => {
     revertSpy = initialEnv.spies.revertSpy;
 });
 
-beforeAll(() => {
+beforeEach(() => {
     blocks = makeChainedBlocks(101, factory.get("Block"));
 
     spyApplyTransaction = jest.spyOn(blockState, "applyTransaction");
@@ -54,7 +54,11 @@ beforeAll(() => {
     walletRepo.reset();
 });
 
-afterEach(() => jest.clearAllMocks());
+afterEach(() => {
+    jest.clearAllMocks();
+    spyApplyTransaction.mockRestore();
+    spyRevertTransaction.mockRestore();
+});
 
 describe("BlockState", () => {
     let generatorWallet: Contracts.State.Wallet;
@@ -277,7 +281,7 @@ describe("BlockState", () => {
         expect(async () => await blockState.applyBlock(blocks[0])).toReject();
     });
 
-    describe("applyTransaction", () => {
+    describe("apply and revert transactions", () => {
         const factory = new FactoryBuilder();
 
         Factories.registerTransactionFactory(factory);
@@ -370,6 +374,24 @@ describe("BlockState", () => {
             });
         });
 
+        describe.each`
+            type                      | transaction
+            ${"transfer"}             | ${transfer}
+            ${"delegateRegistration"} | ${delegateReg}
+            ${"2nd sign"}             | ${secondSign}
+            ${"vote"}                 | ${vote}
+            ${"delegateResignation"}  | ${delegateRes}
+            ${"ipfs"}                 | ${ipfs}
+            ${"htlcLock"}             | ${htlcLock}
+            ${"htlcRefund"}           | ${htlcRefund}
+        `("when the transaction is a $type", ({ transaction }) => {
+            it("should call be able to revert the transaction", async () => {
+                await blockState.revertTransaction(transaction);
+
+                expect(revertSpy).toHaveBeenCalledWith(transaction);
+            });
+        });
+
         describe("htlc lock transaction", () => {
             let htlcClaimTransaction: ITransaction;
             let lockData;
@@ -429,6 +451,35 @@ describe("BlockState", () => {
                     lockData,
                 );
             });
+        });
+    });
+    
+    describe("when 1 transaction fails while reverting it", () => {
+        it("should apply sequentially (from first to last) all the reverted transactions of the block", async () => {
+            // @ts-ignore
+            const spyRevert = spyRevertTransaction.mockImplementation(tx => {
+                if (tx === blocks[0].transactions[0]) {
+                    throw new Error("Fake error");
+                }
+            });
+
+            expect(blocks[0].transactions.length).toBe(3);
+            await expect(blockState.revertBlock(blocks[0])).rejects.toEqual(Error("Fake error"));
+
+            expect(spyApplyTransaction).toHaveBeenCalledTimes(2);
+            expect(applySpy).toHaveBeenCalledTimes(2);
+
+            let counter = 1;
+            for (const transaction of blocks[0].transactions.slice(1)) {
+                expect(spyApplyTransaction).toHaveBeenNthCalledWith(counter++, transaction);
+            }
+        });
+
+        it("throws the Error", async () => {
+            spyRevertTransaction.mockImplementationOnce(() => {
+                throw new Error("Fake error");
+            });
+            await expect(blockState.revertBlock(blocks[0])).rejects.toEqual(Error("Fake error"));
         });
     });
 
