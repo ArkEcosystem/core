@@ -36,9 +36,6 @@ jobs:
 
             - name: Lint Source
               run: yarn lint
-
-            - name: Lint Tests
-              run: yarn lint:tests
     test-unit:
         needs: lint
 
