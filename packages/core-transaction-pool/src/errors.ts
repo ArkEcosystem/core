@@ -1,15 +1,6 @@
 import { Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Interfaces, Utils } from "@arkecosystem/crypto";
 
-export class TransactionNotFoundError extends Error {
-    public readonly transaction: Interfaces.ITransaction;
-
-    public constructor(transaction: Interfaces.ITransaction) {
-        super(`${transaction} not found`);
-        this.transaction = transaction;
-    }
-}
-
 export class RetryTransactionError extends Contracts.TransactionPool.PoolError {
     public constructor(transaction: Interfaces.ITransaction) {
         super(`${transaction} cannot be added to pool, please retry`, "ERR_RETRY", transaction);

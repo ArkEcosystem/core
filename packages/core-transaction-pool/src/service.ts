@@ -54,7 +54,8 @@ export class Service implements Contracts.TransactionPool.Service {
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.id);
         if (this.storage.hasTransaction(transaction.id) === false) {
-            throw new Error("Unknown transaction");
+            this.logger.error(`${transaction} not found`);
+            return;
         }
 
         const removedTransactions = await this.memory.removeTransaction(transaction);

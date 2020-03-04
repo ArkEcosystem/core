@@ -2,6 +2,7 @@ import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 
 import {
+    RetryTransactionError,
     SenderExceededMaximumTransactionCountError,
     TransactionAlreadyInPoolError,
     TransactionExceedsMaximumByteSizeError,
@@ -27,6 +28,15 @@ const transaction = Transactions.BuilderFactory.transfer()
 
 // DLaFiYprzZU2DwV1KPYcDfPr2MJFLSznU7 #1 transfer v2 60596cfae6c4081c2f8f146421ee97dc45f22b11fa308f7eb7967d9d918fa01e
 // console.log(String(transaction));
+
+test("RetryTransactionError", () => {
+    const error = new RetryTransactionError(transaction);
+
+    expect(error).toBeInstanceOf(Contracts.TransactionPool.PoolError);
+    expect(error.type).toBe("ERR_RETRY");
+    expect(error.transaction).toBe(transaction);
+    expect(error.message).toBe(`${transaction} cannot be added to pool, please retry`);
+});
 
 test("TransactionAlreadyInPoolError", () => {
     const error = new TransactionAlreadyInPoolError(transaction);
