@@ -25,6 +25,7 @@ let spyInitGenesisGeneratorWallet: jest.SpyInstance;
 let spyApplyBlockToGenerator: jest.SpyInstance;
 let spyDecreaseWalletDelegateVoteBalance: jest.SpyInstance;
 let spyApplyVoteBalances: jest.SpyInstance;
+let spyRevertVoteBalances: jest.SpyInstance;
 let spyRevertBlockFromGenerator: jest.SpyInstance;
 
 beforeAll(async () => {
@@ -46,6 +47,7 @@ beforeAll(() => {
     spyInitGenesisGeneratorWallet = jest.spyOn(blockState as any, "initGenesisGeneratorWallet");
     spyApplyBlockToGenerator = jest.spyOn(blockState as any, "applyBlockToGenerator");
     spyApplyVoteBalances = jest.spyOn(blockState as any, "applyVoteBalances");
+    spyRevertVoteBalances = jest.spyOn(blockState as any, "revertVoteBalances");
     spyRevertBlockFromGenerator = jest.spyOn(blockState as any, "revertBlockFromGenerator");
 
     walletRepo.reset();
@@ -297,10 +299,22 @@ describe("BlockState", () => {
                 walletRepo.index(recipient);
             });
 
-            it("should find correct locks, sender and recipient wallets", async () => {
+            it("apply should find correct locks, sender and recipient wallets", async () => {
                 await blockState.applyTransaction(htlcClaimTransaction);
                 expect(applySpy).toHaveBeenCalledWith(htlcClaimTransaction);
                 expect(spyApplyVoteBalances).toHaveBeenCalledWith(
+                    sender,
+                    recipient,
+                    htlcClaimTransaction.data,
+                    walletRepo.findByIndex(Contracts.State.WalletIndexes.Locks, lockID),
+                    lockData,
+                );
+            });
+
+            it("revert should find correct locks, sender and recipient wallets", async () => {
+                await blockState.revertTransaction(htlcClaimTransaction);
+                expect(revertSpy).toHaveBeenCalledWith(htlcClaimTransaction);
+                expect(spyRevertVoteBalances).toHaveBeenCalledWith(
                     sender,
                     recipient,
                     htlcClaimTransaction.data,
