@@ -17,6 +17,14 @@ let blocks: IBlock[];
 let walletRepo: WalletRepository;
 let applySpy: jest.SpyInstance;
 let revertSpy: jest.SpyInstance;
+let spyApplyTransaction: jest.SpyInstance;
+let spyRevertTransaction: jest.SpyInstance;
+let spyIncreaseWalletDelegateVoteBalance: jest.SpyInstance;
+let spyInitGenesisGeneratorWallet: jest.SpyInstance;
+let spyApplyBlockToGenerator: jest.SpyInstance;
+let spyDecreaseWalletDelegateVoteBalance: jest.SpyInstance;
+let spyApplyVoteBalances: jest.SpyInstance;
+let spyRevertBlockFromGenerator: jest.SpyInstance;
 
 beforeAll(async () => {
     const initialEnv = await setUp(setUpDefaults, true); // todo: why do I have to skip booting?
@@ -30,19 +38,19 @@ beforeAll(async () => {
 beforeAll(() => {
     blocks = makeChainedBlocks(101, factory.get("Block"));
 
-    jest.spyOn(blockState, "applyTransaction");
-    jest.spyOn(blockState, "revertTransaction");
-    jest.spyOn(blockState, "increaseWalletDelegateVoteBalance");
-    jest.spyOn(blockState, "decreaseWalletDelegateVoteBalance");
-    jest.spyOn(blockState as any, "initGenesisGeneratorWallet");
-    jest.spyOn(blockState as any, "applyBlockToGenerator");
-    jest.spyOn(blockState as any, "applyVoteBalances");
-    jest.spyOn(blockState as any, "revertBlockFromGenerator");
+    spyApplyTransaction = jest.spyOn(blockState, "applyTransaction");
+    spyRevertTransaction = jest.spyOn(blockState, "revertTransaction");
+    spyIncreaseWalletDelegateVoteBalance = jest.spyOn(blockState, "increaseWalletDelegateVoteBalance");
+    spyDecreaseWalletDelegateVoteBalance = jest.spyOn(blockState, "decreaseWalletDelegateVoteBalance");
+    spyInitGenesisGeneratorWallet = jest.spyOn(blockState as any, "initGenesisGeneratorWallet");
+    spyApplyBlockToGenerator = jest.spyOn(blockState as any, "applyBlockToGenerator");
+    spyApplyVoteBalances = jest.spyOn(blockState as any, "applyVoteBalances");
+    spyRevertBlockFromGenerator = jest.spyOn(blockState as any, "revertBlockFromGenerator");
 
     walletRepo.reset();
 });
 
-afterAll(() => jest.clearAllMocks());
+afterEach(() => jest.clearAllMocks());
 
 describe("BlockState", () => {
     let generatorWallet: Contracts.State.Wallet;
@@ -74,7 +82,7 @@ describe("BlockState", () => {
         await blockState.applyBlock(blocks[0]);
 
         for (let i = 0; i < blocks[0].transactions.length; i++) {
-            expect(blockState.applyTransaction).toHaveBeenNthCalledWith(i + 1, blocks[0].transactions[i]);
+            expect(spyApplyTransaction).toHaveBeenNthCalledWith(i + 1, blocks[0].transactions[i]);
         }
     });
 
@@ -88,7 +96,19 @@ describe("BlockState", () => {
     it("should init generator wallet on genesis block", async () => {
         blocks[0].data.height = 1;
         await blockState.applyBlock(blocks[0]);
-        expect((blockState as any).initGenesisGeneratorWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
+        expect(spyInitGenesisGeneratorWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
+    });
+
+    it("should create generator wallet if it doesn't exist genesis block", async () => {
+        //@ts-ignore
+        const spyApplyBlockToGenerator = jest.spyOn(blockState, "applyBlockToGenerator");
+        spyApplyBlockToGenerator.mockImplementationOnce(() => {});
+        const spyCreateWallet = jest.spyOn(walletRepo, "createWallet");
+        blocks[0].data.height = 1;
+        blocks[0].data.generatorPublicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
+        await expect(blockState.applyBlock(blocks[0])).toResolve();
+        expect(spyInitGenesisGeneratorWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
+        expect(spyCreateWallet).toHaveBeenCalled();
     });
 
     it("should apply the block data to the delegate", async () => {
@@ -97,11 +117,10 @@ describe("BlockState", () => {
 
         await blockState.applyBlock(blocks[0]);
 
-        expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
-        expect((blockState as any).increaseWalletDelegateVoteBalance).toHaveBeenCalledWith(
-            generatorWallet,
-            Utils.BigNumber.ZERO,
-        );
+        expect(spyApplyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect(spyApplyVoteBalances).toHaveBeenCalled();
+
+        expect(spyIncreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
 
         const balanceIncrease = blocks[0].data.transactions.reduce(
             (acc, currentTransaction) => acc.plus(currentTransaction.amount),
@@ -127,16 +146,10 @@ describe("BlockState", () => {
         await blockState.applyBlock(blocks[0]);
         await blockState.revertBlock(blocks[0]);
 
-        expect((blockState as any).applyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
-        expect((blockState as any).revertBlockFromGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
-        expect((blockState as any).increaseWalletDelegateVoteBalance).toHaveBeenCalledWith(
-            generatorWallet,
-            Utils.BigNumber.ZERO,
-        );
-        expect((blockState as any).decreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(
-            generatorWallet,
-            Utils.BigNumber.ZERO,
-        );
+        expect(spyApplyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect(spyRevertBlockFromGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect(spyIncreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+        expect(spyDecreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
 
         const delegate = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
 
@@ -250,8 +263,6 @@ describe("BlockState", () => {
 
     describe("when 1 transaction fails while applying it", () => {
         it("should revert sequentially (from last to first) all the transactions of the block", async () => {
-            const spyApplyTransaction = jest.spyOn(blockState, "applyTransaction");
-
             // @ts-ignore
             spyApplyTransaction.mockImplementation(tx => {
                 if (tx === blocks[0].transactions[2]) {
@@ -262,20 +273,18 @@ describe("BlockState", () => {
             expect(blocks[0].transactions.length).toBe(3);
             await expect(blockState.applyBlock(blocks[0])).rejects.toEqual(Error("Fake error"));
 
-            expect(blockState.revertTransaction).toHaveBeenCalledTimes(2);
+            expect(spyRevertTransaction).toHaveBeenCalledTimes(2);
             expect(revertSpy).toHaveBeenCalledTimes(2);
 
             for (const transaction of blocks[0].transactions.slice(0, 1)) {
                 const i = blocks[0].transactions.slice(0, 1).indexOf(transaction);
                 const total = blocks[0].transactions.slice(0, 1).length;
-                expect(blockState.revertTransaction).toHaveBeenNthCalledWith(total + 1 - i, blocks[0].transactions[i]);
+                expect(spyRevertTransaction).toHaveBeenNthCalledWith(total + 1 - i, blocks[0].transactions[i]);
             }
         });
 
         it("throws the Error", async () => {
-            const spyApplyTransaction = jest.spyOn(blockState, "applyTransaction");
-
-            spyApplyTransaction.mockImplementation(() => {
+            spyApplyTransaction.mockImplementationOnce(() => {
                 throw new Error("Fake error");
             });
             await expect(blockState.applyBlock(blocks[0])).rejects.toEqual(Error("Fake error"));
