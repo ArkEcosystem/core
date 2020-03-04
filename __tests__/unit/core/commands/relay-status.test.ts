@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-
 import { Command } from "@packages/core/src/commands/relay-status";
 
 let cli;

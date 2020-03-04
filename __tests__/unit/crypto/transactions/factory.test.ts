@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { Interfaces, Utils } from "@arkecosystem/crypto";
+
 import {
     InvalidTransactionBytesError,
     TransactionSchemaError,

@@ -1,13 +1,12 @@
 import "jest-extended";
 
 import { sleep } from "@arkecosystem/utils";
-import { dirSync, setGracefulCleanup } from "tmp";
-import { writeFileSync } from "fs";
-
-import { Watcher } from "@packages/core-kernel/src/services/config/watcher";
 import { Application } from "@packages/core-kernel/src/application";
 import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
+import { Watcher } from "@packages/core-kernel/src/services/config/watcher";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+import { writeFileSync } from "fs";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 const configPath: string = dirSync().name;
 

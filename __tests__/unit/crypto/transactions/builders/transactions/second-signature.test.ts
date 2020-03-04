@@ -1,14 +1,13 @@
 import "jest-extended";
 
-import { configManager } from "@packages/crypto/src/managers";
 import { Utils } from "@arkecosystem/crypto";
+import { Factories, Generators } from "@packages/core-test-framework/src";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { Keys } from "@packages/crypto/src/identities";
+import { configManager } from "@packages/crypto/src/managers";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { Two } from "@packages/crypto/src/transactions/types";
 import { SecondSignatureBuilder } from "@packages/crypto/src/transactions/builders/transactions/second-signature";
-
-import { Factories, Generators } from "@packages/core-test-framework/src";
+import { Two } from "@packages/crypto/src/transactions/types";
 
 let builder: SecondSignatureBuilder;
 let identity;

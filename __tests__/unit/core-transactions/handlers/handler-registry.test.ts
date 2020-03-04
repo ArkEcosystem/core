@@ -1,23 +1,23 @@
 import "jest-extended";
 
-import ByteBuffer from "bytebuffer";
+import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Application } from "@arkecosystem/core-kernel/src/application";
 import { Container, Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Contracts, Services } from "@arkecosystem/core-kernel";
+import {
+    DeactivatedTransactionHandlerError,
+    InvalidTransactionTypeError,
+} from "@arkecosystem/core-transactions/src/errors";
 import {
     One,
     TransactionHandler,
     TransactionHandlerConstructor,
     Two,
 } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { TransactionHandlerProvider } from "@arkecosystem/core-transactions/src/handlers/handler-provider";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionSchema } from "@arkecosystem/crypto/src/transactions/types/schemas";
-import {
-    DeactivatedTransactionHandlerError,
-    InvalidTransactionTypeError,
-} from "@arkecosystem/core-transactions/src/errors";
+import ByteBuffer from "bytebuffer";
 
 let app: Application;
 
@@ -32,38 +32,36 @@ const { schemas } = Transactions;
 abstract class TestTransaction extends Transactions.Transaction {
     public static type: number = TEST_TRANSACTION_TYPE;
     public static typeGroup: number = Enums.TransactionTypeGroup.Test;
-    public static key: string = 'test';
+    public static key: string = "test";
 
-    deserialize(buf: ByteBuffer): void {
-    }
+    deserialize(buf: ByteBuffer): void {}
 
     serialize(): ByteBuffer | undefined {
-        return undefined
+        return undefined;
     }
 
     public static getSchema(): TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "test",
-        })
+        });
     }
 }
 
 abstract class TestWithDependencyTransaction extends Transactions.Transaction {
     public static type: number = DEPENDANT_TEST_TRANSACTION_TYPE;
     public static typeGroup: number = Enums.TransactionTypeGroup.Test;
-    public static key: string = 'test_with_dependency';
+    public static key: string = "test_with_dependency";
 
-    deserialize(buf: ByteBuffer): void {
-    }
+    deserialize(buf: ByteBuffer): void {}
 
     serialize(): ByteBuffer | undefined {
-        return undefined
+        return undefined;
     }
 
     public static getSchema(): TransactionSchema {
         return schemas.extend(schemas.transactionBaseSchema, {
             $id: "test_with_dependency",
-        })
+        });
     }
 }
 
@@ -88,11 +86,16 @@ class TestTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    async applyToRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository): Promise<void> {}
+    async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        customWalletRepository?: Contracts.State.WalletRepository,
+    ): Promise<void> {}
 
-    async revertForRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository): Promise<void> {}
+    async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        customWalletRepository?: Contracts.State.WalletRepository,
+    ): Promise<void> {}
 }
-
 
 class TestWithDependencyTransactionHandler extends TransactionHandler {
     dependencies(): ReadonlyArray<TransactionHandlerConstructor> {
@@ -115,16 +118,24 @@ class TestWithDependencyTransactionHandler extends TransactionHandler {
         return true;
     }
 
-    async applyToRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository): Promise<void> {}
+    async applyToRecipient(
+        transaction: Interfaces.ITransaction,
+        customWalletRepository?: Contracts.State.WalletRepository,
+    ): Promise<void> {}
 
-    async revertForRecipient(transaction: Interfaces.ITransaction, customWalletRepository?: Contracts.State.WalletRepository): Promise<void> {}
+    async revertForRecipient(
+        transaction: Interfaces.ITransaction,
+        customWalletRepository?: Contracts.State.WalletRepository,
+    ): Promise<void> {}
 }
 
 beforeEach(() => {
     app = new Application(new Container());
     app.bind(Identifiers.ApplicationNamespace).toConstantValue("ark-unitnet");
 
-    app.bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes).to(Services.Attributes.AttributeSet).inSingletonScope();
+    app.bind<Services.Attributes.AttributeSet>(Identifiers.WalletAttributes)
+        .to(Services.Attributes.AttributeSet)
+        .inSingletonScope();
     app.bind(Identifiers.BlockRepository).toConstantValue({});
     app.bind(Identifiers.TransactionRepository).toConstantValue({});
     app.bind(Identifiers.WalletRepository).toConstantValue({});
@@ -147,53 +158,147 @@ beforeEach(() => {
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcClaimTransactionHandler);
     app.bind(Identifiers.TransactionHandler).to(Two.HtlcRefundTransactionHandler);
 
-    app.bind(Identifiers.TransactionHandlerProvider).to(TransactionHandlerProvider).inSingletonScope();
-    app.bind(Identifiers.TransactionHandlerRegistry).to(TransactionHandlerRegistry).inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerProvider)
+        .to(TransactionHandlerProvider)
+        .inSingletonScope();
+    app.bind(Identifiers.TransactionHandlerRegistry)
+        .to(TransactionHandlerRegistry)
+        .inSingletonScope();
 
     Managers.configManager.getMilestone().aip11 = false;
 });
 
 afterEach(() => {
     try {
-        Transactions.TransactionRegistry.deregisterTransactionType(
-            TestTransaction,
-        );
+        Transactions.TransactionRegistry.deregisterTransactionType(TestTransaction);
     } catch {}
 });
 
 describe("Registry", () => {
     it("should register core transaction types", async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
 
         await expect(
             Promise.all([
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Transfer, Enums.TransactionTypeGroup.Core)),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Transfer, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.SecondSignature, Enums.TransactionTypeGroup.Core)),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.SecondSignature, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.DelegateRegistration, Enums.TransactionTypeGroup.Core)),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.DelegateRegistration, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Vote, Enums.TransactionTypeGroup.Core)),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Vote, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiSignature, Enums.TransactionTypeGroup.Core)),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiSignature, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.Ipfs, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiPayment, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.DelegateRegistration, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.HtlcLock, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.HtlcClaim, Enums.TransactionTypeGroup.Core), 2),
-                transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.HtlcRefund, Enums.TransactionTypeGroup.Core), 2),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.Transfer,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.Transfer,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.SecondSignature,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.SecondSignature,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.DelegateRegistration,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.DelegateRegistration,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.Vote,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.Vote,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.MultiSignature,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.MultiSignature,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.Ipfs,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.MultiPayment,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.DelegateRegistration,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.HtlcLock,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.HtlcClaim,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
+                transactionHandlerRegistry.getRegisteredHandlerByType(
+                    Transactions.InternalTransactionType.from(
+                        Enums.TransactionType.HtlcRefund,
+                        Enums.TransactionTypeGroup.Core,
+                    ),
+                    2,
+                ),
             ]),
         ).toResolve();
     });
-
 
     it("should register a custom type", async () => {
         app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
 
         expect(() => {
             app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        }).not.toThrowError()
+        }).not.toThrowError();
     });
 
     it("should register a custom type with dependency", async () => {
@@ -202,7 +307,7 @@ describe("Registry", () => {
 
         expect(() => {
             app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        }).not.toThrowError()
+        }).not.toThrowError();
     });
 
     it("should register a custom type with missing dependency", async () => {
@@ -215,7 +320,9 @@ describe("Registry", () => {
 
     it("should be able to return handler by data", async () => {
         app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
 
         const keys = Identities.Keys.fromPassphrase("secret");
         const data: Interfaces.ITransactionData = {
@@ -233,7 +340,9 @@ describe("Registry", () => {
             },
         };
 
-        expect(await transactionHandlerRegistry.getActivatedHandlerForData(data)).toBeInstanceOf(TestTransactionHandler)
+        expect(await transactionHandlerRegistry.getActivatedHandlerForData(data)).toBeInstanceOf(
+            TestTransactionHandler,
+        );
     });
 
     it("should throw when registering the same key twice", async () => {
@@ -246,70 +355,117 @@ describe("Registry", () => {
     });
 
     it("should return all registered core handlers", async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
 
         expect(transactionHandlerRegistry.getRegisteredHandlers().length).toBe(NUMBER_OF_REGISTERED_CORE_HANDLERS);
     });
 
     it("should return all registered core and custom handlers", async () => {
         app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
 
         expect(transactionHandlerRegistry.getRegisteredHandlers().length).toBe(NUMBER_OF_REGISTERED_CORE_HANDLERS + 1);
     });
 
     it("should return all active core handlers", async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
 
-        expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE);
+        expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(
+            NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE,
+        );
 
         Managers.configManager.getMilestone().aip11 = true;
-        expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE)
+        expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(
+            NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE,
+        );
     });
-
 
     it("should return all active core and custom handlers", async () => {
         app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
 
-        expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE + 1);
+        expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(
+            NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_FALSE + 1,
+        );
 
         Managers.configManager.getMilestone().aip11 = true;
-        expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE + 1)
+        expect((await transactionHandlerRegistry.getActivatedHandlers()).length).toBe(
+            NUMBER_OF_ACTIVE_CORE_HANDLERS_AIP11_IS_TRUE + 1,
+        );
     });
 
     it("should return a registered custom handler", async () => {
         app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
 
-        const internalTransactionType = Transactions.InternalTransactionType.from(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test);
-        expect(transactionHandlerRegistry.getRegisteredHandlerByType(internalTransactionType)).toBeInstanceOf(TestTransactionHandler);
+        const internalTransactionType = Transactions.InternalTransactionType.from(
+            TEST_TRANSACTION_TYPE,
+            Enums.TransactionTypeGroup.Test,
+        );
+        expect(transactionHandlerRegistry.getRegisteredHandlerByType(internalTransactionType)).toBeInstanceOf(
+            TestTransactionHandler,
+        );
 
-        const invalidInternalTransactionType = Transactions.InternalTransactionType.from(999, Enums.TransactionTypeGroup.Test);
+        const invalidInternalTransactionType = Transactions.InternalTransactionType.from(
+            999,
+            Enums.TransactionTypeGroup.Test,
+        );
 
-        expect(() => {transactionHandlerRegistry.getRegisteredHandlerByType(invalidInternalTransactionType)}).toThrow(InvalidTransactionTypeError);
+        expect(() => {
+            transactionHandlerRegistry.getRegisteredHandlerByType(invalidInternalTransactionType);
+        }).toThrow(InvalidTransactionTypeError);
     });
 
     it("should return a activated custom handler", async () => {
         app.bind(Identifiers.TransactionHandler).to(TestTransactionHandler);
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
 
-        const internalTransactionType = Transactions.InternalTransactionType.from(TEST_TRANSACTION_TYPE, Enums.TransactionTypeGroup.Test);
-        expect(await transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType)).toBeInstanceOf(TestTransactionHandler);
+        const internalTransactionType = Transactions.InternalTransactionType.from(
+            TEST_TRANSACTION_TYPE,
+            Enums.TransactionTypeGroup.Test,
+        );
+        expect(await transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType)).toBeInstanceOf(
+            TestTransactionHandler,
+        );
 
-        const invalidInternalTransactionType = Transactions.InternalTransactionType.from(999, Enums.TransactionTypeGroup.Test);
-        await expect(transactionHandlerRegistry.getActivatedHandlerByType(invalidInternalTransactionType)).rejects.toThrow(InvalidTransactionTypeError)
+        const invalidInternalTransactionType = Transactions.InternalTransactionType.from(
+            999,
+            Enums.TransactionTypeGroup.Test,
+        );
+        await expect(
+            transactionHandlerRegistry.getActivatedHandlerByType(invalidInternalTransactionType),
+        ).rejects.toThrow(InvalidTransactionTypeError);
     });
 
     it("should not return deactivated custom handler", async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        let internalTransactionType = Transactions.InternalTransactionType.from(Enums.TransactionType.DelegateResignation, Enums.TransactionTypeGroup.Core);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
+        const internalTransactionType = Transactions.InternalTransactionType.from(
+            Enums.TransactionType.DelegateResignation,
+            Enums.TransactionTypeGroup.Core,
+        );
 
         Managers.configManager.getMilestone().aip11 = false;
-        await expect(transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType, 2)).rejects.toThrow(DeactivatedTransactionHandlerError);
-
+        await expect(transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType, 2)).rejects.toThrow(
+            DeactivatedTransactionHandlerError,
+        );
 
         Managers.configManager.getMilestone().aip11 = true;
-        expect(await transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType, 2)).toBeInstanceOf(Two.DelegateResignationTransactionHandler);
+        expect(await transactionHandlerRegistry.getActivatedHandlerByType(internalTransactionType, 2)).toBeInstanceOf(
+            Two.DelegateResignationTransactionHandler,
+        );
     });
 });

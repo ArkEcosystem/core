@@ -2,7 +2,6 @@ import "jest-extended";
 
 import { Console } from "@arkecosystem/core-test-framework";
 import Joi from "@hapi/joi";
-
 import { InputValidator } from "@packages/core-cli/src/input";
 
 let cli;

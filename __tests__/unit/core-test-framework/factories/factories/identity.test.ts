@@ -1,7 +1,7 @@
 import "jest-extended";
 
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto/src";
-import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
 interface Identity {
     keys: Interfaces.IKeyPair;
@@ -23,7 +23,7 @@ beforeEach(() => {
 
 describe("IdentityFactory", () => {
     it("should make an identity with a single passphrase", () => {
-        const entity: Identity = factory.get("Identity").make<Identity>() as Identity;
+        const entity: Identity = factory.get("Identity").make<Identity>();
 
         expect(entity).toContainAllKeys(["keys", "publicKey", "privateKey", "address", "wif", "passphrase"]);
         expect(entity.keys).toBeObject();
@@ -40,7 +40,7 @@ describe("IdentityFactory", () => {
         const entity: Identity = factory
             .get("Identity")
             .withStates("secondPassphrase")
-            .make<Identity>() as Identity;
+            .make<Identity>();
 
         expect(entity).toContainAllKeys([
             "keys",

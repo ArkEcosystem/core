@@ -1,13 +1,12 @@
 import "jest-extended";
 
-import { configManager } from "@packages/crypto/src/managers";
 import { Utils } from "@arkecosystem/crypto";
-import { TransactionType } from "@packages/crypto/src/enums";
-import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { Two } from "@packages/crypto/src/transactions/types";
-import { IPFSBuilder } from "@packages/crypto/src/transactions/builders/transactions/ipfs";
-
 import { Generators } from "@packages/core-test-framework/src";
+import { TransactionType } from "@packages/crypto/src/enums";
+import { configManager } from "@packages/crypto/src/managers";
+import { BuilderFactory } from "@packages/crypto/src/transactions";
+import { IPFSBuilder } from "@packages/crypto/src/transactions/builders/transactions/ipfs";
+import { Two } from "@packages/crypto/src/transactions/types";
 
 let builder: IPFSBuilder;
 

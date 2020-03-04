@@ -1,7 +1,7 @@
 import "jest-extended";
 
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { Interfaces } from "@packages/crypto/src";
-import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
 
 let factory: FactoryBuilder;
 

@@ -1,11 +1,10 @@
 import "jest-extended";
 
-import { dirSync, setGracefulCleanup } from "tmp";
+import { NPM } from "@packages/core/src/source-providers";
 import fs from "fs-extra";
 import nock from "nock";
-
-import { NPM } from "@packages/core/src/source-providers";
 import { resolve } from "path";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 let dataPath: string;
 let tempPath: string;

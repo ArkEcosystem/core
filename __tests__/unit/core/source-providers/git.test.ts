@@ -1,11 +1,11 @@
 import "jest-extended";
 
 import { parseGitUrl } from "@arkecosystem/utils";
-import { dirSync, setGracefulCleanup } from "tmp";
-import fs from "fs-extra";
-import execa from "../../../../__mocks__/execa";
-
 import { Git } from "@packages/core/src/source-providers";
+import fs from "fs-extra";
+import { dirSync, setGracefulCleanup } from "tmp";
+
+import execa from "../../../../__mocks__/execa";
 
 let dataPath: string;
 let source: Git;

@@ -1,10 +1,9 @@
 import "jest-extended";
 
 import { Console } from "@arkecosystem/core-test-framework";
-import { setGracefulCleanup } from "tmp";
-
 import { Config } from "@packages/core-cli/src/services";
 import { writeFileSync } from "fs";
+import { setGracefulCleanup } from "tmp";
 
 let cli;
 let config;

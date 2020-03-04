@@ -3,7 +3,7 @@ import { ITransaction } from "@packages/crypto/src/interfaces";
 let mockTransaction: ITransaction | null;
 
 export const setMockTransaction = (transaction: ITransaction | null) => {
-    mockTransaction = transaction
+    mockTransaction = transaction;
 };
 
 export const transactionRepository = {
@@ -20,9 +20,13 @@ export const transactionRepository = {
         return mockTransaction ? [mockTransaction.data] : [];
     },
     getClaimedHtlcLockBalances() {
-        return mockTransaction ? [{ amount: mockTransaction.data.amount, recipientId: mockTransaction.data.recipientId }] : [];
+        return mockTransaction
+            ? [{ amount: mockTransaction.data.amount, recipientId: mockTransaction.data.recipientId }]
+            : [];
     },
     getRefundedHtlcLockBalances() {
-        return mockTransaction ? [{ amount: mockTransaction.data.amount, senderPublicKey: mockTransaction.data.senderPublicKey }] : [];
-    }
+        return mockTransaction
+            ? [{ amount: mockTransaction.data.amount, senderPublicKey: mockTransaction.data.senderPublicKey }]
+            : [];
+    },
 };
