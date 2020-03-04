@@ -116,6 +116,7 @@ describe("QueryIterable.whereId", () => {
     it("should filter transactions by id", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200]);
         const result = Array.from(queryIterable.whereId(s1tx200.id));
+
         expect(result).toStrictEqual([s1tx200]);
     });
 });
@@ -124,6 +125,7 @@ describe("QueryIterable.whereType", () => {
     it("should filter transactions by type", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200]);
         const result = Array.from(queryIterable.whereType(Enums.TransactionType.DelegateRegistration));
+
         expect(result).toStrictEqual([s1tx200]);
     });
 });
@@ -132,6 +134,7 @@ describe("QueryIterable.whereTypeGroup", () => {
     it("should filter transactions by typeGroup", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200]);
         const result = Array.from(queryIterable.whereTypeGroup(Enums.TransactionTypeGroup.Core));
+
         expect(result).toStrictEqual([s1tx100, s1tx200]);
     });
 });
@@ -140,6 +143,7 @@ describe("QueryIterable.whereVersion", () => {
     it("should filter transactions by version", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200]);
         const result = Array.from(queryIterable.whereVersion(2));
+
         expect(result).toStrictEqual([s1tx100, s1tx200]);
     });
 });
@@ -148,6 +152,7 @@ describe("QueryIterable.whereKind", () => {
     it("should filter transactions by type and typeGroup", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200, s2tx100, s2tx200]);
         const result = Array.from(queryIterable.whereKind(s1tx200));
+
         expect(result).toStrictEqual([s1tx200, s2tx200]);
     });
 });
@@ -156,12 +161,14 @@ describe("QueryIterable.has", () => {
     it("should return true when there are matching transactions", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200]);
         const result = queryIterable.whereType(Enums.TransactionType.DelegateRegistration).has();
+
         expect(result).toBe(true);
     });
 
     it("should return false when there are no matching transactions", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200]);
         const result = queryIterable.whereType(Enums.TransactionType.HtlcClaim).has();
+
         expect(result).toBe(false);
     });
 });
@@ -170,12 +177,14 @@ describe("QueryIterable.first", () => {
     it("should return first matching transaction", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200, s2tx100, s2tx200]);
         const result = queryIterable.whereType(Enums.TransactionType.DelegateRegistration).first();
+
         expect(result).toBe(s1tx200);
     });
 
     it("should throw where there are no matching transactions", () => {
         const queryIterable = new QueryIterable([s1tx100, s1tx200]);
-        const fn = () => queryIterable.whereType(Enums.TransactionType.HtlcClaim).first();
-        expect(fn).toThrow();
+        const check = () => queryIterable.whereType(Enums.TransactionType.HtlcClaim).first();
+
+        expect(check).toThrow();
     });
 });
