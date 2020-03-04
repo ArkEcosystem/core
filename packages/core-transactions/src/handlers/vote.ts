@@ -1,3 +1,4 @@
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Database, EventEmitter, State, TransactionPool } from "@arkecosystem/core-interfaces";
 import { Interfaces, Transactions } from "@arkecosystem/crypto";
 import {
@@ -95,7 +96,7 @@ export class VoteTransactionHandler extends TransactionHandler {
     public emitEvents(transaction: Interfaces.ITransaction, emitter: EventEmitter.EventEmitter): void {
         const vote: string = transaction.data.asset.votes[0];
 
-        emitter.emit(vote.startsWith("+") ? "wallet.vote" : "wallet.unvote", {
+        emitter.emit(vote.startsWith("+") ? ApplicationEvents.WalletVote : ApplicationEvents.WalletUnvote, {
             delegate: vote,
             transaction: transaction.data,
         });
@@ -105,7 +106,7 @@ export class VoteTransactionHandler extends TransactionHandler {
         data: Interfaces.ITransactionData,
         pool: TransactionPool.IConnection,
         processor: TransactionPool.IProcessor,
-    ): Promise<{ type: string, message: string } | null> {
+    ): Promise<{ type: string; message: string } | null> {
         return this.typeFromSenderAlreadyInPool(data, pool);
     }
 

@@ -61,7 +61,7 @@ export class Connection implements TransactionPool.IConnection {
             this.syncToPersistentStorage();
         });
 
-        this.emitter.on("internal.milestone.changed", () => this.purgeInvalidTransactions());
+        this.emitter.on(ApplicationEvents.InternalMilestoneChanged, () => this.purgeInvalidTransactions());
 
         return this;
     }

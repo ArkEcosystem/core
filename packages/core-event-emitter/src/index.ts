@@ -10,6 +10,7 @@ export const plugin = {
 };
 
 export enum ApplicationEvents {
+    ApplicationShutdown = "shutdown",
     BlockApplied = "block.applied",
     BlockDisregarded = "block.disregarded",
     BlockForged = "block.forged",
@@ -20,11 +21,15 @@ export enum ApplicationEvents {
     ForgerFailed = "forger.failed",
     ForgerMissing = "forger.missing",
     ForgerStarted = "forger.started",
+    InternalMilestoneChanged = "internal.milestone.changed",
     PeerAdded = "peer.added",
     PeerRemoved = "peer.removed",
     RoundApplied = "round.applied",
     RoundCreated = "round.created",
     RoundMissed = "round.missed",
+    SnapshotStart = "snapshot.start",
+    SnapshotProgress = "snapshot.progress",
+    SnapshotComplete = "snapshot.complete",
     StateBuilderFinished = "stateBuilder.finished",
     StateStarting = "state.starting",
     StateStarted = "state.started",
@@ -35,4 +40,6 @@ export enum ApplicationEvents {
     TransactionPoolRejected = "transaction.pool.rejected",
     TransactionPoolRemoved = "transaction.pool.removed",
     TransactionReverted = "transaction.reverted",
+    WalletVote = "wallet.vote",
+    WalletUnvote = "wallet.unvote",
 }
