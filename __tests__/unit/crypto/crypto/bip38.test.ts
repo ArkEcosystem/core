@@ -3,10 +3,10 @@ import "jest-extended";
 import { base58 } from "bstring";
 import ByteBuffer from "bytebuffer";
 import wif from "wif";
-import { bip38 } from "../../../../packages/crypto/src/crypto";
-import { Base58 } from "../../../../packages/crypto/src/utils";
 
+import { bip38 } from "../../../../packages/crypto/src/crypto";
 import * as errors from "../../../../packages/crypto/src/errors";
+import { Base58 } from "../../../../packages/crypto/src/utils";
 import fixtures from "./fixtures/bip38.json";
 
 describe("BIP38", () => {

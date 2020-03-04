@@ -1,7 +1,7 @@
 import { Console } from "@arkecosystem/core-test-framework";
-import { dirSync, setGracefulCleanup } from "tmp";
 import { Command } from "@packages/core/src/commands/env-list";
 import { removeSync, writeFileSync } from "fs-extra";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 let cli;
 beforeEach(() => {

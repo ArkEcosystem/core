@@ -1,4 +1,5 @@
 import "jest-extended";
+
 import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
 
 let configRepository: ConfigRepository;

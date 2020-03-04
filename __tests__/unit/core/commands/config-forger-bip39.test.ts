@@ -1,9 +1,8 @@
 import { Console } from "@arkecosystem/core-test-framework";
+import { Command } from "@packages/core/src/commands/config-forger-bip39";
+import { writeJSONSync } from "fs-extra";
 import prompts from "prompts";
 import { dirSync, setGracefulCleanup } from "tmp";
-import { writeJSONSync } from "fs-extra";
-
-import { Command } from "@packages/core/src/commands/config-forger-bip39";
 
 const bip39: string = "clay harbor enemy utility margin pretty hub comic piece aerobic umbrella acquire";
 const bip39Flags: string = "venue below waste gather spin cruise title still boost mother flash tuna";

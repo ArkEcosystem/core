@@ -1,6 +1,5 @@
-import { Contracts, Container, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Utils } from "@arkecosystem/crypto";
-
 import { ServiceProvider } from "@packages/core-api/src";
 import { Sandbox } from "@packages/core-test-framework/src";
 import { resolve } from "path";

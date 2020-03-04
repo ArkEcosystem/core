@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { fromSeed } from "bip32";
+
 import { HDWallet } from "../../../../packages/crypto/src/crypto";
 import { Address } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers/config";

@@ -1,5 +1,5 @@
 import { InvalidArgumentException } from "@packages/core-kernel/src/exceptions/logic";
-import { Triggers, Action } from "@packages/core-kernel/src/services/triggers";
+import { Action, Triggers } from "@packages/core-kernel/src/services/triggers";
 import { ActionArguments } from "@packages/core-kernel/src/types";
 
 class DummyAction extends Action {
@@ -19,7 +19,7 @@ let triggers: Triggers;
 beforeEach(() => (triggers = new Triggers()));
 
 test("binds a trigger and accepts arguments for calls", async () => {
-    let before: jest.Mock = jest.fn();
+    const before: jest.Mock = jest.fn();
 
     triggers.bind("count", new DummyAction()).before(before);
 
@@ -32,7 +32,7 @@ test("binds a trigger and accepts arguments for calls", async () => {
 });
 
 test("binds a trigger with a <before> hook and executes them", async () => {
-    let before: jest.Mock = jest.fn();
+    const before: jest.Mock = jest.fn();
 
     triggers.bind("count", new DummyAction()).before(before);
 
@@ -41,7 +41,7 @@ test("binds a trigger with a <before> hook and executes them", async () => {
 });
 
 test("binds a trigger with an <error> hook and executes them", async () => {
-    let error: jest.Mock = jest.fn();
+    const error: jest.Mock = jest.fn();
 
     triggers.bind("count", new DummyActionWithException()).error(error);
 
@@ -50,7 +50,7 @@ test("binds a trigger with an <error> hook and executes them", async () => {
 });
 
 test("binds a trigger with an <after> hook and executes them", async () => {
-    let after: jest.Mock = jest.fn();
+    const after: jest.Mock = jest.fn();
 
     triggers.bind("count", new DummyAction()).after(after);
 
@@ -59,9 +59,9 @@ test("binds a trigger with an <after> hook and executes them", async () => {
 });
 
 test("binds a trigger with <before/error/after> hooks and executes them", async () => {
-    let before: jest.Mock = jest.fn();
-    let error: jest.Mock = jest.fn();
-    let after: jest.Mock = jest.fn();
+    const before: jest.Mock = jest.fn();
+    const error: jest.Mock = jest.fn();
+    const after: jest.Mock = jest.fn();
 
     triggers
         .bind("count", new DummyActionWithException())

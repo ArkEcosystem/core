@@ -1,9 +1,8 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import { resolve } from "path";
-import os from "os";
-
 import { Command } from "@packages/core/src/commands/relay-start";
+import os from "os";
+import { resolve } from "path";
 
 let cli;
 let processManager;

@@ -1,9 +1,8 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
+import { AppHeader } from "@packages/core-cli/src/components";
 import { red, white } from "kleur";
 import os from "os";
-
-import { AppHeader } from "@packages/core-cli/src/components";
 
 let cli;
 let component;

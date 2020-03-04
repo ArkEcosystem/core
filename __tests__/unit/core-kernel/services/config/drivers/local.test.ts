@@ -1,16 +1,16 @@
 import "jest-extended";
-import { resolve } from "path";
 
-import { LocalConfigLoader } from "@packages/core-kernel/src/services/config/drivers/local";
 import { Application } from "@packages/core-kernel/src/application";
-import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
-import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
-import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
-import { JoiValidator } from "@packages/core-kernel/src/services/validation/drivers/joi";
 import {
     ApplicationConfigurationCannotBeLoaded,
     EnvironmentConfigurationCannotBeLoaded,
 } from "@packages/core-kernel/src/exceptions/config";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
+import { LocalConfigLoader } from "@packages/core-kernel/src/services/config/drivers/local";
+import { ConfigRepository } from "@packages/core-kernel/src/services/config/repository";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+import { JoiValidator } from "@packages/core-kernel/src/services/validation/drivers/joi";
+import { resolve } from "path";
 
 let app: Application;
 let configLoader: LocalConfigLoader;

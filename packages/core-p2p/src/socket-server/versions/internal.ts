@@ -1,6 +1,6 @@
 import { DatabaseService } from "@arkecosystem/core-database";
 import { Container, Contracts, Providers, Utils } from "@arkecosystem/core-kernel";
-import { Crypto, Managers, Interfaces } from "@arkecosystem/crypto";
+import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 import { process } from "ipaddr.js";
 
 import { PeerService } from "../../contracts";

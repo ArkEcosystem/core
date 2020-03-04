@@ -1,10 +1,10 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Contracts, Container } from "@arkecosystem/core-kernel";
+import { DatabaseService } from "@arkecosystem/core-database";
+import { Container, Contracts } from "@arkecosystem/core-kernel";
 import { ApiHelpers, Factories } from "@packages/core-test-framework/src";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
-import { DatabaseService } from "@arkecosystem/core-database";
 
 let app: Contracts.Kernel.Application;
 let api: ApiHelpers;

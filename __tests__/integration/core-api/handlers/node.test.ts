@@ -45,7 +45,7 @@ describe("API 2.0 - Loader", () => {
 
     describe("GET /node/configuration", () => {
         it("should GET the node configuration", async () => {
-            let response = await api.request("GET", "node/configuration");
+            const response = await api.request("GET", "node/configuration");
             expect(response).toBeSuccessfulResponse();
             expect(response.data.data).toBeObject();
 

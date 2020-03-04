@@ -1,9 +1,8 @@
-import { Console } from "@arkecosystem/core-test-framework";
-import { setGracefulCleanup } from "tmp";
-import Joi from "@hapi/joi";
-
-import { Command } from "@packages/core-cli/src/commands";
 import { Container } from "@arkecosystem/core-cli";
+import { Console } from "@arkecosystem/core-test-framework";
+import Joi from "@hapi/joi";
+import { Command } from "@packages/core-cli/src/commands";
+import { setGracefulCleanup } from "tmp";
 
 @Container.injectable()
 class StubCommand extends Command {

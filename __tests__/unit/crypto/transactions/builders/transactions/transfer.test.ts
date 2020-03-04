@@ -1,16 +1,14 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
-
-import { configManager } from "@packages/crypto/src/managers";
+import { Factories, Generators } from "@packages/core-test-framework/src";
 import { TransactionType } from "@packages/crypto/src/enums";
 import { Keys, WIF } from "@packages/crypto/src/identities";
+import { configManager } from "@packages/crypto/src/managers";
 import { devnet } from "@packages/crypto/src/networks";
 import { BuilderFactory } from "@packages/crypto/src/transactions";
-import { Two } from "@packages/crypto/src/transactions/types";
 import { TransferBuilder } from "@packages/crypto/src/transactions/builders/transactions/transfer";
-
-import { Factories, Generators } from "@packages/core-test-framework/src";
+import { Two } from "@packages/crypto/src/transactions/types";
 
 let builder: TransferBuilder;
 let identity;

@@ -1,12 +1,11 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { setUp, tearDown } from "../__support__/setup";
-
-import { Contracts, Container } from "@arkecosystem/core-kernel";
-import { Interfaces, Managers } from "@arkecosystem/crypto";
 import { Repositories } from "@arkecosystem/core-database";
-
+import { Container, Contracts } from "@arkecosystem/core-kernel";
+import { Interfaces, Managers } from "@arkecosystem/crypto";
 import { ApiHelpers, Factories } from "@packages/core-test-framework/src";
+
+import { setUp, tearDown } from "../__support__/setup";
 
 let genesisBlock;
 

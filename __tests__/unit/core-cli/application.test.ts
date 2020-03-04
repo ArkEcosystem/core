@@ -1,6 +1,5 @@
-import envPaths from "env-paths";
-
 import { Application, Container } from "@packages/core-cli/src";
+import envPaths from "env-paths";
 
 @Container.injectable()
 class StubClass {}
