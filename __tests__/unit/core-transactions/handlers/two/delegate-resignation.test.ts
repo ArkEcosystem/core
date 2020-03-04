@@ -72,7 +72,7 @@ beforeEach(() => {
 });
 
 describe("DelegateResignationTransaction", () => {
-    let allDelegates: [Wallets.Wallet];
+    let allDelegates: Wallets.Wallet[];
     let delegateWallet: Wallets.Wallet;
     const delegatePassphrase = "my secret passphrase";
 
@@ -97,7 +97,7 @@ describe("DelegateResignationTransaction", () => {
             2,
         );
 
-        allDelegates = [] as [Wallets.Wallet];
+        allDelegates = [];
         for (let i = 0; i < passphrases.length; i++) {
             const delegateWallet: Wallets.Wallet = factoryBuilder
                 .get("Wallet")

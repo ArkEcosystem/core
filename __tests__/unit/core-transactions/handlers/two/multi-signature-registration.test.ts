@@ -22,7 +22,6 @@ import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/
 import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@arkecosystem/crypto/src/interfaces";
 import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { TransferBuilder } from "@arkecosystem/crypto/src/transactions/builders/transactions/transfer";
 import { configManager } from "@packages/crypto/src/managers";
 
 import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
@@ -297,6 +296,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
                     recipientId: multiSigWallet.address,
                 })
                 .make()
+                // @ts-ignore
                 .sign(passphrases[0])
                 .nonce("1");
 
