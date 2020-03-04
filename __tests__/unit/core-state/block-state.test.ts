@@ -1,5 +1,6 @@
 import "jest-extended";
 
+import { ITransaction } from "@packages/crypto/dist/interfaces";
 import { Contracts } from "@packages/core-kernel/src";
 import { BlockState } from "@packages/core-state/src/block-state";
 import { WalletRepository } from "@packages/core-state/src/wallets";
@@ -257,6 +258,55 @@ describe("BlockState", () => {
                 await blockState.applyTransaction(transaction);
 
                 expect(applySpy).toHaveBeenCalledWith(transaction);
+            });
+        });
+
+        describe("htlc lock transaction", () => {
+            let htlcClaimTransaction: ITransaction;
+            let lockData;
+            let lockID;
+
+            beforeEach(() => {
+                htlcClaimTransaction = factory
+                    .get("HtlcClaim")
+                    .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
+                    .make();
+
+                // TODO: Why do these need to be set manually here?
+                // @ts-ignore
+                htlcClaimTransaction.typeGroup = htlcClaimTransaction.data.typeGroup;
+                // @ts-ignore
+                htlcClaimTransaction.type = htlcClaimTransaction.data.type;
+                htlcClaimTransaction.data.recipientId = recipient.address;
+
+                sender.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(htlcClaimTransaction.data.amount));
+
+                lockData = {
+                    amount: htlcClaimTransaction.data.amount,
+                    recipientId: recipient.address,
+                    ...htlcClaimTransaction.data.asset!.lock,
+                };
+
+                lockID = htlcClaimTransaction.data.asset.claim.lockTransactionId;
+
+                sender.setAttribute("htlc.locks", {
+                    [lockID]: lockData,
+                });
+
+                walletRepo.index(sender);
+                walletRepo.index(recipient);
+            });
+
+            it("should find correct locks, sender and recipient wallets", async () => {
+                await blockState.applyTransaction(htlcClaimTransaction);
+                expect(applySpy).toHaveBeenCalledWith(htlcClaimTransaction);
+                expect(spyApplyVoteBalances).toHaveBeenCalledWith(
+                    sender,
+                    recipient,
+                    htlcClaimTransaction.data,
+                    walletRepo.findByIndex(Contracts.State.WalletIndexes.Locks, lockID),
+                    lockData,
+                );
             });
         });
     });
