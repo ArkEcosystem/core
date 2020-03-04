@@ -1,5 +1,5 @@
 import { Container } from "@arkecosystem/core-kernel";
-import { Identities, Managers, Transactions, Enums } from "@arkecosystem/crypto";
+import { Enums, Identities, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { Query, QueryIterable } from "../../../packages/core-transaction-pool/src/query";
 
