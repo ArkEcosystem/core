@@ -1,10 +1,11 @@
 import "jest-extended";
 
-import { ITransaction } from "@packages/crypto/dist/interfaces";
+import { Wallet } from "@packages/core-state/src/wallets";
 import { Contracts } from "@packages/core-kernel/src";
 import { BlockState } from "@packages/core-state/src/block-state";
 import { WalletRepository } from "@packages/core-state/src/wallets";
 import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
+import { ITransaction } from "@packages/crypto/src/interfaces";
 import { Utils } from "@packages/crypto/src";
 import { IBlock } from "@packages/crypto/src/interfaces";
 
@@ -100,6 +101,112 @@ describe("BlockState", () => {
         blocks[0].data.height = 1;
         await blockState.applyBlock(blocks[0]);
         expect(spyInitGenesisGeneratorWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
+    });
+
+    describe("voteBalances", () => {
+        it("should not update vote balances if wallet hasn't voted", () => {
+            const voteBalanceBefore = Utils.BigNumber.ZERO;
+
+            generatorWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
+
+            const votingWallet: Wallet = factory
+                .get("Wallet")
+                .withOptions({
+                    passphrase: "testPassphrase1",
+                    nonce: 0,
+                })
+                .make();
+
+            const voteWeight = Utils.BigNumber.make(5678);
+
+            walletRepo.index([votingWallet, generatorWallet]);
+
+            blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
+
+            const voteBalanceAfter = generatorWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+
+            expect(voteBalanceAfter).toEqual(voteBalanceBefore);
+        });
+
+        it("should update vote balances", () => {
+            const voteBalanceBefore = Utils.BigNumber.ZERO;
+
+            generatorWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
+
+            const votingWallet: Wallet = factory
+                .get("Wallet")
+                .withOptions({
+                    passphrase: "testPassphrase1",
+                    nonce: 0,
+                })
+                .make();
+
+            const voteWeight = Utils.BigNumber.make(5678);
+
+            votingWallet.balance = voteWeight;
+
+            votingWallet.setAttribute("vote", generatorWallet.publicKey);
+
+            walletRepo.index([votingWallet, generatorWallet]);
+
+            blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
+
+            const voteBalanceAfter = generatorWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+
+            expect(voteBalanceAfter).toEqual(voteBalanceBefore.plus(voteWeight));
+        });
+
+        it("should not revert vote balances if wallet hasn't voted", () => {
+            const voteBalanceBefore = Utils.BigNumber.ZERO;
+
+            generatorWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
+
+            const votingWallet: Wallet = factory
+                .get("Wallet")
+                .withOptions({
+                    passphrase: "testPassphrase1",
+                    nonce: 0,
+                })
+                .make();
+
+            const voteWeight = Utils.BigNumber.make(5678);
+
+            walletRepo.index([votingWallet, generatorWallet]);
+
+            blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
+
+            const voteBalanceAfter = generatorWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+
+            expect(voteBalanceAfter).toEqual(voteBalanceBefore);
+        });
+
+        it("should revert vote balances", () => {
+            const voteBalanceBefore = Utils.BigNumber.make(6789);
+
+            generatorWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
+
+            const votingWallet: Wallet = factory
+                .get("Wallet")
+                .withOptions({
+                    passphrase: "testPassphrase1",
+                    nonce: 0,
+                })
+                .make();
+
+            const voteWeight = Utils.BigNumber.make(5678);
+
+            votingWallet.balance = voteWeight;
+
+            votingWallet.setAttribute("vote", generatorWallet.publicKey);
+
+            walletRepo.index([votingWallet, generatorWallet]);
+
+            blockState.decreaseWalletDelegateVoteBalance(votingWallet, voteWeight);
+
+            const voteBalanceAfter = generatorWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+
+            expect(voteBalanceAfter).toEqual(voteBalanceBefore.minus(voteWeight));
+        });
     });
 
     it("should create generator wallet if it doesn't exist genesis block", async () => {
