@@ -22,6 +22,7 @@ jobs:
 
             - name: Publish to NPM
               run: |
+                cd packages
                 cd crypto && npm publish --access public && cd ..
                 cd core-api && npm publish --access public && cd ..
                 cd core-blockchain && npm publish --access public && cd ..
