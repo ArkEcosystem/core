@@ -3,7 +3,7 @@ import { Enums, Interfaces } from "@arkecosystem/crypto";
 
 import { Comparator, IteratorMany } from "./utils";
 
-class QueryIterable implements Contracts.TransactionPool.QueryIterable {
+export class QueryIterable implements Contracts.TransactionPool.QueryIterable {
     public transactions: Iterable<Interfaces.ITransaction>;
     public predicate?: Contracts.TransactionPool.QueryPredicate;
 
