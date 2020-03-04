@@ -34,7 +34,7 @@ jobs:
             - name: Install & Build
               run: yarn install && yarn bootstrap
 
-            - name: List
+            - name: Lint Source
               run: yarn lint
     test-unit:
         needs: lint

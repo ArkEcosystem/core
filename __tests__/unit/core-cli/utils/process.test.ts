@@ -1,8 +1,7 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import { fileSync, setGracefulCleanup } from "tmp";
-
 import { Process } from "@packages/core-cli/src/utils";
+import { fileSync, setGracefulCleanup } from "tmp";
 
 jest.mock("nodejs-tail");
 

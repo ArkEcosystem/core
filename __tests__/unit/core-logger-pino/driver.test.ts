@@ -1,15 +1,13 @@
 import "jest-extended";
 
 import { sleep } from "@arkecosystem/utils";
-
+import { Application } from "@packages/core-kernel/src/application";
 import { Logger } from "@packages/core-kernel/src/contracts/kernel/log";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
+import { PinoLogger } from "@packages/core-logger-pino/src/driver";
 import capcon from "capture-console";
-
 import { readdirSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
-import { PinoLogger } from "@packages/core-logger-pino/src/driver";
-import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 
 let logger: Logger;
 let message: string;

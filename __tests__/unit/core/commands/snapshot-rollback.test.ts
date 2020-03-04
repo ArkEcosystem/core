@@ -1,5 +1,4 @@
 import { Console } from "@arkecosystem/core-test-framework";
-
 import { Command } from "@packages/core/src/commands/snapshot-rollback";
 
 export const app = {

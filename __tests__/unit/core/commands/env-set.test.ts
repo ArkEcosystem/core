@@ -1,9 +1,8 @@
 import { Console } from "@arkecosystem/core-test-framework";
-import { dirSync, setGracefulCleanup } from "tmp";
+import { Command } from "@packages/core/src/commands/env-set";
 import envfile from "envfile";
 import { ensureFileSync, removeSync } from "fs-extra";
-
-import { Command } from "@packages/core/src/commands/env-set";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 let cli;
 beforeAll(() => setGracefulCleanup());

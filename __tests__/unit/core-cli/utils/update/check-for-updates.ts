@@ -1,8 +1,8 @@
 import "jest-extended";
 
+import { checkForUpdates } from "@packages/core/src/common/update";
 import nock from "nock";
 
-import { checkForUpdates } from "@packages/core/src/common/update";
 import { versionLatest } from "../__fixtures__/latest-version";
 
 beforeEach(() => nock.cleanAll());

@@ -1,4 +1,5 @@
 import { Wallets } from "@arkecosystem/core-state";
+
 import { BigNumber } from "../../../../../packages/crypto/src/utils";
 
 export const wallet = {

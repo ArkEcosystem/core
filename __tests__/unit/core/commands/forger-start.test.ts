@@ -1,11 +1,10 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import { resolve } from "path";
-import { dirSync, setGracefulCleanup } from "tmp";
+import { Command } from "@packages/core/src/commands/forger-start";
 import { writeJSONSync } from "fs-extra";
 import os from "os";
-
-import { Command } from "@packages/core/src/commands/forger-start";
+import { resolve } from "path";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 let cli;
 let processManager;

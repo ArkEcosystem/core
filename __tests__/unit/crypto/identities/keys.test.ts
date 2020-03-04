@@ -1,4 +1,5 @@
 import "jest-extended";
+
 import wif from "wif";
 
 import { NetworkVersionError } from "../../../../packages/crypto/src/errors";

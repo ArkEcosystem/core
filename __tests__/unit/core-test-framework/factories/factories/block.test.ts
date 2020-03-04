@@ -2,7 +2,7 @@ import "jest-extended";
 
 import { Utils } from "@arkecosystem/core-kernel";
 import { Blocks } from "@arkecosystem/crypto";
-import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 
 let factory: FactoryBuilder;
 

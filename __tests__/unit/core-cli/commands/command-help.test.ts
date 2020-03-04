@@ -1,9 +1,9 @@
 import { Console } from "@arkecosystem/core-test-framework";
+import { CommandHelp } from "@packages/core-cli/src/commands";
 import { setGracefulCleanup } from "tmp";
 
 import { Command } from "./__stubs__/command";
 import { CommandWithoutDefinition } from "./__stubs__/command-without-definition";
-import { CommandHelp } from "@packages/core-cli/src/commands";
 
 let cli;
 let cmd;

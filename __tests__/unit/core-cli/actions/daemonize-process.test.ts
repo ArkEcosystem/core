@@ -1,9 +1,7 @@
-import os from "os";
-
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-
 import { DaemonizeProcess } from "@packages/core-cli/src/actions";
+import os from "os";
 
 let cli;
 let processManager;

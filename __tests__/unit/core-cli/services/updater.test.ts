@@ -2,14 +2,11 @@ import "jest-extended";
 
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-
+import { Updater } from "@packages/core-cli/src/services/updater";
 import nock from "nock";
 import prompts from "prompts";
 
-import { Updater } from "@packages/core-cli/src/services/updater";
-
 import execa from "../../../../__mocks__/execa";
-
 import { versionNext } from "./__fixtures__/latest-version";
 
 let cli;

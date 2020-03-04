@@ -1,35 +1,31 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { Application, Contracts, Services } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { TransferBuilder } from "@arkecosystem/crypto/src/transactions/builders/transactions/transfer";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@packages/crypto/src/managers";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { getWalletAttributeSet } from "@arkecosystem/core-test-framework/src/internal/wallet-attributes";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
     MultiSignatureAlreadyRegisteredError,
     MultiSignatureKeyCountMismatchError,
-    MultiSignatureMinimumKeysError, UnexpectedMultiSignatureError,
+    MultiSignatureMinimumKeysError,
+    UnexpectedMultiSignatureError,
 } from "@arkecosystem/core-transactions/src/errors";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
-import {
-    buildRecipientWallet,
-    buildSecondSignatureWallet,
-    buildSenderWallet,
-    initApp,
-} from "../__support__/app";
+import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@arkecosystem/crypto/src/interfaces";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { configManager } from "@packages/crypto/src/managers";
+
+import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -38,11 +34,11 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() , height: 4 };
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue( { data: mockLastBlockData } );
+mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -75,8 +71,16 @@ describe("MultiSignatureRegistrationTransaction", () => {
     let handler: TransactionHandler;
 
     beforeEach(async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.MultiSignature, Enums.TransactionTypeGroup.Core), 2);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(
+            Transactions.InternalTransactionType.from(
+                Enums.TransactionType.MultiSignature,
+                Enums.TransactionTypeGroup.Core,
+            ),
+            2,
+        );
 
         senderWallet.balance = Utils.BigNumber.make(100390000000);
 
@@ -89,7 +93,10 @@ describe("MultiSignatureRegistrationTransaction", () => {
             min: 2,
         };
 
-        recipientWallet = new Wallets.Wallet(Identities.Address.fromMultiSignatureAsset(multiSignatureAsset), new Services.Attributes.AttributeMap(getWalletAttributeSet()));
+        recipientWallet = new Wallets.Wallet(
+            Identities.Address.fromMultiSignatureAsset(multiSignatureAsset),
+            new Services.Attributes.AttributeMap(getWalletAttributeSet()),
+        );
 
         walletRepository.index(recipientWallet);
 
@@ -111,7 +118,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
                     Identities.PublicKey.fromPassphrase(passphrases[0]),
                     Identities.PublicKey.fromPassphrase(passphrases[2]),
                 ],
-                min: 2
+                min: 2,
             })
             .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[1]))
             .nonce("1")
@@ -130,12 +137,11 @@ describe("MultiSignatureRegistrationTransaction", () => {
             await expect(handler.bootstrap()).toResolve();
         });
 
-
         it("should throw if wallet is mutli signature", async () => {
             setMockTransaction(multiSignatureTransaction);
             recipientWallet.setAttribute("multiSignature", multiSignatureTransaction.data.asset!.multiSignature);
             await expect(handler.bootstrap()).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
-        })
+        });
     });
 
     describe("throwIfCannotBeApplied", () => {
@@ -145,32 +151,40 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
         it("should not throw", async () => {
             console.log(recipientWallet);
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should not throw - second sign", async () => {
-            await expect(handler.throwIfCannotBeApplied(secondSignatureMultiSignatureTransaction, secondSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(
+                    secondSignatureMultiSignatureTransaction,
+                    secondSignatureWallet,
+                    walletRepository,
+                ),
+            ).toResolve();
         });
 
         it("should throw if the wallet already has multisignatures", async () => {
             recipientWallet.setAttribute("multiSignature", multiSignatureTransaction.data.asset!.multiSignature);
 
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                MultiSignatureAlreadyRegisteredError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(MultiSignatureAlreadyRegisteredError);
         });
 
         it("should throw if failure to verify signatures", async () => {
             handler.verifySignatures = jest.fn(() => false);
             senderWallet.forgetAttribute("multiSignature");
 
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                InvalidMultiSignatureError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(InvalidMultiSignatureError);
         });
 
         it("should throw with aip11 set to false and transaction is legacy", async () => {
-            let legacyAssset: IMultiSignatureLegacyAsset = {
+            const legacyAssset: IMultiSignatureLegacyAsset = {
                 keysgroup: [
                     "+039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
                     "+028d3611c4f32feca3e6713992ae9387e18a0e01954046511878fe078703324dc0",
@@ -190,13 +204,20 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
             handler.verifySignatures = jest.fn().mockReturnValue(true);
 
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(UnexpectedMultiSignatureError);
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(UnexpectedMultiSignatureError);
         });
 
         // TODO: check value 02 thwors DuplicateParticipantInMultiSignatureError, 03 throws nodeError
         it("should throw if failure to verify signatures in asset", async () => {
-            multiSignatureTransaction.data.signatures![0] = multiSignatureTransaction.data.signatures![0].replace("00", "02");
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
+            multiSignatureTransaction.data.signatures![0] = multiSignatureTransaction.data.signatures![0].replace(
+                "00",
+                "02",
+            );
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(
                 Error,
                 // InvalidMultiSignatureError,
             );
@@ -209,9 +230,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
             Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
 
             multiSignatureTransaction.data.asset!.multiSignature!.publicKeys.splice(0, 2);
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                MultiSignatureMinimumKeysError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(MultiSignatureMinimumKeysError);
         });
 
         it("should throw if the number of keys does not equal the signature count", async () => {
@@ -221,9 +242,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
             Transactions.Verifier.verifySecondSignature = jest.fn(() => true);
 
             multiSignatureTransaction.data.signatures!.splice(0, 2);
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                MultiSignatureKeyCountMismatchError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(MultiSignatureKeyCountMismatchError);
         });
 
         it("should throw if the same participant provides multiple signatures", async () => {
@@ -240,7 +261,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
             multiSignatureTransaction = BuilderFactory.multiSignature()
                 .multiSignatureAsset({
                     publicKeys: participants,
-                    min: 2
+                    min: 2,
                 })
                 .senderPublicKey(Identities.PublicKey.fromPassphrase(passphrases[0]))
                 .nonce("1")
@@ -267,10 +288,15 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
             multiSigWallet.balance = Utils.BigNumber.make(1e8 * 100);
 
-            const transferBuilder = (<TransferBuilder>factoryBuilder
+            const transferBuilder = factoryBuilder
                 .get("Transfer")
-                .withOptions({ amount: 10000000, senderPublicKey: senderWallet.publicKey, recipientId: multiSigWallet.address })
-                .make())
+                .withOptions({
+                    amount: 10000000,
+                    senderPublicKey: senderWallet.publicKey,
+                    recipientId: multiSigWallet.address,
+                })
+                .make()
+                // @ts-ignore
                 .sign(passphrases[0])
                 .nonce("1");
 
@@ -297,9 +323,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
             senderWallet.forgetAttribute("multiSignature");
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            await expect(handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(InsufficientBalanceError);
         });
     });
 
@@ -311,7 +337,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
         it("should throw if transaction by sender already in pool", async () => {
             await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(multiSignatureTransaction);
 
-            await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+            await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).rejects.toThrow(
+                Contracts.TransactionPool.PoolError,
+            );
         });
     });
 
@@ -331,7 +359,9 @@ describe("MultiSignatureRegistrationTransaction", () => {
             expect(recipientWallet.balance).toEqual(Utils.BigNumber.ZERO);
 
             expect(senderWallet.hasAttribute("multiSignature")).toBeFalse();
-            expect(recipientWallet.getAttribute("multiSignature")).toEqual(multiSignatureTransaction.data.asset!.multiSignature);
+            expect(recipientWallet.getAttribute("multiSignature")).toEqual(
+                multiSignatureTransaction.data.asset!.multiSignature,
+            );
         });
     });
 

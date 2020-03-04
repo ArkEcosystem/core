@@ -1,4 +1,5 @@
 import "jest-extended";
+
 import { TransactionType } from "@packages/crypto/src/enums";
 
 describe("Constants", () => {

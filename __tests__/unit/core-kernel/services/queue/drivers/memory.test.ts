@@ -1,5 +1,4 @@
 import { sleep } from "@arkecosystem/utils";
-
 import { Contracts } from "@packages/core-kernel/src";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
 
@@ -16,7 +15,7 @@ beforeEach(() => (driver = new MemoryQueue()));
 
 describe("MemoryQueue", () => {
     it("should start queue and process jobs", async () => {
-        let dummy: jest.Mock = jest.fn();
+        const dummy: jest.Mock = jest.fn();
 
         expect(driver.size()).toBe(0);
 
@@ -28,7 +27,7 @@ describe("MemoryQueue", () => {
     });
 
     it("should stop queue and not process new jobs", async () => {
-        let dummy: jest.Mock = jest.fn();
+        const dummy: jest.Mock = jest.fn();
 
         expect(driver.size()).toBe(0);
 
@@ -44,7 +43,7 @@ describe("MemoryQueue", () => {
     });
 
     it("should pause and resume queue", async () => {
-        let dummy: jest.Mock = jest.fn();
+        const dummy: jest.Mock = jest.fn();
 
         expect(driver.size()).toBe(0);
 

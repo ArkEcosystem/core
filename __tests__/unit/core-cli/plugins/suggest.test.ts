@@ -1,9 +1,8 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import prompts from "prompts";
-import { blue, red } from "kleur";
-
 import { SuggestCommand } from "@packages/core-cli/src/plugins/suggest";
+import { blue, red } from "kleur";
+import prompts from "prompts";
 
 let cli;
 let cmd;

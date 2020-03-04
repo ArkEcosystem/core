@@ -1,7 +1,7 @@
 import "jest-extended";
-import { ServiceProvider } from "@arkecosystem/core-transactions/src";
-import { Application, Container } from "@arkecosystem/core-kernel";
 
+import { Application, Container } from "@arkecosystem/core-kernel";
+import { ServiceProvider } from "@arkecosystem/core-transactions/src";
 
 let app: Application;
 
@@ -22,5 +22,5 @@ describe("ServiceProvider", () => {
 
     it("should be required", async () => {
         await expect(serviceProvider.required()).resolves.toBeTrue();
-    })
+    });
 });

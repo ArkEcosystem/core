@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "@arkecosystem/crypto/src/errors";
+
 import { PublicKey } from "../../../../packages/crypto/src/identities/public-key";
 import { data, passphrase } from "./fixture.json";
 

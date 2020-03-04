@@ -1,15 +1,14 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { setUp, tearDown } from "../__support__/setup";
-
-import { Identities, Managers } from "@arkecosystem/crypto";
 import { Repositories } from "@arkecosystem/core-database";
+import { Contracts } from "@arkecosystem/core-kernel";
+import { Identities, Managers } from "@arkecosystem/crypto";
+import { ApiHelpers, getWalletNonce } from "@packages/core-test-framework/src";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { generateMnemonic } from "bip39";
 
-import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
-import { ApiHelpers, getWalletNonce } from "@packages/core-test-framework/src";
-import { Contracts } from "@arkecosystem/core-kernel";
+import { setUp, tearDown } from "../__support__/setup";
 
 export const generateWallets = quantity => {
     const wallets: { address: string; passphrase: string; publicKey: string }[] = [];

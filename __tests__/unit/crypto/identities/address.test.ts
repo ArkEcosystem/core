@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import { PublicKey } from "@arkecosystem/crypto/src/identities";
+
 import { InvalidMultiSignatureAssetError, PublicKeyError } from "../../../../packages/crypto/src/errors";
 import { Address } from "../../../../packages/crypto/src/identities/address";
 import { Keys } from "../../../../packages/crypto/src/identities/keys";
