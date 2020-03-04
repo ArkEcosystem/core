@@ -52,6 +52,10 @@ export class BlockState {
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
         const generatorWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
+        /**
+         * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
+         * If so, this code can be deleted.
+         */
         if (!generatorWallet) {
             const msg = `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
             this.app.terminate(msg);
