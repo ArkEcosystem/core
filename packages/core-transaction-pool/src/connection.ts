@@ -220,9 +220,7 @@ export class Connection implements TransactionPool.IConnection {
                 ? this.walletManager.findByAddress(data.recipientId)
                 : undefined;
 
-            if (recipientWallet) {
-                await transactionHandler.applyToRecipient(transaction, this.walletManager);
-            }
+            await transactionHandler.applyToRecipient(transaction, this.walletManager);
 
             if (exists) {
                 this.removeTransaction(transaction);
@@ -514,13 +512,6 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
-                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
-
-                let recipient: State.IWallet | undefined;
-                if (transaction.data.recipientId) {
-                    recipient = walletManager.findByAddress(transaction.data.recipientId);
-                }
-
                 const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                     transaction.type,
                     transaction.typeGroup,
@@ -528,9 +519,7 @@ export class Connection implements TransactionPool.IConnection {
 
                 await handler.applyToSender(transaction, walletManager);
 
-                if (recipient && sender.address !== recipient.address) {
-                    await handler.applyToRecipient(transaction, walletManager);
-                }
+                await handler.applyToRecipient(transaction, walletManager);
 
                 validTransactions.push(transaction);
             } catch (error) {
