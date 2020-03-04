@@ -22,7 +22,9 @@ export function getWalletAttributeSet(): Services.Attributes.AttributeSet {
     attributes.set("secondPublicKey");
     attributes.set("vote");
 
-    return attributes
+    return attributes;
 }
 
-export const knownAttributes: Services.Attributes.AttributeMap = new Services.Attributes.AttributeMap(getWalletAttributeSet());
+export const knownAttributes: Services.Attributes.AttributeMap = new Services.Attributes.AttributeMap(
+    getWalletAttributeSet(),
+);

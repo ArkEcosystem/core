@@ -137,8 +137,8 @@ export class BridgechainResignationTransactionHandler extends MagistrateTransact
         //     transaction.data.asset?.bridgechainResignation,
         // );
 
-        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset =
-            transaction.data.asset!.bridgechainResignation;
+        const bridgechainResignation: MagistrateInterfaces.IBridgechainResignationAsset = transaction.data.asset!
+            .bridgechainResignation;
 
         Utils.assert.defined<Record<string, IBridgechainWalletAttributes>>(businessAttributes.bridgechains);
 
