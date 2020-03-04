@@ -1,8 +1,9 @@
 import "jest-extended";
-import { BlockJob } from "@packages/core-kernel/src/services/schedule/block-job";
-import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
-import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
+
 import { BlockEvent } from "@packages/core-kernel/src/enums/events";
+import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+import { BlockJob } from "@packages/core-kernel/src/services/schedule/block-job";
 
 let job: BlockJob;
 let eventDispatcher: MemoryEventDispatcher;

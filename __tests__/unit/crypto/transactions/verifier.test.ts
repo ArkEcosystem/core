@@ -5,11 +5,11 @@ import { Hash } from "@arkecosystem/crypto/src/crypto";
 import { TransactionVersionError } from "@arkecosystem/crypto/src/errors";
 import { Keys } from "@arkecosystem/crypto/src/identities";
 import { BuilderFactory, Utils as TransactionUtils, Verifier } from "@arkecosystem/crypto/src/transactions";
-import { configManager } from "../../../../packages/crypto/src/managers";
-import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-import { createRandomTx } from "./__support__";
-
 import { Generators } from "@packages/core-test-framework/src";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+
+import { configManager } from "../../../../packages/crypto/src/managers";
+import { createRandomTx } from "./__support__";
 
 beforeEach(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?

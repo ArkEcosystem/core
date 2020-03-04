@@ -1,26 +1,27 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Contracts, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Application, Contracts } from "@arkecosystem/core-kernel";
 import { DelegateEvent } from "@arkecosystem/core-kernel/src/enums";
-import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@packages/crypto/src/managers";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import {
     InsufficientBalanceError,
     NotSupportedForMultiSignatureWalletError,
     WalletIsAlreadyDelegateError,
     WalletUsernameAlreadyRegisteredError,
 } from "@arkecosystem/core-transactions/src/errors";
+import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { configManager } from "@packages/crypto/src/managers";
+
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -28,8 +29,8 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
-import { setMockBlock } from "../__mocks__/block-repository";
+import { setMockBlock } from "../mocks/block-repository";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -39,10 +40,10 @@ let recipientWallet: Wallets.Wallet;
 let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() , height: 4 };
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue( { data: mockLastBlockData } );
+mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -76,8 +77,16 @@ describe("DelegateRegistrationTransaction", () => {
     let handler: TransactionHandler;
 
     beforeEach(async () => {
-        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(Identifiers.TransactionHandlerRegistry);
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.TransactionType.DelegateRegistration, Enums.TransactionTypeGroup.Core), 2);
+        const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
+            Identifiers.TransactionHandlerRegistry,
+        );
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(
+            Transactions.InternalTransactionType.from(
+                Enums.TransactionType.DelegateRegistration,
+                Enums.TransactionTypeGroup.Core,
+            ),
+            2,
+        );
 
         delegateRegistrationTransaction = BuilderFactory.delegateRegistration()
             .usernameAsset("dummy")
@@ -133,23 +142,33 @@ describe("DelegateRegistrationTransaction", () => {
 
     describe("emitEvents", () => {
         it("should dispatch", async () => {
-            let emitter:  Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService);
+            const emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
+                Identifiers.EventDispatcherService,
+            );
 
-            const spy = jest.spyOn(emitter, 'dispatch');
+            const spy = jest.spyOn(emitter, "dispatch");
 
             handler.emitEvents(delegateRegistrationTransaction, emitter);
 
             expect(spy).toHaveBeenCalledWith(DelegateEvent.Registered, expect.anything());
-        })
+        });
     });
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should not throw - second sign", async () => {
-            await expect(handler.throwIfCannotBeApplied(secondSignaturedDelegateRegistrationTransaction, secondSignatureWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(
+                    secondSignaturedDelegateRegistrationTransaction,
+                    secondSignatureWallet,
+                    walletRepository,
+                ),
+            ).toResolve();
         });
 
         it("should throw if wallet has a multi signature", async () => {
@@ -159,17 +178,14 @@ describe("DelegateRegistrationTransaction", () => {
                     Identities.PublicKey.fromPassphrase(passphrases[21]),
                     Identities.PublicKey.fromPassphrase(passphrases[22]),
                     Identities.PublicKey.fromPassphrase(passphrases[23]),
-                ]
+                ],
             };
 
-            senderWallet.setAttribute(
-                "multiSignature",
-                multiSignatureAsset
-            );
+            senderWallet.setAttribute("multiSignature", multiSignatureAsset);
 
-            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                NotSupportedForMultiSignatureWalletError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(NotSupportedForMultiSignatureWalletError);
         });
 
         // it("should throw if transaction does not have delegate", async () => {
@@ -183,9 +199,9 @@ describe("DelegateRegistrationTransaction", () => {
         it("should throw if wallet already registered a username", async () => {
             senderWallet.setAttribute("delegate", { username: "dummy" });
 
-            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                WalletIsAlreadyDelegateError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(WalletIsAlreadyDelegateError);
         });
 
         it("should throw if another wallet already registered a username", async () => {
@@ -193,7 +209,7 @@ describe("DelegateRegistrationTransaction", () => {
                 .get("Wallet")
                 .withOptions({
                     passphrase: "delegate passphrase",
-                    nonce: 0
+                    nonce: 0,
                 })
                 .make();
 
@@ -201,17 +217,17 @@ describe("DelegateRegistrationTransaction", () => {
 
             walletRepository.index(delegateWallet);
 
-            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                WalletUsernameAlreadyRegisteredError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(WalletUsernameAlreadyRegisteredError);
         });
 
         it("should throw if wallet has insufficient funds", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
 
-            await expect(handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrow(
-                InsufficientBalanceError,
-            );
+            await expect(
+                handler.throwIfCannotBeApplied(delegateRegistrationTransaction, senderWallet, walletRepository),
+            ).rejects.toThrow(InsufficientBalanceError);
         });
     });
 
@@ -223,15 +239,17 @@ describe("DelegateRegistrationTransaction", () => {
         it("should throw if transaction by sender already in pool", async () => {
             await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(delegateRegistrationTransaction);
 
-            await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+            await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(
+                Contracts.TransactionPool.PoolError,
+            );
         });
 
         it("should throw if transaction with same username already in pool", async () => {
-            let anotherWallet: Wallets.Wallet = factoryBuilder
+            const anotherWallet: Wallets.Wallet = factoryBuilder
                 .get("Wallet")
                 .withOptions({
                     passphrase: passphrases[2],
-                    nonce: 0
+                    nonce: 0,
                 })
                 .make();
 
@@ -239,15 +257,19 @@ describe("DelegateRegistrationTransaction", () => {
 
             walletRepository.index(anotherWallet);
 
-            let anotherDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
+            const anotherDelegateRegistrationTransaction = BuilderFactory.delegateRegistration()
                 .usernameAsset("dummy")
                 .nonce("1")
                 .sign(passphrases[2])
                 .build();
 
-            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(anotherDelegateRegistrationTransaction);
+            await app
+                .get<Memory>(Identifiers.TransactionPoolMemory)
+                .addTransaction(anotherDelegateRegistrationTransaction);
 
-            await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+            await expect(handler.throwIfCannotEnterPool(delegateRegistrationTransaction)).rejects.toThrow(
+                Contracts.TransactionPool.PoolError,
+            );
         });
     });
 

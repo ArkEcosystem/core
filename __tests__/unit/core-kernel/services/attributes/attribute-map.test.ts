@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { AttributeSet } from "@packages/core-kernel/src/services/attributes/attribute-set";
 import { AttributeMap } from "@packages/core-kernel/src/services/attributes/attribute-map";
+import { AttributeSet } from "@packages/core-kernel/src/services/attributes/attribute-set";
 
 describe("AttributeMap", () => {
     it("should get all attribute", () => {

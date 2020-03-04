@@ -1,7 +1,8 @@
 import "jest-extended";
+
+import { CronJob } from "@packages/core-kernel/src/services/schedule/cron-job";
 import moment from "moment-timezone";
 import { useFakeTimers } from "sinon";
-import { CronJob } from "@packages/core-kernel/src/services/schedule/cron-job";
 
 const days: Record<string, string> = {
     monday: "2019-08-19 00:00:00",

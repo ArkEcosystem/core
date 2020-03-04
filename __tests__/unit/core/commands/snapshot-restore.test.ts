@@ -1,8 +1,8 @@
 import { Console } from "@arkecosystem/core-test-framework";
-import { dirSync, setGracefulCleanup } from "tmp";
 import { Command } from "@packages/core/src/commands/snapshot-restore";
 import { ensureDirSync } from "fs-extra";
 import prompts from "prompts";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 export const app = {
     bootstrap: jest.fn(),

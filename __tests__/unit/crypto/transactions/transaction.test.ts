@@ -4,8 +4,8 @@ import { Address } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { devnet } from "../../../../packages/crypto/src/networks";
 import { TransactionFactory } from "../../../../packages/crypto/src/transactions";
-import { Two } from "../../../../packages/crypto/src/transactions/types";
 import { BuilderFactory } from "../../../../packages/crypto/src/transactions";
+import { Two } from "../../../../packages/crypto/src/transactions/types";
 import { BigNumber } from "../../../../packages/crypto/src/utils";
 
 describe("Transaction", () => {

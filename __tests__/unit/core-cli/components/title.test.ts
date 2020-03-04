@@ -1,8 +1,7 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import { yellow } from "kleur";
-
 import { Title } from "@packages/core-cli/src/components";
+import { yellow } from "kleur";
 
 let cli;
 let component;

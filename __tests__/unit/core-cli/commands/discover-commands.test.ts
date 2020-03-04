@@ -1,8 +1,7 @@
 import { Console } from "@arkecosystem/core-test-framework";
-import { setGracefulCleanup } from "tmp";
-import { resolve } from "path";
-
 import { DiscoverCommands } from "@packages/core-cli/src/commands";
+import { resolve } from "path";
+import { setGracefulCleanup } from "tmp";
 
 let cli;
 let cmd;

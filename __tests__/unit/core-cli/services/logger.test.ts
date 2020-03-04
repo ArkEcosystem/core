@@ -1,6 +1,5 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-
 import { Logger } from "@packages/core-cli/src/services";
 
 let cli;

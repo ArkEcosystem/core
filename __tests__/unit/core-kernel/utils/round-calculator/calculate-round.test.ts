@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { calculateRound, isNewRound } from "@packages/core-kernel/src/utils/round-calculator";
 import { Managers } from "@arkecosystem/crypto";
+import { calculateRound, isNewRound } from "@packages/core-kernel/src/utils/round-calculator";
 
 describe("Round Calculator", () => {
     describe("calculateRound", () => {

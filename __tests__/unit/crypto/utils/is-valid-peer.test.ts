@@ -1,6 +1,7 @@
 import "jest-extended";
 
 import os from "os";
+
 import { isValidPeer } from "../../../../packages/crypto/src/utils/is-valid-peer";
 
 describe("isValidPeer", () => {
