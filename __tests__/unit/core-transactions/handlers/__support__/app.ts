@@ -9,7 +9,7 @@ import {
     locksIndexer,
     publicKeysIndexer,
     usernamesIndexer,
-} from "@packages/core-state/src/wallets/indexers/indexers";
+} from "@packages/core-state/src/wallets/wallet-indexes";
 import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import passphrases from "@packages/core-test-framework/src/internal/passphrases.json";
 import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
@@ -25,8 +25,8 @@ import { TransactionHandlerRegistry } from "@packages/core-transactions/src/hand
 import { Identities, Utils } from "@packages/crypto";
 import { IMultiSignatureAsset } from "@packages/crypto/src/interfaces";
 
-import { blockRepository } from "../__mocks__/block-repository";
-import { transactionRepository } from "../__mocks__/transaction-repository";
+import { blockRepository } from "../mocks/block-repository";
+import { transactionRepository } from "../mocks/transaction-repository";
 
 const logger = {
     notice: jest.fn(),

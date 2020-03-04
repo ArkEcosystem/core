@@ -1,8 +1,7 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import prompts from "prompts";
-
 import { Prompt } from "@packages/core-cli/src/components";
+import prompts from "prompts";
 
 let cli;
 let component;

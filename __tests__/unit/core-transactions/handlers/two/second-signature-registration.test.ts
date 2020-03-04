@@ -1,25 +1,25 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Contracts, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
+import { Application, Contracts } from "@arkecosystem/core-kernel";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@packages/crypto/src/managers";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import {
     InsufficientBalanceError,
     NotSupportedForMultiSignatureWalletError,
     SecondSignatureAlreadyRegisteredError,
 } from "@arkecosystem/core-transactions/src/errors";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
+import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { configManager } from "@packages/crypto/src/managers";
+
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -27,6 +27,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;

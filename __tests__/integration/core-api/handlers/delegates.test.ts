@@ -1,13 +1,12 @@
 import "@packages/core-test-framework/src/matchers";
 
-import { Interfaces, Managers } from "@arkecosystem/crypto";
-import { Contracts, Container, Utils as AppUtils, Services } from "@arkecosystem/core-kernel";
+import { Repositories } from "@arkecosystem/core-database";
+import { Container, Contracts, Services, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Wallets } from "@arkecosystem/core-state";
-
+import { Interfaces, Managers } from "@arkecosystem/crypto";
 import { ApiHelpers, Factories } from "@packages/core-test-framework/src";
 
 import { calculateRanks, setUp, tearDown } from "../__support__/setup";
-import { Repositories } from "@arkecosystem/core-database";
 
 const delegate = {
     address: "AFyf2qVpX2JbpKcy29XbusedCpFDeYFX8Q",

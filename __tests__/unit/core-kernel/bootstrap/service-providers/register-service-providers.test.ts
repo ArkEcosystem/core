@@ -1,31 +1,32 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
-import {
-    ServiceProvider,
-    ServiceProviderRepository,
-    PluginManifest,
-    PluginConfiguration,
-} from "@packages/core-kernel/src/providers";
 import { RegisterServiceProviders } from "@packages/core-kernel/src/bootstrap/service-providers";
-import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
-import {
-    StubServiceProvider,
-    InvalidConfigurationServiceProvider,
-    RequiredInvalidConfigurationServiceProvider,
-    ValidConfigurationServiceProvider,
-    RequiredDependencyCannotBeFoundServiceProvider,
-    OptionalDependencyCannotBeFoundServiceProvider,
-    RequiredDependencyCannotBeFoundAsyncServiceProvider,
-    RequiredDependencyVersionCannotBeSatisfiedServiceProvider,
-    OptionalDependencyVersionCannotBeSatisfiedServiceProvider,
-} from "./__stubs__/service-providers";
-import { ServiceProvider as ValidationServiceProvider } from "@packages/core-kernel/src/services/validation";
 import {
     InvalidPluginConfiguration,
     ServiceProviderCannotBeRegistered,
 } from "@packages/core-kernel/src/exceptions/plugins";
+import { Container, Identifiers, interfaces } from "@packages/core-kernel/src/ioc";
+import {
+    PluginConfiguration,
+    PluginManifest,
+    ServiceProvider,
+    ServiceProviderRepository,
+} from "@packages/core-kernel/src/providers";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+import { ServiceProvider as ValidationServiceProvider } from "@packages/core-kernel/src/services/validation";
+
+import {
+    InvalidConfigurationServiceProvider,
+    OptionalDependencyCannotBeFoundServiceProvider,
+    OptionalDependencyVersionCannotBeSatisfiedServiceProvider,
+    RequiredDependencyCannotBeFoundAsyncServiceProvider,
+    RequiredDependencyCannotBeFoundServiceProvider,
+    RequiredDependencyVersionCannotBeSatisfiedServiceProvider,
+    RequiredInvalidConfigurationServiceProvider,
+    StubServiceProvider,
+    ValidConfigurationServiceProvider,
+} from "./__stubs__/service-providers";
 
 let app: Application;
 let container: interfaces.Container;

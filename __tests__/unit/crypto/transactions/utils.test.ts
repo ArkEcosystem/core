@@ -1,6 +1,9 @@
 import "jest-extended";
 
 import { Utils } from "@arkecosystem/crypto";
+import { Generators } from "@packages/core-test-framework/src";
+import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+
 import {
     InvalidTransactionBytesError,
     TransactionTypeError,
@@ -15,10 +18,7 @@ import {
     TransactionFactory,
     Utils as TransactionUtils,
 } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory as TestTransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { transaction as transactionDataFixture } from "../fixtures/transaction";
-
-import { Generators } from "@packages/core-test-framework/src";
 
 let transactionData: ITransactionData;
 let transactionDataJSON;

@@ -1,20 +1,21 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
+import { Wallets } from "@arkecosystem/core-state";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
+import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "@arkecosystem/core-transactions/src/errors";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Wallets } from "@arkecosystem/core-state";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
-import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "@arkecosystem/core-transactions/src/errors";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
+
+import { htlcSecretHashHex } from "../__fixtures__/htlc-secrets";
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -22,7 +23,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { htlcSecretHashHex } from "../__fixtures__/htlc-secrets";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -110,7 +111,7 @@ describe("Htlc refund", () => {
             walletRepository.index(lockWallet);
 
             const amount = 6 * 1e8;
-            let expiration = {
+            const expiration = {
                 type: expirationType,
                 value: makeExpiredTimestamp(expirationType),
             };
@@ -250,7 +251,7 @@ describe("Htlc refund", () => {
 
             it("should throw if lock didn't expire - expiration type %i", async () => {
                 const amount = 6 * 1e8;
-                let expiration = {
+                const expiration = {
                     type: expirationType,
                     value: makeNotExpiredTimestamp(expirationType),
                 };
@@ -306,7 +307,7 @@ describe("Htlc refund", () => {
             });
 
             it("should throw if refund transaction already in pool", async () => {
-                let anotherHtlcRefundTransaction = BuilderFactory.htlcRefund()
+                const anotherHtlcRefundTransaction = BuilderFactory.htlcRefund()
                     .htlcRefundAsset({
                         lockTransactionId: htlcLockTransaction.id!,
                     })

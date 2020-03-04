@@ -1,6 +1,5 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-
 import { Command } from "@packages/core/src/commands/config-cli";
 
 import execa from "../../../../__mocks__/execa";

@@ -1,13 +1,14 @@
 import "jest-extended";
-import { dirSync } from "tmp";
-import { resolve } from "path";
+
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, injectable, interfaces, Identifiers } from "@packages/core-kernel/src/ioc";
-import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
-import { ConfigRepository } from "@packages/core-kernel/src/services/config";
-import { ServiceProviderRepository, ServiceProvider } from "@packages/core-kernel/src/providers";
-import { DirectoryCannotBeFound } from "@packages/core-kernel/src/exceptions/filesystem";
 import { NetworkCannotBeDetermined } from "@packages/core-kernel/src/exceptions/config";
+import { DirectoryCannotBeFound } from "@packages/core-kernel/src/exceptions/filesystem";
+import { Container, Identifiers, injectable, interfaces } from "@packages/core-kernel/src/ioc";
+import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
+import { ConfigRepository } from "@packages/core-kernel/src/services/config";
+import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+import { resolve } from "path";
+import { dirSync } from "tmp";
 
 @injectable()
 class StubClass {}

@@ -1,19 +1,14 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Contracts, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { Application, Contracts } from "@arkecosystem/core-kernel";
 import { DelegateEvent } from "@arkecosystem/core-kernel/src/enums";
-import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@packages/crypto/src/managers";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import {
     InsufficientBalanceError,
     NotEnoughDelegatesError,
@@ -21,7 +16,12 @@ import {
     WalletAlreadyResignedError,
     WalletNotADelegateError,
 } from "@arkecosystem/core-transactions/src/errors";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
+import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { configManager } from "@packages/crypto/src/managers";
+
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -29,6 +29,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -71,9 +72,9 @@ beforeEach(() => {
 });
 
 describe("DelegateResignationTransaction", () => {
-    let allDelegates: [Wallets.Wallet];
+    let allDelegates: Wallets.Wallet[];
     let delegateWallet: Wallets.Wallet;
-    let delegatePassphrase = "my secret passphrase";
+    const delegatePassphrase = "my secret passphrase";
 
     let delegateResignationTransaction: Interfaces.ITransaction;
     let secondSignatureDelegateResignationTransaction: Interfaces.ITransaction;
@@ -96,9 +97,9 @@ describe("DelegateResignationTransaction", () => {
             2,
         );
 
-        allDelegates = Array() as [Wallets.Wallet];
+        allDelegates = [];
         for (let i = 0; i < passphrases.length; i++) {
-            let delegateWallet: Wallets.Wallet = factoryBuilder
+            const delegateWallet: Wallets.Wallet = factoryBuilder
                 .get("Wallet")
                 .withOptions({
                     passphrase: passphrases[i],
@@ -154,7 +155,7 @@ describe("DelegateResignationTransaction", () => {
 
     describe("emitEvents", () => {
         it("should dispatch", async () => {
-            let emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
+            const emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
                 Identifiers.EventDispatcherService,
             );
 
@@ -186,7 +187,7 @@ describe("DelegateResignationTransaction", () => {
         });
 
         it("should not throw if wallet is a delegate due too many delegates", async () => {
-            let anotherDelegate: Wallets.Wallet = factoryBuilder
+            const anotherDelegate: Wallets.Wallet = factoryBuilder
                 .get("Wallet")
                 .withOptions({
                     passphrase: "anotherDelegate",

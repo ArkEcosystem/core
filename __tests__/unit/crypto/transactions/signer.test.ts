@@ -1,12 +1,12 @@
 import "jest-extended";
 
+import { Generators } from "@packages/core-test-framework/src";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+
 import { TransactionVersionError } from "../../../../packages/crypto/src/errors";
 import { Keys } from "../../../../packages/crypto/src/identities";
 import { configManager } from "../../../../packages/crypto/src/managers";
 import { Signer } from "../../../../packages/crypto/src/transactions";
-import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
-
-import { Generators } from "@packages/core-test-framework/src";
 
 beforeEach(() => {
     // todo: completely wrap this into a function to hide the generation and setting of the config?

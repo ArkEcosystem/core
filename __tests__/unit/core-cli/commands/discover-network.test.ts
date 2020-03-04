@@ -1,11 +1,9 @@
 import { Console } from "@arkecosystem/core-test-framework";
+import { DiscoverNetwork } from "@packages/core-cli/src/commands";
 import envPaths from "env-paths";
-import { dirSync, setGracefulCleanup } from "tmp";
-
 import { ensureDirSync } from "fs-extra";
 import prompts from "prompts";
-
-import { DiscoverNetwork } from "@packages/core-cli/src/commands";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 let cli;
 let cmd;

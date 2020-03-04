@@ -1,24 +1,25 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@packages/crypto/src/managers";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import {
     HtlcLockExpiredError,
     HtlcLockTransactionNotFoundError,
     HtlcSecretHashMismatchError,
 } from "@arkecosystem/core-transactions/src/errors";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
+import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { configManager } from "@packages/crypto/src/managers";
+
+import { htlcSecretHashHex, htlcSecretHex } from "../__fixtures__/htlc-secrets";
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -26,7 +27,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { htlcSecretHashHex, htlcSecretHex } from "../__fixtures__/htlc-secrets";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -127,7 +128,7 @@ describe("Htlc claim", () => {
             walletRepository.index(lockWallet);
             walletRepository.index(claimWallet);
 
-            let expiration = {
+            const expiration = {
                 type: expirationType,
                 value: makeNotExpiredTimestamp(expirationType),
             };
@@ -285,7 +286,7 @@ describe("Htlc claim", () => {
 
             it("should throw if lock expired", async () => {
                 const amount = 1e9;
-                let expiration = {
+                const expiration = {
                     type: expirationType,
                     value: makeExpiredTimestamp(expirationType),
                 };
@@ -351,7 +352,7 @@ describe("Htlc claim", () => {
             });
 
             it("should throw if transaction already in pool", async () => {
-                let anotherHtlcClaimTransaction = BuilderFactory.htlcClaim()
+                const anotherHtlcClaimTransaction = BuilderFactory.htlcClaim()
                     .htlcClaimAsset({
                         unlockSecret: htlcSecretHex,
                         lockTransactionId: htlcLockTransaction.id!,
@@ -475,7 +476,7 @@ describe("Htlc claim", () => {
 
                 await handler.revert(htlcClaimTransaction, walletRepository);
 
-                let foundLockWallet = walletRepository.findByIndex(
+                const foundLockWallet = walletRepository.findByIndex(
                     Contracts.State.WalletIndexes.Locks,
                     htlcLockTransaction.id!,
                 );
@@ -512,7 +513,7 @@ describe("Htlc claim", () => {
 
                 await handler.revert(htlcClaimTransaction, walletRepository);
 
-                let foundLockWallet = walletRepository.findByIndex(
+                const foundLockWallet = walletRepository.findByIndex(
                     Contracts.State.WalletIndexes.Locks,
                     htlcLockTransaction.id!,
                 );

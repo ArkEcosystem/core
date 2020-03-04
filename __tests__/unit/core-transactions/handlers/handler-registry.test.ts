@@ -1,23 +1,23 @@
 import "jest-extended";
 
-import ByteBuffer from "bytebuffer";
+import { Contracts, Services } from "@arkecosystem/core-kernel";
 import { Application } from "@arkecosystem/core-kernel/src/application";
 import { Container, Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Contracts, Services } from "@arkecosystem/core-kernel";
+import {
+    DeactivatedTransactionHandlerError,
+    InvalidTransactionTypeError,
+} from "@arkecosystem/core-transactions/src/errors";
 import {
     One,
     TransactionHandler,
     TransactionHandlerConstructor,
     Two,
 } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { TransactionHandlerProvider } from "@arkecosystem/core-transactions/src/handlers/handler-provider";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
 import { TransactionSchema } from "@arkecosystem/crypto/src/transactions/types/schemas";
-import {
-    DeactivatedTransactionHandlerError,
-    InvalidTransactionTypeError,
-} from "@arkecosystem/core-transactions/src/errors";
+import ByteBuffer from "bytebuffer";
 
 let app: Application;
 
@@ -453,7 +453,7 @@ describe("Registry", () => {
         const transactionHandlerRegistry: TransactionHandlerRegistry = app.get<TransactionHandlerRegistry>(
             Identifiers.TransactionHandlerRegistry,
         );
-        let internalTransactionType = Transactions.InternalTransactionType.from(
+        const internalTransactionType = Transactions.InternalTransactionType.from(
             Enums.TransactionType.DelegateResignation,
             Enums.TransactionTypeGroup.Core,
         );

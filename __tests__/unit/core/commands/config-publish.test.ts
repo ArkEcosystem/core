@@ -1,9 +1,8 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import { dirSync, setGracefulCleanup } from "tmp";
-import fs from "fs-extra";
-
 import { Command } from "@packages/core/src/commands/config-publish";
+import fs from "fs-extra";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 // jest.mock("fs-extra");
 

@@ -1,21 +1,14 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { Application, Contracts, Services } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
-import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@arkecosystem/crypto/src/interfaces";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { TransferBuilder } from "@arkecosystem/crypto/src/transactions/builders/transactions/transfer";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@packages/crypto/src/managers";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { getWalletAttributeSet } from "@arkecosystem/core-test-framework/src/internal/wallet-attributes";
+import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
@@ -24,8 +17,15 @@ import {
     MultiSignatureMinimumKeysError,
     UnexpectedMultiSignatureError,
 } from "@arkecosystem/core-transactions/src/errors";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
+import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Errors, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { IMultiSignatureAsset, IMultiSignatureLegacyAsset } from "@arkecosystem/crypto/src/interfaces";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { configManager } from "@packages/crypto/src/managers";
+
 import { buildRecipientWallet, buildSecondSignatureWallet, buildSenderWallet, initApp } from "../__support__/app";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -184,7 +184,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw with aip11 set to false and transaction is legacy", async () => {
-            let legacyAssset: IMultiSignatureLegacyAsset = {
+            const legacyAssset: IMultiSignatureLegacyAsset = {
                 keysgroup: [
                     "+039180ea4a8a803ee11ecb462bb8f9613fcdb5fe917e292dbcc73409f0e98f8f22",
                     "+028d3611c4f32feca3e6713992ae9387e18a0e01954046511878fe078703324dc0",
@@ -288,14 +288,15 @@ describe("MultiSignatureRegistrationTransaction", () => {
 
             multiSigWallet.balance = Utils.BigNumber.make(1e8 * 100);
 
-            const transferBuilder = (<TransferBuilder>factoryBuilder
+            const transferBuilder = factoryBuilder
                 .get("Transfer")
                 .withOptions({
                     amount: 10000000,
                     senderPublicKey: senderWallet.publicKey,
                     recipientId: multiSigWallet.address,
                 })
-                .make())
+                .make()
+                // @ts-ignore
                 .sign(passphrases[0])
                 .nonce("1");
 

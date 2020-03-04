@@ -1,19 +1,18 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
-import { Contracts, Application } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { FactoryBuilder, Factories } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Application, Contracts } from "@arkecosystem/core-kernel";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
+import { Wallets } from "@arkecosystem/core-state";
 import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@arkecosystem/core-transactions/src/errors";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Wallets } from "@arkecosystem/core-state";
+import { Crypto, Enums, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { configManager } from "@packages/crypto/src/managers";
-import { InsufficientBalanceError, IpfsHashAlreadyExists } from "@arkecosystem/core-transactions/src/errors";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -21,6 +20,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;

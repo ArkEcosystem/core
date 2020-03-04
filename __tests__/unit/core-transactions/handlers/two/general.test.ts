@@ -1,17 +1,12 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
 import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
 import { Wallets } from "@arkecosystem/core-state";
-import { configManager } from "@packages/crypto/src/managers";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
@@ -22,7 +17,13 @@ import {
     UnexpectedNonceError,
     UnexpectedSecondSignatureError,
 } from "@arkecosystem/core-transactions/src/errors";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
+import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Crypto, Enums, Identities, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
+import { BuilderFactory } from "@arkecosystem/crypto/src/transactions";
+import { configManager } from "@packages/crypto/src/managers";
+
 import {
     buildMultiSignatureWallet,
     buildRecipientWallet,
@@ -30,7 +31,7 @@ import {
     buildSenderWallet,
     initApp,
 } from "../__support__/app";
-import { IMultiSignatureAsset } from "@arkecosystem/crypto/src/interfaces";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Wallets.Wallet;
@@ -144,7 +145,7 @@ describe("General Tests", () => {
         });
 
         it("should throw if the sender has a second signature, but stored walled has not", async () => {
-            let secondSigWallet = buildSenderWallet(factoryBuilder);
+            const secondSigWallet = buildSenderWallet(factoryBuilder);
             secondSigWallet.setAttribute(
                 "secondPublicKey",
                 "038082dad560a22ea003022015e3136b21ef1ffd9f2fd50049026cbe8e2258ca17",
@@ -189,7 +190,7 @@ describe("General Tests", () => {
                 min: 2,
             };
 
-            let multiSigWallet = buildSenderWallet(factoryBuilder);
+            const multiSigWallet = buildSenderWallet(factoryBuilder);
             multiSigWallet.setAttribute("multiSignature", multiSignatureAsset);
             await expect(
                 handler.throwIfCannotBeApplied(transferTransaction, multiSigWallet, walletRepository),
@@ -325,7 +326,7 @@ describe("General Tests", () => {
         });
 
         it("should not fail due to case mismatch", async () => {
-            let transactionData: Interfaces.ITransactionData = transferTransaction.data;
+            const transactionData: Interfaces.ITransactionData = transferTransaction.data;
             transactionData.senderPublicKey = transactionData.senderPublicKey?.toUpperCase();
             const instance = Transactions.TransactionFactory.fromData(transactionData);
 
@@ -393,7 +394,7 @@ describe("General Tests", () => {
         it("should not fail due to case mismatch", async () => {
             senderWallet.nonce = Utils.BigNumber.make(1);
 
-            let transactionData: Interfaces.ITransactionData = transferTransaction.data;
+            const transactionData: Interfaces.ITransactionData = transferTransaction.data;
             transactionData.senderPublicKey = transactionData.senderPublicKey?.toUpperCase();
             const instance = Transactions.TransactionFactory.fromData(transactionData);
 

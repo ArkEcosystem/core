@@ -1,7 +1,6 @@
 import { Console } from "@arkecosystem/core-test-framework";
-import envPaths, { Paths } from "env-paths";
-
 import { Command } from "@packages/core/src/commands/env-paths";
+import envPaths, { Paths } from "env-paths";
 
 let cli;
 beforeEach(() => (cli = new Console()));

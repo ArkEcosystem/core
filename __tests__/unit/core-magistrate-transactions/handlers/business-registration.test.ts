@@ -1,28 +1,29 @@
 import "jest-extended";
 
-import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
-import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
-import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
-import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
-import { MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-indexes";
-import { Memory } from "@arkecosystem/core-transaction-pool";
-import { StateStore } from "@arkecosystem/core-state/src/stores/state";
-import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
-import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
-import { Wallets } from "@arkecosystem/core-state";
-import { buildSenderWallet, initApp } from "../__support__/app";
-import { configManager } from "@arkecosystem/crypto/src/managers";
-import { setMockBlock } from "../__mocks__/block-repository";
-import { setMockTransaction } from "../__mocks__/transaction-repository";
+import { Enums, Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
 import { BusinessRegistrationBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
 import { IBusinessRegistrationAsset } from "@arkecosystem/core-magistrate-crypto/src/interfaces";
 import { BusinessAlreadyRegisteredError } from "@arkecosystem/core-magistrate-transactions/src/errors";
+import { MagistrateApplicationEvents } from "@arkecosystem/core-magistrate-transactions/src/events";
 import { BusinessRegistrationTransactionHandler } from "@arkecosystem/core-magistrate-transactions/src/handlers";
+import { MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-indexes";
+import { Wallets } from "@arkecosystem/core-state";
+import { StateStore } from "@arkecosystem/core-state/src/stores/state";
+import { Generators } from "@arkecosystem/core-test-framework/src";
+import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
+import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
+import { Memory } from "@arkecosystem/core-transaction-pool";
+import { InsufficientBalanceError } from "@arkecosystem/core-transactions/dist/errors";
+import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
+import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
+import { Crypto, Interfaces, Managers, Transactions, Utils } from "@arkecosystem/crypto";
+import { configManager } from "@arkecosystem/crypto/src/managers";
+
+import { buildSenderWallet, initApp } from "../__support__/app";
+import { setMockBlock } from "../mocks/block-repository";
+import { setMockTransaction } from "../mocks/transaction-repository";
 
 let app: Application;
 let senderWallet: Contracts.State.Wallet;
@@ -30,10 +31,10 @@ let walletRepository: Contracts.State.WalletRepository;
 let factoryBuilder: FactoryBuilder;
 let transactionHandlerRegistry: TransactionHandlerRegistry;
 
-const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime() , height: 4 };
+const mockLastBlockData: Partial<Interfaces.IBlockData> = { timestamp: Crypto.Slots.getTime(), height: 4 };
 const mockGetLastBlock = jest.fn();
 StateStore.prototype.getLastBlock = mockGetLastBlock;
-mockGetLastBlock.mockReturnValue( { data: mockLastBlockData } );
+mockGetLastBlock.mockReturnValue({ data: mockLastBlockData });
 
 beforeEach(() => {
     const config = Generators.generateCryptoConfigRaw();
@@ -61,15 +62,21 @@ beforeEach(() => {
 describe("BusinessRegistration", () => {
     let businessRegistrationTransaction: Interfaces.ITransaction;
     let handler: TransactionHandler;
-    let businessRegistrationAsset: IBusinessRegistrationAsset = {
+    const businessRegistrationAsset: IBusinessRegistrationAsset = {
         name: "DummyBusiness",
         website: "https://www.dummy.example",
         vat: "EX1234567890",
-        repository: "https://www.dummy.example/repo"
+        repository: "https://www.dummy.example/repo",
     };
 
     beforeEach(async () => {
-        handler = transactionHandlerRegistry.getRegisteredHandlerByType(Transactions.InternalTransactionType.from(Enums.MagistrateTransactionType.BusinessRegistration, Enums.MagistrateTransactionGroup), 2);
+        handler = transactionHandlerRegistry.getRegisteredHandlerByType(
+            Transactions.InternalTransactionType.from(
+                Enums.MagistrateTransactionType.BusinessRegistration,
+                Enums.MagistrateTransactionGroup,
+            ),
+            2,
+        );
 
         businessRegistrationTransaction = new BusinessRegistrationBuilder()
             .businessRegistrationAsset(businessRegistrationAsset)
@@ -101,9 +108,11 @@ describe("BusinessRegistration", () => {
 
     describe("emitEvents", () => {
         it("should dispatch", async () => {
-            let emitter:  Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(Identifiers.EventDispatcherService);
+            const emitter: Contracts.Kernel.EventDispatcher = app.get<Contracts.Kernel.EventDispatcher>(
+                Identifiers.EventDispatcherService,
+            );
 
-            const spy = jest.spyOn(emitter, 'dispatch');
+            const spy = jest.spyOn(emitter, "dispatch");
 
             handler.emitEvents(businessRegistrationTransaction, emitter);
 
@@ -113,17 +122,23 @@ describe("BusinessRegistration", () => {
 
     describe("throwIfCannotBeApplied", () => {
         it("should not throw", async () => {
-            await expect(handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository)).toResolve();
+            await expect(
+                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
+            ).toResolve();
         });
 
         it("should throw if business already registered", async () => {
             senderWallet.setAttribute("business", {});
-            await expect(handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrowError(BusinessAlreadyRegisteredError);
+            await expect(
+                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
+            ).rejects.toThrowError(BusinessAlreadyRegisteredError);
         });
 
         it("should throw if wallet has insufficient balance", async () => {
             senderWallet.balance = Utils.BigNumber.ZERO;
-            await expect(handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository)).rejects.toThrowError(InsufficientBalanceError);
+            await expect(
+                handler.throwIfCannotBeApplied(businessRegistrationTransaction, senderWallet, walletRepository),
+            ).rejects.toThrowError(InsufficientBalanceError);
         });
     });
 
@@ -135,7 +150,9 @@ describe("BusinessRegistration", () => {
         it("should throw if transaction by sender already in pool", async () => {
             await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(businessRegistrationTransaction);
 
-            await expect(handler.throwIfCannotEnterPool(businessRegistrationTransaction)).rejects.toThrow(Contracts.TransactionPool.PoolError);
+            await expect(handler.throwIfCannotEnterPool(businessRegistrationTransaction)).rejects.toThrow(
+                Contracts.TransactionPool.PoolError,
+            );
         });
     });
 
@@ -148,17 +165,21 @@ describe("BusinessRegistration", () => {
             expect(senderWallet.hasAttribute("business")).toBeTrue();
             expect(senderWallet.getAttribute("business.businessAsset")).toEqual(businessRegistrationAsset);
 
-            expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance)
-                .minus(businessRegistrationTransaction.data.amount)
-                .minus(businessRegistrationTransaction.data.fee));
+            expect(senderWallet.balance).toEqual(
+                Utils.BigNumber.make(senderBalance)
+                    .minus(businessRegistrationTransaction.data.amount)
+                    .minus(businessRegistrationTransaction.data.fee),
+            );
 
-            expect(walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!)).toEqual(senderWallet);
+            expect(walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!)).toEqual(
+                senderWallet,
+            );
         });
 
         it("should throw if transaction asset is missing", async () => {
             delete businessRegistrationTransaction.data.asset;
 
-            await expect(handler.apply(businessRegistrationTransaction, walletRepository)).rejects.toThrowError()
+            await expect(handler.apply(businessRegistrationTransaction, walletRepository)).rejects.toThrowError();
         });
     });
 
@@ -175,7 +196,9 @@ describe("BusinessRegistration", () => {
             expect(senderWallet.hasAttribute("business")).toBeFalse();
             expect(senderWallet.balance).toEqual(Utils.BigNumber.make(senderBalance));
 
-            expect(() => {walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!)}).toThrowError();
+            expect(() => {
+                walletRepository.findByIndex(MagistrateIndex.Businesses, senderWallet.publicKey!);
+            }).toThrowError();
         });
     });
 });

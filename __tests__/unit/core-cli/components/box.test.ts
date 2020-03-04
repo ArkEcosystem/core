@@ -1,6 +1,5 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-
 import { Box } from "@packages/core-cli/src/components";
 
 let cli;

@@ -1,7 +1,6 @@
 import { Console } from "@arkecosystem/core-test-framework";
-import ngrok from "ngrok";
-
 import { Command } from "@packages/core/src/commands/relay-share";
+import ngrok from "ngrok";
 
 let cli;
 beforeEach(() => (cli = new Console()));

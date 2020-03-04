@@ -1,10 +1,10 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
-import { QueueFactory } from "@packages/core-kernel/src/types";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { ServiceProvider } from "@packages/core-kernel/src/services/queue";
 import { MemoryQueue } from "@packages/core-kernel/src/services/queue/drivers/memory";
+import { QueueFactory } from "@packages/core-kernel/src/types";
 
 let app: Application;
 

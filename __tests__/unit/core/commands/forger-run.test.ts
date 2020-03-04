@@ -1,7 +1,6 @@
-import { dirSync, setGracefulCleanup } from "tmp";
-import { writeJSONSync } from "fs-extra";
-
 import { Command } from "@packages/core/src/commands/forger-run";
+import { writeJSONSync } from "fs-extra";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 import { executeCommand } from "../__support__/app";
 
