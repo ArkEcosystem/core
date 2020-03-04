@@ -31,7 +31,7 @@ export class PeerProcessor implements P2P.IPeerProcessor {
         this.connector = connector;
         this.storage = storage;
 
-        this.emitter.on("internal.milestone.changed", () => {
+        this.emitter.on(ApplicationEvents.InternalMilestoneChanged, () => {
             this.updatePeersAfterMilestoneChange();
         });
     }

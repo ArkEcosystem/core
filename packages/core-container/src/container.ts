@@ -1,3 +1,4 @@
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { Container as container, EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { createContainer, Resolver } from "awilix";
 import delay from "delay";
@@ -175,7 +176,9 @@ export class Container implements container.IContainer {
 
                 try {
                     // Notify plugins about shutdown
-                    this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit("shutdown");
+                    this.resolvePlugin<EventEmitter.EventEmitter>("event-emitter").emit(
+                        ApplicationEvents.ApplicationShutdown,
+                    );
 
                     // Wait for event to be emitted and give time to finish
                     await delay(1000);

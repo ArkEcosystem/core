@@ -6,6 +6,7 @@ import pluralize from "pluralize";
 import zlib from "zlib";
 
 import { app } from "@arkecosystem/core-container";
+import { ApplicationEvents } from "@arkecosystem/core-event-emitter";
 import { EventEmitter, Logger } from "@arkecosystem/core-interfaces";
 import { Managers } from "@arkecosystem/crypto";
 
@@ -90,13 +91,13 @@ export const importTable = async (table, options) => {
     const saveData = async data => {
         if (data && data.length > 0) {
             const insert = options.database.pgp.helpers.insert(data, options.database.getColumnSet(table));
-            emitter.emit("progress", { value: counter, table });
+            emitter.emit(ApplicationEvents.SnapshotProgress, { value: counter, table });
             values = [];
             return options.database.db.none(insert);
         }
     };
 
-    emitter.emit("start", { count: options.meta[table].count });
+    emitter.emit(ApplicationEvents.SnapshotStart, { count: options.meta[table].count });
 
     // tslint:disable-next-line: await-promise
     for await (const record of readStream) {
@@ -122,7 +123,7 @@ export const importTable = async (table, options) => {
         await saveData(values);
     }
 
-    emitter.emit("complete");
+    emitter.emit(ApplicationEvents.SnapshotComplete);
 };
 
 export const verifyTable = async (table, options) => {

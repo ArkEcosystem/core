@@ -19,6 +19,7 @@
         "prepublishOnly": "yarn build"
     },
     "dependencies": {
+        "@arkecosystem/core-event-emitter": "^2.6.21",
         "@arkecosystem/core-interfaces": "^2.6.21",
         "@arkecosystem/crypto": "^2.6.21",
         "@hapi/hoek": "^8.0.2",
