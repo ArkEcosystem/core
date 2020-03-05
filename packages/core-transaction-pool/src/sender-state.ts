@@ -116,16 +116,15 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     private validateTransaction(transaction: Interfaces.ITransaction): void {
         AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
 
-        const maxTransactionBytes: number = this.configuration.getRequired<number>("maxTransactionBytes");
         const maxTransactionsPerSender: number = this.configuration.getRequired<number>("maxTransactionsPerSender");
-        const allowedSenders: string[] = this.configuration.getOptional<string[]>("allowedSenders", []);
-
         if (this.transactions.length >= maxTransactionsPerSender) {
+            const allowedSenders: string[] = this.configuration.getOptional<string[]>("allowedSenders", []);
             if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
                 throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
             }
         }
 
+        const maxTransactionBytes: number = this.configuration.getRequired<number>("maxTransactionBytes");
         if (JSON.stringify(transaction.data).length > maxTransactionBytes) {
             throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
         }
