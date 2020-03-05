@@ -220,7 +220,14 @@ export class Connection implements TransactionPool.IConnection {
                 ? this.walletManager.findByAddress(data.recipientId)
                 : undefined;
 
-            await transactionHandler.applyToRecipient(transaction, this.walletManager);
+            // Transaction should have recipientWallet or multiPayment to run applyToRecipient
+            if (
+                (transaction.typeGroup === Enums.TransactionTypeGroup.Core &&
+                    transaction.type === Enums.TransactionType.MultiPayment) ||
+                recipientWallet
+            ) {
+                await transactionHandler.applyToRecipient(transaction, this.walletManager);
+            }
 
             if (exists) {
                 this.removeTransaction(transaction);
@@ -498,7 +505,11 @@ export class Connection implements TransactionPool.IConnection {
         const validTransactions: Interfaces.ITransaction[] = [];
         const forgedIds: string[] = await this.removeForgedTransactions(transactions);
 
-        const unforgedTransactions = differencewith(transactions, forgedIds, (t, forgedId) => t.id === forgedId);
+        const unforgedTransactions: Interfaces.ITransaction[] = differencewith(
+            transactions,
+            forgedIds,
+            (t, forgedId) => t.id === forgedId,
+        );
 
         if (walletManager === undefined) {
             walletManager = new Wallets.TempWalletManager(this.databaseService.walletManager);
@@ -512,6 +523,13 @@ export class Connection implements TransactionPool.IConnection {
 
                 strictEqual(transaction.id, deserialized.id);
 
+                const sender: State.IWallet = walletManager.findByPublicKey(transaction.data.senderPublicKey);
+
+                let recipient: State.IWallet | undefined;
+                if (transaction.data.recipientId) {
+                    recipient = walletManager.findByAddress(transaction.data.recipientId);
+                }
+
                 const handler: Handlers.TransactionHandler = await Handlers.Registry.get(
                     transaction.type,
                     transaction.typeGroup,
@@ -519,7 +537,14 @@ export class Connection implements TransactionPool.IConnection {
 
                 await handler.applyToSender(transaction, walletManager);
 
-                await handler.applyToRecipient(transaction, walletManager);
+                // Transaction should have recipient or be multiPayment to run applyToRecipient
+                if (
+                    (transaction.typeGroup === Enums.TransactionTypeGroup.Core &&
+                        transaction.type === Enums.TransactionType.MultiPayment) ||
+                    (recipient && sender.address !== recipient.address)
+                ) {
+                    await handler.applyToRecipient(transaction, walletManager);
+                }
 
                 validTransactions.push(transaction);
             } catch (error) {
