@@ -205,6 +205,33 @@ describe("BlockState", () => {
 
             expect(voteBalanceAfter).toEqual(voteBalanceBefore.minus(voteWeight));
         });
+
+        it("should update vote balances for negative votes", async () => {
+            const voteAddress = "03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37";
+            addTransactionsToBlock(makeVoteTransactions(3, [`-${voteAddress}`]), blocks[0]);
+
+            const sendersBalance = Utils.BigNumber.make(1234);
+            const testTransaction = blocks[0].transactions[0];
+
+            const sender = walletRepo.findByPublicKey(testTransaction.data.senderPublicKey);
+            sender.balance = sendersBalance;
+
+            const votedForDelegate: Contracts.State.Wallet = walletRepo.findByPublicKey(voteAddress);
+            const delegateBalanceBefore = Utils.BigNumber.make(4918);
+            votedForDelegate.setAttribute("delegate.voteBalance", delegateBalanceBefore);
+
+            await blockState.applyTransaction(testTransaction);
+
+            const balanceAfterApply = votedForDelegate.getAttribute("delegate.voteBalance");
+            expect(balanceAfterApply).toEqual(
+                delegateBalanceBefore.minus(sendersBalance.plus(testTransaction.data.fee)),
+            );
+
+            await blockState.revertTransaction(testTransaction);
+            expect(votedForDelegate.getAttribute("delegate.voteBalance")).toEqual(
+                delegateBalanceBefore.plus(sendersBalance),
+            );
+        });
     });
 
     it("should create forger wallet if it doesn't exist genesis block", async () => {
