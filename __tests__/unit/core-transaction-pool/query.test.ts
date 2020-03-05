@@ -4,18 +4,18 @@ import { Enums, Identities, Managers, Transactions } from "@arkecosystem/crypto"
 import { Query, QueryIterable } from "../../../packages/core-transaction-pool/src/query";
 
 const mempool = {
-    getSenderStates: jest.fn(),
-    hasSenderState: jest.fn(),
-    getSenderState: jest.fn(),
+    getSenderMempools: jest.fn(),
+    hasSenderMempool: jest.fn(),
+    getSenderMempool: jest.fn(),
 };
 
 const container = new Container.Container();
 container.bind(Container.Identifiers.TransactionPoolMempool).toConstantValue(mempool);
 
 beforeEach(() => {
-    mempool.getSenderStates.mockClear();
-    mempool.hasSenderState.mockClear();
-    mempool.getSenderState.mockClear();
+    mempool.getSenderMempools.mockClear();
+    mempool.hasSenderMempool.mockClear();
+    mempool.getSenderMempool.mockClear();
 });
 
 Managers.configManager.getMilestone().aip11 = true;
@@ -56,7 +56,7 @@ const s2tx200 = Transactions.BuilderFactory.delegateRegistration()
 
 describe("Query.getAll", () => {
     it("should return transactions from all sender states", () => {
-        mempool.getSenderStates.mockReturnValueOnce([
+        mempool.getSenderMempools.mockReturnValueOnce([
             { getTransactionsFromLatestNonce: () => [s1tx100, s1tx200] },
             { getTransactionsFromLatestNonce: () => [s2tx100, s2tx200] },
         ]);
@@ -70,8 +70,8 @@ describe("Query.getAll", () => {
 
 describe("Query.getAllBySender", () => {
     it("should return transaction from specific sender state", () => {
-        mempool.hasSenderState.mockReturnValueOnce(true);
-        mempool.getSenderState.mockReturnValueOnce({
+        mempool.hasSenderMempool.mockReturnValueOnce(true);
+        mempool.getSenderMempool.mockReturnValueOnce({
             getTransactionsFromEarliestNonce: () => [s1tx100, s1tx200],
         });
 
@@ -79,34 +79,34 @@ describe("Query.getAllBySender", () => {
         const result = Array.from(query.getAllBySender("sender public key"));
 
         expect(result).toStrictEqual([s1tx100, s1tx200]);
-        expect(mempool.hasSenderState).toBeCalledWith("sender public key");
-        expect(mempool.getSenderState).toBeCalledWith("sender public key");
+        expect(mempool.hasSenderMempool).toBeCalledWith("sender public key");
+        expect(mempool.getSenderMempool).toBeCalledWith("sender public key");
     });
 });
 
-describe("Query.getAllFromLowestPriority", () => {
+describe("Query.getFromLowestPriority", () => {
     it("should return transactions reverse ordered by fee", () => {
-        mempool.getSenderStates.mockReturnValueOnce([
+        mempool.getSenderMempools.mockReturnValueOnce([
             { getTransactionsFromLatestNonce: () => [s1tx200, s1tx100] },
             { getTransactionsFromLatestNonce: () => [s2tx100, s2tx200] },
         ]);
 
         const query = container.resolve(Query);
-        const result = Array.from(query.getAllFromLowestPriority());
+        const result = Array.from(query.getFromLowestPriority());
 
         expect(result).toStrictEqual([s2tx100, s1tx200, s1tx100, s2tx200]);
     });
 });
 
-describe("Query.getAllFromHighestPriority", () => {
+describe("Query.getFromHighestPriority", () => {
     it("should return transactions order by fee", () => {
-        mempool.getSenderStates.mockReturnValueOnce([
+        mempool.getSenderMempools.mockReturnValueOnce([
             { getTransactionsFromEarliestNonce: () => [s1tx200, s1tx100] },
             { getTransactionsFromEarliestNonce: () => [s2tx100, s2tx200] },
         ]);
 
         const query = container.resolve(Query);
-        const result = Array.from(query.getAllFromHighestPriority());
+        const result = Array.from(query.getFromHighestPriority());
 
         expect(result).toStrictEqual([s1tx200, s1tx100, s2tx100, s2tx200]);
     });

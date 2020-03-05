@@ -6,6 +6,7 @@ import { ExpirationService } from "./expiration-service";
 import { Mempool } from "./mempool";
 import { Processor } from "./processor";
 import { Query } from "./query";
+import { SenderMempool } from "./sender-mempool";
 import { SenderState } from "./sender-state";
 import { Service } from "./service";
 import { Storage } from "./storage";
@@ -33,10 +34,11 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .bind(Container.Identifiers.TransactionPoolProcessorFactory)
             .toAutoFactory(Container.Identifiers.TransactionPoolProcessor);
         this.app.bind(Container.Identifiers.TransactionPoolQuery).to(Query);
+        this.app.bind(Container.Identifiers.TransactionPoolSenderMempool).to(SenderMempool);
         this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
         this.app
-            .bind(Container.Identifiers.TransactionPoolSenderStateFactory)
-            .toAutoFactory(Container.Identifiers.TransactionPoolSenderState);
+            .bind(Container.Identifiers.TransactionPoolSenderMempoolFactory)
+            .toAutoFactory(Container.Identifiers.TransactionPoolSenderMempool);
         this.app
             .bind(Container.Identifiers.TransactionPoolService)
             .to(Service)

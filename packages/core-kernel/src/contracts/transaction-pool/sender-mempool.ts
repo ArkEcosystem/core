@@ -1,17 +1,15 @@
 import { Interfaces } from "@arkecosystem/crypto";
 
-import { SenderMempool } from "./sender-mempool";
-
-export interface Mempool {
+export interface SenderMempool {
+    isEmpty(): boolean;
     getSize(): number;
 
-    hasSenderMempool(senderPublicKey: string): boolean;
-    getSenderMempool(senderPublicKey: string): SenderMempool;
-    getSenderMempools(): Iterable<SenderMempool>;
+    getFromEarliest(): Iterable<Interfaces.ITransaction>;
+    getFromLatest(): Iterable<Interfaces.ITransaction>;
 
     addTransaction(transaction: Interfaces.ITransaction): Promise<void>;
     removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
     acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]>;
-
-    flush(): void;
 }
+
+export type SenderMempoolFactory = () => SenderMempool;

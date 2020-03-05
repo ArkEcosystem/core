@@ -1,10 +1,9 @@
-import { Container, Contracts, Providers, Utils as AppUtils } from "@arkecosystem/core-kernel";
+import { Container, Contracts, Providers } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
 import { Crypto, Interfaces, Managers } from "@arkecosystem/crypto";
 
 import {
     RetryTransactionError,
-    SenderExceededMaximumTransactionCountError,
     TransactionExceedsMaximumByteSizeError,
     TransactionFailedToApplyError,
     TransactionFailedToVerifyError,
@@ -12,7 +11,6 @@ import {
     TransactionFromWrongNetworkError,
     TransactionHasExpiredError,
 } from "./errors";
-import { createLock } from "./utils";
 
 @Container.injectable()
 export class SenderState implements Contracts.TransactionPool.SenderState {
@@ -27,103 +25,9 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
     @Container.inject(Container.Identifiers.TransactionPoolExpirationService)
     private readonly expirationService!: Contracts.TransactionPool.ExpirationService;
 
-    private readonly transactions: Interfaces.ITransaction[] = [];
-
-    private readonly lock = createLock();
-
     private corrupt = false;
 
-    public isEmpty(): boolean {
-        return this.transactions.length === 0;
-    }
-
-    public getTransactionsCount(): number {
-        return this.transactions.length;
-    }
-
-    public getTransactionsFromEarliestNonce(): Iterable<Interfaces.ITransaction> {
-        return this.transactions.slice();
-    }
-
-    public getTransactionsFromLatestNonce(): Iterable<Interfaces.ITransaction> {
-        return this.transactions.slice().reverse();
-    }
-
-    public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
-        this.validateTransaction(transaction);
-
-        const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
-            transaction.data,
-        );
-
-        if (await handler.verify(transaction)) {
-            try {
-                await this.lock(async () => {
-                    if (this.corrupt) {
-                        throw new RetryTransactionError(transaction);
-                    }
-
-                    await handler.throwIfCannotEnterPool(transaction);
-                    await handler.apply(transaction);
-                    this.transactions.push(transaction);
-                });
-            } catch (error) {
-                throw new TransactionFailedToApplyError(transaction, error);
-            }
-        } else {
-            throw new TransactionFailedToVerifyError(transaction);
-        }
-    }
-
-    public async removeTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        return await this.lock(async () => {
-            const index = this.transactions.findIndex(t => t.id === transaction.id);
-            if (index === -1) {
-                return [];
-            }
-
-            const removedTransactions: Interfaces.ITransaction[] = this.transactions
-                .splice(index, this.transactions.length - index)
-                .reverse();
-
-            try {
-                for (const removedTransaction of removedTransactions) {
-                    const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
-                        removedTransaction.data,
-                    );
-                    await handler.revert(transaction);
-                }
-                return removedTransactions;
-            } catch (error) {
-                this.corrupt = true;
-                const otherRemovedTransactions = this.transactions.splice(0, this.transactions.length).reverse();
-                return [...removedTransactions, ...otherRemovedTransactions];
-            }
-        });
-    }
-
-    public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<Interfaces.ITransaction[]> {
-        return await this.lock(async () => {
-            const index: number = this.transactions.findIndex(t => t.id === transaction.id);
-            if (index === -1) {
-                return this.transactions.splice(0, this.transactions.length);
-            } else {
-                return this.transactions.splice(0, index + 1);
-            }
-        });
-    }
-
-    private validateTransaction(transaction: Interfaces.ITransaction): void {
-        AppUtils.assert.defined<string>(transaction.data.senderPublicKey);
-
-        const maxTransactionsPerSender: number = this.configuration.getRequired<number>("maxTransactionsPerSender");
-        if (this.transactions.length >= maxTransactionsPerSender) {
-            const allowedSenders: string[] = this.configuration.getOptional<string[]>("allowedSenders", []);
-            if (!allowedSenders.includes(transaction.data.senderPublicKey)) {
-                throw new SenderExceededMaximumTransactionCountError(transaction, maxTransactionsPerSender);
-            }
-        }
-
+    public async apply(transaction: Interfaces.ITransaction): Promise<void> {
         const maxTransactionBytes: number = this.configuration.getRequired<number>("maxTransactionBytes");
         if (JSON.stringify(transaction.data).length > maxTransactionBytes) {
             throw new TransactionExceedsMaximumByteSizeError(transaction, maxTransactionBytes);
@@ -143,6 +47,38 @@ export class SenderState implements Contracts.TransactionPool.SenderState {
         if (this.expirationService.isExpired(transaction)) {
             const expirationHeight: number = this.expirationService.getExpirationHeight(transaction);
             throw new TransactionHasExpiredError(transaction, expirationHeight);
+        }
+
+        const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
+            transaction.data,
+        );
+
+        if (await handler.verify(transaction)) {
+            if (this.corrupt) {
+                throw new RetryTransactionError(transaction);
+            }
+
+            try {
+                await handler.throwIfCannotEnterPool(transaction);
+                await handler.apply(transaction);
+            } catch (error) {
+                throw new TransactionFailedToApplyError(transaction, error);
+            }
+        } else {
+            throw new TransactionFailedToVerifyError(transaction);
+        }
+    }
+
+    public async revert(transaction: Interfaces.ITransaction): Promise<void> {
+        try {
+            const handler: Handlers.TransactionHandler = await this.handlerRegistry.getActivatedHandlerForData(
+                transaction.data,
+            );
+
+            await handler.revert(transaction);
+        } catch (error) {
+            this.corrupt = true;
+            throw error;
         }
     }
 }

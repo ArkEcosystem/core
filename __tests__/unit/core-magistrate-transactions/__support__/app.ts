@@ -23,7 +23,7 @@ import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-f
 import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
 import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import { Query } from "@packages/core-transaction-pool/src/query";
-import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
+import { SenderMempool } from "@packages/core-transaction-pool/src/sender-mempool";
 import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -124,9 +124,9 @@ export const initApp = (): Application => {
     app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
     app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
 
-    app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
-    app.bind(Container.Identifiers.TransactionPoolSenderStateFactory).toAutoFactory(
-        Container.Identifiers.TransactionPoolSenderState,
+    app.bind(Container.Identifiers.TransactionPoolSenderMempool).to(SenderMempool);
+    app.bind(Container.Identifiers.TransactionPoolSenderMempoolFactory).toAutoFactory(
+        Container.Identifiers.TransactionPoolSenderMempool,
     );
 
     app.bind(Identifiers.WalletRepository)

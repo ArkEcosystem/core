@@ -10,7 +10,7 @@ const configuration = { get: jest.fn() };
 const createTransactionValidator = jest.fn(() => validator);
 const blockchain = { getLastBlock: jest.fn() };
 const pool = { cleanUp: jest.fn(), removeTransaction: jest.fn() };
-const poolQuery = { getAllFromHighestPriority: jest.fn() };
+const poolQuery = { getFromHighestPriority: jest.fn() };
 const logger = { warning: jest.fn(), error: jest.fn() };
 
 const container = new Container.Container();
@@ -29,7 +29,7 @@ beforeEach(() => {
     createTransactionValidator.mockClear();
     blockchain.getLastBlock.mockClear();
     pool.cleanUp.mockClear();
-    poolQuery.getAllFromHighestPriority.mockClear();
+    poolQuery.getFromHighestPriority.mockClear();
     logger.error.mockClear();
 });
 
@@ -41,7 +41,7 @@ describe("Collator.getBlockCandidateTransactions", () => {
 
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
-        poolQuery.getAllFromHighestPriority.mockReturnValueOnce(poolTransactions);
+        poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
 
         const collator = container.resolve(Collator);
         const candidateTransaction = await collator.getBlockCandidateTransactions();
@@ -62,7 +62,7 @@ describe("Collator.getBlockCandidateTransactions", () => {
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
         configuration.get.mockReturnValueOnce(25);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
-        poolQuery.getAllFromHighestPriority.mockReturnValueOnce(poolTransactions);
+        poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
 
         const collator = container.resolve(Collator);
         const candidateTransaction = await collator.getBlockCandidateTransactions();
@@ -82,7 +82,7 @@ describe("Collator.getBlockCandidateTransactions", () => {
 
         (Managers.configManager.getMilestone as jest.Mock).mockReturnValueOnce(milestone);
         blockchain.getLastBlock.mockReturnValueOnce(lastBlock);
-        poolQuery.getAllFromHighestPriority.mockReturnValueOnce(poolTransactions);
+        poolQuery.getFromHighestPriority.mockReturnValueOnce(poolTransactions);
         validator.validate.mockRejectedValueOnce(new Error("Some error"));
 
         const collator = container.resolve(Collator);

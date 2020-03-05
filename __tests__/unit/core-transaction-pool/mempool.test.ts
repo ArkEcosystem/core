@@ -3,21 +3,21 @@ import { Identities, Interfaces } from "@arkecosystem/crypto";
 
 import { Mempool } from "../../../packages/core-transaction-pool/src/mempool";
 
-const createSenderState = jest.fn();
+const createSenderMempool = jest.fn();
 const logger = { debug: jest.fn() };
 
 const container = new Container.Container();
-container.bind(Container.Identifiers.TransactionPoolSenderStateFactory).toConstantValue(createSenderState);
+container.bind(Container.Identifiers.TransactionPoolSenderMempoolFactory).toConstantValue(createSenderMempool);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
-    createSenderState.mockClear();
+    createSenderMempool.mockClear();
     logger.debug.mockClear();
 });
 
 describe("Mempool.getSize", () => {
     it("should return sum of transaction counts of sender states", async () => {
-        createSenderState
+        createSenderMempool
             .mockReturnValueOnce({ addTransaction: jest.fn(), getTransactionsCount: () => 10, isEmpty: () => false })
             .mockReturnValueOnce({ addTransaction: jest.fn(), getTransactionsCount: () => 20, isEmpty: () => false });
 
@@ -37,9 +37,9 @@ describe("Mempool.getSize", () => {
     });
 });
 
-describe("Mempool.hasSenderState", () => {
+describe("Mempool.hasSenderMempool", () => {
     it("should return true if sender's transaction was added previously", async () => {
-        createSenderState.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
+        createSenderMempool.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
@@ -47,13 +47,13 @@ describe("Mempool.hasSenderState", () => {
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
-        const has = memory.hasSenderState(Identities.PublicKey.fromPassphrase("sender's key"));
+        const has = memory.hasSenderMempool(Identities.PublicKey.fromPassphrase("sender's key"));
 
         expect(has).toBe(true);
     });
 
     it("should return false if sender's transaction wasn't added previously", async () => {
-        createSenderState.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
+        createSenderMempool.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
@@ -61,16 +61,16 @@ describe("Mempool.hasSenderState", () => {
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
-        const has = memory.hasSenderState(Identities.PublicKey.fromPassphrase("not sender's key"));
+        const has = memory.hasSenderMempool(Identities.PublicKey.fromPassphrase("not sender's key"));
 
         expect(has).toBe(false);
     });
 });
 
-describe("Mempool.getSenderState", () => {
+describe("Mempool.getSenderMempool", () => {
     it("should return sender state if sender's transaction was added previously", async () => {
-        const expectedSenderState = { addTransaction: jest.fn(), isEmpty: () => false };
-        createSenderState.mockReturnValueOnce(expectedSenderState);
+        const expectedSenderMempool = { addTransaction: jest.fn(), isEmpty: () => false };
+        createSenderMempool.mockReturnValueOnce(expectedSenderMempool);
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
@@ -78,13 +78,13 @@ describe("Mempool.getSenderState", () => {
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
-        const senderState = memory.getSenderState(Identities.PublicKey.fromPassphrase("sender's key"));
+        const SenderMempool = memory.getSenderMempool(Identities.PublicKey.fromPassphrase("sender's key"));
 
-        expect(senderState).toBe(expectedSenderState);
+        expect(SenderMempool).toBe(expectedSenderMempool);
     });
 
     it("should throw if sender's transaction wasn't added previously", async () => {
-        createSenderState.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
+        createSenderMempool.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
@@ -92,17 +92,17 @@ describe("Mempool.getSenderState", () => {
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
-        const cb = () => memory.getSenderState(Identities.PublicKey.fromPassphrase("not sender's key"));
+        const cb = () => memory.getSenderMempool(Identities.PublicKey.fromPassphrase("not sender's key"));
 
         expect(cb).toThrow();
     });
 });
 
-describe("Mempool.getSenderStates", () => {
+describe("Mempool.getSenderMempools", () => {
     it("should return all sender states", async () => {
-        const senderState1 = { addTransaction: jest.fn(), isEmpty: () => false };
-        const senderState2 = { addTransaction: jest.fn(), isEmpty: () => false };
-        createSenderState.mockReturnValueOnce(senderState1).mockReturnValueOnce(senderState2);
+        const SenderMempool1 = { addTransaction: jest.fn(), isEmpty: () => false };
+        const SenderMempool2 = { addTransaction: jest.fn(), isEmpty: () => false };
+        createSenderMempool.mockReturnValueOnce(SenderMempool1).mockReturnValueOnce(SenderMempool2);
 
         const transaction1 = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
@@ -114,16 +114,16 @@ describe("Mempool.getSenderStates", () => {
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction1);
         await memory.addTransaction(transaction2);
-        const senderStates = memory.getSenderStates();
+        const SenderMempools = memory.getSenderMempools();
 
-        expect(Array.from(senderStates)).toStrictEqual([senderState1, senderState2]);
+        expect(Array.from(SenderMempools)).toStrictEqual([SenderMempool1, SenderMempool2]);
     });
 });
 
 describe("Mempool.addTransaction", () => {
     it("should add transaction to sender state", async () => {
-        const senderState = { addTransaction: jest.fn(), isEmpty: () => false };
-        createSenderState.mockReturnValueOnce(senderState);
+        const SenderMempool = { addTransaction: jest.fn(), isEmpty: () => false };
+        createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
@@ -131,15 +131,15 @@ describe("Mempool.addTransaction", () => {
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
 
-        expect(senderState.addTransaction).toBeCalledWith(transaction);
+        expect(SenderMempool.addTransaction).toBeCalledWith(transaction);
         expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
     it("should forget sender state if it's empty even if error was thrown", async () => {
         const error = new Error("Something went horribly wrong");
-        const senderState = { addTransaction: jest.fn(), isEmpty: () => true };
-        senderState.addTransaction.mockRejectedValueOnce(error);
-        createSenderState.mockReturnValueOnce(senderState);
+        const SenderMempool = { addTransaction: jest.fn(), isEmpty: () => true };
+        SenderMempool.addTransaction.mockRejectedValueOnce(error);
+        createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
@@ -147,7 +147,7 @@ describe("Mempool.addTransaction", () => {
         const memory = container.resolve(Mempool);
         const promise = memory.addTransaction(transaction);
         await expect(promise).rejects.toThrow(error);
-        const has = memory.hasSenderState(transaction.data.senderPublicKey);
+        const has = memory.hasSenderMempool(transaction.data.senderPublicKey);
 
         expect(logger.debug).toHaveBeenCalledTimes(2);
         expect(has).toBe(false);
@@ -170,28 +170,28 @@ describe("Mempool.removeTransaction", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const expectedRemovedTransactions = [transaction];
-        const senderState = {
+        const SenderMempool = {
             addTransaction: jest.fn(),
             removeTransaction: jest.fn(() => expectedRemovedTransactions),
             isEmpty: () => false,
         };
-        createSenderState.mockReturnValueOnce(senderState);
+        createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const removedTransactions = await memory.removeTransaction(transaction);
 
-        expect(senderState.removeTransaction).toBeCalledWith(transaction);
+        expect(SenderMempool.removeTransaction).toBeCalledWith(transaction);
         expect(removedTransactions).toStrictEqual(expectedRemovedTransactions);
         expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
     it("should forget sender state if it's empty even if error was thrown", async () => {
         const error = new Error("Something went horribly wrong");
-        const senderState = { addTransaction: jest.fn(), removeTransaction: jest.fn(), isEmpty: jest.fn() };
-        senderState.removeTransaction.mockRejectedValueOnce(error);
-        senderState.isEmpty.mockReturnValueOnce(false).mockReturnValueOnce(true);
-        createSenderState.mockReturnValueOnce(senderState);
+        const SenderMempool = { addTransaction: jest.fn(), removeTransaction: jest.fn(), isEmpty: jest.fn() };
+        SenderMempool.removeTransaction.mockRejectedValueOnce(error);
+        SenderMempool.isEmpty.mockReturnValueOnce(false).mockReturnValueOnce(true);
+        createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
@@ -200,7 +200,7 @@ describe("Mempool.removeTransaction", () => {
         await memory.addTransaction(transaction);
         const promise = memory.removeTransaction(transaction);
         await expect(promise).rejects.toThrow(error);
-        const has = memory.hasSenderState(transaction.data.senderPublicKey);
+        const has = memory.hasSenderMempool(transaction.data.senderPublicKey);
 
         expect(logger.debug).toHaveBeenCalledTimes(2);
         expect(has).toBe(false);
@@ -223,28 +223,28 @@ describe("Mempool.acceptForgedTransaction", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
         const expectedRemovedTransactions = [transaction];
-        const senderState = {
+        const SenderMempool = {
             addTransaction: jest.fn(),
             acceptForgedTransaction: jest.fn(() => expectedRemovedTransactions),
             isEmpty: () => false,
         };
-        createSenderState.mockReturnValueOnce(senderState);
+        createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const removedTransactions = await memory.acceptForgedTransaction(transaction);
 
-        expect(senderState.acceptForgedTransaction).toBeCalledWith(transaction);
+        expect(SenderMempool.acceptForgedTransaction).toBeCalledWith(transaction);
         expect(removedTransactions).toStrictEqual(expectedRemovedTransactions);
         expect(logger.debug).toHaveBeenCalledTimes(1);
     });
 
     it("should forget sender state if it's empty even if error was thrown", async () => {
         const error = new Error("Something went horribly wrong");
-        const senderState = { addTransaction: jest.fn(), acceptForgedTransaction: jest.fn(), isEmpty: jest.fn() };
-        senderState.acceptForgedTransaction.mockRejectedValueOnce(error);
-        senderState.isEmpty.mockReturnValueOnce(false).mockReturnValueOnce(true);
-        createSenderState.mockReturnValueOnce(senderState);
+        const SenderMempool = { addTransaction: jest.fn(), acceptForgedTransaction: jest.fn(), isEmpty: jest.fn() };
+        SenderMempool.acceptForgedTransaction.mockRejectedValueOnce(error);
+        SenderMempool.isEmpty.mockReturnValueOnce(false).mockReturnValueOnce(true);
+        createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
@@ -253,7 +253,7 @@ describe("Mempool.acceptForgedTransaction", () => {
         await memory.addTransaction(transaction);
         const promise = memory.acceptForgedTransaction(transaction);
         await expect(promise).rejects.toThrow(error);
-        const has = memory.hasSenderState(transaction.data.senderPublicKey);
+        const has = memory.hasSenderMempool(transaction.data.senderPublicKey);
 
         expect(logger.debug).toHaveBeenCalledTimes(2);
         expect(has).toBe(false);
@@ -262,8 +262,8 @@ describe("Mempool.acceptForgedTransaction", () => {
 
 describe("Mempool.flush", () => {
     it("should remove all sender states", async () => {
-        const senderState = { addTransaction: jest.fn(), isEmpty: () => false };
-        createSenderState.mockReturnValueOnce(senderState);
+        const SenderMempool = { addTransaction: jest.fn(), isEmpty: () => false };
+        createSenderMempool.mockReturnValueOnce(SenderMempool);
 
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
@@ -271,7 +271,7 @@ describe("Mempool.flush", () => {
         const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         memory.flush();
-        const has = memory.hasSenderState(transaction.data.senderPublicKey);
+        const has = memory.hasSenderMempool(transaction.data.senderPublicKey);
 
         expect(has).toBe(false);
     });

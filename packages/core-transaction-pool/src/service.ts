@@ -145,7 +145,7 @@ export class Service implements Contracts.TransactionPool.Service {
 
         if (this.getPoolSize() >= maxTransactionsInPool) {
             await this.cleanLowestPriority();
-            const lowest = this.poolQuery.getAllFromLowestPriority().first();
+            const lowest = this.poolQuery.getFromLowestPriority().first();
             if (transaction.data.fee.isLessThanEqual(lowest.data.fee)) {
                 throw new TransactionPoolFullError(transaction, lowest.data.fee);
             }
@@ -167,7 +167,7 @@ export class Service implements Contracts.TransactionPool.Service {
     private async cleanLowestPriority(): Promise<void> {
         const maxTransactionsInPool = this.configuration.getRequired<number>("maxTransactionsInPool");
         while (this.getPoolSize() > maxTransactionsInPool) {
-            const lowest = this.poolQuery.getAllFromLowestPriority().first();
+            const lowest = this.poolQuery.getFromLowestPriority().first();
             await this.removeTransaction(lowest);
         }
     }
