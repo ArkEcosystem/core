@@ -2,7 +2,7 @@ export * from "./collator";
 export * from "./dynamic-fee-matcher";
 export * from "./errors";
 export * from "./expiration-service";
-export * from "./memory";
+export * from "./mempool";
 export * from "./processor";
 export * from "./query";
 export * from "./sender-state";

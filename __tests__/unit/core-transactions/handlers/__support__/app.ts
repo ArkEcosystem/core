@@ -16,7 +16,7 @@ import { getWalletAttributeSet } from "@packages/core-test-framework/src/interna
 import { Collator } from "@packages/core-transaction-pool/src";
 import { DynamicFeeMatcher } from "@packages/core-transaction-pool/src/dynamic-fee-matcher";
 import { ExpirationService } from "@packages/core-transaction-pool/src/expiration-service";
-import { Memory } from "@packages/core-transaction-pool/src/memory";
+import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import { Query } from "@packages/core-transaction-pool/src/query";
 import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
 import { One, Two } from "@packages/core-transactions/src/handlers";
@@ -97,8 +97,8 @@ export const initApp = (): Application => {
         .to(StateStore)
         .inTransientScope();
 
-    app.bind(Identifiers.TransactionPoolMemory)
-        .to(Memory)
+    app.bind(Identifiers.TransactionPoolMempool)
+        .to(Mempool)
         .inSingletonScope();
 
     app.bind(Identifiers.TransactionPoolQuery)

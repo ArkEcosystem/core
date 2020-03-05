@@ -64,12 +64,12 @@ export class QueryIterable implements Contracts.TransactionPool.QueryIterable {
 
 @Container.injectable()
 export class Query implements Contracts.TransactionPool.Query {
-    @Container.inject(Container.Identifiers.TransactionPoolMemory)
-    private readonly memory!: Contracts.TransactionPool.Memory;
+    @Container.inject(Container.Identifiers.TransactionPoolMempool)
+    private readonly mempool!: Contracts.TransactionPool.Mempool;
 
     public getAll(): QueryIterable {
         const iterable: Iterable<Interfaces.ITransaction> = function*(this: Query) {
-            for (const senderState of this.memory.getSenderStates()) {
+            for (const senderState of this.mempool.getSenderStates()) {
                 for (const transaction of senderState.getTransactionsFromLatestNonce()) {
                     yield transaction;
                 }
@@ -81,8 +81,8 @@ export class Query implements Contracts.TransactionPool.Query {
 
     public getAllBySender(senderPublicKey: string): QueryIterable {
         const iterable: Iterable<Interfaces.ITransaction> = function*(this: Query) {
-            if (this.memory.hasSenderState(senderPublicKey)) {
-                const transactions = this.memory.getSenderState(senderPublicKey).getTransactionsFromEarliestNonce();
+            if (this.mempool.hasSenderState(senderPublicKey)) {
+                const transactions = this.mempool.getSenderState(senderPublicKey).getTransactionsFromEarliestNonce();
                 for (const transaction of transactions) {
                     yield transaction;
                 }
@@ -102,7 +102,7 @@ export class Query implements Contracts.TransactionPool.Query {
                     return a.data.fee.comparedTo(b.data.fee);
                 };
 
-                const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.memory.getSenderStates())
+                const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.mempool.getSenderStates())
                     .map(s => s.getTransactionsFromLatestNonce())
                     .map(i => i[Symbol.iterator]());
 
@@ -123,7 +123,7 @@ export class Query implements Contracts.TransactionPool.Query {
                     return b.data.fee.comparedTo(a.data.fee);
                 };
 
-                const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.memory.getSenderStates())
+                const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.mempool.getSenderStates())
                     .map(s => s.getTransactionsFromEarliestNonce())
                     .map(i => i[Symbol.iterator]());
 

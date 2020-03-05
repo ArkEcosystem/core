@@ -81,7 +81,7 @@ export const Identifiers = {
     // Transaction Pool
     TransactionPoolService: Symbol.for("TransactionPool<Service>"),
     TransactionPoolCleaner: Symbol.for("TransactionPool<Cleaner>"),
-    TransactionPoolMemory: Symbol.for("TransactionPool<Memory>"),
+    TransactionPoolMempool: Symbol.for("TransactionPool<Mempool>"),
     TransactionPoolStorage: Symbol.for("TransactionPool<Storage>"),
     TransactionPoolCollator: Symbol.for("TransactionPool<Collator>"),
     TransactionPoolQuery: Symbol.for("TransactionPool<Query>"),

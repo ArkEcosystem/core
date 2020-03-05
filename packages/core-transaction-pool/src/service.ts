@@ -15,8 +15,8 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.TransactionPoolStorage)
     private readonly storage!: Contracts.TransactionPool.Storage;
 
-    @Container.inject(Container.Identifiers.TransactionPoolMemory)
-    private readonly memory!: Contracts.TransactionPool.Memory;
+    @Container.inject(Container.Identifiers.TransactionPoolMempool)
+    private readonly mempool!: Contracts.TransactionPool.Mempool;
 
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
@@ -32,7 +32,7 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public getPoolSize(): number {
-        return this.memory.getSize();
+        return this.mempool.getSize();
     }
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
@@ -58,7 +58,7 @@ export class Service implements Contracts.TransactionPool.Service {
             return;
         }
 
-        const removedTransactions = await this.memory.removeTransaction(transaction);
+        const removedTransactions = await this.mempool.removeTransaction(transaction);
         for (const removedTransaction of removedTransactions) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
@@ -77,7 +77,7 @@ export class Service implements Contracts.TransactionPool.Service {
             return;
         }
 
-        const removedTransactions = await this.memory.acceptForgedTransaction(transaction);
+        const removedTransactions = await this.mempool.acceptForgedTransaction(transaction);
         for (const removedTransaction of removedTransactions) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
@@ -93,7 +93,7 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public async readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
-        this.memory.flush();
+        this.mempool.flush();
 
         let prevCount = 0;
         let rebuiltCount = 0;
@@ -130,7 +130,7 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public flush(): void {
-        this.memory.flush();
+        this.mempool.flush();
         this.storage.flush();
     }
 
@@ -151,7 +151,7 @@ export class Service implements Contracts.TransactionPool.Service {
             }
         }
 
-        await this.memory.addTransaction(transaction);
+        await this.mempool.addTransaction(transaction);
         await this.cleanLowestPriority();
     }
 

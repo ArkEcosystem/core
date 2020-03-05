@@ -1,7 +1,7 @@
 import { Container } from "@arkecosystem/core-kernel";
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
-import { Memory } from "../../../packages/core-transaction-pool/src/memory";
+import { Mempool } from "../../../packages/core-transaction-pool/src/mempool";
 
 const createSenderState = jest.fn();
 const logger = { debug: jest.fn() };
@@ -15,7 +15,7 @@ beforeEach(() => {
     logger.debug.mockClear();
 });
 
-describe("Memory.getSize", () => {
+describe("Mempool.getSize", () => {
     it("should return sum of transaction counts of sender states", async () => {
         createSenderState
             .mockReturnValueOnce({ addTransaction: jest.fn(), getTransactionsCount: () => 10, isEmpty: () => false })
@@ -28,7 +28,7 @@ describe("Memory.getSize", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender2") },
         } as Interfaces.ITransaction;
 
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction1);
         await memory.addTransaction(transaction2);
         const size = memory.getSize();
@@ -37,7 +37,7 @@ describe("Memory.getSize", () => {
     });
 });
 
-describe("Memory.hasSenderState", () => {
+describe("Mempool.hasSenderState", () => {
     it("should return true if sender's transaction was added previously", async () => {
         createSenderState.mockReturnValueOnce({ addTransaction: jest.fn(), isEmpty: () => false });
 
@@ -45,7 +45,7 @@ describe("Memory.hasSenderState", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
         } as Interfaces.ITransaction;
 
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const has = memory.hasSenderState(Identities.PublicKey.fromPassphrase("sender's key"));
 
@@ -59,7 +59,7 @@ describe("Memory.hasSenderState", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
         } as Interfaces.ITransaction;
 
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const has = memory.hasSenderState(Identities.PublicKey.fromPassphrase("not sender's key"));
 
@@ -67,7 +67,7 @@ describe("Memory.hasSenderState", () => {
     });
 });
 
-describe("Memory.getSenderState", () => {
+describe("Mempool.getSenderState", () => {
     it("should return sender state if sender's transaction was added previously", async () => {
         const expectedSenderState = { addTransaction: jest.fn(), isEmpty: () => false };
         createSenderState.mockReturnValueOnce(expectedSenderState);
@@ -76,7 +76,7 @@ describe("Memory.getSenderState", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
         } as Interfaces.ITransaction;
 
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const senderState = memory.getSenderState(Identities.PublicKey.fromPassphrase("sender's key"));
 
@@ -90,7 +90,7 @@ describe("Memory.getSenderState", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender's key") },
         } as Interfaces.ITransaction;
 
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const cb = () => memory.getSenderState(Identities.PublicKey.fromPassphrase("not sender's key"));
 
@@ -98,7 +98,7 @@ describe("Memory.getSenderState", () => {
     });
 });
 
-describe("Memory.getSenderStates", () => {
+describe("Mempool.getSenderStates", () => {
     it("should return all sender states", async () => {
         const senderState1 = { addTransaction: jest.fn(), isEmpty: () => false };
         const senderState2 = { addTransaction: jest.fn(), isEmpty: () => false };
@@ -111,7 +111,7 @@ describe("Memory.getSenderStates", () => {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender2") },
         } as Interfaces.ITransaction;
 
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction1);
         await memory.addTransaction(transaction2);
         const senderStates = memory.getSenderStates();
@@ -120,7 +120,7 @@ describe("Memory.getSenderStates", () => {
     });
 });
 
-describe("Memory.addTransaction", () => {
+describe("Mempool.addTransaction", () => {
     it("should add transaction to sender state", async () => {
         const senderState = { addTransaction: jest.fn(), isEmpty: () => false };
         createSenderState.mockReturnValueOnce(senderState);
@@ -128,7 +128,7 @@ describe("Memory.addTransaction", () => {
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
 
         expect(senderState.addTransaction).toBeCalledWith(transaction);
@@ -144,7 +144,7 @@ describe("Memory.addTransaction", () => {
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         const promise = memory.addTransaction(transaction);
         await expect(promise).rejects.toThrow(error);
         const has = memory.hasSenderState(transaction.data.senderPublicKey);
@@ -154,12 +154,12 @@ describe("Memory.addTransaction", () => {
     });
 });
 
-describe("Memory.removeTransaction", () => {
+describe("Mempool.removeTransaction", () => {
     it("should return empty array when removing transaction of sender that wasn't previously added", async () => {
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         const removedTransactions = await memory.removeTransaction(transaction);
 
         expect(removedTransactions).toStrictEqual([]);
@@ -177,7 +177,7 @@ describe("Memory.removeTransaction", () => {
         };
         createSenderState.mockReturnValueOnce(senderState);
 
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const removedTransactions = await memory.removeTransaction(transaction);
 
@@ -196,7 +196,7 @@ describe("Memory.removeTransaction", () => {
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const promise = memory.removeTransaction(transaction);
         await expect(promise).rejects.toThrow(error);
@@ -207,12 +207,12 @@ describe("Memory.removeTransaction", () => {
     });
 });
 
-describe("Memory.acceptForgedTransaction", () => {
+describe("Mempool.acceptForgedTransaction", () => {
     it("should return empty array when accepting transaction of sender that wasn't previously added", async () => {
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         const removedTransactions = await memory.acceptForgedTransaction(transaction);
 
         expect(removedTransactions).toStrictEqual([]);
@@ -230,7 +230,7 @@ describe("Memory.acceptForgedTransaction", () => {
         };
         createSenderState.mockReturnValueOnce(senderState);
 
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const removedTransactions = await memory.acceptForgedTransaction(transaction);
 
@@ -249,7 +249,7 @@ describe("Memory.acceptForgedTransaction", () => {
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         const promise = memory.acceptForgedTransaction(transaction);
         await expect(promise).rejects.toThrow(error);
@@ -260,7 +260,7 @@ describe("Memory.acceptForgedTransaction", () => {
     });
 });
 
-describe("Memory.flush", () => {
+describe("Mempool.flush", () => {
     it("should remove all sender states", async () => {
         const senderState = { addTransaction: jest.fn(), isEmpty: () => false };
         createSenderState.mockReturnValueOnce(senderState);
@@ -268,7 +268,7 @@ describe("Memory.flush", () => {
         const transaction = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
         } as Interfaces.ITransaction;
-        const memory = container.resolve(Memory);
+        const memory = container.resolve(Mempool);
         await memory.addTransaction(transaction);
         memory.flush();
         const has = memory.hasSenderState(transaction.data.senderPublicKey);

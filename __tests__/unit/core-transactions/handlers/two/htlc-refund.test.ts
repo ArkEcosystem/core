@@ -7,7 +7,7 @@ import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
+import { Mempool } from "@arkecosystem/core-transaction-pool/src/mempool";
 import { HtlcLockNotExpiredError, HtlcLockTransactionNotFoundError } from "@arkecosystem/core-transactions/src/errors";
 import { TransactionHandler } from "@arkecosystem/core-transactions/src/handlers";
 import { TransactionHandlerRegistry } from "@arkecosystem/core-transactions/src/handlers/handler-registry";
@@ -315,7 +315,7 @@ describe("Htlc refund", () => {
                     .sign(passphrases[2])
                     .build();
 
-                await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(anotherHtlcRefundTransaction);
+                await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(anotherHtlcRefundTransaction);
 
                 lockWallet.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(6 * 1e8));
 

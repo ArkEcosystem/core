@@ -2,7 +2,7 @@ import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kern
 import { Identities, Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
-export class Memory implements Contracts.TransactionPool.Memory {
+export class Mempool implements Contracts.TransactionPool.Mempool {
     @Container.inject(Container.Identifiers.TransactionPoolSenderStateFactory)
     private readonly createSenderState!: Contracts.TransactionPool.SenderStateFactory;
 

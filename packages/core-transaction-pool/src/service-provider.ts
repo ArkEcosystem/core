@@ -3,7 +3,7 @@ import { Container, Providers } from "@arkecosystem/core-kernel";
 import { Collator } from "./collator";
 import { DynamicFeeMatcher } from "./dynamic-fee-matcher";
 import { ExpirationService } from "./expiration-service";
-import { Memory } from "./memory";
+import { Mempool } from "./mempool";
 import { Processor } from "./processor";
 import { Query } from "./query";
 import { SenderState } from "./sender-state";
@@ -25,8 +25,8 @@ export class ServiceProvider extends Providers.ServiceProvider {
         this.app.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).to(DynamicFeeMatcher);
         this.app.bind(Container.Identifiers.TransactionPoolExpirationService).to(ExpirationService);
         this.app
-            .bind(Container.Identifiers.TransactionPoolMemory)
-            .to(Memory)
+            .bind(Container.Identifiers.TransactionPoolMempool)
+            .to(Mempool)
             .inSingletonScope();
         this.app.bind(Container.Identifiers.TransactionPoolProcessor).to(Processor);
         this.app

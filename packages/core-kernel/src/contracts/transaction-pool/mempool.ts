@@ -2,7 +2,7 @@ import { Interfaces } from "@arkecosystem/crypto";
 
 import { SenderState } from "./sender-state";
 
-export interface Memory {
+export interface Mempool {
     getSize(): number;
 
     hasSenderState(senderPublicKey: string): boolean;

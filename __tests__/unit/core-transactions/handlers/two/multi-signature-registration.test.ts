@@ -8,7 +8,7 @@ import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
 import { getWalletAttributeSet } from "@arkecosystem/core-test-framework/src/internal/wallet-attributes";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
+import { Mempool } from "@arkecosystem/core-transaction-pool/src/mempool";
 import {
     InsufficientBalanceError,
     InvalidMultiSignatureError,
@@ -150,7 +150,6 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should not throw", async () => {
-            console.log(recipientWallet);
             await expect(
                 handler.throwIfCannotBeApplied(multiSignatureTransaction, senderWallet, walletRepository),
             ).toResolve();
@@ -335,7 +334,7 @@ describe("MultiSignatureRegistrationTransaction", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(multiSignatureTransaction);
+            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(multiSignatureTransaction);
 
             await expect(handler.throwIfCannotEnterPool(multiSignatureTransaction)).rejects.toThrow(
                 Contracts.TransactionPool.PoolError,
