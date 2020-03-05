@@ -65,6 +65,48 @@ describe("SenderMempool.isEmpty", () => {
     });
 });
 
+describe("SenderMempool.getSize", () => {
+    it("should return added transactions count", async () => {
+        configuration.getRequired.mockReturnValueOnce(10); // maxTransactionsPerSender
+
+        const senderMempool = container.resolve(SenderMempool);
+        await senderMempool.addTransaction(transaction1);
+        await senderMempool.addTransaction(transaction2);
+        await senderMempool.addTransaction(transaction3);
+        const size = senderMempool.getSize();
+
+        expect(size).toBe(3);
+    });
+});
+
+describe("SenderMempool.getFromEarliest", () => {
+    it("should return transactions in order they were added", async () => {
+        configuration.getRequired.mockReturnValueOnce(10); // maxTransactionsPerSender
+
+        const senderMempool = container.resolve(SenderMempool);
+        await senderMempool.addTransaction(transaction1);
+        await senderMempool.addTransaction(transaction2);
+        await senderMempool.addTransaction(transaction3);
+        const addedTransactions = senderMempool.getFromEarliest();
+
+        expect(addedTransactions).toStrictEqual([transaction1, transaction2, transaction3]);
+    });
+});
+
+describe("SenderMempool.getFromLatest", () => {
+    it("should return transactions in reverse order they were added", async () => {
+        configuration.getRequired.mockReturnValueOnce(10); // maxTransactionsPerSender
+
+        const senderMempool = container.resolve(SenderMempool);
+        await senderMempool.addTransaction(transaction1);
+        await senderMempool.addTransaction(transaction2);
+        await senderMempool.addTransaction(transaction3);
+        const addedTransactions = senderMempool.getFromLatest();
+
+        expect(addedTransactions).toStrictEqual([transaction3, transaction2, transaction1]);
+    });
+});
+
 describe("SenderMempool.addTransaction", () => {
     it("should apply transaction to sender state", async () => {
         configuration.getRequired.mockReturnValueOnce(10); // maxTransactionsPerSender
