@@ -27,8 +27,9 @@ export class Service implements Contracts.TransactionPool.Service {
     public async boot(): Promise<void> {
         if (process.env.CORE_RESET_DATABASE) {
             this.flush();
+        } else {
+            await this.readdTransactions();
         }
-        await this.readdTransactions();
     }
 
     public getPoolSize(): number {
