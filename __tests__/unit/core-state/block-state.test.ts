@@ -18,6 +18,9 @@ let factory: FactoryBuilder;
 let blocks: IBlock[];
 let walletRepo: WalletRepository;
 let forgingWallet: Contracts.State.Wallet;
+let votingWallet: Contracts.State.Wallet;
+let sendingWallet: Contracts.State.Wallet;
+let recipientWallet: Contracts.State.Wallet;
 
 let applySpy: jest.SpyInstance;
 let revertSpy: jest.SpyInstance;
@@ -63,7 +66,31 @@ beforeEach(() => {
         lastBlock: undefined,
     });
 
-    walletRepo.index(forgingWallet);
+    votingWallet = factory
+        .get("Wallet")
+        .withOptions({
+            passphrase: "testPassphrase1",
+            nonce: 0,
+        })
+        .make();
+
+    sendingWallet = factory
+        .get("Wallet")
+        .withOptions({
+            passphrase: "testPassphrase1",
+            nonce: 0,
+        })
+        .make();
+
+    recipientWallet = factory
+        .get("Wallet")
+        .withOptions({
+            passphrase: "testPassphrase2",
+            nonce: 0,
+        })
+        .make();
+
+    walletRepo.index([votingWallet, forgingWallet, sendingWallet, recipientWallet]);
 
     addTransactionsToBlock(
         makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
@@ -107,17 +134,7 @@ describe("BlockState", () => {
 
             forgingWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
 
-            const votingWallet: Wallet = factory
-                .get("Wallet")
-                .withOptions({
-                    passphrase: "testPassphrase1",
-                    nonce: 0,
-                })
-                .make();
-
             const voteWeight = Utils.BigNumber.make(5678);
-
-            walletRepo.index([votingWallet, forgingWallet]);
 
             blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
@@ -131,21 +148,11 @@ describe("BlockState", () => {
 
             forgingWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
 
-            const votingWallet: Wallet = factory
-                .get("Wallet")
-                .withOptions({
-                    passphrase: "testPassphrase1",
-                    nonce: 0,
-                })
-                .make();
-
             const voteWeight = Utils.BigNumber.make(5678);
 
             votingWallet.balance = voteWeight;
 
             votingWallet.setAttribute("vote", forgingWallet.publicKey);
-
-            walletRepo.index([votingWallet, forgingWallet]);
 
             blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
@@ -159,17 +166,7 @@ describe("BlockState", () => {
 
             forgingWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
 
-            const votingWallet: Wallet = factory
-                .get("Wallet")
-                .withOptions({
-                    passphrase: "testPassphrase1",
-                    nonce: 0,
-                })
-                .make();
-
             const voteWeight = Utils.BigNumber.make(5678);
-
-            walletRepo.index([votingWallet, forgingWallet]);
 
             blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
@@ -183,21 +180,11 @@ describe("BlockState", () => {
 
             forgingWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
 
-            const votingWallet: Wallet = factory
-                .get("Wallet")
-                .withOptions({
-                    passphrase: "testPassphrase1",
-                    nonce: 0,
-                })
-                .make();
-
             const voteWeight = Utils.BigNumber.make(5678);
 
             votingWallet.balance = voteWeight;
 
             votingWallet.setAttribute("vote", forgingWallet.publicKey);
-
-            walletRepo.index([votingWallet, forgingWallet]);
 
             blockState.decreaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
@@ -314,22 +301,6 @@ describe("BlockState", () => {
         sendersDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
 
         const senderDelegateBefore = sendersDelegate.getAttribute("delegate.voteBalance");
-
-        const sendingWallet: Wallet = factory
-            .get("Wallet")
-            .withOptions({
-                passphrase: "testPassphrase1",
-                nonce: 0,
-            })
-            .make();
-
-        const recipientWallet: Wallet = factory
-            .get("Wallet")
-            .withOptions({
-                passphrase: "testPassphrase2",
-                nonce: 0,
-            })
-            .make();
 
         const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
         sendingWallet.balance = amount;
