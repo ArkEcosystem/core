@@ -5,8 +5,8 @@ import { Enums, Identities, Interfaces, Utils } from "@arkecosystem/crypto";
 // todo: review the implementation and make use of ioc
 @Container.injectable()
 export class BlockState {
-    @Container.inject(Container.Identifiers.Application)
-    private readonly app!: Contracts.Kernel.Application;
+    // @Container.inject(Container.Identifiers.Application)
+    // private readonly app!: Contracts.Kernel.Application;
 
     @Container.inject(Container.Identifiers.WalletRepository)
     @Container.tagged("state", "blockchain") // TODO: Without this line - and despite
@@ -25,14 +25,14 @@ export class BlockState {
         }
 
         const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
-        if (!forgerWallet) {
-            /**
-             * TODO: until the Asserts are removed (i.e. inside findByPublicKey) this is effectively
-             * dead code, since the line above would always throw (rather than return undefined).
-             */
-            const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
-            this.app.terminate(msg);
-        }
+        /**
+         * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
+         * If so, this code can be deleted.
+         */
+        // if (!forgerWallet) {
+        //     const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
+        //     this.app.terminate(msg);
+        // }
         const appliedTransactions: Interfaces.ITransaction[] = [];
         try {
             for (const transaction of block.transactions) {
@@ -56,10 +56,10 @@ export class BlockState {
          * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
          * If so, this code can be deleted.
          */
-        if (!forgerWallet) {
-            const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
-            this.app.terminate(msg);
-        }
+        // if (!forgerWallet) {
+        //     const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
+        //     this.app.terminate(msg);
+        // }
 
         const revertedTransactions: Interfaces.ITransaction[] = [];
         try {
