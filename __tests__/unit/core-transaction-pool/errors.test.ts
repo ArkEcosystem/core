@@ -26,7 +26,7 @@ const transaction = Transactions.BuilderFactory.transfer()
     .sign("sender's secret")
     .build();
 
-// DLaFiYprzZU2DwV1KPYcDfPr2MJFLSznU7 #1 transfer v2 60596cfae6c4081c2f8f146421ee97dc45f22b11fa308f7eb7967d9d918fa01e
+// DLaFiYprzZU2DwV1KPYcDfPr2MJFLSznU7#1 918fa01e Transfer v2
 // console.log(String(transaction));
 
 test("RetryTransactionError", () => {

@@ -7,7 +7,7 @@ jest.mock("@arkecosystem/crypto");
 
 const validator = { validate: jest.fn() };
 const configuration = { get: jest.fn() };
-const createTransactionValidator = jest.fn(() => validator);
+const createTransactionValidator = jest.fn();
 const blockchain = { getLastBlock: jest.fn() };
 const pool = { cleanUp: jest.fn(), removeTransaction: jest.fn() };
 const poolQuery = { getFromHighestPriority: jest.fn() };
@@ -22,15 +22,17 @@ container.bind(Container.Identifiers.TransactionPoolQuery).toConstantValue(poolQ
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
-    (Managers.configManager.getMilestone as jest.Mock).mockClear();
+    (Managers.configManager.getMilestone as jest.Mock).mockReset();
 
-    validator.validate.mockClear();
-    configuration.get.mockClear();
-    createTransactionValidator.mockClear();
-    blockchain.getLastBlock.mockClear();
-    pool.cleanUp.mockClear();
-    poolQuery.getFromHighestPriority.mockClear();
-    logger.error.mockClear();
+    validator.validate.mockReset();
+    configuration.get.mockReset();
+    createTransactionValidator.mockReset();
+    blockchain.getLastBlock.mockReset();
+    pool.cleanUp.mockReset();
+    poolQuery.getFromHighestPriority.mockReset();
+    logger.error.mockReset();
+
+    createTransactionValidator.mockReturnValue(validator);
 });
 
 describe("Collator.getBlockCandidateTransactions", () => {

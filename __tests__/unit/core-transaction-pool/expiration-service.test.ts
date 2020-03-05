@@ -13,10 +13,10 @@ container.bind(Container.Identifiers.PluginConfiguration).toConstantValue(config
 container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
 
 beforeEach(() => {
-    (Crypto.Slots.getTime as jest.Mock).mockClear();
-    (Managers.configManager.getMilestone as jest.Mock).mockClear();
-    configuration.getRequired.mockClear();
-    stateStore.getLastHeight.mockClear();
+    (Crypto.Slots.getTime as jest.Mock).mockReset();
+    (Managers.configManager.getMilestone as jest.Mock).mockReset();
+    configuration.getRequired.mockReset();
+    stateStore.getLastHeight.mockReset();
 });
 
 describe("ExpirationService.canExpire", () => {

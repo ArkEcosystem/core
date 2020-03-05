@@ -5,7 +5,7 @@ import { DynamicFeeMatcher } from "../../../packages/core-transaction-pool/src/d
 
 const handler = { dynamicFee: jest.fn() };
 const configuration = { getRequired: jest.fn() };
-const handlerRegistry = { getActivatedHandlerForData: jest.fn(async () => handler) };
+const handlerRegistry = { getActivatedHandlerForData: jest.fn() };
 const stateStore = { getLastHeight: jest.fn() };
 const logger = { debug: jest.fn(), notice: jest.fn() };
 
@@ -16,12 +16,14 @@ container.bind(Container.Identifiers.StateStore).toConstantValue(stateStore);
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
-    handler.dynamicFee.mockClear();
-    configuration.getRequired.mockClear();
-    handlerRegistry.getActivatedHandlerForData.mockClear();
-    stateStore.getLastHeight.mockClear();
-    logger.debug.mockClear();
-    logger.notice.mockClear();
+    handler.dynamicFee.mockReset();
+    configuration.getRequired.mockReset();
+    handlerRegistry.getActivatedHandlerForData.mockReset();
+    stateStore.getLastHeight.mockReset();
+    logger.debug.mockReset();
+    logger.notice.mockReset();
+
+    handlerRegistry.getActivatedHandlerForData.mockResolvedValue(handler);
 });
 
 describe("when dynamic fees are enabled", () => {

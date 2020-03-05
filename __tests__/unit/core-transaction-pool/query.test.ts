@@ -13,9 +13,9 @@ const container = new Container.Container();
 container.bind(Container.Identifiers.TransactionPoolMempool).toConstantValue(mempool);
 
 beforeEach(() => {
-    mempool.getSenderMempools.mockClear();
-    mempool.hasSenderMempool.mockClear();
-    mempool.getSenderMempool.mockClear();
+    mempool.getSenderMempools.mockReset();
+    mempool.hasSenderMempool.mockReset();
+    mempool.getSenderMempool.mockReset();
 });
 
 Managers.configManager.getMilestone().aip11 = true;

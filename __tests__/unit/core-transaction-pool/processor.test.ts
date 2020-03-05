@@ -33,11 +33,11 @@ container.bind(Container.Identifiers.TransactionPoolDynamicFeeMatcher).toConstan
 container.bind(Container.Identifiers.PeerTransactionBroadcaster).toConstantValue(transactionBroadcaster);
 
 beforeEach(() => {
-    logger.warning.mockClear();
-    pool.addTransaction.mockClear();
-    dynamicFeeMatcher.canEnterPool.mockClear();
-    dynamicFeeMatcher.canBroadcast.mockClear();
-    transactionBroadcaster.broadcastTransactions.mockClear();
+    logger.warning.mockReset();
+    pool.addTransaction.mockReset();
+    dynamicFeeMatcher.canEnterPool.mockReset();
+    dynamicFeeMatcher.canBroadcast.mockReset();
+    transactionBroadcaster.broadcastTransactions.mockReset();
 });
 
 describe("Processor.process", () => {

@@ -11,8 +11,8 @@ container.bind(Container.Identifiers.TransactionPoolSenderMempoolFactory).toCons
 container.bind(Container.Identifiers.LogService).toConstantValue(logger);
 
 beforeEach(() => {
-    createSenderMempool.mockClear();
-    logger.debug.mockClear();
+    createSenderMempool.mockReset();
+    logger.debug.mockReset();
 });
 
 describe("Mempool.getSize", () => {
