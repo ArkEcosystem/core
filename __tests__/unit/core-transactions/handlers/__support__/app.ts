@@ -19,6 +19,7 @@ import { ExpirationService } from "@packages/core-transaction-pool/src/expiratio
 import { Mempool } from "@packages/core-transaction-pool/src/mempool";
 import { Query } from "@packages/core-transaction-pool/src/query";
 import { SenderMempool } from "@packages/core-transaction-pool/src/sender-mempool";
+import { SenderState } from "@packages/core-transaction-pool/src/sender-state";
 import { One, Two } from "@packages/core-transactions/src/handlers";
 import { TransactionHandlerProvider } from "@packages/core-transactions/src/handlers/handler-provider";
 import { TransactionHandlerRegistry } from "@packages/core-transactions/src/handlers/handler-registry";
@@ -113,6 +114,7 @@ export const initApp = (): Application => {
     app.bind(Container.Identifiers.TransactionPoolSenderMempoolFactory).toAutoFactory(
         Container.Identifiers.TransactionPoolSenderMempool,
     );
+    app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
 
     app.bind(Identifiers.WalletRepository)
         .to(Wallets.WalletRepository)
