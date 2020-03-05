@@ -19,6 +19,7 @@ module.exports = {
         "!packages/**/src/**/enums/**",
         "!packages/**/src/**/exceptions/**",
         "!packages/core-p2p/**/src/**",
+        "!packages/crypto/**/src/**",
         "!**/node_modules/**",
     ],
     coverageReporters: ["json", "lcov", "text", "clover", "html"],
