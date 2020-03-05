@@ -57,8 +57,8 @@ const s2tx200 = Transactions.BuilderFactory.delegateRegistration()
 describe("Query.getAll", () => {
     it("should return transactions from all sender states", () => {
         mempool.getSenderMempools.mockReturnValueOnce([
-            { getTransactionsFromLatestNonce: () => [s1tx100, s1tx200] },
-            { getTransactionsFromLatestNonce: () => [s2tx100, s2tx200] },
+            { getFromLatest: () => [s1tx100, s1tx200] },
+            { getFromLatest: () => [s2tx100, s2tx200] },
         ]);
 
         const query = container.resolve(Query);
@@ -72,7 +72,7 @@ describe("Query.getAllBySender", () => {
     it("should return transaction from specific sender state", () => {
         mempool.hasSenderMempool.mockReturnValueOnce(true);
         mempool.getSenderMempool.mockReturnValueOnce({
-            getTransactionsFromEarliestNonce: () => [s1tx100, s1tx200],
+            getFromEarliest: () => [s1tx100, s1tx200],
         });
 
         const query = container.resolve(Query);
@@ -87,8 +87,8 @@ describe("Query.getAllBySender", () => {
 describe("Query.getFromLowestPriority", () => {
     it("should return transactions reverse ordered by fee", () => {
         mempool.getSenderMempools.mockReturnValueOnce([
-            { getTransactionsFromLatestNonce: () => [s1tx200, s1tx100] },
-            { getTransactionsFromLatestNonce: () => [s2tx100, s2tx200] },
+            { getFromLatest: () => [s1tx200, s1tx100] },
+            { getFromLatest: () => [s2tx100, s2tx200] },
         ]);
 
         const query = container.resolve(Query);
@@ -101,8 +101,8 @@ describe("Query.getFromLowestPriority", () => {
 describe("Query.getFromHighestPriority", () => {
     it("should return transactions order by fee", () => {
         mempool.getSenderMempools.mockReturnValueOnce([
-            { getTransactionsFromEarliestNonce: () => [s1tx200, s1tx100] },
-            { getTransactionsFromEarliestNonce: () => [s2tx100, s2tx200] },
+            { getFromEarliest: () => [s1tx200, s1tx100] },
+            { getFromEarliest: () => [s2tx100, s2tx200] },
         ]);
 
         const query = container.resolve(Query);

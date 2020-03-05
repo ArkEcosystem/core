@@ -103,7 +103,7 @@ export class Query implements Contracts.TransactionPool.Query {
                 };
 
                 const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.mempool.getSenderMempools())
-                    .map(s => s.getFromLatest())
+                    .map(p => p.getFromLatest())
                     .map(i => i[Symbol.iterator]());
 
                 return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);
@@ -124,7 +124,7 @@ export class Query implements Contracts.TransactionPool.Query {
                 };
 
                 const iterators: Iterator<Interfaces.ITransaction>[] = Array.from(this.mempool.getSenderMempools())
-                    .map(s => s.getFromEarliest())
+                    .map(p => p.getFromEarliest())
                     .map(i => i[Symbol.iterator]());
 
                 return new IteratorMany<Interfaces.ITransaction>(iterators, comparator);

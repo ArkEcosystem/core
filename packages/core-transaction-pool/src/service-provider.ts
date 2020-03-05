@@ -35,10 +35,10 @@ export class ServiceProvider extends Providers.ServiceProvider {
             .toAutoFactory(Container.Identifiers.TransactionPoolProcessor);
         this.app.bind(Container.Identifiers.TransactionPoolQuery).to(Query);
         this.app.bind(Container.Identifiers.TransactionPoolSenderMempool).to(SenderMempool);
-        this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
         this.app
             .bind(Container.Identifiers.TransactionPoolSenderMempoolFactory)
             .toAutoFactory(Container.Identifiers.TransactionPoolSenderMempool);
+        this.app.bind(Container.Identifiers.TransactionPoolSenderState).to(SenderState);
         this.app
             .bind(Container.Identifiers.TransactionPoolService)
             .to(Service)
