@@ -17,19 +17,19 @@ let blockState: BlockState;
 let factory: FactoryBuilder;
 let blocks: IBlock[];
 let walletRepo: WalletRepository;
-let generatorWallet: Contracts.State.Wallet;
+let forgingWallet: Contracts.State.Wallet;
 
 let applySpy: jest.SpyInstance;
 let revertSpy: jest.SpyInstance;
 let spyApplyTransaction: jest.SpyInstance;
 let spyRevertTransaction: jest.SpyInstance;
 let spyIncreaseWalletDelegateVoteBalance: jest.SpyInstance;
-let spyInitGenesisGeneratorWallet: jest.SpyInstance;
-let spyApplyBlockToGenerator: jest.SpyInstance;
+let spyInitGenesisForgerWallet: jest.SpyInstance;
+let spyApplyBlockToForger: jest.SpyInstance;
 let spyDecreaseWalletDelegateVoteBalance: jest.SpyInstance;
 let spyApplyVoteBalances: jest.SpyInstance;
 let spyRevertVoteBalances: jest.SpyInstance;
-let spyRevertBlockFromGenerator: jest.SpyInstance;
+let spyRevertBlockFromForger: jest.SpyInstance;
 
 beforeAll(async () => {
     const initialEnv = await setUp(setUpDefaults, true); // todo: why do I have to skip booting?
@@ -47,15 +47,15 @@ beforeEach(() => {
     spyRevertTransaction = jest.spyOn(blockState, "revertTransaction");
     spyIncreaseWalletDelegateVoteBalance = jest.spyOn(blockState, "increaseWalletDelegateVoteBalance");
     spyDecreaseWalletDelegateVoteBalance = jest.spyOn(blockState, "decreaseWalletDelegateVoteBalance");
-    spyInitGenesisGeneratorWallet = jest.spyOn(blockState as any, "initGenesisGeneratorWallet");
-    spyApplyBlockToGenerator = jest.spyOn(blockState as any, "applyBlockToGenerator");
+    spyInitGenesisForgerWallet = jest.spyOn(blockState as any, "initGenesisForgerWallet");
+    spyApplyBlockToForger = jest.spyOn(blockState as any, "applyBlockToForger");
     spyApplyVoteBalances = jest.spyOn(blockState as any, "applyVoteBalances");
     spyRevertVoteBalances = jest.spyOn(blockState as any, "revertVoteBalances");
-    spyRevertBlockFromGenerator = jest.spyOn(blockState as any, "revertBlockFromGenerator");
+    spyRevertBlockFromForger = jest.spyOn(blockState as any, "revertBlockFromForger");
 
-    generatorWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
+    forgingWallet = walletRepo.findByPublicKey(blocks[0].data.generatorPublicKey);
 
-    generatorWallet.setAttribute("delegate", {
+    forgingWallet.setAttribute("delegate", {
         username: "test",
         forgedFees: Utils.BigNumber.ZERO,
         forgedRewards: Utils.BigNumber.ZERO,
@@ -63,7 +63,7 @@ beforeEach(() => {
         lastBlock: undefined,
     });
 
-    walletRepo.index(generatorWallet);
+    walletRepo.index(forgingWallet);
 
     addTransactionsToBlock(
         makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
@@ -95,17 +95,17 @@ describe("BlockState", () => {
         expect(revertSpy).not.toHaveBeenCalled();
     });
 
-    it("should init generator wallet on genesis block", async () => {
+    it("should init foring wallet on genesis block", async () => {
         blocks[0].data.height = 1;
         await blockState.applyBlock(blocks[0]);
-        expect(spyInitGenesisGeneratorWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
+        expect(spyInitGenesisForgerWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
     });
 
     describe("voteBalances", () => {
         it("should not update vote balances if wallet hasn't voted", () => {
             const voteBalanceBefore = Utils.BigNumber.ZERO;
 
-            generatorWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
+            forgingWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
 
             const votingWallet: Wallet = factory
                 .get("Wallet")
@@ -117,11 +117,11 @@ describe("BlockState", () => {
 
             const voteWeight = Utils.BigNumber.make(5678);
 
-            walletRepo.index([votingWallet, generatorWallet]);
+            walletRepo.index([votingWallet, forgingWallet]);
 
             blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
-            const voteBalanceAfter = generatorWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+            const voteBalanceAfter = forgingWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
 
             expect(voteBalanceAfter).toEqual(voteBalanceBefore);
         });
@@ -129,7 +129,7 @@ describe("BlockState", () => {
         it("should update vote balances", () => {
             const voteBalanceBefore = Utils.BigNumber.ZERO;
 
-            generatorWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
+            forgingWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
 
             const votingWallet: Wallet = factory
                 .get("Wallet")
@@ -143,13 +143,13 @@ describe("BlockState", () => {
 
             votingWallet.balance = voteWeight;
 
-            votingWallet.setAttribute("vote", generatorWallet.publicKey);
+            votingWallet.setAttribute("vote", forgingWallet.publicKey);
 
-            walletRepo.index([votingWallet, generatorWallet]);
+            walletRepo.index([votingWallet, forgingWallet]);
 
             blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
-            const voteBalanceAfter = generatorWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+            const voteBalanceAfter = forgingWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
 
             expect(voteBalanceAfter).toEqual(voteBalanceBefore.plus(voteWeight));
         });
@@ -157,7 +157,7 @@ describe("BlockState", () => {
         it("should not revert vote balances if wallet hasn't voted", () => {
             const voteBalanceBefore = Utils.BigNumber.ZERO;
 
-            generatorWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
+            forgingWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
 
             const votingWallet: Wallet = factory
                 .get("Wallet")
@@ -169,11 +169,11 @@ describe("BlockState", () => {
 
             const voteWeight = Utils.BigNumber.make(5678);
 
-            walletRepo.index([votingWallet, generatorWallet]);
+            walletRepo.index([votingWallet, forgingWallet]);
 
             blockState.increaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
-            const voteBalanceAfter = generatorWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+            const voteBalanceAfter = forgingWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
 
             expect(voteBalanceAfter).toEqual(voteBalanceBefore);
         });
@@ -181,7 +181,7 @@ describe("BlockState", () => {
         it("should revert vote balances", () => {
             const voteBalanceBefore = Utils.BigNumber.make(6789);
 
-            generatorWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
+            forgingWallet.setAttribute<Utils.BigNumber>("delegate.voteBalance", voteBalanceBefore);
 
             const votingWallet: Wallet = factory
                 .get("Wallet")
@@ -195,115 +195,94 @@ describe("BlockState", () => {
 
             votingWallet.balance = voteWeight;
 
-            votingWallet.setAttribute("vote", generatorWallet.publicKey);
+            votingWallet.setAttribute("vote", forgingWallet.publicKey);
 
-            walletRepo.index([votingWallet, generatorWallet]);
+            walletRepo.index([votingWallet, forgingWallet]);
 
             blockState.decreaseWalletDelegateVoteBalance(votingWallet, voteWeight);
 
-            const voteBalanceAfter = generatorWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
+            const voteBalanceAfter = forgingWallet.getAttribute<Utils.BigNumber>("delegate.voteBalance");
 
             expect(voteBalanceAfter).toEqual(voteBalanceBefore.minus(voteWeight));
         });
     });
 
-    it("should create generator wallet if it doesn't exist genesis block", async () => {
+    it("should create forger wallet if it doesn't exist genesis block", async () => {
         //@ts-ignore
-        const spyApplyBlockToGenerator = jest.spyOn(blockState, "applyBlockToGenerator");
-        spyApplyBlockToGenerator.mockImplementationOnce(() => {});
+        const spyApplyBlockToForger = jest.spyOn(blockState, "applyBlockToForger");
+        spyApplyBlockToForger.mockImplementationOnce(() => {});
         const spyCreateWallet = jest.spyOn(walletRepo, "createWallet");
         blocks[0].data.height = 1;
         blocks[0].data.generatorPublicKey = "03720586a26d8d49ec27059bd4572c49ba474029c3627715380f4df83fb431aece";
         await expect(blockState.applyBlock(blocks[0])).toResolve();
-        expect(spyInitGenesisGeneratorWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
+        expect(spyInitGenesisForgerWallet).toHaveBeenCalledWith(blocks[0].data.generatorPublicKey);
         expect(spyCreateWallet).toHaveBeenCalled();
     });
 
-    it("should apply the block data to the delegate", async () => {
-        const delegateBefore = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
-        const balanceBefore = generatorWallet.balance;
+    it("should apply the block data to the forger", async () => {
+        const balanceBefore = forgingWallet.balance;
+
+        const reward = Utils.BigNumber.make(50);
+        const totalFee = Utils.BigNumber.make(50);
+        blocks[0].data.reward = reward;
+        blocks[0].data.totalFee = totalFee;
+        const balanceIncrease = reward.plus(totalFee);
 
         await blockState.applyBlock(blocks[0]);
 
-        expect(spyApplyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
+        expect(spyApplyBlockToForger).toHaveBeenCalledWith(forgingWallet, blocks[0].data);
         expect(spyApplyVoteBalances).toHaveBeenCalled();
 
-        expect(spyIncreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+        expect(spyIncreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(forgingWallet, balanceIncrease);
 
-        const balanceIncrease = blocks[0].data.transactions.reduce(
-            (acc, currentTransaction) => acc.plus(currentTransaction.amount),
-            Utils.BigNumber.ZERO,
-        );
-        const delegateAfter = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+        const delegateAfter = forgingWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         const productsBlocks = 1;
-        const forgedFees = delegateBefore.forgedFees.plus(blocks[0].data.totalFee);
-        const forgedRewards = delegateBefore.forgedRewards.plus(blocks[0].data.reward);
 
         expect(delegateAfter.producedBlocks).toEqual(productsBlocks);
-        expect(delegateAfter.forgedFees).toEqual(forgedFees);
-        expect(delegateAfter.forgedRewards).toEqual(forgedRewards);
+        expect(delegateAfter.forgedFees).toEqual(totalFee);
+        expect(delegateAfter.forgedRewards).toEqual(reward);
         expect(delegateAfter.lastBlock).toEqual(blocks[0].data);
 
-        // TODO: use transactions that affect the balance
-        expect(generatorWallet.balance).toEqual(balanceBefore.plus(balanceIncrease));
+        expect(forgingWallet.balance).toEqual(balanceBefore.plus(balanceIncrease));
     });
 
-    it("should revert the block data for the delegate", async () => {
-        const balanceBefore = generatorWallet.balance;
+    it("should revert the block data for the forger", async () => {
+        const balanceBefore = forgingWallet.balance;
+
+        const reward = Utils.BigNumber.make(52);
+        const totalFee = Utils.BigNumber.make(49);
+        blocks[0].data.reward = reward;
+        blocks[0].data.totalFee = totalFee;
+        const balanceIncrease = reward.plus(totalFee);
 
         await blockState.applyBlock(blocks[0]);
+
+        expect(forgingWallet.balance).toEqual(balanceBefore.plus(balanceIncrease));
+
         await blockState.revertBlock(blocks[0]);
 
-        expect(spyApplyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
-        expect(spyRevertBlockFromGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
-        expect(spyIncreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
-        expect(spyDecreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
+        expect(spyApplyBlockToForger).toHaveBeenCalledWith(forgingWallet, blocks[0].data);
+        expect(spyRevertBlockFromForger).toHaveBeenCalledWith(forgingWallet, blocks[0].data);
+        expect(spyIncreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(forgingWallet, balanceIncrease);
+        expect(spyDecreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(forgingWallet, balanceIncrease);
 
-        const delegate = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+        const delegate = forgingWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
 
         expect(delegate.producedBlocks).toEqual(0);
         expect(delegate.forgedFees).toEqual(Utils.BigNumber.ZERO);
         expect(delegate.forgedRewards).toEqual(Utils.BigNumber.ZERO);
         expect(delegate.lastBlock).toEqual(undefined);
 
-        // TODO: use transactions that affect the balance
-        expect(generatorWallet.balance).toEqual(balanceBefore);
+        expect(forgingWallet.balance).toEqual(balanceBefore);
     });
 
-    it("should remove vote balances", async () => {
-        addTransactionsToBlock(
-            makeVoteTransactions(3, [`-${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
-            blocks[0],
-        );
-
-        const balanceBefore = generatorWallet.balance;
-
-        await blockState.applyBlock(blocks[0]);
-        await blockState.revertBlock(blocks[0]);
-
-        expect(spyApplyBlockToGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
-        expect(spyRevertBlockFromGenerator).toHaveBeenCalledWith(generatorWallet, blocks[0].data);
-        expect(spyIncreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
-        expect(spyDecreaseWalletDelegateVoteBalance).toHaveBeenCalledWith(generatorWallet, Utils.BigNumber.ZERO);
-
-        const delegate = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
-
-        expect(delegate.producedBlocks).toEqual(0);
-        expect(delegate.forgedFees).toEqual(Utils.BigNumber.ZERO);
-        expect(delegate.forgedRewards).toEqual(Utils.BigNumber.ZERO);
-        expect(delegate.lastBlock).toEqual(undefined);
-
-        // TODO: use transactions that affect the balance
-        expect(generatorWallet.balance).toEqual(balanceBefore);
-    });
-
-    it("should throw if there is no generator wallet", () => {
-        walletRepo.forgetByPublicKey(generatorWallet.publicKey);
+    it("should throw if there is no forger wallet", () => {
+        walletRepo.forgetByPublicKey(forgingWallet.publicKey);
         expect(async () => await blockState.applyBlock(blocks[0])).toReject();
     });
 
     it("should update sender's and recipient's delegate's vote balance when applying transaction", async () => {
-        const sendersDelegate = generatorWallet;
+        const sendersDelegate = forgingWallet;
         sendersDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
 
         const senderDelegateBefore = sendersDelegate.getAttribute("delegate.voteBalance");
@@ -356,15 +335,12 @@ describe("BlockState", () => {
         // @ts-ignore
         await blockState.applyTransaction(transferTransaction);
 
-        // TODO: is this correct?
-        // why does the sender's delegate remove amount + fee
-        // But recipient only recieves amount (not including fee)?
         expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(recipientsDelegateBefore.plus(amount));
         expect(sendersDelegate.getAttribute("delegate.voteBalance")).toEqual(senderDelegateBefore.minus(total));
     });
 
     it("should update sender's and recipient's delegate's vote balance when reverting transaction", async () => {
-        const sendersDelegate = generatorWallet;
+        const sendersDelegate = forgingWallet;
         sendersDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
 
         const senderDelegateBefore = sendersDelegate.getAttribute("delegate.voteBalance");
@@ -592,13 +568,29 @@ describe("BlockState", () => {
                     lockData,
                 );
             });
+
+            it.skip("if sender has voted, it should apply locked balance", async () => {
+                // set up delegate wallet
+                // check vote balance before
+                // check that it increases the amount of the HTLC lock
+                sender.setAttribute("vote", true);
+                await blockState.applyTransaction(htlcClaimTransaction);
+                expect(applySpy).toHaveBeenCalledWith(htlcClaimTransaction);
+                expect(spyApplyVoteBalances).toHaveBeenCalledWith(
+                    sender,
+                    recipient,
+                    htlcClaimTransaction.data,
+                    walletRepo.findByIndex(Contracts.State.WalletIndexes.Locks, lockID),
+                    lockData,
+                );
+            });
         });
     });
-    
+
     describe("when 1 transaction fails while reverting it", () => {
         it("should apply sequentially (from first to last) all the reverted transactions of the block", async () => {
             // @ts-ignore
-            const spyRevert = spyRevertTransaction.mockImplementation(tx => {
+            spyRevertTransaction.mockImplementation(tx => {
                 if (tx === blocks[0].transactions[0]) {
                     throw new Error("Fake error");
                 }

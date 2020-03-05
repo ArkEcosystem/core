@@ -21,16 +21,16 @@ export class BlockState {
 
     public async applyBlock(block: Interfaces.IBlock): Promise<void> {
         if (block.data.height === 1) {
-            this.initGenesisGeneratorWallet(block.data.generatorPublicKey);
+            this.initGenesisForgerWallet(block.data.generatorPublicKey);
         }
 
-        const generatorWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
-        if (!generatorWallet) {
+        const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
+        if (!forgerWallet) {
             /**
              * TODO: until the Asserts are removed (i.e. inside findByPublicKey) this is effectively
              * dead code, since the line above would always throw (rather than return undefined).
              */
-            const msg = `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
+            const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
             this.app.terminate(msg);
         }
         const appliedTransactions: Interfaces.ITransaction[] = [];
@@ -39,7 +39,7 @@ export class BlockState {
                 await this.applyTransaction(transaction);
                 appliedTransactions.push(transaction);
             }
-            this.applyBlockToGenerator(generatorWallet, block.data);
+            this.applyBlockToForger(forgerWallet, block.data);
         } catch (error) {
             this.logger.error(error.stack);
             this.logger.error("Failed to apply all transactions in block - reverting previous transactions");
@@ -51,13 +51,13 @@ export class BlockState {
     }
 
     public async revertBlock(block: Interfaces.IBlock): Promise<void> {
-        const generatorWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
+        const forgerWallet = this.walletRepository.findByPublicKey(block.data.generatorPublicKey);
         /**
          * TODO: side-effect of findByPublicKey is that it creates a wallet if one isn't found - is that correct?
          * If so, this code can be deleted.
          */
-        if (!generatorWallet) {
-            const msg = `Failed to lookup generator '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
+        if (!forgerWallet) {
+            const msg = `Failed to lookup forger '${block.data.generatorPublicKey}' of block '${block.data.id}'.`;
             this.app.terminate(msg);
         }
 
@@ -67,7 +67,7 @@ export class BlockState {
                 await this.revertTransaction(transaction);
                 revertedTransactions.push(transaction);
             }
-            this.revertBlockFromGenerator(generatorWallet, block.data);
+            this.revertBlockFromForger(forgerWallet, block.data);
         } catch (error) {
             this.logger.error(error.stack);
             this.logger.error("Failed to revert all transactions in block - applying previous transactions");
@@ -193,28 +193,28 @@ export class BlockState {
         return this.updateVoteBalances(sender, recipient, transaction, lockWallet, lockTransaction, true);
     }
 
-    private applyBlockToGenerator(generatorWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
-        const delegateAttribute = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+    private applyBlockToForger(forgerWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
+        const delegateAttribute = forgerWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         delegateAttribute.producedBlocks++;
         delegateAttribute.forgedFees = delegateAttribute.forgedFees.plus(blockData.totalFee);
         delegateAttribute.forgedRewards = delegateAttribute.forgedRewards.plus(blockData.reward);
         delegateAttribute.lastBlock = blockData;
 
         const balanceIncrease = blockData.reward.plus(blockData.totalFee);
-        this.increaseWalletDelegateVoteBalance(generatorWallet, balanceIncrease);
-        generatorWallet.balance = generatorWallet.balance.plus(balanceIncrease);
+        this.increaseWalletDelegateVoteBalance(forgerWallet, balanceIncrease);
+        forgerWallet.balance = forgerWallet.balance.plus(balanceIncrease);
     }
 
-    private revertBlockFromGenerator(generatorWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
-        const delegateAttribute = generatorWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
+    private revertBlockFromForger(forgerWallet: Contracts.State.Wallet, blockData: Interfaces.IBlockData) {
+        const delegateAttribute = forgerWallet.getAttribute<Contracts.State.WalletDelegateAttributes>("delegate");
         delegateAttribute.producedBlocks--;
         delegateAttribute.forgedFees = delegateAttribute.forgedFees.minus(blockData.totalFee);
         delegateAttribute.forgedRewards = delegateAttribute.forgedRewards.minus(blockData.reward);
         delegateAttribute.lastBlock = undefined;
 
         const balanceDecrease = blockData.reward.plus(blockData.totalFee);
-        this.decreaseWalletDelegateVoteBalance(generatorWallet, balanceDecrease);
-        generatorWallet.balance = generatorWallet.balance.minus(balanceDecrease);
+        this.decreaseWalletDelegateVoteBalance(forgerWallet, balanceDecrease);
+        forgerWallet.balance = forgerWallet.balance.minus(balanceDecrease);
     }
 
     /**
@@ -374,14 +374,14 @@ export class BlockState {
         }
     }
 
-    private initGenesisGeneratorWallet(generatorPublicKey: string) {
-        if (this.walletRepository.hasByPublicKey(generatorPublicKey)) {
+    private initGenesisForgerWallet(forgerPublicKey: string) {
+        if (this.walletRepository.hasByPublicKey(forgerPublicKey)) {
             return;
         }
 
-        const generatorAddress = Identities.Address.fromPublicKey(generatorPublicKey);
-        const generatorWallet = this.walletRepository.createWallet(generatorAddress);
-        generatorWallet.publicKey = generatorPublicKey;
-        this.walletRepository.index(generatorWallet);
+        const forgerAddress = Identities.Address.fromPublicKey(forgerPublicKey);
+        const forgerWallet = this.walletRepository.createWallet(forgerAddress);
+        forgerWallet.publicKey = forgerPublicKey;
+        this.walletRepository.index(forgerWallet);
     }
 }
