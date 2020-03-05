@@ -18,7 +18,6 @@ beforeEach(() => {
 });
 
 Managers.configManager.getMilestone().aip11 = true;
-
 const transaction1 = Transactions.BuilderFactory.transfer()
     .version(2)
     .amount("100")
@@ -27,7 +26,6 @@ const transaction1 = Transactions.BuilderFactory.transfer()
     .fee("900")
     .sign("sender's secret")
     .build();
-
 const transaction2 = Transactions.BuilderFactory.transfer()
     .version(2)
     .amount("100")
@@ -36,7 +34,6 @@ const transaction2 = Transactions.BuilderFactory.transfer()
     .fee("900")
     .sign("sender's secret")
     .build();
-
 const transaction3 = Transactions.BuilderFactory.transfer()
     .version(2)
     .amount("100")

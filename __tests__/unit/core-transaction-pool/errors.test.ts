@@ -16,7 +16,6 @@ import {
 } from "../../../packages/core-transaction-pool/src/errors";
 
 Managers.configManager.getMilestone().aip11 = true;
-
 const transaction = Transactions.BuilderFactory.transfer()
     .version(2)
     .amount("100")

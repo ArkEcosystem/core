@@ -4,16 +4,14 @@ import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
 import { Processor } from "../../../packages/core-transaction-pool/src/processor";
 
 Managers.configManager.getMilestone().aip11 = true;
-
-const tx1 = Transactions.BuilderFactory.transfer()
+const transaction1 = Transactions.BuilderFactory.transfer()
     .version(2)
     .amount("100")
     .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
     .nonce("1")
     .sign("sender's secret")
     .build();
-
-const tx2 = Transactions.BuilderFactory.transfer()
+const transaction2 = Transactions.BuilderFactory.transfer()
     .version(2)
     .amount("100")
     .recipientId(Identities.Address.fromPassphrase("recipient's secret"))
@@ -45,19 +43,19 @@ describe("Processor.process", () => {
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true).mockReturnValueOnce(false);
 
         const processor = container.resolve(Processor);
-        await processor.process([tx1.data, tx2.data]);
+        await processor.process([transaction1.data, transaction2.data]);
 
         expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(1);
         expect(dynamicFeeMatcher.canBroadcast).toBeCalledTimes(1);
         expect(transactionBroadcaster.broadcastTransactions).not.toBeCalled();
 
-        expect(processor.accept).toEqual([tx1.id]);
+        expect(processor.accept).toEqual([transaction1.id]);
         expect(processor.broadcast).toEqual([]);
-        expect(processor.invalid).toEqual([tx2.id]);
+        expect(processor.invalid).toEqual([transaction2.id]);
         expect(processor.excess).toEqual([]);
-        expect(processor.errors[tx2.id]).toBeTruthy();
-        expect(processor.errors[tx2.id].type).toBe("ERR_LOW_FEE");
+        expect(processor.errors[transaction2.id]).toBeTruthy();
+        expect(processor.errors[transaction2.id].type).toBe("ERR_LOW_FEE");
     });
 
     it("should add broadcast eligible transaction", async () => {
@@ -65,15 +63,15 @@ describe("Processor.process", () => {
         dynamicFeeMatcher.canBroadcast.mockReturnValueOnce(true).mockReturnValueOnce(false);
 
         const processor = container.resolve(Processor);
-        await processor.process([tx1.data, tx2.data]);
+        await processor.process([transaction1.data, transaction2.data]);
 
         expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(2);
         expect(pool.addTransaction).toBeCalledTimes(2);
         expect(dynamicFeeMatcher.canBroadcast).toBeCalledTimes(2);
         expect(transactionBroadcaster.broadcastTransactions).toBeCalled();
 
-        expect(processor.accept).toEqual([tx1.id, tx2.id]);
-        expect(processor.broadcast).toEqual([tx1.id]);
+        expect(processor.accept).toEqual([transaction1.id, transaction2.id]);
+        expect(processor.broadcast).toEqual([transaction1.id]);
         expect(processor.invalid).toEqual([]);
         expect(processor.excess).toEqual([]);
         expect(processor.errors).toEqual(undefined);
@@ -84,7 +82,7 @@ describe("Processor.process", () => {
         pool.addTransaction.mockRejectedValueOnce(new Error("Unexpected error"));
 
         const processor = container.resolve(Processor);
-        const promise = processor.process([tx1.data, tx2.data]);
+        const promise = processor.process([transaction1.data, transaction2.data]);
 
         await expect(promise).rejects.toThrow();
 
@@ -95,19 +93,19 @@ describe("Processor.process", () => {
 
         expect(processor.accept).toEqual([]);
         expect(processor.broadcast).toEqual([]);
-        expect(processor.invalid).toEqual([tx1.id]);
+        expect(processor.invalid).toEqual([transaction1.id]);
         expect(processor.excess).toEqual([]);
         expect(processor.errors).toEqual(undefined);
     });
 
     it("should track excess transactions", async () => {
-        const exceedsError = new Contracts.TransactionPool.PoolError("Exceeds", "ERR_EXCEEDS_MAX_COUNT", tx1);
+        const exceedsError = new Contracts.TransactionPool.PoolError("Exceeds", "ERR_EXCEEDS_MAX_COUNT", transaction1);
 
         dynamicFeeMatcher.canEnterPool.mockReturnValueOnce(true);
         pool.addTransaction.mockRejectedValueOnce(exceedsError);
 
         const processor = container.resolve(Processor);
-        await processor.process([tx1.data]);
+        await processor.process([transaction1.data]);
 
         expect(dynamicFeeMatcher.canEnterPool).toBeCalledTimes(1);
         expect(pool.addTransaction).toBeCalledTimes(1);
@@ -116,9 +114,9 @@ describe("Processor.process", () => {
 
         expect(processor.accept).toEqual([]);
         expect(processor.broadcast).toEqual([]);
-        expect(processor.invalid).toEqual([tx1.id]);
-        expect(processor.excess).toEqual([tx1.id]);
-        expect(processor.errors[tx1.id]).toBeTruthy();
-        expect(processor.errors[tx1.id].type).toBe("ERR_EXCEEDS_MAX_COUNT");
+        expect(processor.invalid).toEqual([transaction1.id]);
+        expect(processor.excess).toEqual([transaction1.id]);
+        expect(processor.errors[transaction1.id]).toBeTruthy();
+        expect(processor.errors[transaction1.id].type).toBe("ERR_EXCEEDS_MAX_COUNT");
     });
 });
