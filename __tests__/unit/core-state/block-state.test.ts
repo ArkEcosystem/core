@@ -21,6 +21,7 @@ let forgingWallet: Contracts.State.Wallet;
 let votingWallet: Contracts.State.Wallet;
 let sendingWallet: Contracts.State.Wallet;
 let recipientWallet: Contracts.State.Wallet;
+let recipientsDelegate: Contracts.State.Wallet;
 
 let applySpy: jest.SpyInstance;
 let revertSpy: jest.SpyInstance;
@@ -90,7 +91,24 @@ beforeEach(() => {
         })
         .make();
 
-    walletRepo.index([votingWallet, forgingWallet, sendingWallet, recipientWallet]);
+    recipientsDelegate = factory
+        .get("Wallet")
+        .withOptions({
+            passphrase: "recipientDelegate",
+            nonce: 0,
+        })
+        .make();
+
+    recipientsDelegate.setAttribute("delegate", {
+        username: "test2",
+        forgedFees: Utils.BigNumber.ZERO,
+        forgedRewards: Utils.BigNumber.ZERO,
+        producedBlocks: 0,
+        lastBlock: undefined,
+    });
+    recipientsDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+
+    walletRepo.index([votingWallet, forgingWallet, sendingWallet, recipientWallet, recipientsDelegate]);
 
     addTransactionsToBlock(
         makeVoteTransactions(3, [`+${"03287bfebba4c7881a0509717e71b34b63f31e40021c321f89ae04f84be6d6ac37"}`]),
@@ -305,19 +323,7 @@ describe("BlockState", () => {
         const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
         sendingWallet.balance = amount;
 
-        const recipientsDelegate = walletRepo.findByPublicKey(
-            "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
-        );
-
-        recipientsDelegate.setAttribute("delegate", {
-            username: "test2",
-            forgedFees: Utils.BigNumber.ZERO,
-            forgedRewards: Utils.BigNumber.ZERO,
-            producedBlocks: 0,
-            lastBlock: undefined,
-        });
-        const recipientsDelegateBefore = Utils.BigNumber.ZERO;
-        recipientsDelegate.setAttribute("delegate.voteBalance", recipientsDelegateBefore);
+        const recipientsDelegateBefore: Utils.BigNumber = recipientsDelegate.getAttribute("delegate.voteBalance");
 
         sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
         recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
@@ -352,30 +358,10 @@ describe("BlockState", () => {
             })
             .make();
 
-        const recipientWallet: Wallet = factory
-            .get("Wallet")
-            .withOptions({
-                passphrase: "testPassphrase2",
-                nonce: 0,
-            })
-            .make();
-
         const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
         sendingWallet.balance = amount;
 
-        const recipientsDelegate = walletRepo.findByPublicKey(
-            "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
-        );
-
-        recipientsDelegate.setAttribute("delegate", {
-            username: "test2",
-            forgedFees: Utils.BigNumber.ZERO,
-            forgedRewards: Utils.BigNumber.ZERO,
-            producedBlocks: 0,
-            lastBlock: undefined,
-        });
-        const recipientDelegateBefore = Utils.BigNumber.ZERO;
-        recipientsDelegate.setAttribute("delegate.voteBalance", recipientDelegateBefore);
+        const recipientDelegateBefore = recipientsDelegate.getAttribute("delegate.voteBalance");
 
         sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
         recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
@@ -409,14 +395,6 @@ describe("BlockState", () => {
             })
             .make();
 
-        const recipientWallet: Wallet = factory
-            .get("Wallet")
-            .withOptions({
-                passphrase: "testPassphrase2",
-                nonce: 0,
-            })
-            .make();
-
         const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
 
         const multiPaymentTransaction: ITransaction = factory
@@ -438,19 +416,7 @@ describe("BlockState", () => {
             },
         ];
 
-        const recipientsDelegate = walletRepo.findByPublicKey(
-            "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
-        );
-
-        recipientsDelegate.setAttribute("delegate", {
-            username: "test2",
-            forgedFees: Utils.BigNumber.ZERO,
-            forgedRewards: Utils.BigNumber.ZERO,
-            producedBlocks: 0,
-            lastBlock: undefined,
-        });
-        const recipientsDelegateBefore = Utils.BigNumber.ZERO;
-        recipientsDelegate.setAttribute("delegate.voteBalance", recipientsDelegateBefore);
+        const recipientsDelegateBefore = recipientsDelegate.getAttribute("delegate.voteBalance");
 
         sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
         recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
@@ -485,7 +451,7 @@ describe("BlockState", () => {
             })
             .make();
 
-        const recipient: any = factory
+        const recipientWallet: any = factory
             .get("Wallet")
             .withOptions({
                 passphrase: "testPassphrase2",
@@ -494,12 +460,12 @@ describe("BlockState", () => {
 
         const transfer = factory
             .get("Transfer")
-            .withOptions({ amount: 96579, senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .withOptions({ amount: 96579, senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
             .make();
 
         const delegateReg = factory
             .get("DelegateRegistration")
-            .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
             .make()
             // @ts-ignore
             .sign("delegatePassphrase")
@@ -507,21 +473,21 @@ describe("BlockState", () => {
 
         const secondSign = factory
             .get("Transfer")
-            .withOptions({ amount: 10000000, senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .withOptions({ amount: 10000000, senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
             .make();
 
         const vote = factory
             .get("Vote")
             .withOptions({
-                publicKey: recipient.publicKey,
+                publicKey: recipientWallet.publicKey,
                 senderPublicKey: sender.publicKey,
-                recipientId: recipient.address,
+                recipientId: recipientWallet.address,
             })
             .make();
 
         const delegateRes = factory
             .get("DelegateResignation")
-            .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .withOptions({ username: "dummy", senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
             .make()
             // @ts-ignore
             .sign("delegatePassphrase")
@@ -529,12 +495,12 @@ describe("BlockState", () => {
 
         const ipfs = factory
             .get("Ipfs")
-            .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
             .make();
 
         const htlcLock = factory
             .get("HtlcLock")
-            .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
+            .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
             .make();
 
         const htlcRefund = factory
@@ -542,7 +508,7 @@ describe("BlockState", () => {
             .withOptions({
                 secretHash: "secretHash",
                 senderPublicKey: sender.publicKey,
-                recipientId: recipient.address,
+                recipientId: recipientWallet.address,
             })
             .make();
 
@@ -582,7 +548,7 @@ describe("BlockState", () => {
                     .withOptions({
                         amount,
                         senderPublicKey: sender.publicKey,
-                        recipientId: recipient.address,
+                        recipientId: recipientWallet.address,
                     })
                     .make();
 
@@ -591,13 +557,13 @@ describe("BlockState", () => {
                 htlcClaimTransaction.typeGroup = htlcClaimTransaction.data.typeGroup;
                 // @ts-ignore
                 htlcClaimTransaction.type = htlcClaimTransaction.data.type;
-                htlcClaimTransaction.data.recipientId = recipient.address;
+                htlcClaimTransaction.data.recipientId = recipientWallet.address;
 
                 sender.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
 
                 lockData = {
                     amount: amount,
-                    recipientId: recipient.address,
+                    recipientId: recipientWallet.address,
                     ...htlcClaimTransaction.data.asset!.lock,
                 };
 
@@ -608,7 +574,7 @@ describe("BlockState", () => {
                 });
 
                 walletRepo.index(sender);
-                walletRepo.index(recipient);
+                walletRepo.index(recipientWallet);
             });
 
             it("apply should find correct locks, sender and recipient wallets", async () => {
@@ -616,7 +582,7 @@ describe("BlockState", () => {
                 expect(applySpy).toHaveBeenCalledWith(htlcClaimTransaction);
                 expect(spyApplyVoteBalances).toHaveBeenCalledWith(
                     sender,
-                    recipient,
+                    recipientWallet,
                     htlcClaimTransaction.data,
                     walletRepo.findByIndex(Contracts.State.WalletIndexes.Locks, lockID),
                     lockData,
@@ -628,7 +594,7 @@ describe("BlockState", () => {
                 expect(revertSpy).toHaveBeenCalledWith(htlcClaimTransaction);
                 expect(spyRevertVoteBalances).toHaveBeenCalledWith(
                     sender,
-                    recipient,
+                    recipientWallet,
                     htlcClaimTransaction.data,
                     walletRepo.findByIndex(Contracts.State.WalletIndexes.Locks, lockID),
                     lockData,
@@ -640,7 +606,7 @@ describe("BlockState", () => {
                     "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
                 );
                 sender.setAttribute("vote", forgingWallet.publicKey);
-                recipient.setAttribute("vote", recipientsDelegate.publicKey);
+                recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
 
                 await blockState.applyTransaction(htlcClaimTransaction);
 
@@ -662,7 +628,7 @@ describe("BlockState", () => {
 
                 const htlcLock: ITransaction = factory
                     .get("HtlcLock")
-                    .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
+                    .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipientWallet.address })
                     .make();
 
                 await blockState.applyTransaction(htlcLock);
