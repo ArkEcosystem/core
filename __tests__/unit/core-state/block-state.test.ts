@@ -222,14 +222,15 @@ describe("BlockState", () => {
 
             await blockState.applyTransaction(testTransaction);
 
-            const balanceAfterApply = votedForDelegate.getAttribute("delegate.voteBalance");
-            expect(balanceAfterApply).toEqual(
+            const delegateBalanceAfterApply = votedForDelegate.getAttribute("delegate.voteBalance");
+            expect(delegateBalanceAfterApply).toEqual(
                 delegateBalanceBefore.minus(sendersBalance.plus(testTransaction.data.fee)),
             );
 
             await blockState.revertTransaction(testTransaction);
+
             expect(votedForDelegate.getAttribute("delegate.voteBalance")).toEqual(
-                delegateBalanceBefore.plus(sendersBalance),
+                delegateBalanceAfterApply.plus(sendersBalance),
             );
         });
     });
