@@ -18,8 +18,8 @@ beforeEach(() => {
 describe("Mempool.getSize", () => {
     it("should return sum of transaction counts of sender states", async () => {
         createSenderMempool
-            .mockReturnValueOnce({ addTransaction: jest.fn(), getTransactionsCount: () => 10, isEmpty: () => false })
-            .mockReturnValueOnce({ addTransaction: jest.fn(), getTransactionsCount: () => 20, isEmpty: () => false });
+            .mockReturnValueOnce({ addTransaction: jest.fn(), getSize: () => 10, isEmpty: () => false })
+            .mockReturnValueOnce({ addTransaction: jest.fn(), getSize: () => 20, isEmpty: () => false });
 
         const transaction1 = {
             data: { senderPublicKey: Identities.PublicKey.fromPassphrase("sender1") },
