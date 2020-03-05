@@ -1,5 +1,5 @@
 import { Container, Contracts } from "@arkecosystem/core-kernel";
-import { Managers, Transactions, Identities } from "@arkecosystem/crypto";
+import { Identities, Managers, Transactions } from "@arkecosystem/crypto";
 
 import { SenderMempool } from "../../../packages/core-transaction-pool/src/sender-mempool";
 
