@@ -6,14 +6,6 @@ export class AcceptBlockHandler extends BlockHandler {
         const { database, state, transactionPool } = this.blockchain;
 
         try {
-            await database.applyBlock(this.block);
-
-            // Check if we recovered from a fork
-            if (state.forkedBlock && state.forkedBlock.data.height === this.block.data.height) {
-                this.logger.info("Successfully recovered from fork");
-                state.forkedBlock = undefined;
-            }
-
             if (transactionPool) {
                 try {
                     await transactionPool.acceptChainedBlock(this.block);
@@ -21,6 +13,14 @@ export class AcceptBlockHandler extends BlockHandler {
                     this.logger.warn("Issue applying block to transaction pool");
                     this.logger.debug(error.stack);
                 }
+            }
+
+            await database.applyBlock(this.block);
+
+            // Check if we recovered from a fork
+            if (state.forkedBlock && state.forkedBlock.data.height === this.block.data.height) {
+                this.logger.info("Successfully recovered from fork");
+                state.forkedBlock = undefined;
             }
 
             // Reset wake-up timer after chaining a block, since there's no need to
