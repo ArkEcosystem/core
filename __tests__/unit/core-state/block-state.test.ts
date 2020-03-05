@@ -393,9 +393,83 @@ describe("BlockState", () => {
         // @ts-ignore
         await blockState.revertTransaction(transferTransaction);
 
-        // TODO: is this correct? (see note above)
         expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(recipientDelegateBefore.minus(amount));
         expect(sendersDelegate.getAttribute("delegate.voteBalance")).toEqual(senderDelegateBefore.plus(total));
+    });
+
+    it("should update delegates vote balance for multiPayments", async () => {
+        const sendersDelegate = forgingWallet;
+        sendersDelegate.setAttribute("delegate.voteBalance", Utils.BigNumber.ZERO);
+        const senderDelegateBefore = sendersDelegate.getAttribute("delegate.voteBalance");
+
+        const sendingWallet: Wallet = factory
+            .get("Wallet")
+            .withOptions({
+                passphrase: "testPassphrase1",
+                nonce: 0,
+            })
+            .make();
+
+        const recipientWallet: Wallet = factory
+            .get("Wallet")
+            .withOptions({
+                passphrase: "testPassphrase2",
+                nonce: 0,
+            })
+            .make();
+
+        const amount: Utils.BigNumber = Utils.BigNumber.make(2345);
+
+        const multiPaymentTransaction: ITransaction = factory
+            .get("MultiPayment")
+            .withOptions({ amount, senderPublicKey: sendingWallet.publicKey, recipientId: recipientWallet.address })
+            .make();
+
+        // @ts-ignore
+        multiPaymentTransaction.data.asset.payments = [
+            {
+                // @ts-ignore
+                amount: [amount],
+                recipientId: "D5T4Cjx7khYbwaaCLmi7j3cUdt4GVWqKkG",
+            },
+            {
+                // @ts-ignore
+                amount: [amount],
+                recipientId: "D5T4Cjx7khYbwaaCLmi7j3cUdt4GVWqKkG",
+            },
+        ];
+
+        const recipientsDelegate = walletRepo.findByPublicKey(
+            "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
+        );
+
+        recipientsDelegate.setAttribute("delegate", {
+            username: "test2",
+            forgedFees: Utils.BigNumber.ZERO,
+            forgedRewards: Utils.BigNumber.ZERO,
+            producedBlocks: 0,
+            lastBlock: undefined,
+        });
+        const recipientsDelegateBefore = Utils.BigNumber.ZERO;
+        recipientsDelegate.setAttribute("delegate.voteBalance", recipientsDelegateBefore);
+
+        sendingWallet.setAttribute("vote", sendersDelegate.publicKey);
+        recipientWallet.setAttribute("vote", recipientsDelegate.publicKey);
+        walletRepo.index([sendersDelegate, recipientsDelegate, sendingWallet, recipientWallet]);
+
+        await blockState.applyTransaction(multiPaymentTransaction);
+
+        expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(
+            recipientsDelegateBefore.plus(amount).times(2),
+        );
+        expect(sendersDelegate.getAttribute("delegate.voteBalance")).toEqual(
+            senderDelegateBefore.minus(amount.times(2).plus(multiPaymentTransaction.data.fee)),
+        );
+
+        await blockState.revertTransaction(multiPaymentTransaction);
+
+        expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(Utils.BigNumber.ZERO);
+        expect(sendersDelegate.getAttribute("delegate.voteBalance")).toEqual(Utils.BigNumber.ZERO);
     });
 
     describe("apply and revert transactions", () => {
