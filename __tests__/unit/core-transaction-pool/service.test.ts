@@ -124,8 +124,8 @@ describe("Service.addTransaction", () => {
         const service = container.resolve(Service);
         const promise = service.addTransaction(transaction1);
 
-        expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
-        expect(promise).rejects.toHaveProperty("type", "ERR_DUPLICATE");
+        await expect(promise).rejects.toBeInstanceOf(Contracts.TransactionPool.PoolError);
+        await expect(promise).rejects.toHaveProperty("type", "ERR_DUPLICATE");
     });
 
     it("should add transaction to storage and mempool", async () => {
