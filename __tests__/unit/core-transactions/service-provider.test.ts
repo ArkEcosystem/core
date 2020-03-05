@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { Application, Container } from "@arkecosystem/core-kernel";
-import { ServiceProvider } from "@arkecosystem/core-transactions/src";
+import { Application, Container } from "@packages/core-kernel/src";
+import { ServiceProvider } from "@packages/core-transactions/src/service-provider";
 
 let app: Application;
 
