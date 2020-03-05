@@ -27,18 +27,18 @@ export class Storage implements Contracts.TransactionPool.Storage {
     }
 
     public hasTransaction(id: string): boolean {
-        return this.database
+        return !!this.database
             .prepare("SELECT COUNT(*) FROM pool WHERE id = ?")
             .pluck(true)
-            .get(id) as boolean;
+            .get(id);
     }
 
-    public getAllTransactions(): Interfaces.ITransaction[] {
+    public getAllTransactions(): Iterable<Interfaces.ITransaction> {
         return this.database
             .prepare("SELECT LOWER(HEX(serialized)) FROM pool")
             .pluck(true)
             .all()
-            .map(Transactions.TransactionFactory.fromHex);
+            .map(hex => Transactions.TransactionFactory.fromHex(hex));
     }
 
     public addTransaction(transaction: Interfaces.ITransaction): void {
