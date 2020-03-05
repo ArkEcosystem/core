@@ -591,19 +591,7 @@ describe("BlockState", () => {
 
                 expect(applySpy).toHaveBeenCalledWith(transaction);
             });
-        });
 
-        describe.each`
-            type                      | transaction
-            ${"transfer"}             | ${transfer}
-            ${"delegateRegistration"} | ${delegateReg}
-            ${"2nd sign"}             | ${secondSign}
-            ${"vote"}                 | ${vote}
-            ${"delegateResignation"}  | ${delegateRes}
-            ${"ipfs"}                 | ${ipfs}
-            ${"htlcLock"}             | ${htlcLock}
-            ${"htlcRefund"}           | ${htlcRefund}
-        `("when the transaction is a $type", ({ transaction }) => {
             it("should call be able to revert the transaction", async () => {
                 await blockState.revertTransaction(transaction);
 
@@ -617,9 +605,14 @@ describe("BlockState", () => {
             let lockID;
 
             beforeEach(() => {
+                const amount = Utils.BigNumber.make(2345);
                 htlcClaimTransaction = factory
                     .get("HtlcClaim")
-                    .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
+                    .withOptions({
+                        amount,
+                        senderPublicKey: sender.publicKey,
+                        recipientId: recipient.address,
+                    })
                     .make();
 
                 // TODO: Why do these need to be set manually here?
@@ -629,10 +622,10 @@ describe("BlockState", () => {
                 htlcClaimTransaction.type = htlcClaimTransaction.data.type;
                 htlcClaimTransaction.data.recipientId = recipient.address;
 
-                sender.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(htlcClaimTransaction.data.amount));
+                sender.setAttribute("htlc.lockedBalance", Utils.BigNumber.make(amount));
 
                 lockData = {
-                    amount: htlcClaimTransaction.data.amount,
+                    amount: amount,
                     recipientId: recipient.address,
                     ...htlcClaimTransaction.data.asset!.lock,
                 };
@@ -671,20 +664,45 @@ describe("BlockState", () => {
                 );
             });
 
-            it.skip("if sender has voted, it should apply locked balance", async () => {
-                // set up delegate wallet
-                // check vote balance before
-                // check that it increases the amount of the HTLC lock
-                sender.setAttribute("vote", true);
-                await blockState.applyTransaction(htlcClaimTransaction);
-                expect(applySpy).toHaveBeenCalledWith(htlcClaimTransaction);
-                expect(spyApplyVoteBalances).toHaveBeenCalledWith(
-                    sender,
-                    recipient,
-                    htlcClaimTransaction.data,
-                    walletRepo.findByIndex(Contracts.State.WalletIndexes.Locks, lockID),
-                    lockData,
+            it("update vote balances for claims transactions", async () => {
+                const recipientsDelegate = walletRepo.findByPublicKey(
+                    "32337416a26d8d49ec27059bd0589c49bb474029c3627715380f4df83fb431aece",
                 );
+                sender.setAttribute("vote", forgingWallet.publicKey);
+                recipient.setAttribute("vote", recipientsDelegate.publicKey);
+
+                await blockState.applyTransaction(htlcClaimTransaction);
+
+                expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(
+                    htlcClaimTransaction.data.amount,
+                );
+                expect(forgingWallet.getAttribute("delegate.voteBalance")).toEqual(htlcClaimTransaction.data.amount);
+
+                await blockState.revertTransaction(htlcClaimTransaction);
+
+                expect(recipientsDelegate.getAttribute("delegate.voteBalance")).toEqual(Utils.BigNumber.ZERO);
+                expect(forgingWallet.getAttribute("delegate.voteBalance")).toEqual(Utils.BigNumber.ZERO);
+            });
+
+            it("should update vote balances for lock transactions", async () => {
+                sender.setAttribute("vote", forgingWallet.publicKey);
+                const forgingWalletBefore = Utils.BigNumber.ZERO;
+                forgingWallet.setAttribute("delegate.voteBalance", forgingWalletBefore);
+
+                const htlcLock: ITransaction = factory
+                    .get("HtlcLock")
+                    .withOptions({ senderPublicKey: sender.publicKey, recipientId: recipient.address })
+                    .make();
+
+                await blockState.applyTransaction(htlcLock);
+
+                const delegateBalanceAfterApply = forgingWallet.getAttribute("delegate.voteBalance");
+
+                expect(delegateBalanceAfterApply).toEqual(forgingWalletBefore.minus(htlcLock.data.fee));
+
+                await blockState.revertTransaction(htlcLock);
+
+                expect(forgingWallet.getAttribute("delegate.voteBalance")).toEqual(Utils.BigNumber.ZERO);
             });
         });
     });
