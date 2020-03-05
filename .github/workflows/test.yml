@@ -75,15 +75,14 @@ jobs:
               run: mkdir -p $HOME/.core/database
             - name: Integration tests
               run: yarn test:integration:coverage --coverageDirectory .coverage/integration/
+              env:
+                CORE_DB_DATABASE: ark_unitnet
+                CORE_DB_USERNAME: ark
+                POSTGRES_USER: ark
+                POSTGRES_PASSWORD: password
+                POSTGRES_DB: ark_unitnet
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
 
     e2e:
         runs-on: ubuntu-latest
