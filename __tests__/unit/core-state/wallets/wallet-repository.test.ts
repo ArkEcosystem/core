@@ -640,6 +640,63 @@ describe("Search", () => {
         });
     });
 
+    describe("findAllByVote", () => {
+        const vote = "dummy-sender-public-key";
+
+        const findAllByVote = (vote: string, params: any = {}) => {
+            return searchRepository({ ...params, ...{ vote } });
+        };
+
+        beforeEach(() => {
+            const wallets = fixtureGenerator.generateVotes();
+            for (let i = 0; i < wallets.length; i++) {
+                const wallet = wallets[i];
+                if (i < 17) {
+                    wallet.setAttribute("vote", vote);
+                }
+
+                wallet.balance = Utils.BigNumber.make(0);
+            }
+            walletRepo.index(wallets);
+        });
+
+        it("should be ok without params", () => {
+            const { count, rows } = findAllByVote(vote);
+            expect(count).toBe(17);
+            expect(rows).toHaveLength(17);
+        });
+
+        it("should be ok with params", () => {
+            const { count, rows } = findAllByVote(vote, {
+                offset: 10,
+                limit: 10,
+            });
+            expect(count).toBe(17);
+            expect(rows).toHaveLength(7);
+        });
+
+        it("should be ok with params (no offset)", () => {
+            const { count, rows } = findAllByVote(vote, { limit: 10 });
+            expect(count).toBe(17);
+            expect(rows).toHaveLength(10);
+        });
+
+        it("should be ok with params (offset = 0)", () => {
+            const { count, rows } = findAllByVote(vote, {
+                offset: 0,
+                limit: 1,
+            });
+            expect(count).toBe(17);
+            expect(rows).toHaveLength(1);
+        });
+
+        it("should be ok with params (no limit)", () => {
+            const { count, rows } = findAllByVote(vote, { offset: 30 });
+            expect(count).toBe(17);
+            expect(rows).toHaveLength(0);
+        });
+    });
+
     describe("count", () => {
         it("should be ok", () => {
             const wallets = fixtureGenerator.generateWallets();

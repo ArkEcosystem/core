@@ -115,4 +115,13 @@ export class FixtureGenerator {
             return wallet;
         });
     }
+
+    public generateVotes(): Wallet[] {
+        return this.genesisSenders.map(senderPublicKey => {
+            const address = Identities.Address.fromPublicKey(senderPublicKey);
+            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+            wallet.setAttribute("vote", wallet.publicKey);
+            return wallet;
+        });
+    }
 }
