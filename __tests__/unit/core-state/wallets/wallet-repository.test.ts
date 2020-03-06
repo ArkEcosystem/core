@@ -559,6 +559,42 @@ describe("Search", () => {
             expect(wallets.length).not.toEqual(0);
             expect(locks.rows).toHaveLength(wallets.length);
         });
+
+        it("should return all locks with amount params", () => {
+            genesisBlock.data = {
+                timestamp: 0,
+            };
+            const wallets = fixtureGenerator.generateHtlcLocks();
+            walletRepo.index(wallets);
+
+            const spyStateStore = jest.spyOn(stateStorage, "getLastBlock");
+            // @ts-ignore
+            spyStateStore.mockReturnValue(genesisBlock);
+
+            const locks = walletRepo.search(Contracts.State.SearchScope.Locks, { amount: "" });
+            expect(wallets.length).not.toEqual(0);
+            expect(locks.rows).toHaveLength(wallets.length);
+        });
+
+        it("should set attributes on wallet using manipulator", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            wallets[0].setAttribute("delegate", {
+                username: `username-${wallets[0].address}`,
+                balance: Utils.BigNumber.make(100),
+                voteBalance: Utils.BigNumber.make(200),
+                forgedRewards: Utils.BigNumber.make(50),
+                forgedFees: Utils.BigNumber.make(50),
+                forgedTotal: Utils.BigNumber.make(50),
+            });
+            expect(wallets[0].getAttribute("delegate.forgedTotal")).not.toEqual(Utils.BigNumber.make(100));
+
+            walletRepo.index(wallets);
+            walletRepo.search(Contracts.State.SearchScope.Delegates, {
+                forgedTotal: Utils.BigNumber.make(100),
+            });
+
+            expect(wallets[0].getAttribute("delegate.forgedTotal")).not.toEqual(Utils.BigNumber.make(100));
+        });
     });
 
     describe("Delegates", () => {
