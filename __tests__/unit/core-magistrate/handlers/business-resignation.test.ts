@@ -3,7 +3,7 @@ import "jest-extended";
 import { State } from "@arkecosystem/core-interfaces";
 import { Builders as MagistrateBuilders } from "@arkecosystem/core-magistrate-crypto";
 import {
-    BridechainsAreNotResignedError,
+    BridgechainsAreNotResignedError,
     BusinessIsNotRegisteredError,
     BusinessIsResignedError,
 } from "@arkecosystem/core-magistrate-transactions/src/errors";
@@ -134,7 +134,7 @@ describe("Business resignation handler", () => {
             ).rejects.toThrowError(BusinessIsResignedError);
         });
 
-        it("should throw BridechainsAreNotResignedError when business has not resigned bridgechains", async () => {
+        it("should throw BridgechainsAreNotResignedError when business has not resigned bridgechains", async () => {
             const bridgechainRegistration = bridgechainRegistrationBuilder
                 .bridgechainRegistrationAsset(bridgechainRegistrationAsset1)
                 .nonce("2")
@@ -151,7 +151,7 @@ describe("Business resignation handler", () => {
                     senderWallet,
                     walletManager,
                 ),
-            ).rejects.toThrowError(BridechainsAreNotResignedError);
+            ).rejects.toThrowError(BridgechainsAreNotResignedError);
         });
 
         it("should have property business.resigned equal to true", async () => {
