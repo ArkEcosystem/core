@@ -1,6 +1,6 @@
 import "jest-extended";
-import { BusinessResource } from "@arkecosystem/core-magistrate-api/src/resources";
-import { IBusinessRegistrationAsset } from "@arkecosystem/core-magistrate-crypto/src/interfaces";
+import { BusinessResource } from "@packages/core-magistrate-api/src/resources";
+import { IBusinessRegistrationAsset } from "@packages/core-magistrate-crypto/src/interfaces";
 import { Assets } from '../__fixtures__';
 
 let resource: BusinessResource;

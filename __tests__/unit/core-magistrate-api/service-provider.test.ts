@@ -1,9 +1,9 @@
 import "jest-extended";
 
-import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@arkecosystem/core-api/src";
-import { ServiceProvider } from "@arkecosystem/core-magistrate-api/src";
-import { Application, Container, Providers } from "@arkecosystem/core-kernel";
-import { defaults } from "@arkecosystem/core-api/src/defaults";
+import { Identifiers, Server, ServiceProvider as CoreApiServiceProvider } from "@packages/core-api/src";
+import { ServiceProvider } from "@packages/core-magistrate-api/src";
+import { Application, Container, Providers } from "@packages/core-kernel";
+import { defaults } from "@packages/core-api/src/defaults";
 
 let app: Application;
 

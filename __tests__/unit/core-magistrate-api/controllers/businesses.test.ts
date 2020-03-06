@@ -1,18 +1,18 @@
 import "jest-extended";
 
 import Hapi from "@hapi/hapi";
-import { Application, Contracts } from "@arkecosystem/core-kernel";
-import { Identifiers } from "@arkecosystem/core-kernel/src/ioc";
-import { MagistrateIndex } from "@arkecosystem/core-magistrate-transactions/src/wallet-indexes";
-import { Transactions as MagistrateTransactions } from "@arkecosystem/core-magistrate-crypto";
-import { Transactions } from "@arkecosystem/crypto";
-import { Wallets } from "@arkecosystem/core-state";
+import { Application, Contracts } from "@packages/core-kernel";
+import { Identifiers } from "@packages/core-kernel/src/ioc";
+import { MagistrateIndex } from "@packages/core-magistrate-transactions/src/wallet-indexes";
+import { Transactions as MagistrateTransactions } from "@packages/core-magistrate-crypto";
+import { Transactions } from "@packages/crypto";
+import { Wallets } from "@packages/core-state";
+import { Assets } from '../__fixtures__'
 import { buildSenderWallet, initApp, ItemResponse, PaginatedResponse } from "../__support__";
-import { BusinessController } from "@arkecosystem/core-magistrate-api/src/controllers/businesses";
+import { BusinessController } from "@packages/core-magistrate-api/src/controllers/businesses";
 import {
     IBridgechainRegistrationAsset,
-} from "@arkecosystem/core-magistrate-crypto/src/interfaces";
-import { Assets } from '../__fixtures__'
+} from "@packages/core-magistrate-crypto/src/interfaces";
 
 let app: Application;
 let controller: BusinessController;
