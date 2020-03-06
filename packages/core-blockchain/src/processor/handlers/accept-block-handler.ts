@@ -10,6 +10,10 @@ export class AcceptBlockHandler extends BlockHandler {
                 try {
                     await transactionPool.acceptChainedBlock(this.block);
                 } catch (error) {
+                    // reset transaction pool as it could be out of sync with db state
+                    transactionPool.flush();
+                    transactionPool.walletManager.reset();
+
                     this.logger.warn("Issue applying block to transaction pool");
                     this.logger.debug(error.stack);
                 }
@@ -39,6 +43,12 @@ export class AcceptBlockHandler extends BlockHandler {
 
             return BlockProcessorResult.Accepted;
         } catch (error) {
+            if (transactionPool) {
+                // reset transaction pool as it could be out of sync with db state
+                transactionPool.flush();
+                transactionPool.walletManager.reset();
+            }
+
             this.logger.warn(`Refused new block ${JSON.stringify(this.block.data)}`);
             this.logger.debug(error.stack);
 
