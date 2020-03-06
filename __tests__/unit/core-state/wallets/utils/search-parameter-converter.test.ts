@@ -94,7 +94,6 @@ describe("SearchParameterConverter", () => {
         };
 
         const searchParameters = searchParameterConverter.convert(params);
-        console.log(searchParameters);
         expect(searchParameters.orderBy).toHaveLength(1);
         expect(searchParameters.orderBy[0].field).toEqual("field");
         expect(searchParameters.orderBy[0].direction).toEqual("asc");

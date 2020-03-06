@@ -1,8 +1,13 @@
 import "jest-extended";
 
-import { Container, Providers, Services } from "@packages/core-kernel/src";
+import { Container, Contracts, Providers, Services } from "@packages/core-kernel/src";
 import { DposPreviousRoundStateProvider } from "@packages/core-kernel/src/contracts/state";
 import { PluginConfiguration } from "@packages/core-kernel/src/providers";
+import {
+    bridgechainIndexer,
+    businessIndexer,
+    MagistrateIndex,
+} from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { dposPreviousRoundStateProvider } from "@packages/core-state/src";
 import { BlockState } from "@packages/core-state/src/block-state";
 import { defaults } from "@packages/core-state/src/defaults";
@@ -80,7 +85,13 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
         .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
         .set("delegate.voteBalance");
 
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("delegate.producedBlocks");
+
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("vote");
+
+    sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("secondPublicKey");
 
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("delegate.resigned");
 
@@ -97,6 +108,29 @@ export const setUp = async (setUpOptions = setUpDefaults, skipBoot = false): Pro
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("ipfs");
 
     sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("ipfs.hashes");
+
+    sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes).set("business");
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("business.businessAsset");
+
+    sandbox.app
+        .get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes)
+        .set("business.bridgechains");
+
+    sandbox.app
+        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+        .toConstantValue({
+            name: MagistrateIndex.Businesses,
+            indexer: businessIndexer,
+        });
+
+    sandbox.app
+        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+        .toConstantValue({
+            name: MagistrateIndex.Bridgechains,
+            indexer: bridgechainIndexer,
+        });
 
     registerIndexers(sandbox.app);
     registerFactories(sandbox.app);

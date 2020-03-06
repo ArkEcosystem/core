@@ -1,6 +1,5 @@
 import { Services } from "@packages/core-kernel";
 import { Wallet } from "@packages/core-state/src/wallets";
-import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 import { Identities } from "@packages/crypto";
 import { Utils } from "@packages/crypto/src";
 
@@ -10,7 +9,7 @@ import unique from "./unique";
 export class FixtureGenerator {
     private genesisSenders;
 
-    public constructor(private genesisBlock) {
+    public constructor(private genesisBlock, private attributeSet: Services.Attributes.AttributeSet) {
         this.genesisSenders = unique(compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)));
     }
 
@@ -19,7 +18,7 @@ export class FixtureGenerator {
             Object.assign(
                 new Wallet(
                     Identities.Address.fromPublicKey(senderPublicKey),
-                    new Services.Attributes.AttributeMap(getWalletAttributeSet()),
+                    new Services.Attributes.AttributeMap(this.attributeSet),
                 ),
                 {
                     balance: Utils.BigNumber.make(index),
@@ -31,8 +30,9 @@ export class FixtureGenerator {
     public generateFullWallets(): Wallet[] {
         return this.genesisSenders.map(senderPublicKey => {
             const address = Identities.Address.fromPublicKey(senderPublicKey);
-            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(getWalletAttributeSet()));
+            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
             wallet.publicKey = `publicKey-${address}`;
+            wallet.setAttribute("delegate.username", `username-${address}`);
             wallet.setAttribute("delegate", {
                 username: `username-${address}`,
                 balance: Utils.BigNumber.make(100),
@@ -49,7 +49,7 @@ export class FixtureGenerator {
             .filter(transaction => transaction.recipientId)
             .map((transaction, i) => {
                 const address = Identities.Address.fromPublicKey(transaction.senderPublicKey);
-                const wallet = new Wallet(address, new Services.Attributes.AttributeMap(getWalletAttributeSet()));
+                const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
                 wallet.publicKey = transaction.senderPublicKey;
                 wallet.setAttribute("htlc.locks", {
                     [transaction.id]: {
@@ -64,5 +64,55 @@ export class FixtureGenerator {
                 });
                 return wallet;
             });
+    }
+
+    public generateBridgeChainWallets(): Wallet[] {
+        return this.genesisSenders.map((senderPublicKey, i) => {
+            const address = Identities.Address.fromPublicKey(senderPublicKey);
+
+            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+            wallet.publicKey = senderPublicKey;
+
+            wallet.setAttribute("business", {
+                publicKey: senderPublicKey,
+                businessRegistrationAsset: {},
+                isResigned: false,
+            });
+
+            const bridgechainAsset = {
+                [senderPublicKey]: {
+                    bridgechainAsset: {},
+                    resigned: false,
+                },
+            };
+
+            wallet.setAttribute("business.bridgechains", bridgechainAsset);
+            return wallet;
+        });
+    }
+
+    public generateBusinesses(): Wallet[] {
+        return this.genesisSenders.map((senderPublicKey, i) => {
+            const address = Identities.Address.fromPublicKey(senderPublicKey);
+
+            const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
+            wallet.publicKey = senderPublicKey;
+
+            const businessRegistrationAsset = {
+                name: "DummyBusiness",
+                website: "https://www.dummy.example",
+                vat: "EX1234567890",
+                repository: "https://www.dummy.example/repo",
+            };
+
+            wallet.setAttribute("business", {
+                publicKey: senderPublicKey,
+                businessRegistrationAsset,
+                isResigned: false,
+            });
+
+            wallet.setAttribute("business.businessAsset", businessRegistrationAsset);
+            return wallet;
+        });
     }
 }

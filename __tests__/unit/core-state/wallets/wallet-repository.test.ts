@@ -14,7 +14,6 @@ import {
     usernamesIndexer,
 } from "@packages/core-state/src/wallets/indexers/indexers";
 import { Utils } from "@packages/crypto/src";
-import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 
 import { FixtureGenerator } from "../__utils__/fixture-generator";
 import { setUp } from "../setup";
@@ -23,6 +22,7 @@ let walletRepo: WalletRepository;
 let genesisBlock;
 let stateStorage: StateStore;
 let fixtureGenerator: FixtureGenerator;
+let attributeSet: Services.Attributes.AttributeSet;
 
 beforeAll(async () => {
     const initialEnv = await setUp();
@@ -31,9 +31,13 @@ beforeAll(async () => {
         .get("crypto");
 
     genesisBlock = cryptoConfig.genesisBlock;
-    fixtureGenerator = new FixtureGenerator(genesisBlock);
     walletRepo = initialEnv.walletRepo;
     stateStorage = initialEnv.stateStore;
+
+    attributeSet = initialEnv.sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes);
+
+    // TODO: pass attribute set from sandbox
+    fixtureGenerator = new FixtureGenerator(genesisBlock, attributeSet);
 });
 
 beforeEach(() => {
@@ -50,7 +54,16 @@ describe("Wallet Repository", () => {
     });
 
     it("should be able to look up indexers", () => {
-        const expected = ["addresses", "publicKeys", "usernames", "resignations", "locks", "ipfs"];
+        const expected = [
+            "businesses",
+            "bridgechains",
+            "addresses",
+            "publicKeys",
+            "usernames",
+            "resignations",
+            "locks",
+            "ipfs",
+        ];
         expect(walletRepo.getIndexNames()).toEqual(expected);
         expect(walletRepo.getIndex("addresses").indexer).toEqual(addressesIndexer);
         expect(walletRepo.getIndex("publicKeys").indexer).toEqual(publicKeysIndexer);
@@ -58,6 +71,7 @@ describe("Wallet Repository", () => {
         expect(walletRepo.getIndex("resignations").indexer).toEqual(resignationsIndexer);
         expect(walletRepo.getIndex("locks").indexer).toEqual(locksIndexer);
         expect(walletRepo.getIndex("ipfs").indexer).toEqual(ipfsIndexer);
+        expect(() => walletRepo.getIndex("iDontExist")).toThrow();
     });
 
     describe("findByScope", () => {
@@ -295,7 +309,6 @@ describe("Wallet Repository", () => {
         expect(walletRepo.getNonce(publicKey)).toEqual(Utils.BigNumber.ZERO);
     });
 
-    // TODO: pull this error out into specific error class/type
     it("should throw when looking up a username which doesn't exist", () => {
         expect(() => walletRepo.findByUsername("iDontExist")).toThrowError(
             "Wallet iDontExist doesn't exist in index usernames",
@@ -501,6 +514,109 @@ describe("Search", () => {
         });
     });
 
+    describe("Delegates", () => {
+        it("should search return all delegates", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            walletRepo.index(wallets);
+
+            const delegates = walletRepo.search(Contracts.State.SearchScope.Delegates, {});
+            expect(wallets.length).not.toEqual(0);
+            expect(delegates.rows).toHaveLength(wallets.length);
+        });
+
+        it("should search by address", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            walletRepo.index(wallets);
+
+            const delegates = walletRepo.search(Contracts.State.SearchScope.Delegates, {
+                address: wallets[0].address,
+            });
+
+            expect(wallets.length).not.toEqual(0);
+            expect(delegates.count).toEqual(1);
+            expect(delegates.rows).toEqual([wallets[0]]);
+        });
+
+        it("should search by username", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            wallets[0].setAttribute("delegate.username", "test");
+            walletRepo.index(wallets);
+
+            const delegates = walletRepo.search(Contracts.State.SearchScope.Delegates, {
+                usernames: ["test"],
+            });
+
+            expect(wallets.length).not.toEqual(0);
+            expect(delegates.count).toEqual(1);
+            expect(delegates.rows).toEqual([wallets[0]]);
+        });
+
+        it("should search for resigned delegates", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            wallets[0].setAttribute("delegate.resigned", true);
+            walletRepo.index(wallets);
+
+            const delegates = walletRepo.search(Contracts.State.SearchScope.Delegates, {
+                type: "resigned",
+            });
+
+            expect(wallets.length).not.toEqual(0);
+            expect(delegates.count).toEqual(1);
+            expect(delegates.rows).toEqual([wallets[0]]);
+        });
+
+        it("should search for delegates who have never forged", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            for (const wallet of wallets) {
+                wallet.setAttribute("delegate.producedBlocks", 1);
+            }
+            wallets[0].setAttribute("delegate.producedBlocks", 0);
+            walletRepo.index(wallets);
+            const delegates = walletRepo.search(Contracts.State.SearchScope.Delegates, {
+                type: "never-forged",
+            });
+
+            expect(wallets.length).not.toEqual(0);
+            expect(delegates.count).toEqual(1);
+            expect(delegates.rows).toEqual([wallets[0]]);
+        });
+    });
+
+    describe("BridgeChains", () => {
+        it("should search return all businesses", () => {
+            const wallets = fixtureGenerator.generateBridgeChainWallets();
+            walletRepo.index(wallets);
+
+            const bridgechains = walletRepo.search(Contracts.State.SearchScope.Bridgechains, {});
+            expect(wallets.length).not.toEqual(0);
+            expect(bridgechains.rows).toHaveLength(wallets.length);
+        });
+    });
+
+    describe("Businesses", () => {
+        it("should search return all businesses", () => {
+            const wallets = fixtureGenerator.generateBusinesses();
+            walletRepo.index(wallets);
+
+            const businesses = walletRepo.search(Contracts.State.SearchScope.Businesses, {});
+            expect(wallets.length).not.toEqual(0);
+            expect(businesses.rows).toHaveLength(wallets.length);
+        });
+
+        it("should search by address", () => {
+            const wallets = fixtureGenerator.generateBusinesses();
+            walletRepo.index(wallets);
+
+            const businesses = walletRepo.search(Contracts.State.SearchScope.Businesses, {
+                address: wallets[0].address,
+            });
+
+            expect(wallets.length).not.toEqual(0);
+            expect(businesses.count).toEqual(1);
+            expect(businesses.rows).toEqual([wallets[0]]);
+        });
+    });
+
     describe("count", () => {
         it("should be ok", () => {
             const wallets = fixtureGenerator.generateWallets();
@@ -521,7 +637,7 @@ describe("Search", () => {
                 { address: "dummy-2", balance: Utils.BigNumber.make(2000) },
                 { address: "dummy-3", balance: Utils.BigNumber.make(3000) },
             ]) {
-                const wallet = new Wallet(o.address, new Services.Attributes.AttributeMap(getWalletAttributeSet()));
+                const wallet = new Wallet(o.address, new Services.Attributes.AttributeMap(attributeSet));
                 wallet.balance = o.balance;
                 walletRepo.index(wallet);
             }
