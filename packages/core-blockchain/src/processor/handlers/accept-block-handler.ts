@@ -1,3 +1,4 @@
+import { TransactionPool } from "@arkecosystem/core-interfaces";
 import { BlockProcessorResult } from "../block-processor";
 import { BlockHandler } from "./block-handler";
 
@@ -5,14 +6,15 @@ export class AcceptBlockHandler extends BlockHandler {
     public async execute(): Promise<BlockProcessorResult> {
         const { database, state, transactionPool } = this.blockchain;
 
+        let transactionPoolWasReset: boolean = false;
         try {
             if (transactionPool) {
                 try {
                     await transactionPool.acceptChainedBlock(this.block);
                 } catch (error) {
                     // reset transaction pool as it could be out of sync with db state
-                    transactionPool.flush();
-                    transactionPool.walletManager.reset();
+                    await this.resetTransactionPool(transactionPool);
+                    transactionPoolWasReset = true;
 
                     this.logger.warn("Issue applying block to transaction pool");
                     this.logger.debug(error.stack);
@@ -43,10 +45,9 @@ export class AcceptBlockHandler extends BlockHandler {
 
             return BlockProcessorResult.Accepted;
         } catch (error) {
-            if (transactionPool) {
+            if (transactionPool && !transactionPoolWasReset) {
                 // reset transaction pool as it could be out of sync with db state
-                transactionPool.flush();
-                transactionPool.walletManager.reset();
+                this.resetTransactionPool(transactionPool);
             }
 
             this.logger.warn(`Refused new block ${JSON.stringify(this.block.data)}`);
@@ -54,5 +55,15 @@ export class AcceptBlockHandler extends BlockHandler {
 
             return super.execute();
         }
+    }
+
+    private async resetTransactionPool(transactionPool: TransactionPool.IConnection): Promise<void> {
+        // backup transactions from pool, flush it, reset wallet manager, re-add transactions
+        const transactions = transactionPool.getAllTransactions();
+
+        transactionPool.flush();
+        transactionPool.walletManager.reset();
+
+        await transactionPool.addTransactions(transactions);
     }
 }
