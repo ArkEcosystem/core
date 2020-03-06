@@ -3,6 +3,11 @@ import "jest-extended";
 
 import { Services } from "@packages/core-kernel";
 import { Container, Contracts } from "@packages/core-kernel/src";
+import {
+    bridgechainIndexer,
+    businessIndexer,
+    MagistrateIndex,
+} from "@packages/core-magistrate-transactions/src/wallet-indexes";
 import { StateStore } from "@packages/core-state/src/stores/state";
 import { Wallet, WalletRepository } from "@packages/core-state/src/wallets";
 import {
@@ -26,12 +31,30 @@ let attributeSet: Services.Attributes.AttributeSet;
 
 beforeAll(async () => {
     const initialEnv = await setUp();
+
+    initialEnv.sandbox.app
+        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+        .toConstantValue({
+            name: MagistrateIndex.Businesses,
+            indexer: businessIndexer,
+        });
+
+    initialEnv.sandbox.app
+        .bind<Contracts.State.WalletIndexerIndex>(Container.Identifiers.WalletRepositoryIndexerIndex)
+        .toConstantValue({
+            name: MagistrateIndex.Bridgechains,
+            indexer: bridgechainIndexer,
+        });
+
+    // TODO: why does this have to be rebound here?
+    initialEnv.sandbox.app.rebind(Container.Identifiers.WalletRepository).to(WalletRepository);
+    walletRepo = initialEnv.sandbox.app.getTagged(Container.Identifiers.WalletRepository, "state", "blockchain");
+
     const cryptoConfig: any = initialEnv.sandbox.app
         .get<Services.Config.ConfigRepository>(Container.Identifiers.ConfigRepository)
         .get("crypto");
 
     genesisBlock = cryptoConfig.genesisBlock;
-    walletRepo = initialEnv.walletRepo;
     stateStorage = initialEnv.stateStore;
 
     attributeSet = initialEnv.sandbox.app.get<Services.Attributes.AttributeSet>(Container.Identifiers.WalletAttributes);
@@ -55,14 +78,14 @@ describe("Wallet Repository", () => {
 
     it("should be able to look up indexers", () => {
         const expected = [
-            "businesses",
-            "bridgechains",
             "addresses",
             "publicKeys",
             "usernames",
             "resignations",
             "locks",
             "ipfs",
+            "businesses",
+            "bridgechains",
         ];
         expect(walletRepo.getIndexNames()).toEqual(expected);
         expect(walletRepo.getIndex("addresses").indexer).toEqual(addressesIndexer);
