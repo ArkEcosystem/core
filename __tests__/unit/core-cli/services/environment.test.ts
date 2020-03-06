@@ -1,10 +1,9 @@
 import "jest-extended";
 
 import { Console } from "@arkecosystem/core-test-framework";
+import { Environment } from "@packages/core-cli/src/services";
 import envfile from "envfile";
 import fs from "fs-extra";
-
-import { Environment } from "@packages/core-cli/src/services";
 
 let cli;
 let environment;

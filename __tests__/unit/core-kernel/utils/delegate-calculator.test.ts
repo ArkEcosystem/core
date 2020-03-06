@@ -1,11 +1,10 @@
 import "jest-extended";
 
 import { Container, Contracts, Services } from "@arkecosystem/core-kernel";
-import { Sandbox } from "@packages/core-test-framework/src";
-
 import { Wallets } from "@arkecosystem/core-state";
 import { Managers, Utils } from "@arkecosystem/crypto";
 import { calculateApproval, calculateForgedTotal } from "@packages/core-kernel/src/utils/delegate-calculator";
+import { Sandbox } from "@packages/core-test-framework/src";
 
 let sandbox: Sandbox;
 

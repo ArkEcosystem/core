@@ -2,10 +2,10 @@ import "@packages/core-test-framework/src/matchers";
 
 import { Contracts } from "@arkecosystem/core-kernel";
 import { Identities } from "@arkecosystem/crypto";
+import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
 import { generateMnemonic } from "bip39";
 
-import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
-import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
 import * as support from "./__support__";
 
 let app: Contracts.Kernel.Application;

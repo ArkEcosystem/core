@@ -1,8 +1,7 @@
-import { dirSync, setGracefulCleanup } from "tmp";
-import prompts from "prompts";
-
 import { buildBIP38 } from "@packages/core/src/internal/crypto";
 import { writeJSONSync } from "fs-extra";
+import prompts from "prompts";
+import { dirSync, setGracefulCleanup } from "tmp";
 
 beforeEach(() => (process.env.CORE_PATH_CONFIG = dirSync().name));
 

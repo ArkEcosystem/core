@@ -1,13 +1,12 @@
 import "jest-extended";
 
-import { resolve } from "path";
-
 import { Application } from "@packages/core-kernel/src/application";
-import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
-import { ConfigRepository } from "@packages/core-kernel/src/services/config";
-import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
 import { LoadServiceProviders } from "@packages/core-kernel/src/bootstrap/app";
+import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
+import { ServiceProvider, ServiceProviderRepository } from "@packages/core-kernel/src/providers";
+import { ConfigRepository } from "@packages/core-kernel/src/services/config";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
+import { resolve } from "path";
 
 class StubServiceProvider extends ServiceProvider {
     public async register(): Promise<void> {}

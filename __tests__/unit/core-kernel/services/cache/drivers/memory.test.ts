@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import { Application } from "@packages/core-kernel/src/application";
+import { NotImplemented } from "@packages/core-kernel/src/exceptions/runtime";
 import { Container, Identifiers } from "@packages/core-kernel/src/ioc";
 import { MemoryCacheStore } from "@packages/core-kernel/src/services/cache/drivers/memory";
-import { NotImplemented } from "@packages/core-kernel/src/exceptions/runtime";
 import { MemoryEventDispatcher } from "@packages/core-kernel/src/services/events/drivers/memory";
 
 const items: Record<string, number> = {

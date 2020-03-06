@@ -242,6 +242,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                     }
                 } catch {}
 
+                /* istanbul ignore next */
                 return cb();
             },
         });
@@ -261,6 +262,7 @@ export class PinoLogger implements Contracts.Kernel.Logger {
                 }
 
                 if (typeof time === "number") {
+                    /* istanbul ignore next */
                     time = new Date(time);
                 }
 

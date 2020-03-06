@@ -1,15 +1,16 @@
 import "jest-extended";
 
 import { Interfaces, Managers, Utils } from "@arkecosystem/crypto";
-import ByteBuffer from "bytebuffer";
 import { BIP39 } from "@packages/core-forger/src/methods/bip39";
+import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
 import { Block, BlockFactory, Deserializer, Serializer } from "@packages/crypto/src/blocks";
 import { Slots } from "@packages/crypto/src/crypto";
 import { IBlock } from "@packages/crypto/src/interfaces";
 import { configManager } from "@packages/crypto/src/managers";
 import * as networks from "@packages/crypto/src/networks";
 import { NetworkName } from "@packages/crypto/src/types";
-import { TransactionFactory } from "@packages/core-test-framework/src/utils/transaction-factory";
+import ByteBuffer from "bytebuffer";
+
 import { dummyBlock, dummyBlock2, dummyBlockSize } from "../fixtures/block";
 
 const { outlookTable } = configManager.getPreset("mainnet").exceptions;

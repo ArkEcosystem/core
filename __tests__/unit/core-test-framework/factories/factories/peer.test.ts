@@ -1,7 +1,7 @@
 import "jest-extended";
 
 import { Peer } from "@arkecosystem/core-p2p";
-import { FactoryBuilder, Factories } from "@packages/core-test-framework/src/factories";
+import { Factories, FactoryBuilder } from "@packages/core-test-framework/src/factories";
 
 let factory: FactoryBuilder;
 
@@ -13,7 +13,7 @@ beforeEach(() => {
 
 describe("PeerFactory", () => {
     it("should create a single peer", () => {
-        const entity: Peer = factory.get("Peer").make<Peer>() as Peer;
+        const entity: Peer = factory.get("Peer").make<Peer>();
 
         expect(entity).toBeInstanceOf(Peer);
         expect(entity.ip).toBeString();
@@ -23,7 +23,7 @@ describe("PeerFactory", () => {
     });
 
     it("should many peers", () => {
-        const entities: Peer[] = factory.get("Peer").makeMany<Peer>(5) as Peer[];
+        const entities: Peer[] = factory.get("Peer").makeMany<Peer>(5);
 
         expect(entities).toBeArrayOfSize(5);
 

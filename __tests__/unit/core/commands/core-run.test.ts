@@ -1,7 +1,6 @@
+import { Command } from "@packages/core/src/commands/core-run";
 import { writeJSONSync } from "fs-extra";
 import { dirSync, setGracefulCleanup } from "tmp";
-
-import { Command } from "@packages/core/src/commands/core-run";
 
 import { executeCommand } from "../__support__/app";
 

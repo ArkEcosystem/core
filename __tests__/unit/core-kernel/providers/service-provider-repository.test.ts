@@ -130,7 +130,7 @@ describe("ServiceProviderRepository", () => {
         const spyRegister = jest.spyOn(serviceProvider, "register");
         serviceProviderRepository.set("stub", serviceProvider);
 
-        let fired: jest.Mock = jest.fn();
+        const fired: jest.Mock = jest.fn();
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
             KernelEvent.ServiceProviderRegistered,
             new StubListener(fired),
@@ -147,7 +147,7 @@ describe("ServiceProviderRepository", () => {
         const spyBoot = jest.spyOn(serviceProvider, "boot");
         serviceProviderRepository.set("stub", serviceProvider);
 
-        let fired: jest.Mock = jest.fn();
+        const fired: jest.Mock = jest.fn();
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
             KernelEvent.ServiceProviderBooted,
             new StubListener(fired),
@@ -167,7 +167,7 @@ describe("ServiceProviderRepository", () => {
         const spyDispose = jest.spyOn(serviceProvider, "dispose");
         serviceProviderRepository.set("stub", serviceProvider);
 
-        let fired: jest.Mock = jest.fn();
+        const fired: jest.Mock = jest.fn();
         app.get<MemoryEventDispatcher>(Identifiers.EventDispatcherService).listenOnce(
             KernelEvent.ServiceProviderDisposed,
             new StubListener(fired),

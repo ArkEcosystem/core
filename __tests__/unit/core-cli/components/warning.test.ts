@@ -1,8 +1,7 @@
 import { Container } from "@arkecosystem/core-cli";
 import { Console } from "@arkecosystem/core-test-framework";
-import { white } from "kleur";
-
 import { Warning } from "@packages/core-cli/src/components";
+import { white } from "kleur";
 
 let cli;
 let component;

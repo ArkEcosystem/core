@@ -1,10 +1,10 @@
 import "@packages/core-test-framework/src/matchers";
 
 import { Contracts } from "@arkecosystem/core-kernel";
-import { Identities, Utils, Managers } from "@arkecosystem/crypto";
-
-import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
+import { Identities, Managers, Utils } from "@arkecosystem/crypto";
 import secrets from "@packages/core-test-framework/src/internal/passphrases.json";
+import { snoozeForBlock, TransactionFactory } from "@packages/core-test-framework/src/utils";
+
 import * as support from "./__support__";
 
 const { passphrase, secondPassphrase } = support.passphrases;

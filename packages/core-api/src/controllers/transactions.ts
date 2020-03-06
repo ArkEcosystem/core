@@ -1,12 +1,12 @@
 import { Models, Repositories } from "@arkecosystem/core-database";
 import { Container, Contracts, Utils as AppUtils } from "@arkecosystem/core-kernel";
 import { Handlers } from "@arkecosystem/core-transactions";
+import { Interfaces } from "@arkecosystem/crypto";
 import Boom from "@hapi/boom";
 import Hapi from "@hapi/hapi";
 
 import { TransactionResource } from "../resources";
 import { Controller } from "./controller";
-import { Interfaces } from "@arkecosystem/crypto";
 
 @Container.injectable()
 export class TransactionsController extends Controller {

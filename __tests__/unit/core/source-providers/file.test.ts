@@ -1,10 +1,9 @@
 import "jest-extended";
 
-import { dirSync, fileSync, setGracefulCleanup } from "tmp";
+import { File } from "@packages/core/src/source-providers";
 import fs from "fs-extra";
 import tar from "tar";
-
-import { File } from "@packages/core/src/source-providers";
+import { dirSync, fileSync, setGracefulCleanup } from "tmp";
 
 let dataPath: string;
 let source: File;

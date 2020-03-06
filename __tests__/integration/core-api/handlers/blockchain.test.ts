@@ -1,9 +1,9 @@
 import "@packages/core-test-framework/src/matchers";
 
+import { Contracts } from "@arkecosystem/core-kernel";
 import { ApiHelpers } from "@packages/core-test-framework/src";
 
 import { setUp, tearDown } from "../__support__/setup";
-import { Contracts } from "@arkecosystem/core-kernel";
 
 let app: Contracts.Kernel.Application;
 let api: ApiHelpers;
