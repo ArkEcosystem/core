@@ -51,7 +51,7 @@
         "@types/lodash.get": "^4.4.6",
         "@types/lodash.set": "^4.3.6",
         "@types/wif": "^2.0.1",
-        "rollup": "^1.27.8",
+        "rollup": "^2.0.0",
         "rollup-plugin-commonjs": "^10.1.0",
         "rollup-plugin-json": "^4.0.0",
         "rollup-plugin-node-resolve": "^5.2.0",
