@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { BusinessUpdateBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { BusinessUpdateTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
-import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
+import { BusinessUpdateBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { BusinessUpdateTransaction } from "@packages/core-magistrate-crypto/src/transactions";
+import { Managers, Transactions, Validation as Ajv } from "@packages/crypto";
 
 import { businessUpdateAsset1, businessUpdateAsset2, businessUpdateAsset3, checkCommonFields } from "../helper";
 

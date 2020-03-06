@@ -1,7 +1,7 @@
 import "jest-extended";
 
-import { BridgechainUpdateBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { Managers, Transactions, Validation } from "@arkecosystem/crypto";
+import { BridgechainUpdateBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { Managers, Transactions, Validation } from "@packages/crypto";
 import { BridgechainUpdateTransaction } from "@packages/core-magistrate-crypto/src/transactions";
 
 import { bridgechainUpdateAsset1, checkCommonFields } from "../helper";

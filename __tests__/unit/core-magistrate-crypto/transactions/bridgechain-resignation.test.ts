@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { BridgechainResignationBuilder } from "@arkecosystem/core-magistrate-crypto/src/builders";
-import { BridgechainResignationTransaction } from "@arkecosystem/core-magistrate-crypto/src/transactions";
-import { Managers, Transactions, Validation as Ajv } from "@arkecosystem/crypto";
+import { BridgechainResignationBuilder } from "@packages/core-magistrate-crypto/src/builders";
+import { BridgechainResignationTransaction } from "@packages/core-magistrate-crypto/src/transactions";
+import { Managers, Transactions, Validation as Ajv } from "@packages/crypto";
 
 import { checkCommonFields } from "../helper";
 
