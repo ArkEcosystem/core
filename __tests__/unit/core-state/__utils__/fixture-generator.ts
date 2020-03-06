@@ -13,26 +13,14 @@ export class FixtureGenerator {
         this.genesisSenders = unique(compact(genesisBlock.transactions.map(tx => tx.senderPublicKey)));
     }
 
-    public generateWallets(): Wallet[] {
-        return this.genesisSenders.map((senderPublicKey, index) =>
-            Object.assign(
-                new Wallet(
-                    Identities.Address.fromPublicKey(senderPublicKey),
-                    new Services.Attributes.AttributeMap(this.attributeSet),
-                ),
-                {
-                    balance: Utils.BigNumber.make(index),
-                },
-            ),
-        );
-    }
-
     public generateFullWallets(): Wallet[] {
         return this.genesisSenders.map(senderPublicKey => {
             const address = Identities.Address.fromPublicKey(senderPublicKey);
             const wallet = new Wallet(address, new Services.Attributes.AttributeMap(this.attributeSet));
-            wallet.publicKey = `publicKey-${address}`;
+            wallet.publicKey = `${address}`;
             wallet.setAttribute("delegate.username", `username-${address}`);
+
+            wallet.balance = Utils.BigNumber.make(100);
             wallet.setAttribute("delegate", {
                 username: `username-${address}`,
                 balance: Utils.BigNumber.make(100),

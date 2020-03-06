@@ -1,3 +1,4 @@
+/* eslint-disable jest/no-disabled-tests */
 /* eslint-disable jest/expect-expect */
 import "jest-extended";
 
@@ -67,9 +68,16 @@ beforeEach(() => {
     walletRepo.reset();
 });
 
-afterEach(() => jest.clearAllMocks());
+afterEach(() => {
+    jest.clearAllMocks();
+    jest.restoreAllMocks();
+});
 
 describe("Wallet Repository", () => {
+    it("should throw if indexers are already registered", () => {
+        expect(() => walletRepo.initialize()).toThrow("The wallet index is already registered: addresses");
+    });
+
     it("should create a wallet", () => {
         const wallet = walletRepo.createWallet("abcd");
         expect(wallet.address).toEqual("abcd");
@@ -374,7 +382,7 @@ describe("Search", () => {
         });
 
         it("should be ok with empty params", () => {
-            const wallets = fixtureGenerator.generateWallets();
+            const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
             const { count, rows } = searchRepository();
@@ -383,7 +391,7 @@ describe("Search", () => {
         });
 
         it("should be ok with params", () => {
-            const wallets = fixtureGenerator.generateWallets();
+            const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
             const { count, rows } = searchRepository({ offset: 10, limit: 10 });
@@ -392,7 +400,7 @@ describe("Search", () => {
         });
 
         it("should be ok with params (no offset)", () => {
-            const wallets = fixtureGenerator.generateWallets();
+            const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
             const { count, rows } = searchRepository({ limit: 10 });
@@ -401,7 +409,7 @@ describe("Search", () => {
         });
 
         it("should be ok with params (offset = 0)", () => {
-            const wallets = fixtureGenerator.generateWallets();
+            const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
             const { count, rows } = searchRepository({ offset: 0, limit: 12 });
@@ -410,7 +418,7 @@ describe("Search", () => {
         });
 
         it("should be ok with params (no limit)", () => {
-            const wallets = fixtureGenerator.generateWallets();
+            const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
             const { count, rows } = searchRepository({ offset: 10 });
@@ -532,6 +540,22 @@ describe("Search", () => {
             spyStateStore.mockReturnValue(genesisBlock);
 
             const locks = walletRepo.search(Contracts.State.SearchScope.Locks, {});
+            expect(wallets.length).not.toEqual(0);
+            expect(locks.rows).toHaveLength(wallets.length);
+        });
+
+        it("should return all locks with amount params", () => {
+            genesisBlock.data = {
+                timestamp: 0,
+            };
+            const wallets = fixtureGenerator.generateHtlcLocks();
+            walletRepo.index(wallets);
+
+            const spyStateStore = jest.spyOn(stateStorage, "getLastBlock");
+            // @ts-ignore
+            spyStateStore.mockReturnValue(genesisBlock);
+
+            const locks = walletRepo.search(Contracts.State.SearchScope.Locks, { amount: "" });
             expect(wallets.length).not.toEqual(0);
             expect(locks.rows).toHaveLength(wallets.length);
         });
@@ -699,7 +723,7 @@ describe("Search", () => {
 
     describe("count", () => {
         it("should be ok", () => {
-            const wallets = fixtureGenerator.generateWallets();
+            const wallets = fixtureGenerator.generateFullWallets();
             walletRepo.index(wallets);
 
             expect(walletRepo.count(Contracts.State.SearchScope.Wallets)).toBe(52);
@@ -767,6 +791,301 @@ describe("Search", () => {
             expect(rows.length).toBe(2);
             expect(rows[0].balance).toEqual(Utils.BigNumber.make(2000));
             expect(rows[1].balance).toEqual(Utils.BigNumber.make(1000));
+        });
+    });
+});
+
+describe("Delegate Wallets", () => {
+    describe("search", () => {
+        const delegates = [
+            { username: "delegate-0", forgedFees: Utils.BigNumber.make(10), forgedRewards: Utils.BigNumber.make(10) },
+            { username: "delegate-1", forgedFees: Utils.BigNumber.make(20), forgedRewards: Utils.BigNumber.make(20) },
+            { username: "delegate-2", forgedFees: Utils.BigNumber.make(30), forgedRewards: Utils.BigNumber.make(30) },
+        ];
+
+        const wallets = [delegates[0], {}, delegates[1], { username: "" }, delegates[2], {}].map(delegate => {
+            const wallet = new Wallet("", new Services.Attributes.AttributeMap(attributeSet));
+            return Object.assign(wallet, { attributes: { delegate } });
+        });
+
+        const search = (params = {}): Contracts.State.RowsPaginated<Wallet> => {
+            return walletRepo.search(Contracts.State.SearchScope.Delegates, params);
+        };
+
+        beforeEach(() => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            walletRepo.index(wallets);
+        });
+
+        it("should return the local wallets of the connection that are delegates", () => {
+            jest.spyOn(walletRepo, "allByUsername").mockReturnValue(wallets);
+
+            const { rows } = search();
+
+            expect(rows).toEqual(expect.arrayContaining(wallets));
+            expect(walletRepo.allByUsername).toHaveBeenCalled();
+        });
+
+        it("should be ok without params", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            walletRepo.index(wallets);
+
+            for (const wallet of wallets) {
+                wallet.setAttribute("delegate.rank", 0);
+            }
+
+            const { count, rows } = search({});
+            expect(count).toBe(52);
+            expect(rows).toHaveLength(52);
+            expect(
+                (rows as any).sort((a, b) => a.getAttribute("delegate.rank") < b.getAttribute("delegate.rank")),
+            ).toEqual(rows);
+        });
+
+        it("should be ok with params", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            walletRepo.index(wallets);
+
+            const { count, rows } = search({ offset: 10, limit: 10, orderBy: "rate:desc" });
+            expect(count).toBe(52);
+            expect(rows).toHaveLength(10);
+            expect((rows as any).sort((a, b) => a.rate > b.rate)).toEqual(rows);
+        });
+
+        it("should be ok with params (no offset)", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            walletRepo.index(wallets);
+
+            const { count, rows } = search({ limit: 10 });
+            expect(count).toBe(52);
+            expect(rows).toHaveLength(10);
+        });
+
+        it("should be ok with params (offset = 0)", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            walletRepo.index(wallets);
+
+            const { count, rows } = search({ offset: 0, limit: 12 });
+            expect(count).toBe(52);
+            expect(rows).toHaveLength(12);
+        });
+
+        it("should be ok with params (no limit)", () => {
+            const wallets = fixtureGenerator.generateFullWallets();
+            walletRepo.index(wallets);
+
+            const { count, rows } = search({ offset: 10 });
+            expect(count).toBe(52);
+            expect(rows).toHaveLength(42);
+        });
+
+        describe("by `username`", () => {
+            it("should search by exact match", () => {
+                const username = "username-AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD";
+                const { count, rows } = search({ username });
+
+                expect(count).toBe(1);
+                expect(rows).toHaveLength(1);
+                expect(rows[0].getAttribute("delegate.username")).toEqual(username);
+            });
+
+            it("should search that username contains the string", () => {
+                const { count, rows } = search({ username: "username" });
+
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(52);
+            });
+
+            describe('when a username is "undefined"', () => {
+                it("should return it", () => {
+                    // Index a wallet with username "undefined"
+                    walletRepo.allByAddress()[0].setAttribute("delegate", { username: "undefined" });
+
+                    const username = "undefined";
+                    const { count, rows } = search({ username });
+
+                    expect(count).toBe(1);
+                    expect(rows).toHaveLength(1);
+                    expect(rows[0].getAttribute("delegate.username")).toEqual(username);
+                });
+            });
+
+            describe("when the username does not exist", () => {
+                it("should return no results", () => {
+                    const { count, rows } = search({
+                        username: "unknown-dummy-username",
+                    });
+
+                    expect(count).toBe(0);
+                    expect(rows).toHaveLength(0);
+                });
+            });
+
+            it("should be ok with params", () => {
+                const { count, rows } = search({
+                    username: "username",
+                    offset: 10,
+                    limit: 10,
+                });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(10);
+            });
+
+            it("should be ok with params (no offset)", () => {
+                const { count, rows } = search({
+                    username: "username",
+                    limit: 10,
+                });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(10);
+            });
+
+            it("should be ok with params (offset = 0)", () => {
+                const { count, rows } = search({
+                    username: "username",
+                    offset: 0,
+                    limit: 12,
+                });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(12);
+            });
+
+            it("should be ok with params (no limit)", () => {
+                const { count, rows } = search({
+                    username: "username",
+                    offset: 10,
+                });
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(42);
+            });
+        });
+
+        describe("by `usernames`", () => {
+            it("should search by exact match", () => {
+                const usernames = [
+                    "username-AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD",
+                    "username-APRiwbs17FdbaF8DYU9js2jChRehQc2e6P",
+                    "username-AReCSCQRssLGF4XyhTjxhQm6mBFAWTaDTz",
+                ];
+                const { count, rows } = search({ usernames });
+
+                expect(count).toBe(3);
+                expect(rows).toHaveLength(3);
+
+                for (const row of rows) {
+                    expect(usernames.includes(row.getAttribute("delegate.username"))).toBeTrue();
+                }
+            });
+
+            describe('when a username is "undefined"', () => {
+                it("should return it", () => {
+                    // Index a wallet with username "undefined"
+                    walletRepo.allByAddress()[0].setAttribute("delegate", { username: "undefined" });
+
+                    const usernames = ["undefined"];
+                    const { count, rows } = search({ usernames });
+
+                    expect(count).toBe(1);
+                    expect(rows).toHaveLength(1);
+                    expect(rows[0].getAttribute("delegate.username")).toEqual(usernames[0]);
+                });
+            });
+
+            describe("when the username does not exist", () => {
+                it("should return no results", () => {
+                    const { count, rows } = search({
+                        usernames: ["unknown-dummy-username"],
+                    });
+
+                    expect(count).toBe(0);
+                    expect(rows).toHaveLength(0);
+                });
+            });
+
+            it("should be ok with params", () => {
+                const { count, rows } = search({
+                    usernames: [
+                        "username-AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD",
+                        "username-APRiwbs17FdbaF8DYU9js2jChRehQc2e6P",
+                    ],
+                    offset: 1,
+                    limit: 10,
+                });
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
+            });
+
+            it("should be ok with params (no offset)", () => {
+                const { count, rows } = search({
+                    usernames: [
+                        "username-AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD",
+                        "username-APRiwbs17FdbaF8DYU9js2jChRehQc2e6P",
+                    ],
+                    limit: 1,
+                });
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
+            });
+
+            it("should be ok with params (offset = 0)", () => {
+                const { count, rows } = search({
+                    usernames: [
+                        "username-AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD",
+                        "username-APRiwbs17FdbaF8DYU9js2jChRehQc2e6P",
+                    ],
+                    offset: 0,
+                    limit: 2,
+                });
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(2);
+            });
+
+            it("should be ok with params (no limit)", () => {
+                const { count, rows } = search({
+                    usernames: [
+                        "username-AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD",
+                        "username-APRiwbs17FdbaF8DYU9js2jChRehQc2e6P",
+                    ],
+                    offset: 1,
+                });
+                expect(count).toBe(2);
+                expect(rows).toHaveLength(1);
+            });
+        });
+
+        describe("when searching by `username` and `usernames`", () => {
+            it("should search delegates only by `username`", () => {
+                const username = "username-AJjv7WztjJNYHrLAeveG5NgHWp6699ZJwD";
+                const usernames = [
+                    "username-APRiwbs17FdbaF8DYU9js2jChRehQc2e6P",
+                    "username-AReCSCQRssLGF4XyhTjxhQm6mBFAWTaDTz",
+                ];
+
+                const { count, rows } = search({ username, usernames });
+
+                expect(count).toBe(1);
+                expect(rows).toHaveLength(1);
+            });
+        });
+
+        describe("when searching without params", () => {
+            it("should return all results", () => {
+                const { count, rows } = search({});
+
+                expect(count).toBe(52);
+                expect(rows).toHaveLength(52);
+            });
+
+            describe('when a username is "undefined"', () => {
+                it("should return all results", () => {
+                    // Index a wallet with username "undefined"
+                    walletRepo.allByAddress()[0].setAttribute("delegate", { username: "undefined" });
+
+                    const { count, rows } = search({});
+                    expect(count).toBe(52);
+                    expect(rows).toHaveLength(52);
+                });
+            });
         });
     });
 });

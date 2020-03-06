@@ -42,6 +42,27 @@ describe("SearchParameterConverter", () => {
         expect(searchParameters.parameters[4].operator).toEqual(Contracts.Database.SearchOperator.OP_IN);
     });
 
+    it("should return default params when none are provided", () => {
+        const defaults = {
+            orderBy: [],
+            paginate: undefined,
+            parameters: [],
+        };
+        const searchParameters = searchParameterConverter.convert({});
+        expect(searchParameters).toEqual(defaults);
+    });
+
+    it("should use the order by method passed through params", () => {
+        jest.spyOn(searchParameterConverter as any, "parseOrderBy");
+        const defaults = {
+            orderBy: [],
+            paginate: undefined,
+            parameters: [],
+        };
+        searchParameterConverter.convert({ orderBy: "testOrder" });
+        expect((searchParameterConverter as any).parseOrderBy).toHaveBeenCalledWith(defaults, "testOrder");
+    });
+
     it('should default to "equals" when from,to fields not set', () => {
         const params = {
             range: "10",
