@@ -3,6 +3,8 @@ export const transactionPool = {
     acceptChainedBlock: () => undefined,
     removeTransactionsById: () => undefined,
     flush: () => undefined,
+    getAllTransactions: () => [],
+    addTransactions: () => undefined,
     walletManager: {
         reset: () => undefined,
     },
