@@ -101,7 +101,7 @@ export default <T = any>(
                             return false;
                         }
                     } else {
-                        throw new Error('Fitering by "any" requires an Array');
+                        throw new Error('Filtering by "any" requires an Array');
                     }
                 }
             }

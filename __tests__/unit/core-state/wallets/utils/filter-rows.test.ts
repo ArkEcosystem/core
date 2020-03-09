@@ -97,5 +97,17 @@ describe("Filter Rows", () => {
                 rows[2],
             ]);
         });
+        it("should throw if item is not an array", () => {
+            expect(() =>
+                filterRows(
+                    // @ts-ignore
+                    [{ test: [] }],
+                    {
+                        test: {},
+                    },
+                    { any: ["test"] },
+                ),
+            ).toThrow('Filtering by "any" requires an Array');
+        });
     });
 });
