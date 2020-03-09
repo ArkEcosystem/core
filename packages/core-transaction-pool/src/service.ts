@@ -15,8 +15,8 @@ export class Service implements Contracts.TransactionPool.Service {
     @Container.inject(Container.Identifiers.TransactionPoolStorage)
     private readonly storage!: Contracts.TransactionPool.Storage;
 
-    @Container.inject(Container.Identifiers.TransactionPoolMemory)
-    private readonly memory!: Contracts.TransactionPool.Memory;
+    @Container.inject(Container.Identifiers.TransactionPoolMempool)
+    private readonly mempool!: Contracts.TransactionPool.Mempool;
 
     @Container.inject(Container.Identifiers.TransactionPoolQuery)
     private readonly poolQuery!: Contracts.TransactionPool.Query;
@@ -27,12 +27,13 @@ export class Service implements Contracts.TransactionPool.Service {
     public async boot(): Promise<void> {
         if (process.env.CORE_RESET_DATABASE) {
             this.flush();
+        } else {
+            await this.readdTransactions();
         }
-        await this.readdTransactions();
     }
 
     public getPoolSize(): number {
-        return this.memory.getSize();
+        return this.mempool.getSize();
     }
 
     public async addTransaction(transaction: Interfaces.ITransaction): Promise<void> {
@@ -40,8 +41,8 @@ export class Service implements Contracts.TransactionPool.Service {
         if (this.storage.hasTransaction(transaction.id)) {
             throw new TransactionAlreadyInPoolError(transaction);
         }
-        this.storage.addTransaction(transaction);
 
+        this.storage.addTransaction(transaction);
         try {
             await this.addTransactionToMempool(transaction);
             this.logger.debug(`${transaction} added to pool`);
@@ -54,36 +55,49 @@ export class Service implements Contracts.TransactionPool.Service {
     public async removeTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.id);
         if (this.storage.hasTransaction(transaction.id) === false) {
-            throw new Error("Unknown transaction");
+            this.logger.error(`${transaction} not found`);
+            return;
         }
 
-        for (const removedTransaction of await this.memory.removeTransaction(transaction)) {
+        const removedTransactions = await this.mempool.removeTransaction(transaction);
+        for (const removedTransaction of removedTransactions) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
             this.logger.debug(`${removedTransaction} removed from pool`);
         }
+
+        if (!removedTransactions.find(t => t.id === transaction.id)) {
+            this.storage.removeTransaction(transaction.id);
+            this.logger.error(`${transaction} removed from pool (wasn't in mempool)`);
+        }
     }
 
-    public acceptForgedTransaction(transaction: Interfaces.ITransaction): void {
+    public async acceptForgedTransaction(transaction: Interfaces.ITransaction): Promise<void> {
         AppUtils.assert.defined<string>(transaction.id);
         if (this.storage.hasTransaction(transaction.id) === false) {
             return;
         }
 
-        for (const removedTransaction of this.memory.acceptForgedTransaction(transaction)) {
+        const removedTransactions = await this.mempool.acceptForgedTransaction(transaction);
+        for (const removedTransaction of removedTransactions) {
             AppUtils.assert.defined<string>(removedTransaction.id);
             this.storage.removeTransaction(removedTransaction.id);
             this.logger.debug(`${removedTransaction} removed from pool`);
         }
 
-        this.logger.debug(`${transaction} forged and accepted by pool`);
+        if (removedTransactions.find(t => t.id === transaction.id)) {
+            this.logger.debug(`${transaction} forged and accepted by pool`);
+        } else {
+            this.storage.removeTransaction(transaction.id);
+            this.logger.error(`${transaction} forged and accepted by pool (wasn't in mempool)`);
+        }
     }
 
     public async readdTransactions(prevTransactions?: Interfaces.ITransaction[]): Promise<void> {
-        this.memory.flush();
+        this.mempool.flush();
 
         let prevCount = 0;
-        let rebuiltCount = 0;
+        let count = 0;
 
         if (prevTransactions) {
             for (const transaction of prevTransactions) {
@@ -91,7 +105,7 @@ export class Service implements Contracts.TransactionPool.Service {
                     await this.addTransactionToMempool(transaction);
                     this.storage.addTransaction(transaction);
                     prevCount++;
-                    rebuiltCount++;
+                    count++;
                 } catch (error) {}
             }
         }
@@ -99,16 +113,14 @@ export class Service implements Contracts.TransactionPool.Service {
         for (const transaction of this.storage.getAllTransactions()) {
             try {
                 await this.addTransactionToMempool(transaction);
-                rebuiltCount++;
+                count++;
             } catch (error) {
                 AppUtils.assert.defined<string>(transaction.id);
                 this.storage.removeTransaction(transaction.id);
             }
         }
 
-        this.logger.debug(
-            `${AppUtils.pluralize("transaction", rebuiltCount, true)} re-added to pool (${prevCount} previous)`,
-        );
+        this.logger.debug(`${AppUtils.pluralize("transaction", count, true)} re-added to pool (${prevCount} previous)`);
     }
 
     public async cleanUp(): Promise<void> {
@@ -117,7 +129,7 @@ export class Service implements Contracts.TransactionPool.Service {
     }
 
     public flush(): void {
-        this.memory.flush();
+        this.mempool.flush();
         this.storage.flush();
     }
 
@@ -132,19 +144,20 @@ export class Service implements Contracts.TransactionPool.Service {
 
         if (this.getPoolSize() >= maxTransactionsInPool) {
             await this.cleanLowestPriority();
-            const lowest = this.poolQuery.getAllFromLowestPriority().first();
+
+            const lowest = this.poolQuery.getFromLowestPriority().first();
             if (transaction.data.fee.isLessThanEqual(lowest.data.fee)) {
                 throw new TransactionPoolFullError(transaction, lowest.data.fee);
             }
+            await this.removeTransaction(lowest);
         }
 
-        await this.memory.addTransaction(transaction);
-        await this.cleanLowestPriority();
+        await this.mempool.addTransaction(transaction);
     }
 
     private async cleanExpired(): Promise<void> {
         for (const transaction of this.poolQuery.getAll()) {
-            if (this.expirationService.isTransactionExpired(transaction)) {
+            if (this.expirationService.isExpired(transaction)) {
                 this.logger.warning(`${transaction} expired`);
                 await this.removeTransaction(transaction);
             }
@@ -154,7 +167,7 @@ export class Service implements Contracts.TransactionPool.Service {
     private async cleanLowestPriority(): Promise<void> {
         const maxTransactionsInPool = this.configuration.getRequired<number>("maxTransactionsInPool");
         while (this.getPoolSize() > maxTransactionsInPool) {
-            const lowest = this.poolQuery.getAllFromLowestPriority().first();
+            const lowest = this.poolQuery.getFromLowestPriority().first();
             await this.removeTransaction(lowest);
         }
     }
