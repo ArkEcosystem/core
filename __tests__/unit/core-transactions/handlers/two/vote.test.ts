@@ -7,7 +7,7 @@ import { StateStore } from "@arkecosystem/core-state/src/stores/state";
 import { Generators } from "@arkecosystem/core-test-framework/src";
 import { Factories, FactoryBuilder } from "@arkecosystem/core-test-framework/src/factories";
 import passphrases from "@arkecosystem/core-test-framework/src/internal/passphrases.json";
-import { Memory } from "@arkecosystem/core-transaction-pool/src/memory";
+import { Mempool } from "@arkecosystem/core-transaction-pool/src/mempool";
 import {
     AlreadyVotedError,
     InsufficientBalanceError,
@@ -281,7 +281,7 @@ describe("VoteTransaction", () => {
         });
 
         it("should throw if transaction by sender already in pool", async () => {
-            await app.get<Memory>(Identifiers.TransactionPoolMemory).addTransaction(voteTransaction);
+            await app.get<Mempool>(Identifiers.TransactionPoolMempool).addTransaction(voteTransaction);
 
             await expect(handler.throwIfCannotEnterPool(voteTransaction)).rejects.toThrow(
                 Contracts.TransactionPool.PoolError,
