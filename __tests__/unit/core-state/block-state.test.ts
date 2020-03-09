@@ -10,8 +10,8 @@ import { ITransaction } from "@packages/crypto/src/interfaces";
 import { IBlock } from "@packages/crypto/src/interfaces";
 
 import { addTransactionsToBlock } from "./__utils__/transactions";
-import { makeChainedBlocks } from "../__utils__/make-chained-block";
-import { makeVoteTransactions } from "../__utils__/make-vote-transactions";
+import { makeChainedBlocks } from "./__utils__/make-chained-block";
+import { makeVoteTransactions } from "./__utils__/make-vote-transactions";
 import { setUp, setUpDefaults } from "./setup";
 
 let blockState: BlockState;
