@@ -41,7 +41,7 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
                 this.logger.debug(`${transaction} eligible to enter pool (fee ${feeStr} >= ${minFeeStr})`);
                 return true;
             } else {
-                this.logger.warning(`${transaction} not eligible to enter pool (fee ${feeStr} < ${minFeeStr})`);
+                this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} < ${minFeeStr})`);
                 return false;
             }
         } else {
@@ -51,7 +51,7 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
                 this.logger.debug(`${transaction} eligible to enter pool (fee ${feeStr} = ${staticFeeStr})`);
                 return true;
             } else {
-                this.logger.warning(`${transaction} not eligible to enter pool (fee ${feeStr} != ${staticFeeStr})`);
+                this.logger.notice(`${transaction} not eligible to enter pool (fee ${feeStr} != ${staticFeeStr})`);
                 return false;
             }
         }
@@ -80,7 +80,7 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
                 this.logger.debug(`${transaction} eligible for broadcast (fee ${feeStr} >= ${minFeeStr})`);
                 return true;
             } else {
-                this.logger.warning(`${transaction} not eligible for broadcast (fee ${feeStr} < ${minFeeStr})`);
+                this.logger.notice(`${transaction} not eligible for broadcast (fee ${feeStr} < ${minFeeStr})`);
                 return false;
             }
         } else {
@@ -90,7 +90,7 @@ export class DynamicFeeMatcher implements Contracts.TransactionPool.DynamicFeeMa
                 this.logger.debug(`${transaction} eligible for broadcast (fee ${feeStr} = ${staticFeeStr})`);
                 return true;
             } else {
-                this.logger.warning(`${transaction} not eligible for broadcast (fee ${feeStr} != ${staticFeeStr})`);
+                this.logger.notice(`${transaction} not eligible for broadcast (fee ${feeStr} != ${staticFeeStr})`);
                 return false;
             }
         }
