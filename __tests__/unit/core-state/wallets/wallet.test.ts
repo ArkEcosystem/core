@@ -1,8 +1,8 @@
 import "jest-extended";
 
-import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
-import { Wallet } from "@packages/core-state/src/wallets";
 import { Services } from "@packages/core-kernel";
+import { Wallet } from "@packages/core-state/src/wallets";
+import { getWalletAttributeSet } from "@packages/core-test-framework/src/internal/wallet-attributes";
 
 import { setUp } from "../setup";
 

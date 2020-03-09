@@ -1,4 +1,4 @@
-import { WalletRepository, Wallet } from "@packages/core-state/src/wallets";
+import { Wallet, WalletRepository } from "@packages/core-state/src/wallets";
 import { Identities, Utils as CryptoUtils } from "@packages/crypto/src";
 import { SATOSHI } from "@packages/crypto/src/constants";
 

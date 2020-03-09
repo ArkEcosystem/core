@@ -1,9 +1,9 @@
 import "jest-extended";
 
 import {
-    WalletsError,
     WalletIndexAlreadyRegisteredError,
     WalletIndexNotFoundError,
+    WalletsError,
 } from "@packages/core-state/src/wallets/errors";
 
 describe("WalletErrors", () => {

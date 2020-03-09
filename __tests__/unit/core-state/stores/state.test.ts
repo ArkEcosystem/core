@@ -6,7 +6,7 @@ import { FactoryBuilder } from "@packages/core-test-framework/src/factories";
 import { IBlock, IBlockData, ITransactionData } from "@packages/crypto/src/interfaces";
 import delay from "delay";
 
-import { makeChainedBlocks } from "../helper";
+import { makeChainedBlocks } from "../__utils__/make-chained-block";
 import { setUp } from "../setup";
 
 let blocks: IBlock[];
