@@ -1,6 +1,6 @@
 {
     "name": "@arkecosystem/crypto",
-    "version": "2.6.24",
+    "version": "2.6.25",
     "description": "Crypto utilities for the ARK Blockchain",
     "license": "MIT",
     "contributors": [

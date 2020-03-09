@@ -17,7 +17,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -54,7 +54,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -75,15 +75,14 @@ jobs:
               run: mkdir -p $HOME/.core/database
             - name: Integration tests
               run: yarn test:integration:coverage --coverageDirectory .coverage/integration/
+              env:
+                CORE_DB_DATABASE: ark_unitnet
+                CORE_DB_USERNAME: ark
+                POSTGRES_USER: ark
+                POSTGRES_PASSWORD: password
+                POSTGRES_DB: ark_unitnet
             - name: Codecov
               run: ./node_modules/.bin/codecov --token=${{ secrets.CODECOV_TOKEN }}
-
-              env:
-                  CORE_DB_DATABASE: ark_unitnet
-                  CORE_DB_USERNAME: ark
-                  POSTGRES_USER: ark
-                  POSTGRES_PASSWORD: password
-                  POSTGRES_DB: ark_unitnet
 
     e2e:
         runs-on: ubuntu-latest
@@ -93,7 +92,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:

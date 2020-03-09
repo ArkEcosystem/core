@@ -28,7 +28,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -76,7 +76,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -124,7 +124,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -172,7 +172,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -220,7 +220,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -268,7 +268,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -316,7 +316,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -364,7 +364,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -412,7 +412,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -460,7 +460,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -508,7 +508,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -556,7 +556,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -604,7 +604,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -652,7 +652,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -700,7 +700,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -748,7 +748,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -796,7 +796,7 @@ jobs:
                 node-version: [12.x]
 
         steps:
-            - uses: actions/checkout@v1
+            - uses: actions/checkout@v2
             - name: Cache node modules
               uses: actions/cache@v1
               with:
@@ -817,6 +817,54 @@ jobs:
               run: mkdir -p $HOME/.core/database
             - name: Functional tests
               run: yarn test __tests__/functional/transaction-forging/vote.test.ts
+
+              env:
+                  CORE_DB_DATABASE: ark_unitnet
+                  CORE_DB_USERNAME: ark
+                  POSTGRES_USER: ark
+                  POSTGRES_PASSWORD: password
+                  POSTGRES_DB: ark_unitnet
+
+    pool:
+        runs-on: ubuntu-latest
+
+        services:
+            postgres:
+                image: postgres:10.8
+                env:
+                    POSTGRES_USER: ark
+                    POSTGRES_PASSWORD: password
+                    POSTGRES_DB: ark_unitnet
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+        strategy:
+            matrix:
+                node-version: [12.x]
+
+        steps:
+            - uses: actions/checkout@v1
+            - name: Cache node modules
+              uses: actions/cache@v1
+              with:
+                  path: node_modules
+                  key: ${{ runner.os }}-node-${{ hashFiles('**/yarn.lock') }}
+                  restore-keys: ${{ runner.os }}-node-
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v1
+              with:
+                  node-version: ${{ matrix.node-version }}
+            - name: Update system
+              run: sudo apt-get update -y
+            - name: Install xsel & postgresql-client
+              run: sudo apt-get install -q xsel postgresql-client
+            - name: Install and build packages
+              run: yarn setup
+            - name: Create .core/database directory
+              run: mkdir -p $HOME/.core/database
+            - name: Functional tests
+              run: yarn test __tests__/functional/pool/pool.test.ts
 
               env:
                   CORE_DB_DATABASE: ark_unitnet

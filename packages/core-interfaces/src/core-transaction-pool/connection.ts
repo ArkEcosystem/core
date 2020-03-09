@@ -26,6 +26,7 @@ export interface IConnection {
     buildWallets(): Promise<void>;
     replay(transactions: Interfaces.ITransaction[]): Promise<void>;
     flush(): void;
+    getAllTransactions(): Interfaces.ITransaction[];
     getTransaction(id: string): Promise<Interfaces.ITransaction>;
     getTransactionIdsForForging(start: number, size: number): Promise<string[]>;
     getTransactions(start: number, size: number, maxBytes?: number): Promise<Buffer[]>;
